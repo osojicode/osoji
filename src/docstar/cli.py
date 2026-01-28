@@ -29,9 +29,8 @@ def main() -> None:
 @main.command()
 @click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
 @click.option("--force", "-f", is_flag=True, help="Regenerate all files, ignoring cached hashes")
-@click.option("--concurrency", "-c", default=5, help="Max parallel API calls (default: 5)")
 @click.option("--verbose", "-v", is_flag=True, help="Show detailed progress")
-def shadow(path: Path, force: bool, concurrency: int, verbose: bool) -> None:
+def shadow(path: Path, force: bool, verbose: bool) -> None:
     """Generate shadow documentation for a codebase.
 
     PATH is the root directory to process (defaults to current directory).
@@ -39,7 +38,6 @@ def shadow(path: Path, force: bool, concurrency: int, verbose: bool) -> None:
     config = Config(
         root_path=path.resolve(),
         force=force,
-        max_concurrency=concurrency,
     )
 
     try:
