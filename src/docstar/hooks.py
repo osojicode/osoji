@@ -16,6 +16,11 @@ PRE_COMMIT_HOOK = '''#!/bin/sh
 
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
+# Load environment variables from .env files (for API keys, etc.)
+# Priority: repo .env > user config > global config
+[ -f "$HOME/.config/docstar/env" ] && export $(grep -v '^#' "$HOME/.config/docstar/env" | xargs)
+[ -f "$REPO_ROOT/.env" ] && export $(grep -v '^#' "$REPO_ROOT/.env" | xargs)
+
 # Find docstar - check PATH first, then common locations
 DOCSTAR=""
 if command -v docstar &> /dev/null; then
