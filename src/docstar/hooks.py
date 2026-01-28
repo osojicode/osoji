@@ -11,7 +11,7 @@ from .config import Config
 
 # Hook templates
 PRE_COMMIT_HOOK = '''#!/bin/sh
-# Docstar pre-commit hook: Documentation quality gate
+# Docstar pre-commit hook: Safety + Documentation quality gate
 # Installed by: docstar hooks install
 
 REPO_ROOT=$(git rev-parse --show-toplevel)
@@ -27,11 +27,27 @@ elif [ -x "/usr/local/bin/docstar" ]; then
 fi
 
 if [ -z "$DOCSTAR" ]; then
-    echo "Warning: docstar not found, skipping audit"
+    echo "Warning: docstar not found, skipping checks"
     exit 0
 fi
 
 cd "$REPO_ROOT"
+
+# Step 1: Safety check (personal paths + secrets)
+echo "Docstar: Running safety check..."
+"$DOCSTAR" safety check
+
+SAFETY_RESULT=$?
+
+if [ $SAFETY_RESULT -ne 0 ]; then
+    echo ""
+    echo "Commit blocked by safety check."
+    echo "Review the findings above and fix before committing."
+    exit 1
+fi
+
+# Step 2: Documentation audit
+echo ""
 echo "Docstar: Running documentation audit..."
 echo ""
 
@@ -243,7 +259,7 @@ def get_staged_files(repo_path: Path, extensions: set[str]) -> list[Path]:
     git_root = find_git_root(repo_path)
     if git_root is None:
         return []
-    
+
     try:
         result = subprocess.run(
             ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
@@ -252,7 +268,7 @@ def get_staged_files(repo_path: Path, extensions: set[str]) -> list[Path]:
             text=True,
             check=True,
         )
-        
+
         files: list[Path] = []
         for line in result.stdout.strip().split("\n"):
             if not line:
@@ -260,7 +276,45 @@ def get_staged_files(repo_path: Path, extensions: set[str]) -> list[Path]:
             path = git_root / line
             if path.suffix in extensions and path.exists():
                 files.append(path)
-        
+
+        return files
+    except subprocess.CalledProcessError:
+        return []
+
+
+def get_staged_files_all(repo_path: Path) -> list[Path]:
+    """Get list of all staged files without extension filtering.
+
+    Unlike get_staged_files(), this returns all staged files regardless
+    of extension, for use by safety checks.
+
+    Args:
+        repo_path: Path to the repository
+
+    Returns:
+        List of absolute paths to staged files
+    """
+    git_root = find_git_root(repo_path)
+    if git_root is None:
+        return []
+
+    try:
+        result = subprocess.run(
+            ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
+            cwd=git_root,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+
+        files: list[Path] = []
+        for line in result.stdout.strip().split("\n"):
+            if not line:
+                continue
+            path = git_root / line
+            if path.exists():
+                files.append(path)
+
         return files
     except subprocess.CalledProcessError:
         return []

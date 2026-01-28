@@ -1,14 +1,25 @@
 """Debris detection for documentation files."""
 
 import fnmatch
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
 import anthropic
 
 from .config import Config
-from .llm import get_client
 from .tools import get_classify_tools
+
+
+def _get_sync_client() -> anthropic.Anthropic:
+    """Create a sync Anthropic client for debris detection."""
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "ANTHROPIC_API_KEY environment variable is not set. "
+            "Please set it to your Anthropic API key."
+        )
+    return anthropic.Anthropic(api_key=api_key)
 
 
 @dataclass
@@ -169,7 +180,7 @@ def detect_debris(config: Config) -> list[DebrisClassification]:
         return []
 
     rules_text = config.load_rules_text()
-    client = get_client()
+    client = _get_sync_client()
 
     classifications: list[DebrisClassification] = []
     for doc_path in candidates:
