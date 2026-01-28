@@ -6,12 +6,12 @@ Generates "shadow documentation" - semantically dense summaries of codebases opt
 
 Using pipx (recommended for CLI tools):
 ```bash
-pipx install -e ".[stats]"
+pipx install -e .
 ```
 
 Or with pip:
 ```bash
-pip install -e ".[stats]"
+pip install -e .
 ```
 
 ## Usage
@@ -128,3 +128,13 @@ Each shadow doc contains:
 3. **Incremental updates**: Skips unchanged files by comparing source hashes
 4. **Line number preprocessing**: Provides line context to the LLM for precise references
 5. **Git integration**: Hooks keep docs synchronized with code changes
+
+## Rate Limits
+
+Docstar respects Anthropic API rate limits automatically. Override defaults via environment variables:
+
+```bash
+export ANTHROPIC_RPM=4000          # Requests per minute
+export ANTHROPIC_INPUT_TPM=2000000  # Input tokens per minute
+export ANTHROPIC_OUTPUT_TPM=400000  # Output tokens per minute
+```

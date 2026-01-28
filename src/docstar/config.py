@@ -90,7 +90,7 @@ class Config:
     extensions: set[str] = field(default_factory=lambda: DEFAULT_EXTENSIONS.copy())
     model: str = DEFAULT_MODEL
     force: bool = False
-    max_concurrency: int = 5
+    max_concurrency: int = 100
 
     # Documentation detection (for debris scanning)
     doc_extensions: set[str] = field(default_factory=lambda: DOC_EXTENSIONS.copy())
