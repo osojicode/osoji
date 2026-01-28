@@ -1,14 +1,19 @@
 """Click CLI for Docstar."""
 
+import asyncio
 from pathlib import Path
 
 import click
 
 from .audit import run_audit, format_audit_report
 from .config import Config
-from .shadow import generate_shadow_docs, check_shadow_docs
-from .stats import gather_stats, format_stats_report, HAS_TIKTOKEN
+from .shadow import generate_shadow_docs_async, check_shadow_docs
+from .stats import gather_stats, format_stats_report
 from .hooks import install_hooks, uninstall_hooks
+from .safety import check_staged_files, check_files as safety_check_files
+from .safety.checker import format_check_result
+from .safety.secrets import is_available as secrets_available
+from .safety.paths import get_pattern_descriptions, PATTERNS, self_test as paths_self_test
 
 
 @click.group()
@@ -24,7 +29,9 @@ def main() -> None:
 @main.command()
 @click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
 @click.option("--force", "-f", is_flag=True, help="Regenerate all files, ignoring cached hashes")
-def shadow(path: Path, force: bool) -> None:
+@click.option("--concurrency", "-c", default=5, help="Max parallel API calls (default: 5)")
+@click.option("--verbose", "-v", is_flag=True, help="Show detailed progress")
+def shadow(path: Path, force: bool, concurrency: int, verbose: bool) -> None:
     """Generate shadow documentation for a codebase.
 
     PATH is the root directory to process (defaults to current directory).
@@ -32,10 +39,11 @@ def shadow(path: Path, force: bool) -> None:
     config = Config(
         root_path=path.resolve(),
         force=force,
+        max_concurrency=concurrency,
     )
 
     try:
-        generate_shadow_docs(config)
+        asyncio.run(generate_shadow_docs_async(config, verbose=verbose))
     except RuntimeError as e:
         raise click.ClickException(str(e)) from e
 
@@ -173,6 +181,107 @@ def hooks_uninstall(path: Path) -> None:
             click.echo(f"  ✓ {message}")
         else:
             click.echo(f"  ✗ {message}")
+
+
+@main.group()
+def safety() -> None:
+    """Pre-commit safety checks for personal paths and secrets."""
+    pass
+
+
+@safety.command("check")
+@click.argument("files", nargs=-1, type=click.Path(exists=True, path_type=Path))
+@click.option("--verbose", "-v", is_flag=True, help="Show detailed output")
+def safety_check(files: tuple[Path, ...], verbose: bool) -> None:
+    """Check files for personal paths and secrets.
+
+    If no FILES specified, checks all staged git files.
+
+    \b
+    Examples:
+        docstar safety check              # Check staged files
+        docstar safety check src/*.py     # Check specific files
+    """
+    if files:
+        result = safety_check_files([f.resolve() for f in files])
+    else:
+        result = check_staged_files()
+
+    report = format_check_result(result, verbose=verbose)
+    click.echo(report)
+
+    if not result.passed:
+        raise SystemExit(1)
+
+
+@safety.command("self-test")
+def safety_self_test() -> None:
+    """Verify the safety module doesn't contain real personal paths.
+
+    Scans the docstar package itself to ensure no personal paths
+    have been accidentally committed.
+
+    Note: The paths.py file is handled specially since it contains
+    example paths in documentation that are not real personal paths.
+    """
+    import docstar
+
+    package_dir = Path(docstar.__file__).parent
+
+    click.echo(f"Scanning {package_dir}...")
+
+    # Get all Python files in the package, excluding paths.py which has its own self-test
+    # (paths.py contains example paths in documentation)
+    paths_module = package_dir / "safety" / "paths.py"
+    py_files = [f for f in package_dir.rglob("*.py") if f != paths_module]
+    result = safety_check_files(py_files)
+
+    # Run the paths module self-test (it has special filtering for doc examples)
+    paths_passed, paths_findings = paths_self_test()
+
+    report = format_check_result(result, verbose=True)
+    click.echo(report)
+
+    if not paths_passed:
+        click.echo("\npaths.py self-test found issues:")
+        for finding in paths_findings:
+            click.echo(f"  Line {finding.line_number}: {finding.match}")
+
+    if result.passed and paths_passed:
+        click.echo("\nSelf-test passed: No personal paths found in docstar package.")
+    else:
+        click.echo("\nSelf-test FAILED: Personal paths found in docstar package!")
+        raise SystemExit(1)
+
+
+@safety.command("patterns")
+def safety_patterns() -> None:
+    """Show the path patterns being checked.
+
+    Lists all regex patterns used to detect personal paths,
+    with descriptions and examples.
+    """
+    click.echo("Personal Path Patterns")
+    click.echo("=" * 50)
+    click.echo("")
+
+    descriptions = get_pattern_descriptions()
+
+    for name, pattern in PATTERNS.items():
+        desc = descriptions.get(name, "No description")
+        click.echo(f"[{name}]")
+        click.echo(f"  Description: {desc}")
+        click.echo(f"  Regex: {pattern.pattern}")
+        click.echo("")
+
+    click.echo("-" * 50)
+    click.echo(f"Total: {len(PATTERNS)} patterns")
+
+    if secrets_available():
+        click.echo("\ndetect-secrets: installed (secrets will be checked)")
+    else:
+        click.echo("\ndetect-secrets: not installed")
+        click.echo("  Install with: pip install 'docstar[safety]'")
 
 
 if __name__ == "__main__":

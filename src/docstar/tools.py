@@ -1,5 +1,10 @@
 """Tool definitions for LLM-forced output."""
 
+from typing import Any
+
+from .llm.types import ToolDefinition
+
+
 # Tool definition for file shadow documentation
 SUBMIT_SHADOW_DOC_TOOL = {
     "name": "submit_shadow_doc",
@@ -107,3 +112,27 @@ def get_directory_tools() -> list[dict]:
 def get_classify_tools() -> list[dict]:
     """Return tools for document classification."""
     return [CLASSIFY_DOCUMENT_TOOL]
+
+
+def _dict_to_tool_definition(tool_dict: dict[str, Any]) -> ToolDefinition:
+    """Convert a tool dictionary to a ToolDefinition object."""
+    return ToolDefinition(
+        name=tool_dict["name"],
+        description=tool_dict["description"],
+        input_schema=tool_dict["input_schema"],
+    )
+
+
+def get_file_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for file shadow doc generation."""
+    return [_dict_to_tool_definition(SUBMIT_SHADOW_DOC_TOOL)]
+
+
+def get_directory_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for directory shadow doc generation."""
+    return [_dict_to_tool_definition(SUBMIT_DIRECTORY_SHADOW_DOC_TOOL)]
+
+
+def get_classify_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for document classification."""
+    return [_dict_to_tool_definition(CLASSIFY_DOCUMENT_TOOL)]

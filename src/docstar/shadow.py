@@ -1,19 +1,44 @@
 """Core shadow documentation generation orchestration."""
 
+from __future__ import annotations
+
+import asyncio
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-
-import anthropic
+from typing import Callable
 
 from .config import Config
 from .hasher import add_line_numbers, compute_file_hash, extract_source_hash
-from .llm import generate_file_shadow_doc, generate_directory_shadow_doc, get_client
+from .llm import (
+    create_provider,
+    LLMProvider,
+    LoggingProvider,
+    Message,
+    MessageRole,
+    CompletionOptions,
+    CompletionResult,
+)
+from .rate_limiter import RateLimiter, get_config_with_overrides
+from .tools import get_file_tool_definitions, get_directory_tool_definitions
 from .walker import (
     discover_files,
     discover_directories,
     get_direct_children,
     get_child_directories,
 )
+
+
+@dataclass
+class ShadowResult:
+    """Result from processing a single file."""
+
+    path: Path
+    body: str
+    cached: bool
+    error: str | None = None
+    input_tokens: int = 0
+    output_tokens: int = 0
 
 
 def assemble_shadow_doc(file_path: Path, source_hash: str, body: str) -> str:
@@ -57,98 +82,413 @@ def is_stale(config: Config, source_path: Path) -> bool:
         return True
 
 
-def process_file(
-    client: anthropic.Anthropic,
+def _extract_body_from_shadow(shadow_content: str) -> str:
+    """Extract the body from a shadow doc (skip header)."""
+    lines = shadow_content.split("\n")
+    body_start = 0
+    for i, line in enumerate(lines):
+        if line == "" and i > 0:
+            body_start = i + 1
+            break
+    return "\n".join(lines[body_start:])
+
+
+async def generate_file_shadow_doc_async(
+    provider: LLMProvider,
     config: Config,
     file_path: Path,
-) -> tuple[Path, str]:
-    """Process a single file and generate/retrieve its shadow doc.
+    numbered_content: str,
+) -> tuple[str, int, int]:
+    """Generate a shadow doc for a single file asynchronously.
 
-    Returns (file_path, shadow_doc_body) for use in directory roll-ups.
+    Uses tool_choice to force the LLM to call submit_shadow_doc.
+    Returns tuple of (content, input_tokens, output_tokens).
     """
-    shadow_path = config.shadow_path_for(file_path)
     relative_path = file_path.relative_to(config.root_path)
 
-    # Check if we can use cached version
-    if not is_stale(config, file_path):
-        # Read existing shadow doc and extract body (skip header)
-        shadow_content = shadow_path.read_text(encoding="utf-8")
-        lines = shadow_content.split("\n")
-        # Find where body starts (after blank line following header)
-        body_start = 0
-        for i, line in enumerate(lines):
-            if line == "" and i > 0:
-                body_start = i + 1
-                break
-        body = "\n".join(lines[body_start:])
-        print(f"  [cached] {relative_path}")
-        return (file_path, body)
+    system_prompt = """You are a documentation expert generating shadow documentation for AI agent consumption.
 
-    # Generate new shadow doc
-    print(f"  [generating] {relative_path}")
+Shadow docs are semantically dense summaries that help AI agents quickly understand code.
+You MUST use the submit_shadow_doc tool to submit your documentation.
+Do not include any header or metadata - just the documentation body."""
 
-    content = file_path.read_text(encoding="utf-8")
-    numbered_content = add_line_numbers(content)
-    source_hash = compute_file_hash(file_path)
+    user_prompt = f"""Generate shadow documentation for the following file:
 
-    body = generate_file_shadow_doc(client, config, file_path, numbered_content)
-    full_doc = assemble_shadow_doc(relative_path, source_hash, body)
+**File:** {relative_path}
 
-    # Write shadow doc
-    shadow_path.parent.mkdir(parents=True, exist_ok=True)
-    shadow_path.write_text(full_doc, encoding="utf-8")
+```
+{numbered_content}
+```
 
-    return (file_path, body)
+Analyze this code and submit a shadow doc using the submit_shadow_doc tool.
+Include line number references for key elements (e.g., "MyClass (L15-45)").
+"""
+
+    messages = [Message(role=MessageRole.USER, content=user_prompt)]
+    options = CompletionOptions(
+        model=config.model,
+        max_tokens=4096,
+        tools=get_file_tool_definitions(),
+        tool_choice={"type": "tool", "name": "submit_shadow_doc"},
+    )
+
+    result = await provider.complete(messages, system_prompt, options)
+
+    for tool_call in result.tool_calls:
+        if tool_call.name == "submit_shadow_doc":
+            return (tool_call.input["content"], result.input_tokens, result.output_tokens)
+
+    raise RuntimeError(f"LLM did not call submit_shadow_doc tool for {file_path}")
 
 
-def process_directory(
-    client: anthropic.Anthropic,
+async def generate_directory_shadow_doc_async(
+    provider: LLMProvider,
     config: Config,
     dir_path: Path,
-    file_bodies: dict[Path, str],
-    dir_bodies: dict[Path, str],
-    all_files: list[Path],
-    all_dirs: list[Path],
-) -> str:
-    """Process a directory and generate its roll-up shadow doc.
+    child_summaries: list[tuple[Path, str]],
+) -> tuple[str, int, int]:
+    """Generate a roll-up shadow doc for a directory asynchronously.
 
-    Returns the shadow doc body for use in parent directory roll-ups.
+    Uses tool_choice to force the LLM to call submit_directory_shadow_doc.
+    Returns tuple of (content, input_tokens, output_tokens).
     """
     relative_path = dir_path.relative_to(config.root_path)
     if relative_path == Path("."):
         relative_path = Path("(root)")
 
-    print(f"  [rolling up] {relative_path}/")
+    system_prompt = """You are a documentation expert generating shadow documentation for AI agent consumption.
 
-    # Gather summaries from direct children
-    child_summaries: list[tuple[Path, str]] = []
+You are creating a directory-level roll-up summary that synthesizes the shadow docs
+of all files in the directory.
+You MUST use the submit_directory_shadow_doc tool to submit your documentation.
+Do not include any header or metadata - just the documentation body."""
 
-    # Add file children
-    for file_path in get_direct_children(config, dir_path, all_files):
-        if file_path in file_bodies:
-            child_summaries.append((file_path, file_bodies[file_path]))
+    # Build the child summaries section
+    summaries_text = "\n\n---\n\n".join(
+        f"**{path.name}:**\n{summary}" for path, summary in child_summaries
+    )
 
-    # Add directory children
-    for child_dir in get_child_directories(dir_path, all_dirs):
-        if child_dir in dir_bodies:
-            child_summaries.append((child_dir, dir_bodies[child_dir]))
+    user_prompt = f"""Generate a directory-level shadow documentation roll-up for:
 
-    if not child_summaries:
-        return ""
+**Directory:** {relative_path}
 
-    body = generate_directory_shadow_doc(client, config, dir_path, child_summaries)
-    full_doc = assemble_directory_shadow_doc(relative_path, body)
+The following are the shadow docs for files/subdirectories in this directory:
 
-    # Write shadow doc
-    shadow_path = config.shadow_path_for_dir(dir_path)
-    shadow_path.parent.mkdir(parents=True, exist_ok=True)
-    shadow_path.write_text(full_doc, encoding="utf-8")
+{summaries_text}
 
-    return body
+Synthesize these into a cohesive directory-level summary using the submit_directory_shadow_doc tool.
+Focus on:
+- The overall purpose of this directory/module
+- How the components work together
+- Key entry points and public API
+"""
+
+    messages = [Message(role=MessageRole.USER, content=user_prompt)]
+    options = CompletionOptions(
+        model=config.model,
+        max_tokens=4096,
+        tools=get_directory_tool_definitions(),
+        tool_choice={"type": "tool", "name": "submit_directory_shadow_doc"},
+    )
+
+    result = await provider.complete(messages, system_prompt, options)
+
+    for tool_call in result.tool_calls:
+        if tool_call.name == "submit_directory_shadow_doc":
+            return (tool_call.input["content"], result.input_tokens, result.output_tokens)
+
+    raise RuntimeError(f"LLM did not call submit_directory_shadow_doc tool for {dir_path}")
 
 
-def generate_shadow_docs(config: Config) -> None:
-    """Generate shadow documentation for an entire codebase."""
+async def process_file_async(
+    provider: LLMProvider,
+    config: Config,
+    file_path: Path,
+) -> ShadowResult:
+    """Process a single file and generate/retrieve its shadow doc asynchronously.
+
+    Returns ShadowResult with path, body, cached status, and any error.
+    """
+    shadow_path = config.shadow_path_for(file_path)
+
+    # Check if we can use cached version
+    if not is_stale(config, file_path):
+        shadow_content = shadow_path.read_text(encoding="utf-8")
+        body = _extract_body_from_shadow(shadow_content)
+        return ShadowResult(path=file_path, body=body, cached=True)
+
+    try:
+        content = file_path.read_text(encoding="utf-8")
+        numbered_content = add_line_numbers(content)
+        source_hash = compute_file_hash(file_path)
+
+        body, input_tokens, output_tokens = await generate_file_shadow_doc_async(
+            provider, config, file_path, numbered_content
+        )
+        full_doc = assemble_shadow_doc(
+            file_path.relative_to(config.root_path), source_hash, body
+        )
+
+        # Write shadow doc
+        shadow_path.parent.mkdir(parents=True, exist_ok=True)
+        shadow_path.write_text(full_doc, encoding="utf-8")
+
+        return ShadowResult(
+            path=file_path,
+            body=body,
+            cached=False,
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+        )
+    except Exception as e:
+        return ShadowResult(path=file_path, body="", cached=False, error=str(e))
+
+
+def print_progress(completed: int, total: int, path: Path, status: str) -> None:
+    """Print progress update for file processing."""
+    pct = completed / total * 100 if total > 0 else 0
+    symbols = {
+        "cached": "[cached]",
+        "generated": "[OK]",
+        "error": "[ERROR]",
+        "processing": "[...]",
+    }
+    symbol = symbols.get(status, "[...]")
+    print(f"\r[{completed}/{total}] {pct:.0f}% {symbol} {path.name}", end="", flush=True)
+    if completed == total:
+        print()
+
+
+async def generate_shadows_parallel(
+    provider: LLMProvider,
+    rate_limiter: RateLimiter,
+    config: Config,
+    files: list[Path],
+    on_progress: Callable[[int, int, Path, str], None] | None = None,
+) -> list[ShadowResult]:
+    """Generate shadow docs in parallel with rate limiting.
+
+    Args:
+        provider: LLM provider to use
+        rate_limiter: Rate limiter for API calls
+        config: Configuration
+        files: List of files to process
+        on_progress: Optional callback for progress updates
+
+    Returns:
+        List of ShadowResult objects
+    """
+    semaphore = asyncio.Semaphore(config.max_concurrency)
+    completed = 0
+    total = len(files)
+    lock = asyncio.Lock()
+
+    async def process_one(file_path: Path) -> ShadowResult:
+        nonlocal completed
+
+        async with semaphore:
+            # Check if cached first (no rate limiting needed)
+            if not is_stale(config, file_path):
+                shadow_path = config.shadow_path_for(file_path)
+                shadow_content = shadow_path.read_text(encoding="utf-8")
+                body = _extract_body_from_shadow(shadow_content)
+                result = ShadowResult(path=file_path, body=body, cached=True)
+            else:
+                # Need to make API call - throttle first
+                await rate_limiter.throttle()
+                result = await process_file_async(provider, config, file_path)
+                # Record actual token usage from API response
+                if not result.cached and not result.error:
+                    rate_limiter.record_usage(
+                        input_tokens=result.input_tokens,
+                        output_tokens=result.output_tokens,
+                    )
+
+            async with lock:
+                completed += 1
+                if on_progress:
+                    status = "cached" if result.cached else ("error" if result.error else "generated")
+                    on_progress(completed, total, file_path, status)
+
+            return result
+
+    tasks = [process_one(f) for f in files]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Convert exceptions to ShadowResults
+    final_results: list[ShadowResult] = []
+    for i, result in enumerate(results):
+        if isinstance(result, Exception):
+            final_results.append(
+                ShadowResult(path=files[i], body="", cached=False, error=str(result))
+            )
+        else:
+            final_results.append(result)
+
+    return final_results
+
+
+async def generate_directory_shadows(
+    provider: LLMProvider,
+    rate_limiter: RateLimiter,
+    config: Config,
+    file_results: list[ShadowResult],
+    all_files: list[Path],
+    all_dirs: list[Path],
+    verbose: bool = False,
+) -> dict[Path, str]:
+    """Generate directory roll-up shadow docs with dependency-based parallelism.
+
+    Directories are processed as soon as all their children (files + subdirs)
+    are complete, maximizing parallelism while respecting dependencies.
+
+    Args:
+        provider: LLM provider to use
+        rate_limiter: Rate limiter for API calls
+        config: Configuration
+        file_results: Results from file processing
+        all_files: List of all discovered files
+        all_dirs: List of all discovered directories
+        verbose: If True, print detailed progress
+
+    Returns:
+        Dict mapping directory paths to their shadow doc bodies
+    """
+    # Build file bodies dict from results
+    file_bodies: dict[Path, str] = {}
+    for result in file_results:
+        if not result.error:
+            file_bodies[result.path] = result.body
+
+    # Shared state protected by lock
+    dir_bodies: dict[Path, str] = {}
+    lock = asyncio.Lock()
+
+    # Build dependency info for each directory
+    # pending_children[dir] = set of child directories not yet complete
+    pending_children: dict[Path, set[Path]] = {}
+    # parent_of[child_dir] = parent_dir
+    parent_of: dict[Path, Path] = {}
+
+    for dir_path in all_dirs:
+        child_dirs = set(get_child_directories(dir_path, all_dirs))
+        pending_children[dir_path] = child_dirs
+        for child_dir in child_dirs:
+            parent_of[child_dir] = dir_path
+
+    # Queue of directories ready to process
+    ready_queue: asyncio.Queue[Path] = asyncio.Queue()
+
+    # Find initially ready directories (no pending child directories)
+    for dir_path in all_dirs:
+        if not pending_children[dir_path]:
+            await ready_queue.put(dir_path)
+
+    # Track completion
+    completed_count = 0
+    total_dirs = len(all_dirs)
+
+    async def process_directory(dir_path: Path) -> None:
+        """Process a single directory and notify parent when done."""
+        nonlocal completed_count
+
+        relative_path = dir_path.relative_to(config.root_path)
+        if relative_path == Path("."):
+            relative_path = Path("(root)")
+
+        print(f"  [rolling up] {relative_path}/")
+
+        # Gather summaries from direct children
+        child_summaries: list[tuple[Path, str]] = []
+
+        # Add file children
+        for file_path in get_direct_children(config, dir_path, all_files):
+            if file_path in file_bodies:
+                child_summaries.append((file_path, file_bodies[file_path]))
+
+        # Add directory children (already complete at this point)
+        async with lock:
+            for child_dir in get_child_directories(dir_path, all_dirs):
+                if child_dir in dir_bodies:
+                    child_summaries.append((child_dir, dir_bodies[child_dir]))
+
+        if not child_summaries:
+            # Empty directory - mark complete and notify parent
+            async with lock:
+                dir_bodies[dir_path] = ""
+                completed_count += 1
+                if dir_path in parent_of:
+                    parent = parent_of[dir_path]
+                    pending_children[parent].discard(dir_path)
+                    if not pending_children[parent]:
+                        await ready_queue.put(parent)
+            return
+
+        await rate_limiter.throttle()
+        body, input_tokens, output_tokens = await generate_directory_shadow_doc_async(
+            provider, config, dir_path, child_summaries
+        )
+        full_doc = assemble_directory_shadow_doc(relative_path, body)
+
+        # Write shadow doc
+        shadow_path = config.shadow_path_for_dir(dir_path)
+        shadow_path.parent.mkdir(parents=True, exist_ok=True)
+        shadow_path.write_text(full_doc, encoding="utf-8")
+
+        # Record actual token usage from API response
+        rate_limiter.record_usage(
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+        )
+
+        # Update state and notify parent
+        async with lock:
+            dir_bodies[dir_path] = body
+            completed_count += 1
+            if dir_path in parent_of:
+                parent = parent_of[dir_path]
+                pending_children[parent].discard(dir_path)
+                if not pending_children[parent]:
+                    await ready_queue.put(parent)
+
+    # Process directories as they become ready
+    active_tasks: set[asyncio.Task] = set()
+
+    while completed_count < total_dirs:
+        # Start new tasks for ready directories
+        while not ready_queue.empty():
+            dir_path = await ready_queue.get()
+            task = asyncio.create_task(process_directory(dir_path))
+            active_tasks.add(task)
+            task.add_done_callback(active_tasks.discard)
+
+        # Wait for at least one task to complete if we have active tasks
+        if active_tasks:
+            done, _ = await asyncio.wait(
+                active_tasks, return_when=asyncio.FIRST_COMPLETED
+            )
+            # Check for exceptions
+            for task in done:
+                if task.exception():
+                    raise task.exception()
+        else:
+            # No active tasks and queue empty - wait a bit for queue
+            await asyncio.sleep(0.01)
+
+    # Wait for any remaining tasks
+    if active_tasks:
+        await asyncio.gather(*active_tasks)
+
+    return dir_bodies
+
+
+async def generate_shadow_docs_async(config: Config, verbose: bool = False) -> None:
+    """Async entry point for shadow generation.
+
+    Args:
+        config: Configuration for shadow generation
+        verbose: If True, show detailed progress including token counts
+    """
     print(f"Generating shadow documentation for: {config.root_path}")
 
     # Discover files and directories
@@ -160,27 +500,85 @@ def generate_shadow_docs(config: Config) -> None:
         return
 
     print(f"Found {len(files)} source files in {len(dirs)} directories")
+    print(f"Concurrency: {config.max_concurrency}")
 
-    # Create client
-    client = get_client()
+    # Create provider with logging wrapper
+    provider = create_provider("anthropic")
+    logging_provider = LoggingProvider(provider, verbose=verbose)
 
-    # Process files (bottom-up, deepest first)
-    print("\nProcessing files:")
-    file_bodies: dict[Path, str] = {}
-    for file_path in files:
-        path, body = process_file(client, config, file_path)
-        file_bodies[path] = body
+    # Create rate limiter
+    rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
 
-    # Process directories (bottom-up, deepest first)
-    print("\nRolling up directories:")
-    dir_bodies: dict[Path, str] = {}
-    for dir_path in dirs:
-        body = process_directory(
-            client, config, dir_path, file_bodies, dir_bodies, files, dirs
+    try:
+        # Process files in parallel
+        import time as time_module
+        file_start = time_module.monotonic()
+        print("\nProcessing files:")
+        progress_callback = print_progress if not verbose else None
+
+        if verbose:
+            # In verbose mode, print each file on its own line
+            def verbose_progress(completed: int, total: int, path: Path, status: str) -> None:
+                relative = path.relative_to(config.root_path)
+                symbols = {"cached": "[cached]", "generated": "[OK]", "error": "[ERROR]"}
+                print(f"  {symbols.get(status, '[...]')} {relative}")
+
+            progress_callback = verbose_progress
+
+        results = await generate_shadows_parallel(
+            logging_provider, rate_limiter, config, files, progress_callback
         )
-        dir_bodies[dir_path] = body
 
-    print(f"\nShadow documentation written to: {config.shadow_root}")
+        file_elapsed = time_module.monotonic() - file_start
+        print(f"\n[Files completed in {file_elapsed:.1f}s]")
+
+        # Report any errors
+        errors = [r for r in results if r.error]
+        if errors:
+            print(f"\n{len(errors)} file(s) had errors:")
+            for r in errors:
+                relative = r.path.relative_to(config.root_path)
+                print(f"  [ERROR] {relative}: {r.error}")
+
+        # Directory roll-ups (sequential, bottom-up)
+        dir_start = time_module.monotonic()
+        print("\nRolling up directories:")
+        await generate_directory_shadows(
+            logging_provider, rate_limiter, config, results, files, dirs, verbose
+        )
+        dir_elapsed = time_module.monotonic() - dir_start
+        print(f"[Directories completed in {dir_elapsed:.1f}s]")
+
+        print(f"\nShadow documentation written to: {config.shadow_root}")
+        print(logging_provider.get_token_summary())
+
+    finally:
+        await logging_provider.close()
+
+
+def generate_shadow_docs(config: Config) -> None:
+    """Generate shadow documentation for an entire codebase (sync wrapper).
+
+    This is the backward-compatible sync entry point.
+    """
+    asyncio.run(generate_shadow_docs_async(config))
+
+
+# Keep sync versions for backward compatibility and non-async code paths
+def process_file(
+    provider: LLMProvider,
+    config: Config,
+    file_path: Path,
+) -> tuple[Path, str]:
+    """Process a single file synchronously (for backward compatibility).
+
+    Note: This runs the async version in a new event loop.
+    For new code, prefer process_file_async.
+    """
+    result = asyncio.run(process_file_async(provider, config, file_path))
+    if result.error:
+        raise RuntimeError(result.error)
+    return (result.path, result.body)
 
 
 def check_shadow_docs(config: Config) -> list[tuple[Path, str]]:
