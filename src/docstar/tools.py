@@ -55,6 +55,45 @@ module's role in the larger system.""",
 }
 
 
+# Tool definition for document classification
+CLASSIFY_DOCUMENT_TOOL = {
+    "name": "classify_document",
+    "description": """Classify a documentation file according to the Diátaxis framework.
+
+Determine if the file is:
+- **reference**: Precise technical information (API docs, specs)
+- **tutorial**: Learning-oriented walkthrough for beginners
+- **how-to**: Task-oriented guide for specific goals
+- **explanatory**: Understanding-oriented discussion of concepts
+- **process_artifact**: Development ephemera that shouldn't be maintained
+
+Process artifacts are "debris" - they served a purpose but aren't ongoing documentation.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "classification": {
+                "type": "string",
+                "enum": ["reference", "tutorial", "how-to", "explanatory", "process_artifact"],
+            },
+            "confidence": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 1.0,
+            },
+            "reason": {
+                "type": "string",
+                "description": "Brief explanation of classification",
+            },
+            "remediation": {
+                "type": "string",
+                "description": "Action to take (e.g., 'Delete this file')",
+            },
+        },
+        "required": ["classification", "confidence", "reason", "remediation"],
+    },
+}
+
+
 def get_file_tools() -> list[dict]:
     """Return tools for file shadow doc generation."""
     return [SUBMIT_SHADOW_DOC_TOOL]
@@ -63,3 +102,8 @@ def get_file_tools() -> list[dict]:
 def get_directory_tools() -> list[dict]:
     """Return tools for directory shadow doc generation."""
     return [SUBMIT_DIRECTORY_SHADOW_DOC_TOOL]
+
+
+def get_classify_tools() -> list[dict]:
+    """Return tools for document classification."""
+    return [CLASSIFY_DOCUMENT_TOOL]
