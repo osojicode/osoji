@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass
+import json
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
@@ -30,6 +31,18 @@ from .walker import (
 
 
 @dataclass
+class Finding:
+    """A code debris finding from shadow generation."""
+
+    category: str
+    line_start: int
+    line_end: int
+    severity: str  # "error" or "warning"
+    description: str
+    suggestion: str | None = None
+
+
+@dataclass
 class ShadowResult:
     """Result from processing a single file."""
 
@@ -39,6 +52,7 @@ class ShadowResult:
     error: str | None = None
     input_tokens: int = 0
     output_tokens: int = 0
+    findings: list[Finding] = field(default_factory=list)
 
 
 def assemble_shadow_doc(file_path: Path, source_hash: str, body: str) -> str:
@@ -98,19 +112,29 @@ async def generate_file_shadow_doc_async(
     config: Config,
     file_path: Path,
     numbered_content: str,
-) -> tuple[str, int, int]:
+) -> tuple[str, int, int, list[Finding]]:
     """Generate a shadow doc for a single file asynchronously.
 
     Uses tool_choice to force the LLM to call submit_shadow_doc.
-    Returns tuple of (content, input_tokens, output_tokens).
+    Returns tuple of (content, input_tokens, output_tokens, findings).
     """
     relative_path = file_path.relative_to(config.root_path)
 
     system_prompt = """You are a documentation expert generating shadow documentation for AI agent consumption.
 
 Shadow docs are semantically dense summaries that help AI agents quickly understand code.
+
 You MUST use the submit_shadow_doc tool to submit your documentation.
-Do not include any header or metadata - just the documentation body."""
+Do not include any header or metadata - just the documentation body.
+
+ALSO: While analyzing the code, identify any "debris" that could mislead an AI coding agent:
+- Stale comments that describe behavior the code no longer exhibits
+- Misleading docstrings that don't match the actual implementation
+- Commented-out code blocks (3+ lines) that agents might reference
+- Expired TODO/FIXME comments whose context no longer applies
+- Dead code (unreachable branches, unused functions defined but never called within this file)
+
+Report these as findings in the tool call. If the code is clean, submit an empty findings array."""
 
     user_prompt = f"""Generate shadow documentation for the following file:
 
@@ -136,7 +160,19 @@ Include line number references for key elements (e.g., "MyClass (L15-45)").
 
     for tool_call in result.tool_calls:
         if tool_call.name == "submit_shadow_doc":
-            return (tool_call.input["content"], result.input_tokens, result.output_tokens)
+            findings_data = tool_call.input.get("findings", [])
+            findings = [
+                Finding(
+                    category=f["category"],
+                    line_start=f["line_start"],
+                    line_end=f["line_end"],
+                    severity=f["severity"],
+                    description=f["description"],
+                    suggestion=f.get("suggestion"),
+                )
+                for f in findings_data
+            ]
+            return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings)
 
     raise RuntimeError(f"LLM did not call submit_shadow_doc tool for {file_path}")
 
@@ -222,7 +258,7 @@ async def process_file_async(
         numbered_content = add_line_numbers(content)
         source_hash = compute_file_hash(file_path)
 
-        body, input_tokens, output_tokens = await generate_file_shadow_doc_async(
+        body, input_tokens, output_tokens, findings = await generate_file_shadow_doc_async(
             provider, config, file_path, numbered_content
         )
         full_doc = assemble_shadow_doc(
@@ -233,12 +269,35 @@ async def process_file_async(
         shadow_path.parent.mkdir(parents=True, exist_ok=True)
         shadow_path.write_text(full_doc, encoding="utf-8")
 
+        # Write findings JSON
+        findings_path = config.findings_path_for(file_path)
+        findings_path.parent.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        findings_json = {
+            "source": str(file_path.relative_to(config.root_path)),
+            "source_hash": source_hash,
+            "generated": timestamp,
+            "findings": [
+                {
+                    "category": f.category,
+                    "line_start": f.line_start,
+                    "line_end": f.line_end,
+                    "severity": f.severity,
+                    "description": f.description,
+                    "suggestion": f.suggestion,
+                }
+                for f in findings
+            ],
+        }
+        findings_path.write_text(json.dumps(findings_json, indent=2), encoding="utf-8")
+
         return ShadowResult(
             path=file_path,
             body=body,
             cached=False,
             input_tokens=input_tokens,
             output_tokens=output_tokens,
+            findings=findings,
         )
     except Exception as e:
         return ShadowResult(path=file_path, body="", cached=False, error=str(e))
@@ -551,6 +610,23 @@ async def generate_shadow_docs_async(config: Config, verbose: bool = False) -> N
 
         print(f"\nShadow documentation written to: {config.shadow_root}")
         print(logging_provider.get_token_summary())
+
+        # Print findings summary
+        all_findings: list[tuple[Path, Finding]] = []
+        for r in results:
+            for f in r.findings:
+                all_findings.append((r.path, f))
+
+        if all_findings:
+            error_count = sum(1 for _, f in all_findings if f.severity == "error")
+            warn_count = sum(1 for _, f in all_findings if f.severity == "warning")
+            print(f"\nCode debris findings: {len(all_findings)} issue(s) ({error_count} error(s), {warn_count} warning(s))")
+            for file_path, f in all_findings:
+                relative = file_path.relative_to(config.root_path)
+                severity_label = "ERROR" if f.severity == "error" else "WARN "
+                line_range = f"L{f.line_start}-{f.line_end}" if f.line_start != f.line_end else f"L{f.line_start}"
+                print(f"  {severity_label} {relative}:{line_range}  {f.description}")
+            print("\nRun 'docstar audit' for the full report.")
 
     finally:
         await logging_provider.close()
