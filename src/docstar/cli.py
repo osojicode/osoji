@@ -5,7 +5,7 @@ from pathlib import Path
 
 import click
 
-from .audit import run_audit, format_audit_report
+from .audit import run_audit, format_audit_report, format_audit_json
 from .config import Config
 from .shadow import generate_shadow_docs_async, check_shadow_docs
 from .stats import gather_stats, format_stats_report
@@ -94,11 +94,13 @@ def stats(path: Path, verbose: bool) -> None:
 @click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
 @click.option("--fix/--no-fix", default=True, help="Auto-fix shadow docs (default: yes)")
 @click.option("--verbose", "-v", is_flag=True, help="Show detailed output")
-def audit(path: Path, fix: bool, verbose: bool) -> None:
+@click.option("--format", "output_format", type=click.Choice(["text", "json"]), default="text", help="Output format")
+def audit(path: Path, fix: bool, verbose: bool, output_format: str) -> None:
     """Run documentation audit.
 
     Checks for:
     - Documentation debris (process artifacts that should be removed)
+    - Code debris (stale comments, dead code, misleading docstrings)
     - Stale or missing shadow documentation (auto-fixed by default)
 
     Exit codes: 0 = passed, 1 = errors found
@@ -110,8 +112,11 @@ def audit(path: Path, fix: bool, verbose: bool) -> None:
     except RuntimeError as e:
         raise click.ClickException(str(e)) from e
 
-    report = format_audit_report(result, verbose=verbose)
-    click.echo(report)
+    if output_format == "json":
+        click.echo(format_audit_json(result))
+    else:
+        report = format_audit_report(result, verbose=verbose)
+        click.echo(report)
 
     if not result.passed:
         raise SystemExit(1)

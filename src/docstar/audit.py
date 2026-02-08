@@ -1,5 +1,6 @@
 """Documentation audit orchestration."""
 
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -17,6 +18,8 @@ class AuditIssue:
     category: str  # "debris", "stale_shadow", "missing_shadow"
     message: str
     remediation: str
+    line_start: int | None = None
+    line_end: int | None = None
 
 
 @dataclass
@@ -78,6 +81,26 @@ def run_audit(config: Config, fix_shadow: bool = True) -> AuditResult:
                 remediation=item.remediation,
             ))
 
+    # 3. Surface code debris findings from shadow generation
+    print("Docstar: Checking code debris findings...")
+    findings_dir = config.root_path / ".docstar" / "findings"
+    if findings_dir.exists():
+        for findings_file in sorted(findings_dir.rglob("*.findings.json")):
+            try:
+                data = json.loads(findings_file.read_text(encoding="utf-8"))
+                for finding in data.get("findings", []):
+                    issues.append(AuditIssue(
+                        path=Path(data["source"]),
+                        severity=finding["severity"],
+                        category=finding["category"],
+                        message=f"L{finding['line_start']}-{finding['line_end']}: {finding['description']}",
+                        remediation=finding.get("suggestion", "Review and fix the identified issue"),
+                        line_start=finding["line_start"],
+                        line_end=finding["line_end"],
+                    ))
+            except (json.JSONDecodeError, KeyError):
+                continue  # Skip malformed findings files
+
     return AuditResult(issues=issues)
 
 
@@ -121,3 +144,24 @@ def format_audit_report(result: AuditResult, verbose: bool = False) -> str:
         lines.append("To override findings, add rules to `.docstar/rules`")
 
     return "\n".join(lines)
+
+
+def format_audit_json(result: AuditResult) -> str:
+    """Format audit result as JSON for CI/machine consumption."""
+    return json.dumps({
+        "passed": result.passed,
+        "errors": sum(1 for i in result.issues if i.severity == "error"),
+        "warnings": sum(1 for i in result.issues if i.severity == "warning"),
+        "issues": [
+            {
+                "path": str(issue.path),
+                "severity": issue.severity,
+                "category": issue.category,
+                "message": issue.message,
+                "remediation": issue.remediation,
+                "line_start": issue.line_start,
+                "line_end": issue.line_end,
+            }
+            for issue in result.issues
+        ],
+    }, indent=2)

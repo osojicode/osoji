@@ -27,8 +27,39 @@ to work with this code effectively.""",
                 "type": "string",
                 "description": "The shadow documentation content (markdown format, without header)",
             },
+            "findings": {
+                "type": "array",
+                "description": "Code quality issues found during analysis. Report stale comments, misleading docstrings, commented-out code blocks, and expired TODOs. Empty array if none found.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "category": {
+                            "type": "string",
+                            "enum": [
+                                "stale_comment",
+                                "misleading_docstring",
+                                "commented_out_code",
+                                "expired_todo",
+                                "dead_code",
+                            ],
+                        },
+                        "line_start": {"type": "integer"},
+                        "line_end": {"type": "integer"},
+                        "severity": {
+                            "type": "string",
+                            "enum": ["error", "warning"],
+                        },
+                        "description": {"type": "string"},
+                        "suggestion": {
+                            "type": "string",
+                            "description": "What should be done to fix this issue",
+                        },
+                    },
+                    "required": ["category", "line_start", "line_end", "severity", "description"],
+                },
+            },
         },
-        "required": ["content"],
+        "required": ["content", "findings"],
     },
 }
 
