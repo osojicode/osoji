@@ -27,6 +27,29 @@ DEFAULT_IGNORE_PATTERNS: set[str] = {
     ".idea",
     ".vscode",
     ".github",
+    # Build output
+    "target",
+    # Cargo registry/cache
+    ".cargo",
+    # Vendored dependencies (Go, PHP, Ruby)
+    "vendor",
+    # Gradle cache
+    ".gradle",
+    # Next.js / Nuxt.js / Turborepo / Parcel
+    ".next",
+    ".nuxt",
+    ".turbo",
+    ".parcel-cache",
+    # Generic caches / temp / logs
+    ".cache",
+    "tmp",
+    "temp",
+    "logs",
+    # Test coverage
+    "coverage",
+    ".nyc_output",
+    # Legacy package managers
+    "bower_components",
 }
 
 # Documentation file detection settings
@@ -92,6 +115,7 @@ class Config:
     model: str = DEFAULT_MODEL
     force: bool = False
     max_concurrency: int = 100
+    respect_gitignore: bool = True
 
     # Documentation detection (for debris scanning)
     doc_extensions: set[str] = field(default_factory=lambda: DOC_EXTENSIONS.copy())

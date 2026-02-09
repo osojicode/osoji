@@ -7,7 +7,8 @@ import click
 
 from .audit import run_audit, format_audit_report, format_audit_json
 from .config import Config
-from .shadow import generate_shadow_docs_async, check_shadow_docs
+from .diff import run_diff, format_diff_report, format_diff_json
+from .shadow import generate_shadow_docs_async, generate_shadow_docs, check_shadow_docs, dry_run_shadow
 from .stats import gather_stats, format_stats_report
 from .hooks import install_hooks, uninstall_hooks
 from .safety import check_staged_files, check_files as safety_check_files
@@ -30,7 +31,9 @@ def main() -> None:
 @click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
 @click.option("--force", "-f", is_flag=True, help="Regenerate all files, ignoring cached hashes")
 @click.option("--verbose", "-v", is_flag=True, help="Show detailed progress")
-def shadow(path: Path, force: bool, verbose: bool) -> None:
+@click.option("--dry-run", is_flag=True, help="Show what would be processed without making LLM calls")
+@click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
+def shadow(path: Path, force: bool, verbose: bool, dry_run: bool, no_gitignore: bool) -> None:
     """Generate shadow documentation for a codebase.
 
     PATH is the root directory to process (defaults to current directory).
@@ -38,7 +41,12 @@ def shadow(path: Path, force: bool, verbose: bool) -> None:
     config = Config(
         root_path=path.resolve(),
         force=force,
+        respect_gitignore=not no_gitignore,
     )
+
+    if dry_run:
+        dry_run_shadow(config, verbose=verbose)
+        return
 
     try:
         asyncio.run(generate_shadow_docs_async(config, verbose=verbose))
@@ -48,12 +56,13 @@ def shadow(path: Path, force: bool, verbose: bool) -> None:
 
 @main.command()
 @click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
-def check(path: Path) -> None:
+@click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
+def check(path: Path, no_gitignore: bool) -> None:
     """Check for stale or missing shadow documentation.
 
     PATH is the root directory to check (defaults to current directory).
     """
-    config = Config(root_path=path.resolve())
+    config = Config(root_path=path.resolve(), respect_gitignore=not no_gitignore)
 
     issues = check_shadow_docs(config)
 
@@ -71,9 +80,60 @@ def check(path: Path) -> None:
 
 
 @main.command()
+@click.argument("base_ref", default="main")
+@click.option("--update", is_flag=True, help="Regenerate stale shadow docs")
+@click.option("--format", "output_format", type=click.Choice(["text", "json"]), default="text", help="Output format")
+def diff(base_ref: str, update: bool, output_format: str) -> None:
+    """Show documentation impact of source changes.
+
+    Compare current HEAD against BASE_REF (defaults to main) and report:
+    - Stale or missing shadow documentation for changed source files
+    - Documentation files that reference changed source files
+
+    \b
+    Examples:
+        docstar diff                    # Compare against main
+        docstar diff develop            # Compare against develop
+        docstar diff HEAD~5             # Compare against 5 commits ago
+        docstar diff main --update      # Also regenerate stale shadows
+        docstar diff main --format json # Machine-readable output
+
+    Exit codes: 0 = no issues, 1 = issues found
+    """
+    config = Config(root_path=Path(".").resolve())
+
+    try:
+        report = run_diff(config, base_ref)
+    except RuntimeError as e:
+        raise click.ClickException(str(e)) from e
+
+    if not report.changed_source and not report.changed_docs:
+        click.echo("No changes found.")
+        return
+
+    if update and report.stale_shadows:
+        click.echo("Docstar: Regenerating stale shadow documentation...")
+        try:
+            generate_shadow_docs(config)
+            # Re-run to get updated report
+            report = run_diff(config, base_ref)
+        except RuntimeError as e:
+            raise click.ClickException(str(e)) from e
+
+    if output_format == "json":
+        click.echo(format_diff_json(report))
+    else:
+        click.echo(format_diff_report(report))
+
+    if report.has_issues:
+        raise SystemExit(1)
+
+
+@main.command()
 @click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
 @click.option("--verbose", "-v", is_flag=True, help="Show per-file breakdown")
-def stats(path: Path, verbose: bool) -> None:
+@click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
+def stats(path: Path, verbose: bool, no_gitignore: bool) -> None:
     """Show token statistics for source files vs shadow docs.
 
     Compares token counts between source code and generated shadow documentation
@@ -81,7 +141,7 @@ def stats(path: Path, verbose: bool) -> None:
 
     PATH is the root directory to analyze (defaults to current directory).
     """
-    config = Config(root_path=path.resolve())
+    config = Config(root_path=path.resolve(), respect_gitignore=not no_gitignore)
 
     click.echo("Gathering token statistics...")
     project_stats = gather_stats(config)
@@ -95,20 +155,23 @@ def stats(path: Path, verbose: bool) -> None:
 @click.option("--fix/--no-fix", default=True, help="Auto-fix shadow docs (default: yes)")
 @click.option("--verbose", "-v", is_flag=True, help="Show detailed output")
 @click.option("--format", "output_format", type=click.Choice(["text", "json"]), default="text", help="Output format")
-def audit(path: Path, fix: bool, verbose: bool, output_format: str) -> None:
+@click.option("--xref", is_flag=True, help="Validate doc cross-references against source (LLM calls)")
+@click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
+def audit(path: Path, fix: bool, verbose: bool, output_format: str, xref: bool, no_gitignore: bool) -> None:
     """Run documentation audit.
 
     Checks for:
     - Documentation debris (process artifacts that should be removed)
     - Code debris (stale comments, dead code, misleading docstrings)
     - Stale or missing shadow documentation (auto-fixed by default)
+    - Cross-reference validation (opt-in with --xref)
 
     Exit codes: 0 = passed, 1 = errors found
     """
-    config = Config(root_path=path.resolve())
+    config = Config(root_path=path.resolve(), respect_gitignore=not no_gitignore)
 
     try:
-        result = run_audit(config, fix_shadow=fix)
+        result = run_audit(config, fix_shadow=fix, xref=xref)
     except RuntimeError as e:
         raise click.ClickException(str(e)) from e
 
