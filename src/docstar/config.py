@@ -26,6 +26,7 @@ DEFAULT_IGNORE_PATTERNS: set[str] = {
     ".docstar",
     ".idea",
     ".vscode",
+    ".github",
 }
 
 # Documentation file detection settings
