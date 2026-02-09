@@ -6,7 +6,7 @@ from pathlib import Path
 
 from .config import Config
 from .shadow import check_shadow_docs, generate_shadow_docs
-from .debris import detect_debris
+from .debris import detect_debris, validate_cross_references
 
 
 @dataclass
@@ -41,12 +41,13 @@ class AuditResult:
         return not self.has_errors
 
 
-def run_audit(config: Config, fix_shadow: bool = True) -> AuditResult:
+def run_audit(config: Config, fix_shadow: bool = True, xref: bool = False) -> AuditResult:
     """Run a complete documentation audit.
 
     Args:
         config: Docstar configuration
         fix_shadow: If True, auto-update stale shadow docs (Docstar owns them)
+        xref: If True, run cross-reference validation (LLM calls per .md file)
     """
     issues: list[AuditIssue] = []
 
@@ -100,6 +101,19 @@ def run_audit(config: Config, fix_shadow: bool = True) -> AuditResult:
                     ))
             except (json.JSONDecodeError, KeyError):
                 continue  # Skip malformed findings files
+
+    # 4. Cross-reference validation (opt-in)
+    if xref:
+        print("Docstar: Validating documentation cross-references...")
+        xref_issues = validate_cross_references(config)
+        for issue in xref_issues:
+            issues.append(AuditIssue(
+                path=issue.doc_path,
+                severity=issue.severity,
+                category="cross_reference",
+                message=f"Cross-reference issue: {issue.description}",
+                remediation=issue.remediation,
+            ))
 
     return AuditResult(issues=issues)
 
