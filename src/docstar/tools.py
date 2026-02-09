@@ -145,6 +145,58 @@ def get_classify_tools() -> list[dict]:
     return [CLASSIFY_DOCUMENT_TOOL]
 
 
+# Tool definition for cross-reference validation
+VALIDATE_CROSS_REFERENCE_TOOL = {
+    "name": "submit_cross_reference_validation",
+    "description": """Validate a documentation file against source-of-truth shadow docs.
+
+Check for contradictions between what the .md file claims and what the code actually does.
+Look for: wrong CLI flags, incorrect function signatures, described behaviors the code
+doesn't implement, references to renamed/deleted code.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "is_accurate": {
+                "type": "boolean",
+                "description": "True if the documentation accurately reflects the source code",
+            },
+            "issues": {
+                "type": "array",
+                "description": "List of contradictions or inaccuracies found",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "severity": {
+                            "type": "string",
+                            "enum": ["error", "warning"],
+                        },
+                        "description": {
+                            "type": "string",
+                            "description": "What is wrong in the documentation",
+                        },
+                        "source_context": {
+                            "type": "string",
+                            "description": "What the source code actually does",
+                        },
+                        "remediation": {
+                            "type": "string",
+                            "description": "How to fix the documentation",
+                        },
+                    },
+                    "required": ["severity", "description", "source_context", "remediation"],
+                },
+            },
+        },
+        "required": ["is_accurate", "issues"],
+    },
+}
+
+
+def get_cross_reference_tools() -> list[dict]:
+    """Return tools for cross-reference validation."""
+    return [VALIDATE_CROSS_REFERENCE_TOOL]
+
+
 def _dict_to_tool_definition(tool_dict: dict[str, Any]) -> ToolDefinition:
     """Convert a tool dictionary to a ToolDefinition object."""
     return ToolDefinition(
@@ -167,3 +219,8 @@ def get_directory_tool_definitions() -> list[ToolDefinition]:
 def get_classify_tool_definitions() -> list[ToolDefinition]:
     """Return ToolDefinition objects for document classification."""
     return [_dict_to_tool_definition(CLASSIFY_DOCUMENT_TOOL)]
+
+
+def get_cross_reference_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for cross-reference validation."""
+    return [_dict_to_tool_definition(VALIDATE_CROSS_REFERENCE_TOOL)]

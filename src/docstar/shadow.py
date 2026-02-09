@@ -632,6 +632,69 @@ async def generate_shadow_docs_async(config: Config, verbose: bool = False) -> N
         await logging_provider.close()
 
 
+def dry_run_shadow(config: Config, verbose: bool = False) -> None:
+    """Show what shadow generation would process, without making LLM calls.
+
+    Prints file count, file list, estimated tokens, and estimated cost.
+    """
+    files = discover_files(config)
+    dirs = discover_directories(config, files)
+
+    if not files:
+        print("No source files found to process.")
+        return
+
+    # Calculate which are stale
+    stale_files = [f for f in files if is_stale(config, f)]
+    cached_files = len(files) - len(stale_files)
+
+    print(f"Dry run for: {config.root_path}\n")
+    print(f"Total source files: {len(files)}")
+    print(f"  Would generate: {len(stale_files)}")
+    print(f"  Already cached:  {cached_files}")
+    print(f"Directories: {len(dirs)}")
+
+    # Estimate tokens and cost for stale files
+    total_bytes = 0
+    for f in stale_files:
+        try:
+            total_bytes += f.stat().st_size
+        except OSError:
+            pass
+
+    # Rough estimate: 1 token ~ 3.3 bytes of source code
+    est_input_tokens = int(total_bytes / 3.3)
+    # Output typically ~20% of input for shadow docs
+    est_output_tokens = int(est_input_tokens * 0.2)
+    # Directory rollups add ~30% more output tokens
+    est_dir_output = int(est_output_tokens * 0.3)
+
+    total_input = est_input_tokens
+    total_output = est_output_tokens + est_dir_output
+
+    # Sonnet pricing: $3/MTok input, $15/MTok output
+    est_cost = (total_input / 1_000_000 * 3.0) + (total_output / 1_000_000 * 15.0)
+
+    print(f"\nEstimated tokens (for {len(stale_files)} file(s) to generate):")
+    print(f"  Input:  ~{total_input:,}")
+    print(f"  Output: ~{total_output:,}")
+    print(f"Estimated cost: ~${est_cost:.2f}")
+
+    if verbose:
+        print(f"\nFiles to process ({len(stale_files)}):")
+        for f in sorted(stale_files, key=lambda p: str(p.relative_to(config.root_path))):
+            relative = f.relative_to(config.root_path)
+            size = f.stat().st_size
+            print(f"  {relative}  ({size:,} bytes)")
+
+        if cached_files:
+            print(f"\nCached ({cached_files}):")
+            cached = [f for f in files if not is_stale(config, f)]
+            for f in sorted(cached, key=lambda p: str(p.relative_to(config.root_path))):
+                relative = f.relative_to(config.root_path)
+                print(f"  {relative}")
+
+
 def generate_shadow_docs(config: Config) -> None:
     """Generate shadow documentation for an entire codebase (sync wrapper).
 
