@@ -29,10 +29,14 @@ DEFAULT_IGNORE_PATTERNS: set[str] = {
     ".github",
     # Build output
     "target",
-    # Cargo registry/cache
+    # Cargo / Rust ecosystem
     ".cargo",
+    "toolchains",
+    "registry",
     # Vendored dependencies (Go, PHP, Ruby)
     "vendor",
+    # Rustup home
+    ".rustup",
     # Gradle cache
     ".gradle",
     # Next.js / Nuxt.js / Turborepo / Parcel
@@ -165,12 +169,27 @@ class Config:
         return self.rules_path.read_text(encoding="utf-8")
 
     def load_docstarignore(self) -> list[str]:
-        """Load patterns from .docstarignore (fnmatch patterns on paths)."""
+        """Load patterns from .docstarignore (fnmatch patterns on paths).
+
+        Supports negation: lines starting with ! remove that pattern
+        from the default ignore_patterns. E.g. "!registry" would
+        stop ignoring directories named "registry".
+        """
         if not self.ignore_path.exists():
             return []
         content = self.ignore_path.read_text(encoding="utf-8")
-        return [line.strip() for line in content.splitlines()
-                if line.strip() and not line.startswith("#")]
+        extra_patterns: list[str] = []
+        for line in content.splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("!"):
+                # Negation: remove from default ignore patterns
+                negated = line[1:]
+                self.ignore_patterns.discard(negated)
+            else:
+                extra_patterns.append(line)
+        return extra_patterns
 
     def is_doc_candidate(self, path: Path) -> bool:
         """Check if a path is a documentation file candidate.

@@ -18,32 +18,34 @@ def should_ignore(path: Path, ignore_patterns: set[str]) -> bool:
     return False
 
 
-def _matches_ignore(path: Path, patterns: list[str] | set[str]) -> bool:
+def _matches_ignore(path: Path, patterns: list[str] | set[str]) -> str | None:
     """Check if a relative path matches any ignore pattern.
 
-    Checks both the full path string and each individual path component,
-    mirroring the logic in debris.py.
+    Checks both the full path string and each individual path component.
+    Returns the matched pattern name, or None if no match.
     """
     path_str = str(path)
     for pattern in patterns:
         if fnmatch.fnmatch(path_str, pattern):
-            return True
+            return pattern
         for part in path.parts:
             if fnmatch.fnmatch(part, pattern):
-                return True
-    return False
+                return pattern
+    return None
 
 
-def _git_ls_files(root: Path) -> set[Path] | None:
+def _git_ls_files(root: Path) -> list[Path] | None:
     """List files known to git, respecting .gitignore.
 
-    Returns a set of absolute Paths, or None if git is unavailable
-    or the directory is not inside a git repository.
+    Returns a list of absolute Paths, or None if git is unavailable
+    or the directory is not inside a git repository. Excludes .docstar/
+    paths since those are docstar's own output.
     """
     git_root = find_git_root(root)
     if git_root is None:
         return None
 
+    print("  Running git ls-files...", flush=True)
     try:
         result = subprocess.run(
             ["git", "ls-files", "--cached", "--others", "--exclude-standard"],
@@ -56,11 +58,13 @@ def _git_ls_files(root: Path) -> set[Path] | None:
     except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
         return None
 
-    paths: set[Path] = set()
+    paths: list[Path] = []
     for line in result.stdout.splitlines():
         line = line.strip()
-        if line:
-            paths.add((root / line).resolve())
+        if line and not line.startswith(".docstar/"):
+            # Use simple path join — root is already resolved
+            paths.append(root / line)
+    print(f"  Git returned {len(paths)} files", flush=True)
     return paths
 
 
@@ -85,39 +89,67 @@ def discover_files(config: Config) -> list[Path]:
     Applies both DEFAULT_IGNORE_PATTERNS and .docstarignore patterns.
     Uses git ls-files when available to respect .gitignore.
     """
+    from collections import Counter
+
     docstarignore = config.load_docstarignore()
     files: list[Path] = []
 
     all_paths, used_git = list_repo_files(config)
+    # Materialize for progress counting
+    all_paths = list(all_paths)
+    total = len(all_paths)
 
-    for path in all_paths:
+    # Track files skipped by ignore patterns (for advisory warning)
+    ignored_by_pattern: Counter[str] = Counter()
+
+    for i, path in enumerate(all_paths):
         # Ensure absolute path for git results
         if not path.is_absolute():
             path = config.root_path / path
 
         relative = path.relative_to(config.root_path)
 
-        if not used_git:
-            # rglob fallback: check parent directories for ignore patterns
-            skip = False
-            for parent in relative.parents:
-                if parent != Path(".") and should_ignore(config.root_path / parent, config.ignore_patterns):
-                    skip = True
-                    break
-            if skip:
-                continue
+        # Skip .docstar directory early (our own output)
+        if str(relative).startswith(".docstar"):
+            continue
 
-        # Always apply ignore patterns as belt-and-suspenders
-        if should_ignore(path, config.ignore_patterns):
+        # Check extension before expensive is_file() stat call
+        if path.suffix not in config.extensions:
+            continue
+
+        # Check all path components against ignore patterns
+        # (catches .cargo, node_modules, vendor etc. even when committed to git)
+        matched_pattern = _matches_ignore(relative, config.ignore_patterns)
+        if matched_pattern:
+            if used_git:
+                ignored_by_pattern[matched_pattern] += 1
             continue
 
         # Skip .docstarignore patterns
         if docstarignore and _matches_ignore(relative, docstarignore):
             continue
 
-        # Only include files with matching extensions
-        if path.is_file() and path.suffix in config.extensions:
+        # Only include actual files
+        # Skip stat call when git provided the file list (git only returns files)
+        if used_git or path.is_file():
             files.append(path)
+
+        # Progress every 100 paths or at the end
+        if (i + 1) % 100 == 0 or i + 1 == total:
+            print(f"\r  Scanned {i + 1}/{total} paths ({len(files)} source files)\033[K", end="", flush=True)
+
+    if total > 0:
+        print()  # newline after progress
+
+    # Warn about git-tracked files matching default ignore patterns
+    if ignored_by_pattern:
+        total_ignored = sum(ignored_by_pattern.values())
+        pattern_summary = ", ".join(
+            f"{pat} ({count})" for pat, count in ignored_by_pattern.most_common(5)
+        )
+        print(f"  Warning: {total_ignored} git-tracked file(s) matched default ignore patterns: {pattern_summary}", flush=True)
+        print(f"  These may be accidentally committed build artifacts.", flush=True)
+        print(f"  To document them anyway, add negation patterns to .docstarignore (e.g. !registry)", flush=True)
 
     # Sort by depth (deepest first), then alphabetically
     files.sort(key=lambda p: (-len(p.parts), str(p)))
