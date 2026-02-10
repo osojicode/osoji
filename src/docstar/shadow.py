@@ -313,7 +313,7 @@ def print_progress(completed: int, total: int, path: Path, status: str) -> None:
         "processing": "[...]",
     }
     symbol = symbols.get(status, "[...]")
-    print(f"\r[{completed}/{total}] {pct:.0f}% {symbol} {path.name}", end="", flush=True)
+    print(f"\r[{completed}/{total}] {pct:.0f}% {symbol} {path.name}\033[K", end="", flush=True)
     if completed == total:
         print()
 
@@ -455,7 +455,7 @@ async def generate_directory_shadows(
         if relative_path == Path("."):
             relative_path = Path("(root)")
 
-        print(f"  [rolling up] {relative_path}/")
+        print(f"  [rolling up] {relative_path}/", flush=True)
 
         # Gather summaries from direct children
         child_summaries: list[tuple[Path, str]] = []
@@ -548,18 +548,19 @@ async def generate_shadow_docs_async(config: Config, verbose: bool = False) -> N
         config: Configuration for shadow generation
         verbose: If True, show detailed progress including token counts
     """
-    print(f"Generating shadow documentation for: {config.root_path}")
+    print(f"Generating shadow documentation for: {config.root_path}", flush=True)
 
     # Discover files and directories
+    print("Discovering files...", flush=True)
     files = discover_files(config)
     dirs = discover_directories(config, files)
 
     if not files:
-        print("No source files found to process.")
+        print("No source files found to process.", flush=True)
         return
 
-    print(f"Found {len(files)} source files in {len(dirs)} directories")
-    print(f"Concurrency: {config.max_concurrency}")
+    print(f"Found {len(files)} source files in {len(dirs)} directories", flush=True)
+    print(f"Concurrency: {config.max_concurrency}", flush=True)
 
     # Create provider with logging wrapper
     provider = create_provider("anthropic")
@@ -572,7 +573,7 @@ async def generate_shadow_docs_async(config: Config, verbose: bool = False) -> N
         # Process files in parallel
         import time as time_module
         file_start = time_module.monotonic()
-        print("\nProcessing files:")
+        print("\nProcessing files:", flush=True)
         progress_callback = print_progress if not verbose else None
 
         if verbose:
@@ -580,7 +581,7 @@ async def generate_shadow_docs_async(config: Config, verbose: bool = False) -> N
             def verbose_progress(completed: int, total: int, path: Path, status: str) -> None:
                 relative = path.relative_to(config.root_path)
                 symbols = {"cached": "[cached]", "generated": "[OK]", "error": "[ERROR]"}
-                print(f"  {symbols.get(status, '[...]')} {relative}")
+                print(f"  {symbols.get(status, '[...]')} {relative}", flush=True)
 
             progress_callback = verbose_progress
 
@@ -589,27 +590,33 @@ async def generate_shadow_docs_async(config: Config, verbose: bool = False) -> N
         )
 
         file_elapsed = time_module.monotonic() - file_start
-        print(f"\n[Files completed in {file_elapsed:.1f}s]")
+        print(f"\n[Files completed in {file_elapsed:.1f}s]", flush=True)
 
         # Report any errors
         errors = [r for r in results if r.error]
         if errors:
-            print(f"\n{len(errors)} file(s) had errors:")
+            print(f"\n{len(errors)} file(s) had errors:", flush=True)
             for r in errors:
                 relative = r.path.relative_to(config.root_path)
-                print(f"  [ERROR] {relative}: {r.error}")
+                print(f"  [ERROR] {relative}: {r.error}", flush=True)
 
         # Directory roll-ups (sequential, bottom-up)
         dir_start = time_module.monotonic()
-        print("\nRolling up directories:")
+        print("\nRolling up directories:", flush=True)
         await generate_directory_shadows(
             logging_provider, rate_limiter, config, results, files, dirs, verbose
         )
         dir_elapsed = time_module.monotonic() - dir_start
-        print(f"[Directories completed in {dir_elapsed:.1f}s]")
+        print(f"[Directories completed in {dir_elapsed:.1f}s]", flush=True)
 
-        print(f"\nShadow documentation written to: {config.shadow_root}")
-        print(logging_provider.get_token_summary())
+        # Clean up orphan shadow docs
+        print("\nCleaning up orphans...", flush=True)
+        orphan_count = cleanup_orphan_shadows(config, files, dirs, verbose=verbose)
+        if orphan_count > 0:
+            print(f"Removed {orphan_count} orphan shadow doc(s)", flush=True)
+
+        print(f"\nShadow documentation written to: {config.shadow_root}", flush=True)
+        print(logging_provider.get_token_summary(), flush=True)
 
         # Print findings summary
         all_findings: list[tuple[Path, Finding]] = []
@@ -620,16 +627,71 @@ async def generate_shadow_docs_async(config: Config, verbose: bool = False) -> N
         if all_findings:
             error_count = sum(1 for _, f in all_findings if f.severity == "error")
             warn_count = sum(1 for _, f in all_findings if f.severity == "warning")
-            print(f"\nCode debris findings: {len(all_findings)} issue(s) ({error_count} error(s), {warn_count} warning(s))")
+            print(f"\nCode debris findings: {len(all_findings)} issue(s) ({error_count} error(s), {warn_count} warning(s))", flush=True)
             for file_path, f in all_findings:
                 relative = file_path.relative_to(config.root_path)
                 severity_label = "ERROR" if f.severity == "error" else "WARN "
                 line_range = f"L{f.line_start}-{f.line_end}" if f.line_start != f.line_end else f"L{f.line_start}"
-                print(f"  {severity_label} {relative}:{line_range}  {f.description}")
-            print("\nRun 'docstar audit' for the full report.")
+                print(f"  {severity_label} {relative}:{line_range}  {f.description}", flush=True)
+            print("\nRun 'docstar audit' for the full report.", flush=True)
 
     finally:
         await logging_provider.close()
+
+
+def cleanup_orphan_shadows(config: Config, files: list[Path], dirs: list[Path], verbose: bool = False) -> int:
+    """Remove shadow docs that no longer correspond to discovered source files.
+
+    Returns the number of orphan files removed.
+    """
+    shadow_root = config.shadow_root
+    if not shadow_root.exists():
+        return 0
+
+    # Build set of expected shadow paths
+    expected: set[Path] = set()
+    for f in files:
+        expected.add(config.shadow_path_for(f))
+    for d in dirs:
+        expected.add(config.shadow_path_for_dir(d))
+
+    # Also keep the root shadow doc
+    expected.add(shadow_root / "_root.shadow.md")
+
+    # Find all existing shadow docs
+    existing = list(shadow_root.rglob("*.shadow.md"))
+
+    orphans = [p for p in existing if p not in expected]
+    for orphan in orphans:
+        if verbose:
+            relative = orphan.relative_to(config.root_path)
+            print(f"  [removing orphan] {relative}", flush=True)
+        orphan.unlink()
+
+    # Also clean up orphan findings
+    findings_dir = config.root_path / ".docstar" / "findings"
+    if findings_dir.exists():
+        expected_findings: set[Path] = set()
+        for f in files:
+            expected_findings.add(config.findings_path_for(f))
+        for findings_file in list(findings_dir.rglob("*.findings.json")):
+            if findings_file not in expected_findings:
+                if verbose:
+                    relative = findings_file.relative_to(config.root_path)
+                    print(f"  [removing orphan] {relative}", flush=True)
+                findings_file.unlink()
+                orphans.append(findings_file)
+
+    # Remove empty directories (bottom-up)
+    for dirpath in sorted(shadow_root.rglob("*"), key=lambda p: -len(p.parts)):
+        if dirpath.is_dir() and not any(dirpath.iterdir()):
+            dirpath.rmdir()
+    if findings_dir.exists():
+        for dirpath in sorted(findings_dir.rglob("*"), key=lambda p: -len(p.parts)):
+            if dirpath.is_dir() and not any(dirpath.iterdir()):
+                dirpath.rmdir()
+
+    return len(orphans)
 
 
 def dry_run_shadow(config: Config, verbose: bool = False) -> None:
@@ -641,18 +703,18 @@ def dry_run_shadow(config: Config, verbose: bool = False) -> None:
     dirs = discover_directories(config, files)
 
     if not files:
-        print("No source files found to process.")
+        print("No source files found to process.", flush=True)
         return
 
     # Calculate which are stale
     stale_files = [f for f in files if is_stale(config, f)]
     cached_files = len(files) - len(stale_files)
 
-    print(f"Dry run for: {config.root_path}\n")
-    print(f"Total source files: {len(files)}")
-    print(f"  Would generate: {len(stale_files)}")
-    print(f"  Already cached:  {cached_files}")
-    print(f"Directories: {len(dirs)}")
+    print(f"Dry run for: {config.root_path}\n", flush=True)
+    print(f"Total source files: {len(files)}", flush=True)
+    print(f"  Would generate: {len(stale_files)}", flush=True)
+    print(f"  Already cached:  {cached_files}", flush=True)
+    print(f"Directories: {len(dirs)}", flush=True)
 
     # Estimate tokens and cost for stale files
     total_bytes = 0
@@ -675,32 +737,32 @@ def dry_run_shadow(config: Config, verbose: bool = False) -> None:
     # Sonnet pricing: $3/MTok input, $15/MTok output
     est_cost = (total_input / 1_000_000 * 3.0) + (total_output / 1_000_000 * 15.0)
 
-    print(f"\nEstimated tokens (for {len(stale_files)} file(s) to generate):")
-    print(f"  Input:  ~{total_input:,}")
-    print(f"  Output: ~{total_output:,}")
-    print(f"Estimated cost: ~${est_cost:.2f}")
+    print(f"\nEstimated tokens (for {len(stale_files)} file(s) to generate):", flush=True)
+    print(f"  Input:  ~{total_input:,}", flush=True)
+    print(f"  Output: ~{total_output:,}", flush=True)
+    print(f"Estimated cost: ~${est_cost:.2f}", flush=True)
 
     if verbose:
-        print(f"\nFiles to process ({len(stale_files)}):")
+        print(f"\nFiles to process ({len(stale_files)}):", flush=True)
         for f in sorted(stale_files, key=lambda p: str(p.relative_to(config.root_path))):
             relative = f.relative_to(config.root_path)
             size = f.stat().st_size
-            print(f"  {relative}  ({size:,} bytes)")
+            print(f"  {relative}  ({size:,} bytes)", flush=True)
 
         if cached_files:
-            print(f"\nCached ({cached_files}):")
+            print(f"\nCached ({cached_files}):", flush=True)
             cached = [f for f in files if not is_stale(config, f)]
             for f in sorted(cached, key=lambda p: str(p.relative_to(config.root_path))):
                 relative = f.relative_to(config.root_path)
-                print(f"  {relative}")
+                print(f"  {relative}", flush=True)
 
 
-def generate_shadow_docs(config: Config) -> None:
+def generate_shadow_docs(config: Config, verbose: bool = False) -> None:
     """Generate shadow documentation for an entire codebase (sync wrapper).
 
     This is the backward-compatible sync entry point.
     """
-    asyncio.run(generate_shadow_docs_async(config))
+    asyncio.run(generate_shadow_docs_async(config, verbose=verbose))
 
 
 # Keep sync versions for backward compatibility and non-async code paths

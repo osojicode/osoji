@@ -1,26 +1,19 @@
 """Debris detection for documentation files."""
 
+import asyncio
 import fnmatch
-import os
 from dataclasses import dataclass
 from pathlib import Path
-
-import anthropic
+from typing import Callable
 
 from .config import Config
-from .tools import get_classify_tools, get_cross_reference_tools
+from .llm.base import LLMProvider
+from .llm.factory import create_provider
+from .llm.logging import LoggingProvider
+from .llm.types import Message, MessageRole, CompletionOptions
+from .rate_limiter import RateLimiter, get_config_with_overrides
+from .tools import get_classify_tool_definitions, get_cross_reference_tool_definitions
 from .walker import list_repo_files
-
-
-def _get_sync_client() -> anthropic.Anthropic:
-    """Create a sync Anthropic client for debris detection."""
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        raise RuntimeError(
-            "ANTHROPIC_API_KEY environment variable is not set. "
-            "Please set it to your Anthropic API key."
-        )
-    return anthropic.Anthropic(api_key=api_key)
 
 
 @dataclass
@@ -92,25 +85,9 @@ def _matches_ignore(path: Path, patterns: list[str] | set[str]) -> bool:
     return False
 
 
-def classify_document(
-    client: anthropic.Anthropic,
-    config: Config,
-    doc_path: Path,
-    rules_text: str,
-) -> DebrisClassification:
-    """Classify a single document using LLM.
+# --- Classification prompts ---
 
-    Uses tool forcing for structured output.
-    """
-    relative_path = doc_path.relative_to(config.root_path)
-    content = doc_path.read_text(encoding="utf-8")
-
-    # Truncate large files
-    if len(content) > 50000:
-        content = content[:50000] + "\n\n[... content truncated ...]"
-
-    # The real logic is in this prompt
-    system_prompt = """You are a documentation analyst classifying files according to the Diataxis framework.
+_CLASSIFY_SYSTEM_PROMPT = """You are a documentation analyst classifying files according to the Diataxis framework.
 
 ## Diataxis Framework
 
@@ -139,6 +116,24 @@ Process artifacts should be classified as `process_artifact`. They mislead devel
 
 Classify the document. Apply any project-specific rules provided. Use the classify_document tool."""
 
+
+async def classify_document_async(
+    provider: LLMProvider,
+    config: Config,
+    doc_path: Path,
+    rules_text: str,
+) -> DebrisClassification:
+    """Classify a single document using LLM.
+
+    Uses tool forcing for structured output.
+    """
+    relative_path = doc_path.relative_to(config.root_path)
+    content = doc_path.read_text(encoding="utf-8")
+
+    # Truncate large files
+    if len(content) > 50000:
+        content = content[:50000] + "\n\n[... content truncated ...]"
+
     user_prompt = f"""**File:** `{relative_path}`
 
 """
@@ -156,51 +151,117 @@ Classify the document. Apply any project-specific rules provided. Use the classi
 
 Classify this document using the classify_document tool."""
 
-    response = client.messages.create(
-        model=config.model,
-        max_tokens=1024,
-        system=system_prompt,
-        tools=get_classify_tools(),
-        tool_choice={"type": "tool", "name": "classify_document"},
-        messages=[{"role": "user", "content": user_prompt}],
+    result = await provider.complete(
+        messages=[Message(role=MessageRole.USER, content=user_prompt)],
+        system=_CLASSIFY_SYSTEM_PROMPT,
+        options=CompletionOptions(
+            model=config.model,
+            max_tokens=1024,
+            tools=get_classify_tool_definitions(),
+            tool_choice={"type": "tool", "name": "classify_document"},
+        ),
     )
 
-    for block in response.content:
-        if block.type == "tool_use" and block.name == "classify_document":
+    for tool_call in result.tool_calls:
+        if tool_call.name == "classify_document":
             return DebrisClassification(
                 path=relative_path,
-                is_debris=(block.input["classification"] == "process_artifact"),
-                classification=block.input["classification"],
-                confidence=block.input["confidence"],
-                reason=block.input["reason"],
-                remediation=block.input["remediation"],
+                is_debris=(tool_call.input["classification"] == "process_artifact"),
+                classification=tool_call.input["classification"],
+                confidence=tool_call.input["confidence"],
+                reason=tool_call.input["reason"],
+                remediation=tool_call.input["remediation"],
             )
 
     raise RuntimeError(f"LLM did not call classify_document for {doc_path}")
 
 
-def detect_debris(config: Config) -> list[DebrisClassification]:
-    """Scan for debris in documentation files.
+async def detect_debris_async(
+    provider: LLMProvider,
+    rate_limiter: RateLimiter,
+    config: Config,
+    on_progress: Callable[[int, int, Path, str], None] | None = None,
+) -> list[DebrisClassification]:
+    """Scan for debris in documentation files with parallel execution.
 
-    Returns list of classifications for all doc candidates.
+    Args:
+        provider: LLM provider for API calls
+        rate_limiter: Rate limiter for API throttling
+        config: Docstar configuration
+        on_progress: Optional callback (completed, total, path, status)
+
+    Returns:
+        List of classifications for all doc candidates.
     """
     candidates = find_doc_candidates(config)
     if not candidates:
         return []
 
     rules_text = config.load_rules_text()
-    client = _get_sync_client()
-
+    semaphore = asyncio.Semaphore(config.max_concurrency)
+    completed = 0
+    total = len(candidates)
+    lock = asyncio.Lock()
     classifications: list[DebrisClassification] = []
-    for doc_path in candidates:
-        try:
-            classification = classify_document(client, config, doc_path, rules_text)
-            classifications.append(classification)
-        except Exception as e:
-            # Log error but continue with other files
-            print(f"  [error] {doc_path}: {e}")
+
+    async def process_one(doc_path: Path) -> DebrisClassification | None:
+        nonlocal completed
+
+        async with semaphore:
+            await rate_limiter.throttle()
+            try:
+                classification = await classify_document_async(
+                    provider, config, doc_path, rules_text
+                )
+                rate_limiter.record_usage(
+                    input_tokens=0,  # LoggingProvider tracks actual tokens
+                    output_tokens=0,
+                )
+                async with lock:
+                    completed += 1
+                    classifications.append(classification)
+                    status = "debris" if classification.is_debris else "ok"
+                    if on_progress:
+                        on_progress(completed, total, doc_path, status)
+                return classification
+            except Exception as e:
+                async with lock:
+                    completed += 1
+                    if on_progress:
+                        on_progress(completed, total, doc_path, "error")
+                print(f"  [error] {doc_path}: {e}", flush=True)
+                return None
+
+    tasks = [process_one(path) for path in candidates]
+    await asyncio.gather(*tasks)
 
     return classifications
+
+
+def detect_debris(
+    config: Config,
+    on_progress: Callable[[int, int, Path, str], None] | None = None,
+) -> list[DebrisClassification]:
+    """Scan for debris in documentation files (sync wrapper).
+
+    Creates provider and rate limiter internally, runs async detection.
+    """
+    candidates = find_doc_candidates(config)
+    if not candidates:
+        return []
+
+    async def _run() -> list[DebrisClassification]:
+        provider = create_provider("anthropic")
+        logging_provider = LoggingProvider(provider)
+        rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
+        try:
+            return await detect_debris_async(
+                logging_provider, rate_limiter, config, on_progress
+            )
+        finally:
+            await logging_provider.close()
+
+    return asyncio.run(_run())
 
 
 # --- Cross-reference validation ---
@@ -273,26 +334,7 @@ def _find_referenced_sources(config: Config, doc_content: str) -> list[Path]:
     return referenced
 
 
-def _validate_single_doc(
-    client: anthropic.Anthropic,
-    config: Config,
-    doc_path: Path,
-    doc_content: str,
-    shadow_contexts: list[tuple[Path, str]],
-    rules_text: str,
-) -> list[CrossRefIssue]:
-    """Validate a single .md file against shadow docs.
-
-    Makes one LLM call per doc file.
-    """
-    relative_path = doc_path.relative_to(config.root_path)
-
-    # Build shadow context
-    shadow_text = ""
-    for source_path, shadow_content in shadow_contexts:
-        shadow_text += f"\n\n### Source: `{source_path}`\n{shadow_content}"
-
-    system_prompt = """You are a documentation accuracy validator.
+_XREF_SYSTEM_PROMPT = """You are a documentation accuracy validator.
 
 You are given a documentation file (.md) and shadow documentation for the source files it references.
 Shadow docs are the ground truth - they accurately describe what the code does.
@@ -314,6 +356,35 @@ Do NOT flag:
 
 Use the submit_cross_reference_validation tool with your findings."""
 
+
+@dataclass
+class _XRefWorkItem:
+    """Pre-computed work item for cross-reference validation."""
+
+    doc_path: Path
+    content: str
+    shadow_contexts: list[tuple[Path, str]]
+
+
+async def _validate_single_doc_async(
+    provider: LLMProvider,
+    config: Config,
+    doc_path: Path,
+    doc_content: str,
+    shadow_contexts: list[tuple[Path, str]],
+    rules_text: str,
+) -> list[CrossRefIssue]:
+    """Validate a single .md file against shadow docs.
+
+    Makes one LLM call per doc file.
+    """
+    relative_path = doc_path.relative_to(config.root_path)
+
+    # Build shadow context
+    shadow_text = ""
+    for source_path, shadow_content in shadow_contexts:
+        shadow_text += f"\n\n### Source: `{source_path}`\n{shadow_content}"
+
     user_prompt = f"""**Documentation file:** `{relative_path}`
 
 **Content:**
@@ -333,19 +404,21 @@ Use the submit_cross_reference_validation tool with your findings."""
 
     user_prompt += "\nValidate the documentation against the shadow docs using the submit_cross_reference_validation tool."
 
-    response = client.messages.create(
-        model=config.model,
-        max_tokens=2048,
-        system=system_prompt,
-        tools=get_cross_reference_tools(),
-        tool_choice={"type": "tool", "name": "submit_cross_reference_validation"},
-        messages=[{"role": "user", "content": user_prompt}],
+    result = await provider.complete(
+        messages=[Message(role=MessageRole.USER, content=user_prompt)],
+        system=_XREF_SYSTEM_PROMPT,
+        options=CompletionOptions(
+            model=config.model,
+            max_tokens=2048,
+            tools=get_cross_reference_tool_definitions(),
+            tool_choice={"type": "tool", "name": "submit_cross_reference_validation"},
+        ),
     )
 
     issues: list[CrossRefIssue] = []
-    for block in response.content:
-        if block.type == "tool_use" and block.name == "submit_cross_reference_validation":
-            for issue_data in block.input.get("issues", []):
+    for tool_call in result.tool_calls:
+        if tool_call.name == "submit_cross_reference_validation":
+            for issue_data in tool_call.input.get("issues", []):
                 issues.append(CrossRefIssue(
                     doc_path=relative_path,
                     severity=issue_data["severity"],
@@ -358,31 +431,16 @@ Use the submit_cross_reference_validation tool with your findings."""
     return issues
 
 
-def validate_cross_references(config: Config, doc_paths: list[Path] | None = None) -> list[CrossRefIssue]:
-    """Validate documentation files against shadow docs.
+def _prepare_xref_work_items(
+    config: Config, doc_paths: list[Path]
+) -> list[_XRefWorkItem]:
+    """Pre-compute work items for cross-reference validation.
 
-    Args:
-        config: Docstar configuration
-        doc_paths: Specific doc paths to validate (None = all candidates)
-
-    Returns:
-        List of cross-reference issues found
+    Reads files and finds shadow contexts (fast file I/O).
+    Returns only docs that have shadow contexts to validate against.
     """
     shadow_root = config.shadow_root
-    if not shadow_root.exists():
-        print("  [skip] No shadow docs found. Run 'docstar shadow .' first.")
-        return []
-
-    if doc_paths is None:
-        doc_paths = find_doc_candidates(config)
-
-    if not doc_paths:
-        return []
-
-    rules_text = config.load_rules_text()
-    client = _get_sync_client()
-
-    all_issues: list[CrossRefIssue] = []
+    work_items: list[_XRefWorkItem] = []
 
     for doc_path in doc_paths:
         try:
@@ -397,7 +455,7 @@ def validate_cross_references(config: Config, doc_paths: list[Path] | None = Non
         # Find which source files this doc references
         referenced_sources = _find_referenced_sources(config, content)
         if not referenced_sources:
-            continue  # No source references, nothing to validate
+            continue
 
         # Load shadow docs for referenced sources
         shadow_contexts: list[tuple[Path, str]] = []
@@ -411,17 +469,115 @@ def validate_cross_references(config: Config, doc_paths: list[Path] | None = Non
                     continue
 
         if not shadow_contexts:
-            continue  # No shadow docs available for referenced sources
+            continue
 
-        relative = doc_path.relative_to(config.root_path)
-        print(f"  [validating] {relative} (refs: {len(shadow_contexts)} source file(s))")
+        work_items.append(_XRefWorkItem(
+            doc_path=doc_path,
+            content=content,
+            shadow_contexts=shadow_contexts,
+        ))
 
-        try:
-            issues = _validate_single_doc(
-                client, config, doc_path, content, shadow_contexts, rules_text
-            )
-            all_issues.extend(issues)
-        except Exception as e:
-            print(f"  [error] {relative}: {e}")
+    return work_items
+
+
+async def validate_cross_references_async(
+    provider: LLMProvider,
+    rate_limiter: RateLimiter,
+    config: Config,
+    doc_paths: list[Path] | None = None,
+    on_progress: Callable[[int, int, Path, str], None] | None = None,
+) -> list[CrossRefIssue]:
+    """Validate documentation files against shadow docs with parallel execution.
+
+    Args:
+        provider: LLM provider for API calls
+        rate_limiter: Rate limiter for API throttling
+        config: Docstar configuration
+        doc_paths: Specific doc paths to validate (None = all candidates)
+        on_progress: Optional callback (completed, total, path, status)
+
+    Returns:
+        List of cross-reference issues found
+    """
+    shadow_root = config.shadow_root
+    if not shadow_root.exists():
+        print("  [skip] No shadow docs found. Run 'docstar shadow .' first.", flush=True)
+        return []
+
+    if doc_paths is None:
+        doc_paths = find_doc_candidates(config)
+
+    if not doc_paths:
+        return []
+
+    rules_text = config.load_rules_text()
+
+    # Pre-compute work items (file I/O, no LLM calls)
+    work_items = _prepare_xref_work_items(config, doc_paths)
+    if not work_items:
+        return []
+
+    semaphore = asyncio.Semaphore(config.max_concurrency)
+    completed = 0
+    total = len(work_items)
+    lock = asyncio.Lock()
+    all_issues: list[CrossRefIssue] = []
+
+    async def process_one(item: _XRefWorkItem) -> list[CrossRefIssue]:
+        nonlocal completed
+
+        async with semaphore:
+            await rate_limiter.throttle()
+            try:
+                issues = await _validate_single_doc_async(
+                    provider, config, item.doc_path, item.content,
+                    item.shadow_contexts, rules_text
+                )
+                async with lock:
+                    completed += 1
+                    all_issues.extend(issues)
+                    status = f"found {len(issues)}" if issues else "ok"
+                    if on_progress:
+                        on_progress(completed, total, item.doc_path, status)
+                return issues
+            except Exception as e:
+                relative = item.doc_path.relative_to(config.root_path)
+                async with lock:
+                    completed += 1
+                    if on_progress:
+                        on_progress(completed, total, item.doc_path, "error")
+                print(f"  [error] {relative}: {e}", flush=True)
+                return []
+
+    tasks = [process_one(item) for item in work_items]
+    await asyncio.gather(*tasks)
 
     return all_issues
+
+
+def validate_cross_references(
+    config: Config,
+    doc_paths: list[Path] | None = None,
+    on_progress: Callable[[int, int, Path, str], None] | None = None,
+) -> list[CrossRefIssue]:
+    """Validate documentation files against shadow docs (sync wrapper).
+
+    Creates provider and rate limiter internally, runs async validation.
+    """
+    shadow_root = config.shadow_root
+    if not shadow_root.exists():
+        print("  [skip] No shadow docs found. Run 'docstar shadow .' first.", flush=True)
+        return []
+
+    async def _run() -> list[CrossRefIssue]:
+        provider = create_provider("anthropic")
+        logging_provider = LoggingProvider(provider)
+        rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
+        try:
+            return await validate_cross_references_async(
+                logging_provider, rate_limiter, config, doc_paths, on_progress
+            )
+        finally:
+            await logging_provider.close()
+
+    return asyncio.run(_run())

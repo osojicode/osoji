@@ -1,6 +1,7 @@
 """Documentation audit orchestration."""
 
 import json
+import time as time_module
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -41,23 +42,68 @@ class AuditResult:
         return not self.has_errors
 
 
-def run_audit(config: Config, fix_shadow: bool = True, xref: bool = False) -> AuditResult:
+def _make_progress_default(config: Config):
+    """Create an inline progress bar callback (carriage return, same line)."""
+    def progress(completed: int, total: int, path: Path, status: str) -> None:
+        pct = completed / total * 100 if total > 0 else 0
+        symbols = {
+            "ok": "[ok]",
+            "debris": "[DEBRIS]",
+            "error": "[ERROR]",
+            "skipped": "[skip]",
+        }
+        symbol = symbols.get(status, f"[{status}]")
+        relative = path.relative_to(config.root_path) if path.is_absolute() else path
+        print(f"\r  [{completed}/{total}] {pct:.0f}% {symbol} {relative.name}\033[K", end="", flush=True)
+        if completed == total:
+            print()
+    return progress
+
+
+def _make_progress_verbose(config: Config):
+    """Create a verbose progress callback (one line per file)."""
+    def progress(completed: int, total: int, path: Path, status: str) -> None:
+        symbols = {
+            "ok": "[ok]",
+            "debris": "[DEBRIS]",
+            "error": "[ERROR]",
+            "skipped": "[skip]",
+        }
+        symbol = symbols.get(status, f"[{status}]")
+        relative = path.relative_to(config.root_path) if path.is_absolute() else path
+        print(f"  {symbol} {relative}", flush=True)
+    return progress
+
+
+def run_audit(
+    config: Config,
+    fix_shadow: bool = True,
+    xref: bool = False,
+    verbose: bool = False,
+) -> AuditResult:
     """Run a complete documentation audit.
 
     Args:
         config: Docstar configuration
         fix_shadow: If True, auto-update stale shadow docs (Docstar owns them)
         xref: If True, run cross-reference validation (LLM calls per .md file)
+        verbose: If True, show detailed per-file progress and timing
     """
     issues: list[AuditIssue] = []
+    progress_cb = _make_progress_verbose(config) if verbose else _make_progress_default(config)
 
     # 1. Check shadow docs (auto-fix if enabled)
+    print("Docstar: Checking shadow documentation...", flush=True)
     shadow_issues = check_shadow_docs(config)
 
     if fix_shadow and shadow_issues:
-        print("Docstar: Auto-updating shadow documentation...")
-        generate_shadow_docs(config)
+        print(f"Docstar: Auto-updating {len(shadow_issues)} shadow doc(s)...", flush=True)
+        phase_start = time_module.monotonic()
+        generate_shadow_docs(config, verbose=verbose)
         shadow_issues = []  # Cleared by regeneration
+        if verbose:
+            elapsed = time_module.monotonic() - phase_start
+            print(f"  [{elapsed:.1f}s]", flush=True)
 
     for path, status in shadow_issues:
         issues.append(AuditIssue(
@@ -69,8 +115,12 @@ def run_audit(config: Config, fix_shadow: bool = True, xref: bool = False) -> Au
         ))
 
     # 2. Detect debris (errors - commission, not omission)
-    print("Docstar: Scanning for documentation debris...")
-    debris_results = detect_debris(config)
+    print("Docstar: Scanning for documentation debris...", flush=True)
+    phase_start = time_module.monotonic()
+    debris_results = detect_debris(config, on_progress=progress_cb)
+    if verbose:
+        elapsed = time_module.monotonic() - phase_start
+        print(f"  [{elapsed:.1f}s]", flush=True)
 
     for item in debris_results:
         if item.is_debris:
@@ -83,7 +133,8 @@ def run_audit(config: Config, fix_shadow: bool = True, xref: bool = False) -> Au
             ))
 
     # 3. Surface code debris findings from shadow generation
-    print("Docstar: Checking code debris findings...")
+    print("Docstar: Checking code debris findings...", flush=True)
+    phase_start = time_module.monotonic()
     findings_dir = config.root_path / ".docstar" / "findings"
     if findings_dir.exists():
         for findings_file in sorted(findings_dir.rglob("*.findings.json")):
@@ -101,11 +152,18 @@ def run_audit(config: Config, fix_shadow: bool = True, xref: bool = False) -> Au
                     ))
             except (json.JSONDecodeError, KeyError):
                 continue  # Skip malformed findings files
+    if verbose:
+        elapsed = time_module.monotonic() - phase_start
+        print(f"  [{elapsed:.1f}s]", flush=True)
 
     # 4. Cross-reference validation (opt-in)
     if xref:
-        print("Docstar: Validating documentation cross-references...")
-        xref_issues = validate_cross_references(config)
+        print("Docstar: Validating documentation cross-references...", flush=True)
+        phase_start = time_module.monotonic()
+        xref_issues = validate_cross_references(config, on_progress=progress_cb)
+        if verbose:
+            elapsed = time_module.monotonic() - phase_start
+            print(f"  [{elapsed:.1f}s]", flush=True)
         for issue in xref_issues:
             issues.append(AuditIssue(
                 path=issue.doc_path,

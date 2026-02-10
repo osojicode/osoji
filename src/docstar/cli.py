@@ -171,7 +171,7 @@ def audit(path: Path, fix: bool, verbose: bool, output_format: str, xref: bool, 
     config = Config(root_path=path.resolve(), respect_gitignore=not no_gitignore)
 
     try:
-        result = run_audit(config, fix_shadow=fix, xref=xref)
+        result = run_audit(config, fix_shadow=fix, xref=xref, verbose=verbose)
     except RuntimeError as e:
         raise click.ClickException(str(e)) from e
 
