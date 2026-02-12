@@ -49,9 +49,11 @@ def shadow(path: Path, force: bool, verbose: bool, dry_run: bool, no_gitignore: 
         return
 
     try:
-        asyncio.run(generate_shadow_docs_async(config, verbose=verbose))
+        success = asyncio.run(generate_shadow_docs_async(config, verbose=verbose))
     except RuntimeError as e:
         raise click.ClickException(str(e)) from e
+    if not success:
+        raise click.ClickException("Some files or directories failed to process (see errors above)")
 
 
 @main.command()
@@ -114,7 +116,9 @@ def diff(base_ref: str, update: bool, output_format: str) -> None:
     if update and report.stale_shadows:
         click.echo("Docstar: Regenerating stale shadow documentation...")
         try:
-            generate_shadow_docs(config)
+            success = generate_shadow_docs(config)
+            if not success:
+                raise click.ClickException("Some files or directories failed to process (see errors above)")
             # Re-run to get updated report
             report = run_diff(config, base_ref)
         except RuntimeError as e:

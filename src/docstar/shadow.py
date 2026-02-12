@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import errno
 import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -67,6 +68,22 @@ def assemble_directory_shadow_doc(dir_path: Path, body: str) -> str:
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     header = f"# {dir_path}/\n@generated: {timestamp}\n\n"
     return header + body
+
+
+_TRANSIENT_ERRNOS = {errno.EINVAL, errno.EIO}
+_RETRY_DELAYS = [0.5, 1.0, 2.0]
+
+
+async def _write_with_retry(path: Path, content: str) -> None:
+    """Write text to a file, retrying on transient OS errors (e.g. DrvFs/EINVAL)."""
+    for attempt in range(len(_RETRY_DELAYS) + 1):
+        try:
+            path.write_text(content, encoding="utf-8")
+            return
+        except OSError as exc:
+            if exc.errno not in _TRANSIENT_ERRNOS or attempt >= len(_RETRY_DELAYS):
+                raise
+            await asyncio.sleep(_RETRY_DELAYS[attempt])
 
 
 def is_stale(config: Config, source_path: Path) -> bool:
@@ -267,7 +284,7 @@ async def process_file_async(
 
         # Write shadow doc
         shadow_path.parent.mkdir(parents=True, exist_ok=True)
-        shadow_path.write_text(full_doc, encoding="utf-8")
+        await _write_with_retry(shadow_path, full_doc)
 
         # Write findings JSON
         findings_path = config.findings_path_for(file_path)
@@ -289,7 +306,7 @@ async def process_file_async(
                 for f in findings
             ],
         }
-        findings_path.write_text(json.dumps(findings_json, indent=2), encoding="utf-8")
+        await _write_with_retry(findings_path, json.dumps(findings_json, indent=2))
 
         return ShadowResult(
             path=file_path,
@@ -395,7 +412,7 @@ async def generate_directory_shadows(
     all_files: list[Path],
     all_dirs: list[Path],
     verbose: bool = False,
-) -> dict[Path, str]:
+) -> tuple[dict[Path, str], list[tuple[Path, str]]]:
     """Generate directory roll-up shadow docs with dependency-based parallelism.
 
     Directories are processed as soon as all their children (files + subdirs)
@@ -411,7 +428,7 @@ async def generate_directory_shadows(
         verbose: If True, print detailed progress
 
     Returns:
-        Dict mapping directory paths to their shadow doc bodies
+        Tuple of (dir_bodies dict, dir_errors list of (path, error_msg))
     """
     # Build file bodies dict from results
     file_bodies: dict[Path, str] = {}
@@ -421,6 +438,7 @@ async def generate_directory_shadows(
 
     # Shared state protected by lock
     dir_bodies: dict[Path, str] = {}
+    dir_errors: list[tuple[Path, str]] = []
     lock = asyncio.Lock()
 
     # Build dependency info for each directory
@@ -457,23 +475,64 @@ async def generate_directory_shadows(
 
         print(f"  [rolling up] {relative_path}/", flush=True)
 
-        # Gather summaries from direct children
-        child_summaries: list[tuple[Path, str]] = []
+        try:
+            # Gather summaries from direct children
+            child_summaries: list[tuple[Path, str]] = []
 
-        # Add file children
-        for file_path in get_direct_children(config, dir_path, all_files):
-            if file_path in file_bodies:
-                child_summaries.append((file_path, file_bodies[file_path]))
+            # Add file children
+            for file_path in get_direct_children(config, dir_path, all_files):
+                if file_path in file_bodies:
+                    child_summaries.append((file_path, file_bodies[file_path]))
 
-        # Add directory children (already complete at this point)
-        async with lock:
-            for child_dir in get_child_directories(dir_path, all_dirs):
-                if child_dir in dir_bodies:
-                    child_summaries.append((child_dir, dir_bodies[child_dir]))
-
-        if not child_summaries:
-            # Empty directory - mark complete and notify parent
+            # Add directory children (already complete at this point)
             async with lock:
+                for child_dir in get_child_directories(dir_path, all_dirs):
+                    if child_dir in dir_bodies:
+                        child_summaries.append((child_dir, dir_bodies[child_dir]))
+
+            if not child_summaries:
+                # Empty directory - mark complete and notify parent
+                async with lock:
+                    dir_bodies[dir_path] = ""
+                    completed_count += 1
+                    if dir_path in parent_of:
+                        parent = parent_of[dir_path]
+                        pending_children[parent].discard(dir_path)
+                        if not pending_children[parent]:
+                            await ready_queue.put(parent)
+                return
+
+            await rate_limiter.throttle()
+            body, input_tokens, output_tokens = await generate_directory_shadow_doc_async(
+                provider, config, dir_path, child_summaries
+            )
+            full_doc = assemble_directory_shadow_doc(relative_path, body)
+
+            # Write shadow doc
+            shadow_path = config.shadow_path_for_dir(dir_path)
+            shadow_path.parent.mkdir(parents=True, exist_ok=True)
+            await _write_with_retry(shadow_path, full_doc)
+
+            # Record actual token usage from API response
+            rate_limiter.record_usage(
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+            )
+
+            # Update state and notify parent
+            async with lock:
+                dir_bodies[dir_path] = body
+                completed_count += 1
+                if dir_path in parent_of:
+                    parent = parent_of[dir_path]
+                    pending_children[parent].discard(dir_path)
+                    if not pending_children[parent]:
+                        await ready_queue.put(parent)
+
+        except Exception as e:
+            print(f"  [ERROR] {relative_path}/: {e}", flush=True)
+            async with lock:
+                dir_errors.append((dir_path, str(e)))
                 dir_bodies[dir_path] = ""
                 completed_count += 1
                 if dir_path in parent_of:
@@ -481,34 +540,6 @@ async def generate_directory_shadows(
                     pending_children[parent].discard(dir_path)
                     if not pending_children[parent]:
                         await ready_queue.put(parent)
-            return
-
-        await rate_limiter.throttle()
-        body, input_tokens, output_tokens = await generate_directory_shadow_doc_async(
-            provider, config, dir_path, child_summaries
-        )
-        full_doc = assemble_directory_shadow_doc(relative_path, body)
-
-        # Write shadow doc
-        shadow_path = config.shadow_path_for_dir(dir_path)
-        shadow_path.parent.mkdir(parents=True, exist_ok=True)
-        shadow_path.write_text(full_doc, encoding="utf-8")
-
-        # Record actual token usage from API response
-        rate_limiter.record_usage(
-            input_tokens=input_tokens,
-            output_tokens=output_tokens,
-        )
-
-        # Update state and notify parent
-        async with lock:
-            dir_bodies[dir_path] = body
-            completed_count += 1
-            if dir_path in parent_of:
-                parent = parent_of[dir_path]
-                pending_children[parent].discard(dir_path)
-                if not pending_children[parent]:
-                    await ready_queue.put(parent)
 
     # Process directories as they become ready
     active_tasks: set[asyncio.Task] = set()
@@ -526,10 +557,11 @@ async def generate_directory_shadows(
             done, _ = await asyncio.wait(
                 active_tasks, return_when=asyncio.FIRST_COMPLETED
             )
-            # Check for exceptions
+            # Collect exceptions (don't crash)
             for task in done:
-                if task.exception():
-                    raise task.exception()
+                exc = task.exception()
+                if exc:
+                    dir_errors.append((Path("<unknown>"), str(exc)))
         else:
             # No active tasks and queue empty - wait a bit for queue
             await asyncio.sleep(0.01)
@@ -538,15 +570,18 @@ async def generate_directory_shadows(
     if active_tasks:
         await asyncio.gather(*active_tasks)
 
-    return dir_bodies
+    return dir_bodies, dir_errors
 
 
-async def generate_shadow_docs_async(config: Config, verbose: bool = False) -> None:
+async def generate_shadow_docs_async(config: Config, verbose: bool = False) -> bool:
     """Async entry point for shadow generation.
 
     Args:
         config: Configuration for shadow generation
         verbose: If True, show detailed progress including token counts
+
+    Returns:
+        True if all files and directories were processed successfully, False if any had errors.
     """
     print(f"Generating shadow documentation for: {config.root_path}", flush=True)
 
@@ -603,11 +638,21 @@ async def generate_shadow_docs_async(config: Config, verbose: bool = False) -> N
         # Directory roll-ups (sequential, bottom-up)
         dir_start = time_module.monotonic()
         print("\nRolling up directories:", flush=True)
-        await generate_directory_shadows(
+        dir_bodies, dir_errors = await generate_directory_shadows(
             logging_provider, rate_limiter, config, results, files, dirs, verbose
         )
         dir_elapsed = time_module.monotonic() - dir_start
         print(f"[Directories completed in {dir_elapsed:.1f}s]", flush=True)
+
+        # Report any directory errors
+        if dir_errors:
+            print(f"\n{len(dir_errors)} directory(ies) had errors:", flush=True)
+            for dir_path, err_msg in dir_errors:
+                try:
+                    relative = dir_path.relative_to(config.root_path)
+                except ValueError:
+                    relative = dir_path
+                print(f"  [ERROR] {relative}/: {err_msg}", flush=True)
 
         # Clean up orphan shadow docs
         print("\nCleaning up orphans...", flush=True)
@@ -634,6 +679,8 @@ async def generate_shadow_docs_async(config: Config, verbose: bool = False) -> N
                 line_range = f"L{f.line_start}-{f.line_end}" if f.line_start != f.line_end else f"L{f.line_start}"
                 print(f"  {severity_label} {relative}:{line_range}  {f.description}", flush=True)
             print("\nRun 'docstar audit' for the full report.", flush=True)
+
+        return not errors and not dir_errors
 
     finally:
         await logging_provider.close()
@@ -757,12 +804,15 @@ def dry_run_shadow(config: Config, verbose: bool = False) -> None:
                 print(f"  {relative}", flush=True)
 
 
-def generate_shadow_docs(config: Config, verbose: bool = False) -> None:
+def generate_shadow_docs(config: Config, verbose: bool = False) -> bool:
     """Generate shadow documentation for an entire codebase (sync wrapper).
 
     This is the backward-compatible sync entry point.
+
+    Returns:
+        True if all files and directories were processed successfully, False if any had errors.
     """
-    asyncio.run(generate_shadow_docs_async(config, verbose=verbose))
+    return asyncio.run(generate_shadow_docs_async(config, verbose=verbose))
 
 
 # Keep sync versions for backward compatibility and non-async code paths
