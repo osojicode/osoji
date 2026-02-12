@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Callable
 
 from .config import Config
-from .hasher import add_line_numbers, compute_file_hash, extract_source_hash
+from .hasher import add_line_numbers, compute_children_hash, compute_file_hash, extract_children_hash, extract_source_hash
 from .llm import (
     create_provider,
     LLMProvider,
@@ -63,10 +63,10 @@ def assemble_shadow_doc(file_path: Path, source_hash: str, body: str) -> str:
     return header + body
 
 
-def assemble_directory_shadow_doc(dir_path: Path, body: str) -> str:
+def assemble_directory_shadow_doc(dir_path: Path, children_hash: str, body: str) -> str:
     """Assemble a complete directory shadow doc with header."""
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    header = f"# {dir_path}/\n@generated: {timestamp}\n\n"
+    header = f"# {dir_path}/\n@children-hash: {children_hash}\n@generated: {timestamp}\n\n"
     return header + body
 
 
@@ -122,6 +122,32 @@ def _extract_body_from_shadow(shadow_content: str) -> str:
             body_start = i + 1
             break
     return "\n".join(lines[body_start:])
+
+
+def is_directory_stale(config: Config, dir_path: Path, current_children_hash: str) -> bool:
+    """Check if a directory shadow doc needs regeneration.
+
+    Returns True if:
+    - Force flag is set
+    - Shadow doc doesn't exist
+    - Children hash doesn't match (any subtree change)
+    - Old format without @children-hash header
+    """
+    if config.force:
+        return True
+
+    shadow_path = config.shadow_path_for_dir(dir_path)
+    if not shadow_path.exists():
+        return True
+
+    try:
+        shadow_content = shadow_path.read_text(encoding="utf-8")
+        cached_hash = extract_children_hash(shadow_content)
+        if cached_hash is None:
+            return True
+        return current_children_hash != cached_hash
+    except Exception:
+        return True
 
 
 async def generate_file_shadow_doc_async(
@@ -412,7 +438,7 @@ async def generate_directory_shadows(
     all_files: list[Path],
     all_dirs: list[Path],
     verbose: bool = False,
-) -> tuple[dict[Path, str], list[tuple[Path, str]]]:
+) -> tuple[dict[Path, str], dict[Path, str], list[tuple[Path, str]]]:
     """Generate directory roll-up shadow docs with dependency-based parallelism.
 
     Directories are processed as soon as all their children (files + subdirs)
@@ -428,7 +454,7 @@ async def generate_directory_shadows(
         verbose: If True, print detailed progress
 
     Returns:
-        Tuple of (dir_bodies dict, dir_errors list of (path, error_msg))
+        Tuple of (dir_bodies dict, dir_children_hashes dict, dir_errors list)
     """
     # Build file bodies dict from results
     file_bodies: dict[Path, str] = {}
@@ -438,6 +464,7 @@ async def generate_directory_shadows(
 
     # Shared state protected by lock
     dir_bodies: dict[Path, str] = {}
+    dir_children_hashes: dict[Path, str] = {}
     dir_errors: list[tuple[Path, str]] = []
     lock = asyncio.Lock()
 
@@ -473,18 +500,49 @@ async def generate_directory_shadows(
         if relative_path == Path("."):
             relative_path = Path("(root)")
 
-        print(f"  [rolling up] {relative_path}/", flush=True)
-
         try:
-            # Gather summaries from direct children
+            # Build child_entries for Merkle hash
+            child_entries: list[tuple[str, str]] = []
+
+            # Child files: (name, file_content_hash)
+            for file_path in get_direct_children(config, dir_path, all_files):
+                if file_path in file_bodies:
+                    child_entries.append((file_path.name, compute_file_hash(file_path)))
+
+            # Child dirs: (name, children_hash) — already computed (bottom-up)
+            async with lock:
+                for child_dir in get_child_directories(dir_path, all_dirs):
+                    if child_dir in dir_children_hashes:
+                        child_entries.append((child_dir.name, dir_children_hashes[child_dir]))
+
+            current_hash = compute_children_hash(child_entries)
+
+            # Check if cached
+            if not is_directory_stale(config, dir_path, current_hash):
+                print(f"  [cached] {relative_path}/", flush=True)
+                shadow_path = config.shadow_path_for_dir(dir_path)
+                shadow_content = shadow_path.read_text(encoding="utf-8")
+                body = _extract_body_from_shadow(shadow_content)
+                async with lock:
+                    dir_bodies[dir_path] = body
+                    dir_children_hashes[dir_path] = current_hash
+                    completed_count += 1
+                    if dir_path in parent_of:
+                        parent = parent_of[dir_path]
+                        pending_children[parent].discard(dir_path)
+                        if not pending_children[parent]:
+                            await ready_queue.put(parent)
+                return
+
+            print(f"  [rolling up] {relative_path}/", flush=True)
+
+            # Gather summaries for LLM call
             child_summaries: list[tuple[Path, str]] = []
 
-            # Add file children
             for file_path in get_direct_children(config, dir_path, all_files):
                 if file_path in file_bodies:
                     child_summaries.append((file_path, file_bodies[file_path]))
 
-            # Add directory children (already complete at this point)
             async with lock:
                 for child_dir in get_child_directories(dir_path, all_dirs):
                     if child_dir in dir_bodies:
@@ -494,6 +552,7 @@ async def generate_directory_shadows(
                 # Empty directory - mark complete and notify parent
                 async with lock:
                     dir_bodies[dir_path] = ""
+                    dir_children_hashes[dir_path] = current_hash
                     completed_count += 1
                     if dir_path in parent_of:
                         parent = parent_of[dir_path]
@@ -506,7 +565,7 @@ async def generate_directory_shadows(
             body, input_tokens, output_tokens = await generate_directory_shadow_doc_async(
                 provider, config, dir_path, child_summaries
             )
-            full_doc = assemble_directory_shadow_doc(relative_path, body)
+            full_doc = assemble_directory_shadow_doc(relative_path, current_hash, body)
 
             # Write shadow doc
             shadow_path = config.shadow_path_for_dir(dir_path)
@@ -522,6 +581,7 @@ async def generate_directory_shadows(
             # Update state and notify parent
             async with lock:
                 dir_bodies[dir_path] = body
+                dir_children_hashes[dir_path] = current_hash
                 completed_count += 1
                 if dir_path in parent_of:
                     parent = parent_of[dir_path]
@@ -531,9 +591,12 @@ async def generate_directory_shadows(
 
         except Exception as e:
             print(f"  [ERROR] {relative_path}/: {e}", flush=True)
+            # Store sentinel hash so parent can still compute its hash
+            sentinel_hash = compute_children_hash([])
             async with lock:
                 dir_errors.append((dir_path, str(e)))
                 dir_bodies[dir_path] = ""
+                dir_children_hashes[dir_path] = sentinel_hash
                 completed_count += 1
                 if dir_path in parent_of:
                     parent = parent_of[dir_path]
@@ -570,7 +633,7 @@ async def generate_directory_shadows(
     if active_tasks:
         await asyncio.gather(*active_tasks)
 
-    return dir_bodies, dir_errors
+    return dir_bodies, dir_children_hashes, dir_errors
 
 
 async def generate_shadow_docs_async(config: Config, verbose: bool = False) -> bool:
@@ -638,7 +701,7 @@ async def generate_shadow_docs_async(config: Config, verbose: bool = False) -> b
         # Directory roll-ups (sequential, bottom-up)
         dir_start = time_module.monotonic()
         print("\nRolling up directories:", flush=True)
-        dir_bodies, dir_errors = await generate_directory_shadows(
+        dir_bodies, _dir_hashes, dir_errors = await generate_directory_shadows(
             logging_provider, rate_limiter, config, results, files, dirs, verbose
         )
         dir_elapsed = time_module.monotonic() - dir_start
