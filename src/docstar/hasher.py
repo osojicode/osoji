@@ -37,3 +37,22 @@ def extract_source_hash(shadow_content: str) -> str | None:
         if line.startswith("@source-hash:"):
             return line.split(":", 1)[1].strip()
     return None
+
+
+def compute_children_hash(child_entries: list[tuple[str, str]]) -> str:
+    """Compute Merkle-style hash from sorted (name, content_hash) pairs.
+
+    For files, content_hash is the source-hash. For dirs, it's their children-hash.
+    Catches adds, removes, and content changes in a single comparison.
+    """
+    sorted_entries = sorted(child_entries)
+    combined = "\n".join(f"{name}:{hash}" for name, hash in sorted_entries)
+    return compute_hash(combined)
+
+
+def extract_children_hash(shadow_content: str) -> str | None:
+    """Extract the children hash from a directory shadow doc header."""
+    for line in shadow_content.splitlines()[:10]:
+        if line.startswith("@children-hash:"):
+            return line.split(":", 1)[1].strip()
+    return None
