@@ -90,11 +90,15 @@ Documentation should serve one of four purposes:
 ## Process Artifacts (Debris)
 
 Some files look like documentation but are actually development ephemera:
-- Implementation prompts or instructions (e.g., "Claude, implement X...")
+- One-off task prompts or instructions (e.g., "Claude, implement X for a specific ticket")
 - Scratch notes or drafts not meant to be maintained
 - Meeting notes or decision logs
 - One-time migration guides
 - Files with "prompt", "scratch", "WIP", "draft", "temp" in the name
+
+NOT debris — classify as `reference`: Durable AI agent configuration files maintained
+alongside the codebase (e.g. AGENTS.md, CLAUDE.md, .cursorrules, CONVENTIONS.md).
+These are standing project instructions, not throwaway task prompts.
 
 Process artifacts should be classified as `process_artifact`. They mislead developers who expect maintained documentation.
 
