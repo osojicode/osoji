@@ -8,6 +8,7 @@ from pathlib import Path
 from .config import Config
 from .shadow import check_shadow_docs, generate_shadow_docs
 from .debris import detect_debris, validate_cross_references
+from .walker import _matches_ignore
 
 
 @dataclass
@@ -91,6 +92,7 @@ def run_audit(
     """
     issues: list[AuditIssue] = []
     progress_cb = _make_progress_verbose(config) if verbose else _make_progress_default(config)
+    docstarignore = config.load_docstarignore()
 
     # 1. Check shadow docs (auto-fix if enabled)
     print("Docstar: Checking shadow documentation...", flush=True)
@@ -140,9 +142,15 @@ def run_audit(
         for findings_file in sorted(findings_dir.rglob("*.findings.json")):
             try:
                 data = json.loads(findings_file.read_text(encoding="utf-8"))
+                source_path = Path(data["source"])
+                # Skip findings for ignored files
+                if _matches_ignore(source_path, config.ignore_patterns):
+                    continue
+                if _matches_ignore(source_path, docstarignore):
+                    continue
                 for finding in data.get("findings", []):
                     issues.append(AuditIssue(
-                        path=Path(data["source"]),
+                        path=source_path,
                         severity=finding["severity"],
                         category=finding["category"],
                         message=f"L{finding['line_start']}-{finding['line_end']}: {finding['description']}",

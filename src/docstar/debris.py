@@ -1,7 +1,6 @@
 """Debris detection for documentation files."""
 
 import asyncio
-import fnmatch
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -13,7 +12,7 @@ from .llm.logging import LoggingProvider
 from .llm.types import Message, MessageRole, CompletionOptions
 from .rate_limiter import RateLimiter, get_config_with_overrides
 from .tools import get_classify_tool_definitions, get_cross_reference_tool_definitions
-from .walker import list_repo_files
+from .walker import list_repo_files, _matches_ignore
 
 
 @dataclass
@@ -70,19 +69,6 @@ def find_doc_candidates(config: Config) -> list[Path]:
             candidates.append(path)
 
     return sorted(candidates)
-
-
-def _matches_ignore(path: Path, patterns: list[str] | set[str]) -> bool:
-    """Check if path matches any ignore pattern."""
-    path_str = str(path)
-    for pattern in patterns:
-        if fnmatch.fnmatch(path_str, pattern):
-            return True
-        # Also check each path component
-        for part in path.parts:
-            if fnmatch.fnmatch(part, pattern):
-                return True
-    return False
 
 
 # --- Classification prompts ---

@@ -9,6 +9,7 @@ from .config import Config
 from .debris import find_doc_candidates
 from .hooks import find_git_root
 from .shadow import is_stale
+from .walker import _matches_ignore
 
 
 @dataclass
@@ -85,6 +86,8 @@ def get_diff_files(repo_root: Path, base_ref: str, config: Config) -> list[DiffF
             f"git diff failed: {e.stderr.strip() or e.stdout.strip() or str(e)}"
         )
 
+    docstarignore = config.load_docstarignore()
+
     changes: list[DiffFileChange] = []
     for line in result.stdout.strip().split("\n"):
         if not line:
@@ -97,6 +100,12 @@ def get_diff_files(repo_root: Path, base_ref: str, config: Config) -> list[DiffF
         status_code = parts[0][0]  # First char (R100 -> R)
         # For renames, use the destination path
         file_path = Path(parts[-1])
+
+        # Skip files matching ignore patterns
+        if _matches_ignore(file_path, config.ignore_patterns):
+            continue
+        if _matches_ignore(file_path, docstarignore):
+            continue
 
         change_type = _STATUS_MAP.get(status_code, "modified")
         is_source = file_path.suffix in config.extensions
