@@ -185,10 +185,13 @@ class Config:
                 continue
             if line.startswith("!"):
                 # Negation: remove from default ignore patterns
-                negated = line[1:]
-                self.ignore_patterns.discard(negated)
+                negated = line[1:].strip("/")
+                if negated:
+                    self.ignore_patterns.discard(negated)
             else:
-                extra_patterns.append(line)
+                normalized = line.strip("/")
+                if normalized:
+                    extra_patterns.append(normalized)
         return extra_patterns
 
     def is_doc_candidate(self, path: Path) -> bool:
