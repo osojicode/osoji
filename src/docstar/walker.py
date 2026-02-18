@@ -9,15 +9,6 @@ from .config import Config
 from .hooks import find_git_root
 
 
-def should_ignore(path: Path, ignore_patterns: set[str]) -> bool:
-    """Check if a path should be ignored based on patterns."""
-    name = path.name
-    for pattern in ignore_patterns:
-        if fnmatch.fnmatch(name, pattern):
-            return True
-    return False
-
-
 def _matches_ignore(path: Path, patterns: list[str] | set[str]) -> str | None:
     """Check if a relative path matches any ignore pattern.
 

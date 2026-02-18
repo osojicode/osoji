@@ -58,6 +58,26 @@ to work with this code effectively.""",
                     "required": ["category", "line_start", "line_end", "severity", "description"],
                 },
             },
+            "public_symbols": {
+                "type": "array",
+                "description": "Public symbols (functions, classes, constants) defined in this file that could be imported or used by other files. Exclude private/underscore-prefixed names unless they are part of the module's public API (e.g., _matches_ignore used cross-module).",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "description": "Symbol name as it appears in code",
+                        },
+                        "kind": {
+                            "type": "string",
+                            "enum": ["function", "class", "constant", "variable"],
+                        },
+                        "line_start": {"type": "integer"},
+                        "line_end": {"type": "integer"},
+                    },
+                    "required": ["name", "kind", "line_start"],
+                },
+            },
         },
         "required": ["content", "findings"],
     },

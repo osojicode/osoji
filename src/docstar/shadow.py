@@ -54,6 +54,7 @@ class ShadowResult:
     input_tokens: int = 0
     output_tokens: int = 0
     findings: list[Finding] = field(default_factory=list)
+    public_symbols: list[dict] = field(default_factory=list)
 
 
 def assemble_shadow_doc(file_path: Path, source_hash: str, body: str) -> str:
@@ -155,11 +156,11 @@ async def generate_file_shadow_doc_async(
     config: Config,
     file_path: Path,
     numbered_content: str,
-) -> tuple[str, int, int, list[Finding]]:
+) -> tuple[str, int, int, list[Finding], list[dict]]:
     """Generate a shadow doc for a single file asynchronously.
 
     Uses tool_choice to force the LLM to call submit_shadow_doc.
-    Returns tuple of (content, input_tokens, output_tokens, findings).
+    Returns tuple of (content, input_tokens, output_tokens, findings, public_symbols).
     """
     relative_path = file_path.relative_to(config.root_path)
 
@@ -177,7 +178,11 @@ ALSO: While analyzing the code, identify any "debris" that could mislead an AI c
 - Expired TODO/FIXME comments whose context no longer applies
 - Dead code (unreachable branches, unused functions defined but never called within this file)
 
-Report these as findings in the tool call. If the code is clean, submit an empty findings array."""
+Report these as findings in the tool call. If the code is clean, submit an empty findings array.
+
+ALSO: Populate the public_symbols array with every function, class, constant, or module-level variable
+that other files could import from this module. Include the symbol name, kind, and line range.
+Exclude private/underscore-prefixed names UNLESS they are clearly part of the module's cross-file API."""
 
     user_prompt = f"""Generate shadow documentation for the following file:
 
@@ -215,7 +220,8 @@ Include line number references for key elements (e.g., "MyClass (L15-45)").
                 )
                 for f in findings_data
             ]
-            return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings)
+            public_symbols = tool_call.input.get("public_symbols", [])
+            return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings, public_symbols)
 
     raise RuntimeError(f"LLM did not call submit_shadow_doc tool for {file_path}")
 
@@ -301,7 +307,7 @@ async def process_file_async(
         numbered_content = add_line_numbers(content)
         source_hash = compute_file_hash(file_path)
 
-        body, input_tokens, output_tokens, findings = await generate_file_shadow_doc_async(
+        body, input_tokens, output_tokens, findings, public_symbols = await generate_file_shadow_doc_async(
             provider, config, file_path, numbered_content
         )
         full_doc = assemble_shadow_doc(
@@ -334,6 +340,18 @@ async def process_file_async(
         }
         await _write_with_retry(findings_path, json.dumps(findings_json, indent=2))
 
+        # Write symbols JSON sidecar
+        if public_symbols:
+            symbols_path = config.symbols_path_for(file_path)
+            symbols_path.parent.mkdir(parents=True, exist_ok=True)
+            symbols_json = {
+                "source": str(file_path.relative_to(config.root_path)),
+                "source_hash": source_hash,
+                "generated": timestamp,
+                "symbols": public_symbols,
+            }
+            await _write_with_retry(symbols_path, json.dumps(symbols_json, indent=2))
+
         return ShadowResult(
             path=file_path,
             body=body,
@@ -341,6 +359,7 @@ async def process_file_async(
             input_tokens=input_tokens,
             output_tokens=output_tokens,
             findings=findings,
+            public_symbols=public_symbols,
         )
     except Exception as e:
         return ShadowResult(path=file_path, body="", cached=False, error=str(e))
@@ -792,14 +811,29 @@ def cleanup_orphan_shadows(config: Config, files: list[Path], dirs: list[Path], 
                 findings_file.unlink()
                 orphans.append(findings_file)
 
+    # Also clean up orphan symbols
+    symbols_dir = config.root_path / ".docstar" / "symbols"
+    if symbols_dir.exists():
+        expected_symbols: set[Path] = set()
+        for f in files:
+            expected_symbols.add(config.symbols_path_for(f))
+        for symbols_file in list(symbols_dir.rglob("*.symbols.json")):
+            if symbols_file not in expected_symbols:
+                if verbose:
+                    relative = symbols_file.relative_to(config.root_path)
+                    print(f"  [removing orphan] {relative}", flush=True)
+                symbols_file.unlink()
+                orphans.append(symbols_file)
+
     # Remove empty directories (bottom-up)
     for dirpath in sorted(shadow_root.rglob("*"), key=lambda p: -len(p.parts)):
         if dirpath.is_dir() and not any(dirpath.iterdir()):
             dirpath.rmdir()
-    if findings_dir.exists():
-        for dirpath in sorted(findings_dir.rglob("*"), key=lambda p: -len(p.parts)):
-            if dirpath.is_dir() and not any(dirpath.iterdir()):
-                dirpath.rmdir()
+    for cleanup_dir in [findings_dir, symbols_dir]:
+        if cleanup_dir.exists():
+            for dirpath in sorted(cleanup_dir.rglob("*"), key=lambda p: -len(p.parts)):
+                if dirpath.is_dir() and not any(dirpath.iterdir()):
+                    dirpath.rmdir()
 
     return len(orphans)
 
