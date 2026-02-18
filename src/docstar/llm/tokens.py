@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import asyncio
-from functools import lru_cache
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -15,7 +15,7 @@ from .types import Message, MessageRole
 class TokenCounter:
     """Token counter using Anthropic's count_tokens API.
 
-    Provides accurate token counting via the Anthropic API with LRU caching
+    Provides accurate token counting via the Anthropic API with in-memory caching
     to reduce API calls for repeated content.
 
     Example:
@@ -102,7 +102,7 @@ class TokenCounter:
         count = await self.count_tokens_async(messages, model=model)
 
         # Cache the result (limit cache size)
-        if len(self._cache) < 1000:
+        if len(self._cache) < 10_000:
             self._cache[cache_key] = count
 
         return count

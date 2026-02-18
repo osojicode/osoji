@@ -131,6 +131,11 @@ class Config:
         """Return the root directory for shadow docs."""
         return self.root_path / SHADOW_DIR / SHADOW_SUBDIR
 
+    @property
+    def token_cache_path(self) -> Path:
+        """Return the path to the persistent token-count cache."""
+        return self.root_path / SHADOW_DIR / "token-cache.json"
+
     def shadow_path_for(self, source_path: Path) -> Path:
         """Return the shadow doc path for a given source file."""
         relative = source_path.relative_to(self.root_path)

@@ -3,12 +3,17 @@
 from __future__ import annotations
 
 import asyncio
+import json
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 
 from .config import Config
+from .hasher import compute_hash
 from .llm import TokenCounter, estimate_tokens_offline
 from .walker import discover_files
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -143,6 +148,90 @@ def count_file_tokens(path: Path) -> int:
         return 0
 
 
+def _load_token_cache(config: Config) -> dict:
+    """Load the persistent token-count cache from disk.
+
+    Returns an empty dict if the file is missing or corrupt.
+    """
+    try:
+        return json.loads(config.token_cache_path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        return {}
+
+
+def _save_token_cache(config: Config, cache: dict) -> None:
+    """Write the token-count cache to disk."""
+    try:
+        config.token_cache_path.parent.mkdir(parents=True, exist_ok=True)
+        config.token_cache_path.write_text(
+            json.dumps(cache, indent=2) + "\n", encoding="utf-8"
+        )
+    except OSError:
+        logger.warning("Failed to write token cache to %s", config.token_cache_path)
+
+
+async def _gather_file_stats_cached(
+    config: Config,
+    source_path: Path,
+    shadow_path: Path,
+    shadow_exists: bool,
+    counter: TokenCounter,
+    token_cache: dict,
+) -> FileStats:
+    """Gather stats for a single file, using the persistent hash cache."""
+    rel_key = str(source_path.relative_to(config.root_path))
+    entry = token_cache.get(rel_key, {})
+
+    # Read source content once (needed for hash and possibly API)
+    try:
+        source_content = source_path.read_text(encoding="utf-8")
+    except Exception:
+        source_content = ""
+    source_hash = compute_hash(source_content) if source_content else ""
+
+    # Read shadow content once
+    shadow_content = ""
+    if shadow_exists:
+        try:
+            shadow_content = shadow_path.read_text(encoding="utf-8")
+        except Exception:
+            pass
+    shadow_hash = compute_hash(shadow_content) if shadow_content else ""
+
+    # Check source cache hit
+    if source_content and entry.get("source_hash") == source_hash:
+        source_tokens = entry["source_tokens"]
+    elif source_content:
+        source_tokens = await counter.count_text_async(source_content)
+    else:
+        source_tokens = 0
+
+    # Check shadow cache hit
+    if shadow_exists and shadow_content and entry.get("shadow_hash") == shadow_hash:
+        shadow_tokens = entry["shadow_tokens"]
+    elif shadow_exists and shadow_content:
+        shadow_tokens = await counter.count_text_async(shadow_content)
+    else:
+        shadow_tokens = 0
+
+    # Update cache entry
+    token_cache[rel_key] = {
+        "source_hash": source_hash,
+        "source_tokens": source_tokens,
+        "shadow_hash": shadow_hash,
+        "shadow_tokens": shadow_tokens,
+    }
+
+    return FileStats(
+        source_path=source_path.relative_to(config.root_path),
+        shadow_path=shadow_path.relative_to(config.root_path) if shadow_exists else shadow_path,
+        source_tokens=source_tokens,
+        shadow_tokens=shadow_tokens,
+        source_exists=True,
+        shadow_exists=shadow_exists,
+    )
+
+
 async def gather_stats_async(config: Config, use_api: bool = True) -> ProjectStats:
     """Gather token statistics for all files in the project asynchronously.
 
@@ -158,19 +247,25 @@ async def gather_stats_async(config: Config, use_api: bool = True) -> ProjectSta
     file_stats: list[FileStats] = []
 
     if use_api:
+        token_cache = _load_token_cache(config)
         counter = TokenCounter()
         try:
-            # Count tokens for all files concurrently
+            # Count tokens for all files concurrently, with hash cache
             tasks = []
             for source_path in files:
                 shadow_path = config.shadow_path_for(source_path)
                 shadow_exists = shadow_path.exists()
-                tasks.append(_gather_file_stats_async(
-                    config, source_path, shadow_path, shadow_exists, counter
+                tasks.append(_gather_file_stats_cached(
+                    config, source_path, shadow_path, shadow_exists,
+                    counter, token_cache,
                 ))
             file_stats = await asyncio.gather(*tasks)
         finally:
             await counter.close()
+        # Prune stale entries: only keep files we just processed
+        processed_keys = {str(p.relative_to(config.root_path)) for p in files}
+        token_cache = {k: v for k, v in token_cache.items() if k in processed_keys}
+        _save_token_cache(config, token_cache)
     else:
         # Offline mode - use character-based estimation
         for source_path in files:
@@ -202,39 +297,6 @@ async def gather_stats_async(config: Config, use_api: bool = True) -> ProjectSta
             ))
 
     return ProjectStats(files=file_stats, used_api=use_api)
-
-
-async def _gather_file_stats_async(
-    config: Config,
-    source_path: Path,
-    shadow_path: Path,
-    shadow_exists: bool,
-    counter: TokenCounter,
-) -> FileStats:
-    """Gather stats for a single file asynchronously."""
-    try:
-        source_content = source_path.read_text(encoding="utf-8")
-        source_tokens = await counter.count_text_async(source_content)
-    except Exception:
-        source_tokens = 0
-
-    if shadow_exists:
-        try:
-            shadow_content = shadow_path.read_text(encoding="utf-8")
-            shadow_tokens = await counter.count_text_async(shadow_content)
-        except Exception:
-            shadow_tokens = 0
-    else:
-        shadow_tokens = 0
-
-    return FileStats(
-        source_path=source_path.relative_to(config.root_path),
-        shadow_path=shadow_path.relative_to(config.root_path) if shadow_exists else shadow_path,
-        source_tokens=source_tokens,
-        shadow_tokens=shadow_tokens,
-        source_exists=True,
-        shadow_exists=shadow_exists,
-    )
 
 
 def gather_stats(config: Config) -> ProjectStats:
