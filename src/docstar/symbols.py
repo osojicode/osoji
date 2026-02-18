@@ -1,0 +1,34 @@
+"""Utilities for loading and querying public symbol data from shadow doc sidecars."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from .config import Config
+
+
+def load_all_symbols(config: Config) -> dict[str, list[dict]]:
+    """Load all public symbols across the project.
+
+    Reads every *.symbols.json file under .docstar/symbols/ and returns
+    a dict mapping relative source file paths to their symbol lists.
+
+    Each symbol dict has keys: name, kind, line_start, and optionally line_end.
+    """
+    symbols_dir = config.root_path / ".docstar" / "symbols"
+    if not symbols_dir.exists():
+        return {}
+
+    result: dict[str, list[dict]] = {}
+    for symbols_file in symbols_dir.rglob("*.symbols.json"):
+        try:
+            data = json.loads(symbols_file.read_text(encoding="utf-8"))
+            source = data.get("source")
+            symbols = data.get("symbols", [])
+            if source and symbols:
+                result[source] = symbols
+        except (json.JSONDecodeError, KeyError, OSError):
+            continue
+
+    return result
