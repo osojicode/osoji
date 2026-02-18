@@ -22,6 +22,8 @@ def _matches_ignore(path: Path, patterns: list[str] | set[str]) -> str | None:
     """Check if a relative path matches any ignore pattern.
 
     Checks both the full path string and each individual path component.
+    For multi-segment patterns (containing '/'), also checks if the
+    normalized path starts with the pattern as a directory prefix.
     Returns the matched pattern name, or None if no match.
     """
     path_str = str(path)
@@ -30,6 +32,11 @@ def _matches_ignore(path: Path, patterns: list[str] | set[str]) -> str | None:
             return pattern
         for part in path.parts:
             if fnmatch.fnmatch(part, pattern):
+                return pattern
+        # Multi-segment patterns: treat as directory prefix
+        if "/" in pattern:
+            normalized = path_str.replace("\\", "/")
+            if normalized.startswith(pattern + "/") or normalized == pattern:
                 return pattern
     return None
 
