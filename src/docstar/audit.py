@@ -8,6 +8,7 @@ from pathlib import Path
 from .config import Config
 from .shadow import check_shadow_docs, generate_shadow_docs
 from .debris import detect_debris, validate_cross_references
+from .deadcode import detect_dead_code
 from .walker import _matches_ignore
 
 
@@ -80,6 +81,7 @@ def run_audit(
     config: Config,
     fix_shadow: bool = True,
     xref: bool = False,
+    dead_code: bool = False,
     verbose: bool = False,
 ) -> AuditResult:
     """Run a complete documentation audit.
@@ -88,6 +90,7 @@ def run_audit(
         config: Docstar configuration
         fix_shadow: If True, auto-update stale shadow docs (Docstar owns them)
         xref: If True, run cross-reference validation (LLM calls per .md file)
+        dead_code: If True, detect cross-file dead code (LLM calls for ambiguous candidates)
         verbose: If True, show detailed per-file progress and timing
     """
     issues: list[AuditIssue] = []
@@ -179,6 +182,25 @@ def run_audit(
                 category="cross_reference",
                 message=f"Cross-reference issue: {issue.description}",
                 remediation=issue.remediation,
+            ))
+
+    # 5. Cross-file dead code detection (opt-in)
+    if dead_code:
+        print("Docstar: Scanning for cross-file dead code...", flush=True)
+        phase_start = time_module.monotonic()
+        dead_code_results = detect_dead_code(config, on_progress=progress_cb)
+        if verbose:
+            elapsed = time_module.monotonic() - phase_start
+            print(f"  [{elapsed:.1f}s]", flush=True)
+        for item in dead_code_results:
+            issues.append(AuditIssue(
+                path=Path(item.source_path),
+                severity="warning",
+                category="cross_file_dead_code",
+                message=f"L{item.line_start}: {item.kind} `{item.name}` — {item.reason}",
+                remediation=item.remediation,
+                line_start=item.line_start,
+                line_end=item.line_end,
             ))
 
     return AuditResult(issues=issues)

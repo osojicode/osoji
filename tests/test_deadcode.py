@@ -1,0 +1,395 @@
+"""Tests for cross-file dead code detection."""
+
+import json
+import math
+from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock
+
+import pytest
+
+from docstar.config import Config
+from docstar.deadcode import (
+    DeadCodeCandidate,
+    DeadCodeVerification,
+    GrepHit,
+    _extract_context,
+    _verify_candidate_async,
+    detect_dead_code_async,
+    scan_references,
+)
+from docstar.llm.types import CompletionResult, ToolCall
+from docstar.rate_limiter import RateLimiter, RateLimiterConfig
+
+
+def _write_symbols(temp_dir, source, symbols):
+    """Helper to write a symbols JSON sidecar."""
+    symbols_dir = temp_dir / ".docstar" / "symbols"
+    # Mirror the source path structure
+    sidecar = symbols_dir / (source + ".symbols.json")
+    sidecar.parent.mkdir(parents=True, exist_ok=True)
+    data = {
+        "source": source,
+        "source_hash": "abc123",
+        "generated": "2025-01-01T00:00:00Z",
+        "symbols": symbols,
+    }
+    sidecar.write_text(json.dumps(data))
+
+
+def _write_source(temp_dir, path, content):
+    """Helper to write a source file."""
+    full = temp_dir / path
+    full.parent.mkdir(parents=True, exist_ok=True)
+    full.write_text(content)
+
+
+class TestScanReferences:
+    """Tests for the scan_references() scanner."""
+
+    def test_symbol_referenced_in_another_file(self, temp_dir):
+        """Symbol referenced in another file is NOT in zero-ref list."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_symbols(temp_dir, "src/utils.py", [
+            {"name": "helper", "kind": "function", "line_start": 1, "line_end": 5},
+        ])
+        _write_source(temp_dir, "src/utils.py", "def helper():\n    pass\n")
+        _write_source(temp_dir, "src/main.py", "from utils import helper\nhelper()\n")
+
+        zero, low = scan_references(config)
+        zero_names = [c.name for c in zero]
+        assert "helper" not in zero_names
+
+    def test_symbol_only_in_own_file(self, temp_dir):
+        """Symbol only in its own file IS in zero-ref list."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_symbols(temp_dir, "src/utils.py", [
+            {"name": "lonely_func", "kind": "function", "line_start": 1, "line_end": 3},
+        ])
+        _write_source(temp_dir, "src/utils.py", "def lonely_func():\n    pass\n")
+        _write_source(temp_dir, "src/main.py", "print('hello')\n")
+
+        zero, low = scan_references(config)
+        zero_names = [c.name for c in zero]
+        assert "lonely_func" in zero_names
+
+    def test_word_boundary_prevents_substring_match(self, temp_dir):
+        """Substring match doesn't count: 'run' vs 'running'."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_symbols(temp_dir, "src/engine.py", [
+            {"name": "run", "kind": "function", "line_start": 1, "line_end": 3},
+        ])
+        _write_source(temp_dir, "src/engine.py", "def run():\n    pass\n")
+        _write_source(temp_dir, "src/main.py", "running = True\n")
+
+        zero, low = scan_references(config)
+        zero_names = [c.name for c in zero]
+        assert "run" in zero_names
+
+    def test_reference_in_non_source_file_clears_zero_ref(self, temp_dir):
+        """Reference in pyproject.toml clears zero-ref."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_symbols(temp_dir, "src/cli.py", [
+            {"name": "main", "kind": "function", "line_start": 1, "line_end": 5},
+        ])
+        _write_source(temp_dir, "src/cli.py", "def main():\n    pass\n")
+        _write_source(temp_dir, "pyproject.toml", '[project.scripts]\nmycli = "src.cli:main"\n')
+
+        zero, low = scan_references(config)
+        zero_names = [c.name for c in zero]
+        assert "main" not in zero_names
+
+    def test_no_symbols_directory_returns_empty(self, temp_dir):
+        """No .docstar/symbols/ → empty lists."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_source(temp_dir, "src/main.py", "print('hello')\n")
+
+        zero, low = scan_references(config)
+        assert zero == []
+        assert low == []
+
+    def test_multiple_symbols_mixed_ref_counts(self, temp_dir):
+        """Multiple symbols with different ref counts get correct tier assignment."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_symbols(temp_dir, "src/lib.py", [
+            {"name": "used_everywhere", "kind": "function", "line_start": 1},
+            {"name": "used_once", "kind": "function", "line_start": 10},
+            {"name": "unused", "kind": "function", "line_start": 20},
+        ])
+        _write_source(temp_dir, "src/lib.py",
+                       "def used_everywhere(): pass\ndef used_once(): pass\ndef unused(): pass\n")
+        # Create many files referencing used_everywhere
+        for i in range(10):
+            _write_source(temp_dir, f"src/user_{i}.py", f"from lib import used_everywhere\nused_everywhere()\n")
+        # One file referencing used_once
+        _write_source(temp_dir, "src/caller.py", "from lib import used_once\nused_once()\n")
+
+        zero, low = scan_references(config)
+        zero_names = [c.name for c in zero]
+        low_names = [c.name for c in low]
+
+        assert "unused" in zero_names
+        assert "used_everywhere" not in zero_names
+        assert "used_everywhere" not in low_names
+
+    def test_percentile_threshold(self, temp_dir):
+        """Percentile threshold computed correctly from reference distribution."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        # Create 10 symbols with ref counts 1..10
+        symbols = []
+        for i in range(1, 11):
+            symbols.append({"name": f"func_{i}", "kind": "function", "line_start": i * 10})
+        _write_symbols(temp_dir, "src/lib.py", symbols)
+
+        content_lines = [f"def func_{i}(): pass" for i in range(1, 11)]
+        _write_source(temp_dir, "src/lib.py", "\n".join(content_lines) + "\n")
+
+        # Create reference files: func_i is referenced in i separate files
+        for i in range(1, 11):
+            for j in range(i):
+                _write_source(temp_dir, f"src/ref_{i}_{j}.py", f"func_{i}()\n")
+
+        zero, low = scan_references(config)
+        # 10th percentile of [1,2,3,4,5,6,7,8,9,10] → index 0 → value 1
+        # So threshold = 1, meaning func_1 (ref_count=1) should be in low_ref
+        low_names = [c.name for c in low]
+        assert "func_1" in low_names
+        # func_2+ should NOT be in low_ref (ref_count > threshold)
+        for i in range(2, 11):
+            assert f"func_{i}" not in low_names
+
+
+class TestGrepHitContext:
+    """Tests for grep hit context extraction."""
+
+    def test_low_ref_includes_grep_hits(self, temp_dir):
+        """Low-ref candidate includes grep hits with context."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_symbols(temp_dir, "src/lib.py", [
+            {"name": "rare_func", "kind": "function", "line_start": 1},
+        ])
+        _write_source(temp_dir, "src/lib.py", "def rare_func(): pass\n")
+        # Only one reference — ensure it ends up as low-ref
+        lines = ["# line 1", "# line 2", "# line 3", "# line 4", "# line 5",
+                 "rare_func()", "# line 7", "# line 8", "# line 9", "# line 10", "# line 11"]
+        _write_source(temp_dir, "src/caller.py", "\n".join(lines) + "\n")
+
+        zero, low = scan_references(config)
+        # With only one non-zero ref count, threshold should include it
+        low_by_name = {c.name: c for c in low}
+        if "rare_func" in low_by_name:
+            candidate = low_by_name["rare_func"]
+            assert len(candidate.grep_hits) > 0
+            hit = candidate.grep_hits[0]
+            assert hit.file_path == "src/caller.py"
+            assert hit.line_number == 6
+            assert "rare_func()" in hit.context
+
+    def test_context_near_file_start(self, temp_dir):
+        """Context extraction works near start of file."""
+        lines = ["match_line", "line2", "line3"]
+        ctx = _extract_context(lines, 1, radius=5)
+        assert "match_line" in ctx
+        assert ">>>" in ctx  # marker for matched line
+
+    def test_context_near_file_end(self, temp_dir):
+        """Context extraction works near end of file."""
+        lines = ["line1", "line2", "match_line"]
+        ctx = _extract_context(lines, 3, radius=5)
+        assert "match_line" in ctx
+        assert ">>>" in ctx
+
+
+class TestVerifyCandidate:
+    """Tests for LLM verification of dead code candidates."""
+
+    @pytest.fixture
+    def mock_provider(self):
+        provider = AsyncMock()
+        return provider
+
+    @pytest.fixture
+    def config(self, temp_dir):
+        return Config(root_path=temp_dir, respect_gitignore=False)
+
+    @pytest.mark.asyncio
+    async def test_zero_ref_confirmed_dead(self, mock_provider, config):
+        """LLM confirms dead for zero-ref with no decorator."""
+        mock_provider.complete.return_value = CompletionResult(
+            content=None,
+            tool_calls=[ToolCall(
+                id="tc1", name="verify_dead_code",
+                input={
+                    "is_dead": True, "confidence": 0.95,
+                    "reason": "No references, no decorators, not a dunder",
+                    "remediation": "Remove function",
+                },
+            )],
+            input_tokens=100, output_tokens=50,
+            model="test", stop_reason="tool_use",
+        )
+        candidate = DeadCodeCandidate(
+            source_path="src/utils.py", name="old_helper",
+            kind="function", line_start=10, line_end=20, ref_count=0,
+        )
+        result = await _verify_candidate_async(
+            mock_provider, config, candidate,
+            "def old_helper():\n    pass\n", "Shadow doc text", {},
+        )
+        assert result.is_dead is True
+        assert result.confidence == 0.95
+
+    @pytest.mark.asyncio
+    async def test_zero_ref_alive_with_decorator(self, mock_provider, config):
+        """LLM says alive for zero-ref with framework decorator."""
+        mock_provider.complete.return_value = CompletionResult(
+            content=None,
+            tool_calls=[ToolCall(
+                id="tc1", name="verify_dead_code",
+                input={
+                    "is_dead": False, "confidence": 0.9,
+                    "reason": "Has @app.route decorator — framework dispatch",
+                    "remediation": "Keep — used by framework",
+                },
+            )],
+            input_tokens=100, output_tokens=50,
+            model="test", stop_reason="tool_use",
+        )
+        candidate = DeadCodeCandidate(
+            source_path="src/views.py", name="index",
+            kind="function", line_start=5, line_end=15, ref_count=0,
+        )
+        result = await _verify_candidate_async(
+            mock_provider, config, candidate,
+            "@app.route('/')\ndef index():\n    return 'hi'\n", "", {},
+        )
+        assert result.is_dead is False
+
+    @pytest.mark.asyncio
+    async def test_low_ref_all_comments_dead(self, mock_provider, config):
+        """LLM confirms dead when all grep hits are comments."""
+        mock_provider.complete.return_value = CompletionResult(
+            content=None,
+            tool_calls=[ToolCall(
+                id="tc1", name="verify_dead_code",
+                input={
+                    "is_dead": True, "confidence": 0.85,
+                    "reason": "All references are in comments",
+                    "remediation": "Remove function and clean up comments",
+                },
+            )],
+            input_tokens=200, output_tokens=60,
+            model="test", stop_reason="tool_use",
+        )
+        candidate = DeadCodeCandidate(
+            source_path="src/old.py", name="legacy_func",
+            kind="function", line_start=1, line_end=5, ref_count=1,
+            grep_hits=[GrepHit(
+                file_path="src/main.py", line_number=10,
+                context="   10 | # TODO: remove legacy_func usage",
+            )],
+        )
+        result = await _verify_candidate_async(
+            mock_provider, config, candidate,
+            "def legacy_func(): pass\n", "", {},
+        )
+        assert result.is_dead is True
+
+    @pytest.mark.asyncio
+    async def test_low_ref_real_import_alive(self, mock_provider, config):
+        """LLM says alive when one hit is a real import."""
+        mock_provider.complete.return_value = CompletionResult(
+            content=None,
+            tool_calls=[ToolCall(
+                id="tc1", name="verify_dead_code",
+                input={
+                    "is_dead": False, "confidence": 0.95,
+                    "reason": "One hit is a real import statement",
+                    "remediation": "Keep — actively imported and used",
+                },
+            )],
+            input_tokens=200, output_tokens=60,
+            model="test", stop_reason="tool_use",
+        )
+        candidate = DeadCodeCandidate(
+            source_path="src/utils.py", name="parse_config",
+            kind="function", line_start=1, line_end=10, ref_count=1,
+            grep_hits=[GrepHit(
+                file_path="src/app.py", line_number=3,
+                context="    3 | from utils import parse_config",
+            )],
+        )
+        result = await _verify_candidate_async(
+            mock_provider, config, candidate,
+            "def parse_config(): pass\n", "", {},
+        )
+        assert result.is_dead is False
+
+
+class TestDetectDeadCodeAsync:
+    """Integration test for full pipeline with mock LLM."""
+
+    @pytest.mark.asyncio
+    async def test_full_pipeline(self, temp_dir):
+        """Full pipeline: zero-ref reported directly, low-ref sent through LLM."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+
+        # Set up symbols: one zero-ref, one with one reference
+        _write_symbols(temp_dir, "src/lib.py", [
+            {"name": "dead_func", "kind": "function", "line_start": 1, "line_end": 3},
+            {"name": "maybe_dead", "kind": "function", "line_start": 5, "line_end": 8},
+        ])
+        _write_source(temp_dir, "src/lib.py",
+                       "def dead_func(): pass\n\ndef maybe_dead(): pass\n")
+        # Reference maybe_dead in one file
+        _write_source(temp_dir, "src/user.py", "# maybe_dead is mentioned here\n")
+
+        # Mock LLM provider
+        mock_provider = AsyncMock()
+        mock_provider.complete.return_value = CompletionResult(
+            content=None,
+            tool_calls=[ToolCall(
+                id="tc1", name="verify_dead_code",
+                input={
+                    "is_dead": True, "confidence": 0.8,
+                    "reason": "Reference is only in a comment",
+                    "remediation": "Remove function",
+                },
+            )],
+            input_tokens=100, output_tokens=50,
+            model="test", stop_reason="tool_use",
+        )
+
+        rate_limiter = RateLimiter(RateLimiterConfig(
+            requests_per_minute=1000,
+            input_tokens_per_minute=1_000_000,
+            output_tokens_per_minute=1_000_000,
+        ))
+
+        results = await detect_dead_code_async(
+            mock_provider, rate_limiter, config,
+        )
+
+        # dead_func should be in results (zero-ref, reported directly)
+        dead_names = [r.name for r in results if r.is_dead]
+        assert "dead_func" in dead_names
+
+        # Check that dead_func was NOT sent through LLM (zero-ref = direct report)
+        # and maybe_dead WAS sent through LLM
+        result_by_name = {r.name: r for r in results}
+        dead_func_result = result_by_name["dead_func"]
+        assert dead_func_result.confidence == 1.0
+        assert "No references" in dead_func_result.reason
+
+    @pytest.mark.asyncio
+    async def test_empty_symbols_returns_empty(self, temp_dir):
+        """No symbols data → empty results."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        # No .docstar/symbols/ at all
+
+        mock_provider = AsyncMock()
+        rate_limiter = RateLimiter(RateLimiterConfig())
+
+        results = await detect_dead_code_async(
+            mock_provider, rate_limiter, config,
+        )
+        assert results == []

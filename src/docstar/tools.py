@@ -217,6 +217,62 @@ def get_cross_reference_tools() -> list[dict]:
     return [VALIDATE_CROSS_REFERENCE_TOOL]
 
 
+# Tool definition for dead code verification
+VERIFY_DEAD_CODE_TOOL = {
+    "name": "verify_dead_code",
+    "description": """Determine whether a symbol is truly dead code or alive despite low/zero textual references.
+
+## False positives for grep hits (hit exists but is NOT a real usage)
+- **Comments**: The symbol name appears only inside a comment or docstring
+- **String literals**: Appears in a string, log message, or error message
+- **Name collision**: A different module/class defines a symbol with the same name
+- **Similar-but-different**: Substring match on a longer identifier (e.g. `run` inside `run_tests`)
+- **Type annotations only**: Used only in type hints, never called at runtime
+
+## False negatives for zero-reference symbols (no hits but symbol IS alive)
+- **Decorators / framework magic**: @app.route, @pytest.fixture, @property, signal handlers
+- **Convention-based dispatch**: Django views, Flask endpoints, Click commands, test_ methods
+- **Dynamic dispatch**: getattr(), importlib, plugin registries, __getattr__
+- **Dunder methods**: __init__, __str__, __enter__, __eq__ — called implicitly
+- **__all__ exports**: Listed in __all__ for public API
+- **Entry points**: setup.py/pyproject.toml console_scripts, main() functions
+- **Callbacks / hooks**: Registered at runtime, passed as arguments
+- **Overrides**: Abstract method implementations, interface conformance
+- **Re-exports**: Imported in __init__.py for public API surface
+
+Set is_dead=True only if the symbol has no plausible alive pathway.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "is_dead": {
+                "type": "boolean",
+                "description": "True if the symbol is genuinely dead code with no alive pathway",
+            },
+            "confidence": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 1.0,
+                "description": "Confidence in the is_dead judgment (1.0 = certain)",
+            },
+            "reason": {
+                "type": "string",
+                "description": "Brief explanation of why the symbol is dead or alive",
+            },
+            "remediation": {
+                "type": "string",
+                "description": "Suggested action (e.g. 'Remove function' or 'Keep — used by framework')",
+            },
+        },
+        "required": ["is_dead", "confidence", "reason", "remediation"],
+    },
+}
+
+
+def get_dead_code_tools() -> list[dict]:
+    """Return tools for dead code verification."""
+    return [VERIFY_DEAD_CODE_TOOL]
+
+
 def _dict_to_tool_definition(tool_dict: dict[str, Any]) -> ToolDefinition:
     """Convert a tool dictionary to a ToolDefinition object."""
     return ToolDefinition(
@@ -244,3 +300,8 @@ def get_classify_tool_definitions() -> list[ToolDefinition]:
 def get_cross_reference_tool_definitions() -> list[ToolDefinition]:
     """Return ToolDefinition objects for cross-reference validation."""
     return [_dict_to_tool_definition(VALIDATE_CROSS_REFERENCE_TOOL)]
+
+
+def get_dead_code_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for dead code verification."""
+    return [_dict_to_tool_definition(VERIFY_DEAD_CODE_TOOL)]
