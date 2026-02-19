@@ -89,16 +89,21 @@ Documentation should serve one of four purposes:
 
 ## Process Artifacts (Debris)
 
-Some files look like documentation but are actually development ephemera:
+Debris means the file's *purpose* was inherently temporary — created for a one-time event, never intended to be maintained. Classify as `process_artifact` only when the document exists to drive or record a single bounded action.
+
+Examples of debris:
 - One-off task prompts or instructions (e.g., "Claude, implement X for a specific ticket")
 - Scratch notes or drafts not meant to be maintained
-- Meeting notes or decision logs
-- One-time migration guides
 - Files with "prompt", "scratch", "WIP", "draft", "temp" in the name
 
-NOT debris — classify as `reference`: Durable AI agent configuration files maintained
-alongside the codebase (e.g. AGENTS.md, CLAUDE.md, .cursorrules, CONVENTIONS.md).
-These are standing project instructions, not throwaway task prompts.
+**Staleness is NOT debris.** A document whose content is outdated but whose *purpose* is ongoing is stale, not disposable. Classify under its Diataxis category and note staleness in the reason.
+
+### NOT Debris (classify under the appropriate Diataxis category)
+- Living planning docs (roadmaps, backlogs, milestone trackers)
+- Architectural knowledge (ADRs, design docs, impact analyses, risk assessments)
+- Package/project READMEs
+- Durable AI agent configuration files (e.g. AGENTS.md, CLAUDE.md, .cursorrules, CONVENTIONS.md)
+- Intentionally maintained decision logs (e.g., in `adr/` or `decisions/` directory)
 
 Process artifacts should be classified as `process_artifact`. They mislead developers who expect maintained documentation.
 
