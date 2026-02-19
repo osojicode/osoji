@@ -1,0 +1,480 @@
+"""Cross-file dead code detection via public symbol reference scanning."""
+
+import asyncio
+import math
+import re
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Callable
+
+from .config import Config
+from .llm.base import LLMProvider
+from .llm.factory import create_provider
+from .llm.logging import LoggingProvider
+from .llm.types import Message, MessageRole, CompletionOptions
+from .rate_limiter import RateLimiter, get_config_with_overrides
+from .symbols import load_all_symbols
+from .tools import get_dead_code_tool_definitions
+from .walker import list_repo_files, _matches_ignore
+
+
+@dataclass
+class GrepHit:
+    """A textual reference to a symbol found in another file."""
+
+    file_path: str  # relative path where reference was found
+    line_number: int
+    context: str  # ±5 lines around the match
+
+
+@dataclass
+class DeadCodeCandidate:
+    """A symbol that may be dead code."""
+
+    source_path: str  # relative path to defining file
+    name: str  # symbol name
+    kind: str  # function/class/constant/variable
+    line_start: int
+    line_end: int | None
+    ref_count: int  # number of external file references
+    grep_hits: list[GrepHit] = field(default_factory=list)
+
+
+@dataclass
+class DeadCodeVerification:
+    """Result of verifying whether a symbol is dead code."""
+
+    source_path: str
+    name: str
+    kind: str
+    line_start: int
+    line_end: int | None
+    is_dead: bool
+    confidence: float
+    reason: str
+    remediation: str
+
+
+def _extract_context(lines: list[str], line_number: int, radius: int = 5) -> str:
+    """Extract ±radius lines of context around a match (1-indexed line_number)."""
+    idx = line_number - 1  # convert to 0-indexed
+    start = max(0, idx - radius)
+    end = min(len(lines), idx + radius + 1)
+    context_lines = []
+    for i in range(start, end):
+        marker = ">>>" if i == idx else "   "
+        context_lines.append(f"{marker} {i + 1:4d} | {lines[i]}")
+    return "\n".join(context_lines)
+
+
+def scan_references(
+    config: Config,
+) -> tuple[list[DeadCodeCandidate], list[DeadCodeCandidate]]:
+    """Scan for symbols with zero or low external references.
+
+    Returns (zero_ref_candidates, low_ref_candidates).
+    Pure Python, no LLM calls.
+    """
+    all_symbols = load_all_symbols(config)
+    if not all_symbols:
+        return [], []
+
+    # Collect all unique symbol names
+    symbol_names: set[str] = set()
+    for symbols in all_symbols.values():
+        for sym in symbols:
+            symbol_names.add(sym["name"])
+
+    if not symbol_names:
+        return [], []
+
+    # Build one compiled regex: \b(sym1|sym2|...)\b
+    # Sort longest-first to avoid prefix-match issues in alternation
+    sorted_names = sorted(symbol_names, key=len, reverse=True)
+    escaped = [re.escape(name) for name in sorted_names]
+    pattern = re.compile(r"\b(" + "|".join(escaped) + r")\b")
+
+    # Get ALL repo files
+    all_paths, _ = list_repo_files(config)
+    all_paths = list(all_paths)
+
+    docstarignore = config.load_docstarignore()
+
+    # For each file, find which symbol names appear and at which lines
+    # file_refs[symbol_name] = {relative_file_path: [line_numbers]}
+    file_refs: dict[str, dict[str, list[int]]] = {name: {} for name in symbol_names}
+
+    # Also cache file lines for context extraction
+    file_lines_cache: dict[str, list[str]] = {}
+
+    for path in all_paths:
+        if not path.is_absolute():
+            path = config.root_path / path
+
+        if not path.is_file():
+            continue
+
+        relative = path.relative_to(config.root_path)
+        # Normalize to forward slashes
+        rel_str = str(relative).replace("\\", "/")
+
+        # Skip .docstar/
+        if rel_str.startswith(".docstar"):
+            continue
+
+        # Skip ignore patterns
+        if _matches_ignore(relative, config.ignore_patterns):
+            continue
+        if docstarignore and _matches_ignore(relative, docstarignore):
+            continue
+
+        try:
+            content = path.read_text(errors="ignore")
+        except OSError:
+            continue
+
+        # Find all matches
+        matches_in_file: dict[str, list[int]] = {}
+        lines = content.split("\n")
+        for line_idx, line in enumerate(lines):
+            for m in pattern.finditer(line):
+                name = m.group(1)
+                if name not in matches_in_file:
+                    matches_in_file[name] = []
+                matches_in_file[name].append(line_idx + 1)  # 1-indexed
+
+        for name, line_numbers in matches_in_file.items():
+            file_refs[name][rel_str] = line_numbers
+
+        # Cache lines if any symbols were found
+        if matches_in_file:
+            file_lines_cache[rel_str] = lines
+
+    # For each symbol, count external files
+    zero_ref: list[DeadCodeCandidate] = []
+    low_ref: list[DeadCodeCandidate] = []
+
+    # Build per-symbol external ref counts
+    sym_ref_counts: dict[tuple[str, str], int] = {}  # (source_path, name) -> count
+    sym_entries: list[tuple[str, dict]] = []  # (source_path, symbol_dict)
+
+    for source_path, symbols in all_symbols.items():
+        # Normalize source path
+        source_norm = source_path.replace("\\", "/")
+        for sym in symbols:
+            name = sym["name"]
+            refs = file_refs.get(name, {})
+            # Count files other than the defining file
+            external_count = sum(
+                1 for f in refs if f != source_norm
+            )
+            sym_ref_counts[(source_norm, name)] = external_count
+            sym_entries.append((source_norm, sym))
+
+    # Compute 10th percentile of non-zero reference counts
+    non_zero_counts = [c for c in sym_ref_counts.values() if c > 0]
+    if non_zero_counts:
+        sorted_counts = sorted(non_zero_counts)
+        p10_index = max(0, math.ceil(len(sorted_counts) * 0.10) - 1)
+        threshold = sorted_counts[p10_index]
+        threshold = min(threshold, 10)  # Cap at 10
+    else:
+        threshold = 0
+
+    for source_norm, sym in sym_entries:
+        name = sym["name"]
+        ext_count = sym_ref_counts[(source_norm, name)]
+
+        if ext_count == 0:
+            zero_ref.append(DeadCodeCandidate(
+                source_path=source_norm,
+                name=name,
+                kind=sym["kind"],
+                line_start=sym["line_start"],
+                line_end=sym.get("line_end"),
+                ref_count=0,
+            ))
+        elif ext_count <= threshold:
+            # Build GrepHit objects
+            refs = file_refs.get(name, {})
+            grep_hits: list[GrepHit] = []
+            for ref_file, line_numbers in refs.items():
+                if ref_file == source_norm:
+                    continue
+                cached_lines = file_lines_cache.get(ref_file)
+                if not cached_lines:
+                    continue
+                for ln in line_numbers:
+                    context = _extract_context(cached_lines, ln)
+                    grep_hits.append(GrepHit(
+                        file_path=ref_file,
+                        line_number=ln,
+                        context=context,
+                    ))
+            low_ref.append(DeadCodeCandidate(
+                source_path=source_norm,
+                name=name,
+                kind=sym["kind"],
+                line_start=sym["line_start"],
+                line_end=sym.get("line_end"),
+                ref_count=ext_count,
+                grep_hits=grep_hits,
+            ))
+
+    return zero_ref, low_ref
+
+
+# --- LLM verification ---
+
+_DEAD_CODE_SYSTEM_PROMPT = """You are a dead code analyst. You are given a symbol definition and context about where (if anywhere) it is referenced across the codebase.
+
+Your job: determine whether this symbol is genuinely dead code or alive.
+
+## For zero-reference symbols (no external textual references found)
+The symbol has NO grep hits outside its defining file. But it may still be alive:
+- Decorators / framework magic (@app.route, @pytest.fixture, @property, signal handlers)
+- Convention-based dispatch (Django views, Flask endpoints, Click commands, test_ methods)
+- Dynamic dispatch (getattr(), importlib, plugin registries, __getattr__)
+- Dunder methods (__init__, __str__, __enter__, __eq__) — called implicitly by Python
+- __all__ exports — listed for public API even if not directly imported elsewhere in this repo
+- Entry points (console_scripts in pyproject.toml/setup.py, main() functions)
+- Callbacks / hooks registered at runtime
+- Overrides of abstract methods or interface conformance
+- Re-exports in __init__.py
+
+## For low-reference symbols (few external grep hits)
+Each grep hit has ±5 lines of context. Judge whether each hit is a real usage or a false positive:
+- **Comment / docstring**: mentioned in a comment but never actually called
+- **String literal**: appears in a log message, error string, or config key
+- **Name collision**: a different module defines a symbol with the same name
+- **Type annotation only**: used in a type hint but never called at runtime
+
+If ALL hits are false positives, the symbol is dead.
+If ANY hit is a real usage (import, call, attribute access), the symbol is alive.
+
+Use the verify_dead_code tool with your judgment."""
+
+
+async def _verify_candidate_async(
+    provider: LLMProvider,
+    config: Config,
+    candidate: DeadCodeCandidate,
+    file_content: str,
+    shadow_content: str,
+    ref_shadow_contents: dict[str, str],
+) -> DeadCodeVerification:
+    """Verify a single dead code candidate via one LLM call."""
+    user_parts = []
+
+    user_parts.append(f"## Symbol under analysis\n")
+    user_parts.append(f"- **Name**: `{candidate.name}`")
+    user_parts.append(f"- **Kind**: {candidate.kind}")
+    user_parts.append(f"- **File**: `{candidate.source_path}`")
+    user_parts.append(f"- **Lines**: {candidate.line_start}"
+                      + (f"-{candidate.line_end}" if candidate.line_end else ""))
+    user_parts.append(f"- **External reference count**: {candidate.ref_count}")
+    user_parts.append("")
+
+    # Include defining file content (truncated)
+    truncated = file_content[:30000] if len(file_content) > 30000 else file_content
+    user_parts.append(f"## Defining file: `{candidate.source_path}`\n```\n{truncated}\n```\n")
+
+    # Include shadow doc for defining file
+    if shadow_content:
+        user_parts.append(f"## Shadow doc for `{candidate.source_path}`\n{shadow_content}\n")
+
+    # Include grep hits and their shadow docs (for low-ref candidates)
+    if candidate.grep_hits:
+        user_parts.append(f"## Grep hits ({len(candidate.grep_hits)} references)\n")
+        for i, hit in enumerate(candidate.grep_hits, 1):
+            user_parts.append(f"### Hit {i}: `{hit.file_path}` line {hit.line_number}\n```\n{hit.context}\n```\n")
+            ref_shadow = ref_shadow_contents.get(hit.file_path, "")
+            if ref_shadow:
+                user_parts.append(f"Shadow doc for `{hit.file_path}`:\n{ref_shadow}\n")
+
+    user_parts.append("Determine if this symbol is dead code using the verify_dead_code tool.")
+
+    result = await provider.complete(
+        messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
+        system=_DEAD_CODE_SYSTEM_PROMPT,
+        options=CompletionOptions(
+            model=config.model,
+            max_tokens=1024,
+            tools=get_dead_code_tool_definitions(),
+            tool_choice={"type": "tool", "name": "verify_dead_code"},
+        ),
+    )
+
+    for tool_call in result.tool_calls:
+        if tool_call.name == "verify_dead_code":
+            return DeadCodeVerification(
+                source_path=candidate.source_path,
+                name=candidate.name,
+                kind=candidate.kind,
+                line_start=candidate.line_start,
+                line_end=candidate.line_end,
+                is_dead=tool_call.input["is_dead"],
+                confidence=tool_call.input["confidence"],
+                reason=tool_call.input["reason"],
+                remediation=tool_call.input["remediation"],
+            )
+
+    raise RuntimeError(f"LLM did not call verify_dead_code for {candidate.name}")
+
+
+def _load_shadow_content(config: Config, relative_path: str) -> str:
+    """Load shadow doc content for a relative source path."""
+    shadow_path = config.shadow_root / (relative_path + ".shadow.md")
+    if shadow_path.exists():
+        try:
+            return shadow_path.read_text(encoding="utf-8")
+        except OSError:
+            pass
+    return ""
+
+
+async def detect_dead_code_async(
+    provider: LLMProvider,
+    rate_limiter: RateLimiter,
+    config: Config,
+    on_progress: Callable[[int, int, Path, str], None] | None = None,
+) -> list[DeadCodeVerification]:
+    """Detect dead code across the project with parallel LLM verification.
+
+    Args:
+        provider: LLM provider for API calls
+        rate_limiter: Rate limiter for API throttling
+        config: Docstar configuration
+        on_progress: Optional callback (completed, total, path, status)
+
+    Returns:
+        List of verified dead code items (both tiers).
+    """
+    zero_refs, low_refs = scan_references(config)
+
+    print(
+        f"  Found {len(zero_refs)} zero-reference symbol(s), "
+        f"{len(low_refs)} low-reference candidate(s)",
+        flush=True,
+    )
+
+    results: list[DeadCodeVerification] = []
+
+    # Tier 1: zero-ref symbols reported directly (no LLM)
+    for candidate in zero_refs:
+        results.append(DeadCodeVerification(
+            source_path=candidate.source_path,
+            name=candidate.name,
+            kind=candidate.kind,
+            line_start=candidate.line_start,
+            line_end=candidate.line_end,
+            is_dead=True,
+            confidence=1.0,
+            reason="No references found outside defining file",
+            remediation=f"Remove {candidate.kind} `{candidate.name}` or verify it is used via dynamic dispatch/framework convention",
+        ))
+
+    # Tier 2: low-ref candidates go through LLM
+    if not low_refs:
+        return results
+
+    # Pre-load file contents and shadow docs
+    file_contents: dict[str, str] = {}
+    shadow_contents: dict[str, str] = {}
+
+    for candidate in low_refs:
+        if candidate.source_path not in file_contents:
+            src_path = config.root_path / candidate.source_path
+            try:
+                file_contents[candidate.source_path] = src_path.read_text(errors="ignore")
+            except OSError:
+                file_contents[candidate.source_path] = ""
+        if candidate.source_path not in shadow_contents:
+            shadow_contents[candidate.source_path] = _load_shadow_content(
+                config, candidate.source_path
+            )
+        # Pre-load shadow docs for referenced files
+        for hit in candidate.grep_hits:
+            if hit.file_path not in shadow_contents:
+                shadow_contents[hit.file_path] = _load_shadow_content(
+                    config, hit.file_path
+                )
+
+    semaphore = asyncio.Semaphore(config.max_concurrency)
+    completed = 0
+    total = len(low_refs)
+    lock = asyncio.Lock()
+
+    async def process_one(candidate: DeadCodeCandidate) -> DeadCodeVerification | None:
+        nonlocal completed
+
+        async with semaphore:
+            await rate_limiter.throttle()
+            try:
+                ref_shadows = {
+                    hit.file_path: shadow_contents.get(hit.file_path, "")
+                    for hit in candidate.grep_hits
+                }
+                verification = await _verify_candidate_async(
+                    provider,
+                    config,
+                    candidate,
+                    file_contents.get(candidate.source_path, ""),
+                    shadow_contents.get(candidate.source_path, ""),
+                    ref_shadows,
+                )
+                rate_limiter.record_usage(input_tokens=0, output_tokens=0)
+                async with lock:
+                    completed += 1
+                    if verification.is_dead:
+                        results.append(verification)
+                    status = "dead" if verification.is_dead else "ok"
+                    if on_progress:
+                        on_progress(
+                            completed, total,
+                            Path(candidate.source_path), status,
+                        )
+                return verification
+            except Exception as e:
+                async with lock:
+                    completed += 1
+                    if on_progress:
+                        on_progress(
+                            completed, total,
+                            Path(candidate.source_path), "error",
+                        )
+                print(f"  [error] {candidate.source_path}:{candidate.name}: {e}", flush=True)
+                return None
+
+    tasks = [process_one(c) for c in low_refs]
+    await asyncio.gather(*tasks)
+
+    return results
+
+
+def detect_dead_code(
+    config: Config,
+    on_progress: Callable[[int, int, Path, str], None] | None = None,
+) -> list[DeadCodeVerification]:
+    """Detect dead code across the project (sync wrapper).
+
+    Creates provider and rate limiter internally, runs async detection.
+    Early exits if .docstar/symbols/ doesn't exist.
+    """
+    symbols_dir = config.root_path / ".docstar" / "symbols"
+    if not symbols_dir.exists():
+        print("  [skip] No symbols data found. Run 'docstar shadow .' first.", flush=True)
+        return []
+
+    async def _run() -> list[DeadCodeVerification]:
+        provider = create_provider("anthropic")
+        logging_provider = LoggingProvider(provider)
+        rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
+        try:
+            return await detect_dead_code_async(
+                logging_provider, rate_limiter, config, on_progress
+            )
+        finally:
+            await logging_provider.close()
+
+    return asyncio.run(_run())
