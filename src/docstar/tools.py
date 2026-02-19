@@ -117,13 +117,13 @@ CLASSIFY_DOCUMENT_TOOL = {
     "description": """Classify a documentation file according to the Diátaxis framework.
 
 Determine if the file is:
-- **reference**: Precise technical information (API docs, specs)
+- **reference**: Precise technical information (API docs, specs, ADRs, design docs)
 - **tutorial**: Learning-oriented walkthrough for beginners
 - **how-to**: Task-oriented guide for specific goals
 - **explanatory**: Understanding-oriented discussion of concepts
-- **process_artifact**: Development ephemera that shouldn't be maintained
+- **process_artifact**: Inherently temporary file created for a one-time action
 
-Process artifacts are "debris" - they served a purpose but aren't ongoing documentation.""",
+A document with outdated content but ongoing purpose is stale, not debris. Classify it under its Diataxis category.""",
     "input_schema": {
         "type": "object",
         "properties": {
