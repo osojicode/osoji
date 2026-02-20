@@ -73,24 +73,55 @@ Token savings:       59.7%
 
 ### Documentation Audit
 
-Run a documentation audit to detect debris (process artifacts that shouldn't be maintained):
+Run a documentation audit to classify docs and validate their accuracy against source code:
 
 ```bash
 docstar audit /path/to/project
 
 # Skip auto-fixing shadow docs
 docstar audit /path/to/project --no-fix
+
+# Also detect cross-file dead code
+docstar audit /path/to/project --dead-code
 ```
 
 The audit checks for:
-- **Debris**: Process artifacts like implementation prompts, scratch notes, or one-time guides
+- **Documentation classification**: Categorizes each doc via the Diataxis framework, flagging process artifacts (debris) as errors
+- **Accuracy validation**: Matches docs to relevant source code (via explicit references and semantic topic matching), then validates accuracy against shadow docs with evidence quotes
+- **Code debris**: Surfaces findings from shadow generation (stale comments, misleading docstrings, dead code) stored in `.docstar/findings/`
 - **Stale shadow docs**: Auto-fixed by default
+- **Cross-file dead code** (opt-in with `--dead-code`): Detects unused symbols across the codebase
 
-Override debris detection with project-specific rules in `.docstar/rules`:
+Override findings with project-specific rules in `.docstar/rules`:
 ```
 Keep CLAUDE_CODE_PROMPT.md as historical reference.
 Files in docs/internal/ are team documentation, not debris.
 ```
+
+### Documentation Diff
+
+Show documentation impact of source changes against a git ref:
+
+```bash
+docstar diff                    # Compare against main
+docstar diff develop            # Compare against develop
+docstar diff HEAD~5             # Compare against 5 commits ago
+docstar diff main --update      # Also regenerate stale shadows
+docstar diff main --format json # Machine-readable output
+```
+
+### Safety Checks
+
+Scan files for personal paths and secrets before committing:
+
+```bash
+docstar safety check              # Check staged files
+docstar safety check src/*.py     # Check specific files
+docstar safety patterns           # Show detection patterns
+docstar safety self-test          # Verify docstar package itself
+```
+
+Install `detect-secrets` for secret detection: `pip install 'docstar[safety]'`
 
 ### Git Hooks for Automatic Updates
 
@@ -100,17 +131,18 @@ Install git hooks to enforce documentation quality:
 # Install hooks (pre-commit + pre-push by default)
 docstar hooks install
 
-# Install with options
-docstar hooks install --no-pre-commit --pre-push
+# Selective hook installation
+docstar hooks install --no-pre-push            # pre-commit only
+docstar hooks install --no-pre-commit --post-commit  # post-commit only
 
 # Remove hooks
 docstar hooks uninstall
 ```
 
 **Installed hooks:**
-- `pre-commit`: Runs documentation audit and blocks commits if debris is found
-- `pre-push`: Warns about stale shadow docs before push
-- `post-commit` (optional): Reminds to update after commit
+- `pre-commit` (default: on): Runs documentation audit and blocks commits if debris is found
+- `pre-push` (default: on): Warns about stale shadow docs before push
+- `post-commit` (default: off): Reminds to update after commit
 
 ## Output
 
@@ -127,7 +159,8 @@ Each shadow doc contains:
 2. **Tool-forced output**: LLM must call structured tools - no text parsing required
 3. **Incremental updates**: Skips unchanged files by comparing source hashes
 4. **Line number preprocessing**: Provides line context to the LLM for precise references
-5. **Git integration**: Hooks keep docs synchronized with code changes
+5. **Multi-model pipeline**: Shadow generation uses Sonnet (`claude-sonnet-4-20250514`). Audit analysis uses Haiku (`claude-haiku-4-5-20251001`) for fast topic matching and Opus (`claude-opus-4-6`) for deep classification and validation.
+6. **Git integration**: Hooks keep docs synchronized with code changes
 
 ## Rate Limits
 
@@ -137,4 +170,5 @@ Docstar respects Anthropic API rate limits automatically. Override defaults via 
 export ANTHROPIC_RPM=4000          # Requests per minute
 export ANTHROPIC_INPUT_TPM=2000000  # Input tokens per minute
 export ANTHROPIC_OUTPUT_TPM=400000  # Output tokens per minute
+export ANTHROPIC_TPM=1000000       # Set both input and output TPM (legacy; INPUT_TPM/OUTPUT_TPM take precedence)
 ```
