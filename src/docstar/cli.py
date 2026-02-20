@@ -159,25 +159,26 @@ def stats(path: Path, verbose: bool, no_gitignore: bool) -> None:
 @click.option("--fix/--no-fix", default=True, help="Auto-fix shadow docs (default: yes)")
 @click.option("--verbose", "-v", is_flag=True, help="Show detailed output")
 @click.option("--format", "output_format", type=click.Choice(["text", "json"]), default="text", help="Output format")
-@click.option("--xref", is_flag=True, help="Validate doc cross-references against source (LLM calls)")
 @click.option("--dead-code", is_flag=True, help="Detect cross-file dead code (LLM calls for ambiguous candidates)")
 @click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
-def audit(path: Path, fix: bool, verbose: bool, output_format: str, xref: bool, dead_code: bool, no_gitignore: bool) -> None:
+def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: bool, no_gitignore: bool) -> None:
     """Run documentation audit.
 
     Checks for:
-    - Documentation debris (process artifacts that should be removed)
+    - Documentation classification and accuracy validation against shadow docs
     - Code debris (stale comments, dead code, misleading docstrings)
     - Stale or missing shadow documentation (auto-fixed by default)
-    - Cross-reference validation (opt-in with --xref)
     - Cross-file dead code detection (opt-in with --dead-code)
+
+    Each doc file is matched to relevant source code via explicit references
+    and semantic topic matching, then classified and validated in a single pass.
 
     Exit codes: 0 = passed, 1 = errors found
     """
     config = Config(root_path=path.resolve(), respect_gitignore=not no_gitignore)
 
     try:
-        result = run_audit(config, fix_shadow=fix, xref=xref, dead_code=dead_code, verbose=verbose)
+        result = run_audit(config, fix_shadow=fix, dead_code=dead_code, verbose=verbose)
     except RuntimeError as e:
         raise click.ClickException(str(e)) from e
 

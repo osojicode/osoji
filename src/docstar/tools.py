@@ -111,19 +111,44 @@ module's role in the larger system.""",
 }
 
 
-# Tool definition for document classification
-CLASSIFY_DOCUMENT_TOOL = {
-    "name": "classify_document",
-    "description": """Classify a documentation file according to the Diátaxis framework.
+# Tool definition for topic matching (Haiku)
+MATCH_DOC_TOPICS_TOOL = {
+    "name": "match_doc_topics",
+    "description": """Return the source file paths whose code is relevant to this documentation file.
 
-Determine if the file is:
+Review the doc content and the directory summaries provided. Select directories whose
+code is discussed, referenced, or relevant to the documentation — even if the doc
+doesn't explicitly name the files.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "relevant_paths": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Source file paths whose code is relevant to this doc",
+            },
+        },
+        "required": ["relevant_paths"],
+    },
+}
+
+
+# Tool definition for unified document analysis (Sonnet)
+ANALYZE_DOCUMENT_TOOL = {
+    "name": "analyze_document",
+    "description": """Classify a documentation file and validate its accuracy against shadow docs.
+
+Classification (Diataxis framework):
 - **reference**: Precise technical information (API docs, specs, ADRs, design docs)
 - **tutorial**: Learning-oriented walkthrough for beginners
 - **how-to**: Task-oriented guide for specific goals
 - **explanatory**: Understanding-oriented discussion of concepts
 - **process_artifact**: Inherently temporary file created for a one-time action
 
-A document with outdated content but ongoing purpose is stale, not debris. Classify it under its Diataxis category.""",
+A document with outdated content but ongoing purpose is stale, not debris. Classify it under its Diataxis category.
+
+Validation: check for contradictions between the doc and the shadow docs (source of truth).
+Report findings with evidence from shadow docs. Empty findings array if no issues found.""",
     "input_schema": {
         "type": "object",
         "properties": {
@@ -136,16 +161,63 @@ A document with outdated content but ongoing purpose is stale, not debris. Class
                 "minimum": 0.0,
                 "maximum": 1.0,
             },
-            "reason": {
+            "classification_reason": {
                 "type": "string",
                 "description": "Brief explanation of classification",
             },
-            "remediation": {
-                "type": "string",
-                "description": "Action to take (e.g., 'Delete this file')",
+            "findings": {
+                "type": "array",
+                "description": "Accuracy issues found by comparing doc against shadow docs. Empty if none.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "category": {
+                            "type": "string",
+                            "enum": [
+                                "stale_content",
+                                "incorrect_content",
+                                "obsolete_reference",
+                                "misleading_claim",
+                            ],
+                        },
+                        "severity": {
+                            "type": "string",
+                            "enum": ["error", "warning"],
+                        },
+                        "description": {
+                            "type": "string",
+                            "description": "What is wrong in the documentation",
+                        },
+                        "evidence_shadow_path": {
+                            "type": "string",
+                            "description": "Source path of shadow doc providing evidence",
+                        },
+                        "evidence_quote": {
+                            "type": "string",
+                            "description": "Brief quote from shadow doc that contradicts the doc",
+                        },
+                        "remediation": {
+                            "type": "string",
+                            "description": "How to fix the documentation",
+                        },
+                        "confirmed": {
+                            "type": "boolean",
+                            "description": "Set to true only if this is a genuine contradiction. Set to false if on reflection the doc and shadow docs are consistent, the evidence is inconclusive, or no action is needed.",
+                        },
+                    },
+                    "required": [
+                        "category",
+                        "severity",
+                        "description",
+                        "evidence_shadow_path",
+                        "evidence_quote",
+                        "remediation",
+                        "confirmed",
+                    ],
+                },
             },
         },
-        "required": ["classification", "confidence", "reason", "remediation"],
+        "required": ["classification", "confidence", "classification_reason", "findings"],
     },
 }
 
@@ -160,61 +232,9 @@ def get_directory_tools() -> list[dict]:
     return [SUBMIT_DIRECTORY_SHADOW_DOC_TOOL]
 
 
-def get_classify_tools() -> list[dict]:
-    """Return tools for document classification."""
-    return [CLASSIFY_DOCUMENT_TOOL]
-
-
-# Tool definition for cross-reference validation
-VALIDATE_CROSS_REFERENCE_TOOL = {
-    "name": "submit_cross_reference_validation",
-    "description": """Validate a documentation file against source-of-truth shadow docs.
-
-Check for contradictions between what the .md file claims and what the code actually does.
-Look for: wrong CLI flags, incorrect function signatures, described behaviors the code
-doesn't implement, references to renamed/deleted code.""",
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "is_accurate": {
-                "type": "boolean",
-                "description": "True if the documentation accurately reflects the source code",
-            },
-            "issues": {
-                "type": "array",
-                "description": "List of contradictions or inaccuracies found",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "severity": {
-                            "type": "string",
-                            "enum": ["error", "warning"],
-                        },
-                        "description": {
-                            "type": "string",
-                            "description": "What is wrong in the documentation",
-                        },
-                        "source_context": {
-                            "type": "string",
-                            "description": "What the source code actually does",
-                        },
-                        "remediation": {
-                            "type": "string",
-                            "description": "How to fix the documentation",
-                        },
-                    },
-                    "required": ["severity", "description", "source_context", "remediation"],
-                },
-            },
-        },
-        "required": ["is_accurate", "issues"],
-    },
-}
-
-
-def get_cross_reference_tools() -> list[dict]:
-    """Return tools for cross-reference validation."""
-    return [VALIDATE_CROSS_REFERENCE_TOOL]
+def get_match_doc_topics_tools() -> list[dict]:
+    """Return tools for doc topic matching."""
+    return [MATCH_DOC_TOPICS_TOOL]
 
 
 # Tool definition for dead code verification
@@ -292,14 +312,14 @@ def get_directory_tool_definitions() -> list[ToolDefinition]:
     return [_dict_to_tool_definition(SUBMIT_DIRECTORY_SHADOW_DOC_TOOL)]
 
 
-def get_classify_tool_definitions() -> list[ToolDefinition]:
-    """Return ToolDefinition objects for document classification."""
-    return [_dict_to_tool_definition(CLASSIFY_DOCUMENT_TOOL)]
+def get_match_doc_topics_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for doc topic matching."""
+    return [_dict_to_tool_definition(MATCH_DOC_TOPICS_TOOL)]
 
 
-def get_cross_reference_tool_definitions() -> list[ToolDefinition]:
-    """Return ToolDefinition objects for cross-reference validation."""
-    return [_dict_to_tool_definition(VALIDATE_CROSS_REFERENCE_TOOL)]
+def get_analyze_document_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for unified document analysis."""
+    return [_dict_to_tool_definition(ANALYZE_DOCUMENT_TOOL)]
 
 
 def get_dead_code_tool_definitions() -> list[ToolDefinition]:

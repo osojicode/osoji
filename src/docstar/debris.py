@@ -1,7 +1,7 @@
-"""Debris detection for documentation files."""
+"""Unified documentation analysis: classification + accuracy validation."""
 
 import asyncio
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
@@ -11,20 +11,42 @@ from .llm.factory import create_provider
 from .llm.logging import LoggingProvider
 from .llm.types import Message, MessageRole, CompletionOptions
 from .rate_limiter import RateLimiter, get_config_with_overrides
-from .tools import get_classify_tool_definitions, get_cross_reference_tool_definitions
+from .tools import get_match_doc_topics_tool_definitions, get_analyze_document_tool_definitions
 from .walker import list_repo_files, _matches_ignore
 
 
+# --- Data models ---
+
+
 @dataclass
-class DebrisClassification:
-    """Result of classifying a documentation file."""
+class DocFinding:
+    """A single finding from documentation analysis."""
+
+    category: str       # stale_content, incorrect_content, obsolete_reference, misleading_claim
+    severity: str       # error, warning
+    description: str
+    shadow_ref: str     # source path of evidencing shadow doc
+    evidence: str       # quote from shadow doc
+    remediation: str
+
+
+@dataclass
+class DocAnalysisResult:
+    """Result of analyzing a single documentation file."""
 
     path: Path
-    is_debris: bool
-    classification: str
+    classification: str  # Diataxis category
     confidence: float
-    reason: str
-    remediation: str
+    classification_reason: str
+    matched_shadows: list[str] = field(default_factory=list)
+    findings: list[DocFinding] = field(default_factory=list)
+
+    @property
+    def is_debris(self) -> bool:
+        return self.classification == "process_artifact"
+
+
+# --- Document discovery (unchanged) ---
 
 
 def find_doc_candidates(config: Config) -> list[Path]:
@@ -71,206 +93,7 @@ def find_doc_candidates(config: Config) -> list[Path]:
     return sorted(candidates)
 
 
-# --- Classification prompts ---
-
-_CLASSIFY_SYSTEM_PROMPT = """You are a documentation analyst classifying files according to the Diataxis framework.
-
-## Diataxis Framework
-
-Documentation should serve one of four purposes:
-
-1. **Tutorials** - Learning-oriented. Walk a beginner through a series of steps to complete a project. Focus on learning, not accomplishing.
-
-2. **How-to guides** - Task-oriented. Guide an experienced user through steps to solve a specific problem. Assume competence.
-
-3. **Reference** - Information-oriented. Describe the machinery. Accurate and complete. Technical description.
-
-4. **Explanation** - Understanding-oriented. Discuss and illuminate a topic. Provide context and background.
-
-## Process Artifacts (Debris)
-
-Debris means the file's *purpose* was inherently temporary — created for a one-time event, never intended to be maintained. Classify as `process_artifact` only when the document exists to drive or record a single bounded action.
-
-Examples of debris:
-- One-off task prompts or instructions (e.g., "Claude, implement X for a specific ticket")
-- Scratch notes or drafts not meant to be maintained
-- Files with "prompt", "scratch", "WIP", "draft", "temp" in the name
-
-**Staleness is NOT debris.** A document whose content is outdated but whose *purpose* is ongoing is stale, not disposable. Classify under its Diataxis category and note staleness in the reason.
-
-### NOT Debris (classify under the appropriate Diataxis category)
-- Living planning docs (roadmaps, backlogs, milestone trackers)
-- Architectural knowledge (ADRs, design docs, impact analyses, risk assessments)
-- Package/project READMEs
-- Durable AI agent configuration files (e.g. AGENTS.md, CLAUDE.md, .cursorrules, CONVENTIONS.md)
-- Intentionally maintained decision logs (e.g., in `adr/` or `decisions/` directory)
-
-Process artifacts should be classified as `process_artifact`. They mislead developers who expect maintained documentation.
-
-## Your Task
-
-Classify the document. Apply any project-specific rules provided. Use the classify_document tool."""
-
-
-async def classify_document_async(
-    provider: LLMProvider,
-    config: Config,
-    doc_path: Path,
-    rules_text: str,
-) -> DebrisClassification:
-    """Classify a single document using LLM.
-
-    Uses tool forcing for structured output.
-    """
-    relative_path = doc_path.relative_to(config.root_path)
-    content = doc_path.read_text(encoding="utf-8")
-
-    # Truncate large files
-    if len(content) > 50000:
-        content = content[:50000] + "\n\n[... content truncated ...]"
-
-    user_prompt = f"""**File:** `{relative_path}`
-
-"""
-
-    if rules_text:
-        user_prompt += f"""**Project Rules:**
-{rules_text}
-
-"""
-
-    user_prompt += f"""**Content:**
-```
-{content}
-```
-
-Classify this document using the classify_document tool."""
-
-    result = await provider.complete(
-        messages=[Message(role=MessageRole.USER, content=user_prompt)],
-        system=_CLASSIFY_SYSTEM_PROMPT,
-        options=CompletionOptions(
-            model=config.model,
-            max_tokens=1024,
-            tools=get_classify_tool_definitions(),
-            tool_choice={"type": "tool", "name": "classify_document"},
-        ),
-    )
-
-    for tool_call in result.tool_calls:
-        if tool_call.name == "classify_document":
-            return DebrisClassification(
-                path=relative_path,
-                is_debris=(tool_call.input["classification"] == "process_artifact"),
-                classification=tool_call.input["classification"],
-                confidence=tool_call.input["confidence"],
-                reason=tool_call.input["reason"],
-                remediation=tool_call.input["remediation"],
-            )
-
-    raise RuntimeError(f"LLM did not call classify_document for {doc_path}")
-
-
-async def detect_debris_async(
-    provider: LLMProvider,
-    rate_limiter: RateLimiter,
-    config: Config,
-    on_progress: Callable[[int, int, Path, str], None] | None = None,
-) -> list[DebrisClassification]:
-    """Scan for debris in documentation files with parallel execution.
-
-    Args:
-        provider: LLM provider for API calls
-        rate_limiter: Rate limiter for API throttling
-        config: Docstar configuration
-        on_progress: Optional callback (completed, total, path, status)
-
-    Returns:
-        List of classifications for all doc candidates.
-    """
-    candidates = find_doc_candidates(config)
-    if not candidates:
-        return []
-
-    rules_text = config.load_rules_text()
-    semaphore = asyncio.Semaphore(config.max_concurrency)
-    completed = 0
-    total = len(candidates)
-    lock = asyncio.Lock()
-    classifications: list[DebrisClassification] = []
-
-    async def process_one(doc_path: Path) -> DebrisClassification | None:
-        nonlocal completed
-
-        async with semaphore:
-            await rate_limiter.throttle()
-            try:
-                classification = await classify_document_async(
-                    provider, config, doc_path, rules_text
-                )
-                rate_limiter.record_usage(
-                    input_tokens=0,  # LoggingProvider tracks actual tokens
-                    output_tokens=0,
-                )
-                async with lock:
-                    completed += 1
-                    classifications.append(classification)
-                    status = "debris" if classification.is_debris else "ok"
-                    if on_progress:
-                        on_progress(completed, total, doc_path, status)
-                return classification
-            except Exception as e:
-                async with lock:
-                    completed += 1
-                    if on_progress:
-                        on_progress(completed, total, doc_path, "error")
-                print(f"  [error] {doc_path}: {e}", flush=True)
-                return None
-
-    tasks = [process_one(path) for path in candidates]
-    await asyncio.gather(*tasks)
-
-    return classifications
-
-
-def detect_debris(
-    config: Config,
-    on_progress: Callable[[int, int, Path, str], None] | None = None,
-) -> list[DebrisClassification]:
-    """Scan for debris in documentation files (sync wrapper).
-
-    Creates provider and rate limiter internally, runs async detection.
-    """
-    candidates = find_doc_candidates(config)
-    if not candidates:
-        return []
-
-    async def _run() -> list[DebrisClassification]:
-        provider = create_provider("anthropic")
-        logging_provider = LoggingProvider(provider)
-        rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
-        try:
-            return await detect_debris_async(
-                logging_provider, rate_limiter, config, on_progress
-            )
-        finally:
-            await logging_provider.close()
-
-    return asyncio.run(_run())
-
-
-# --- Cross-reference validation ---
-
-
-@dataclass
-class CrossRefIssue:
-    """A cross-reference validation issue."""
-
-    doc_path: Path
-    severity: str  # "error" or "warning"
-    description: str
-    source_context: str
-    remediation: str
+# --- Tier 1: Explicit reference matching (no LLM) ---
 
 
 def _find_referenced_sources(config: Config, doc_content: str) -> list[Path]:
@@ -329,17 +152,154 @@ def _find_referenced_sources(config: Config, doc_content: str) -> list[Path]:
     return referenced
 
 
-_XREF_SYSTEM_PROMPT = """You are a documentation accuracy validator.
+# --- Tier 2: Topic matching via Haiku ---
 
-You are given a documentation file (.md) and shadow documentation for the source files it references.
-Shadow docs are the ground truth - they accurately describe what the code does.
+MATCH_MODEL = "claude-haiku-4-5-20251001"
 
-Your job: find contradictions between the documentation and the source code (as described by shadow docs).
+_MATCH_SYSTEM_PROMPT = """You are a documentation-to-code matcher. Given a documentation file and a list of source code directory summaries, identify which directories contain code relevant to this documentation.
 
-Look for:
+Return the directory paths whose code is discussed, referenced, or semantically relevant to the doc — even if the doc doesn't explicitly name the files.
+
+Be selective: only return directories that are genuinely relevant, not tangentially related."""
+
+
+def _load_directory_summaries(config: Config) -> dict[str, tuple[str, list[Path]]]:
+    """Load all directory shadow doc summaries and their child file paths.
+
+    Returns:
+        Dict mapping directory relative path -> (summary_text, list of child source file paths)
+    """
+    shadow_root = config.shadow_root
+    if not shadow_root.exists():
+        return {}
+
+    summaries: dict[str, tuple[str, list[Path]]] = {}
+
+    for dir_shadow in shadow_root.rglob("_directory.shadow.md"):
+        try:
+            content = dir_shadow.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+
+        # Determine the directory relative path
+        relative_shadow_dir = dir_shadow.parent.relative_to(shadow_root)
+        dir_key = str(relative_shadow_dir).replace("\\", "/")
+        if dir_key == ".":
+            dir_key = ""
+
+        # Find child file shadow docs in this directory (non-recursive)
+        child_files: list[Path] = []
+        for child in dir_shadow.parent.iterdir():
+            if child.name == "_directory.shadow.md":
+                continue
+            if child.is_file() and child.name.endswith(".shadow.md"):
+                source_str = str(child.relative_to(shadow_root)).removesuffix(".shadow.md")
+                child_files.append(Path(source_str))
+
+        # Truncate summary for compact listing
+        summary_preview = content[:500]
+
+        summaries[dir_key] = (summary_preview, child_files)
+
+    return summaries
+
+
+async def _match_topics_async(
+    provider: LLMProvider,
+    config: Config,
+    doc_content: str,
+    dir_summaries: dict[str, tuple[str, list[Path]]],
+) -> list[Path]:
+    """Use Haiku to match a doc to relevant source files via directory summaries.
+
+    Sends doc content + all directory summaries. Returns matched source file paths.
+    """
+    if not dir_summaries:
+        return []
+
+    # Build compact listing of directory summaries
+    listing_parts: list[str] = []
+    dir_to_files: dict[str, list[Path]] = {}
+    for dir_path, (summary, child_files) in dir_summaries.items():
+        display_path = dir_path or "(root)"
+        listing_parts.append(f"### `{display_path}/`\n{summary[:300]}\n")
+        dir_to_files[dir_path] = child_files
+
+    listing = "\n".join(listing_parts)
+
+    # Truncate doc for Haiku (keep it lean)
+    doc_preview = doc_content[:10000]
+    if len(doc_content) > 10000:
+        doc_preview += "\n\n[... content truncated ...]"
+
+    user_prompt = f"""**Documentation file content:**
+```
+{doc_preview}
+```
+
+**Source code directories:**
+{listing}
+
+Identify which directories contain code relevant to this documentation.
+Return the directory paths using the match_doc_topics tool."""
+
+    result = await provider.complete(
+        messages=[Message(role=MessageRole.USER, content=user_prompt)],
+        system=_MATCH_SYSTEM_PROMPT,
+        options=CompletionOptions(
+            model=MATCH_MODEL,
+            max_tokens=1024,
+            tools=get_match_doc_topics_tool_definitions(),
+            tool_choice={"type": "tool", "name": "match_doc_topics"},
+        ),
+    )
+
+    matched_files: list[Path] = []
+    for tool_call in result.tool_calls:
+        if tool_call.name == "match_doc_topics":
+            for dir_path in tool_call.input.get("relevant_paths", []):
+                # Normalize: strip trailing slash
+                normalized = dir_path.strip("/")
+                if normalized in dir_to_files:
+                    matched_files.extend(dir_to_files[normalized])
+                # Also check empty string for root
+                elif dir_path in ("", "(root)", "(root)/"):
+                    if "" in dir_to_files:
+                        matched_files.extend(dir_to_files[""])
+
+    return matched_files
+
+
+ANALYZE_MODEL = "claude-opus-4-6"
+
+# --- Unified analysis (Opus) ---
+
+_ANALYZE_SYSTEM_PROMPT = """You are a documentation analyst performing two tasks:
+
+## Task 1: Classification (Diataxis Framework)
+
+Classify the document into one of:
+1. **tutorial** — Learning-oriented walkthrough for beginners
+2. **how-to** — Task-oriented guide for specific goals
+3. **reference** — Precise technical information (API docs, specs, ADRs, design docs)
+4. **explanatory** — Understanding-oriented discussion of concepts
+5. **process_artifact** — Inherently temporary file created for a one-time action (debris)
+
+**Staleness is NOT debris.** A document whose content is outdated but whose *purpose* is ongoing is stale, not disposable.
+
+### NOT Debris (classify under the appropriate Diataxis category)
+- Living planning docs (roadmaps, backlogs, milestone trackers)
+- Architectural knowledge (ADRs, design docs, impact analyses, risk assessments)
+- Package/project READMEs
+- Durable AI agent configuration files (e.g. AGENTS.md, CLAUDE.md, .cursorrules, CONVENTIONS.md)
+- Intentionally maintained decision logs
+
+## Task 2: Accuracy Validation
+
+If shadow documentation (source of truth) is provided, check for contradictions:
 - Wrong CLI flags or command syntax
 - Incorrect function signatures or parameters
-- Described behaviors the code doesn't actually implement
+- Described behaviors the code doesn't implement
 - References to renamed or deleted functions/classes/files
 - Outdated configuration options or defaults
 - Incorrect architectural descriptions
@@ -348,229 +308,237 @@ Do NOT flag:
 - Documentation that is incomplete (omits details)
 - Style or formatting issues
 - Documentation about things not covered by the provided shadow docs
+- Claims you cannot confirm or deny from the shadow docs (inconclusive ≠ incorrect)
 
-Use the submit_cross_reference_validation tool with your findings."""
+Each finding has a `confirmed` boolean. Set `confirmed: true` only for genuine contradictions.
+Set `confirmed: false` if on reflection the evidence is inconclusive, the doc and shadow docs
+are consistent, or the shadow docs simply don't cover the claim (shadow docs are summaries,
+not exhaustive — absence of detail is not a contradiction).
+
+For each finding, include the shadow doc path and a brief verbatim evidence quote.
+
+Use the analyze_document tool with your results."""
 
 
-@dataclass
-class _XRefWorkItem:
-    """Pre-computed work item for cross-reference validation."""
-
-    doc_path: Path
-    content: str
-    shadow_contexts: list[tuple[Path, str]]
-
-
-async def _validate_single_doc_async(
+async def _analyze_document_async(
     provider: LLMProvider,
     config: Config,
     doc_path: Path,
     doc_content: str,
     shadow_contexts: list[tuple[Path, str]],
     rules_text: str,
-) -> list[CrossRefIssue]:
-    """Validate a single .md file against shadow docs.
-
-    Makes one LLM call per doc file.
-    """
+) -> DocAnalysisResult:
+    """Analyze a single doc: classify + validate in one Sonnet call."""
     relative_path = doc_path.relative_to(config.root_path)
 
-    # Build shadow context
-    shadow_text = ""
-    for source_path, shadow_content in shadow_contexts:
-        shadow_text += f"\n\n### Source: `{source_path}`\n{shadow_content}"
+    user_prompt = f"""**File:** `{relative_path}`
 
-    user_prompt = f"""**Documentation file:** `{relative_path}`
+"""
 
-**Content:**
+    if rules_text:
+        user_prompt += f"""**Project Rules:**
+{rules_text}
+
+"""
+
+    user_prompt += f"""**Content:**
 ```
 {doc_content}
 ```
+"""
 
+    if shadow_contexts:
+        shadow_text = ""
+        for source_path, shadow_content in shadow_contexts:
+            shadow_text += f"\n\n### Source: `{source_path}`\n{shadow_content}"
+        user_prompt += f"""
 **Shadow documentation (source of truth):**
 {shadow_text}
 """
 
-    if rules_text:
-        user_prompt += f"""
-**Project rules:**
-{rules_text}
-"""
-
-    user_prompt += "\nValidate the documentation against the shadow docs using the submit_cross_reference_validation tool."
+    user_prompt += "\nClassify this document and validate its accuracy using the analyze_document tool."
 
     result = await provider.complete(
         messages=[Message(role=MessageRole.USER, content=user_prompt)],
-        system=_XREF_SYSTEM_PROMPT,
+        system=_ANALYZE_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=config.model,
+            model=ANALYZE_MODEL,
             max_tokens=2048,
-            tools=get_cross_reference_tool_definitions(),
-            tool_choice={"type": "tool", "name": "submit_cross_reference_validation"},
+            tools=get_analyze_document_tool_definitions(),
+            tool_choice={"type": "tool", "name": "analyze_document"},
         ),
     )
 
-    issues: list[CrossRefIssue] = []
+    matched_shadow_paths = [str(p) for p, _ in shadow_contexts]
+
     for tool_call in result.tool_calls:
-        if tool_call.name == "submit_cross_reference_validation":
-            for issue_data in tool_call.input.get("issues", []):
-                issues.append(CrossRefIssue(
-                    doc_path=relative_path,
-                    severity=issue_data["severity"],
-                    description=issue_data["description"],
-                    source_context=issue_data["source_context"],
-                    remediation=issue_data["remediation"],
-                ))
-            return issues
-
-    return issues
-
-
-def _prepare_xref_work_items(
-    config: Config, doc_paths: list[Path]
-) -> list[_XRefWorkItem]:
-    """Pre-compute work items for cross-reference validation.
-
-    Reads files and finds shadow contexts (fast file I/O).
-    Returns only docs that have shadow contexts to validate against.
-    """
-    shadow_root = config.shadow_root
-    work_items: list[_XRefWorkItem] = []
-
-    for doc_path in doc_paths:
-        try:
-            content = doc_path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
-            continue
-
-        # Truncate large files
-        if len(content) > 50000:
-            content = content[:50000] + "\n\n[... content truncated ...]"
-
-        # Find which source files this doc references
-        referenced_sources = _find_referenced_sources(config, content)
-        if not referenced_sources:
-            continue
-
-        # Load shadow docs for referenced sources
-        shadow_contexts: list[tuple[Path, str]] = []
-        for source_path in referenced_sources:
-            shadow_path = shadow_root / (str(source_path) + ".shadow.md")
-            if shadow_path.exists():
-                try:
-                    shadow_content = shadow_path.read_text(encoding="utf-8")
-                    shadow_contexts.append((source_path, shadow_content))
-                except (OSError, UnicodeDecodeError):
+        if tool_call.name == "analyze_document":
+            findings: list[DocFinding] = []
+            for f in tool_call.input.get("findings", []):
+                # The schema includes a `confirmed` boolean so the model can
+                # retract findings it reconsiders mid-generation.
+                if not f.get("confirmed", False):
                     continue
+                findings.append(DocFinding(
+                    category=f["category"],
+                    severity=f["severity"],
+                    description=f["description"],
+                    shadow_ref=f.get("evidence_shadow_path", ""),
+                    evidence=f.get("evidence_quote", ""),
+                    remediation=f["remediation"],
+                ))
+            return DocAnalysisResult(
+                path=relative_path,
+                classification=tool_call.input["classification"],
+                confidence=tool_call.input["confidence"],
+                classification_reason=tool_call.input["classification_reason"],
+                matched_shadows=matched_shadow_paths,
+                findings=findings,
+            )
 
-        if not shadow_contexts:
-            continue
-
-        work_items.append(_XRefWorkItem(
-            doc_path=doc_path,
-            content=content,
-            shadow_contexts=shadow_contexts,
-        ))
-
-    return work_items
+    raise RuntimeError(f"LLM did not call analyze_document for {doc_path}")
 
 
-async def validate_cross_references_async(
+# --- Orchestration ---
+
+# Cap total shadow doc content per document to ~300K chars (~100K tokens, half Sonnet context)
+_SHADOW_CHAR_CAP = 300_000
+
+
+async def analyze_docs_async(
     provider: LLMProvider,
     rate_limiter: RateLimiter,
     config: Config,
-    doc_paths: list[Path] | None = None,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
-) -> list[CrossRefIssue]:
-    """Validate documentation files against shadow docs with parallel execution.
+) -> list[DocAnalysisResult]:
+    """Orchestrate: discover docs -> match shadows -> analyze in parallel."""
+    candidates = find_doc_candidates(config)
+    if not candidates:
+        return []
 
-    Args:
-        provider: LLM provider for API calls
-        rate_limiter: Rate limiter for API throttling
-        config: Docstar configuration
-        doc_paths: Specific doc paths to validate (None = all candidates)
-        on_progress: Optional callback (completed, total, path, status)
-
-    Returns:
-        List of cross-reference issues found
-    """
     shadow_root = config.shadow_root
     if not shadow_root.exists():
         print("  [skip] No shadow docs found. Run 'docstar shadow .' first.", flush=True)
-        return []
-
-    if doc_paths is None:
-        doc_paths = find_doc_candidates(config)
-
-    if not doc_paths:
         return []
 
     rules_text = config.load_rules_text()
 
-    # Pre-compute work items (file I/O, no LLM calls)
-    work_items = _prepare_xref_work_items(config, doc_paths)
-    if not work_items:
-        return []
+    # Load directory summaries once (file I/O only)
+    dir_summaries = _load_directory_summaries(config)
 
     semaphore = asyncio.Semaphore(config.max_concurrency)
     completed = 0
-    total = len(work_items)
+    total = len(candidates)
     lock = asyncio.Lock()
-    all_issues: list[CrossRefIssue] = []
+    results: list[DocAnalysisResult] = []
 
-    async def process_one(item: _XRefWorkItem) -> list[CrossRefIssue]:
+    async def process_one(doc_path: Path) -> DocAnalysisResult | None:
         nonlocal completed
 
         async with semaphore:
-            await rate_limiter.throttle()
             try:
-                issues = await _validate_single_doc_async(
-                    provider, config, item.doc_path, item.content,
-                    item.shadow_contexts, rules_text
-                )
-                async with lock:
-                    completed += 1
-                    all_issues.extend(issues)
-                    status = f"found {len(issues)}" if issues else "ok"
-                    if on_progress:
-                        on_progress(completed, total, item.doc_path, status)
-                return issues
-            except Exception as e:
-                relative = item.doc_path.relative_to(config.root_path)
-                async with lock:
-                    completed += 1
-                    if on_progress:
-                        on_progress(completed, total, item.doc_path, "error")
-                print(f"  [error] {relative}: {e}", flush=True)
-                return []
+                # Read doc content
+                try:
+                    content = doc_path.read_text(encoding="utf-8")
+                except (OSError, UnicodeDecodeError):
+                    async with lock:
+                        completed += 1
+                        if on_progress:
+                            on_progress(completed, total, doc_path, "error")
+                    return None
 
-    tasks = [process_one(item) for item in work_items]
+                # Truncate large docs
+                if len(content) > 50000:
+                    content = content[:50000] + "\n\n[... content truncated ...]"
+
+                # Tier 1: Explicit reference matching (no LLM)
+                explicit_refs = _find_referenced_sources(config, content)
+
+                # Tier 2: Haiku topic matching (always runs)
+                await rate_limiter.throttle()
+                haiku_matches = await _match_topics_async(
+                    provider, config, content, dir_summaries
+                )
+                rate_limiter.record_usage(input_tokens=0, output_tokens=0)
+
+                # Merge and deduplicate
+                all_sources: dict[str, Path] = {}
+                for p in explicit_refs:
+                    all_sources[str(p).replace("\\", "/")] = p
+                for p in haiku_matches:
+                    key = str(p).replace("\\", "/")
+                    if key not in all_sources:
+                        all_sources[key] = p
+
+                # Load file-level shadow docs, respecting char cap
+                shadow_contexts: list[tuple[Path, str]] = []
+                total_chars = 0
+                for source_path in all_sources.values():
+                    shadow_path = shadow_root / (str(source_path) + ".shadow.md")
+                    if not shadow_path.exists():
+                        continue
+                    try:
+                        shadow_content = shadow_path.read_text(encoding="utf-8")
+                    except (OSError, UnicodeDecodeError):
+                        continue
+                    if total_chars + len(shadow_content) > _SHADOW_CHAR_CAP:
+                        break
+                    shadow_contexts.append((source_path, shadow_content))
+                    total_chars += len(shadow_content)
+
+                # Sonnet analysis (classify + validate)
+                await rate_limiter.throttle()
+                analysis = await _analyze_document_async(
+                    provider, config, doc_path, content, shadow_contexts, rules_text
+                )
+                rate_limiter.record_usage(input_tokens=0, output_tokens=0)
+
+                async with lock:
+                    completed += 1
+                    results.append(analysis)
+                    if analysis.is_debris:
+                        status = "debris"
+                    elif analysis.findings:
+                        status = f"found {len(analysis.findings)}"
+                    else:
+                        status = "ok"
+                    if on_progress:
+                        on_progress(completed, total, doc_path, status)
+                return analysis
+
+            except Exception as e:
+                async with lock:
+                    completed += 1
+                    if on_progress:
+                        on_progress(completed, total, doc_path, "error")
+                print(f"  [error] {doc_path}: {e}", flush=True)
+                return None
+
+    tasks = [process_one(path) for path in candidates]
     await asyncio.gather(*tasks)
 
-    return all_issues
+    return results
 
 
-def validate_cross_references(
+def analyze_docs(
     config: Config,
-    doc_paths: list[Path] | None = None,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
-) -> list[CrossRefIssue]:
-    """Validate documentation files against shadow docs (sync wrapper).
+) -> list[DocAnalysisResult]:
+    """Unified documentation analysis (sync wrapper).
 
-    Creates provider and rate limiter internally, runs async validation.
+    Creates provider and rate limiter internally, runs async analysis.
     """
-    shadow_root = config.shadow_root
-    if not shadow_root.exists():
-        print("  [skip] No shadow docs found. Run 'docstar shadow .' first.", flush=True)
+    candidates = find_doc_candidates(config)
+    if not candidates:
         return []
 
-    async def _run() -> list[CrossRefIssue]:
+    async def _run() -> list[DocAnalysisResult]:
         provider = create_provider("anthropic")
         logging_provider = LoggingProvider(provider)
         rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
         try:
-            return await validate_cross_references_async(
-                logging_provider, rate_limiter, config, doc_paths, on_progress
+            return await analyze_docs_async(
+                logging_provider, rate_limiter, config, on_progress
             )
         finally:
             await logging_provider.close()

@@ -7,7 +7,7 @@ from pathlib import Path
 
 from .config import Config
 from .shadow import check_shadow_docs, generate_shadow_docs
-from .debris import detect_debris, validate_cross_references
+from .debris import analyze_docs
 from .deadcode import detect_dead_code
 from .walker import _matches_ignore
 
@@ -80,7 +80,6 @@ def _make_progress_verbose(config: Config):
 def run_audit(
     config: Config,
     fix_shadow: bool = True,
-    xref: bool = False,
     dead_code: bool = False,
     verbose: bool = False,
 ) -> AuditResult:
@@ -89,7 +88,6 @@ def run_audit(
     Args:
         config: Docstar configuration
         fix_shadow: If True, auto-update stale shadow docs (Docstar owns them)
-        xref: If True, run cross-reference validation (LLM calls per .md file)
         dead_code: If True, detect cross-file dead code (LLM calls for ambiguous candidates)
         verbose: If True, show detailed per-file progress and timing
     """
@@ -119,22 +117,33 @@ def run_audit(
             remediation="Run 'docstar shadow .' to update",
         ))
 
-    # 2. Detect debris (errors - commission, not omission)
-    print("Docstar: Scanning for documentation debris...", flush=True)
+    # 2. Unified documentation analysis (replaces debris + xref)
+    print("Docstar: Analyzing documentation...", flush=True)
     phase_start = time_module.monotonic()
-    debris_results = detect_debris(config, on_progress=progress_cb)
+    analysis_results = analyze_docs(config, on_progress=progress_cb)
     if verbose:
         elapsed = time_module.monotonic() - phase_start
         print(f"  [{elapsed:.1f}s]", flush=True)
 
-    for item in debris_results:
+    for item in analysis_results:
         if item.is_debris:
             issues.append(AuditIssue(
                 path=item.path,
-                severity="error",  # Debris is an error (misleads)
+                severity="error",
                 category="debris",
-                message=f"Documentation debris: {item.reason}",
-                remediation=item.remediation,
+                message=f"Documentation debris: {item.classification_reason}",
+                remediation="Delete this file",
+            ))
+        for finding in item.findings:
+            evidence_tag = ""
+            if finding.shadow_ref and finding.evidence:
+                evidence_tag = f" [evidence: {finding.shadow_ref} — \"{finding.evidence}\"]"
+            issues.append(AuditIssue(
+                path=item.path,
+                severity=finding.severity,
+                category=f"doc_{finding.category}",
+                message=f"{finding.description}{evidence_tag}",
+                remediation=finding.remediation,
             ))
 
     # 3. Surface code debris findings from shadow generation
@@ -167,24 +176,7 @@ def run_audit(
         elapsed = time_module.monotonic() - phase_start
         print(f"  [{elapsed:.1f}s]", flush=True)
 
-    # 4. Cross-reference validation (opt-in)
-    if xref:
-        print("Docstar: Validating documentation cross-references...", flush=True)
-        phase_start = time_module.monotonic()
-        xref_issues = validate_cross_references(config, on_progress=progress_cb)
-        if verbose:
-            elapsed = time_module.monotonic() - phase_start
-            print(f"  [{elapsed:.1f}s]", flush=True)
-        for issue in xref_issues:
-            issues.append(AuditIssue(
-                path=issue.doc_path,
-                severity=issue.severity,
-                category="cross_reference",
-                message=f"Cross-reference issue: {issue.description}",
-                remediation=issue.remediation,
-            ))
-
-    # 5. Cross-file dead code detection (opt-in)
+    # 4. Cross-file dead code detection (opt-in)
     if dead_code:
         print("Docstar: Scanning for cross-file dead code...", flush=True)
         phase_start = time_module.monotonic()
