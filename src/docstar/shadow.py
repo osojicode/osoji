@@ -156,11 +156,11 @@ async def generate_file_shadow_doc_async(
     config: Config,
     file_path: Path,
     numbered_content: str,
-) -> tuple[str, int, int, list[Finding], list[dict]]:
+) -> tuple[str, int, int, list[Finding], list[dict], dict | None]:
     """Generate a shadow doc for a single file asynchronously.
 
     Uses tool_choice to force the LLM to call submit_shadow_doc.
-    Returns tuple of (content, input_tokens, output_tokens, findings, public_symbols).
+    Returns tuple of (content, input_tokens, output_tokens, findings, public_symbols, topic_signature).
     """
     relative_path = file_path.relative_to(config.root_path)
 
@@ -182,7 +182,11 @@ Report these as findings in the tool call. If the code is clean, submit an empty
 
 ALSO: Populate the public_symbols array with every function, class, constant, or module-level variable
 that other files could import from this module. Include the symbol name, kind, and line range.
-Exclude private/underscore-prefixed names UNLESS they are clearly part of the module's cross-file API."""
+Exclude private/underscore-prefixed names UNLESS they are clearly part of the module's cross-file API.
+
+ALSO: Populate the topic_signature with a one-sentence purpose statement and 3-7 key topic
+noun phrases (e.g., "JWT validation", "rate limiting", "database connection pooling").
+These are used for documentation coverage analysis."""
 
     user_prompt = f"""Generate shadow documentation for the following file:
 
@@ -221,7 +225,8 @@ Include line number references for key elements (e.g., "MyClass (L15-45)").
                 for f in findings_data
             ]
             public_symbols = tool_call.input.get("public_symbols", [])
-            return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings, public_symbols)
+            topic_signature = tool_call.input.get("topic_signature")
+            return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings, public_symbols, topic_signature)
 
     raise RuntimeError(f"LLM did not call submit_shadow_doc tool for {file_path}")
 
@@ -231,11 +236,11 @@ async def generate_directory_shadow_doc_async(
     config: Config,
     dir_path: Path,
     child_summaries: list[tuple[Path, str]],
-) -> tuple[str, int, int]:
+) -> tuple[str, int, int, dict | None]:
     """Generate a roll-up shadow doc for a directory asynchronously.
 
     Uses tool_choice to force the LLM to call submit_directory_shadow_doc.
-    Returns tuple of (content, input_tokens, output_tokens).
+    Returns tuple of (content, input_tokens, output_tokens, topic_signature).
     """
     relative_path = dir_path.relative_to(config.root_path)
     if relative_path == Path("."):
@@ -246,7 +251,11 @@ async def generate_directory_shadow_doc_async(
 You are creating a directory-level roll-up summary that synthesizes the shadow docs
 of all files in the directory.
 You MUST use the submit_directory_shadow_doc tool to submit your documentation.
-Do not include any header or metadata - just the documentation body."""
+Do not include any header or metadata - just the documentation body.
+
+ALSO: Populate the topic_signature with a one-sentence purpose statement and 3-7 key topic
+noun phrases describing what this directory/module covers (e.g., "LLM provider abstraction",
+"rate limiting", "tool definitions"). These are used for documentation coverage analysis."""
 
     # Build the child summaries section
     summaries_text = "\n\n---\n\n".join(
@@ -280,7 +289,8 @@ Focus on:
 
     for tool_call in result.tool_calls:
         if tool_call.name == "submit_directory_shadow_doc":
-            return (tool_call.input["content"], result.input_tokens, result.output_tokens)
+            topic_signature = tool_call.input.get("topic_signature")
+            return (tool_call.input["content"], result.input_tokens, result.output_tokens, topic_signature)
 
     raise RuntimeError(f"LLM did not call submit_directory_shadow_doc tool for {dir_path}")
 
@@ -307,7 +317,7 @@ async def process_file_async(
         numbered_content = add_line_numbers(content)
         source_hash = compute_file_hash(file_path)
 
-        body, input_tokens, output_tokens, findings, public_symbols = await generate_file_shadow_doc_async(
+        body, input_tokens, output_tokens, findings, public_symbols, topic_signature = await generate_file_shadow_doc_async(
             provider, config, file_path, numbered_content
         )
         full_doc = assemble_shadow_doc(
@@ -351,6 +361,20 @@ async def process_file_async(
                 "symbols": public_symbols,
             }
             await _write_with_retry(symbols_path, json.dumps(symbols_json, indent=2))
+
+        # Write topic signature
+        if topic_signature:
+            relative = file_path.relative_to(config.root_path)
+            sig_path = config.root_path / ".docstar" / "signatures" / (str(relative) + ".signature.json")
+            sig_path.parent.mkdir(parents=True, exist_ok=True)
+            sig_data = {
+                "path": str(relative),
+                "kind": "source",
+                "purpose": topic_signature.get("purpose", ""),
+                "topics": topic_signature.get("topics", []),
+                "public_surface": [s["name"] for s in public_symbols] if public_symbols else [],
+            }
+            await _write_with_retry(sig_path, json.dumps(sig_data, indent=2))
 
         return ShadowResult(
             path=file_path,
@@ -581,7 +605,7 @@ async def generate_directory_shadows(
                 return
 
             await rate_limiter.throttle()
-            body, input_tokens, output_tokens = await generate_directory_shadow_doc_async(
+            body, input_tokens, output_tokens, topic_signature = await generate_directory_shadow_doc_async(
                 provider, config, dir_path, child_summaries
             )
             full_doc = assemble_directory_shadow_doc(relative_path, current_hash, body)
@@ -590,6 +614,22 @@ async def generate_directory_shadows(
             shadow_path = config.shadow_path_for_dir(dir_path)
             shadow_path.parent.mkdir(parents=True, exist_ok=True)
             await _write_with_retry(shadow_path, full_doc)
+
+            # Write directory topic signature
+            if topic_signature:
+                dir_relative = dir_path.relative_to(config.root_path)
+                if dir_relative == Path("."):
+                    sig_path = config.root_path / ".docstar" / "signatures" / "_directory.signature.json"
+                else:
+                    sig_path = config.root_path / ".docstar" / "signatures" / dir_relative / "_directory.signature.json"
+                sig_path.parent.mkdir(parents=True, exist_ok=True)
+                sig_data = {
+                    "path": str(dir_relative),
+                    "kind": "directory",
+                    "purpose": topic_signature.get("purpose", ""),
+                    "topics": topic_signature.get("topics", []),
+                }
+                await _write_with_retry(sig_path, json.dumps(sig_data, indent=2))
 
             # Record actual token usage from API response
             rate_limiter.record_usage(
@@ -825,11 +865,32 @@ def cleanup_orphan_shadows(config: Config, files: list[Path], dirs: list[Path], 
                 symbols_file.unlink()
                 orphans.append(symbols_file)
 
+    # Also clean up orphan signatures
+    signatures_dir = config.root_path / ".docstar" / "signatures"
+    if signatures_dir.exists():
+        expected_sigs: set[Path] = set()
+        for f in files:
+            relative = f.relative_to(config.root_path)
+            expected_sigs.add(signatures_dir / (str(relative) + ".signature.json"))
+        for d in dirs:
+            relative = d.relative_to(config.root_path)
+            if relative == Path("."):
+                expected_sigs.add(signatures_dir / "_directory.signature.json")
+            else:
+                expected_sigs.add(signatures_dir / relative / "_directory.signature.json")
+        for sig_file in list(signatures_dir.rglob("*.signature.json")):
+            if sig_file not in expected_sigs:
+                if verbose:
+                    relative = sig_file.relative_to(config.root_path)
+                    print(f"  [removing orphan] {relative}", flush=True)
+                sig_file.unlink()
+                orphans.append(sig_file)
+
     # Remove empty directories (bottom-up)
     for dirpath in sorted(shadow_root.rglob("*"), key=lambda p: -len(p.parts)):
         if dirpath.is_dir() and not any(dirpath.iterdir()):
             dirpath.rmdir()
-    for cleanup_dir in [findings_dir, symbols_dir]:
+    for cleanup_dir in [findings_dir, symbols_dir, signatures_dir]:
         if cleanup_dir.exists():
             for dirpath in sorted(cleanup_dir.rglob("*"), key=lambda p: -len(p.parts)):
                 if dirpath.is_dir() and not any(dirpath.iterdir()):

@@ -9,6 +9,13 @@ from .config import Config
 from .shadow import check_shadow_docs, generate_shadow_docs
 from .debris import analyze_docs
 from .deadcode import detect_dead_code
+from .scorecard import (
+    Scorecard,
+    build_scorecard,
+    format_scorecard_markdown,
+    scorecard_to_json,
+    serialize_scorecard,
+)
 from .walker import _matches_ignore
 
 
@@ -30,6 +37,7 @@ class AuditResult:
     """Complete audit result."""
 
     issues: list[AuditIssue] = field(default_factory=list)
+    scorecard: Scorecard | None = None
 
     @property
     def has_errors(self) -> bool:
@@ -75,6 +83,81 @@ def _make_progress_verbose(config: Config):
         relative = path.relative_to(config.root_path) if path.is_absolute() else path
         print(f"  {symbol} {relative}", flush=True)
     return progress
+
+
+def _serialize_analysis_results(config: Config, analysis_results: list) -> None:
+    """Serialize Phase 2 DocAnalysisResult objects to .docstar/analysis/docs/."""
+    analysis_docs_dir = config.root_path / ".docstar" / "analysis" / "docs"
+    analysis_docs_dir.mkdir(parents=True, exist_ok=True)
+
+    for result in analysis_results:
+        rel_path = str(result.path).replace("\\", "/")
+        out_path = analysis_docs_dir / (rel_path + ".analysis.json")
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+
+        data = {
+            "path": str(result.path),
+            "classification": result.classification,
+            "confidence": result.confidence,
+            "classification_reason": result.classification_reason,
+            "matched_shadows": result.matched_shadows,
+            "findings": [
+                {
+                    "category": f.category,
+                    "severity": f.severity,
+                    "description": f.description,
+                    "shadow_ref": f.shadow_ref,
+                    "evidence": f.evidence,
+                    "remediation": f.remediation,
+                }
+                for f in result.findings
+            ],
+            "is_debris": result.is_debris,
+        }
+
+        # Include topic_signature if present
+        if hasattr(result, "topic_signature") and result.topic_signature:
+            data["topic_signature"] = result.topic_signature
+
+        out_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+
+
+def _serialize_dead_code_results(config: Config, dead_code_results: list) -> None:
+    """Serialize Phase 4 DeadCodeVerification objects to .docstar/analysis/dead-code/."""
+    if not dead_code_results:
+        return
+
+    dead_code_dir = config.root_path / ".docstar" / "analysis" / "dead-code"
+    dead_code_dir.mkdir(parents=True, exist_ok=True)
+
+    # Group by source_path
+    by_source: dict[str, list] = {}
+    for item in dead_code_results:
+        by_source.setdefault(item.source_path, []).append(item)
+
+    for source_path, verifications in by_source.items():
+        rel_path = source_path.replace("\\", "/")
+        out_path = dead_code_dir / (rel_path + ".deadcode.json")
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+
+        data = {
+            "source_path": source_path,
+            "verifications": [
+                {
+                    "name": v.name,
+                    "kind": v.kind,
+                    "line_start": v.line_start,
+                    "line_end": v.line_end,
+                    "is_dead": v.is_dead,
+                    "confidence": v.confidence,
+                    "reason": v.reason,
+                    "remediation": v.remediation,
+                }
+                for v in verifications
+            ],
+        }
+
+        out_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
 def run_audit(
@@ -146,6 +229,9 @@ def run_audit(
                 remediation=finding.remediation,
             ))
 
+    # Serialize Phase 2 results
+    _serialize_analysis_results(config, analysis_results)
+
     # 3. Surface code debris findings from shadow generation
     print("Docstar: Checking code debris findings...", flush=True)
     phase_start = time_module.monotonic()
@@ -177,6 +263,7 @@ def run_audit(
         print(f"  [{elapsed:.1f}s]", flush=True)
 
     # 4. Cross-file dead code detection (opt-in)
+    dead_code_results = []
     if dead_code:
         print("Docstar: Scanning for cross-file dead code...", flush=True)
         phase_start = time_module.monotonic()
@@ -195,22 +282,43 @@ def run_audit(
                 line_end=item.line_end,
             ))
 
-    return AuditResult(issues=issues)
+        # Serialize Phase 4 results
+        _serialize_dead_code_results(config, dead_code_results)
+
+    # 5. Scorecard (always runs as final phase)
+    print("Docstar: Building scorecard...", flush=True)
+    phase_start = time_module.monotonic()
+    scorecard = build_scorecard(
+        config,
+        analysis_results=analysis_results,
+        dead_code_results=dead_code_results if dead_code else None,
+    )
+    serialize_scorecard(scorecard, config)
+    if verbose:
+        elapsed = time_module.monotonic() - phase_start
+        print(f"  [{elapsed:.1f}s]", flush=True)
+
+    return AuditResult(issues=issues, scorecard=scorecard)
 
 
 def format_audit_report(result: AuditResult, verbose: bool = False) -> str:
     """Format audit result as agent-ready markdown report."""
-    if result.passed and not result.has_warnings:
-        return "# Docstar Audit Passed\n\nNo issues found."
-
     lines = []
 
-    if result.passed:
+    if result.passed and not result.has_warnings:
+        lines.append("# Docstar Audit Passed")
+        lines.append("")
+        lines.append("No issues found.")
+    elif result.passed:
         lines.append("# Docstar Audit Passed")
     else:
         lines.append("# Docstar Audit Failed")
 
     lines.append("")
+
+    # Scorecard at the top as a summary dashboard
+    if result.scorecard:
+        lines.append(format_scorecard_markdown(result.scorecard))
 
     errors = [i for i in result.issues if i.severity == "error"]
     warnings = [i for i in result.issues if i.severity == "warning"]
@@ -242,7 +350,7 @@ def format_audit_report(result: AuditResult, verbose: bool = False) -> str:
 
 def format_audit_json(result: AuditResult) -> str:
     """Format audit result as JSON for CI/machine consumption."""
-    return json.dumps({
+    data = {
         "passed": result.passed,
         "errors": sum(1 for i in result.issues if i.severity == "error"),
         "warnings": sum(1 for i in result.issues if i.severity == "warning"),
@@ -258,4 +366,9 @@ def format_audit_json(result: AuditResult) -> str:
             }
             for issue in result.issues
         ],
-    }, indent=2)
+    }
+
+    if result.scorecard:
+        data["scorecard"] = scorecard_to_json(result.scorecard)
+
+    return json.dumps(data, indent=2)
