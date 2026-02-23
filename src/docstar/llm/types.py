@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any
+from typing import Any, Callable
 
 
 class MessageRole(Enum):
@@ -48,6 +48,7 @@ class CompletionOptions:
     temperature: float = 0.0
     tools: list[ToolDefinition] = field(default_factory=list)
     tool_choice: dict[str, str] | None = None
+    tool_input_validators: list[Callable[[str, dict], list[str]]] = field(default_factory=list)
 
 
 @dataclass

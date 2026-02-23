@@ -126,6 +126,9 @@ class AnthropicProvider(LLMProvider):
                 else:
                     errs = []
 
+                for validator in options.tool_input_validators:
+                    errs.extend(validator(tc.name, tc.input))
+
                 if errs:
                     has_errors = True
                     nudge = (

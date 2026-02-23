@@ -226,9 +226,9 @@ def scan_references(
 
 # --- LLM verification ---
 
-_DEAD_CODE_SYSTEM_PROMPT = """You are a dead code analyst. You are given a symbol definition and context about where (if anywhere) it is referenced across the codebase.
+_DEAD_CODE_SYSTEM_PROMPT = """You are a dead code analyst. You are given one or more symbols from the same file, along with context about where (if anywhere) each is referenced across the codebase.
 
-Your job: determine whether this symbol is genuinely dead code or alive.
+Your job: determine whether each symbol is genuinely dead code or alive. Provide a verdict for EVERY symbol listed.
 
 ## For zero-reference symbols (no external textual references found)
 The symbol has NO grep hits outside its defining file. But it may still be alive:
@@ -252,81 +252,112 @@ Each grep hit has ±5 lines of context. Judge whether each hit is a real usage o
 If ALL hits are false positives, the symbol is dead.
 If ANY hit is a real usage (import, call, attribute access), the symbol is alive.
 
-Use the verify_dead_code tool with your judgment."""
+Use the verify_dead_code tool with a verdict for EVERY symbol."""
 
 
-async def _verify_candidate_async(
+async def _verify_batch_async(
     provider: LLMProvider,
     config: Config,
-    candidate: DeadCodeCandidate,
+    candidates: list[DeadCodeCandidate],
     file_content: str,
     shadow_content: str,
     ref_shadow_contents: dict[str, str],
-) -> tuple[DeadCodeVerification, int, int]:
-    """Verify a single dead code candidate via one LLM call.
+) -> tuple[list[DeadCodeVerification], int, int]:
+    """Verify a batch of dead code candidates (all from the same defining file) via one LLM call.
 
-    Returns (DeadCodeVerification, input_tokens, output_tokens).
+    Returns (list[DeadCodeVerification], input_tokens, output_tokens).
     """
-    user_parts = []
+    user_parts: list[str] = []
 
-    user_parts.append(f"## Symbol under analysis\n")
-    user_parts.append(f"- **Name**: `{candidate.name}`")
-    user_parts.append(f"- **Kind**: {candidate.kind}")
-    user_parts.append(f"- **File**: `{candidate.source_path}`")
-    user_parts.append(f"- **Lines**: {candidate.line_start}"
-                      + (f"-{candidate.line_end}" if candidate.line_end else ""))
-    user_parts.append(f"- **External reference count**: {candidate.ref_count}")
+    # List all symbols in the batch
+    user_parts.append("## Symbols under analysis\n")
+    for candidate in candidates:
+        lines_str = str(candidate.line_start) + (f"-{candidate.line_end}" if candidate.line_end else "")
+        user_parts.append(
+            f"- `{candidate.name}` ({candidate.kind}, lines {lines_str}, "
+            f"external refs: {candidate.ref_count})"
+        )
     user_parts.append("")
 
-    # Include defining file content (truncated)
+    # Include defining file content ONCE (truncated)
+    source_path = candidates[0].source_path
     truncated = file_content[:30000] if len(file_content) > 30000 else file_content
-    user_parts.append(f"## Defining file: `{candidate.source_path}`\n```\n{truncated}\n```\n")
+    user_parts.append(f"## Defining file: `{source_path}`\n```\n{truncated}\n```\n")
 
-    # Include shadow doc for defining file
+    # Include shadow doc for defining file ONCE
     if shadow_content:
-        user_parts.append(f"## Shadow doc for `{candidate.source_path}`\n{shadow_content}\n")
+        user_parts.append(f"## Shadow doc for `{source_path}`\n{shadow_content}\n")
 
-    # Include grep hits and their shadow docs (for low-ref candidates)
-    if candidate.grep_hits:
-        user_parts.append(f"## Grep hits ({len(candidate.grep_hits)} references)\n")
-        for i, hit in enumerate(candidate.grep_hits, 1):
-            user_parts.append(f"### Hit {i}: `{hit.file_path}` line {hit.line_number}\n```\n{hit.context}\n```\n")
-            ref_shadow = ref_shadow_contents.get(hit.file_path, "")
-            if ref_shadow:
-                user_parts.append(f"Shadow doc for `{hit.file_path}`:\n{ref_shadow}\n")
+    # Include grep hits per symbol (only for candidates that have them)
+    has_hits = [c for c in candidates if c.grep_hits]
+    if has_hits:
+        user_parts.append("## Grep hits by symbol\n")
+        for candidate in has_hits:
+            user_parts.append(f"### `{candidate.name}` ({len(candidate.grep_hits)} references)\n")
+            for i, hit in enumerate(candidate.grep_hits, 1):
+                user_parts.append(f"#### Hit {i}: `{hit.file_path}` line {hit.line_number}\n```\n{hit.context}\n```\n")
+                ref_shadow = ref_shadow_contents.get(hit.file_path, "")
+                if ref_shadow:
+                    user_parts.append(f"Shadow doc for `{hit.file_path}`:\n{ref_shadow}\n")
 
-    user_parts.append("Determine if this symbol is dead code using the verify_dead_code tool.")
+    names_list = ", ".join(f"`{c.name}`" for c in candidates)
+    user_parts.append(
+        f"Provide a verdict for EVERY symbol listed ({names_list}) "
+        "using the verify_dead_code tool."
+    )
+
+    # Build completeness validator
+    expected_names = {c.name for c in candidates}
+
+    def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
+        if tool_name != "verify_dead_code":
+            return []
+        verdicts = tool_input.get("verdicts", [])
+        got_names = {v.get("symbol_name") for v in verdicts}
+        missing = expected_names - got_names
+        return [f"Missing verdict for symbol '{name}'" for name in sorted(missing)]
 
     result = await provider.complete(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_DEAD_CODE_SYSTEM_PROMPT,
         options=CompletionOptions(
             model=config.model,
-            max_tokens=1024,
+            max_tokens=max(1024, len(candidates) * 250),
             tools=get_dead_code_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_dead_code"},
+            tool_input_validators=[check_completeness],
         ),
     )
 
+    # Build lookup from candidates for metadata
+    candidate_by_name = {c.name: c for c in candidates}
+
+    verifications: list[DeadCodeVerification] = []
     for tool_call in result.tool_calls:
         if tool_call.name == "verify_dead_code":
-            return (
-                DeadCodeVerification(
-                    source_path=candidate.source_path,
-                    name=candidate.name,
-                    kind=candidate.kind,
-                    line_start=candidate.line_start,
-                    line_end=candidate.line_end,
-                    is_dead=tool_call.input["is_dead"],
-                    confidence=tool_call.input["confidence"],
-                    reason=tool_call.input["reason"],
-                    remediation=tool_call.input["remediation"],
-                ),
-                result.input_tokens,
-                result.output_tokens,
-            )
+            for verdict in tool_call.input.get("verdicts", []):
+                sym_name = verdict.get("symbol_name", "")
+                cand = candidate_by_name.get(sym_name)
+                if cand:
+                    verifications.append(DeadCodeVerification(
+                        source_path=cand.source_path,
+                        name=cand.name,
+                        kind=cand.kind,
+                        line_start=cand.line_start,
+                        line_end=cand.line_end,
+                        is_dead=verdict["is_dead"],
+                        confidence=verdict["confidence"],
+                        reason=verdict["reason"],
+                        remediation=verdict["remediation"],
+                    ))
 
-    raise RuntimeError(f"LLM did not call verify_dead_code for {candidate.name}")
+    if not verifications:
+        raise RuntimeError(
+            f"LLM did not return verdicts for batch: "
+            f"{[c.name for c in candidates]}"
+        )
+
+    return verifications, result.input_tokens, result.output_tokens
 
 
 def _load_shadow_content(config: Config, relative_path: str) -> str:
@@ -359,37 +390,25 @@ async def detect_dead_code_async(
     """
     zero_refs, low_refs = scan_references(config)
 
+    all_candidates = zero_refs + low_refs
+
     print(
         f"  Found {len(zero_refs)} zero-reference symbol(s), "
-        f"{len(low_refs)} low-reference candidate(s)",
+        f"{len(low_refs)} low-reference candidate(s) "
+        f"({len(all_candidates)} total for LLM verification)",
         flush=True,
     )
 
+    if not all_candidates:
+        return []
+
     results: list[DeadCodeVerification] = []
 
-    # Tier 1: zero-ref symbols reported directly (no LLM)
-    for candidate in zero_refs:
-        results.append(DeadCodeVerification(
-            source_path=candidate.source_path,
-            name=candidate.name,
-            kind=candidate.kind,
-            line_start=candidate.line_start,
-            line_end=candidate.line_end,
-            is_dead=True,
-            confidence=1.0,
-            reason="No references found outside defining file",
-            remediation=f"Remove {candidate.kind} `{candidate.name}` or verify it is used via dynamic dispatch/framework convention",
-        ))
-
-    # Tier 2: low-ref candidates go through LLM
-    if not low_refs:
-        return results
-
-    # Pre-load file contents and shadow docs
+    # Pre-load file contents and shadow docs for ALL candidates
     file_contents: dict[str, str] = {}
     shadow_contents: dict[str, str] = {}
 
-    for candidate in low_refs:
+    for candidate in all_candidates:
         if candidate.source_path not in file_contents:
             src_path = config.root_path / candidate.source_path
             try:
@@ -400,60 +419,99 @@ async def detect_dead_code_async(
             shadow_contents[candidate.source_path] = _load_shadow_content(
                 config, candidate.source_path
             )
-        # Pre-load shadow docs for referenced files
         for hit in candidate.grep_hits:
             if hit.file_path not in shadow_contents:
                 shadow_contents[hit.file_path] = _load_shadow_content(
                     config, hit.file_path
                 )
 
+    # Group candidates by defining file
+    by_file: dict[str, list[DeadCodeCandidate]] = {}
+    for candidate in all_candidates:
+        by_file.setdefault(candidate.source_path, []).append(candidate)
+
+    # Split file groups into batches
+    MAX_SYMBOLS_PER_BATCH = 10
+    MAX_EXTERNAL_FILES_PER_BATCH = 10
+
+    batches: list[list[DeadCodeCandidate]] = []
+    for _source_path, file_candidates in by_file.items():
+        current_batch: list[DeadCodeCandidate] = []
+        current_ext_files: set[str] = set()
+
+        for candidate in file_candidates:
+            cand_ext_files = {hit.file_path for hit in candidate.grep_hits}
+
+            would_exceed_symbols = len(current_batch) + 1 > MAX_SYMBOLS_PER_BATCH
+            would_exceed_files = (
+                len(current_ext_files | cand_ext_files) > MAX_EXTERNAL_FILES_PER_BATCH
+                and candidate.grep_hits
+            )
+
+            if current_batch and (would_exceed_symbols or would_exceed_files):
+                batches.append(current_batch)
+                current_batch = []
+                current_ext_files = set()
+
+            current_batch.append(candidate)
+            current_ext_files |= cand_ext_files
+
+        if current_batch:
+            batches.append(current_batch)
+
     semaphore = asyncio.Semaphore(config.max_concurrency)
-    completed = 0
-    total = len(low_refs)
+    completed_batches = 0
+    total_batches = len(batches)
     lock = asyncio.Lock()
 
-    async def process_one(candidate: DeadCodeCandidate) -> DeadCodeVerification | None:
-        nonlocal completed
+    async def process_batch(batch: list[DeadCodeCandidate]) -> list[DeadCodeVerification]:
+        nonlocal completed_batches
 
+        source_path = batch[0].source_path
         async with semaphore:
             await rate_limiter.throttle()
             try:
-                ref_shadows = {
-                    hit.file_path: shadow_contents.get(hit.file_path, "")
-                    for hit in candidate.grep_hits
-                }
-                verification, verify_in, verify_out = await _verify_candidate_async(
+                # Collect ref shadow docs for all candidates in batch
+                ref_shadows: dict[str, str] = {}
+                for candidate in batch:
+                    for hit in candidate.grep_hits:
+                        if hit.file_path not in ref_shadows:
+                            ref_shadows[hit.file_path] = shadow_contents.get(hit.file_path, "")
+
+                verifications, verify_in, verify_out = await _verify_batch_async(
                     provider,
                     config,
-                    candidate,
-                    file_contents.get(candidate.source_path, ""),
-                    shadow_contents.get(candidate.source_path, ""),
+                    batch,
+                    file_contents.get(source_path, ""),
+                    shadow_contents.get(source_path, ""),
                     ref_shadows,
                 )
                 rate_limiter.record_usage(input_tokens=verify_in, output_tokens=verify_out)
                 async with lock:
-                    completed += 1
-                    if verification.is_dead:
-                        results.append(verification)
-                    status = "dead" if verification.is_dead else "ok"
+                    completed_batches += 1
+                    for v in verifications:
+                        if v.is_dead:
+                            results.append(v)
                     if on_progress:
                         on_progress(
-                            completed, total,
-                            Path(candidate.source_path), status,
+                            completed_batches, total_batches,
+                            Path(source_path),
+                            f"{sum(1 for v in verifications if v.is_dead)} dead",
                         )
-                return verification
+                return verifications
             except Exception as e:
                 async with lock:
-                    completed += 1
+                    completed_batches += 1
                     if on_progress:
                         on_progress(
-                            completed, total,
-                            Path(candidate.source_path), "error",
+                            completed_batches, total_batches,
+                            Path(source_path), "error",
                         )
-                print(f"  [error] {candidate.source_path}:{candidate.name}: {e}", flush=True)
-                return None
+                names = [c.name for c in batch]
+                print(f"  [error] {source_path}:{names}: {e}", flush=True)
+                return []
 
-    tasks = [process_one(c) for c in low_refs]
+    tasks = [process_batch(b) for b in batches]
     await asyncio.gather(*tasks)
 
     return results
