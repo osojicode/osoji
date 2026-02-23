@@ -55,6 +55,7 @@ class ShadowResult:
     output_tokens: int = 0
     findings: list[Finding] = field(default_factory=list)
     public_symbols: list[dict] = field(default_factory=list)
+    file_role: str | None = None
 
 
 def assemble_shadow_doc(file_path: Path, source_hash: str, body: str) -> str:
@@ -156,11 +157,11 @@ async def generate_file_shadow_doc_async(
     config: Config,
     file_path: Path,
     numbered_content: str,
-) -> tuple[str, int, int, list[Finding], list[dict]]:
+) -> tuple[str, int, int, list[Finding], list[dict], str, dict | None]:
     """Generate a shadow doc for a single file asynchronously.
 
     Uses tool_choice to force the LLM to call submit_shadow_doc.
-    Returns tuple of (content, input_tokens, output_tokens, findings, public_symbols).
+    Returns tuple of (content, input_tokens, output_tokens, findings, public_symbols, file_role, topic_signature).
     """
     relative_path = file_path.relative_to(config.root_path)
 
@@ -182,7 +183,16 @@ Report these as findings in the tool call. If the code is clean, submit an empty
 
 ALSO: Populate the public_symbols array with every function, class, constant, or module-level variable
 that other files could import from this module. Include the symbol name, kind, and line range.
-Exclude private/underscore-prefixed names UNLESS they are clearly part of the module's cross-file API."""
+Exclude private/underscore-prefixed names UNLESS they are clearly part of the module's cross-file API.
+
+ALSO: Classify the file's architectural role using the file_role field. The key distinction:
+- "schema" = defines data shapes with RUNTIME validation (Zod schemas, Pydantic models, JSON Schema validators)
+- "types" = type-only definitions consumed by compiler/linter only (TypeScript interfaces, type aliases, enums)
+Choose the single best-fit role for the file's primary purpose.
+
+ALSO: Populate the topic_signature with a one-sentence purpose statement and 3-7 key topic
+noun phrases (e.g., "JWT validation", "rate limiting", "database connection pooling").
+These are used for documentation coverage analysis."""
 
     user_prompt = f"""Generate shadow documentation for the following file:
 
@@ -221,7 +231,9 @@ Include line number references for key elements (e.g., "MyClass (L15-45)").
                 for f in findings_data
             ]
             public_symbols = tool_call.input.get("public_symbols", [])
-            return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings, public_symbols)
+            file_role = tool_call.input.get("file_role", "service")
+            topic_signature = tool_call.input.get("topic_signature")
+            return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings, public_symbols, file_role, topic_signature)
 
     raise RuntimeError(f"LLM did not call submit_shadow_doc tool for {file_path}")
 
@@ -231,11 +243,11 @@ async def generate_directory_shadow_doc_async(
     config: Config,
     dir_path: Path,
     child_summaries: list[tuple[Path, str]],
-) -> tuple[str, int, int]:
+) -> tuple[str, int, int, dict | None]:
     """Generate a roll-up shadow doc for a directory asynchronously.
 
     Uses tool_choice to force the LLM to call submit_directory_shadow_doc.
-    Returns tuple of (content, input_tokens, output_tokens).
+    Returns tuple of (content, input_tokens, output_tokens, topic_signature).
     """
     relative_path = dir_path.relative_to(config.root_path)
     if relative_path == Path("."):
@@ -246,7 +258,10 @@ async def generate_directory_shadow_doc_async(
 You are creating a directory-level roll-up summary that synthesizes the shadow docs
 of all files in the directory.
 You MUST use the submit_directory_shadow_doc tool to submit your documentation.
-Do not include any header or metadata - just the documentation body."""
+Do not include any header or metadata - just the documentation body.
+
+ALSO: Populate the topic_signature with a one-sentence purpose and 3-7 key topic noun phrases
+describing this directory/module's responsibilities."""
 
     # Build the child summaries section
     summaries_text = "\n\n---\n\n".join(
@@ -280,7 +295,8 @@ Focus on:
 
     for tool_call in result.tool_calls:
         if tool_call.name == "submit_directory_shadow_doc":
-            return (tool_call.input["content"], result.input_tokens, result.output_tokens)
+            topic_signature = tool_call.input.get("topic_signature")
+            return (tool_call.input["content"], result.input_tokens, result.output_tokens, topic_signature)
 
     raise RuntimeError(f"LLM did not call submit_directory_shadow_doc tool for {dir_path}")
 
@@ -307,7 +323,7 @@ async def process_file_async(
         numbered_content = add_line_numbers(content)
         source_hash = compute_file_hash(file_path)
 
-        body, input_tokens, output_tokens, findings, public_symbols = await generate_file_shadow_doc_async(
+        body, input_tokens, output_tokens, findings, public_symbols, file_role, topic_signature = await generate_file_shadow_doc_async(
             provider, config, file_path, numbered_content
         )
         full_doc = assemble_shadow_doc(
@@ -340,17 +356,32 @@ async def process_file_async(
         }
         await _write_with_retry(findings_path, json.dumps(findings_json, indent=2))
 
-        # Write symbols JSON sidecar
-        if public_symbols:
+        # Write symbols JSON sidecar (includes file_role even without public_symbols)
+        if public_symbols or file_role:
             symbols_path = config.symbols_path_for(file_path)
             symbols_path.parent.mkdir(parents=True, exist_ok=True)
             symbols_json = {
                 "source": str(file_path.relative_to(config.root_path)),
                 "source_hash": source_hash,
                 "generated": timestamp,
+                "file_role": file_role,
                 "symbols": public_symbols,
             }
             await _write_with_retry(symbols_path, json.dumps(symbols_json, indent=2))
+
+        # Write topic signature JSON
+        if topic_signature:
+            sig_path = config.signatures_path_for(file_path)
+            sig_path.parent.mkdir(parents=True, exist_ok=True)
+            relative_str = str(file_path.relative_to(config.root_path)).replace("\\", "/")
+            sig_json = {
+                "path": relative_str,
+                "kind": "source",
+                "purpose": topic_signature.get("purpose", ""),
+                "topics": topic_signature.get("topics", []),
+                "public_surface": [s["name"] for s in public_symbols],
+            }
+            await _write_with_retry(sig_path, json.dumps(sig_json, indent=2))
 
         return ShadowResult(
             path=file_path,
@@ -360,6 +391,7 @@ async def process_file_async(
             output_tokens=output_tokens,
             findings=findings,
             public_symbols=public_symbols,
+            file_role=file_role,
         )
     except Exception as e:
         return ShadowResult(path=file_path, body="", cached=False, error=str(e))
@@ -581,7 +613,7 @@ async def generate_directory_shadows(
                 return
 
             await rate_limiter.throttle()
-            body, input_tokens, output_tokens = await generate_directory_shadow_doc_async(
+            body, input_tokens, output_tokens, topic_signature = await generate_directory_shadow_doc_async(
                 provider, config, dir_path, child_summaries
             )
             full_doc = assemble_directory_shadow_doc(relative_path, current_hash, body)
@@ -590,6 +622,18 @@ async def generate_directory_shadows(
             shadow_path = config.shadow_path_for_dir(dir_path)
             shadow_path.parent.mkdir(parents=True, exist_ok=True)
             await _write_with_retry(shadow_path, full_doc)
+
+            # Write directory topic signature
+            if topic_signature:
+                sig_path = config.signatures_path_for_dir(dir_path)
+                sig_path.parent.mkdir(parents=True, exist_ok=True)
+                sig_json = {
+                    "path": str(relative_path).replace("\\", "/"),
+                    "kind": "directory",
+                    "purpose": topic_signature.get("purpose", ""),
+                    "topics": topic_signature.get("topics", []),
+                }
+                await _write_with_retry(sig_path, json.dumps(sig_json, indent=2))
 
             # Record actual token usage from API response
             rate_limiter.record_usage(

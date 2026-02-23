@@ -1,0 +1,321 @@
+"""Scorecard: pure-Python aggregation of audit phase results into headline metrics."""
+
+import json
+from dataclasses import dataclass, field
+from pathlib import Path
+
+from .config import Config
+from .debris import DocAnalysisResult
+from .deadcode import DeadCodeVerification
+from .plumbing import PlumbingResult, PlumbingVerification
+
+
+@dataclass
+class CoverageEntry:
+    source_path: str
+    topic_signature: dict | None
+    covering_docs: list[dict]  # [{"path": str, "classification": str}]
+
+
+@dataclass
+class JunkCodeEntry:
+    source_path: str
+    total_lines: int
+    junk_lines: int
+    junk_fraction: float
+    items: list[dict]
+
+
+@dataclass
+class Scorecard:
+    # Coverage
+    coverage_entries: list[CoverageEntry]
+    coverage_pct: float
+    coverage_by_type: dict[str, float]
+
+    # Dead docs
+    dead_docs: list[str]
+
+    # Accuracy
+    total_accuracy_errors: int
+    live_doc_count: int
+    accuracy_errors_per_doc: float
+    accuracy_by_category: dict[str, int]
+
+    # Junk code
+    junk_total_lines: int
+    junk_total_source_lines: int
+    junk_fraction: float
+    junk_item_count: int
+    junk_file_count: int
+    junk_by_category: dict[str, int]
+    junk_by_category_lines: dict[str, int]
+    junk_entries: list[JunkCodeEntry]
+    junk_sources: list[str]  # which phases contributed
+
+    # Enforcement (None if --dead-plumbing not run)
+    enforcement_total_obligations: int | None
+    enforcement_unactuated: int | None
+    enforcement_pct_unactuated: float | None
+    enforcement_by_schema: dict[str, dict] | None
+
+
+def merge_ranges(ranges: list[tuple[int, int]]) -> list[tuple[int, int]]:
+    """Merge overlapping integer ranges. Returns sorted, non-overlapping ranges."""
+    if not ranges:
+        return []
+    sorted_ranges = sorted(ranges)
+    merged = [sorted_ranges[0]]
+    for start, end in sorted_ranges[1:]:
+        prev_start, prev_end = merged[-1]
+        if start <= prev_end + 1:
+            merged[-1] = (prev_start, max(prev_end, end))
+        else:
+            merged.append((start, end))
+    return merged
+
+
+def count_lines(path: Path) -> int:
+    """Count lines in a file. Returns 0 on error."""
+    try:
+        return len(path.read_text(errors="ignore").splitlines())
+    except OSError:
+        return 0
+
+
+def _load_signature(config: Config, source_path: str) -> dict | None:
+    """Load a topic signature for a source file, if available."""
+    sig_path = config.signatures_path_for(Path(source_path))
+    if sig_path.exists():
+        try:
+            return json.loads(sig_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            pass
+    return None
+
+
+def build_scorecard(
+    config: Config,
+    analysis_results: list[DocAnalysisResult],
+    dead_code_results: list[DeadCodeVerification] | None = None,
+    plumbing_result: PlumbingResult | None = None,
+) -> Scorecard:
+    """Build a scorecard from audit phase outputs. Pure Python, no LLM calls."""
+
+    # --- Coverage ---
+    # Enumerate all source files from shadow inventory
+    shadow_root = config.shadow_root
+    all_source_files: set[str] = set()
+    if shadow_root.exists():
+        for shadow_file in shadow_root.rglob("*.shadow.md"):
+            if shadow_file.name == "_directory.shadow.md":
+                continue
+            relative = shadow_file.relative_to(shadow_root)
+            source_str = str(relative).removesuffix(".shadow.md").replace("\\", "/")
+            all_source_files.add(source_str)
+
+    # Invert matched_shadows: source -> list of covering docs
+    source_to_docs: dict[str, list[dict]] = {s: [] for s in all_source_files}
+    for item in analysis_results:
+        if item.is_debris:
+            continue
+        for shadow_path in item.matched_shadows:
+            normalized = shadow_path.replace("\\", "/")
+            if normalized in source_to_docs:
+                source_to_docs[normalized].append({
+                    "path": str(item.path),
+                    "classification": item.classification,
+                })
+
+    coverage_entries: list[CoverageEntry] = []
+    for source_path in sorted(all_source_files):
+        sig = _load_signature(config, source_path)
+        covering = source_to_docs.get(source_path, [])
+        coverage_entries.append(CoverageEntry(
+            source_path=source_path,
+            topic_signature=sig,
+            covering_docs=covering,
+        ))
+
+    covered_count = sum(1 for e in coverage_entries if e.covering_docs)
+    total_sources = len(coverage_entries)
+    coverage_pct = (covered_count / total_sources * 100) if total_sources > 0 else 0.0
+
+    # Coverage by Diataxis type
+    type_covered: dict[str, int] = {}
+    type_total: dict[str, int] = {}
+    for item in analysis_results:
+        if item.is_debris:
+            continue
+        cls = item.classification
+        type_total[cls] = type_total.get(cls, 0) + 1
+        if item.matched_shadows:
+            type_covered[cls] = type_covered.get(cls, 0) + 1
+    coverage_by_type: dict[str, float] = {}
+    for cls in type_total:
+        total = type_total[cls]
+        covered = type_covered.get(cls, 0)
+        coverage_by_type[cls] = (covered / total * 100) if total > 0 else 0.0
+
+    # --- Dead docs ---
+    dead_docs = [str(item.path).replace("\\", "/") for item in analysis_results if item.is_debris]
+
+    # --- Accuracy ---
+    live_results = [item for item in analysis_results if not item.is_debris]
+    live_doc_count = len(live_results)
+    accuracy_by_category: dict[str, int] = {}
+    total_accuracy_errors = 0
+    for item in live_results:
+        for finding in item.findings:
+            if finding.severity == "error":
+                total_accuracy_errors += 1
+                cat = finding.category
+                accuracy_by_category[cat] = accuracy_by_category.get(cat, 0) + 1
+    accuracy_errors_per_doc = (total_accuracy_errors / live_doc_count) if live_doc_count > 0 else 0.0
+
+    # --- Junk code ---
+    # Collect junk items from all sources, keyed by source_path
+    junk_items_by_file: dict[str, list[dict]] = {}
+    junk_sources: list[str] = []
+
+    # Phase 3: Code debris findings from .docstar/findings/
+    findings_dir = config.root_path / ".docstar" / "findings"
+    if findings_dir.exists():
+        junk_sources.append("code_debris")
+        for findings_file in findings_dir.rglob("*.findings.json"):
+            try:
+                data = json.loads(findings_file.read_text(encoding="utf-8"))
+                source = data.get("source", "")
+                for f in data.get("findings", []):
+                    if source not in junk_items_by_file:
+                        junk_items_by_file[source] = []
+                    junk_items_by_file[source].append({
+                        "category": f["category"],
+                        "line_start": f["line_start"],
+                        "line_end": f["line_end"],
+                        "source": "code_debris",
+                    })
+            except (json.JSONDecodeError, KeyError, OSError):
+                continue
+
+    # Phase 4: Dead code
+    if dead_code_results is not None:
+        junk_sources.append("dead_symbol")
+        for item in dead_code_results:
+            source = item.source_path.replace("\\", "/")
+            if source not in junk_items_by_file:
+                junk_items_by_file[source] = []
+            junk_items_by_file[source].append({
+                "category": "dead_symbol",
+                "line_start": item.line_start,
+                "line_end": item.line_end or item.line_start,
+                "source": "dead_symbol",
+            })
+
+    # Phase 5: Dead plumbing
+    if plumbing_result is not None:
+        junk_sources.append("unactuated_config")
+        for item in plumbing_result.verifications:
+            source = item.source_path.replace("\\", "/")
+            if source not in junk_items_by_file:
+                junk_items_by_file[source] = []
+            junk_items_by_file[source].append({
+                "category": "unactuated_config",
+                "line_start": item.line_start,
+                "line_end": item.line_end or item.line_start,
+                "source": "unactuated_config",
+            })
+
+    # Compute junk lines per file with merged ranges
+    junk_entries: list[JunkCodeEntry] = []
+    junk_total_lines = 0
+    junk_item_count = 0
+    junk_by_category: dict[str, int] = {}
+    junk_by_category_lines: dict[str, int] = {}
+
+    # We need total source lines across ALL source files for the denominator
+    junk_total_source_lines = 0
+    for source_path in all_source_files:
+        full_path = config.root_path / source_path
+        lines = count_lines(full_path)
+        junk_total_source_lines += lines
+
+    for source, items in junk_items_by_file.items():
+        full_path = config.root_path / source
+        file_lines = count_lines(full_path)
+
+        # Merge overlapping ranges
+        ranges = [(it["line_start"], it["line_end"]) for it in items]
+        merged = merge_ranges(ranges)
+        file_junk_lines = sum(end - start + 1 for start, end in merged)
+
+        junk_total_lines += file_junk_lines
+        junk_item_count += len(items)
+
+        for it in items:
+            cat = it["category"]
+            junk_by_category[cat] = junk_by_category.get(cat, 0) + 1
+            item_lines = it["line_end"] - it["line_start"] + 1
+            junk_by_category_lines[cat] = junk_by_category_lines.get(cat, 0) + item_lines
+
+        fraction = (file_junk_lines / file_lines) if file_lines > 0 else 0.0
+        junk_entries.append(JunkCodeEntry(
+            source_path=source,
+            total_lines=file_lines,
+            junk_lines=file_junk_lines,
+            junk_fraction=fraction,
+            items=items,
+        ))
+
+    junk_entries.sort(key=lambda e: e.junk_fraction, reverse=True)
+    junk_fraction = (junk_total_lines / junk_total_source_lines) if junk_total_source_lines > 0 else 0.0
+    junk_file_count = len(junk_items_by_file)
+
+    # --- Enforcement ---
+    if plumbing_result is not None:
+        enforcement_total = plumbing_result.total_obligations
+        enforcement_unactuated = len(plumbing_result.verifications)
+        enforcement_pct = (enforcement_unactuated / enforcement_total * 100) if enforcement_total > 0 else 0.0
+
+        # Group by schema
+        enforcement_by_schema: dict[str, dict] = {}
+        for v in plumbing_result.verifications:
+            key = f"{v.source_path}:{v.schema_name}" if v.schema_name else v.source_path
+            if key not in enforcement_by_schema:
+                enforcement_by_schema[key] = {"total": 0, "unactuated": 0, "fields": []}
+            enforcement_by_schema[key]["unactuated"] += 1
+            enforcement_by_schema[key]["fields"].append(v.field_name)
+        # Add total obligations per schema from all_obligations knowledge
+        # We only have unactuated here, so total per schema is approximate
+        # We'll just set total = unactuated for the per-schema view
+        for key in enforcement_by_schema:
+            enforcement_by_schema[key]["total"] = enforcement_by_schema[key]["unactuated"]
+    else:
+        enforcement_total = None
+        enforcement_unactuated = None
+        enforcement_pct = None
+        enforcement_by_schema = None
+
+    return Scorecard(
+        coverage_entries=coverage_entries,
+        coverage_pct=coverage_pct,
+        coverage_by_type=coverage_by_type,
+        dead_docs=dead_docs,
+        total_accuracy_errors=total_accuracy_errors,
+        live_doc_count=live_doc_count,
+        accuracy_errors_per_doc=accuracy_errors_per_doc,
+        accuracy_by_category=accuracy_by_category,
+        junk_total_lines=junk_total_lines,
+        junk_total_source_lines=junk_total_source_lines,
+        junk_fraction=junk_fraction,
+        junk_item_count=junk_item_count,
+        junk_file_count=junk_file_count,
+        junk_by_category=junk_by_category,
+        junk_by_category_lines=junk_by_category_lines,
+        junk_entries=junk_entries,
+        junk_sources=junk_sources,
+        enforcement_total_obligations=enforcement_total,
+        enforcement_unactuated=enforcement_unactuated,
+        enforcement_pct_unactuated=enforcement_pct,
+        enforcement_by_schema=enforcement_by_schema,
+    )

@@ -1,8 +1,9 @@
 """Documentation audit orchestration."""
 
 import json
+import shutil
 import time as time_module
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 from .config import Config
@@ -10,6 +11,8 @@ from .rate_limiter import RateLimiter, get_config_with_overrides
 from .shadow import check_shadow_docs, generate_shadow_docs
 from .debris import analyze_docs
 from .deadcode import detect_dead_code
+from .plumbing import detect_dead_plumbing
+from .scorecard import Scorecard, build_scorecard
 from .walker import _matches_ignore
 
 
@@ -31,6 +34,7 @@ class AuditResult:
     """Complete audit result."""
 
     issues: list[AuditIssue] = field(default_factory=list)
+    scorecard: Scorecard | None = None
 
     @property
     def has_errors(self) -> bool:
@@ -43,6 +47,12 @@ class AuditResult:
     @property
     def passed(self) -> bool:
         return not self.has_errors
+
+
+def _serialize_json(path: Path, data: dict) -> None:
+    """Write a JSON file, creating parent dirs as needed."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
 
 
 def _make_progress_default(config: Config):
@@ -82,6 +92,7 @@ def run_audit(
     config: Config,
     fix_shadow: bool = True,
     dead_code: bool = False,
+    dead_plumbing: bool = False,
     verbose: bool = False,
 ) -> AuditResult:
     """Run a complete documentation audit.
@@ -90,6 +101,7 @@ def run_audit(
         config: Docstar configuration
         fix_shadow: If True, auto-update stale shadow docs (Docstar owns them)
         dead_code: If True, detect cross-file dead code (LLM calls for ambiguous candidates)
+        dead_plumbing: If True, detect unactuated config obligations (LLM calls)
         verbose: If True, show detailed per-file progress and timing
     """
     issues: list[AuditIssue] = []
@@ -98,6 +110,11 @@ def run_audit(
 
     # Shared rate limiter across all phases so token budgets are tracked globally
     rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
+
+    # Clean stale analysis directory (fresh each run)
+    analysis_root = config.analysis_root
+    if analysis_root.exists():
+        shutil.rmtree(analysis_root)
 
     # 1. Check shadow docs (auto-fix if enabled)
     print("Docstar: Checking shadow documentation...", flush=True)
@@ -150,6 +167,30 @@ def run_audit(
                 remediation=finding.remediation,
             ))
 
+    # Serialize Phase 2 results
+    for item in analysis_results:
+        analysis_path = config.analysis_docs_path_for(item.path)
+        _serialize_json(analysis_path, {
+            "path": str(item.path),
+            "classification": item.classification,
+            "confidence": item.confidence,
+            "classification_reason": item.classification_reason,
+            "matched_shadows": item.matched_shadows,
+            "findings": [
+                {
+                    "category": f.category,
+                    "severity": f.severity,
+                    "description": f.description,
+                    "shadow_ref": f.shadow_ref,
+                    "evidence": f.evidence,
+                    "remediation": f.remediation,
+                }
+                for f in item.findings
+            ],
+            "is_debris": item.is_debris,
+            "topic_signature": item.topic_signature,
+        })
+
     # 3. Surface code debris findings from shadow generation
     print("Docstar: Checking code debris findings...", flush=True)
     phase_start = time_module.monotonic()
@@ -181,6 +222,7 @@ def run_audit(
         print(f"  [{elapsed:.1f}s]", flush=True)
 
     # 4. Cross-file dead code detection (opt-in)
+    dead_code_results = None
     if dead_code:
         print("Docstar: Scanning for cross-file dead code...", flush=True)
         phase_start = time_module.monotonic()
@@ -199,12 +241,174 @@ def run_audit(
                 line_end=item.line_end,
             ))
 
-    return AuditResult(issues=issues)
+        # Serialize Phase 4 results (group by source_path)
+        by_source: dict[str, list] = {}
+        for item in dead_code_results:
+            key = item.source_path.replace("\\", "/")
+            if key not in by_source:
+                by_source[key] = []
+            by_source[key].append({
+                "name": item.name,
+                "kind": item.kind,
+                "line_start": item.line_start,
+                "line_end": item.line_end,
+                "is_dead": item.is_dead,
+                "confidence": item.confidence,
+                "reason": item.reason,
+                "remediation": item.remediation,
+            })
+        for source_path, verifications in by_source.items():
+            out_path = config.analysis_deadcode_path_for(Path(source_path))
+            _serialize_json(out_path, {
+                "source_path": source_path,
+                "verifications": verifications,
+            })
+
+    # 5. Dead plumbing detection (opt-in)
+    plumbing_result = None
+    if dead_plumbing:
+        print("Docstar: Scanning for unactuated configuration...", flush=True)
+        phase_start = time_module.monotonic()
+        plumbing_result = detect_dead_plumbing(config, on_progress=progress_cb, rate_limiter=rate_limiter)
+        if verbose:
+            elapsed = time_module.monotonic() - phase_start
+            print(f"  [{elapsed:.1f}s]", flush=True)
+        for item in plumbing_result.verifications:
+            issues.append(AuditIssue(
+                path=Path(item.source_path),
+                severity="warning",
+                category="unactuated_config",
+                message=f"L{item.line_start}: field `{item.field_name}` — {item.trace}",
+                remediation=item.remediation,
+                line_start=item.line_start,
+                line_end=item.line_end,
+            ))
+
+        # Serialize Phase 5 results (group by source_path)
+        by_source_p: dict[str, list] = {}
+        for item in plumbing_result.verifications:
+            key = item.source_path.replace("\\", "/")
+            if key not in by_source_p:
+                by_source_p[key] = []
+            by_source_p[key].append({
+                "field_name": item.field_name,
+                "schema_name": item.schema_name,
+                "line_start": item.line_start,
+                "line_end": item.line_end,
+                "is_actuated": item.is_actuated,
+                "confidence": item.confidence,
+                "trace": item.trace,
+                "remediation": item.remediation,
+            })
+        for source_path, verifications in by_source_p.items():
+            out_path = config.analysis_plumbing_path_for(Path(source_path))
+            _serialize_json(out_path, {
+                "source_path": source_path,
+                "verifications": verifications,
+            })
+
+    # 6. Scorecard (always runs)
+    print("Docstar: Building scorecard...", flush=True)
+    scorecard = build_scorecard(
+        config,
+        analysis_results=analysis_results,
+        dead_code_results=dead_code_results if dead_code else None,
+        plumbing_result=plumbing_result if dead_plumbing else None,
+    )
+    _serialize_json(config.scorecard_path, asdict(scorecard))
+
+    return AuditResult(issues=issues, scorecard=scorecard)
+
+
+def _format_scorecard_section(scorecard: Scorecard) -> list[str]:
+    """Format the scorecard as markdown lines for insertion into the report."""
+    lines: list[str] = []
+    lines.append("## Scorecard\n")
+
+    # Summary table
+    lines.append("| Metric | Value |")
+    lines.append("|--------|-------|")
+    lines.append(f"| Documentation coverage | {scorecard.coverage_pct:.0f}% |")
+    lines.append(f"| Dead docs (debris) | {len(scorecard.dead_docs)} |")
+    lines.append(f"| Accuracy errors / live doc | {scorecard.accuracy_errors_per_doc:.2f} |")
+    lines.append(f"| Junk code fraction | {scorecard.junk_fraction:.1%} ({scorecard.junk_total_lines} lines in {scorecard.junk_file_count} files) |")
+    if scorecard.enforcement_total_obligations is not None:
+        lines.append(f"| Unactuated config | {scorecard.enforcement_unactuated}/{scorecard.enforcement_total_obligations} ({scorecard.enforcement_pct_unactuated:.0f}%) |")
+    else:
+        lines.append("| Unactuated config | — (not scanned) |")
+    lines.append("")
+
+    # Coverage by type
+    if scorecard.coverage_by_type:
+        lines.append("### Coverage by document type\n")
+        lines.append("| Type | Coverage |")
+        lines.append("|------|----------|")
+        for cls, pct in sorted(scorecard.coverage_by_type.items()):
+            lines.append(f"| {cls} | {pct:.0f}% |")
+        lines.append("")
+
+    # Dead docs list
+    if scorecard.dead_docs:
+        lines.append("### Dead documentation\n")
+        for doc in scorecard.dead_docs:
+            lines.append(f"- `{doc}`")
+        lines.append("")
+
+    # Accuracy by category
+    if scorecard.accuracy_by_category:
+        lines.append("### Accuracy errors by category\n")
+        lines.append("| Category | Count |")
+        lines.append("|----------|-------|")
+        for cat, count in sorted(scorecard.accuracy_by_category.items()):
+            lines.append(f"| {cat} | {count} |")
+        lines.append("")
+
+    # Junk code by category
+    if scorecard.junk_by_category:
+        lines.append("### Junk code by category\n")
+        lines.append("| Category | Items | Lines |")
+        lines.append("|----------|-------|-------|")
+        for cat in sorted(scorecard.junk_by_category.keys()):
+            items = scorecard.junk_by_category[cat]
+            cat_lines = scorecard.junk_by_category_lines.get(cat, 0)
+            lines.append(f"| {cat} | {items} | {cat_lines} |")
+        lines.append("")
+
+    # Worst files by junk fraction
+    worst = [e for e in scorecard.junk_entries if e.junk_fraction > 0.05][:5]
+    if worst:
+        lines.append("### Worst files by junk fraction\n")
+        lines.append("| File | Junk % | Junk lines / Total |")
+        lines.append("|------|--------|-------------------|")
+        for entry in worst:
+            lines.append(f"| `{entry.source_path}` | {entry.junk_fraction:.0%} | {entry.junk_lines}/{entry.total_lines} |")
+        lines.append("")
+
+    # Enforcement by schema
+    if scorecard.enforcement_by_schema:
+        lines.append("### Enforcement by schema\n")
+        lines.append("| Schema | Unactuated | Fields |")
+        lines.append("|--------|------------|--------|")
+        for schema, info in sorted(scorecard.enforcement_by_schema.items()):
+            fields = ", ".join(info["fields"])
+            lines.append(f"| `{schema}` | {info['unactuated']} | {fields} |")
+        lines.append("")
+
+    # Missing phases note
+    missing: list[str] = []
+    if "dead_symbol" not in scorecard.junk_sources:
+        missing.append("`--dead-code`")
+    if scorecard.enforcement_total_obligations is None:
+        missing.append("`--dead-plumbing`")
+    if missing:
+        lines.append(f"*Phases not run: {', '.join(missing)}. Re-run with those flags for a complete scorecard.*\n")
+
+    return lines
 
 
 def format_audit_report(result: AuditResult, verbose: bool = False) -> str:
     """Format audit result as agent-ready markdown report."""
-    if result.passed and not result.has_warnings:
+    if result.passed and not result.has_warnings and result.scorecard is None:
         return "# Docstar Audit Passed\n\nNo issues found."
 
     lines = []
@@ -215,6 +419,10 @@ def format_audit_report(result: AuditResult, verbose: bool = False) -> str:
         lines.append("# Docstar Audit Failed")
 
     lines.append("")
+
+    # Insert scorecard at top
+    if result.scorecard:
+        lines.extend(_format_scorecard_section(result.scorecard))
 
     errors = [i for i in result.issues if i.severity == "error"]
     warnings = [i for i in result.issues if i.severity == "warning"]
@@ -246,7 +454,7 @@ def format_audit_report(result: AuditResult, verbose: bool = False) -> str:
 
 def format_audit_json(result: AuditResult) -> str:
     """Format audit result as JSON for CI/machine consumption."""
-    return json.dumps({
+    output = {
         "passed": result.passed,
         "errors": sum(1 for i in result.issues if i.severity == "error"),
         "warnings": sum(1 for i in result.issues if i.severity == "warning"),
@@ -262,4 +470,7 @@ def format_audit_json(result: AuditResult) -> str:
             }
             for issue in result.issues
         ],
-    }, indent=2)
+    }
+    if result.scorecard:
+        output["scorecard"] = asdict(result.scorecard)
+    return json.dumps(output, indent=2, default=str)

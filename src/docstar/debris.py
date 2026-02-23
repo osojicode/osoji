@@ -40,6 +40,7 @@ class DocAnalysisResult:
     classification_reason: str
     matched_shadows: list[str] = field(default_factory=list)
     findings: list[DocFinding] = field(default_factory=list)
+    topic_signature: dict | None = None
 
     @property
     def is_debris(self) -> bool:
@@ -160,7 +161,10 @@ _MATCH_SYSTEM_PROMPT = """You are a documentation-to-code matcher. Given a docum
 
 Return the directory paths whose code is discussed, referenced, or semantically relevant to the doc — even if the doc doesn't explicitly name the files.
 
-Be selective: only return directories that are genuinely relevant, not tangentially related."""
+Be selective: only return directories that are genuinely relevant, not tangentially related.
+
+ALSO: Populate topic_signature with a one-sentence purpose and 3-7 key topic noun phrases
+describing what this documentation covers (e.g., "authentication setup", "webhook configuration")."""
 
 
 def _load_directory_summaries(config: Config) -> dict[str, tuple[str, list[Path]]]:
@@ -209,14 +213,14 @@ async def _match_topics_async(
     config: Config,
     doc_content: str,
     dir_summaries: dict[str, tuple[str, list[Path]]],
-) -> tuple[list[Path], int, int]:
+) -> tuple[list[Path], int, int, dict | None]:
     """Use Haiku to match a doc to relevant source files via directory summaries.
 
     Sends doc content + all directory summaries.
-    Returns (matched_source_file_paths, input_tokens, output_tokens).
+    Returns (matched_source_file_paths, input_tokens, output_tokens, topic_signature).
     """
     if not dir_summaries:
-        return [], 0, 0
+        return [], 0, 0, None
 
     # Build compact listing of directory summaries
     listing_parts: list[str] = []
@@ -256,6 +260,7 @@ Return the directory paths using the match_doc_topics tool."""
     )
 
     matched_files: list[Path] = []
+    topic_signature = None
     for tool_call in result.tool_calls:
         if tool_call.name == "match_doc_topics":
             for dir_path in tool_call.input.get("relevant_paths", []):
@@ -267,8 +272,9 @@ Return the directory paths using the match_doc_topics tool."""
                 elif dir_path in ("", "(root)", "(root)/"):
                     if "" in dir_to_files:
                         matched_files.extend(dir_to_files[""])
+            topic_signature = tool_call.input.get("topic_signature")
 
-    return matched_files, result.input_tokens, result.output_tokens
+    return matched_files, result.input_tokens, result.output_tokens, topic_signature
 
 
 ANALYZE_MODEL = "claude-opus-4-6"
@@ -464,7 +470,7 @@ async def analyze_docs_async(
 
                 # Tier 2: Haiku topic matching (always runs)
                 await rate_limiter.throttle()
-                haiku_matches, haiku_in, haiku_out = await _match_topics_async(
+                haiku_matches, haiku_in, haiku_out, doc_topic_signature = await _match_topics_async(
                     provider, config, content, dir_summaries
                 )
                 rate_limiter.record_usage(input_tokens=haiku_in, output_tokens=haiku_out)
@@ -500,6 +506,9 @@ async def analyze_docs_async(
                     provider, config, doc_path, content, shadow_contexts, rules_text
                 )
                 rate_limiter.record_usage(input_tokens=analyze_in, output_tokens=analyze_out)
+
+                # Attach topic signature from Haiku matching
+                analysis.topic_signature = doc_topic_signature
 
                 async with lock:
                     completed += 1
