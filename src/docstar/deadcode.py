@@ -262,8 +262,11 @@ async def _verify_candidate_async(
     file_content: str,
     shadow_content: str,
     ref_shadow_contents: dict[str, str],
-) -> DeadCodeVerification:
-    """Verify a single dead code candidate via one LLM call."""
+) -> tuple[DeadCodeVerification, int, int]:
+    """Verify a single dead code candidate via one LLM call.
+
+    Returns (DeadCodeVerification, input_tokens, output_tokens).
+    """
     user_parts = []
 
     user_parts.append(f"## Symbol under analysis\n")
@@ -307,16 +310,20 @@ async def _verify_candidate_async(
 
     for tool_call in result.tool_calls:
         if tool_call.name == "verify_dead_code":
-            return DeadCodeVerification(
-                source_path=candidate.source_path,
-                name=candidate.name,
-                kind=candidate.kind,
-                line_start=candidate.line_start,
-                line_end=candidate.line_end,
-                is_dead=tool_call.input["is_dead"],
-                confidence=tool_call.input["confidence"],
-                reason=tool_call.input["reason"],
-                remediation=tool_call.input["remediation"],
+            return (
+                DeadCodeVerification(
+                    source_path=candidate.source_path,
+                    name=candidate.name,
+                    kind=candidate.kind,
+                    line_start=candidate.line_start,
+                    line_end=candidate.line_end,
+                    is_dead=tool_call.input["is_dead"],
+                    confidence=tool_call.input["confidence"],
+                    reason=tool_call.input["reason"],
+                    remediation=tool_call.input["remediation"],
+                ),
+                result.input_tokens,
+                result.output_tokens,
             )
 
     raise RuntimeError(f"LLM did not call verify_dead_code for {candidate.name}")
@@ -415,7 +422,7 @@ async def detect_dead_code_async(
                     hit.file_path: shadow_contents.get(hit.file_path, "")
                     for hit in candidate.grep_hits
                 }
-                verification = await _verify_candidate_async(
+                verification, verify_in, verify_out = await _verify_candidate_async(
                     provider,
                     config,
                     candidate,
@@ -423,7 +430,7 @@ async def detect_dead_code_async(
                     shadow_contents.get(candidate.source_path, ""),
                     ref_shadows,
                 )
-                rate_limiter.record_usage(input_tokens=0, output_tokens=0)
+                rate_limiter.record_usage(input_tokens=verify_in, output_tokens=verify_out)
                 async with lock:
                     completed += 1
                     if verification.is_dead:
@@ -455,10 +462,11 @@ async def detect_dead_code_async(
 def detect_dead_code(
     config: Config,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
+    rate_limiter: RateLimiter | None = None,
 ) -> list[DeadCodeVerification]:
     """Detect dead code across the project (sync wrapper).
 
-    Creates provider and rate limiter internally, runs async detection.
+    Creates provider and rate limiter internally (unless provided), runs async detection.
     Early exits if .docstar/symbols/ doesn't exist.
     """
     symbols_dir = config.root_path / ".docstar" / "symbols"
@@ -469,10 +477,10 @@ def detect_dead_code(
     async def _run() -> list[DeadCodeVerification]:
         provider = create_provider("anthropic")
         logging_provider = LoggingProvider(provider)
-        rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
+        rl = rate_limiter if rate_limiter is not None else RateLimiter(get_config_with_overrides("anthropic"))
         try:
             return await detect_dead_code_async(
-                logging_provider, rate_limiter, config, on_progress
+                logging_provider, rl, config, on_progress
             )
         finally:
             await logging_provider.close()
