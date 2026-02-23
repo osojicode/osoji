@@ -159,6 +159,43 @@ class Config:
         return self.shadow_root / relative / "_directory.shadow.md"
 
     @property
+    def analysis_root(self) -> Path:
+        """Return the root directory for analysis outputs."""
+        return self.root_path / SHADOW_DIR / "analysis"
+
+    def analysis_docs_path_for(self, doc_path: Path) -> Path:
+        """Return the analysis JSON path for a given doc file."""
+        relative = doc_path.relative_to(self.root_path) if doc_path.is_absolute() else doc_path
+        return self.analysis_root / "docs" / (str(relative) + ".analysis.json")
+
+    def analysis_deadcode_path_for(self, source_path: Path) -> Path:
+        """Return the dead-code analysis JSON path for a given source file."""
+        relative = source_path.relative_to(self.root_path) if source_path.is_absolute() else source_path
+        return self.analysis_root / "dead-code" / (str(relative) + ".deadcode.json")
+
+    def analysis_plumbing_path_for(self, source_path: Path) -> Path:
+        """Return the plumbing analysis JSON path for a given source file."""
+        relative = source_path.relative_to(self.root_path) if source_path.is_absolute() else source_path
+        return self.analysis_root / "plumbing" / (str(relative) + ".plumbing.json")
+
+    def signatures_path_for(self, source_path: Path) -> Path:
+        """Return the signature JSON path for a given source file."""
+        relative = source_path.relative_to(self.root_path) if source_path.is_absolute() else source_path
+        return self.root_path / SHADOW_DIR / "signatures" / (str(relative) + ".signature.json")
+
+    def signatures_path_for_dir(self, dir_path: Path) -> Path:
+        """Return the signature JSON path for a directory."""
+        relative = dir_path.relative_to(self.root_path) if dir_path.is_absolute() else dir_path
+        if relative == Path("."):
+            return self.root_path / SHADOW_DIR / "signatures" / "_directory.signature.json"
+        return self.root_path / SHADOW_DIR / "signatures" / relative / "_directory.signature.json"
+
+    @property
+    def scorecard_path(self) -> Path:
+        """Return the path to the scorecard JSON."""
+        return self.analysis_root / "scorecard.json"
+
+    @property
     def rules_path(self) -> Path:
         """Path to natural language rules file."""
         return self.root_path / ".docstar" / "rules"

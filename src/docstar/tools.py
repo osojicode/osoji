@@ -78,8 +78,54 @@ to work with this code effectively.""",
                     "required": ["name", "kind", "line_start"],
                 },
             },
+            "file_role": {
+                "type": "string",
+                "enum": [
+                    "schema",
+                    "types",
+                    "config",
+                    "service",
+                    "adapter",
+                    "utility",
+                    "test",
+                    "entry",
+                ],
+                "description": (
+                    "Classify this file's primary architectural role:\n"
+                    "- schema: Defines validated data shapes with runtime enforcement "
+                    "(Zod, Pydantic, JSON Schema, protobuf, marshmallow, io-ts)\n"
+                    "- types: Type-only definitions without runtime validation "
+                    "(interfaces, type aliases, enums, .d.ts)\n"
+                    "- config: Configuration loading, parsing, resolution, "
+                    "environment variable handling\n"
+                    "- service: Core business logic, orchestration, controllers, "
+                    "domain operations\n"
+                    "- adapter: External system integration — I/O, APIs, databases, "
+                    "file system, network\n"
+                    "- utility: Stateless helpers, formatters, pure functions, "
+                    "shared constants\n"
+                    "- test: Test files (unit, integration, e2e)\n"
+                    "- entry: CLI entry points, main files, script runners"
+                ),
+            },
+            "topic_signature": {
+                "type": "object",
+                "description": "Fixed-format summary for coverage analysis",
+                "properties": {
+                    "purpose": {
+                        "type": "string",
+                        "description": "One sentence: what this file/module does. Max 30 words.",
+                    },
+                    "topics": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "3-7 key concepts, features, or responsibilities. Short noun phrases.",
+                    },
+                },
+                "required": ["purpose", "topics"],
+            },
         },
-        "required": ["content", "findings"],
+        "required": ["content", "findings", "file_role"],
     },
 }
 
@@ -105,6 +151,22 @@ module's role in the larger system.""",
                 "type": "string",
                 "description": "The directory shadow documentation content (markdown format, without header)",
             },
+            "topic_signature": {
+                "type": "object",
+                "description": "Fixed-format summary for coverage analysis",
+                "properties": {
+                    "purpose": {
+                        "type": "string",
+                        "description": "One sentence: what this directory/module does. Max 30 words.",
+                    },
+                    "topics": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "3-7 key concepts, features, or responsibilities. Short noun phrases.",
+                    },
+                },
+                "required": ["purpose", "topics"],
+            },
         },
         "required": ["content"],
     },
@@ -126,6 +188,22 @@ doesn't explicitly name the files.""",
                 "type": "array",
                 "items": {"type": "string"},
                 "description": "Source file paths whose code is relevant to this doc",
+            },
+            "topic_signature": {
+                "type": "object",
+                "description": "Fixed-format summary for coverage analysis",
+                "properties": {
+                    "purpose": {
+                        "type": "string",
+                        "description": "One sentence: what this documentation covers. Max 30 words.",
+                    },
+                    "topics": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "3-7 key concepts, features, or responsibilities. Short noun phrases.",
+                    },
+                },
+                "required": ["purpose", "topics"],
             },
         },
         "required": ["relevant_paths"],
@@ -325,3 +403,128 @@ def get_analyze_document_tool_definitions() -> list[ToolDefinition]:
 def get_dead_code_tool_definitions() -> list[ToolDefinition]:
     """Return ToolDefinition objects for dead code verification."""
     return [_dict_to_tool_definition(VERIFY_DEAD_CODE_TOOL)]
+
+
+# Tool definition for obligation extraction (Haiku, per schema file)
+EXTRACT_OBLIGATIONS_TOOL = {
+    "name": "extract_obligations",
+    "description": """Identify fields in a schema file that declare behavioral obligations.
+
+An "obligation" is a field whose name and context promise the system will enforce a runtime
+behavior. Examples: timeout fields, rate limits, max retries, size limits.
+
+Exclude purely descriptive or identity fields (name, description, id, label, etc.)
+and purely quantitative fields with no enforcement implication (count, total, etc.).
+
+For each obligation-bearing field, describe what enforcement the system should perform
+and what actuation pattern would satisfy the obligation.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "obligations": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "field_name": {
+                            "type": "string",
+                            "description": "The field name as it appears in the schema",
+                        },
+                        "schema_name": {
+                            "type": "string",
+                            "description": "The schema/type name containing this field",
+                        },
+                        "line_start": {"type": "integer"},
+                        "line_end": {
+                            "type": "integer",
+                            "description": "End line of the field definition (may be same as line_start)",
+                        },
+                        "obligation": {
+                            "type": "string",
+                            "description": "What the field promises the system will enforce at runtime",
+                        },
+                        "expected_actuation": {
+                            "type": "string",
+                            "description": "What enforcement code would look like (e.g. 'timer/deadline/abort/kill', 'counter check/loop guard')",
+                        },
+                    },
+                    "required": [
+                        "field_name",
+                        "schema_name",
+                        "line_start",
+                        "line_end",
+                        "obligation",
+                        "expected_actuation",
+                    ],
+                },
+            },
+        },
+        "required": ["obligations"],
+    },
+}
+
+
+# Tool definition for actuation verification (Sonnet, per obligation)
+VERIFY_ACTUATION_TOOL = {
+    "name": "verify_actuation",
+    "description": """Determine whether a config field's declared obligation is actually enforced at runtime.
+
+You are given:
+1. An obligation-bearing config field and its promise
+2. Shadow docs for all files that reference the field
+3. Shadow docs for sibling fields from the same schema (as positive counterexamples)
+
+Trace the field from its schema definition through all referencing files. Determine whether
+any code actually USES the value to CAUSE the declared effect (actuation), or whether the
+value is only stored, passed, restructured, and logged without enforcement.
+
+Key distinctions:
+- Passing a value to a library function documented to enforce it IS actuation (e.g. axios({timeout: value}))
+- Logging or displaying a value is NOT actuation
+- Storing for later retrieval is NOT actuation (unless retrieval leads to enforcement)
+- Cross-process handoff (env vars → container → subprocess) IS actuation if receiving side enforces""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "is_actuated": {
+                "type": "boolean",
+                "description": "True if the obligation is enforced at runtime somewhere in the codebase",
+            },
+            "confidence": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 1.0,
+                "description": "Confidence in the is_actuated judgment (1.0 = certain)",
+            },
+            "trace": {
+                "type": "string",
+                "description": "Description of the data flow: where the field is defined, passed, and (if actuated) where enforcement happens. If unactuated, describe the gap.",
+            },
+            "remediation": {
+                "type": "string",
+                "description": "Suggested fix if unactuated (e.g. 'Add setTimeout with taskTimeoutMs in trial-runner.ts'). 'None needed' if actuated.",
+            },
+        },
+        "required": ["is_actuated", "confidence", "trace", "remediation"],
+    },
+}
+
+
+def get_extract_obligations_tools() -> list[dict]:
+    """Return tools for obligation extraction."""
+    return [EXTRACT_OBLIGATIONS_TOOL]
+
+
+def get_verify_actuation_tools() -> list[dict]:
+    """Return tools for actuation verification."""
+    return [VERIFY_ACTUATION_TOOL]
+
+
+def get_extract_obligations_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for obligation extraction."""
+    return [_dict_to_tool_definition(EXTRACT_OBLIGATIONS_TOOL)]
+
+
+def get_verify_actuation_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for actuation verification."""
+    return [_dict_to_tool_definition(VERIFY_ACTUATION_TOOL)]

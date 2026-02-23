@@ -51,6 +51,14 @@ class PlumbingVerification:
     remediation: str
 
 
+@dataclass
+class PlumbingResult:
+    """Complete result from dead plumbing detection."""
+
+    verifications: list[PlumbingVerification]  # only unactuated
+    total_obligations: int  # total fields examined
+
+
 # --- Phase A: Obligation Extraction ---
 
 _EXTRACT_OBLIGATIONS_SYSTEM_PROMPT = """You are analyzing a schema file to find fields that declare behavioral obligations.
@@ -298,19 +306,19 @@ async def detect_dead_plumbing_async(
     rate_limiter: RateLimiter,
     config: Config,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
-) -> list[PlumbingVerification]:
+) -> PlumbingResult:
     """Detect unactuated config obligations across the project.
 
     Phase A: Extract obligations from schema files (Haiku)
     Phase B: Verify actuation for each obligation (Sonnet)
 
-    Returns list of PlumbingVerification items (only unactuated ones).
+    Returns PlumbingResult with unactuated verifications and total obligation count.
     """
     # Step 1: Find schema files
     schema_files = load_files_by_role(config, "schema")
     if not schema_files:
         print("  [skip] No schema files found. Run 'docstar shadow . --force' to classify files.", flush=True)
-        return []
+        return PlumbingResult(verifications=[], total_obligations=0)
 
     print(f"  Found {len(schema_files)} schema file(s)", flush=True)
 
@@ -340,7 +348,7 @@ async def detect_dead_plumbing_async(
 
     if not all_obligations:
         print("  No obligation-bearing fields found in schema files.", flush=True)
-        return []
+        return PlumbingResult(verifications=[], total_obligations=0)
 
     print(f"  Found {len(all_obligations)} obligation-bearing field(s)", flush=True)
 
@@ -421,14 +429,14 @@ async def detect_dead_plumbing_async(
     tasks = [verify_one(obl) for obl in all_obligations]
     await asyncio.gather(*tasks)
 
-    return results
+    return PlumbingResult(verifications=results, total_obligations=len(all_obligations))
 
 
 def detect_dead_plumbing(
     config: Config,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
     rate_limiter: RateLimiter | None = None,
-) -> list[PlumbingVerification]:
+) -> PlumbingResult:
     """Detect dead plumbing across the project (sync wrapper).
 
     Creates provider and rate limiter internally (unless provided).
@@ -437,9 +445,9 @@ def detect_dead_plumbing(
     symbols_dir = config.root_path / ".docstar" / "symbols"
     if not symbols_dir.exists():
         print("  [skip] No symbols data found. Run 'docstar shadow .' first.", flush=True)
-        return []
+        return PlumbingResult(verifications=[], total_obligations=0)
 
-    async def _run() -> list[PlumbingVerification]:
+    async def _run() -> PlumbingResult:
         provider = create_provider("anthropic")
         logging_provider = LoggingProvider(provider)
         rl = rate_limiter if rate_limiter is not None else RateLimiter(get_config_with_overrides("anthropic"))
