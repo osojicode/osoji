@@ -18,7 +18,7 @@ class Message:
     """A message in a conversation."""
 
     role: MessageRole
-    content: str
+    content: str | list[dict[str, Any]]
 
 
 @dataclass

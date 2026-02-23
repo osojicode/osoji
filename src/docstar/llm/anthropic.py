@@ -14,6 +14,7 @@ from .types import (
     CompletionOptions,
     CompletionResult,
 )
+from .validate import validate_tool_input
 
 
 class AnthropicProvider(LLMProvider):
@@ -98,7 +99,7 @@ class AnthropicProvider(LLMProvider):
                     )
                 )
 
-        return CompletionResult(
+        result = CompletionResult(
             content=content,
             tool_calls=tool_calls,
             input_tokens=response.usage.input_tokens,
@@ -107,11 +108,117 @@ class AnthropicProvider(LLMProvider):
             stop_reason=response.stop_reason,
         )
 
+        # --- Validate forced tool calls and retry once on schema errors ---
+        if (
+            options.tool_choice
+            and options.tool_choice.get("type") == "tool"
+            and tool_calls
+            and options.tools
+        ):
+            schema_by_name = {t.name: t.input_schema for t in options.tools}
+            tool_results: list[dict[str, Any]] = []
+            has_errors = False
+
+            for tc in tool_calls:
+                tc_schema = schema_by_name.get(tc.name)
+                if tc_schema:
+                    errs = validate_tool_input(tc.input, tc_schema)
+                else:
+                    errs = []
+
+                if errs:
+                    has_errors = True
+                    nudge = (
+                        "Schema validation errors — please re-call the tool "
+                        "with corrected values:\n" + "\n".join(f"- {e}" for e in errs)
+                    )
+                    tool_results.append(
+                        {
+                            "type": "tool_result",
+                            "tool_use_id": tc.id,
+                            "content": nudge,
+                            "is_error": True,
+                        }
+                    )
+                else:
+                    tool_results.append(
+                        {
+                            "type": "tool_result",
+                            "tool_use_id": tc.id,
+                            "content": "OK",
+                        }
+                    )
+
+            if has_errors:
+                # Build retry conversation
+                assistant_blocks = [
+                    b for b in response.content
+                ]
+                retry_assistant = {
+                    "role": "assistant",
+                    "content": [
+                        {
+                            "type": b.type,
+                            **({"text": b.text} if b.type == "text" else {}),
+                            **(
+                                {
+                                    "id": b.id,
+                                    "name": b.name,
+                                    "input": b.input,
+                                }
+                                if b.type == "tool_use"
+                                else {}
+                            ),
+                        }
+                        for b in assistant_blocks
+                    ],
+                }
+                retry_user = {"role": "user", "content": tool_results}
+
+                retry_kwargs = dict(kwargs)
+                retry_kwargs["messages"] = (
+                    list(kwargs["messages"]) + [retry_assistant, retry_user]
+                )
+
+                retry_response = await self._client.messages.create(**retry_kwargs)
+
+                # Extract retry results
+                retry_content = None
+                retry_tool_calls: list[ToolCall] = []
+                for block in retry_response.content:
+                    if block.type == "text":
+                        retry_content = block.text
+                    elif block.type == "tool_use":
+                        retry_tool_calls.append(
+                            ToolCall(
+                                id=block.id,
+                                name=block.name,
+                                input=block.input,
+                            )
+                        )
+
+                result = CompletionResult(
+                    content=retry_content,
+                    tool_calls=retry_tool_calls,
+                    input_tokens=(
+                        response.usage.input_tokens
+                        + retry_response.usage.input_tokens
+                    ),
+                    output_tokens=(
+                        response.usage.output_tokens
+                        + retry_response.usage.output_tokens
+                    ),
+                    model=retry_response.model,
+                    stop_reason=retry_response.stop_reason,
+                )
+
+        return result
+
     async def close(self) -> None:
         """Close the async client."""
         await self._client.close()
 
-    def _convert_messages(self, messages: list[Message]) -> list[dict[str, str]]:
+    def _convert_messages(self, messages: list[Message]) -> list[dict[str, Any]]:
         """Convert internal messages to Anthropic API format."""
         return [
             {

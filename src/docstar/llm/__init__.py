@@ -17,6 +17,7 @@ from .anthropic import AnthropicProvider
 from .logging import LoggingProvider, TokenStats
 from .factory import create_provider
 from .tokens import TokenCounter, estimate_tokens_offline
+from .validate import validate_tool_input
 
 __all__ = [
     # Types
@@ -36,4 +37,6 @@ __all__ = [
     # Token counting
     "TokenCounter",
     "estimate_tokens_offline",
+    # Validation
+    "validate_tool_input",
 ]
