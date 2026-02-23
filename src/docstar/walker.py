@@ -8,6 +8,14 @@ from pathlib import Path
 from .config import Config
 from .hooks import find_git_root
 
+# Module-level cache: root_path → (file list, used_git flag)
+_repo_files_cache: dict[Path, tuple[list[Path], bool]] = {}
+
+
+def clear_repo_files_cache() -> None:
+    """Clear the cached git ls-files results. Call between tests for isolation."""
+    _repo_files_cache.clear()
+
 
 def _matches_ignore(path: Path, patterns: list[str] | set[str]) -> str | None:
     """Check if a relative path matches any ignore pattern.
@@ -71,13 +79,23 @@ def list_repo_files(config: Config) -> tuple[Iterable[Path], bool]:
 
     Returns (paths, used_git) where used_git indicates whether
     git ls-files was used (True) or rglob fallback (False).
+    Results are cached per root_path so git ls-files only runs once.
     """
+    key = config.root_path
+
+    if key in _repo_files_cache:
+        cached_paths, used_git = _repo_files_cache[key]
+        return list(cached_paths), used_git
+
     if config.respect_gitignore:
         git_files = _git_ls_files(config.root_path)
         if git_files is not None:
-            return git_files, True
+            _repo_files_cache[key] = (git_files, True)
+            return list(git_files), True
 
-    return config.root_path.rglob("*"), False
+    fallback = list(config.root_path.rglob("*"))
+    _repo_files_cache[key] = (fallback, False)
+    return list(fallback), False
 
 
 def discover_files(config: Config) -> list[Path]:
