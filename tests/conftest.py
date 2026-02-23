@@ -7,6 +7,16 @@ from pathlib import Path
 
 import pytest
 
+from docstar.walker import clear_repo_files_cache
+
+
+@pytest.fixture(autouse=True)
+def _clear_repo_files_cache():
+    """Clear the git ls-files cache before and after each test."""
+    clear_repo_files_cache()
+    yield
+    clear_repo_files_cache()
+
 
 @pytest.fixture
 def temp_dir():
