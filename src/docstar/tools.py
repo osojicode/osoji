@@ -315,10 +315,10 @@ def get_match_doc_topics_tools() -> list[dict]:
     return [MATCH_DOC_TOPICS_TOOL]
 
 
-# Tool definition for dead code verification
+# Tool definition for dead code verification (batch: array of verdicts)
 VERIFY_DEAD_CODE_TOOL = {
     "name": "verify_dead_code",
-    "description": """Determine whether a symbol is truly dead code or alive despite low/zero textual references.
+    "description": """Determine whether each listed symbol is truly dead code or alive despite low/zero textual references.
 
 ## False positives for grep hits (hit exists but is NOT a real usage)
 - **Comments**: The symbol name appears only inside a comment or docstring
@@ -338,30 +338,44 @@ VERIFY_DEAD_CODE_TOOL = {
 - **Overrides**: Abstract method implementations, interface conformance
 - **Re-exports**: Imported in __init__.py for public API surface
 
-Set is_dead=True only if the symbol has no plausible alive pathway.""",
+Set is_dead=True only if the symbol has no plausible alive pathway.
+Provide a verdict for EVERY symbol listed.""",
     "input_schema": {
         "type": "object",
         "properties": {
-            "is_dead": {
-                "type": "boolean",
-                "description": "True if the symbol is genuinely dead code with no alive pathway",
-            },
-            "confidence": {
-                "type": "number",
-                "minimum": 0.0,
-                "maximum": 1.0,
-                "description": "Confidence in the is_dead judgment (1.0 = certain)",
-            },
-            "reason": {
-                "type": "string",
-                "description": "Brief explanation of why the symbol is dead or alive",
-            },
-            "remediation": {
-                "type": "string",
-                "description": "Suggested action (e.g. 'Remove function' or 'Keep — used by framework')",
+            "verdicts": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "symbol_name": {
+                            "type": "string",
+                            "description": "Name of the symbol being judged",
+                        },
+                        "is_dead": {
+                            "type": "boolean",
+                            "description": "True if the symbol is genuinely dead code with no alive pathway",
+                        },
+                        "confidence": {
+                            "type": "number",
+                            "minimum": 0.0,
+                            "maximum": 1.0,
+                            "description": "Confidence in the is_dead judgment (1.0 = certain)",
+                        },
+                        "reason": {
+                            "type": "string",
+                            "description": "Brief explanation of why the symbol is dead or alive",
+                        },
+                        "remediation": {
+                            "type": "string",
+                            "description": "Suggested action (e.g. 'Remove function' or 'Keep — used by framework')",
+                        },
+                    },
+                    "required": ["symbol_name", "is_dead", "confidence", "reason", "remediation"],
+                },
             },
         },
-        "required": ["is_dead", "confidence", "reason", "remediation"],
+        "required": ["verdicts"],
     },
 }
 

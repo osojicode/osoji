@@ -3,6 +3,7 @@
 import pytest
 
 from docstar.llm.validate import validate_tool_input
+from docstar.llm.types import CompletionOptions, CompletionResult, ToolCall, ToolDefinition
 from docstar.tools import SUBMIT_SHADOW_DOC_TOOL, SUBMIT_DIRECTORY_SHADOW_DOC_TOOL
 
 
@@ -299,3 +300,173 @@ class TestRealWorldSchemas:
         }
         errs = validate_tool_input(data, schema)
         assert any("topic_signature" in e and "expected object" in e for e in errs)
+
+
+class TestToolInputValidators:
+    """Tests for custom tool_input_validators on CompletionOptions."""
+
+    def test_validators_field_defaults_empty(self):
+        opts = CompletionOptions(model="test")
+        assert opts.tool_input_validators == []
+
+    def test_validators_can_be_set(self):
+        def my_validator(tool_name: str, tool_input: dict) -> list[str]:
+            return []
+
+        opts = CompletionOptions(model="test", tool_input_validators=[my_validator])
+        assert len(opts.tool_input_validators) == 1
+
+    def test_completeness_validator_detects_missing(self):
+        """Completeness-style validator detects missing symbols."""
+        expected_names = {"func_a", "func_b", "func_c"}
+
+        def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
+            if tool_name != "verify_dead_code":
+                return []
+            verdicts = tool_input.get("verdicts", [])
+            got_names = {v.get("symbol_name") for v in verdicts}
+            missing = expected_names - got_names
+            return [f"Missing verdict for symbol '{name}'" for name in sorted(missing)]
+
+        # Missing func_b and func_c
+        errs = check_completeness("verify_dead_code", {
+            "verdicts": [{"symbol_name": "func_a"}],
+        })
+        assert len(errs) == 2
+        assert any("func_b" in e for e in errs)
+        assert any("func_c" in e for e in errs)
+
+    def test_completeness_validator_passes_when_all_present(self):
+        """Completeness validator returns no errors when all symbols present."""
+        expected_names = {"func_a", "func_b"}
+
+        def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
+            if tool_name != "verify_dead_code":
+                return []
+            verdicts = tool_input.get("verdicts", [])
+            got_names = {v.get("symbol_name") for v in verdicts}
+            missing = expected_names - got_names
+            return [f"Missing verdict for symbol '{name}'" for name in sorted(missing)]
+
+        errs = check_completeness("verify_dead_code", {
+            "verdicts": [
+                {"symbol_name": "func_a"},
+                {"symbol_name": "func_b"},
+            ],
+        })
+        assert errs == []
+
+    def test_completeness_validator_ignores_other_tools(self):
+        """Completeness validator ignores tool calls for other tools."""
+        expected_names = {"func_a"}
+
+        def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
+            if tool_name != "verify_dead_code":
+                return []
+            verdicts = tool_input.get("verdicts", [])
+            got_names = {v.get("symbol_name") for v in verdicts}
+            missing = expected_names - got_names
+            return [f"Missing verdict for symbol '{name}'" for name in sorted(missing)]
+
+        errs = check_completeness("some_other_tool", {"data": "irrelevant"})
+        assert errs == []
+
+    @pytest.mark.asyncio
+    async def test_validators_integrated_in_provider(self):
+        """Custom validators run alongside schema validation in the provider."""
+        from types import SimpleNamespace
+        from unittest.mock import AsyncMock, MagicMock, patch
+        from docstar.llm.anthropic import AnthropicProvider
+
+        # Use SimpleNamespace for content blocks because MagicMock(name=...)
+        # sets the mock's internal _mock_name, not the .name attribute.
+        first_verdicts = {
+            "verdicts": [{
+                "symbol_name": "func_a",
+                "is_dead": True,
+                "confidence": 0.9,
+                "reason": "No refs",
+                "remediation": "Remove",
+            }],
+        }
+        mock_response = MagicMock()
+        mock_response.content = [
+            SimpleNamespace(
+                type="tool_use", id="tc1",
+                name="verify_dead_code", input=first_verdicts,
+            ),
+        ]
+        mock_response.usage = MagicMock(input_tokens=100, output_tokens=50)
+        mock_response.model = "test-model"
+        mock_response.stop_reason = "tool_use"
+
+        retry_verdicts = {
+            "verdicts": [
+                {
+                    "symbol_name": "func_a",
+                    "is_dead": True,
+                    "confidence": 0.9,
+                    "reason": "No refs",
+                    "remediation": "Remove",
+                },
+                {
+                    "symbol_name": "func_b",
+                    "is_dead": False,
+                    "confidence": 0.8,
+                    "reason": "Used by framework",
+                    "remediation": "Keep",
+                },
+            ],
+        }
+        mock_retry_response = MagicMock()
+        mock_retry_response.content = [
+            SimpleNamespace(
+                type="tool_use", id="tc2",
+                name="verify_dead_code", input=retry_verdicts,
+            ),
+        ]
+        mock_retry_response.usage = MagicMock(input_tokens=120, output_tokens=70)
+        mock_retry_response.model = "test-model"
+        mock_retry_response.stop_reason = "tool_use"
+
+        with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"}):
+            provider = AnthropicProvider()
+
+        provider._client = AsyncMock()
+        provider._client.messages.create = AsyncMock(
+            side_effect=[mock_response, mock_retry_response]
+        )
+
+        from docstar.llm.types import Message, MessageRole
+        from docstar.tools import get_dead_code_tool_definitions
+
+        expected_names = {"func_a", "func_b"}
+
+        def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
+            if tool_name != "verify_dead_code":
+                return []
+            verdicts = tool_input.get("verdicts", [])
+            got_names = {v.get("symbol_name") for v in verdicts}
+            missing = expected_names - got_names
+            return [f"Missing verdict for symbol '{name}'" for name in sorted(missing)]
+
+        result = await provider.complete(
+            messages=[Message(role=MessageRole.USER, content="Test")],
+            system="Test system",
+            options=CompletionOptions(
+                model="test-model",
+                max_tokens=1024,
+                tools=get_dead_code_tool_definitions(),
+                tool_choice={"type": "tool", "name": "verify_dead_code"},
+                tool_input_validators=[check_completeness],
+            ),
+        )
+
+        # Should have made 2 API calls (first + retry)
+        assert provider._client.messages.create.call_count == 2
+
+        # Result should be from the retry (which has both symbols)
+        assert len(result.tool_calls) == 1
+        verdicts = result.tool_calls[0].input["verdicts"]
+        got_names = {v["symbol_name"] for v in verdicts}
+        assert got_names == {"func_a", "func_b"}
