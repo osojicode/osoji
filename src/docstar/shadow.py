@@ -397,17 +397,27 @@ async def process_file_async(
         return ShadowResult(path=file_path, body="", cached=False, error=str(e))
 
 
+def format_progress_bar(completed: int, total: int, width: int = 30) -> str:
+    """Format a visual progress bar like [####......]."""
+    if total <= 0:
+        return f"[{'#' * width}]"
+    filled = int(width * completed / total)
+    return f"[{'#' * filled}{'.' * (width - filled)}]"
+
+
 def print_progress(completed: int, total: int, path: Path, status: str) -> None:
-    """Print progress update for file processing."""
+    """Print single-line progress update with visual bar."""
     pct = completed / total * 100 if total > 0 else 0
+    bar = format_progress_bar(completed, total)
     symbols = {
         "cached": "[cached]",
         "generated": "[OK]",
         "error": "[ERROR]",
         "processing": "[...]",
+        "empty": "[empty]",
     }
     symbol = symbols.get(status, "[...]")
-    print(f"\r[{completed}/{total}] {pct:.0f}% {symbol} {path.name}\033[K", end="", flush=True)
+    print(f"\r{bar} {pct:.0f}% [{completed}/{total}] {symbol} {path.name}\033[K", end="", flush=True)
     if completed == total:
         print()
 
@@ -488,7 +498,7 @@ async def generate_directory_shadows(
     file_results: list[ShadowResult],
     all_files: list[Path],
     all_dirs: list[Path],
-    verbose: bool = False,
+    on_progress: Callable[[int, int, Path, str], None] | None = None,
 ) -> tuple[dict[Path, str], dict[Path, str], list[tuple[Path, str]]]:
     """Generate directory roll-up shadow docs with dependency-based parallelism.
 
@@ -502,7 +512,7 @@ async def generate_directory_shadows(
         file_results: Results from file processing
         all_files: List of all discovered files
         all_dirs: List of all discovered directories
-        verbose: If True, print detailed progress
+        on_progress: Optional callback for progress updates (completed, total, path, status)
 
     Returns:
         Tuple of (dir_bodies dict, dir_children_hashes dict, dir_errors list)
@@ -518,6 +528,7 @@ async def generate_directory_shadows(
     dir_children_hashes: dict[Path, str] = {}
     dir_errors: list[tuple[Path, str]] = []
     lock = asyncio.Lock()
+    semaphore = asyncio.Semaphore(config.max_concurrency)
 
     # Build dependency info for each directory
     # pending_children[dir] = set of child directories not yet complete
@@ -547,125 +558,133 @@ async def generate_directory_shadows(
         """Process a single directory and notify parent when done."""
         nonlocal completed_count
 
-        relative_path = dir_path.relative_to(config.root_path)
-        if relative_path == Path("."):
-            relative_path = Path("(root)")
+        async with semaphore:
+            relative_path = dir_path.relative_to(config.root_path)
+            if relative_path == Path("."):
+                relative_path = Path("(root)")
 
-        try:
-            # Build child_entries for Merkle hash
-            child_entries: list[tuple[str, str]] = []
+            try:
+                # Build child_entries for Merkle hash
+                child_entries: list[tuple[str, str]] = []
 
-            # Child files: (name, file_content_hash)
-            for file_path in get_direct_children(config, dir_path, all_files):
-                if file_path in file_bodies:
-                    child_entries.append((file_path.name, compute_file_hash(file_path)))
+                # Child files: (name, file_content_hash)
+                for file_path in get_direct_children(config, dir_path, all_files):
+                    if file_path in file_bodies:
+                        child_entries.append((file_path.name, compute_file_hash(file_path)))
 
-            # Child dirs: (name, children_hash) — already computed (bottom-up)
-            async with lock:
-                for child_dir in get_child_directories(dir_path, all_dirs):
-                    if child_dir in dir_children_hashes:
-                        child_entries.append((child_dir.name, dir_children_hashes[child_dir]))
+                # Child dirs: (name, children_hash) — already computed (bottom-up)
+                async with lock:
+                    for child_dir in get_child_directories(dir_path, all_dirs):
+                        if child_dir in dir_children_hashes:
+                            child_entries.append((child_dir.name, dir_children_hashes[child_dir]))
 
-            current_hash = compute_children_hash(child_entries)
+                current_hash = compute_children_hash(child_entries)
 
-            # Check if cached
-            if not is_directory_stale(config, dir_path, current_hash):
-                print(f"  [cached] {relative_path}/", flush=True)
+                # Check if cached
+                if not is_directory_stale(config, dir_path, current_hash):
+                    shadow_path = config.shadow_path_for_dir(dir_path)
+                    shadow_content = shadow_path.read_text(encoding="utf-8")
+                    body = _extract_body_from_shadow(shadow_content)
+                    async with lock:
+                        dir_bodies[dir_path] = body
+                        dir_children_hashes[dir_path] = current_hash
+                        completed_count += 1
+                        if on_progress:
+                            on_progress(completed_count, total_dirs, dir_path, "cached")
+                        if dir_path in parent_of:
+                            parent = parent_of[dir_path]
+                            pending_children[parent].discard(dir_path)
+                            if not pending_children[parent]:
+                                await ready_queue.put(parent)
+                    return
+
+                # Gather summaries for LLM call
+                child_summaries: list[tuple[Path, str]] = []
+
+                for file_path in get_direct_children(config, dir_path, all_files):
+                    if file_path in file_bodies:
+                        child_summaries.append((file_path, file_bodies[file_path]))
+
+                async with lock:
+                    for child_dir in get_child_directories(dir_path, all_dirs):
+                        if child_dir in dir_bodies:
+                            child_summaries.append((child_dir, dir_bodies[child_dir]))
+
+                if not child_summaries:
+                    # Empty directory - mark complete and notify parent
+                    async with lock:
+                        dir_bodies[dir_path] = ""
+                        dir_children_hashes[dir_path] = current_hash
+                        completed_count += 1
+                        if on_progress:
+                            on_progress(completed_count, total_dirs, dir_path, "empty")
+                        if dir_path in parent_of:
+                            parent = parent_of[dir_path]
+                            pending_children[parent].discard(dir_path)
+                            if not pending_children[parent]:
+                                await ready_queue.put(parent)
+                    return
+
+                if on_progress:
+                    on_progress(completed_count, total_dirs, dir_path, "processing")
+
+                await rate_limiter.throttle()
+                body, input_tokens, output_tokens, topic_signature = await generate_directory_shadow_doc_async(
+                    provider, config, dir_path, child_summaries
+                )
+                full_doc = assemble_directory_shadow_doc(relative_path, current_hash, body)
+
+                # Write shadow doc
                 shadow_path = config.shadow_path_for_dir(dir_path)
-                shadow_content = shadow_path.read_text(encoding="utf-8")
-                body = _extract_body_from_shadow(shadow_content)
+                shadow_path.parent.mkdir(parents=True, exist_ok=True)
+                await _write_with_retry(shadow_path, full_doc)
+
+                # Write directory topic signature
+                if topic_signature:
+                    sig_path = config.signatures_path_for_dir(dir_path)
+                    sig_path.parent.mkdir(parents=True, exist_ok=True)
+                    sig_json = {
+                        "path": str(relative_path).replace("\\", "/"),
+                        "kind": "directory",
+                        "purpose": topic_signature.get("purpose", ""),
+                        "topics": topic_signature.get("topics", []),
+                    }
+                    await _write_with_retry(sig_path, json.dumps(sig_json, indent=2))
+
+                # Record actual token usage from API response
+                rate_limiter.record_usage(
+                    input_tokens=input_tokens,
+                    output_tokens=output_tokens,
+                )
+
+                # Update state and notify parent
                 async with lock:
                     dir_bodies[dir_path] = body
                     dir_children_hashes[dir_path] = current_hash
                     completed_count += 1
+                    if on_progress:
+                        on_progress(completed_count, total_dirs, dir_path, "generated")
                     if dir_path in parent_of:
                         parent = parent_of[dir_path]
                         pending_children[parent].discard(dir_path)
                         if not pending_children[parent]:
                             await ready_queue.put(parent)
-                return
 
-            print(f"  [rolling up] {relative_path}/", flush=True)
-
-            # Gather summaries for LLM call
-            child_summaries: list[tuple[Path, str]] = []
-
-            for file_path in get_direct_children(config, dir_path, all_files):
-                if file_path in file_bodies:
-                    child_summaries.append((file_path, file_bodies[file_path]))
-
-            async with lock:
-                for child_dir in get_child_directories(dir_path, all_dirs):
-                    if child_dir in dir_bodies:
-                        child_summaries.append((child_dir, dir_bodies[child_dir]))
-
-            if not child_summaries:
-                # Empty directory - mark complete and notify parent
+            except Exception as e:
+                # Store sentinel hash so parent can still compute its hash
+                sentinel_hash = compute_children_hash([])
                 async with lock:
+                    dir_errors.append((dir_path, str(e)))
                     dir_bodies[dir_path] = ""
-                    dir_children_hashes[dir_path] = current_hash
+                    dir_children_hashes[dir_path] = sentinel_hash
                     completed_count += 1
+                    if on_progress:
+                        on_progress(completed_count, total_dirs, dir_path, "error")
                     if dir_path in parent_of:
                         parent = parent_of[dir_path]
                         pending_children[parent].discard(dir_path)
                         if not pending_children[parent]:
                             await ready_queue.put(parent)
-                return
-
-            await rate_limiter.throttle()
-            body, input_tokens, output_tokens, topic_signature = await generate_directory_shadow_doc_async(
-                provider, config, dir_path, child_summaries
-            )
-            full_doc = assemble_directory_shadow_doc(relative_path, current_hash, body)
-
-            # Write shadow doc
-            shadow_path = config.shadow_path_for_dir(dir_path)
-            shadow_path.parent.mkdir(parents=True, exist_ok=True)
-            await _write_with_retry(shadow_path, full_doc)
-
-            # Write directory topic signature
-            if topic_signature:
-                sig_path = config.signatures_path_for_dir(dir_path)
-                sig_path.parent.mkdir(parents=True, exist_ok=True)
-                sig_json = {
-                    "path": str(relative_path).replace("\\", "/"),
-                    "kind": "directory",
-                    "purpose": topic_signature.get("purpose", ""),
-                    "topics": topic_signature.get("topics", []),
-                }
-                await _write_with_retry(sig_path, json.dumps(sig_json, indent=2))
-
-            # Record actual token usage from API response
-            rate_limiter.record_usage(
-                input_tokens=input_tokens,
-                output_tokens=output_tokens,
-            )
-
-            # Update state and notify parent
-            async with lock:
-                dir_bodies[dir_path] = body
-                dir_children_hashes[dir_path] = current_hash
-                completed_count += 1
-                if dir_path in parent_of:
-                    parent = parent_of[dir_path]
-                    pending_children[parent].discard(dir_path)
-                    if not pending_children[parent]:
-                        await ready_queue.put(parent)
-
-        except Exception as e:
-            print(f"  [ERROR] {relative_path}/: {e}", flush=True)
-            # Store sentinel hash so parent can still compute its hash
-            sentinel_hash = compute_children_hash([])
-            async with lock:
-                dir_errors.append((dir_path, str(e)))
-                dir_bodies[dir_path] = ""
-                dir_children_hashes[dir_path] = sentinel_hash
-                completed_count += 1
-                if dir_path in parent_of:
-                    parent = parent_of[dir_path]
-                    pending_children[parent].discard(dir_path)
-                    if not pending_children[parent]:
-                        await ready_queue.put(parent)
 
     # Process directories as they become ready
     active_tasks: set[asyncio.Task] = set()
@@ -767,11 +786,23 @@ async def generate_shadow_docs_async(
                 relative = r.path.relative_to(config.root_path)
                 print(f"  [ERROR] {relative}: {r.error}", flush=True)
 
-        # Directory roll-ups (sequential, bottom-up)
+        # Directory roll-ups (dependency-based parallelism)
         dir_start = time_module.monotonic()
         print("\nRolling up directories:", flush=True)
+        dir_progress_callback = print_progress if not verbose else None
+
+        if verbose:
+            def verbose_dir_progress(completed: int, total: int, path: Path, status: str) -> None:
+                relative = path.relative_to(config.root_path)
+                if relative == Path("."):
+                    relative = Path("(root)")
+                symbols = {"cached": "[cached]", "generated": "[OK]", "error": "[ERROR]", "empty": "[empty]", "processing": "[...]"}
+                print(f"  {symbols.get(status, '[...]')} {relative}/", flush=True)
+
+            dir_progress_callback = verbose_dir_progress
+
         dir_bodies, _dir_hashes, dir_errors = await generate_directory_shadows(
-            logging_provider, rate_limiter, config, results, files, dirs, verbose
+            logging_provider, rate_limiter, config, results, files, dirs, dir_progress_callback
         )
         dir_elapsed = time_module.monotonic() - dir_start
         print(f"[Directories completed in {dir_elapsed:.1f}s]", flush=True)
