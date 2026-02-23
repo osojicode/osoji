@@ -209,13 +209,14 @@ async def _match_topics_async(
     config: Config,
     doc_content: str,
     dir_summaries: dict[str, tuple[str, list[Path]]],
-) -> list[Path]:
+) -> tuple[list[Path], int, int]:
     """Use Haiku to match a doc to relevant source files via directory summaries.
 
-    Sends doc content + all directory summaries. Returns matched source file paths.
+    Sends doc content + all directory summaries.
+    Returns (matched_source_file_paths, input_tokens, output_tokens).
     """
     if not dir_summaries:
-        return []
+        return [], 0, 0
 
     # Build compact listing of directory summaries
     listing_parts: list[str] = []
@@ -267,7 +268,7 @@ Return the directory paths using the match_doc_topics tool."""
                     if "" in dir_to_files:
                         matched_files.extend(dir_to_files[""])
 
-    return matched_files
+    return matched_files, result.input_tokens, result.output_tokens
 
 
 ANALYZE_MODEL = "claude-opus-4-6"
@@ -327,8 +328,11 @@ async def _analyze_document_async(
     doc_content: str,
     shadow_contexts: list[tuple[Path, str]],
     rules_text: str,
-) -> DocAnalysisResult:
-    """Analyze a single doc: classify + validate in one Sonnet call."""
+) -> tuple[DocAnalysisResult, int, int]:
+    """Analyze a single doc: classify + validate in one Sonnet call.
+
+    Returns (DocAnalysisResult, input_tokens, output_tokens).
+    """
     relative_path = doc_path.relative_to(config.root_path)
 
     user_prompt = f"""**File:** `{relative_path}`
@@ -387,13 +391,17 @@ async def _analyze_document_async(
                     evidence=f.get("evidence_quote", ""),
                     remediation=f["remediation"],
                 ))
-            return DocAnalysisResult(
-                path=relative_path,
-                classification=tool_call.input["classification"],
-                confidence=tool_call.input["confidence"],
-                classification_reason=tool_call.input["classification_reason"],
-                matched_shadows=matched_shadow_paths,
-                findings=findings,
+            return (
+                DocAnalysisResult(
+                    path=relative_path,
+                    classification=tool_call.input["classification"],
+                    confidence=tool_call.input["confidence"],
+                    classification_reason=tool_call.input["classification_reason"],
+                    matched_shadows=matched_shadow_paths,
+                    findings=findings,
+                ),
+                result.input_tokens,
+                result.output_tokens,
             )
 
     raise RuntimeError(f"LLM did not call analyze_document for {doc_path}")
@@ -456,10 +464,10 @@ async def analyze_docs_async(
 
                 # Tier 2: Haiku topic matching (always runs)
                 await rate_limiter.throttle()
-                haiku_matches = await _match_topics_async(
+                haiku_matches, haiku_in, haiku_out = await _match_topics_async(
                     provider, config, content, dir_summaries
                 )
-                rate_limiter.record_usage(input_tokens=0, output_tokens=0)
+                rate_limiter.record_usage(input_tokens=haiku_in, output_tokens=haiku_out)
 
                 # Merge and deduplicate
                 all_sources: dict[str, Path] = {}
@@ -488,10 +496,10 @@ async def analyze_docs_async(
 
                 # Sonnet analysis (classify + validate)
                 await rate_limiter.throttle()
-                analysis = await _analyze_document_async(
+                analysis, analyze_in, analyze_out = await _analyze_document_async(
                     provider, config, doc_path, content, shadow_contexts, rules_text
                 )
-                rate_limiter.record_usage(input_tokens=0, output_tokens=0)
+                rate_limiter.record_usage(input_tokens=analyze_in, output_tokens=analyze_out)
 
                 async with lock:
                     completed += 1
@@ -523,10 +531,11 @@ async def analyze_docs_async(
 def analyze_docs(
     config: Config,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
+    rate_limiter: RateLimiter | None = None,
 ) -> list[DocAnalysisResult]:
     """Unified documentation analysis (sync wrapper).
 
-    Creates provider and rate limiter internally, runs async analysis.
+    Creates provider and rate limiter internally (unless provided), runs async analysis.
     """
     candidates = find_doc_candidates(config)
     if not candidates:
@@ -535,10 +544,10 @@ def analyze_docs(
     async def _run() -> list[DocAnalysisResult]:
         provider = create_provider("anthropic")
         logging_provider = LoggingProvider(provider)
-        rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
+        rl = rate_limiter if rate_limiter is not None else RateLimiter(get_config_with_overrides("anthropic"))
         try:
             return await analyze_docs_async(
-                logging_provider, rate_limiter, config, on_progress
+                logging_provider, rl, config, on_progress
             )
         finally:
             await logging_provider.close()

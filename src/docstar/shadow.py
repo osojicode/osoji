@@ -655,12 +655,17 @@ async def generate_directory_shadows(
     return dir_bodies, dir_children_hashes, dir_errors
 
 
-async def generate_shadow_docs_async(config: Config, verbose: bool = False) -> bool:
+async def generate_shadow_docs_async(
+    config: Config,
+    verbose: bool = False,
+    rate_limiter: RateLimiter | None = None,
+) -> bool:
     """Async entry point for shadow generation.
 
     Args:
         config: Configuration for shadow generation
         verbose: If True, show detailed progress including token counts
+        rate_limiter: Optional shared rate limiter. If None, creates one internally.
 
     Returns:
         True if all files and directories were processed successfully, False if any had errors.
@@ -683,8 +688,9 @@ async def generate_shadow_docs_async(config: Config, verbose: bool = False) -> b
     provider = create_provider("anthropic")
     logging_provider = LoggingProvider(provider, verbose=verbose)
 
-    # Create rate limiter
-    rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
+    # Create rate limiter if not provided externally
+    if rate_limiter is None:
+        rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
 
     try:
         # Process files in parallel
@@ -901,15 +907,24 @@ def dry_run_shadow(config: Config, verbose: bool = False) -> None:
                 print(f"  {relative}", flush=True)
 
 
-def generate_shadow_docs(config: Config, verbose: bool = False) -> bool:
+def generate_shadow_docs(
+    config: Config,
+    verbose: bool = False,
+    rate_limiter: RateLimiter | None = None,
+) -> bool:
     """Generate shadow documentation for an entire codebase (sync wrapper).
 
     This is the backward-compatible sync entry point.
 
+    Args:
+        config: Configuration for shadow generation
+        verbose: If True, show detailed progress
+        rate_limiter: Optional shared rate limiter. If None, creates one internally.
+
     Returns:
         True if all files and directories were processed successfully, False if any had errors.
     """
-    return asyncio.run(generate_shadow_docs_async(config, verbose=verbose))
+    return asyncio.run(generate_shadow_docs_async(config, verbose=verbose, rate_limiter=rate_limiter))
 
 
 # Keep sync versions for backward compatibility and non-async code paths

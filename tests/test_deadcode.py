@@ -231,12 +231,14 @@ class TestVerifyCandidate:
             source_path="src/utils.py", name="old_helper",
             kind="function", line_start=10, line_end=20, ref_count=0,
         )
-        result = await _verify_candidate_async(
+        result, in_tokens, out_tokens = await _verify_candidate_async(
             mock_provider, config, candidate,
             "def old_helper():\n    pass\n", "Shadow doc text", {},
         )
         assert result.is_dead is True
         assert result.confidence == 0.95
+        assert in_tokens == 100
+        assert out_tokens == 50
 
     @pytest.mark.asyncio
     async def test_zero_ref_alive_with_decorator(self, mock_provider, config):
@@ -258,7 +260,7 @@ class TestVerifyCandidate:
             source_path="src/views.py", name="index",
             kind="function", line_start=5, line_end=15, ref_count=0,
         )
-        result = await _verify_candidate_async(
+        result, _, _ = await _verify_candidate_async(
             mock_provider, config, candidate,
             "@app.route('/')\ndef index():\n    return 'hi'\n", "", {},
         )
@@ -288,7 +290,7 @@ class TestVerifyCandidate:
                 context="   10 | # TODO: remove legacy_func usage",
             )],
         )
-        result = await _verify_candidate_async(
+        result, _, _ = await _verify_candidate_async(
             mock_provider, config, candidate,
             "def legacy_func(): pass\n", "", {},
         )
@@ -318,7 +320,7 @@ class TestVerifyCandidate:
                 context="    3 | from utils import parse_config",
             )],
         )
-        result = await _verify_candidate_async(
+        result, _, _ = await _verify_candidate_async(
             mock_provider, config, candidate,
             "def parse_config(): pass\n", "", {},
         )

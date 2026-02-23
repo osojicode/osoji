@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from .config import Config
+from .rate_limiter import RateLimiter, get_config_with_overrides
 from .shadow import check_shadow_docs, generate_shadow_docs
 from .debris import analyze_docs
 from .deadcode import detect_dead_code
@@ -95,6 +96,9 @@ def run_audit(
     progress_cb = _make_progress_verbose(config) if verbose else _make_progress_default(config)
     docstarignore = config.load_docstarignore()
 
+    # Shared rate limiter across all phases so token budgets are tracked globally
+    rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
+
     # 1. Check shadow docs (auto-fix if enabled)
     print("Docstar: Checking shadow documentation...", flush=True)
     shadow_issues = check_shadow_docs(config)
@@ -102,7 +106,7 @@ def run_audit(
     if fix_shadow and shadow_issues:
         print(f"Docstar: Auto-updating {len(shadow_issues)} shadow doc(s)...", flush=True)
         phase_start = time_module.monotonic()
-        generate_shadow_docs(config, verbose=verbose)
+        generate_shadow_docs(config, verbose=verbose, rate_limiter=rate_limiter)
         shadow_issues = []  # Cleared by regeneration
         if verbose:
             elapsed = time_module.monotonic() - phase_start
@@ -120,7 +124,7 @@ def run_audit(
     # 2. Unified documentation analysis (replaces debris + xref)
     print("Docstar: Analyzing documentation...", flush=True)
     phase_start = time_module.monotonic()
-    analysis_results = analyze_docs(config, on_progress=progress_cb)
+    analysis_results = analyze_docs(config, on_progress=progress_cb, rate_limiter=rate_limiter)
     if verbose:
         elapsed = time_module.monotonic() - phase_start
         print(f"  [{elapsed:.1f}s]", flush=True)
@@ -180,7 +184,7 @@ def run_audit(
     if dead_code:
         print("Docstar: Scanning for cross-file dead code...", flush=True)
         phase_start = time_module.monotonic()
-        dead_code_results = detect_dead_code(config, on_progress=progress_cb)
+        dead_code_results = detect_dead_code(config, on_progress=progress_cb, rate_limiter=rate_limiter)
         if verbose:
             elapsed = time_module.monotonic() - phase_start
             print(f"  [{elapsed:.1f}s]", flush=True)
