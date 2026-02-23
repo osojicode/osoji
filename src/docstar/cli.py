@@ -162,7 +162,8 @@ def stats(path: Path, verbose: bool, no_gitignore: bool) -> None:
 @click.option("--dead-code", is_flag=True, help="Detect cross-file dead code (LLM calls for ambiguous candidates)")
 @click.option("--dead-plumbing", is_flag=True, help="Detect unactuated config obligations (LLM calls)")
 @click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
-def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: bool, dead_plumbing: bool, no_gitignore: bool) -> None:
+@click.option("--full", is_flag=True, help="Run all optional audit phases (dead-code, dead-plumbing)")
+def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: bool, dead_plumbing: bool, no_gitignore: bool, full: bool) -> None:
     """Run documentation audit.
 
     Checks for:
@@ -177,6 +178,9 @@ def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: b
 
     Exit codes: 0 = passed, 1 = errors found
     """
+    if full:
+        dead_code = True
+        dead_plumbing = True
     config = Config(root_path=path.resolve(), respect_gitignore=not no_gitignore)
 
     try:
