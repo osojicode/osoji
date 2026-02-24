@@ -259,33 +259,6 @@ def uninstall_hooks(repo_path: Path) -> list[tuple[str, bool, str]]:
     return results
 
 
-def get_staged_files(repo_path: Path, extensions: set[str]) -> list[Path]:
-    """Get list of staged files that match the given extensions."""
-    git_root = find_git_root(repo_path)
-    if git_root is None:
-        return []
-
-    try:
-        result = subprocess.run(
-            ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
-            cwd=git_root,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-
-        files: list[Path] = []
-        for line in result.stdout.strip().split("\n"):
-            if not line:
-                continue
-            path = git_root / line
-            if path.suffix in extensions and path.exists():
-                files.append(path)
-
-        return files
-    except subprocess.CalledProcessError:
-        return []
-
 
 def get_staged_files_all(repo_path: Path) -> list[Path]:
     """Get list of all staged files without extension filtering.

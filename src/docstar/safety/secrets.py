@@ -80,21 +80,3 @@ def check_file_for_secrets(file_path: Path) -> list[SecretFinding]:
         logger.debug(f"Error scanning {file_path} for secrets: {e}")
 
     return findings
-
-
-def check_files_for_secrets(file_paths: list[Path]) -> list[SecretFinding]:
-    """Check multiple files for secrets using detect-secrets.
-
-    Args:
-        file_paths: List of file paths to scan
-
-    Returns:
-        List of SecretFinding objects. Empty if detect-secrets not installed.
-    """
-    if not HAS_DETECT_SECRETS:
-        return []
-
-    findings: list[SecretFinding] = []
-    for file_path in file_paths:
-        findings.extend(check_file_for_secrets(file_path))
-    return findings
