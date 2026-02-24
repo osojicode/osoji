@@ -172,12 +172,16 @@ Shadow docs are semantically dense summaries that help AI agents quickly underst
 You MUST use the submit_shadow_doc tool to submit your documentation.
 Do not include any header or metadata - just the documentation body.
 
-ALSO: While analyzing the code, identify any "debris" that could mislead an AI coding agent:
-- Stale comments that describe behavior the code no longer exhibits
-- Misleading docstrings that don't match the actual implementation
+ALSO: While analyzing the code, identify any "debris" that CURRENTLY misleads an AI coding agent:
+- Stale comments that CONTRADICT the current code (the comment says X but the code does Y)
+- Misleading docstrings whose description does not match the actual implementation
 - Commented-out code blocks (3+ lines) that agents might reference
-- Expired TODO/FIXME comments whose context no longer applies
+- Expired TODO/FIXME comments that reference completed work or removed features
 - Dead code (unreachable branches, unused functions defined but never called within this file)
+
+Do NOT flag comments that accurately describe the current implementation, even if they describe
+implementation details. A comment is stale only if it is CURRENTLY wrong, not if it COULD
+become wrong in the future.
 
 Report these as findings in the tool call. If the code is clean, submit an empty findings array.
 
@@ -1000,23 +1004,6 @@ def generate_shadow_docs(
         True if all files and directories were processed successfully, False if any had errors.
     """
     return asyncio.run(generate_shadow_docs_async(config, verbose=verbose, rate_limiter=rate_limiter))
-
-
-# Keep sync versions for backward compatibility and non-async code paths
-def process_file(
-    provider: LLMProvider,
-    config: Config,
-    file_path: Path,
-) -> tuple[Path, str]:
-    """Process a single file synchronously (for backward compatibility).
-
-    Note: This runs the async version in a new event loop.
-    For new code, prefer process_file_async.
-    """
-    result = asyncio.run(process_file_async(provider, config, file_path))
-    if result.error:
-        raise RuntimeError(result.error)
-    return (result.path, result.body)
 
 
 def check_shadow_docs(config: Config) -> list[tuple[Path, str]]:

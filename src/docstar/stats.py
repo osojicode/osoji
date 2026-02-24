@@ -139,14 +139,6 @@ async def count_file_tokens_async(path: Path, counter: TokenCounter) -> int:
         return 0
 
 
-def count_file_tokens(path: Path) -> int:
-    """Count tokens in a file (sync wrapper)."""
-    try:
-        content = path.read_text(encoding="utf-8")
-        return count_tokens(content)
-    except Exception:
-        return 0
-
 
 def _load_token_cache(config: Config) -> dict:
     """Load the persistent token-count cache from disk.

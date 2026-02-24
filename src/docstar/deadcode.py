@@ -281,7 +281,7 @@ async def _verify_batch_async(
 
     # Include defining file content ONCE (truncated)
     source_path = candidates[0].source_path
-    truncated = file_content[:30000] if len(file_content) > 30000 else file_content
+    truncated = file_content[:100000] if len(file_content) > 100000 else file_content
     user_parts.append(f"## Defining file: `{source_path}`\n```\n{truncated}\n```\n")
 
     # Include shadow doc for defining file ONCE
