@@ -233,8 +233,8 @@ class TestRealWorldSchemas:
                     "description": "Comment references removed function.",
                 }
             ],
-            "public_symbols": [
-                {"name": "main", "kind": "function", "line_start": 1}
+            "symbols": [
+                {"name": "main", "kind": "function", "line_start": 1, "visibility": "public"}
             ],
             "file_role": "entry",
             "topic_signature": {

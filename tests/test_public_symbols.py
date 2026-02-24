@@ -1,4 +1,4 @@
-"""Tests for public_symbols extraction, persistence, and loading."""
+"""Tests for symbols extraction, persistence, and loading."""
 
 import json
 from pathlib import Path
@@ -26,38 +26,51 @@ class TestSymbolsPathFor:
         assert "symbols" in result.parts
 
 
-class TestExtractPublicSymbols:
-    """Verify public_symbols are correctly extracted from a mock tool call response."""
+class TestExtractSymbols:
+    """Verify symbols are correctly extracted from a mock tool call response."""
 
     def test_extract_from_tool_input(self):
         """Simulate what generate_file_shadow_doc_async does with the tool call input."""
         tool_input = {
             "content": "Shadow doc body text",
             "findings": [],
-            "public_symbols": [
-                {"name": "Config", "kind": "class", "line_start": 10, "line_end": 50},
-                {"name": "DEFAULT_MODEL", "kind": "constant", "line_start": 5},
-                {"name": "process", "kind": "function", "line_start": 60, "line_end": 80},
+            "symbols": [
+                {"name": "Config", "kind": "class", "line_start": 10, "line_end": 50, "visibility": "public"},
+                {"name": "DEFAULT_MODEL", "kind": "constant", "line_start": 5, "visibility": "public"},
+                {"name": "_helper", "kind": "function", "line_start": 60, "line_end": 80, "visibility": "internal"},
             ],
         }
-        symbols = tool_input.get("public_symbols", [])
+        symbols = tool_input.get("symbols") or tool_input.get("public_symbols", [])
         assert len(symbols) == 3
         assert symbols[0]["name"] == "Config"
         assert symbols[0]["kind"] == "class"
+        assert symbols[0]["visibility"] == "public"
         assert symbols[1]["name"] == "DEFAULT_MODEL"
         assert symbols[1]["kind"] == "constant"
-        assert "line_end" not in symbols[1]
-        assert symbols[2]["name"] == "process"
-        assert symbols[2]["kind"] == "function"
+        assert symbols[2]["name"] == "_helper"
+        assert symbols[2]["visibility"] == "internal"
 
-    def test_missing_public_symbols_defaults_empty(self):
-        """When LLM omits public_symbols, default to empty list."""
+    def test_missing_symbols_defaults_empty(self):
+        """When LLM omits symbols, default to empty list."""
         tool_input = {
             "content": "Shadow doc body text",
             "findings": [],
         }
-        symbols = tool_input.get("public_symbols", [])
+        symbols = tool_input.get("symbols") or tool_input.get("public_symbols", [])
         assert symbols == []
+
+    def test_backward_compat_public_symbols_key(self):
+        """Old LLM responses with public_symbols key still work."""
+        tool_input = {
+            "content": "Shadow doc body text",
+            "findings": [],
+            "public_symbols": [
+                {"name": "Config", "kind": "class", "line_start": 10},
+            ],
+        }
+        symbols = tool_input.get("symbols") or tool_input.get("public_symbols", [])
+        assert len(symbols) == 1
+        assert symbols[0]["name"] == "Config"
 
 
 class TestLoadAllSymbols:

@@ -58,9 +58,9 @@ to work with this code effectively.""",
                     "required": ["category", "line_start", "line_end", "severity", "description"],
                 },
             },
-            "public_symbols": {
+            "symbols": {
                 "type": "array",
-                "description": "Public symbols (functions, classes, constants) defined in this file that could be imported or used by other files. Exclude private/underscore-prefixed names unless they are part of the module's public API (e.g., _matches_ignore used cross-module).",
+                "description": "All symbols defined in this file — both public/exported and internal/private. Include functions, classes, constants, and module-level variables.",
                 "items": {
                     "type": "object",
                     "properties": {
@@ -74,8 +74,13 @@ to work with this code effectively.""",
                         },
                         "line_start": {"type": "integer", "minimum": 1},
                         "line_end": {"type": "integer", "minimum": 1},
+                        "visibility": {
+                            "type": "string",
+                            "enum": ["public", "internal"],
+                            "description": "public = importable/exported API; internal = private helpers, underscored functions, file-local utilities",
+                        },
                     },
-                    "required": ["name", "kind", "line_start"],
+                    "required": ["name", "kind", "line_start", "visibility"],
                 },
             },
             "file_role": {
@@ -332,9 +337,11 @@ VERIFY_DEAD_CODE_TOOL = {
 - **Overrides**: Abstract method implementations, interface conformance
 - **Trait implementations**: Rust impl Trait for Type — invoked implicitly
 - **FFI / generated code**: #[derive], #[no_mangle], extern "C" exports
-- **Within-file transitive liveness**: A class/type used by other symbols in the same file
-  that ARE externally referenced (dataclass returned by a public function, internal helper
-  type used by exported API)
+- **Within-file transitive liveness**: A symbol is alive if an externally-referenced symbol
+  in the same file directly or indirectly USES it — even through chains of private helper
+  functions (constant used inside a private function called by a public function; dataclass
+  returned by an exported API). Liveness flows FROM the entry point INTO what it uses —
+  a sibling function that merely references the same constant is NOT alive through this path.
 
 Set is_dead=True only if the symbol has no plausible alive pathway.
 Provide a verdict for EVERY symbol listed.""",

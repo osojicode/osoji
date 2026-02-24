@@ -54,7 +54,7 @@ class ShadowResult:
     input_tokens: int = 0
     output_tokens: int = 0
     findings: list[Finding] = field(default_factory=list)
-    public_symbols: list[dict] = field(default_factory=list)
+    symbols: list[dict] = field(default_factory=list)
     file_role: str | None = None
 
 
@@ -161,7 +161,7 @@ async def generate_file_shadow_doc_async(
     """Generate a shadow doc for a single file asynchronously.
 
     Uses tool_choice to force the LLM to call submit_shadow_doc.
-    Returns tuple of (content, input_tokens, output_tokens, findings, public_symbols, file_role, topic_signature).
+    Returns tuple of (content, input_tokens, output_tokens, findings, symbols, file_role, topic_signature).
     """
     relative_path = file_path.relative_to(config.root_path)
 
@@ -185,9 +185,10 @@ become wrong in the future.
 
 Report these as findings in the tool call. If the code is clean, submit an empty findings array.
 
-ALSO: Populate the public_symbols array with every function, class, constant, or module-level variable
-that other files could import from this module. Include the symbol name, kind, and line range.
-Exclude private/underscore-prefixed names UNLESS they are clearly part of the module's cross-file API.
+ALSO: Populate the symbols array with ALL functions, classes, constants, and module-level variables
+defined in this file. For each, set visibility to "public" if the symbol is importable/exported,
+or "internal" if it is a private helper (underscore-prefixed, file-local, not part of the public API).
+Include the symbol name, kind, line range, and visibility.
 
 ALSO: Classify the file's architectural role using the file_role field. The key distinction:
 - "schema" = defines data shapes with RUNTIME validation (Zod schemas, Pydantic models, JSON Schema validators)
@@ -234,10 +235,10 @@ Include line number references for key elements (e.g., "MyClass (L15-45)").
                 )
                 for f in findings_data
             ]
-            public_symbols = tool_call.input.get("public_symbols", [])
+            symbols = tool_call.input.get("symbols") or tool_call.input.get("public_symbols", [])
             file_role = tool_call.input.get("file_role", "service")
             topic_signature = tool_call.input.get("topic_signature")
-            return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings, public_symbols, file_role, topic_signature)
+            return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings, symbols, file_role, topic_signature)
 
     raise RuntimeError(f"LLM did not call submit_shadow_doc tool for {file_path}")
 
@@ -327,7 +328,7 @@ async def process_file_async(
         numbered_content = add_line_numbers(content)
         source_hash = compute_file_hash(file_path)
 
-        body, input_tokens, output_tokens, findings, public_symbols, file_role, topic_signature = await generate_file_shadow_doc_async(
+        body, input_tokens, output_tokens, findings, symbols, file_role, topic_signature = await generate_file_shadow_doc_async(
             provider, config, file_path, numbered_content
         )
         full_doc = assemble_shadow_doc(
@@ -360,8 +361,8 @@ async def process_file_async(
         }
         await _write_with_retry(findings_path, json.dumps(findings_json, indent=2))
 
-        # Write symbols JSON sidecar (includes file_role even without public_symbols)
-        if public_symbols or file_role:
+        # Write symbols JSON sidecar (includes file_role even without symbols)
+        if symbols or file_role:
             symbols_path = config.symbols_path_for(file_path)
             symbols_path.parent.mkdir(parents=True, exist_ok=True)
             symbols_json = {
@@ -369,7 +370,7 @@ async def process_file_async(
                 "source_hash": source_hash,
                 "generated": timestamp,
                 "file_role": file_role,
-                "symbols": public_symbols,
+                "symbols": symbols,
             }
             await _write_with_retry(symbols_path, json.dumps(symbols_json, indent=2))
 
@@ -383,7 +384,7 @@ async def process_file_async(
                 "kind": "source",
                 "purpose": topic_signature.get("purpose", ""),
                 "topics": topic_signature.get("topics", []),
-                "public_surface": [s["name"] for s in public_symbols],
+                "public_surface": [s["name"] for s in symbols if s.get("visibility") != "internal"],
             }
             await _write_with_retry(sig_path, json.dumps(sig_json, indent=2))
 
@@ -394,7 +395,7 @@ async def process_file_async(
             input_tokens=input_tokens,
             output_tokens=output_tokens,
             findings=findings,
-            public_symbols=public_symbols,
+            symbols=symbols,
             file_role=file_role,
         )
     except Exception as e:
