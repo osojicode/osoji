@@ -254,6 +254,9 @@ def scan_references(
 
     for source_norm, sym in sym_entries:
         name = sym["name"]
+        # Internal symbols are not dead code candidates
+        if sym.get("visibility") == "internal":
+            continue
         ext_count = sym_ref_counts[(source_norm, name)]
 
         if ext_count == 0:
@@ -318,9 +321,12 @@ The symbol has NO grep hits outside its defining file. But it may still be alive
 - Overrides of abstract methods or interface conformance
 - Trait implementations (Rust: impl Trait for Type — invoked implicitly, no direct call site)
 - #[derive], #[no_mangle], extern "C", FFI exports — used by generated code or foreign callers
-- Within-file transitive liveness: a class/type instantiated or referenced by other symbols
-  in the SAME file that ARE externally referenced (e.g. a dataclass returned by a public
-  function — the class itself has no imports but is alive through the function's API)
+- Within-file transitive liveness: a symbol is alive if an externally-referenced symbol
+  in the SAME file directly or indirectly USES it — even through chains of private helper
+  functions (e.g. a constant used inside a private function that is called by a public
+  function; a dataclass returned by an exported API). The liveness flows FROM the
+  externally-referenced entry point INTO what it calls/uses — a sibling function that
+  merely references the same constant is NOT alive through this path.
 
 ## Decision rule for zero-reference symbols
 If a zero-reference symbol does not match ANY of the liveness patterns above, it IS dead code.
@@ -328,11 +334,15 @@ Do not invent other reasons to keep it alive. Specifically:
 - "It could be used by external consumers" is NOT a valid reason unless the symbol is
   explicitly exported (Python: __all__ / __init__.py; JS/TS: export; Rust: pub use; etc.)
 - "It wraps a symbol that is used" is NOT a valid reason — if the wrapper itself has zero
-  references, it's dead regardless of what it wraps
+  references, it's dead regardless of what it wraps. Example: get_foo_tools() returns
+  [FOO_TOOL] and get_foo_tool_definitions() also returns FOO_TOOL; if only the latter is
+  imported, the former is dead even though they share the same constant
 - "It might be part of the public API" is NOT valid without an explicit export mechanism
 - "It returns something that is used" is NOT valid — the function must itself be called
-- "It is used within the same file" IS a valid reason IF the using symbol has external
-  references — this is transitive liveness through return types and internal data structures
+- "It looks like framework/orchestration code" is NOT valid — if a function has zero
+  references, it is not being called by any framework regardless of what it returns
+- "It is used within the same file" IS a valid reason IF an externally-referenced symbol
+  directly or indirectly uses it — even through chains of private/internal functions
 
 ## For low-reference symbols (few external grep hits)
 Each grep hit has ±5 lines of context. Judge whether each hit is a real usage or a false positive:
