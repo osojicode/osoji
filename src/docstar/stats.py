@@ -74,39 +74,6 @@ class ProjectStats:
         return (1 - ratio) * 100
 
 
-async def count_tokens_async(text: str, counter: TokenCounter) -> int:
-    """Count tokens using Anthropic API.
-
-    Args:
-        text: Text to count tokens for
-        counter: TokenCounter instance
-
-    Returns:
-        Token count
-    """
-    return await counter.count_text_async(text)
-
-
-def count_tokens(text: str) -> int:
-    """Count tokens using Anthropic API (sync wrapper).
-
-    Creates a new TokenCounter for each call. For batch operations,
-    use gather_stats_async() instead.
-
-    Args:
-        text: Text to count tokens for
-
-    Returns:
-        Token count
-    """
-    async def _count():
-        counter = TokenCounter()
-        try:
-            return await counter.count_text_async(text)
-        finally:
-            await counter.close()
-    return asyncio.run(_count())
-
 
 def count_tokens_offline(text: str) -> int:
     """Count tokens using offline estimation (character-based).

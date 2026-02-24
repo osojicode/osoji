@@ -83,6 +83,12 @@ docstar audit /path/to/project --no-fix
 
 # Also detect cross-file dead code
 docstar audit /path/to/project --dead-code
+
+# Detect unactuated config/schema obligations
+docstar audit /path/to/project --dead-plumbing
+
+# Run all optional phases
+docstar audit /path/to/project --full
 ```
 
 The audit checks for:
@@ -91,6 +97,7 @@ The audit checks for:
 - **Code debris**: Surfaces findings from shadow generation (stale comments, misleading docstrings, dead code) stored in `.docstar/findings/`
 - **Stale shadow docs**: Auto-fixed by default
 - **Cross-file dead code** (opt-in with `--dead-code`): Detects unused symbols across the codebase
+- **Dead plumbing** (opt-in with `--dead-plumbing`): Detects unactuated config/schema obligations
 
 Override findings with project-specific rules in `.docstar/rules`:
 ```
@@ -159,7 +166,7 @@ Each shadow doc contains:
 2. **Tool-forced output**: LLM must call structured tools - no text parsing required
 3. **Incremental updates**: Skips unchanged files by comparing source hashes
 4. **Line number preprocessing**: Provides line context to the LLM for precise references
-5. **Multi-model pipeline**: Shadow generation uses Sonnet (`claude-sonnet-4-20250514`). Audit analysis uses Haiku (`claude-haiku-4-5-20251001`) for fast topic matching and Opus (`claude-opus-4-6`) for deep classification and validation.
+5. **Multi-model pipeline**: Shadow generation uses Sonnet. Audit uses Haiku for fast topic matching, Opus for classification and validation, and Sonnet for error-finding verification.
 6. **Git integration**: Hooks keep docs synchronized with code changes
 
 ## Rate Limits
