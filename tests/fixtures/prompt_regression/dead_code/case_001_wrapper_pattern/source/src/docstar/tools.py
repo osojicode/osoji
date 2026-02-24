@@ -339,14 +339,12 @@ VERIFY_DEAD_CODE_TOOL = {
 - **Decorators / framework magic**: @app.route, @pytest.fixture, @property, signal handlers
 - **Convention-based dispatch**: Django views, Flask endpoints, Click commands, test_ methods
 - **Dynamic dispatch**: getattr(), importlib, plugin registries, __getattr__
-- **Dunder / magic methods**: __init__, __str__, __enter__, __eq__ — called implicitly
-- **Explicit public API exports**: Python __all__ / __init__.py re-exports; JS/TS export in
-  barrel files; Rust pub use re-exports; Go capitalized identifiers
-- **Entry points**: setup.py/pyproject.toml console_scripts, main() functions, bin scripts
+- **Dunder methods**: __init__, __str__, __enter__, __eq__ — called implicitly
+- **__all__ exports**: Listed in __all__ for public API
+- **Entry points**: setup.py/pyproject.toml console_scripts, main() functions
 - **Callbacks / hooks**: Registered at runtime, passed as arguments
 - **Overrides**: Abstract method implementations, interface conformance
-- **Trait implementations**: Rust impl Trait for Type — invoked implicitly
-- **FFI / generated code**: #[derive], #[no_mangle], extern "C" exports
+- **Re-exports**: Imported in __init__.py for public API surface
 
 Set is_dead=True only if the symbol has no plausible alive pathway.
 Provide a verdict for EVERY symbol listed.""",

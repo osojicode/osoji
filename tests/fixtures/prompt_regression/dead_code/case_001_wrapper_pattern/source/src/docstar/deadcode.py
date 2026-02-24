@@ -235,25 +235,21 @@ The symbol has NO grep hits outside its defining file. But it may still be alive
 - Decorators / framework magic (@app.route, @pytest.fixture, @property, signal handlers)
 - Convention-based dispatch (Django views, Flask endpoints, Click commands, test_ methods)
 - Dynamic dispatch (getattr(), importlib, plugin registries, __getattr__)
-- Dunder / magic methods (__init__, __str__, __enter__, __eq__) — called implicitly
-- Explicit public API exports (Python: __all__, __init__.py re-exports; JS/TS: export in
-  barrel files; Rust: pub use re-exports; Go: capitalized identifiers)
-- Visibility-based liveness (Rust: pub fn/pub struct; Java/C#: public methods; Go: capitalized
-  names) — BUT only when the containing crate/package is a library consumed externally
-- Entry points (console_scripts in pyproject.toml/setup.py, main() functions, bin scripts)
+- Dunder methods (__init__, __str__, __enter__, __eq__) — called implicitly by Python
+- __all__ exports — listed for public API even if not directly imported elsewhere in this repo
+- Entry points (console_scripts in pyproject.toml/setup.py, main() functions)
 - Callbacks / hooks registered at runtime
 - Overrides of abstract methods or interface conformance
-- Trait implementations (Rust: impl Trait for Type — invoked implicitly, no direct call site)
-- #[derive], #[no_mangle], extern "C", FFI exports — used by generated code or foreign callers
+- Re-exports in __init__.py
 
 ## Decision rule for zero-reference symbols
 If a zero-reference symbol does not match ANY of the liveness patterns above, it IS dead code.
 Do not invent other reasons to keep it alive. Specifically:
-- "It could be used by external consumers" is NOT a valid reason unless the symbol is
-  explicitly exported (Python: __all__ / __init__.py; JS/TS: export; Rust: pub use; etc.)
+- "It could be used by external consumers" is NOT a valid reason unless the function is
+  listed in __all__ or re-exported in __init__.py
 - "It wraps a symbol that is used" is NOT a valid reason — if the wrapper itself has zero
   references, it's dead regardless of what it wraps
-- "It might be part of the public API" is NOT valid without an explicit export mechanism
+- "It might be part of the public API" is NOT valid for functions not exported via __all__
 - "It returns something that is used" is NOT valid — the function must itself be called
 
 ## For low-reference symbols (few external grep hits)
