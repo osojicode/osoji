@@ -282,6 +282,13 @@ Report findings with evidence from shadow docs. Empty findings array if no issue
                             "type": "boolean",
                             "description": "Set to true only if this is a genuine contradiction. Set to false if on reflection the doc and shadow docs are consistent, the evidence is inconclusive, or no action is needed.",
                         },
+                        "search_terms": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Technical identifiers this finding makes claims about "
+                                           "(command names, function names, config keys, flags, etc.). "
+                                           "These will be searched across the full project for verification.",
+                        },
                     },
                     "required": [
                         "category",
@@ -291,6 +298,7 @@ Report findings with evidence from shadow docs. Empty findings array if no issue
                         "evidence_quote",
                         "remediation",
                         "confirmed",
+                        "search_terms",
                     ],
                 },
             },
@@ -417,6 +425,63 @@ def get_analyze_document_tool_definitions() -> list[ToolDefinition]:
 def get_dead_code_tool_definitions() -> list[ToolDefinition]:
     """Return ToolDefinition objects for dead code verification."""
     return [_dict_to_tool_definition(VERIFY_DEAD_CODE_TOOL)]
+
+
+# Tool definition for doc finding verification (Sonnet, per document with errors)
+VERIFY_DOC_FINDING_TOOL = {
+    "name": "verify_doc_finding",
+    "description": """Re-evaluate documentation error findings given additional project evidence.
+
+You are given the original error-severity findings from a documentation analysis, plus
+grep evidence gathered from project files that were NOT available during the initial analysis.
+
+For each finding, decide:
+- **upheld**: The finding is correct — the additional evidence confirms or does not contradict it.
+- **retracted**: The finding is a false positive — the additional evidence shows the documented
+  claim is actually correct (e.g. a command IS registered as an entry point, a config key DOES exist).
+- **downgraded**: The finding has some merit but the additional evidence makes it less certain.
+  Downgrade from error to warning severity.
+
+Provide a verdict for EVERY finding listed.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "verdicts": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "finding_index": {
+                            "type": "integer",
+                            "description": "0-based index of the finding being judged",
+                        },
+                        "action": {
+                            "type": "string",
+                            "enum": ["upheld", "retracted", "downgraded"],
+                            "description": "Whether to keep, remove, or downgrade the finding",
+                        },
+                        "reason": {
+                            "type": "string",
+                            "description": "Brief explanation of the verdict",
+                        },
+                    },
+                    "required": ["finding_index", "action", "reason"],
+                },
+            },
+        },
+        "required": ["verdicts"],
+    },
+}
+
+
+def get_verify_doc_finding_tools() -> list[dict]:
+    """Return tools for doc finding verification."""
+    return [VERIFY_DOC_FINDING_TOOL]
+
+
+def get_verify_doc_finding_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for doc finding verification."""
+    return [_dict_to_tool_definition(VERIFY_DOC_FINDING_TOOL)]
 
 
 # Tool definition for obligation extraction (Haiku, per schema file)

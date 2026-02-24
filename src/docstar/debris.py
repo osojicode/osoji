@@ -1,6 +1,7 @@
 """Unified documentation analysis: classification + accuracy validation."""
 
 import asyncio
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
@@ -11,7 +12,11 @@ from .llm.factory import create_provider
 from .llm.logging import LoggingProvider
 from .llm.types import Message, MessageRole, CompletionOptions
 from .rate_limiter import RateLimiter, get_config_with_overrides
-from .tools import get_match_doc_topics_tool_definitions, get_analyze_document_tool_definitions
+from .tools import (
+    get_match_doc_topics_tool_definitions,
+    get_analyze_document_tool_definitions,
+    get_verify_doc_finding_tool_definitions,
+)
 from .walker import list_repo_files, _matches_ignore
 
 
@@ -28,6 +33,7 @@ class DocFinding:
     shadow_ref: str     # source path of evidencing shadow doc
     evidence: str       # quote from shadow doc
     remediation: str
+    search_terms: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -324,6 +330,10 @@ not exhaustive — absence of detail is not a contradiction).
 
 For each finding, include the shadow doc path and a brief verbatim evidence quote.
 
+For each finding, also provide `search_terms`: the specific technical identifiers (command names,
+function names, config keys, CLI flags, file paths, etc.) that the finding makes claims about.
+These are used to search the broader project for corroborating or contradicting evidence.
+
 Use the analyze_document tool with your results."""
 
 
@@ -396,6 +406,7 @@ async def _analyze_document_async(
                     shadow_ref=f.get("evidence_shadow_path", ""),
                     evidence=f.get("evidence_quote", ""),
                     remediation=f["remediation"],
+                    search_terms=f.get("search_terms", []),
                 ))
             return (
                 DocAnalysisResult(
@@ -411,6 +422,247 @@ async def _analyze_document_async(
             )
 
     raise RuntimeError(f"LLM did not call analyze_document for {doc_path}")
+
+
+# --- Tier 4: Error-finding verification ---
+
+VERIFY_MODEL = "claude-sonnet-4-20250514"
+
+_VERIFY_SYSTEM_PROMPT = """You are a documentation accuracy verifier performing a second-pass review.
+
+You are given error-severity findings from an initial documentation analysis, along with
+additional grep evidence from project files that were NOT available during the initial analysis.
+
+The initial analysis only had access to shadow docs (AI-generated summaries of source files).
+Now you have raw grep matches from the full project — config files, build manifests, entry point
+registrations, etc. — that may confirm or contradict the original findings.
+
+For each finding, decide:
+- **upheld**: The finding is correct. The additional evidence confirms or does not contradict it.
+- **retracted**: The finding is a false positive. The grep evidence shows the documented claim
+  is actually correct (e.g. a command IS registered as an entry point, a config key DOES exist
+  in a config file, a flag IS defined somewhere the initial analysis didn't see).
+- **downgraded**: The finding has some merit but the additional evidence makes it less certain.
+  Downgrade from error to warning.
+
+Provide a verdict for EVERY finding listed."""
+
+
+def _gather_project_evidence(
+    config: Config, finding: DocFinding,
+) -> list[tuple[str, str]]:
+    """Grep non-shadowed project files for search terms from a finding.
+
+    Returns list of (relative_path, excerpt) tuples.
+    Pure Python, no LLM calls.
+    """
+    if not finding.search_terms:
+        return []
+
+    shadow_root = config.shadow_root
+    all_paths, _ = list_repo_files(config)
+    all_paths = list(all_paths)
+
+    docstarignore = config.load_docstarignore()
+
+    # Build set of files that already have shadow docs (model already saw these)
+    shadowed_files: set[str] = set()
+    if shadow_root.exists():
+        for shadow_path in shadow_root.rglob("*.shadow.md"):
+            if shadow_path.name == "_directory.shadow.md":
+                continue
+            relative_shadow = shadow_path.relative_to(shadow_root)
+            source_str = str(relative_shadow).removesuffix(".shadow.md").replace("\\", "/")
+            shadowed_files.add(source_str)
+
+    evidence: list[tuple[str, str]] = []
+    files_found = 0
+    _MAX_FILES = 10
+    _MAX_CHARS_PER_FILE = 3000
+
+    # Build a combined regex for all search terms
+    escaped = [re.escape(term) for term in finding.search_terms]
+    if not escaped:
+        return []
+    pattern = re.compile("|".join(escaped), re.IGNORECASE)
+
+    for path in all_paths:
+        if files_found >= _MAX_FILES:
+            break
+
+        if not path.is_absolute():
+            path = config.root_path / path
+
+        if not path.is_file():
+            continue
+
+        relative = path.relative_to(config.root_path)
+        rel_str = str(relative).replace("\\", "/")
+
+        # Skip .docstar/
+        if rel_str.startswith(".docstar"):
+            continue
+
+        # Skip ignore patterns
+        if _matches_ignore(relative, config.ignore_patterns):
+            continue
+        if docstarignore and _matches_ignore(relative, docstarignore):
+            continue
+
+        # Skip files that have shadow docs (model already saw those)
+        if rel_str in shadowed_files:
+            continue
+
+        try:
+            content = path.read_text(errors="ignore")
+        except OSError:
+            continue
+
+        # Search for matches
+        lines = content.split("\n")
+        matching_regions: list[str] = []
+        total_chars = 0
+
+        for line_idx, line in enumerate(lines):
+            if pattern.search(line):
+                # Extract ±2 lines of context
+                start = max(0, line_idx - 2)
+                end = min(len(lines), line_idx + 3)
+                context_lines = []
+                for i in range(start, end):
+                    marker = ">>>" if i == line_idx else "   "
+                    context_lines.append(f"{marker} {i + 1:4d} | {lines[i]}")
+                region = "\n".join(context_lines)
+
+                if total_chars + len(region) > _MAX_CHARS_PER_FILE:
+                    break
+                matching_regions.append(region)
+                total_chars += len(region)
+
+        if matching_regions:
+            excerpt = "\n---\n".join(matching_regions)
+            evidence.append((rel_str, excerpt))
+            files_found += 1
+
+    return evidence
+
+
+async def _verify_error_findings_async(
+    provider: LLMProvider,
+    config: Config,
+    doc_path: Path,
+    doc_content: str,
+    error_findings: list[DocFinding],
+) -> tuple[list[DocFinding], int, int]:
+    """Verify error-severity findings by searching for contradicting evidence.
+
+    One Sonnet LLM call per document with errors. Presents original findings + grep evidence.
+    Returns (verified_findings, input_tokens, output_tokens).
+    If no additional evidence is found for ANY finding, skips the LLM call entirely.
+    """
+    # Gather evidence for all error findings
+    all_evidence: dict[int, list[tuple[str, str]]] = {}
+    has_any_evidence = False
+    for i, finding in enumerate(error_findings):
+        evidence = _gather_project_evidence(config, finding)
+        all_evidence[i] = evidence
+        if evidence:
+            has_any_evidence = True
+
+    # Skip optimization: if no additional evidence found, return findings as-is
+    if not has_any_evidence:
+        return error_findings, 0, 0
+
+    # Build user prompt
+    relative_path = doc_path.relative_to(config.root_path) if doc_path.is_absolute() else doc_path
+
+    user_parts: list[str] = []
+    user_parts.append(f"## Document: `{relative_path}`\n")
+
+    # Include truncated doc content for context
+    doc_preview = doc_content[:5000]
+    if len(doc_content) > 5000:
+        doc_preview += "\n[... truncated ...]"
+    user_parts.append(f"```\n{doc_preview}\n```\n")
+
+    user_parts.append("## Error findings to verify\n")
+    for i, finding in enumerate(error_findings):
+        user_parts.append(
+            f"### Finding {i}: [{finding.category}] {finding.description}\n"
+            f"- Evidence from: `{finding.shadow_ref}`\n"
+            f"- Evidence quote: {finding.evidence}\n"
+            f"- Search terms: {finding.search_terms}\n"
+        )
+
+    user_parts.append("## Additional project evidence (from grep)\n")
+    for i, finding in enumerate(error_findings):
+        evidence = all_evidence[i]
+        if evidence:
+            user_parts.append(f"### Evidence for Finding {i} (search terms: {finding.search_terms})\n")
+            for file_path, excerpt in evidence:
+                user_parts.append(f"**`{file_path}`:**\n```\n{excerpt}\n```\n")
+        else:
+            user_parts.append(f"### Evidence for Finding {i}: No additional evidence found.\n")
+
+    user_parts.append(
+        f"Provide a verdict for EVERY finding (indices 0 through {len(error_findings) - 1}) "
+        "using the verify_doc_finding tool."
+    )
+
+    # Build completeness validator
+    expected_indices = set(range(len(error_findings)))
+
+    def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
+        if tool_name != "verify_doc_finding":
+            return []
+        verdicts = tool_input.get("verdicts", [])
+        got_indices = {v.get("finding_index") for v in verdicts}
+        missing = expected_indices - got_indices
+        return [f"Missing verdict for finding index {idx}" for idx in sorted(missing)]
+
+    result = await provider.complete(
+        messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
+        system=_VERIFY_SYSTEM_PROMPT,
+        options=CompletionOptions(
+            model=VERIFY_MODEL,
+            max_tokens=max(1024, len(error_findings) * 300),
+            tools=get_verify_doc_finding_tool_definitions(),
+            tool_choice={"type": "tool", "name": "verify_doc_finding"},
+            tool_input_validators=[check_completeness],
+        ),
+    )
+
+    # Process verdicts
+    verified: list[DocFinding] = list(error_findings)  # start with originals
+    for tool_call in result.tool_calls:
+        if tool_call.name == "verify_doc_finding":
+            for verdict in tool_call.input.get("verdicts", []):
+                idx = verdict.get("finding_index")
+                action = verdict.get("action", "upheld")
+                if idx is None or idx < 0 or idx >= len(error_findings):
+                    continue
+
+                if action == "retracted":
+                    verified[idx] = None  # type: ignore[assignment]
+                elif action == "downgraded":
+                    original = error_findings[idx]
+                    verified[idx] = DocFinding(
+                        category=original.category,
+                        severity="warning",
+                        description=original.description,
+                        shadow_ref=original.shadow_ref,
+                        evidence=original.evidence,
+                        remediation=original.remediation,
+                        search_terms=original.search_terms,
+                    )
+                # "upheld" -> keep as-is
+
+    # Filter out retracted (None) entries
+    return (
+        [f for f in verified if f is not None],
+        result.input_tokens,
+        result.output_tokens,
+    )
 
 
 # --- Orchestration ---
@@ -506,6 +758,17 @@ async def analyze_docs_async(
                     provider, config, doc_path, content, shadow_contexts, rules_text
                 )
                 rate_limiter.record_usage(input_tokens=analyze_in, output_tokens=analyze_out)
+
+                # Tier 4: Verify error-severity findings against full project
+                error_findings = [f for f in analysis.findings if f.severity == "error"]
+                if error_findings:
+                    await rate_limiter.throttle()
+                    verified, v_in, v_out = await _verify_error_findings_async(
+                        provider, config, doc_path, content, error_findings
+                    )
+                    rate_limiter.record_usage(input_tokens=v_in, output_tokens=v_out)
+                    non_errors = [f for f in analysis.findings if f.severity != "error"]
+                    analysis.findings = non_errors + verified
 
                 # Attach topic signature from Haiku matching
                 analysis.topic_signature = doc_topic_signature

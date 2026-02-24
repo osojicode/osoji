@@ -54,6 +54,15 @@ DEFAULT_IGNORE_PATTERNS: set[str] = {
     ".nyc_output",
     # Legacy package managers
     "bower_components",
+    # Lock files (large, machine-generated)
+    "package-lock.json",
+    "yarn.lock",
+    "pnpm-lock.yaml",
+    "Cargo.lock",
+    "poetry.lock",
+    "Pipfile.lock",
+    "composer.lock",
+    "Gemfile.lock",
 }
 
 # Documentation file detection settings
@@ -99,6 +108,13 @@ DEFAULT_EXTENSIONS: set[str] = {
     ".sql",
     ".vue",
     ".svelte",
+    # Metadata / config files
+    ".toml",
+    ".yaml",
+    ".yml",
+    ".json",
+    ".cfg",
+    ".ini",
 }
 
 # Shadow doc output directory name
