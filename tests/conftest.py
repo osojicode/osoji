@@ -49,7 +49,7 @@ def temp_git_repo(temp_dir):
 def sample_file_with_path(temp_dir):
     """Create a sample file containing a personal path."""
     file_path = temp_dir / "config.py"
-    file_path.write_text('DATABASE_PATH = "C:\\Users\\johnf\\data\\db.sqlite"\n')
+    file_path.write_text('DATABASE_PATH = "C:\\Users\\jsmith\\data\\db.sqlite"\n')
     return file_path
 
 

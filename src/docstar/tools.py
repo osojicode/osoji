@@ -308,21 +308,6 @@ Report findings with evidence from shadow docs. Empty findings array if no issue
 }
 
 
-def get_file_tools() -> list[dict]:
-    """Return tools for file shadow doc generation."""
-    return [SUBMIT_SHADOW_DOC_TOOL]
-
-
-def get_directory_tools() -> list[dict]:
-    """Return tools for directory shadow doc generation."""
-    return [SUBMIT_DIRECTORY_SHADOW_DOC_TOOL]
-
-
-def get_match_doc_topics_tools() -> list[dict]:
-    """Return tools for doc topic matching."""
-    return [MATCH_DOC_TOPICS_TOOL]
-
-
 # Tool definition for dead code verification (batch: array of verdicts)
 VERIFY_DEAD_CODE_TOOL = {
     "name": "verify_dead_code",
@@ -347,6 +332,9 @@ VERIFY_DEAD_CODE_TOOL = {
 - **Overrides**: Abstract method implementations, interface conformance
 - **Trait implementations**: Rust impl Trait for Type — invoked implicitly
 - **FFI / generated code**: #[derive], #[no_mangle], extern "C" exports
+- **Within-file transitive liveness**: A class/type used by other symbols in the same file
+  that ARE externally referenced (dataclass returned by a public function, internal helper
+  type used by exported API)
 
 Set is_dead=True only if the symbol has no plausible alive pathway.
 Provide a verdict for EVERY symbol listed.""",
@@ -388,11 +376,6 @@ Provide a verdict for EVERY symbol listed.""",
         "required": ["verdicts"],
     },
 }
-
-
-def get_dead_code_tools() -> list[dict]:
-    """Return tools for dead code verification."""
-    return [VERIFY_DEAD_CODE_TOOL]
 
 
 def _dict_to_tool_definition(tool_dict: dict[str, Any]) -> ToolDefinition:
@@ -474,11 +457,6 @@ Provide a verdict for EVERY finding listed.""",
         "required": ["verdicts"],
     },
 }
-
-
-def get_verify_doc_finding_tools() -> list[dict]:
-    """Return tools for doc finding verification."""
-    return [VERIFY_DOC_FINDING_TOOL]
 
 
 def get_verify_doc_finding_tool_definitions() -> list[ToolDefinition]:
@@ -596,16 +574,6 @@ Key distinctions:
         "required": ["is_actuated", "confidence", "trace", "remediation"],
     },
 }
-
-
-def get_extract_obligations_tools() -> list[dict]:
-    """Return tools for obligation extraction."""
-    return [EXTRACT_OBLIGATIONS_TOOL]
-
-
-def get_verify_actuation_tools() -> list[dict]:
-    """Return tools for actuation verification."""
-    return [VERIFY_ACTUATION_TOOL]
 
 
 def get_extract_obligations_tool_definitions() -> list[ToolDefinition]:

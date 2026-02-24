@@ -18,7 +18,7 @@ class TestCheckFile:
     def test_finds_personal_path(self, temp_dir):
         """Should detect personal paths in a file."""
         test_file = temp_dir / "config.py"
-        test_file.write_text('PATH = "/home/johnf/projects"')
+        test_file.write_text('PATH = "/home/jsmith/projects"')
 
         result = check_file(test_file)
 
@@ -60,7 +60,7 @@ class TestCheckFile:
         test_file = temp_dir / "config.py"
         test_file.write_text(
             """
-PATH1 = "/home/johnf/data"
+PATH1 = "/home/jsmith/data"
 PATH2 = "C:\\Users\\alice\\docs"
 """
         )
@@ -85,7 +85,7 @@ class TestCheckFiles:
 
     def test_aggregates_findings(self, temp_dir):
         """Should aggregate findings from multiple files."""
-        (temp_dir / "a.py").write_text('x = "/home/johnf/a"')
+        (temp_dir / "a.py").write_text('x = "/home/jsmith/a"')
         (temp_dir / "b.py").write_text('y = "/home/alice/b"')
 
         result = check_files([temp_dir / "a.py", temp_dir / "b.py"])
@@ -212,9 +212,9 @@ class TestFormatCheckResult:
                 PathFinding(
                     file=Path("config.py"),
                     line_number=15,
-                    line_content='PATH = "/home/johnf/"',
+                    line_content='PATH = "/home/jsmith/"',
                     pattern_name="unix_home",
-                    match="/home/johnf/",
+                    match="/home/jsmith/",
                 )
             ],
         )

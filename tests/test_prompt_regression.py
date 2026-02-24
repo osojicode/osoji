@@ -107,3 +107,70 @@ async def test_case_001_wrapper_pattern(tmp_path):
                 )
     finally:
         await provider.close()
+
+
+@pytest.mark.prompt_regression
+@pytest.mark.asyncio
+async def test_case_002_internal_dataclass(tmp_path):
+    """audit.py: internal dataclasses used by externally-referenced functions must be alive.
+
+    Regression test for false positives on AuditIssue and AuditResult — dataclasses
+    with zero external references that are transitively alive through run_audit etc.
+    """
+    case_dir = FIXTURES_DIR / "dead_code" / "case_002_internal_dataclass"
+    expected = json.loads((case_dir / "expected.json").read_text())
+
+    config = _setup_case_dir(tmp_path, case_dir)
+
+    # Step 1: Verify scanner-level transitive liveness filter
+    zero_refs, low_refs = scan_references(config)
+    zero_ref_names = {c.name for c in zero_refs}
+
+    # AuditIssue and AuditResult should be filtered out by transitive liveness
+    for alive_name in expected["alive"]:
+        assert alive_name not in zero_ref_names, (
+            f"Transitive liveness filter missed {alive_name} — "
+            f"it should NOT be a zero-ref candidate"
+        )
+
+    # Step 2: Also verify LLM handles this correctly (belt-and-suspenders)
+    # Manually create candidates as if the scanner filter didn't exist
+    provider = create_provider("anthropic")
+    try:
+        audit_path = tmp_path / "src" / "docstar" / "audit.py"
+        file_content = audit_path.read_text(errors="ignore")
+
+        candidates = [
+            DeadCodeCandidate(
+                source_path="src/docstar/audit.py",
+                name=name,
+                kind="class",
+                line_start={"AuditIssue": 19, "AuditResult": 32}[name],
+                line_end={"AuditIssue": 30, "AuditResult": 50}[name],
+                ref_count=0,
+            )
+            for name in expected["alive"]
+        ]
+
+        verifications, _, _ = await _verify_batch_async(
+            provider, config, candidates,
+            file_content, "", {},
+        )
+
+        result_by_name = {v.name: v for v in verifications}
+
+        for alive_name in expected["alive"]:
+            if alive_name in result_by_name:
+                assert not result_by_name[alive_name].is_dead, (
+                    f"Expected {alive_name} to be alive but LLM said dead: "
+                    f"{result_by_name[alive_name].reason}"
+                )
+
+        for dead_name in expected["dead"]:
+            if dead_name in result_by_name:
+                assert result_by_name[dead_name].is_dead, (
+                    f"Expected {dead_name} to be dead but LLM said alive: "
+                    f"{result_by_name[dead_name].reason}"
+                )
+    finally:
+        await provider.close()

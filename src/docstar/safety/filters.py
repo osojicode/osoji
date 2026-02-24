@@ -152,6 +152,17 @@ def should_check_file(file_path: Path) -> bool:
     Returns:
         True if the file should be checked
     """
+    # Skip the safety module's own test infrastructure.
+    # These files intentionally contain example personal paths to test detection.
+    # The test suite is the inverted check: the commit should be blocked if the
+    # detector FAILS to find them, not if it succeeds.  pytest provides that
+    # guarantee, so we skip them here to avoid circular blocking.
+    parts_lower = [p.lower() for p in file_path.parts]
+    if "safety" in parts_lower:
+        name_lower = file_path.name.lower()
+        if name_lower == "paths.py" or name_lower.startswith("test_"):
+            return False
+
     # Skip binary extensions
     suffix_lower = file_path.suffix.lower()
     if suffix_lower in BINARY_EXTENSIONS:

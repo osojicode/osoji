@@ -171,6 +171,77 @@ def scan_references(
             sym_ref_counts[(source_norm, name)] = external_count
             sym_entries.append((source_norm, sym))
 
+    # --- Transitive liveness: filter out zero-ref symbols that are used
+    #     within the same file by symbols with external refs > 0 ---
+    # A symbol is transitively alive if it is referenced within its own file
+    # by another symbol that has external refs > 0 (or is itself transitively alive).
+
+    # Build per-file symbol data
+    file_sym_data: dict[str, list[tuple[str, int, int | None]]] = {}
+    for source_norm, sym in sym_entries:
+        file_sym_data.setdefault(source_norm, []).append(
+            (sym["name"], sym["line_start"], sym.get("line_end"))
+        )
+
+    # Only process files that have at least one zero-ref candidate
+    zero_ref_files = {
+        sn
+        for (sn, _name), count in sym_ref_counts.items()
+        if count == 0
+    }
+
+    transitively_alive: set[tuple[str, str]] = set()  # (file, name)
+
+    for fpath in zero_ref_files:
+        symbols_in_file = file_sym_data.get(fpath)
+        if not symbols_in_file or len(symbols_in_file) < 2:
+            continue
+
+        cached_lines = file_lines_cache.get(fpath)
+        if not cached_lines:
+            continue
+
+        # Build regex for just this file's symbols
+        sym_names_in_file = {s[0] for s in symbols_in_file}
+        sorted_file_names = sorted(sym_names_in_file, key=len, reverse=True)
+        file_pattern = re.compile(
+            r"\b(" + "|".join(re.escape(n) for n in sorted_file_names) + r")\b"
+        )
+
+        # Build within-file reference graph: uses[A] = {B, C} means A's body
+        # contains references to symbols B and C
+        uses: dict[str, set[str]] = {s[0]: set() for s in symbols_in_file}
+
+        for sym_name, line_start, line_end in symbols_in_file:
+            start_idx = line_start - 1  # 0-indexed
+            end_idx = line_end if line_end else line_start  # 1-indexed inclusive
+
+            for line_idx in range(start_idx, min(end_idx, len(cached_lines))):
+                for m in file_pattern.finditer(cached_lines[line_idx]):
+                    referenced = m.group(1)
+                    if referenced != sym_name:
+                        uses[sym_name].add(referenced)
+
+        # Seeds: symbols with external refs > 0
+        alive: set[str] = set()
+        for sym_name, _, _ in symbols_in_file:
+            if sym_ref_counts.get((fpath, sym_name), 0) > 0:
+                alive.add(sym_name)
+
+        # BFS propagation: if alive symbol uses another, that symbol is alive too
+        queue = list(alive)
+        while queue:
+            current = queue.pop()
+            for referenced in uses.get(current, set()):
+                if referenced not in alive:
+                    alive.add(referenced)
+                    queue.append(referenced)
+
+        # Record zero-ref symbols that are transitively alive
+        for sym_name in alive:
+            if sym_ref_counts.get((fpath, sym_name), 0) == 0:
+                transitively_alive.add((fpath, sym_name))
+
     # Compute 10th percentile of non-zero reference counts
     non_zero_counts = [c for c in sym_ref_counts.values() if c > 0]
     if non_zero_counts:
@@ -186,6 +257,8 @@ def scan_references(
         ext_count = sym_ref_counts[(source_norm, name)]
 
         if ext_count == 0:
+            if (source_norm, name) in transitively_alive:
+                continue  # Skip — transitively alive via within-file usage
             zero_ref.append(DeadCodeCandidate(
                 source_path=source_norm,
                 name=name,
@@ -245,6 +318,9 @@ The symbol has NO grep hits outside its defining file. But it may still be alive
 - Overrides of abstract methods or interface conformance
 - Trait implementations (Rust: impl Trait for Type — invoked implicitly, no direct call site)
 - #[derive], #[no_mangle], extern "C", FFI exports — used by generated code or foreign callers
+- Within-file transitive liveness: a class/type instantiated or referenced by other symbols
+  in the SAME file that ARE externally referenced (e.g. a dataclass returned by a public
+  function — the class itself has no imports but is alive through the function's API)
 
 ## Decision rule for zero-reference symbols
 If a zero-reference symbol does not match ANY of the liveness patterns above, it IS dead code.
@@ -255,6 +331,8 @@ Do not invent other reasons to keep it alive. Specifically:
   references, it's dead regardless of what it wraps
 - "It might be part of the public API" is NOT valid without an explicit export mechanism
 - "It returns something that is used" is NOT valid — the function must itself be called
+- "It is used within the same file" IS a valid reason IF the using symbol has external
+  references — this is transitive liveness through return types and internal data structures
 
 ## For low-reference symbols (few external grep hits)
 Each grep hit has ±5 lines of context. Judge whether each hit is a real usage or a false positive:
