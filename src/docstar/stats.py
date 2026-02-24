@@ -75,38 +75,6 @@ class ProjectStats:
 
 
 
-def count_tokens_offline(text: str) -> int:
-    """Count tokens using offline estimation (character-based).
-
-    Use when API access is not available or for quick estimates.
-
-    Args:
-        text: Text to count tokens for
-
-    Returns:
-        Estimated token count
-    """
-    return estimate_tokens_offline(text)
-
-
-async def count_file_tokens_async(path: Path, counter: TokenCounter) -> int:
-    """Count tokens in a file using Anthropic API.
-
-    Args:
-        path: Path to the file
-        counter: TokenCounter instance
-
-    Returns:
-        Token count, or 0 if file can't be read
-    """
-    try:
-        content = path.read_text(encoding="utf-8")
-        return await counter.count_text_async(content)
-    except Exception:
-        return 0
-
-
-
 def _load_token_cache(config: Config) -> dict:
     """Load the persistent token-count cache from disk.
 
@@ -270,20 +238,6 @@ def gather_stats(config: Config) -> ProjectStats:
         ProjectStats with token counts for all files
     """
     return asyncio.run(gather_stats_async(config, use_api=True))
-
-
-def gather_stats_offline(config: Config) -> ProjectStats:
-    """Gather token statistics using offline estimation.
-
-    Use when API access is not available.
-
-    Args:
-        config: Project configuration
-
-    Returns:
-        ProjectStats with estimated token counts
-    """
-    return asyncio.run(gather_stats_async(config, use_api=False))
 
 
 def format_stats_report(stats: ProjectStats, verbose: bool = False) -> str:

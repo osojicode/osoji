@@ -2,8 +2,8 @@
 
 This module detects personal filesystem paths that should not be committed
 to version control. Common examples include:
-- Windows user directories (C:\\Users\\johnf\\)
-- Unix home directories (/home/johnf/)
+- Windows user directories (C:\\Users\\jsmith\\)
+- Unix home directories (/home/jsmith/)
 - Cloud storage paths (/Dropbox/projects/)
 - Dated project folders (/260124 DOCSTAR/)
 """
@@ -19,13 +19,13 @@ from .models import PathFinding
 # generic/test paths used in examples and CI environments.
 PATTERNS: dict[str, re.Pattern[str]] = {
     # Pattern 1: Windows User Paths
-    # Catches: C:\Users\johnf\, c:/Users/alice/
+    # Catches: C:\Users\jsmith\, c:/Users/alice/
     # Excludes: test, user, example, runner (CI/generic users)
     "windows_user": re.compile(
         r"[Cc]:[\\\/]Users[\\\/](?!test[\\\/]|user[\\\/]|example[\\\/]|runner[\\\/])[a-zA-Z0-9._-]+[\\\/]"
     ),
     # Pattern 2: Unix/Mac Home Directories
-    # Catches: /home/johnf/, /Users/alice/
+    # Catches: /home/jsmith/, /Users/alice/
     # Excludes: test, user, example, runner, ubuntu
     "unix_home": re.compile(
         r"/(?:Users|home)/(?!test/|user/|example/|runner/|ubuntu/)[a-zA-Z0-9._-]+/"
@@ -84,21 +84,6 @@ def check_file_for_paths(file_path: Path) -> list[PathFinding]:
         return []
 
     return _scan_content(content, file_path)
-
-
-def check_files_for_paths(file_paths: list[Path]) -> list[PathFinding]:
-    """Check multiple files for personal path patterns.
-
-    Args:
-        file_paths: List of file paths to check
-
-    Returns:
-        List of all PathFinding objects across all files
-    """
-    findings: list[PathFinding] = []
-    for file_path in file_paths:
-        findings.extend(check_file_for_paths(file_path))
-    return findings
 
 
 def _scan_content(content: str, file_path: Path) -> list[PathFinding]:

@@ -16,13 +16,13 @@ class TestWindowsUserPaths:
     def test_detects_windows_path_backslash(self, temp_dir):
         """Should detect C:\\Users\\username\\ pattern."""
         test_file = temp_dir / "test.py"
-        test_file.write_text('config = "C:\\Users\\johnf\\projects\\myapp"')
+        test_file.write_text('config = "C:\\Users\\jsmith\\projects\\myapp"')
 
         findings = check_file_for_paths(test_file)
 
         assert len(findings) == 1
         assert findings[0].pattern_name == "windows_user"
-        assert "C:\\Users\\johnf\\" in findings[0].match
+        assert "C:\\Users\\jsmith\\" in findings[0].match
 
     def test_detects_windows_path_forward_slash(self, temp_dir):
         """Should detect C:/Users/username/ pattern."""
@@ -38,7 +38,7 @@ class TestWindowsUserPaths:
     def test_case_insensitive_drive_letter(self, temp_dir):
         """Should detect both C: and c: drive letters."""
         test_file = temp_dir / "test.py"
-        test_file.write_text('path = "c:\\Users\\JohnF\\code"')
+        test_file.write_text('path = "c:\\Users\\JSmith\\code"')
 
         findings = check_file_for_paths(test_file)
 
@@ -78,7 +78,7 @@ class TestUnixHomePaths:
     def test_detects_linux_home(self, temp_dir):
         """Should detect /home/username/ pattern."""
         test_file = temp_dir / "test.py"
-        test_file.write_text('HOME = "/home/johnf/projects"')
+        test_file.write_text('HOME = "/home/jsmith/projects"')
 
         findings = check_file_for_paths(test_file)
 

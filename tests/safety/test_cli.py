@@ -30,7 +30,7 @@ class TestSafetyCheck:
     def test_check_finds_personal_path(self, runner, temp_dir):
         """File with personal path should fail check."""
         test_file = temp_dir / "bad.py"
-        test_file.write_text('PATH = "C:\\Users\\johnf\\data"')
+        test_file.write_text('PATH = "C:\\Users\\jsmith\\data"')
 
         result = runner.invoke(main, ["safety", "check", str(test_file)])
 

@@ -147,7 +147,7 @@ docstar hooks uninstall
 ```
 
 **Installed hooks:**
-- `pre-commit` (default: on): Runs documentation audit and blocks commits if debris is found
+- `pre-commit` (default: on): Runs safety check and documentation audit, blocking commits if either fails
 - `pre-push` (default: on): Warns about stale shadow docs before push
 - `post-commit` (default: off): Reminds to update after commit
 
