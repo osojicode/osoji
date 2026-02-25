@@ -63,13 +63,26 @@ class AuditResult:
         return not self.has_errors
 
 
+def _format_tokens_short(input_tokens: int, output_tokens: int) -> str:
+    """Format token counts compactly, e.g. '42.1K^ 5.3Kv'."""
+    if input_tokens == 0 and output_tokens == 0:
+        return ""
+    def _fmt(n: int) -> str:
+        if n >= 1_000_000:
+            return f"{n / 1_000_000:.1f}M"
+        if n >= 1_000:
+            return f"{n / 1_000:.1f}K"
+        return str(n)
+    return f"{_fmt(input_tokens)}^ {_fmt(output_tokens)}v"
+
+
 def _serialize_json(path: Path, data: dict) -> None:
     """Write a JSON file, creating parent dirs as needed."""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
 
 
-def _make_progress_default(config: Config):
+def _make_progress_default(config: Config, rate_limiter=None):
     """Create an inline progress bar callback (carriage return, same line)."""
     def progress(completed: int, total: int, path: Path, status: str) -> None:
         pct = completed / total * 100 if total > 0 else 0
@@ -81,13 +94,19 @@ def _make_progress_default(config: Config):
         }
         symbol = symbols.get(status, f"[{status}]")
         relative = path.relative_to(config.root_path) if path.is_absolute() else path
-        print(f"\r  [{completed}/{total}] {pct:.0f}% {symbol} {relative.name}\033[K", end="", flush=True)
+        tok_str = ""
+        if rate_limiter:
+            in_tok, out_tok = rate_limiter.get_cumulative_tokens()
+            tok_str = _format_tokens_short(in_tok, out_tok)
+            if tok_str:
+                tok_str = f" {tok_str}"
+        print(f"\r  [{completed}/{total}] {pct:.0f}%{tok_str} {symbol} {relative.name}\033[K", end="", flush=True)
         if completed == total:
             print()
     return progress
 
 
-def _make_progress_verbose(config: Config):
+def _make_progress_verbose(config: Config, rate_limiter=None):
     """Create a verbose progress callback (one line per file)."""
     def progress(completed: int, total: int, path: Path, status: str) -> None:
         symbols = {
@@ -98,7 +117,13 @@ def _make_progress_verbose(config: Config):
         }
         symbol = symbols.get(status, f"[{status}]")
         relative = path.relative_to(config.root_path) if path.is_absolute() else path
-        print(f"  {symbol} {relative}", flush=True)
+        tok_str = ""
+        if rate_limiter:
+            in_tok, out_tok = rate_limiter.get_cumulative_tokens()
+            tok_str = _format_tokens_short(in_tok, out_tok)
+            if tok_str:
+                tok_str = f" {tok_str}"
+        print(f"  {symbol}{tok_str} {relative}", flush=True)
     return progress
 
 
@@ -181,11 +206,11 @@ def run_audit(
         verbose: If True, show detailed per-file progress and timing
     """
     issues: list[AuditIssue] = []
-    progress_cb = _make_progress_verbose(config) if verbose else _make_progress_default(config)
     docstarignore = config.load_docstarignore()
 
     # Shared rate limiter across all phases so token budgets are tracked globally
     rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
+    progress_cb = _make_progress_verbose(config, rate_limiter) if verbose else _make_progress_default(config, rate_limiter)
 
     # Clean stale analysis directory (fresh each run)
     analysis_root = config.analysis_root
@@ -333,6 +358,12 @@ def run_audit(
         junk_results=junk_results if junk_results else None,
     )
     _serialize_json(config.scorecard_path, asdict(scorecard))
+
+    # Print token summary
+    in_tok, out_tok = rate_limiter.get_cumulative_tokens()
+    total_tok = in_tok + out_tok
+    if total_tok > 0:
+        print(f"API tokens: {in_tok:,}^ {out_tok:,}v ({total_tok:,} total)", flush=True)
 
     return AuditResult(issues=issues, scorecard=scorecard)
 

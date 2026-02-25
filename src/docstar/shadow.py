@@ -402,6 +402,19 @@ async def process_file_async(
         return ShadowResult(path=file_path, body="", cached=False, error=str(e))
 
 
+def _format_tokens_short(input_tokens: int, output_tokens: int) -> str:
+    """Format token counts compactly, e.g. '42.1K^ 5.3Kv'."""
+    if input_tokens == 0 and output_tokens == 0:
+        return ""
+    def _fmt(n: int) -> str:
+        if n >= 1_000_000:
+            return f"{n / 1_000_000:.1f}M"
+        if n >= 1_000:
+            return f"{n / 1_000:.1f}K"
+        return str(n)
+    return f"{_fmt(input_tokens)}^ {_fmt(output_tokens)}v"
+
+
 def format_progress_bar(completed: int, total: int, width: int = 30) -> str:
     """Format a visual progress bar like [####......]."""
     if total <= 0:
@@ -410,21 +423,29 @@ def format_progress_bar(completed: int, total: int, width: int = 30) -> str:
     return f"[{'#' * filled}{'.' * (width - filled)}]"
 
 
-def print_progress(completed: int, total: int, path: Path, status: str) -> None:
-    """Print single-line progress update with visual bar."""
-    pct = completed / total * 100 if total > 0 else 0
-    bar = format_progress_bar(completed, total)
-    symbols = {
-        "cached": "[cached]",
-        "generated": "[OK]",
-        "error": "[ERROR]",
-        "processing": "[...]",
-        "empty": "[empty]",
-    }
-    symbol = symbols.get(status, "[...]")
-    print(f"\r{bar} {pct:.0f}% [{completed}/{total}] {symbol} {path.name}\033[K", end="", flush=True)
-    if completed == total:
-        print()
+def _make_shadow_progress(token_getter=None):
+    """Create shadow progress callback with optional token display."""
+    def progress(completed: int, total: int, path: Path, status: str) -> None:
+        pct = completed / total * 100 if total > 0 else 0
+        bar = format_progress_bar(completed, total)
+        symbols = {
+            "cached": "[cached]",
+            "generated": "[OK]",
+            "error": "[ERROR]",
+            "processing": "[...]",
+            "empty": "[empty]",
+        }
+        symbol = symbols.get(status, "[...]")
+        tok_str = ""
+        if token_getter:
+            in_tok, out_tok = token_getter()
+            tok_str = _format_tokens_short(in_tok, out_tok)
+            if tok_str:
+                tok_str = f" {tok_str}"
+        print(f"\r{bar} {pct:.0f}%{tok_str} [{completed}/{total}] {symbol} {path.name}\033[K", end="", flush=True)
+        if completed == total:
+            print()
+    return progress
 
 
 async def generate_shadows_parallel(
@@ -765,14 +786,18 @@ async def generate_shadow_docs_async(
         import time as time_module
         file_start = time_module.monotonic()
         print("\nProcessing files:", flush=True)
-        progress_callback = print_progress if not verbose else None
+        token_getter = lambda: (logging_provider.stats.total_input_tokens, logging_provider.stats.total_output_tokens)
+        progress_callback = _make_shadow_progress(token_getter) if not verbose else None
 
         if verbose:
             # In verbose mode, print each file on its own line
             def verbose_progress(completed: int, total: int, path: Path, status: str) -> None:
                 relative = path.relative_to(config.root_path)
                 symbols = {"cached": "[cached]", "generated": "[OK]", "error": "[ERROR]"}
-                print(f"  {symbols.get(status, '[...]')} {relative}", flush=True)
+                in_tok, out_tok = token_getter()
+                tok_str = _format_tokens_short(in_tok, out_tok)
+                tok_suffix = f" {tok_str}" if tok_str else ""
+                print(f"  {symbols.get(status, '[...]')}{tok_suffix} {relative}", flush=True)
 
             progress_callback = verbose_progress
 
@@ -794,7 +819,7 @@ async def generate_shadow_docs_async(
         # Directory roll-ups (dependency-based parallelism)
         dir_start = time_module.monotonic()
         print("\nRolling up directories:", flush=True)
-        dir_progress_callback = print_progress if not verbose else None
+        dir_progress_callback = _make_shadow_progress(token_getter) if not verbose else None
 
         if verbose:
             def verbose_dir_progress(completed: int, total: int, path: Path, status: str) -> None:
@@ -802,7 +827,10 @@ async def generate_shadow_docs_async(
                 if relative == Path("."):
                     relative = Path("(root)")
                 symbols = {"cached": "[cached]", "generated": "[OK]", "error": "[ERROR]", "empty": "[empty]", "processing": "[...]"}
-                print(f"  {symbols.get(status, '[...]')} {relative}/", flush=True)
+                in_tok, out_tok = token_getter()
+                tok_str = _format_tokens_short(in_tok, out_tok)
+                tok_suffix = f" {tok_str}" if tok_str else ""
+                print(f"  {symbols.get(status, '[...]')}{tok_suffix} {relative}/", flush=True)
 
             dir_progress_callback = verbose_dir_progress
 
