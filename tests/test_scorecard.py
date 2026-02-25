@@ -9,6 +9,7 @@ from docstar.config import Config
 from docstar.debris import DocAnalysisResult, DocFinding
 from docstar.deadcode import DeadCodeVerification
 from docstar.plumbing import PlumbingResult, PlumbingVerification
+from docstar.junk import JunkAnalysisResult, JunkFinding
 from docstar.scorecard import (
     Scorecard,
     build_scorecard,
@@ -510,6 +511,145 @@ class TestEnforcement:
         assert sc.enforcement_unactuated == 0
         assert sc.enforcement_pct_unactuated == 0.0
         assert sc.enforcement_by_schema == {}
+
+
+# --- Junk results (unified) ---
+
+class TestJunkResults:
+    def test_junk_via_junk_results_dict(self, temp_dir):
+        """junk_results dict feeds into junk aggregation."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_shadow(temp_dir, "src/a.py")
+        _write_source(temp_dir, "src/a.py", "\n".join(f"line {i}" for i in range(20)))
+
+        junk_results = {
+            "dead_code": JunkAnalysisResult(
+                findings=[
+                    JunkFinding(
+                        source_path="src/a.py", name="old_func", kind="function",
+                        category="dead_symbol", line_start=5, line_end=10,
+                        confidence=0.9, reason="unused", remediation="remove",
+                        original_purpose="function `old_func`",
+                    ),
+                ],
+                total_candidates=3,
+                analyzer_name="dead_code",
+            ),
+        }
+        sc = build_scorecard(config, [], junk_results=junk_results)
+        assert sc.junk_total_lines == 6  # lines 5-10
+        assert "dead_code" in sc.junk_sources
+
+    def test_junk_results_with_plumbing(self, temp_dir):
+        """junk_results with dead_plumbing populates enforcement metrics."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_shadow(temp_dir, "src/schema.ts")
+        _write_source(temp_dir, "src/schema.ts", "\n".join(f"line {i}" for i in range(20)))
+
+        junk_results = {
+            "dead_plumbing": JunkAnalysisResult(
+                findings=[
+                    JunkFinding(
+                        source_path="src/schema.ts", name="taskTimeoutMs",
+                        kind="config_field", category="unactuated_config",
+                        line_start=5, line_end=5, confidence=0.9,
+                        reason="not enforced", remediation="add timer",
+                        original_purpose="field `taskTimeoutMs` in `Schema`",
+                        metadata={"schema_name": "Schema", "trace": "not enforced"},
+                    ),
+                ],
+                total_candidates=3,
+                analyzer_name="dead_plumbing",
+            ),
+        }
+        sc = build_scorecard(config, [], junk_results=junk_results)
+        assert sc.enforcement_total_obligations == 3
+        assert sc.enforcement_unactuated == 1
+        assert "dead_plumbing" in sc.junk_sources
+
+    def test_junk_results_enforcement_by_schema(self, temp_dir):
+        """Enforcement by schema groups correctly from junk_results."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        junk_results = {
+            "dead_plumbing": JunkAnalysisResult(
+                findings=[
+                    JunkFinding(
+                        source_path="src/schema.ts", name="taskTimeoutMs",
+                        kind="config_field", category="unactuated_config",
+                        line_start=5, line_end=5, confidence=0.9,
+                        reason="not enforced", remediation="add timer",
+                        original_purpose="field `taskTimeoutMs` in `TrialSettings`",
+                        metadata={"schema_name": "TrialSettings", "trace": "not enforced"},
+                    ),
+                    JunkFinding(
+                        source_path="src/schema.ts", name="maxRetries",
+                        kind="config_field", category="unactuated_config",
+                        line_start=6, line_end=6, confidence=0.85,
+                        reason="not enforced", remediation="add retry logic",
+                        original_purpose="field `maxRetries` in `TrialSettings`",
+                        metadata={"schema_name": "TrialSettings", "trace": "not enforced"},
+                    ),
+                ],
+                total_candidates=5,
+                analyzer_name="dead_plumbing",
+            ),
+        }
+        sc = build_scorecard(config, [], junk_results=junk_results)
+        assert "src/schema.ts:TrialSettings" in sc.enforcement_by_schema
+        ts = sc.enforcement_by_schema["src/schema.ts:TrialSettings"]
+        assert ts["unactuated"] == 2
+        assert set(ts["fields"]) == {"taskTimeoutMs", "maxRetries"}
+
+    def test_backward_compat_old_params_still_work(self, temp_dir):
+        """Old dead_code_results and plumbing_result params still work."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_shadow(temp_dir, "src/a.py")
+        _write_source(temp_dir, "src/a.py", "\n".join(f"line {i}" for i in range(20)))
+
+        dead_code = [
+            DeadCodeVerification(
+                source_path="src/a.py", name="old_func", kind="function",
+                line_start=5, line_end=10, is_dead=True, confidence=0.9,
+                reason="unused", remediation="remove",
+            ),
+        ]
+        sc = build_scorecard(config, [], dead_code_results=dead_code)
+        assert sc.junk_total_lines == 6
+        assert "dead_symbol" in sc.junk_sources
+
+    def test_junk_results_takes_precedence_over_old_params(self, temp_dir):
+        """When both junk_results and old params provided, junk_results wins."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_shadow(temp_dir, "src/a.py")
+        _write_source(temp_dir, "src/a.py", "\n".join(f"line {i}" for i in range(20)))
+
+        junk_results = {
+            "dead_code": JunkAnalysisResult(
+                findings=[
+                    JunkFinding(
+                        source_path="src/a.py", name="new_finding", kind="function",
+                        category="dead_symbol", line_start=1, line_end=2,
+                        confidence=0.95, reason="unused new", remediation="remove",
+                        original_purpose="function `new_finding`",
+                    ),
+                ],
+                total_candidates=1,
+                analyzer_name="dead_code",
+            ),
+        }
+        old_dead_code = [
+            DeadCodeVerification(
+                source_path="src/a.py", name="old_finding", kind="function",
+                line_start=5, line_end=10, is_dead=True, confidence=0.9,
+                reason="unused old", remediation="remove",
+            ),
+        ]
+        # Pass both — junk_results should take precedence
+        sc = build_scorecard(config, [], junk_results=junk_results, dead_code_results=old_dead_code)
+        # Should only have 2 lines (from junk_results), not 6 (from old params)
+        assert sc.junk_total_lines == 2
+        # dead_symbol should appear only once in sources
+        assert sc.junk_sources.count("dead_code") == 1
 
 
 # --- Empty audit ---

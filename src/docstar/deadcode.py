@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Callable
 
 from .config import Config
+from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content
 from .llm.base import LLMProvider
 from .llm.factory import create_provider
 from .llm.logging import LoggingProvider
@@ -464,13 +465,7 @@ async def _verify_batch_async(
 
 def _load_shadow_content(config: Config, relative_path: str) -> str:
     """Load shadow doc content for a relative source path."""
-    shadow_path = config.shadow_root / (relative_path + ".shadow.md")
-    if shadow_path.exists():
-        try:
-            return shadow_path.read_text(encoding="utf-8")
-        except OSError:
-            pass
-    return ""
+    return load_shadow_content(config, relative_path)
 
 
 async def detect_dead_code_async(
@@ -646,3 +641,42 @@ def detect_dead_code(
             await logging_provider.close()
 
     return asyncio.run(_run())
+
+
+class DeadCodeAnalyzer(JunkAnalyzer):
+    """Junk analyzer that detects cross-file dead code (unused symbols)."""
+
+    @property
+    def name(self) -> str:
+        return "dead_code"
+
+    @property
+    def description(self) -> str:
+        return "Detect cross-file dead code (unused symbols)"
+
+    @property
+    def cli_flag(self) -> str:
+        return "dead-code"
+
+    async def analyze_async(self, provider, rate_limiter, config, on_progress=None):
+        results = await detect_dead_code_async(provider, rate_limiter, config, on_progress)
+        findings = [
+            JunkFinding(
+                source_path=v.source_path,
+                name=v.name,
+                kind=v.kind,
+                category="dead_symbol",
+                line_start=v.line_start,
+                line_end=v.line_end,
+                confidence=v.confidence,
+                reason=v.reason,
+                remediation=v.remediation,
+                original_purpose=f"{v.kind} `{v.name}`",
+            )
+            for v in results if v.is_dead
+        ]
+        return JunkAnalysisResult(
+            findings=findings,
+            total_candidates=len(results),
+            analyzer_name=self.name,
+        )

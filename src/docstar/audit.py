@@ -7,13 +7,27 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 from .config import Config
+from .junk import JunkAnalyzer, JunkAnalysisResult
+from .deadcode import DeadCodeAnalyzer
+from .plumbing import DeadPlumbingAnalyzer
+from .junk_deps import DeadDepsAnalyzer
+from .junk_cicd import DeadCICDAnalyzer
+from .junk_orphan import OrphanedFilesAnalyzer
 from .rate_limiter import RateLimiter, get_config_with_overrides
 from .shadow import check_shadow_docs, generate_shadow_docs
 from .debris import analyze_docs
-from .deadcode import detect_dead_code
-from .plumbing import detect_dead_plumbing
 from .scorecard import Scorecard, build_scorecard
 from .walker import _matches_ignore
+
+
+# Registry of all junk analyzers. New analyzers are added here.
+JUNK_ANALYZERS: list[type[JunkAnalyzer]] = [
+    DeadCodeAnalyzer,
+    DeadPlumbingAnalyzer,
+    DeadDepsAnalyzer,
+    DeadCICDAnalyzer,
+    OrphanedFilesAnalyzer,
+]
 
 
 @dataclass
@@ -88,11 +102,69 @@ def _make_progress_verbose(config: Config):
     return progress
 
 
+def _resolve_enabled_flags(
+    dead_code: bool = False,
+    dead_plumbing: bool = False,
+    dead_deps: bool = False,
+    dead_cicd: bool = False,
+    orphaned_files: bool = False,
+    junk: bool = False,
+) -> set[str]:
+    """Map boolean parameters to a set of CLI flag strings for enabled analyzers.
+
+    --junk enables all analyzers. Individual flags enable specific ones.
+    """
+    if junk:
+        return {a().cli_flag for a in JUNK_ANALYZERS}
+    flags: set[str] = set()
+    if dead_code:
+        flags.add("dead-code")
+    if dead_plumbing:
+        flags.add("dead-plumbing")
+    if dead_deps:
+        flags.add("dead-deps")
+    if dead_cicd:
+        flags.add("dead-cicd")
+    if orphaned_files:
+        flags.add("orphaned-files")
+    return flags
+
+
+def _serialize_junk_results(config: Config, analyzer_name: str, result: JunkAnalysisResult) -> None:
+    """Serialize junk analysis results grouped by source file."""
+    by_source: dict[str, list[dict]] = {}
+    for item in result.findings:
+        key = item.source_path.replace("\\", "/")
+        by_source.setdefault(key, []).append({
+            "name": item.name,
+            "kind": item.kind,
+            "category": item.category,
+            "line_start": item.line_start,
+            "line_end": item.line_end,
+            "confidence": item.confidence,
+            "reason": item.reason,
+            "remediation": item.remediation,
+            "original_purpose": item.original_purpose,
+            "metadata": item.metadata,
+        })
+    for source_path, findings in by_source.items():
+        out_path = config.analysis_junk_path_for(analyzer_name, Path(source_path))
+        _serialize_json(out_path, {
+            "source_path": source_path,
+            "analyzer": analyzer_name,
+            "findings": findings,
+        })
+
+
 def run_audit(
     config: Config,
     fix_shadow: bool = True,
     dead_code: bool = False,
     dead_plumbing: bool = False,
+    dead_deps: bool = False,
+    dead_cicd: bool = False,
+    orphaned_files: bool = False,
+    junk: bool = False,
     verbose: bool = False,
 ) -> AuditResult:
     """Run a complete documentation audit.
@@ -102,6 +174,10 @@ def run_audit(
         fix_shadow: If True, auto-update stale shadow docs (Docstar owns them)
         dead_code: If True, detect cross-file dead code (LLM calls for ambiguous candidates)
         dead_plumbing: If True, detect unactuated config obligations (LLM calls)
+        dead_deps: If True, detect unused package dependencies (LLM calls)
+        dead_cicd: If True, detect stale CI/CD pipeline elements (LLM calls)
+        orphaned_files: If True, detect orphaned source files (LLM calls)
+        junk: If True, run all junk analysis phases
         verbose: If True, show detailed per-file progress and timing
     """
     issues: list[AuditIssue] = []
@@ -221,99 +297,40 @@ def run_audit(
         elapsed = time_module.monotonic() - phase_start
         print(f"  [{elapsed:.1f}s]", flush=True)
 
-    # 4. Cross-file dead code detection (opt-in)
-    dead_code_results = None
-    if dead_code:
-        print("Docstar: Scanning for cross-file dead code...", flush=True)
+    # 4. Unified junk analysis (opt-in per analyzer)
+    junk_results: dict[str, JunkAnalysisResult] = {}
+    enabled_flags = _resolve_enabled_flags(dead_code=dead_code, dead_plumbing=dead_plumbing, dead_deps=dead_deps, dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk)
+
+    for analyzer_cls in JUNK_ANALYZERS:
+        analyzer = analyzer_cls()
+        if analyzer.cli_flag not in enabled_flags:
+            continue
+        print(f"Docstar: Running {analyzer.description}...", flush=True)
         phase_start = time_module.monotonic()
-        dead_code_results = detect_dead_code(config, on_progress=progress_cb, rate_limiter=rate_limiter)
+        result = analyzer.analyze(config, on_progress=progress_cb, rate_limiter=rate_limiter)
+        junk_results[analyzer.name] = result
         if verbose:
             elapsed = time_module.monotonic() - phase_start
             print(f"  [{elapsed:.1f}s]", flush=True)
-        for item in dead_code_results:
+
+        for item in result.findings:
             issues.append(AuditIssue(
                 path=Path(item.source_path),
                 severity="warning",
-                category="cross_file_dead_code",
+                category=item.category,
                 message=f"L{item.line_start}: {item.kind} `{item.name}` — {item.reason}",
                 remediation=item.remediation,
                 line_start=item.line_start,
                 line_end=item.line_end,
             ))
+        _serialize_junk_results(config, analyzer.name, result)
 
-        # Serialize Phase 4 results (group by source_path)
-        by_source: dict[str, list] = {}
-        for item in dead_code_results:
-            key = item.source_path.replace("\\", "/")
-            if key not in by_source:
-                by_source[key] = []
-            by_source[key].append({
-                "name": item.name,
-                "kind": item.kind,
-                "line_start": item.line_start,
-                "line_end": item.line_end,
-                "is_dead": item.is_dead,
-                "confidence": item.confidence,
-                "reason": item.reason,
-                "remediation": item.remediation,
-            })
-        for source_path, verifications in by_source.items():
-            out_path = config.analysis_deadcode_path_for(Path(source_path))
-            _serialize_json(out_path, {
-                "source_path": source_path,
-                "verifications": verifications,
-            })
-
-    # 5. Dead plumbing detection (opt-in)
-    plumbing_result = None
-    if dead_plumbing:
-        print("Docstar: Scanning for unactuated configuration...", flush=True)
-        phase_start = time_module.monotonic()
-        plumbing_result = detect_dead_plumbing(config, on_progress=progress_cb, rate_limiter=rate_limiter)
-        if verbose:
-            elapsed = time_module.monotonic() - phase_start
-            print(f"  [{elapsed:.1f}s]", flush=True)
-        for item in plumbing_result.verifications:
-            issues.append(AuditIssue(
-                path=Path(item.source_path),
-                severity="warning",
-                category="unactuated_config",
-                message=f"L{item.line_start}: field `{item.field_name}` — {item.trace}",
-                remediation=item.remediation,
-                line_start=item.line_start,
-                line_end=item.line_end,
-            ))
-
-        # Serialize Phase 5 results (group by source_path)
-        by_source_p: dict[str, list] = {}
-        for item in plumbing_result.verifications:
-            key = item.source_path.replace("\\", "/")
-            if key not in by_source_p:
-                by_source_p[key] = []
-            by_source_p[key].append({
-                "field_name": item.field_name,
-                "schema_name": item.schema_name,
-                "line_start": item.line_start,
-                "line_end": item.line_end,
-                "is_actuated": item.is_actuated,
-                "confidence": item.confidence,
-                "trace": item.trace,
-                "remediation": item.remediation,
-            })
-        for source_path, verifications in by_source_p.items():
-            out_path = config.analysis_plumbing_path_for(Path(source_path))
-            _serialize_json(out_path, {
-                "source_path": source_path,
-                "verifications": verifications,
-            })
-
-    # 6. Scorecard (always runs)
+    # 5. Scorecard (always runs)
     print("Docstar: Building scorecard...", flush=True)
     scorecard = build_scorecard(
         config,
         analysis_results=analysis_results,
-        dead_code_results=dead_code_results if dead_code else None,
-        plumbing_result=plumbing_result if dead_plumbing else None,
+        junk_results=junk_results if junk_results else None,
     )
     _serialize_json(config.scorecard_path, asdict(scorecard))
 
@@ -400,6 +417,12 @@ def _format_scorecard_section(scorecard: Scorecard) -> list[str]:
         missing.append("`--dead-code`")
     if scorecard.enforcement_total_obligations is None:
         missing.append("`--dead-plumbing`")
+    if "dead_dependency" not in scorecard.junk_sources:
+        missing.append("`--dead-deps`")
+    if "dead_cicd" not in scorecard.junk_sources:
+        missing.append("`--dead-cicd`")
+    if "orphaned_file" not in scorecard.junk_sources:
+        missing.append("`--orphaned-files`")
     if missing:
         lines.append(f"*Phases not run: {', '.join(missing)}. Re-run with those flags for a complete scorecard.*\n")
 

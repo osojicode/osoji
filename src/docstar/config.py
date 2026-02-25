@@ -194,6 +194,11 @@ class Config:
         relative = source_path.relative_to(self.root_path) if source_path.is_absolute() else source_path
         return self.analysis_root / "plumbing" / (str(relative) + ".plumbing.json")
 
+    def analysis_junk_path_for(self, analyzer_name: str, source_path: Path) -> Path:
+        """Return the junk analysis JSON path for a given source file and analyzer."""
+        relative = source_path.relative_to(self.root_path) if source_path.is_absolute() else source_path
+        return self.analysis_root / "junk" / analyzer_name / (str(relative) + f".{analyzer_name}.json")
+
     def signatures_path_for(self, source_path: Path) -> Path:
         """Return the signature JSON path for a given source file."""
         relative = source_path.relative_to(self.root_path) if source_path.is_absolute() else source_path

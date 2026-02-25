@@ -7,6 +7,7 @@ from pathlib import Path
 from .config import Config
 from .debris import DocAnalysisResult
 from .deadcode import DeadCodeVerification
+from .junk import JunkAnalysisResult
 from .plumbing import PlumbingResult, PlumbingVerification
 
 
@@ -97,6 +98,8 @@ def _load_signature(config: Config, source_path: str) -> dict | None:
 def build_scorecard(
     config: Config,
     analysis_results: list[DocAnalysisResult],
+    junk_results: dict[str, JunkAnalysisResult] | None = None,
+    # Backward compat (keep during transition):
     dead_code_results: list[DeadCodeVerification] | None = None,
     plumbing_result: PlumbingResult | None = None,
 ) -> Scorecard:
@@ -198,28 +201,36 @@ def build_scorecard(
             except (json.JSONDecodeError, KeyError, OSError):
                 continue
 
-    # Phase 4: Dead code
-    if dead_code_results is not None:
+    # Unified junk results (new path)
+    if junk_results:
+        for analyzer_name, result in junk_results.items():
+            junk_sources.append(analyzer_name)
+            for item in result.findings:
+                source = item.source_path.replace("\\", "/")
+                junk_items_by_file.setdefault(source, []).append({
+                    "category": item.category,
+                    "line_start": item.line_start,
+                    "line_end": item.line_end or item.line_start,
+                    "source": item.category,
+                })
+
+    # Backward compat: old-style dead_code_results / plumbing_result params
+    if dead_code_results is not None and (not junk_results or "dead_code" not in junk_results):
         junk_sources.append("dead_symbol")
         for item in dead_code_results:
             source = item.source_path.replace("\\", "/")
-            if source not in junk_items_by_file:
-                junk_items_by_file[source] = []
-            junk_items_by_file[source].append({
+            junk_items_by_file.setdefault(source, []).append({
                 "category": "dead_symbol",
                 "line_start": item.line_start,
                 "line_end": item.line_end or item.line_start,
                 "source": "dead_symbol",
             })
 
-    # Phase 5: Dead plumbing
-    if plumbing_result is not None:
+    if plumbing_result is not None and (not junk_results or "dead_plumbing" not in junk_results):
         junk_sources.append("unactuated_config")
         for item in plumbing_result.verifications:
             source = item.source_path.replace("\\", "/")
-            if source not in junk_items_by_file:
-                junk_items_by_file[source] = []
-            junk_items_by_file[source].append({
+            junk_items_by_file.setdefault(source, []).append({
                 "category": "unactuated_config",
                 "line_start": item.line_start,
                 "line_end": item.line_end or item.line_start,
@@ -272,24 +283,42 @@ def build_scorecard(
     junk_file_count = len(junk_items_by_file)
 
     # --- Enforcement ---
-    if plumbing_result is not None:
-        enforcement_total = plumbing_result.total_obligations
-        enforcement_unactuated = len(plumbing_result.verifications)
-        enforcement_pct = (enforcement_unactuated / enforcement_total * 100) if enforcement_total > 0 else 0.0
+    # Try junk_results first, fall back to old plumbing_result param
+    _plumbing_junk = junk_results.get("dead_plumbing") if junk_results else None
+    _has_plumbing = _plumbing_junk is not None or plumbing_result is not None
 
-        # Group by schema
-        enforcement_by_schema: dict[str, dict] = {}
-        for v in plumbing_result.verifications:
-            key = f"{v.source_path}:{v.schema_name}" if v.schema_name else v.source_path
-            if key not in enforcement_by_schema:
-                enforcement_by_schema[key] = {"total": 0, "unactuated": 0, "fields": []}
-            enforcement_by_schema[key]["unactuated"] += 1
-            enforcement_by_schema[key]["fields"].append(v.field_name)
-        # Add total obligations per schema from all_obligations knowledge
-        # We only have unactuated here, so total per schema is approximate
-        # We'll just set total = unactuated for the per-schema view
-        for key in enforcement_by_schema:
-            enforcement_by_schema[key]["total"] = enforcement_by_schema[key]["unactuated"]
+    if _has_plumbing:
+        if _plumbing_junk is not None:
+            # New path: extract from JunkAnalysisResult
+            enforcement_total = _plumbing_junk.total_candidates
+            enforcement_unactuated = len(_plumbing_junk.findings)
+            enforcement_pct = (enforcement_unactuated / enforcement_total * 100) if enforcement_total > 0 else 0.0
+
+            enforcement_by_schema: dict[str, dict] = {}
+            for f in _plumbing_junk.findings:
+                schema_name = f.metadata.get("schema_name", "")
+                key = f"{f.source_path}:{schema_name}" if schema_name else f.source_path
+                if key not in enforcement_by_schema:
+                    enforcement_by_schema[key] = {"total": 0, "unactuated": 0, "fields": []}
+                enforcement_by_schema[key]["unactuated"] += 1
+                enforcement_by_schema[key]["fields"].append(f.name)
+            for key in enforcement_by_schema:
+                enforcement_by_schema[key]["total"] = enforcement_by_schema[key]["unactuated"]
+        else:
+            # Old path: backward compat
+            enforcement_total = plumbing_result.total_obligations
+            enforcement_unactuated = len(plumbing_result.verifications)
+            enforcement_pct = (enforcement_unactuated / enforcement_total * 100) if enforcement_total > 0 else 0.0
+
+            enforcement_by_schema = {}
+            for v in plumbing_result.verifications:
+                key = f"{v.source_path}:{v.schema_name}" if v.schema_name else v.source_path
+                if key not in enforcement_by_schema:
+                    enforcement_by_schema[key] = {"total": 0, "unactuated": 0, "fields": []}
+                enforcement_by_schema[key]["unactuated"] += 1
+                enforcement_by_schema[key]["fields"].append(v.field_name)
+            for key in enforcement_by_schema:
+                enforcement_by_schema[key]["total"] = enforcement_by_schema[key]["unactuated"]
     else:
         enforcement_total = None
         enforcement_unactuated = None
