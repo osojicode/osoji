@@ -87,7 +87,19 @@ docstar audit /path/to/project --dead-code
 # Detect unactuated config/schema obligations
 docstar audit /path/to/project --dead-plumbing
 
-# Run all optional phases
+# Detect unused package dependencies
+docstar audit /path/to/project --dead-deps
+
+# Detect stale CI/CD pipeline elements
+docstar audit /path/to/project --dead-cicd
+
+# Detect orphaned source files
+docstar audit /path/to/project --orphaned-files
+
+# Run all junk analysis phases
+docstar audit /path/to/project --junk
+
+# Run all optional phases (equivalent to --junk)
 docstar audit /path/to/project --full
 ```
 
@@ -98,6 +110,9 @@ The audit checks for:
 - **Stale shadow docs**: Auto-fixed by default
 - **Cross-file dead code** (opt-in with `--dead-code`): Detects unused symbols across the codebase
 - **Dead plumbing** (opt-in with `--dead-plumbing`): Detects unactuated config/schema obligations
+- **Dead dependencies** (opt-in with `--dead-deps`): Detects unused package dependencies via import scanning and LLM verification
+- **Dead CI/CD** (opt-in with `--dead-cicd`): Detects stale CI/CD pipeline elements (unused jobs, targets, stages)
+- **Orphaned files** (opt-in with `--orphaned-files`): Detects source files unreachable from entry points via purpose graph analysis
 
 Override findings with project-specific rules in `.docstar/rules`:
 ```

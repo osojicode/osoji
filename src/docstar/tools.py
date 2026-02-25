@@ -595,3 +595,475 @@ def get_extract_obligations_tool_definitions() -> list[ToolDefinition]:
 def get_verify_actuation_tool_definitions() -> list[ToolDefinition]:
     """Return ToolDefinition objects for actuation verification."""
     return [_dict_to_tool_definition(VERIFY_ACTUATION_TOOL)]
+
+
+# Tool definition for dead dependency verification (batch: array of verdicts)
+VERIFY_DEAD_DEPS_TOOL = {
+    "name": "verify_dead_deps",
+    "description": """Determine whether each listed dependency is truly unused or alive despite having zero import matches.
+
+## Common reasons a zero-import dependency is ALIVE
+- **Build tool / linter / formatter**: Invoked via CLI scripts, pre-commit hooks, or CI commands (e.g. black, ruff, pytest, eslint, prettier)
+- **Framework plugin**: Auto-discovered by a framework (pytest plugins, Django apps, Babel/PostCSS plugins)
+- **CLI tool**: Provides a command-line binary used in scripts (e.g. alembic, celery, gunicorn)
+- **Type stubs / @types packages**: Used only by the type checker, no runtime import
+- **Peer dependency**: Required by another package but not directly imported
+- **Build system requirement**: Needed by the build backend (setuptools, wheel, hatchling)
+- **Import name mismatch**: The package installs under a different import name not checked
+
+## When a dependency IS dead
+- No imports found AND not a build tool, plugin, CLI tool, type package, or peer dep
+- Package was added for a feature that was later removed
+- Duplicate of another package providing the same functionality
+
+Set is_dead=True only if the dependency has no plausible alive pathway.
+Provide a verdict for EVERY dependency listed.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "verdicts": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "package_name": {
+                            "type": "string",
+                            "description": "Name of the package being judged",
+                        },
+                        "is_dead": {
+                            "type": "boolean",
+                            "description": "True if the dependency is genuinely unused",
+                        },
+                        "confidence": {
+                            "type": "number",
+                            "minimum": 0.0,
+                            "maximum": 1.0,
+                            "description": "Confidence in the is_dead judgment (1.0 = certain)",
+                        },
+                        "reason": {
+                            "type": "string",
+                            "description": "Brief explanation of why the dependency is dead or alive",
+                        },
+                        "remediation": {
+                            "type": "string",
+                            "description": "Suggested action (e.g. 'Remove from dependencies' or 'Keep — pytest plugin')",
+                        },
+                        "usage_type": {
+                            "type": "string",
+                            "enum": ["import", "build_tool", "plugin", "cli_tool", "peer_dep", "type_package", "unused"],
+                            "description": "How the dependency is used (or 'unused' if dead)",
+                        },
+                    },
+                    "required": ["package_name", "is_dead", "confidence", "reason", "remediation", "usage_type"],
+                },
+            },
+        },
+        "required": ["verdicts"],
+    },
+}
+
+
+def get_dead_deps_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for dead dependency verification."""
+    return [_dict_to_tool_definition(VERIFY_DEAD_DEPS_TOOL)]
+
+
+# Tool definition for dead CI/CD verification (batch: array of verdicts)
+VERIFY_DEAD_CICD_TOOL = {
+    "name": "verify_dead_cicd",
+    "description": """Determine whether each listed CI/CD element is stale/dead or still active.
+
+## Signals that an element IS dead
+- References paths/directories that no longer exist in the repo
+- Builds or tests a subproject that has been deleted
+- Deploys to an environment that has been decommissioned
+- Runs scripts that reference removed files or commands
+- Duplicates another job/target without additional value
+
+## Signals that an element is ALIVE
+- Installs dependencies (pip install, npm install) — these are inherently external
+- Runs test frameworks (pytest, jest, cargo test) — test discovery is dynamic
+- Deploys using external tools (aws, gcloud, kubectl) — targets are external
+- Runs linters/formatters on the repo (paths may be implicit)
+- Uses external actions/images that don't reference local paths
+- Makefile targets used as dependencies by other targets
+
+Missing paths are the PRIMARY signal, but not all commands reference local paths.
+Evaluate each element holistically.
+Provide a verdict for EVERY element listed.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "verdicts": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "element_name": {
+                            "type": "string",
+                            "description": "Name of the CI/CD element being judged",
+                        },
+                        "is_dead": {
+                            "type": "boolean",
+                            "description": "True if the element is stale/dead",
+                        },
+                        "confidence": {
+                            "type": "number",
+                            "minimum": 0.0,
+                            "maximum": 1.0,
+                            "description": "Confidence in the is_dead judgment (1.0 = certain)",
+                        },
+                        "reason": {
+                            "type": "string",
+                            "description": "Brief explanation of why the element is dead or alive",
+                        },
+                        "remediation": {
+                            "type": "string",
+                            "description": "Suggested action (e.g. 'Remove job' or 'Keep — deploys to production')",
+                        },
+                    },
+                    "required": ["element_name", "is_dead", "confidence", "reason", "remediation"],
+                },
+            },
+        },
+        "required": ["verdicts"],
+    },
+}
+
+
+def get_dead_cicd_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for dead CI/CD verification."""
+    return [_dict_to_tool_definition(VERIFY_DEAD_CICD_TOOL)]
+
+
+# --- Phase 3: Haiku-backed analysis tools ---
+
+# Tool definition for batch import name resolution (Haiku)
+RESOLVE_IMPORT_NAMES_TOOL = {
+    "name": "resolve_import_names",
+    "description": """Resolve package names to their importable module names.
+
+For each package, return the name(s) that would appear in import statements.
+Examples:
+- pillow (python) → ["PIL"]
+- scikit-learn (python) → ["sklearn"]
+- beautifulsoup4 (python) → ["bs4"]
+- serde-json (rust) → ["serde_json"]
+- @scope/pkg (node) → ["@scope/pkg"]
+
+If a package installs multiple importable names, list all of them.
+If you don't know the import name, use the heuristic: lowercase, hyphens to underscores.
+
+Provide a resolution for EVERY package listed.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "resolutions": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "package_name": {
+                            "type": "string",
+                            "description": "The package name as given",
+                        },
+                        "import_names": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Importable module name(s) for this package",
+                        },
+                    },
+                    "required": ["package_name", "import_names"],
+                },
+            },
+        },
+        "required": ["resolutions"],
+    },
+}
+
+
+# Tool definition for batch dependency classification (Haiku)
+CLASSIFY_DEPS_TOOL = {
+    "name": "classify_deps",
+    "description": """Classify zero-import dependencies by their usage pattern.
+
+For each dependency that has zero import matches in source code, determine HOW it is used:
+
+- **build_tool**: Invoked from CLI, not imported (black, ruff, pytest, eslint, webpack, cargo-edit)
+- **plugin**: Auto-discovered by a framework (pytest-cov, babel-plugin-*, postcss-*)
+- **cli_tool**: Provides a command-line binary (alembic, celery, gunicorn, nodemon)
+- **type_package**: Type stubs only (@types/*, types-requests, mypy type stubs)
+- **build_system**: Required by build backend (setuptools, wheel, hatchling, flit-core)
+- **genuine_candidate**: None of the above — this dependency MAY be truly unused
+
+Only `genuine_candidate` items will proceed to further verification. Be conservative:
+if a package is clearly a build tool or plugin, classify it as such to avoid false positives.
+
+Provide a classification for EVERY dependency listed.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "classifications": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "package_name": {
+                            "type": "string",
+                            "description": "The package name being classified",
+                        },
+                        "classification": {
+                            "type": "string",
+                            "enum": [
+                                "build_tool", "plugin", "cli_tool",
+                                "type_package", "build_system", "genuine_candidate",
+                            ],
+                        },
+                        "brief_reason": {
+                            "type": "string",
+                            "description": "One-line explanation of the classification",
+                        },
+                    },
+                    "required": ["package_name", "classification", "brief_reason"],
+                },
+            },
+        },
+        "required": ["classifications"],
+    },
+}
+
+
+# Tool definition for CI/CD element extraction (Haiku)
+EXTRACT_CICD_ELEMENTS_TOOL = {
+    "name": "extract_cicd_elements",
+    "description": """Extract structured elements from a CI/CD configuration file.
+
+Parse the file and identify each discrete pipeline element (job, stage, target, etc.).
+For each element, extract:
+- Name and type
+- Line range in the file
+- Any file paths referenced (scripts, directories, config files)
+- Any commands or actions referenced
+
+Be thorough — extract ALL elements, not just the first few.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "elements": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "element_name": {
+                            "type": "string",
+                            "description": "Name of the pipeline element",
+                        },
+                        "element_type": {
+                            "type": "string",
+                            "description": "Type of element (e.g. 'job', 'stage', 'pipeline', 'step')",
+                        },
+                        "line_start": {"type": "integer", "minimum": 1},
+                        "line_end": {"type": "integer", "minimum": 1},
+                        "referenced_paths": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "File paths or directories referenced by this element",
+                        },
+                        "referenced_commands": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Commands or actions this element runs",
+                        },
+                    },
+                    "required": [
+                        "element_name", "element_type",
+                        "line_start", "line_end",
+                        "referenced_paths", "referenced_commands",
+                    ],
+                },
+            },
+        },
+        "required": ["elements"],
+    },
+}
+
+
+# Tool definition for entry point identification (Haiku)
+IDENTIFY_ENTRY_POINTS_TOOL = {
+    "name": "identify_entry_points",
+    "description": """Identify which source files are entry points in the project.
+
+An entry point is a file that is invoked directly rather than imported by other files:
+- CLI scripts and main modules (__main__.py, bin scripts, console_scripts)
+- Test files (test_*.py, *_test.py, *.test.ts, spec files)
+- Framework endpoints (Django views registered in urls.py, Flask app files)
+- Configuration files that are loaded by tools (conftest.py, setup.py, manage.py)
+- Build/task scripts (Makefile targets, task runners)
+- Package __init__.py files (entry point for the package namespace)
+
+Use the file_role hint as a signal but make your own judgment based on the full context.
+
+Provide a verdict for EVERY file listed.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "entry_points": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "source_path": {
+                            "type": "string",
+                            "description": "Relative path of the file",
+                        },
+                        "is_entry_point": {
+                            "type": "boolean",
+                            "description": "True if this file is an entry point",
+                        },
+                        "reason": {
+                            "type": "string",
+                            "description": "Brief explanation",
+                        },
+                    },
+                    "required": ["source_path", "is_entry_point", "reason"],
+                },
+            },
+        },
+        "required": ["entry_points"],
+    },
+}
+
+
+# Tool definition for semantic relationship identification (Haiku)
+IDENTIFY_RELATIONSHIPS_TOOL = {
+    "name": "identify_relationships",
+    "description": """Identify semantic relationships between disconnected files and the connected graph.
+
+You are given two lists:
+1. **disconnected**: Files not reachable via import edges from any entry point
+2. **connected**: Files that ARE reachable
+
+For each disconnected file, determine if it semantically relates to any connected file
+based on their purposes and topics. A relationship means the disconnected file likely
+supports, extends, or is used by the connected file through non-import mechanisms
+(dynamic loading, convention-based discovery, configuration, etc.).
+
+Only report relationships you are confident about. It is OK to leave a disconnected
+file without any relationship — that means it may be orphaned.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "relationships": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "source_path": {
+                            "type": "string",
+                            "description": "Path of the disconnected file",
+                        },
+                        "related_to": {
+                            "type": "string",
+                            "description": "Path of the connected file it relates to",
+                        },
+                        "reason": {
+                            "type": "string",
+                            "description": "Why these files are related",
+                        },
+                    },
+                    "required": ["source_path", "related_to", "reason"],
+                },
+            },
+        },
+        "required": ["relationships"],
+    },
+}
+
+
+# Tool definition for orphan file verification (Sonnet)
+VERIFY_ORPHAN_FILES_TOOL = {
+    "name": "verify_orphan_files",
+    "description": """Determine whether each listed file is truly orphaned or alive despite being unreachable in the purpose graph.
+
+## Common reasons an unreachable file is ALIVE
+- **Plugin / extension**: Loaded dynamically by a framework (pytest plugins, Django apps, Flask extensions)
+- **Dynamic import**: Loaded via importlib, __import__, or similar mechanisms
+- **Convention-based**: Framework discovers it by naming convention (test files, migration files, template files)
+- **Configuration target**: Referenced in config files (entry_points, console_scripts, tool configs)
+- **Script / CLI**: Invoked directly from command line or CI/CD, not imported
+
+## When a file IS orphaned
+- No imports from other files AND no dynamic loading mechanism
+- Was part of a feature that was later removed
+- Duplicate of another file providing the same functionality
+- Experimental/scratch file that was never integrated
+
+Set is_orphaned=True only if the file has no plausible alive pathway.
+Provide a verdict for EVERY file listed.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "verdicts": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "source_path": {
+                            "type": "string",
+                            "description": "Relative path of the file being judged",
+                        },
+                        "is_orphaned": {
+                            "type": "boolean",
+                            "description": "True if the file is genuinely orphaned",
+                        },
+                        "confidence": {
+                            "type": "number",
+                            "minimum": 0.0,
+                            "maximum": 1.0,
+                        },
+                        "reason": {
+                            "type": "string",
+                            "description": "Brief explanation of why the file is orphaned or alive",
+                        },
+                        "remediation": {
+                            "type": "string",
+                            "description": "Suggested action (e.g. 'Delete file' or 'Keep — pytest plugin')",
+                        },
+                    },
+                    "required": ["source_path", "is_orphaned", "confidence", "reason", "remediation"],
+                },
+            },
+        },
+        "required": ["verdicts"],
+    },
+}
+
+
+def get_resolve_import_names_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for import name resolution."""
+    return [_dict_to_tool_definition(RESOLVE_IMPORT_NAMES_TOOL)]
+
+
+def get_classify_deps_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for dependency classification."""
+    return [_dict_to_tool_definition(CLASSIFY_DEPS_TOOL)]
+
+
+def get_extract_cicd_elements_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for CI/CD element extraction."""
+    return [_dict_to_tool_definition(EXTRACT_CICD_ELEMENTS_TOOL)]
+
+
+def get_identify_entry_points_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for entry point identification."""
+    return [_dict_to_tool_definition(IDENTIFY_ENTRY_POINTS_TOOL)]
+
+
+def get_identify_relationships_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for semantic relationship identification."""
+    return [_dict_to_tool_definition(IDENTIFY_RELATIONSHIPS_TOOL)]
+
+
+def get_verify_orphan_files_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for orphan file verification."""
+    return [_dict_to_tool_definition(VERIFY_ORPHAN_FILES_TOOL)]

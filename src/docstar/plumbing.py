@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Callable
 
 from .config import Config
+from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content
 from .llm.base import LLMProvider
 from .llm.factory import create_provider
 from .llm.logging import LoggingProvider
@@ -300,13 +301,7 @@ def _find_field_references(
 
 def _load_shadow_content(config: Config, relative_path: str) -> str:
     """Load shadow doc content for a relative source path."""
-    shadow_path = config.shadow_root / (relative_path + ".shadow.md")
-    if shadow_path.exists():
-        try:
-            return shadow_path.read_text(encoding="utf-8")
-        except OSError:
-            pass
-    return ""
+    return load_shadow_content(config, relative_path)
 
 
 # --- Full pipeline ---
@@ -474,3 +469,43 @@ def detect_dead_plumbing(
             await logging_provider.close()
 
     return asyncio.run(_run())
+
+
+class DeadPlumbingAnalyzer(JunkAnalyzer):
+    """Junk analyzer that detects unactuated config obligations."""
+
+    @property
+    def name(self) -> str:
+        return "dead_plumbing"
+
+    @property
+    def description(self) -> str:
+        return "Detect unactuated config obligations"
+
+    @property
+    def cli_flag(self) -> str:
+        return "dead-plumbing"
+
+    async def analyze_async(self, provider, rate_limiter, config, on_progress=None):
+        result = await detect_dead_plumbing_async(provider, rate_limiter, config, on_progress)
+        findings = [
+            JunkFinding(
+                source_path=v.source_path,
+                name=v.field_name,
+                kind="config_field",
+                category="unactuated_config",
+                line_start=v.line_start,
+                line_end=v.line_end,
+                confidence=v.confidence,
+                reason=v.trace,
+                remediation=v.remediation,
+                original_purpose=f"field `{v.field_name}` in `{v.schema_name}`",
+                metadata={"schema_name": v.schema_name, "trace": v.trace},
+            )
+            for v in result.verifications if not v.is_actuated
+        ]
+        return JunkAnalysisResult(
+            findings=findings,
+            total_candidates=result.total_obligations,
+            analyzer_name=self.name,
+        )
