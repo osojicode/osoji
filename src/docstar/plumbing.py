@@ -442,35 +442,6 @@ async def detect_dead_plumbing_async(
     return PlumbingResult(verifications=results, total_obligations=len(all_obligations))
 
 
-def detect_dead_plumbing(
-    config: Config,
-    on_progress: Callable[[int, int, Path, str], None] | None = None,
-    rate_limiter: RateLimiter | None = None,
-) -> PlumbingResult:
-    """Detect dead plumbing across the project (sync wrapper).
-
-    Creates provider and rate limiter internally (unless provided).
-    Early exits if .docstar/symbols/ doesn't exist.
-    """
-    symbols_dir = config.root_path / ".docstar" / "symbols"
-    if not symbols_dir.exists():
-        print("  [skip] No symbols data found. Run 'docstar shadow .' first.", flush=True)
-        return PlumbingResult(verifications=[], total_obligations=0)
-
-    async def _run() -> PlumbingResult:
-        provider = create_provider("anthropic")
-        logging_provider = LoggingProvider(provider)
-        rl = rate_limiter if rate_limiter is not None else RateLimiter(get_config_with_overrides("anthropic"))
-        try:
-            return await detect_dead_plumbing_async(
-                logging_provider, rl, config, on_progress
-            )
-        finally:
-            await logging_provider.close()
-
-    return asyncio.run(_run())
-
-
 class DeadPlumbingAnalyzer(JunkAnalyzer):
     """Junk analyzer that detects unactuated config obligations."""
 

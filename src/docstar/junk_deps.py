@@ -76,9 +76,6 @@ _IMPORT_NAME_CACHE: dict[str, list[str]] = {
     "pynacl": ["nacl"],
 }
 
-# Backward compatibility alias
-PYTHON_IMPORT_MAP = _IMPORT_NAME_CACHE
-
 # --- Build tools cache (fast pre-filter before Haiku classification) ---
 
 _BUILD_TOOLS_CACHE: set[str] = {
@@ -107,10 +104,6 @@ _BUILD_TOOLS_CACHE: set[str] = {
     "terser", "cssnano", "mini-css-extract-plugin",
 }
 
-# Backward compatibility aliases
-PYTHON_BUILD_TOOLS = _BUILD_TOOLS_CACHE
-NODE_BUILD_TOOLS = _BUILD_TOOLS_CACHE
-
 
 def _resolve_import_names_heuristic(package_name: str, ecosystem: str) -> list[str]:
     """Map package name to importable name(s)."""
@@ -135,9 +128,6 @@ def _resolve_import_names_heuristic(package_name: str, ecosystem: str) -> list[s
 
     return [lower.replace("-", "_")]
 
-
-# Backward compatibility alias
-_resolve_import_names = _resolve_import_names_heuristic
 
 
 # --- Haiku-backed import name resolution ---
@@ -628,9 +618,6 @@ def _filter_zero_import(candidates: list[DependencyCandidate]) -> list[Dependenc
     """Return only candidates where import_hits == 0."""
     return [c for c in candidates if c.import_hits == 0]
 
-
-# Backward compatibility alias
-_filter_candidates = _filter_zero_import
 
 
 # --- LLM verification ---

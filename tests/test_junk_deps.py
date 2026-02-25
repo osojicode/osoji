@@ -15,12 +15,10 @@ from docstar.junk_deps import (
     _BUILD_TOOLS_CACHE,
     _IMPORT_NAME_CACHE,
     _classify_deps_batch_async,
-    _filter_candidates,
     _filter_zero_import,
     _parse_package_json,
     _parse_pyproject_toml,
     _parse_requirements_txt,
-    _resolve_import_names,
     _resolve_import_names_batch_async,
     _resolve_import_names_heuristic,
     _verify_batch_async,
@@ -226,35 +224,35 @@ class TestParsePackageJson:
 
 class TestResolveImportNames:
     def test_known_mismatch_pillow(self):
-        result = _resolve_import_names("Pillow", "python")
+        result = _resolve_import_names_heuristic("Pillow", "python")
         assert "PIL" in result
 
     def test_known_mismatch_scikit_learn(self):
-        result = _resolve_import_names("scikit-learn", "python")
+        result = _resolve_import_names_heuristic("scikit-learn", "python")
         assert "sklearn" in result
 
     def test_known_mismatch_pyyaml(self):
-        result = _resolve_import_names("PyYAML", "python")
+        result = _resolve_import_names_heuristic("PyYAML", "python")
         assert "yaml" in result
 
     def test_heuristic_fallback(self):
-        result = _resolve_import_names("my-package", "python")
+        result = _resolve_import_names_heuristic("my-package", "python")
         assert "my_package" in result
 
     def test_node_exact_name(self):
-        result = _resolve_import_names("express", "node")
+        result = _resolve_import_names_heuristic("express", "node")
         assert result == ["express"]
 
     def test_node_scoped_package(self):
-        result = _resolve_import_names("@scope/name", "node")
+        result = _resolve_import_names_heuristic("@scope/name", "node")
         assert result == ["@scope/name"]
 
     def test_rust_hyphens_to_underscores(self):
-        result = _resolve_import_names("serde-json", "rust")
+        result = _resolve_import_names_heuristic("serde-json", "rust")
         assert result == ["serde_json"]
 
     def test_go_last_segment(self):
-        result = _resolve_import_names("github.com/foo/bar", "go")
+        result = _resolve_import_names_heuristic("github.com/foo/bar", "go")
         assert result == ["bar"]
 
 
@@ -305,7 +303,7 @@ class TestScanImports:
 # --- TestFilterZeroImport ---
 
 class TestFilterZeroImport:
-    """_filter_zero_import (aliased as _filter_candidates) now only checks import_hits.
+    """_filter_zero_import only checks import_hits.
     Build tool / @types filtering moved to _BUILD_TOOLS_CACHE pre-filter + Haiku classification.
     """
 
@@ -347,10 +345,6 @@ class TestFilterZeroImport:
         ]
         filtered = _filter_zero_import(candidates)
         assert len(filtered) == 0
-
-    def test_alias_matches(self):
-        """_filter_candidates is an alias for _filter_zero_import."""
-        assert _filter_candidates is _filter_zero_import
 
 
 # --- TestBuildToolsCache ---
