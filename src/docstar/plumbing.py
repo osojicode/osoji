@@ -332,17 +332,16 @@ async def detect_dead_plumbing_async(
 
     print(f"  Found {len(schema_files)} schema file(s)", flush=True)
 
-    # Step 2: Extract obligations from each schema file (Phase A)
-    all_obligations: list[ConfigObligation] = []
-    for source_path in schema_files:
+    # Step 2: Extract obligations from each schema file (Phase A) — parallel
+    async def extract_one(source_path: str) -> list[ConfigObligation]:
         src_file = config.root_path / source_path
         if not src_file.is_file():
-            continue
+            return []
 
         try:
             source_content = src_file.read_text(errors="ignore")
         except OSError:
-            continue
+            return []
 
         shadow_content = _load_shadow_content(config, source_path)
 
@@ -352,9 +351,15 @@ async def detect_dead_plumbing_async(
                 provider, config, source_path, source_content, shadow_content
             )
             rate_limiter.record_usage(input_tokens=in_tok, output_tokens=out_tok)
-            all_obligations.extend(obligations)
+            return obligations
         except Exception as e:
             print(f"  [error] extracting obligations from {source_path}: {e}", flush=True)
+            return []
+
+    extraction_results = await asyncio.gather(*[extract_one(sp) for sp in schema_files])
+    all_obligations: list[ConfigObligation] = []
+    for obligations in extraction_results:
+        all_obligations.extend(obligations)
 
     if not all_obligations:
         print("  No obligation-bearing fields found in schema files.", flush=True)

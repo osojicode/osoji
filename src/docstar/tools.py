@@ -343,6 +343,10 @@ VERIFY_DEAD_CODE_TOOL = {
   returned by an exported API). Liveness flows FROM the entry point INTO what it uses —
   a sibling function that merely references the same constant is NOT alive through this path.
 
+**Key rule**: A zero-reference wrapper function is DEAD even if it returns a constant/tool
+that IS used by other functions. "It looks like framework code" or "it wraps something used"
+are NOT valid reasons — if the function itself has zero call sites, it is dead.
+
 Set is_dead=True only if the symbol has no plausible alive pathway.
 Provide a verdict for EVERY symbol listed.""",
     "input_schema": {
