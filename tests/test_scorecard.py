@@ -15,6 +15,7 @@ from docstar.scorecard import (
     build_scorecard,
     merge_ranges,
 )
+from docstar.audit import _format_scorecard_section
 
 
 # --- Helpers ---
@@ -666,3 +667,84 @@ class TestEmptyAudit:
         assert sc.junk_total_lines == 0
         assert sc.junk_fraction == 0.0
         assert sc.enforcement_total_obligations is None
+
+
+# --- Missing phases note (regression test for stale-string bug) ---
+
+def _minimal_scorecard(**overrides) -> Scorecard:
+    """Build a minimal Scorecard with defaults, overriding specific fields."""
+    defaults = dict(
+        coverage_entries=[],
+        coverage_pct=0.0,
+        coverage_by_type={},
+        dead_docs=[],
+        total_accuracy_errors=0,
+        live_doc_count=0,
+        accuracy_errors_per_doc=0.0,
+        accuracy_by_category={},
+        junk_total_lines=0,
+        junk_total_source_lines=0,
+        junk_fraction=0.0,
+        junk_item_count=0,
+        junk_file_count=0,
+        junk_by_category={},
+        junk_by_category_lines={},
+        junk_entries=[],
+        junk_sources=[],
+        enforcement_total_obligations=None,
+        enforcement_unactuated=None,
+        enforcement_pct_unactuated=None,
+        enforcement_by_schema=None,
+    )
+    defaults.update(overrides)
+    return Scorecard(**defaults)
+
+
+class TestMissingPhasesNote:
+    """Regression tests for the 'Phases not run' message in _format_scorecard_section.
+
+    The bug: stale string literals were used to check junk_sources instead of
+    deriving names from the JUNK_ANALYZERS registry, causing a false message
+    even when all phases ran.
+    """
+
+    ALL_ANALYZER_NAMES = [
+        "dead_code", "dead_plumbing", "dead_deps", "dead_cicd", "orphaned_files",
+    ]
+
+    def test_all_phases_no_missing_message(self):
+        """When all 5 analyzers + code_debris ran, no 'Phases not run' message."""
+        sc = _minimal_scorecard(
+            junk_sources=["code_debris"] + self.ALL_ANALYZER_NAMES,
+        )
+        lines = _format_scorecard_section(sc)
+        text = "\n".join(lines)
+        assert "Phases not run" not in text
+
+    def test_missing_phases_listed(self):
+        """With only code_debris, all 5 --flags should appear."""
+        sc = _minimal_scorecard(junk_sources=["code_debris"])
+        lines = _format_scorecard_section(sc)
+        text = "\n".join(lines)
+        assert "Phases not run" in text
+        assert "`--dead-code`" in text
+        assert "`--dead-plumbing`" in text
+        assert "`--dead-deps`" in text
+        assert "`--dead-cicd`" in text
+        assert "`--orphaned-files`" in text
+
+    def test_partial_phases_lists_only_missing(self):
+        """With some phases present, only the missing ones appear."""
+        sc = _minimal_scorecard(
+            junk_sources=["code_debris", "dead_code", "dead_plumbing"],
+        )
+        lines = _format_scorecard_section(sc)
+        text = "\n".join(lines)
+        assert "Phases not run" in text
+        # Present phases should NOT appear
+        assert "`--dead-code`" not in text
+        assert "`--dead-plumbing`" not in text
+        # Missing phases should appear
+        assert "`--dead-deps`" in text
+        assert "`--dead-cicd`" in text
+        assert "`--orphaned-files`" in text
