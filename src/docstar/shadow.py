@@ -216,7 +216,10 @@ ALSO: Populate the imports, exports, calls, and string_literals arrays:
 - string_literals: String constants that participate in cross-file contracts (identifiers used as
   keys/names/categories, user-facing messages, config values). NOT every string. Set usage to
   "produced" if emitted/returned, "checked" if used in membership test/equality, "defined" if
-  assigned to a constant, "unknown" if unclear from local context."""
+  assigned to a constant, "unknown" if unclear from local context.
+  For strings with usage "checked", also set comparison_source to the variable or expression
+  the string is compared against (e.g., "tool_call.name", "schema.get(key)", "category",
+  "os.environ"). This is the other side of the ==, in, not in, or .get() expression."""
 
     user_prompt = f"""Generate shadow documentation for the following file:
 

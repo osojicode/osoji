@@ -220,6 +220,18 @@ class FactsDB:
                 result.setdefault(file_path, set()).add(sl.get("value", ""))
         return result
 
+    def string_entries_by_usage(self, usage: str, kind: str | None = None) -> dict[str, list[dict]]:
+        """Return file -> list of full string literal entries filtered by usage and optionally kind."""
+        result: dict[str, list[dict]] = {}
+        for file_path, facts in self._files.items():
+            for sl in facts.string_literals:
+                if sl.get("usage") != usage:
+                    continue
+                if kind is not None and sl.get("kind") != kind:
+                    continue
+                result.setdefault(file_path, []).append(sl)
+        return result
+
     def build_import_graph(self) -> dict[str, set[str]]:
         """Build file -> set of imported files graph."""
         graph: dict[str, set[str]] = {}
