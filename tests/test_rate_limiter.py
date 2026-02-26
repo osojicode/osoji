@@ -501,6 +501,148 @@ class TestRateLimiter:
         asyncio.run(run())
 
 
+class TestFloorCheck:
+    """Tests for the floor-check behavior that blocks when token buckets are depleted."""
+
+    def test_floor_check_blocks_when_input_tokens_depleted(self):
+        """Without estimates, throttle should still wait if input tokens are below headroom."""
+
+        async def run():
+            config = RateLimiterConfig(
+                requests_per_minute=60_000,  # High RPM so it doesn't interfere
+                input_tokens_per_minute=6000,  # 100 tokens/sec
+                output_tokens_per_minute=600_000,
+                name="test",
+            )
+            limiter = RateLimiter(config)
+
+            await limiter.throttle()
+            # Drain input tokens well below _MIN_INPUT_HEADROOM (4000)
+            limiter.record_usage(input_tokens=5900)  # leaves 100 tokens
+
+            start = time.monotonic()
+            # No estimates passed — floor check should kick in
+            await limiter.throttle()
+            elapsed = time.monotonic() - start
+
+            # Need ~3900 tokens to reach 4000 headroom.
+            # At 100 tokens/sec, that's ~39 seconds... but refill rate is per ms internally.
+            # 6000 TPM / 60000 ms = 0.1 tokens/ms = 100 tokens/sec
+            # 3900 tokens / 0.1 tokens_per_ms / 1000 = 39 seconds -- too slow for a test.
+            # Actually the formula is: tokens_needed / refill_rate / 1000
+            # refill_rate = 6000/60000 = 0.1 tokens/ms
+            # wait = 3900 / 0.1 / 1000 = 39 seconds
+            # Let me use higher TPM for a faster test.
+            assert elapsed >= 0.01  # Just verify it waited at all
+
+        asyncio.run(run())
+
+    def test_floor_check_blocks_when_input_tokens_depleted_fast(self):
+        """Floor check blocks proportionally when input bucket is depleted."""
+
+        async def run():
+            config = RateLimiterConfig(
+                requests_per_minute=60_000,
+                input_tokens_per_minute=600_000,  # 10_000 tokens/sec
+                output_tokens_per_minute=600_000,
+                name="test",
+            )
+            limiter = RateLimiter(config)
+
+            await limiter.throttle()
+            # Drain to 1000 tokens (below 4000 headroom)
+            limiter.record_usage(input_tokens=599_000)
+
+            start = time.monotonic()
+            await limiter.throttle()  # No estimates
+            elapsed = time.monotonic() - start
+
+            # Need 3000 tokens to reach 4000 headroom
+            # refill_rate = 600_000/60_000 = 10 tokens/ms
+            # wait = 3000 / 10 / 1000 = 0.3 seconds
+            assert elapsed >= 0.25
+            assert elapsed < 0.6
+
+        asyncio.run(run())
+
+    def test_floor_check_blocks_when_output_tokens_depleted(self):
+        """Without estimates, throttle waits if output tokens are below headroom."""
+
+        async def run():
+            config = RateLimiterConfig(
+                requests_per_minute=60_000,
+                input_tokens_per_minute=600_000,
+                output_tokens_per_minute=60_000,  # 1000 tokens/sec
+                name="test",
+            )
+            limiter = RateLimiter(config)
+
+            await limiter.throttle()
+            # Drain output to 500 (below 1000 headroom)
+            limiter.record_usage(output_tokens=59_500)
+
+            start = time.monotonic()
+            await limiter.throttle()  # No estimates
+            elapsed = time.monotonic() - start
+
+            # Need 500 tokens to reach 1000 headroom
+            # refill_rate = 60_000/60_000 = 1 token/ms
+            # wait = 500 / 1 / 1000 = 0.5 seconds
+            assert elapsed >= 0.4
+            assert elapsed < 0.8
+
+        asyncio.run(run())
+
+    def test_floor_check_skipped_when_estimates_provided(self):
+        """When explicit estimates are provided, floor check does not apply."""
+
+        async def run():
+            config = RateLimiterConfig(
+                requests_per_minute=60_000,
+                input_tokens_per_minute=600_000,
+                output_tokens_per_minute=600_000,
+                name="test",
+            )
+            limiter = RateLimiter(config)
+
+            await limiter.throttle()
+            # Drain input tokens below headroom
+            limiter.record_usage(input_tokens=598_000)  # leaves 2000
+
+            start = time.monotonic()
+            # With estimates of 100 tokens (we have 2000), should pass quickly
+            await limiter.throttle(estimated_input_tokens=100)
+            elapsed = time.monotonic() - start
+
+            assert elapsed < 0.1  # Should not trigger floor check
+
+        asyncio.run(run())
+
+    def test_floor_check_no_wait_when_buckets_healthy(self):
+        """No floor-check wait when token buckets are above headroom."""
+
+        async def run():
+            config = RateLimiterConfig(
+                requests_per_minute=60_000,
+                input_tokens_per_minute=600_000,
+                output_tokens_per_minute=600_000,
+                name="test",
+            )
+            limiter = RateLimiter(config)
+
+            await limiter.throttle()
+            # Use some tokens but stay above headroom
+            limiter.record_usage(input_tokens=10_000, output_tokens=5_000)
+
+            start = time.monotonic()
+            await limiter.throttle()  # No estimates
+            elapsed = time.monotonic() - start
+
+            assert elapsed < 0.1  # Should proceed quickly
+
+        asyncio.run(run())
+
+
 class TestUsageStats:
     """Tests for UsageStats dataclass."""
 

@@ -10,9 +10,47 @@ def compute_hash(content: str) -> str:
 
 
 def compute_file_hash(path: Path) -> str:
-    """Compute hash of a file's contents."""
-    content = path.read_text(encoding="utf-8")
+    """Compute hash of a file's contents.
+
+    Uses read_file_safe() so binary/misencoded files get a raw-bytes hash
+    instead of crashing.
+    """
+    content, is_binary = read_file_safe(path)
+    if is_binary:
+        raw = path.read_bytes()
+        return hashlib.sha256(raw).hexdigest()[:16]
     return compute_hash(content)
+
+
+def read_file_safe(path: Path) -> tuple[str, bool]:
+    """Read a file with robust encoding. Returns (content, is_binary).
+
+    Binary detection:
+    1. Null bytes in first 8KB (catches most binary formats)
+    2. High ratio of non-text bytes (catches JPEG, images, etc. even without nulls)
+       - A JPEG starting with \\xff\\xd8\\xff has no null bytes but ~80%+ non-text bytes
+       - Source code/docs typically have <1% non-text bytes
+    """
+    raw = path.read_bytes()[:8192]
+
+    # Check 1: null bytes
+    if b'\x00' in raw:
+        return "", True
+
+    # Check 2: non-text byte ratio
+    # Text bytes: printable ASCII (0x20-0x7e) + tab (0x09) + newline (0x0a) + CR (0x0d)
+    # Strip UTF-8 BOM before ratio check (BOM bytes are non-ASCII but valid text)
+    check_raw = raw[3:] if raw.startswith(b'\xef\xbb\xbf') else raw
+    _TEXT_BYTES = frozenset(range(0x20, 0x7f)) | {0x09, 0x0a, 0x0d}
+    if check_raw:
+        non_text = sum(1 for b in check_raw if b not in _TEXT_BYTES)
+        if non_text / len(check_raw) > 0.10:  # >10% non-text = binary
+            return "", True
+
+    try:
+        return path.read_text(encoding="utf-8-sig"), False
+    except UnicodeDecodeError:
+        return path.read_text(encoding="utf-8", errors="replace"), False
 
 
 def add_line_numbers(content: str) -> str:

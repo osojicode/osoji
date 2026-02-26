@@ -32,7 +32,11 @@ class AnthropicProvider(LLMProvider):
                 "ANTHROPIC_API_KEY environment variable is not set. "
                 "Please set it to your Anthropic API key."
             )
-        self._client = anthropic.AsyncAnthropic(api_key=api_key)
+        self._client = anthropic.AsyncAnthropic(
+            api_key=api_key,
+            timeout=300.0,
+            max_retries=3,
+        )
 
     @property
     def name(self) -> str:
