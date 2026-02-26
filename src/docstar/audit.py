@@ -442,18 +442,13 @@ def _format_scorecard_section(scorecard: Scorecard) -> list[str]:
             lines.append(f"| `{schema}` | {info['unactuated']} | {fields} |")
         lines.append("")
 
-    # Missing phases note
+    # Missing phases note — derived from JUNK_ANALYZERS registry so names
+    # can't drift out of sync after refactors.
     missing: list[str] = []
-    if "dead_symbol" not in scorecard.junk_sources:
-        missing.append("`--dead-code`")
-    if scorecard.enforcement_total_obligations is None:
-        missing.append("`--dead-plumbing`")
-    if "dead_dependency" not in scorecard.junk_sources:
-        missing.append("`--dead-deps`")
-    if "dead_cicd" not in scorecard.junk_sources:
-        missing.append("`--dead-cicd`")
-    if "orphaned_file" not in scorecard.junk_sources:
-        missing.append("`--orphaned-files`")
+    for analyzer_cls in JUNK_ANALYZERS:
+        a = analyzer_cls()
+        if a.name not in scorecard.junk_sources:
+            missing.append(f"`--{a.cli_flag}`")
     if missing:
         lines.append(f"*Phases not run: {', '.join(missing)}. Re-run with those flags for a complete scorecard.*\n")
 
