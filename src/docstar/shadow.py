@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Callable
 
 from .config import Config
-from .hasher import add_line_numbers, compute_children_hash, compute_file_hash, extract_children_hash, extract_source_hash
+from .hasher import add_line_numbers, compute_children_hash, compute_file_hash, extract_children_hash, extract_source_hash, read_file_safe
 from .llm import (
     create_provider,
     LLMProvider,
@@ -20,6 +20,7 @@ from .llm import (
     MessageRole,
     CompletionOptions,
     CompletionResult,
+    estimate_tokens_offline,
 )
 from .rate_limiter import RateLimiter, get_config_with_overrides
 from .tools import get_file_tool_definitions, get_directory_tool_definitions
@@ -29,6 +30,15 @@ from .walker import (
     get_direct_children,
     get_child_directories,
 )
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+# --- Large file chunking constants ---
+_MAX_INPUT_TOKENS = 150_000       # trigger threshold for chunking
+_CHUNK_TARGET_TOKENS = 120_000    # per-chunk target (room for prompt+output)
+_CHUNK_OVERLAP_FRACTION = 0.05    # 5% overlap at boundaries
 
 
 @dataclass
@@ -310,8 +320,15 @@ async def process_file_async(
     provider: LLMProvider,
     config: Config,
     file_path: Path,
+    rate_limiter: RateLimiter | None = None,
 ) -> ShadowResult:
     """Process a single file and generate/retrieve its shadow doc asynchronously.
+
+    Args:
+        provider: LLM provider to use
+        config: Configuration
+        file_path: Path to file to process
+        rate_limiter: Optional rate limiter for chunked file processing
 
     Returns ShadowResult with path, body, cached status, and any error.
     """
@@ -324,13 +341,35 @@ async def process_file_async(
         return ShadowResult(path=file_path, body=body, cached=True)
 
     try:
-        content = file_path.read_text(encoding="utf-8")
+        content, is_binary = read_file_safe(file_path)
+        if is_binary:
+            return ShadowResult(
+                path=file_path, body="", cached=False,
+                error="Binary file detected, skipping",
+            )
+
         numbered_content = add_line_numbers(content)
         source_hash = compute_file_hash(file_path)
 
-        body, input_tokens, output_tokens, findings, symbols, file_role, topic_signature = await generate_file_shadow_doc_async(
-            provider, config, file_path, numbered_content
-        )
+        # Check if file is oversized and needs chunked processing
+        estimated_tokens = estimate_tokens_offline(numbered_content)
+        if estimated_tokens > _MAX_INPUT_TOKENS:
+            logger.info(
+                f"Large file detected ({estimated_tokens} est. tokens): {file_path.name}, "
+                f"using chunked processing"
+            )
+            body, input_tokens, output_tokens, findings, symbols, file_role, topic_signature = (
+                await _process_large_file_async(
+                    provider, config, file_path, numbered_content, rate_limiter
+                )
+            )
+        else:
+            body, input_tokens, output_tokens, findings, symbols, file_role, topic_signature = (
+                await generate_file_shadow_doc_async(
+                    provider, config, file_path, numbered_content
+                )
+            )
+
         full_doc = assemble_shadow_doc(
             file_path.relative_to(config.root_path), source_hash, body
         )
@@ -400,6 +439,181 @@ async def process_file_async(
         )
     except Exception as e:
         return ShadowResult(path=file_path, body="", cached=False, error=str(e))
+
+
+def _split_into_chunks(
+    numbered_content: str,
+    chunk_target_tokens: int = _CHUNK_TARGET_TOKENS,
+    overlap_fraction: float = _CHUNK_OVERLAP_FRACTION,
+) -> list[tuple[str, int, int]]:
+    """Split numbered content into line-based chunks with overlap.
+
+    Returns list of (chunk_text, start_line, end_line).
+    """
+    lines = numbered_content.splitlines()
+    total_lines = len(lines)
+    if total_lines == 0:
+        return []
+
+    # Estimate chars per chunk (~4 chars per token)
+    chars_per_chunk = chunk_target_tokens * 4
+    overlap_lines = max(1, int(total_lines * overlap_fraction))
+
+    chunks: list[tuple[str, int, int]] = []
+    start = 0
+
+    while start < total_lines:
+        # Find end of this chunk by character budget
+        char_count = 0
+        end = start
+        while end < total_lines and char_count < chars_per_chunk:
+            char_count += len(lines[end]) + 1  # +1 for newline
+            end += 1
+
+        chunk_text = "\n".join(lines[start:end])
+        chunks.append((chunk_text, start + 1, end))  # 1-based line numbers
+
+        if end >= total_lines:
+            break
+
+        # Advance with overlap
+        start = max(start + 1, end - overlap_lines)
+
+    return chunks
+
+
+async def _generate_chunk_rollup_async(
+    provider: LLMProvider,
+    config: Config,
+    file_path: Path,
+    chunk_shadows: list[str],
+) -> tuple[str, int, int, list[Finding], list[dict], str, dict | None]:
+    """Combine multiple chunk shadows into a single file shadow doc.
+
+    Returns (content, input_tokens, output_tokens, findings, symbols, file_role, topic_signature).
+    """
+    relative_path = file_path.relative_to(config.root_path)
+
+    system_prompt = """You are a documentation expert generating shadow documentation for AI agent consumption.
+
+You are combining shadow documentation from multiple chunks of a single large file into
+one cohesive shadow doc. Deduplicate overlapping content, merge symbol lists, and combine
+findings. The result should read as if it were generated from the whole file at once.
+
+You MUST use the submit_shadow_doc tool to submit your documentation.
+Do not include any header or metadata - just the documentation body.
+
+Merge findings from all chunks, deduplicating any that appear in overlapping regions.
+Merge symbols from all chunks, deduplicating by name.
+Choose the most appropriate file_role from the chunks.
+Generate a unified topic_signature covering the entire file."""
+
+    chunks_text = "\n\n---\n\n".join(
+        f"**Chunk {i + 1} of {len(chunk_shadows)}:**\n{shadow}"
+        for i, shadow in enumerate(chunk_shadows)
+    )
+
+    user_prompt = f"""Combine these chunk shadow docs for: **{relative_path}**
+
+{chunks_text}
+
+Merge these into a single cohesive shadow doc using the submit_shadow_doc tool."""
+
+    messages = [Message(role=MessageRole.USER, content=user_prompt)]
+    options = CompletionOptions(
+        model=config.model,
+        max_tokens=4096,
+        tools=get_file_tool_definitions(),
+        tool_choice={"type": "tool", "name": "submit_shadow_doc"},
+    )
+
+    result = await provider.complete(messages, system_prompt, options)
+
+    for tool_call in result.tool_calls:
+        if tool_call.name == "submit_shadow_doc":
+            findings_data = tool_call.input.get("findings", [])
+            findings = [
+                Finding(
+                    category=f["category"],
+                    line_start=f["line_start"],
+                    line_end=f["line_end"],
+                    severity=f["severity"],
+                    description=f["description"],
+                    suggestion=f.get("suggestion"),
+                )
+                for f in findings_data
+            ]
+            symbols = tool_call.input.get("symbols") or tool_call.input.get("public_symbols", [])
+            file_role = tool_call.input.get("file_role", "service")
+            topic_signature = tool_call.input.get("topic_signature")
+            return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings, symbols, file_role, topic_signature)
+
+    raise RuntimeError(f"LLM did not call submit_shadow_doc tool for chunk rollup of {file_path}")
+
+
+async def _process_large_file_async(
+    provider: LLMProvider,
+    config: Config,
+    file_path: Path,
+    numbered_content: str,
+    rate_limiter: RateLimiter | None = None,
+) -> tuple[str, int, int, list[Finding], list[dict], str, dict | None]:
+    """Process a large file by splitting into chunks, generating shadow docs per chunk,
+    then combining into a single shadow doc.
+
+    Returns (content, input_tokens, output_tokens, findings, symbols, file_role, topic_signature).
+    """
+    chunks = _split_into_chunks(numbered_content)
+    total_chunks = len(chunks)
+    relative_path = file_path.relative_to(config.root_path)
+
+    logger.info(f"Splitting {relative_path} into {total_chunks} chunks")
+
+    chunk_shadows: list[str] = []
+    total_input_tokens = 0
+    total_output_tokens = 0
+    all_findings: list[Finding] = []
+    all_symbols: list[dict] = []
+
+    for i, (chunk_text, start_line, end_line) in enumerate(chunks):
+        prefixed_chunk = f"[Part {i + 1} of {total_chunks}, lines {start_line}-{end_line}]\n\n{chunk_text}"
+
+        if rate_limiter is not None:
+            est_input = estimate_tokens_offline(prefixed_chunk)
+            await rate_limiter.throttle(estimated_input_tokens=est_input)
+
+        body, in_tok, out_tok, findings, symbols, _file_role, _topic_sig = (
+            await generate_file_shadow_doc_async(
+                provider, config, file_path, prefixed_chunk
+            )
+        )
+
+        if rate_limiter is not None:
+            rate_limiter.record_usage(input_tokens=in_tok, output_tokens=out_tok)
+
+        chunk_shadows.append(body)
+        total_input_tokens += in_tok
+        total_output_tokens += out_tok
+        all_findings.extend(findings)
+        all_symbols.extend(symbols)
+
+    # Rollup: combine chunk shadows into a single shadow doc
+    if rate_limiter is not None:
+        est_input = estimate_tokens_offline("\n".join(chunk_shadows))
+        await rate_limiter.throttle(estimated_input_tokens=est_input)
+
+    rollup_body, rollup_in, rollup_out, rollup_findings, rollup_symbols, file_role, topic_signature = (
+        await _generate_chunk_rollup_async(provider, config, file_path, chunk_shadows)
+    )
+
+    if rate_limiter is not None:
+        rate_limiter.record_usage(input_tokens=rollup_in, output_tokens=rollup_out)
+
+    total_input_tokens += rollup_in
+    total_output_tokens += rollup_out
+
+    return (rollup_body, total_input_tokens, total_output_tokens,
+            rollup_findings, rollup_symbols, file_role, topic_signature)
 
 
 def _format_tokens_short(input_tokens: int, output_tokens: int) -> str:
@@ -483,9 +697,12 @@ async def generate_shadows_parallel(
                 body = _extract_body_from_shadow(shadow_content)
                 result = ShadowResult(path=file_path, body=body, cached=True)
             else:
-                # Need to make API call - throttle first
-                await rate_limiter.throttle()
-                result = await process_file_async(provider, config, file_path)
+                # Need to make API call - throttle first with token estimate
+                est_input = file_path.stat().st_size // 4
+                await rate_limiter.throttle(estimated_input_tokens=est_input)
+                result = await process_file_async(
+                    provider, config, file_path, rate_limiter=rate_limiter
+                )
                 # Record actual token usage from API response
                 if not result.cached and not result.error:
                     rate_limiter.record_usage(
@@ -654,7 +871,8 @@ async def generate_directory_shadows(
                 if on_progress:
                     on_progress(completed_count, total_dirs, dir_path, "processing")
 
-                await rate_limiter.throttle()
+                est_input = sum(len(s) for _, s in child_summaries) // 4
+                await rate_limiter.throttle(estimated_input_tokens=est_input)
                 body, input_tokens, output_tokens, topic_signature = await generate_directory_shadow_doc_async(
                     provider, config, dir_path, child_summaries
                 )

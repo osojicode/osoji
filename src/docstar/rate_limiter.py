@@ -11,6 +11,11 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
+# Floor headroom: block when token buckets fall below these thresholds,
+# even when callers don't pass explicit estimates.
+_MIN_INPUT_HEADROOM = 4_000   # ~avg file prompt size
+_MIN_OUTPUT_HEADROOM = 1_000  # ~avg response size
+
 
 @dataclass
 class RateLimiterConfig:
@@ -183,6 +188,11 @@ class RateLimiter:
         self._output_token_count: int = 0
         self._queue_size: int = 0
 
+        # Cumulative counters (never reset with the 60s window)
+        self._cumulative_input_tokens: int = 0
+        self._cumulative_output_tokens: int = 0
+        self._cumulative_request_count: int = 0
+
     async def throttle(
         self,
         estimated_input_tokens: Optional[int] = None,
@@ -208,6 +218,7 @@ class RateLimiter:
                         # Can proceed - claim the slot
                         self._last_request_time = time.monotonic()
                         self._request_count += 1
+                        self._cumulative_request_count += 1
                         return
                 # Release lock before sleeping
                 logger.info(
@@ -258,6 +269,15 @@ class RateLimiter:
         if estimated_output_tokens is not None and estimated_output_tokens > 0:
             if self._output_token_allowance < estimated_output_tokens:
                 tokens_needed = estimated_output_tokens - self._output_token_allowance
+                wait_time = max(wait_time, tokens_needed / self._output_token_refill_rate / 1000)
+
+        # Floor check: block if buckets are depleted even without estimates
+        if estimated_input_tokens is None and estimated_output_tokens is None:
+            if self._input_token_allowance < _MIN_INPUT_HEADROOM:
+                tokens_needed = _MIN_INPUT_HEADROOM - self._input_token_allowance
+                wait_time = max(wait_time, tokens_needed / self._input_token_refill_rate / 1000)
+            if self._output_token_allowance < _MIN_OUTPUT_HEADROOM:
+                tokens_needed = _MIN_OUTPUT_HEADROOM - self._output_token_allowance
                 wait_time = max(wait_time, tokens_needed / self._output_token_refill_rate / 1000)
 
         return wait_time
@@ -317,6 +337,12 @@ class RateLimiter:
         self._output_token_allowance = max(0.0, self._output_token_allowance - output_tokens)
         self._input_token_count += input_tokens
         self._output_token_count += output_tokens
+        self._cumulative_input_tokens += input_tokens
+        self._cumulative_output_tokens += output_tokens
+
+    def get_cumulative_tokens(self) -> tuple[int, int]:
+        """Return (total_input_tokens, total_output_tokens) across all time."""
+        return (self._cumulative_input_tokens, self._cumulative_output_tokens)
 
     def can_proceed(self) -> bool:
         """Synchronous check if a request can proceed immediately.
@@ -374,4 +400,7 @@ class RateLimiter:
         self._request_count = 0
         self._input_token_count = 0
         self._output_token_count = 0
+        self._cumulative_input_tokens = 0
+        self._cumulative_output_tokens = 0
+        self._cumulative_request_count = 0
         # Note: _queue_size not reset as it tracks active waiters

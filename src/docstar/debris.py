@@ -7,9 +7,11 @@ from pathlib import Path
 from typing import Callable
 
 from .config import Config
+from .hasher import read_file_safe
 from .llm.base import LLMProvider
 from .llm.factory import create_provider
 from .llm.logging import LoggingProvider
+from .llm.tokens import estimate_tokens_offline
 from .llm.types import Message, MessageRole, CompletionOptions
 from .rate_limiter import RateLimiter, get_config_with_overrides
 from .tools import (
@@ -703,10 +705,16 @@ async def analyze_docs_async(
 
         async with semaphore:
             try:
-                # Read doc content
+                # Read doc content (safe encoding)
                 try:
-                    content = doc_path.read_text(encoding="utf-8")
-                except (OSError, UnicodeDecodeError):
+                    content, is_binary = read_file_safe(doc_path)
+                    if is_binary:
+                        async with lock:
+                            completed += 1
+                            if on_progress:
+                                on_progress(completed, total, doc_path, "error")
+                        return None
+                except OSError:
                     async with lock:
                         completed += 1
                         if on_progress:
@@ -721,7 +729,8 @@ async def analyze_docs_async(
                 explicit_refs = _find_referenced_sources(config, content)
 
                 # Tier 2: Haiku topic matching (always runs)
-                await rate_limiter.throttle()
+                est_input = estimate_tokens_offline(content)
+                await rate_limiter.throttle(estimated_input_tokens=est_input)
                 haiku_matches, haiku_in, haiku_out, doc_topic_signature = await _match_topics_async(
                     provider, config, content, dir_summaries
                 )
@@ -752,8 +761,10 @@ async def analyze_docs_async(
                     shadow_contexts.append((source_path, shadow_content))
                     total_chars += len(shadow_content)
 
-                # Sonnet analysis (classify + validate)
-                await rate_limiter.throttle()
+                # Opus analysis (classify + validate)
+                shadow_chars = sum(len(s) for _, s in shadow_contexts)
+                est_input = estimate_tokens_offline(content) + shadow_chars // 4
+                await rate_limiter.throttle(estimated_input_tokens=est_input)
                 analysis, analyze_in, analyze_out = await _analyze_document_async(
                     provider, config, doc_path, content, shadow_contexts, rules_text
                 )
@@ -762,7 +773,8 @@ async def analyze_docs_async(
                 # Tier 4: Verify error-severity findings against full project
                 error_findings = [f for f in analysis.findings if f.severity == "error"]
                 if error_findings:
-                    await rate_limiter.throttle()
+                    est_input = estimate_tokens_offline(content) + len(error_findings) * 500
+                    await rate_limiter.throttle(estimated_input_tokens=est_input)
                     verified, v_in, v_out = await _verify_error_findings_async(
                         provider, config, doc_path, content, error_findings
                     )
