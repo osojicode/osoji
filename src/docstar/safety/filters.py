@@ -189,13 +189,6 @@ def should_check_file(file_path: Path) -> bool:
                 if fnmatch.fnmatch(part, pattern):
                     return False
 
-    # Also check if the file is directly in a skip directory
-    # (for cases like "node_modules/file.js" where parts[0] is node_modules)
-    if len(file_path.parts) > 1:
-        for part in file_path.parts[:-1]:
-            if part in SKIP_DIRECTORIES:
-                return False
-
     # Check if extension is checkable
     # If no extension, check by default (could be a script like Makefile)
     if not file_path.suffix:

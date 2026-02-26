@@ -129,6 +129,89 @@ to work with this code effectively.""",
                 },
                 "required": ["purpose", "topics"],
             },
+            "imports": {
+                "type": "array",
+                "description": "All imports in this file.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "source": {
+                            "type": "string",
+                            "description": "Import specifier as written (relative path, package name, stdlib module)",
+                        },
+                        "names": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Imported identifiers. Use [\"default\"] for default imports, [\"*\"] for wildcard.",
+                        },
+                        "is_reexport": {
+                            "type": "boolean",
+                            "description": "True if imported only to re-export (barrel files, __init__.py re-exports)",
+                        },
+                    },
+                    "required": ["source", "names", "is_reexport"],
+                },
+            },
+            "exports": {
+                "type": "array",
+                "description": "Public API surface — names importable by other files.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {"type": "string"},
+                        "kind": {
+                            "type": "string",
+                            "enum": ["function", "class", "constant", "variable", "type"],
+                        },
+                        "line": {"type": "integer", "minimum": 1},
+                    },
+                    "required": ["name", "kind", "line"],
+                },
+            },
+            "calls": {
+                "type": "array",
+                "description": "Significant cross-file function/method calls from exported symbols and module-level code. Skip same-file and internal helper calls.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "from_symbol": {
+                            "type": "string",
+                            "description": "Calling function/method name. Use \"<module>\" for top-level calls.",
+                        },
+                        "to": {
+                            "type": "string",
+                            "description": "Target identifier: module.function, ClassName.method, or package.function",
+                        },
+                        "line": {"type": "integer", "minimum": 1},
+                    },
+                    "required": ["from_symbol", "to", "line"],
+                },
+            },
+            "string_literals": {
+                "type": "array",
+                "description": "Notable string constants that participate in cross-file contracts: identifiers (keys, names, categories), messages, config values. NOT every string — skip file paths, import specifiers, docstrings, test data.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "value": {"type": "string"},
+                        "context": {
+                            "type": "string",
+                            "description": "Brief description of how this string is used",
+                        },
+                        "line": {"type": "integer", "minimum": 1},
+                        "kind": {
+                            "type": "string",
+                            "enum": ["identifier", "message", "config", "pattern"],
+                        },
+                        "usage": {
+                            "type": "string",
+                            "enum": ["produced", "checked", "defined", "unknown"],
+                            "description": "produced = emitted/returned/appended; checked = membership test/equality; defined = assigned to constant; unknown = can't tell",
+                        },
+                    },
+                    "required": ["value", "context", "line", "kind", "usage"],
+                },
+            },
         },
         "required": ["content", "findings", "file_role"],
     },

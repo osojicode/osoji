@@ -167,11 +167,11 @@ async def generate_file_shadow_doc_async(
     config: Config,
     file_path: Path,
     numbered_content: str,
-) -> tuple[str, int, int, list[Finding], list[dict], str, dict | None]:
+) -> tuple[str, int, int, list[Finding], list[dict], str, dict | None, dict]:
     """Generate a shadow doc for a single file asynchronously.
 
     Uses tool_choice to force the LLM to call submit_shadow_doc.
-    Returns tuple of (content, input_tokens, output_tokens, findings, symbols, file_role, topic_signature).
+    Returns tuple of (content, input_tokens, output_tokens, findings, symbols, file_role, topic_signature, facts).
     """
     relative_path = file_path.relative_to(config.root_path)
 
@@ -207,7 +207,16 @@ Choose the single best-fit role for the file's primary purpose.
 
 ALSO: Populate the topic_signature with a one-sentence purpose statement and 3-7 key topic
 noun phrases (e.g., "JWT validation", "rate limiting", "database connection pooling").
-These are used for documentation coverage analysis."""
+These are used for documentation coverage analysis.
+
+ALSO: Populate the imports, exports, calls, and string_literals arrays:
+- imports: Every import in this file (source specifier, imported names, whether it's a re-export)
+- exports: Public API surface only (things importable by other files)
+- calls: Significant cross-file calls from exported symbols and module-level code (not same-file, not internal helpers)
+- string_literals: String constants that participate in cross-file contracts (identifiers used as
+  keys/names/categories, user-facing messages, config values). NOT every string. Set usage to
+  "produced" if emitted/returned, "checked" if used in membership test/equality, "defined" if
+  assigned to a constant, "unknown" if unclear from local context."""
 
     user_prompt = f"""Generate shadow documentation for the following file:
 
@@ -248,7 +257,13 @@ Include line number references for key elements (e.g., "MyClass (L15-45)").
             symbols = tool_call.input.get("symbols") or tool_call.input.get("public_symbols", [])
             file_role = tool_call.input.get("file_role", "service")
             topic_signature = tool_call.input.get("topic_signature")
-            return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings, symbols, file_role, topic_signature)
+            facts = {
+                "imports": tool_call.input.get("imports", []),
+                "exports": tool_call.input.get("exports", []),
+                "calls": tool_call.input.get("calls", []),
+                "string_literals": tool_call.input.get("string_literals", []),
+            }
+            return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings, symbols, file_role, topic_signature, facts)
 
     raise RuntimeError(f"LLM did not call submit_shadow_doc tool for {file_path}")
 
@@ -358,13 +373,13 @@ async def process_file_async(
                 f"Large file detected ({estimated_tokens} est. tokens): {file_path.name}, "
                 f"using chunked processing"
             )
-            body, input_tokens, output_tokens, findings, symbols, file_role, topic_signature = (
+            body, input_tokens, output_tokens, findings, symbols, file_role, topic_signature, facts = (
                 await _process_large_file_async(
                     provider, config, file_path, numbered_content, rate_limiter
                 )
             )
         else:
-            body, input_tokens, output_tokens, findings, symbols, file_role, topic_signature = (
+            body, input_tokens, output_tokens, findings, symbols, file_role, topic_signature, facts = (
                 await generate_file_shadow_doc_async(
                     provider, config, file_path, numbered_content
                 )
@@ -427,6 +442,18 @@ async def process_file_async(
             }
             await _write_with_retry(sig_path, json.dumps(sig_json, indent=2))
 
+        # Write facts JSON
+        if facts and any(facts.get(k) for k in ("imports", "exports", "calls", "string_literals")):
+            facts_path = config.facts_path_for(file_path)
+            facts_path.parent.mkdir(parents=True, exist_ok=True)
+            facts_json = {
+                "source": str(file_path.relative_to(config.root_path)),
+                "source_hash": source_hash,
+                "generated": timestamp,
+                **facts,
+            }
+            await _write_with_retry(facts_path, json.dumps(facts_json, indent=2))
+
         return ShadowResult(
             path=file_path,
             body=body,
@@ -487,10 +514,10 @@ async def _generate_chunk_rollup_async(
     config: Config,
     file_path: Path,
     chunk_shadows: list[str],
-) -> tuple[str, int, int, list[Finding], list[dict], str, dict | None]:
+) -> tuple[str, int, int, list[Finding], list[dict], str, dict | None, dict]:
     """Combine multiple chunk shadows into a single file shadow doc.
 
-    Returns (content, input_tokens, output_tokens, findings, symbols, file_role, topic_signature).
+    Returns (content, input_tokens, output_tokens, findings, symbols, file_role, topic_signature, facts).
     """
     relative_path = file_path.relative_to(config.root_path)
 
@@ -506,7 +533,8 @@ Do not include any header or metadata - just the documentation body.
 Merge findings from all chunks, deduplicating any that appear in overlapping regions.
 Merge symbols from all chunks, deduplicating by name.
 Choose the most appropriate file_role from the chunks.
-Generate a unified topic_signature covering the entire file."""
+Generate a unified topic_signature covering the entire file.
+Merge imports, exports, calls, and string_literals from all chunks, deduplicating by value."""
 
     chunks_text = "\n\n---\n\n".join(
         f"**Chunk {i + 1} of {len(chunk_shadows)}:**\n{shadow}"
@@ -546,7 +574,13 @@ Merge these into a single cohesive shadow doc using the submit_shadow_doc tool."
             symbols = tool_call.input.get("symbols") or tool_call.input.get("public_symbols", [])
             file_role = tool_call.input.get("file_role", "service")
             topic_signature = tool_call.input.get("topic_signature")
-            return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings, symbols, file_role, topic_signature)
+            facts = {
+                "imports": tool_call.input.get("imports", []),
+                "exports": tool_call.input.get("exports", []),
+                "calls": tool_call.input.get("calls", []),
+                "string_literals": tool_call.input.get("string_literals", []),
+            }
+            return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings, symbols, file_role, topic_signature, facts)
 
     raise RuntimeError(f"LLM did not call submit_shadow_doc tool for chunk rollup of {file_path}")
 
@@ -557,11 +591,11 @@ async def _process_large_file_async(
     file_path: Path,
     numbered_content: str,
     rate_limiter: RateLimiter | None = None,
-) -> tuple[str, int, int, list[Finding], list[dict], str, dict | None]:
+) -> tuple[str, int, int, list[Finding], list[dict], str, dict | None, dict]:
     """Process a large file by splitting into chunks, generating shadow docs per chunk,
     then combining into a single shadow doc.
 
-    Returns (content, input_tokens, output_tokens, findings, symbols, file_role, topic_signature).
+    Returns (content, input_tokens, output_tokens, findings, symbols, file_role, topic_signature, facts).
     """
     chunks = _split_into_chunks(numbered_content)
     total_chunks = len(chunks)
@@ -582,7 +616,7 @@ async def _process_large_file_async(
             est_input = estimate_tokens_offline(prefixed_chunk)
             await rate_limiter.throttle(estimated_input_tokens=est_input)
 
-        body, in_tok, out_tok, findings, symbols, _file_role, _topic_sig = (
+        body, in_tok, out_tok, findings, symbols, _file_role, _topic_sig, _chunk_facts = (
             await generate_file_shadow_doc_async(
                 provider, config, file_path, prefixed_chunk
             )
@@ -602,7 +636,7 @@ async def _process_large_file_async(
         est_input = estimate_tokens_offline("\n".join(chunk_shadows))
         await rate_limiter.throttle(estimated_input_tokens=est_input)
 
-    rollup_body, rollup_in, rollup_out, rollup_findings, rollup_symbols, file_role, topic_signature = (
+    rollup_body, rollup_in, rollup_out, rollup_findings, rollup_symbols, file_role, topic_signature, rollup_facts = (
         await _generate_chunk_rollup_async(provider, config, file_path, chunk_shadows)
     )
 
@@ -613,7 +647,7 @@ async def _process_large_file_async(
     total_output_tokens += rollup_out
 
     return (rollup_body, total_input_tokens, total_output_tokens,
-            rollup_findings, rollup_symbols, file_role, topic_signature)
+            rollup_findings, rollup_symbols, file_role, topic_signature, rollup_facts)
 
 
 def _format_tokens_short(input_tokens: int, output_tokens: int) -> str:
@@ -1157,11 +1191,25 @@ def cleanup_orphan_shadows(config: Config, files: list[Path], dirs: list[Path], 
                 symbols_file.unlink()
                 orphans.append(symbols_file)
 
+    # Also clean up orphan facts
+    facts_dir = config.root_path / ".docstar" / "facts"
+    if facts_dir.exists():
+        expected_facts: set[Path] = set()
+        for f in files:
+            expected_facts.add(config.facts_path_for(f))
+        for facts_file in list(facts_dir.rglob("*.facts.json")):
+            if facts_file not in expected_facts:
+                if verbose:
+                    relative = facts_file.relative_to(config.root_path)
+                    print(f"  [removing orphan] {relative}", flush=True)
+                facts_file.unlink()
+                orphans.append(facts_file)
+
     # Remove empty directories (bottom-up)
     for dirpath in sorted(shadow_root.rglob("*"), key=lambda p: -len(p.parts)):
         if dirpath.is_dir() and not any(dirpath.iterdir()):
             dirpath.rmdir()
-    for cleanup_dir in [findings_dir, symbols_dir]:
+    for cleanup_dir in [findings_dir, symbols_dir, facts_dir]:
         if cleanup_dir.exists():
             for dirpath in sorted(cleanup_dir.rglob("*"), key=lambda p: -len(p.parts)):
                 if dirpath.is_dir() and not any(dirpath.iterdir()):
