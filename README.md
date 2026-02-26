@@ -120,6 +120,16 @@ Keep CLAUDE_CODE_PROMPT.md as historical reference.
 Files in docs/internal/ are team documentation, not debris.
 ```
 
+### Interactive Codebase Visualization
+
+Launch an interactive browser-based visualization of your codebase health:
+
+```bash
+docstar viz /path/to/project
+```
+
+Opens a local web page showing codebase structure, documentation coverage, and health metrics as an interactive graph.
+
 ### Documentation Diff
 
 Show documentation impact of source changes against a git ref:
