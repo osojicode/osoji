@@ -167,6 +167,11 @@ class Config:
         relative = source_path.relative_to(self.root_path)
         return self.root_path / SHADOW_DIR / "symbols" / (str(relative) + ".symbols.json")
 
+    def facts_path_for(self, source_path: Path) -> Path:
+        """Return the facts JSON path for a given source file."""
+        relative = source_path.relative_to(self.root_path)
+        return self.root_path / SHADOW_DIR / "facts" / (str(relative) + ".facts.json")
+
     def shadow_path_for_dir(self, dir_path: Path) -> Path:
         """Return the shadow doc path for a directory roll-up."""
         relative = dir_path.relative_to(self.root_path)

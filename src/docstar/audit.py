@@ -190,6 +190,7 @@ def run_audit(
     dead_cicd: bool = False,
     orphaned_files: bool = False,
     junk: bool = False,
+    obligations: bool = False,
     verbose: bool = False,
 ) -> AuditResult:
     """Run a complete documentation audit.
@@ -203,6 +204,7 @@ def run_audit(
         dead_cicd: If True, detect stale CI/CD pipeline elements (LLM calls)
         orphaned_files: If True, detect orphaned source files (LLM calls)
         junk: If True, run all junk analysis phases
+        obligations: If True, check cross-file string contracts (no LLM calls)
         verbose: If True, show detailed per-file progress and timing
     """
     issues: list[AuditIssue] = []
@@ -321,6 +323,27 @@ def run_audit(
     if verbose:
         elapsed = time_module.monotonic() - phase_start
         print(f"  [{elapsed:.1f}s]", flush=True)
+
+    # 3.5. Obligation checking (pure Python, no LLM)
+    if obligations:
+        print("Docstar: Checking cross-file obligations...", flush=True)
+        phase_start = time_module.monotonic()
+        from .facts import FactsDB
+        from .obligations import StringContractChecker
+        facts_db = FactsDB(config)
+        checker = StringContractChecker(facts_db)
+        violations = checker.check()
+        for v in violations:
+            issues.append(AuditIssue(
+                path=Path(v.checking_file),
+                severity=v.severity,
+                category=f"obligation_{v.obligation_type}",
+                message=v.description,
+                remediation=f"Check string contract with {v.source_file}",
+            ))
+        if verbose:
+            elapsed = time_module.monotonic() - phase_start
+            print(f"  [{elapsed:.1f}s] {len(violations)} violation(s)", flush=True)
 
     # 4. Unified junk analysis (opt-in per analyzer)
     junk_results: dict[str, JunkAnalysisResult] = {}

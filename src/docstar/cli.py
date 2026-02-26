@@ -165,9 +165,10 @@ def stats(path: Path, verbose: bool, no_gitignore: bool) -> None:
 @click.option("--dead-cicd", is_flag=True, help="Detect stale CI/CD pipeline elements (LLM calls)")
 @click.option("--orphaned-files", is_flag=True, help="Detect orphaned source files (LLM calls)")
 @click.option("--junk", is_flag=True, help="Run all junk code analysis phases")
+@click.option("--obligations", is_flag=True, help="Check cross-file string contracts (no LLM calls)")
 @click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
 @click.option("--full", is_flag=True, help="Run all optional audit phases")
-def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, no_gitignore: bool, full: bool) -> None:
+def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, no_gitignore: bool, full: bool) -> None:
     """Run documentation audit.
 
     Checks for:
@@ -188,10 +189,11 @@ def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: b
     """
     if full:
         junk = True
+        obligations = True
     config = Config(root_path=path.resolve(), respect_gitignore=not no_gitignore)
 
     try:
-        result = run_audit(config, fix_shadow=fix, dead_code=dead_code, dead_plumbing=dead_plumbing, dead_deps=dead_deps, dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk, verbose=verbose)
+        result = run_audit(config, fix_shadow=fix, dead_code=dead_code, dead_plumbing=dead_plumbing, dead_deps=dead_deps, dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk, obligations=obligations, verbose=verbose)
     except RuntimeError as e:
         raise click.ClickException(str(e)) from e
 
