@@ -1,5 +1,6 @@
 """Anthropic LLM provider implementation."""
 
+import logging
 import os
 from typing import Any
 
@@ -15,6 +16,8 @@ from .types import (
     CompletionResult,
 )
 from .validate import validate_tool_input
+
+logger = logging.getLogger(__name__)
 
 
 class AnthropicProvider(LLMProvider):
@@ -202,6 +205,21 @@ class AnthropicProvider(LLMProvider):
                                 name=block.name,
                                 input=block.input,
                             )
+                        )
+
+                # Validate retry tool calls
+                for tc in retry_tool_calls:
+                    retry_errs: list[str] = []
+                    tc_schema = schema_by_name.get(tc.name)
+                    if tc_schema:
+                        retry_errs = validate_tool_input(tc.input, tc_schema)
+                    for validator in options.tool_input_validators:
+                        retry_errs.extend(validator(tc.name, tc.input))
+                    if retry_errs:
+                        logger.warning(
+                            "Schema errors persist after retry for %s: %s",
+                            tc.name,
+                            "; ".join(retry_errs),
                         )
 
                 result = CompletionResult(
