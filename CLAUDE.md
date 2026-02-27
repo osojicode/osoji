@@ -38,12 +38,18 @@ export analysis, and string contract checking.
 
 ## Key architecture
 
-- `src/docstar/cli.py` — Click CLI entry point (`docstar audit`, `docstar viz`)
+- `src/docstar/cli.py` — Click CLI with subcommands: `shadow`, `check`, `diff`, `stats`, `audit`, `hooks`, `safety`, `viz`
+- `src/docstar/shadow.py` — Core shadow doc generation engine
+- `src/docstar/audit.py` — Multi-phase audit orchestration
 - `src/docstar/llm/` — LLM provider abstraction (Anthropic), validation, rate limiting
 - `src/docstar/facts.py` — Structured facts database and queries
 - `src/docstar/obligations.py` — String contract / obligation checking
 - `src/docstar/tools.py` — Tool definitions (schemas) for LLM tool use
-- `src/docstar/viz.html` — Interactive audit dashboard
+- `src/docstar/debris.py` — Documentation accuracy analysis
+- `src/docstar/deadcode.py` — Dead code detection
+- `src/docstar/junk.py` — Junk code analysis (with `junk_cicd.py`, `junk_deps.py`, `junk_orphan.py`)
+- `src/docstar/scorecard.py` — Audit scorecard generation
+- `src/docstar/viz.py` — Visualization server; serves `viz.html` dashboard
 
 ## Style
 
