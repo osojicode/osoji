@@ -399,7 +399,7 @@ def _format_scorecard_section(scorecard: Scorecard) -> list[str]:
     # Summary table
     lines.append("| Metric | Value |")
     lines.append("|--------|-------|")
-    lines.append(f"| Documentation coverage | {scorecard.coverage_pct:.0f}% |")
+    lines.append(f"| Source file coverage | {scorecard.coverage_pct:.0f}% ({scorecard.covered_count}/{scorecard.total_source_count} files) |")
     lines.append(f"| Dead docs (debris) | {len(scorecard.dead_docs)} |")
     lines.append(f"| Accuracy errors / live doc | {scorecard.accuracy_errors_per_doc:.2f} |")
     lines.append(f"| Junk code fraction | {scorecard.junk_fraction:.1%} ({scorecard.junk_total_lines} lines in {scorecard.junk_file_count} files) |")
@@ -409,13 +409,28 @@ def _format_scorecard_section(scorecard: Scorecard) -> list[str]:
         lines.append("| Unactuated config | — (not scanned) |")
     lines.append("")
 
-    # Coverage by type
+    # Doc linkage by type
     if scorecard.coverage_by_type:
-        lines.append("### Coverage by document type\n")
-        lines.append("| Type | Coverage |")
-        lines.append("|------|----------|")
-        for cls, pct in sorted(scorecard.coverage_by_type.items()):
-            lines.append(f"| {cls} | {pct:.0f}% |")
+        lines.append("### Doc linkage by type\n")
+        lines.append("*Fraction of docs of each type that link to at least one source file.*\n")
+        lines.append("| Type | Linked | Total | % |")
+        lines.append("|------|--------|-------|---|")
+        for cls in sorted(scorecard.coverage_by_type.keys()):
+            linked = scorecard.type_covered_counts.get(cls, 0)
+            total = scorecard.type_total_counts.get(cls, 0)
+            pct = scorecard.coverage_by_type[cls]
+            lines.append(f"| {cls} | {linked} | {total} | {pct:.0f}% |")
+        lines.append("")
+
+    # Uncovered source files
+    uncovered = [e for e in scorecard.coverage_entries if not e.covering_docs]
+    if uncovered:
+        lines.append("### Uncovered source files\n")
+        for entry in uncovered:
+            purpose = ""
+            if entry.topic_signature and entry.topic_signature.get("purpose"):
+                purpose = f" — {entry.topic_signature['purpose']}"
+            lines.append(f"- `{entry.source_path}`{purpose}")
         lines.append("")
 
     # Dead docs list

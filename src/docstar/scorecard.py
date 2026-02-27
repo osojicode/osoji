@@ -32,7 +32,11 @@ class Scorecard:
     # Coverage
     coverage_entries: list[CoverageEntry]
     coverage_pct: float
+    covered_count: int
+    total_source_count: int
     coverage_by_type: dict[str, float]
+    type_covered_counts: dict[str, int]
+    type_total_counts: dict[str, int]
 
     # Dead docs
     dead_docs: list[str]
@@ -328,7 +332,11 @@ def build_scorecard(
     return Scorecard(
         coverage_entries=coverage_entries,
         coverage_pct=coverage_pct,
+        covered_count=covered_count,
+        total_source_count=total_sources,
         coverage_by_type=coverage_by_type,
+        type_covered_counts=type_covered,
+        type_total_counts=type_total,
         dead_docs=dead_docs,
         total_accuracy_errors=total_accuracy_errors,
         live_doc_count=live_doc_count,

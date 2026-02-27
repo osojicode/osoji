@@ -676,7 +676,11 @@ def _minimal_scorecard(**overrides) -> Scorecard:
     defaults = dict(
         coverage_entries=[],
         coverage_pct=0.0,
+        covered_count=0,
+        total_source_count=0,
         coverage_by_type={},
+        type_covered_counts={},
+        type_total_counts={},
         dead_docs=[],
         total_accuracy_errors=0,
         live_doc_count=0,
