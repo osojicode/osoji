@@ -1,9 +1,11 @@
 """Documentation audit orchestration."""
 
+import html as _html_mod
 import json
 import shutil
 import time as time_module
 from dataclasses import dataclass, field, asdict
+from datetime import datetime, timezone
 from pathlib import Path
 
 from .config import Config
@@ -567,3 +569,458 @@ def format_audit_json(result: AuditResult) -> str:
     if result.scorecard:
         output["scorecard"] = asdict(result.scorecard)
     return json.dumps(output, indent=2, default=str)
+
+
+# ---------------------------------------------------------------------------
+# HTML audit report
+# ---------------------------------------------------------------------------
+
+_AUDIT_CSS = """\
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #0a1628;
+  --bg-panel: #0f1f36;
+  --bg-card: #142540;
+  --border: #1e3a5f;
+  --text: #c8d6e5;
+  --text-dim: #5a7a94;
+  --text-bright: #e8f0f8;
+  --healthy: #34d399;
+  --amber: #f6b93b;
+  --coral: #e74c3c;
+  --dead: #8d7b68;
+  --cyan: #2dd4bf;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding: 0;
+}
+
+a { color: var(--cyan); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10, 22, 40, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex; align-items: center; gap: 20px;
+}
+.header h1 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 18px; font-weight: 600;
+  color: var(--text-bright);
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.badge {
+  display: inline-block; padding: 4px 14px;
+  border-radius: 4px; font-size: 13px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.badge-pass { background: rgba(52,211,153,0.15); color: var(--healthy); border: 1px solid rgba(52,211,153,0.3); }
+.badge-fail { background: rgba(231,76,60,0.15); color: var(--coral); border: 1px solid rgba(231,76,60,0.3); }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 24px 32px 64px; }
+
+/* Metric cards row */
+.cards { display: flex; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+.card {
+  flex: 1 1 180px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  text-align: center;
+  transition: border-color 0.2s, transform 0.15s;
+  cursor: pointer;
+  border-top: 3px solid var(--border);
+}
+.card:hover { transform: translateY(-2px); }
+.card-green  { border-top-color: var(--healthy); }
+.card-amber  { border-top-color: var(--amber); }
+.card-coral  { border-top-color: var(--coral); }
+.card-label {
+  font-size: 12px; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
+}
+.card-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 28px; font-weight: 600; color: var(--text-bright);
+}
+.card-detail {
+  font-size: 12px; color: var(--text-dim); margin-top: 4px;
+}
+
+/* Sections */
+.section {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+.section-head {
+  padding: 14px 20px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px; font-weight: 600;
+  color: var(--text-bright);
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.section-body { padding: 20px; }
+.section-body p { margin-bottom: 12px; color: var(--text-dim); font-size: 14px; }
+
+/* Tables */
+table {
+  width: 100%; border-collapse: collapse;
+  font-size: 14px; margin-bottom: 16px;
+}
+th {
+  text-align: left; padding: 8px 12px;
+  font-size: 12px; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(30,58,95,0.4);
+  font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(45,212,191,0.03); }
+
+/* Coverage bar */
+.cov-bar-wrap {
+  background: rgba(30,58,95,0.5);
+  border-radius: 4px; height: 18px;
+  overflow: hidden; margin-bottom: 16px;
+}
+.cov-bar-fill {
+  height: 100%; border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* Matrix icons */
+.ok  { color: var(--healthy); font-weight: 600; }
+.miss { color: var(--coral); opacity: 0.6; }
+
+/* Lists */
+ul.file-list { list-style: none; padding: 0; }
+ul.file-list li {
+  padding: 6px 0; font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px; border-bottom: 1px solid rgba(30,58,95,0.3);
+}
+ul.file-list li:last-child { border-bottom: none; }
+.purpose { color: var(--text-dim); font-family: 'IBM Plex Sans', system-ui; }
+
+details summary {
+  cursor: pointer; color: var(--cyan); font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.footer {
+  text-align: center; padding: 24px;
+  font-size: 12px; color: var(--text-dim);
+  border-top: 1px solid var(--border);
+}
+
+html { scroll-behavior: smooth; }
+"""
+
+
+def _h(s: str) -> str:
+    """Shortcut for html.escape."""
+    return _html_mod.escape(str(s))
+
+
+def _color_for_pct(pct: float) -> str:
+    """Return CSS class suffix for a percentage value."""
+    if pct >= 80:
+        return "green"
+    if pct >= 50:
+        return "amber"
+    return "coral"
+
+
+def _html_metric_card(label: str, value: str, detail: str, href: str, color: str) -> str:
+    return (
+        f'<a href="#{_h(href)}" style="text-decoration:none;flex:1 1 180px">'
+        f'<div class="card card-{color}">'
+        f'<div class="card-label">{_h(label)}</div>'
+        f'<div class="card-value">{_h(value)}</div>'
+        f'<div class="card-detail">{_h(detail)}</div>'
+        f'</div></a>'
+    )
+
+
+def _html_coverage_section(scorecard: "Scorecard") -> str:
+    """Build the coverage section HTML."""
+    parts: list[str] = []
+    parts.append('<div class="section" id="section-coverage">')
+    parts.append('<div class="section-head">Coverage</div>')
+    parts.append('<div class="section-body">')
+
+    # Coverage bar
+    pct = scorecard.coverage_pct
+    color = f"var(--{_color_for_pct(pct).replace('green','healthy')})"
+    parts.append(f'<div class="cov-bar-wrap"><div class="cov-bar-fill" style="width:{pct:.0f}%;background:{color}"></div></div>')
+    parts.append(f'<p>{scorecard.covered_count}/{scorecard.total_source_count} source files covered ({pct:.0f}%)</p>')
+
+    # By-type table
+    if scorecard.coverage_by_type:
+        parts.append('<table><thead><tr><th>Type</th><th>Linked</th><th>Total</th><th>%</th></tr></thead><tbody>')
+        for cls in sorted(scorecard.coverage_by_type.keys()):
+            linked = scorecard.type_covered_counts.get(cls, 0)
+            total = scorecard.type_total_counts.get(cls, 0)
+            type_pct = scorecard.coverage_by_type[cls]
+            parts.append(f'<tr><td>{_h(cls)}</td><td>{linked}</td><td>{total}</td><td>{type_pct:.0f}%</td></tr>')
+        parts.append('</tbody></table>')
+
+    # Concept coverage matrix
+    if scorecard.coverage_entries:
+        diataxis_types = sorted({
+            doc["classification"]
+            for entry in scorecard.coverage_entries
+            for doc in entry.covering_docs
+        })
+        if diataxis_types:
+            collapse = len(scorecard.coverage_entries) > 50
+            if collapse:
+                parts.append(f'<details><summary>Coverage matrix ({len(scorecard.coverage_entries)} files)</summary>')
+            else:
+                parts.append(f'<p style="margin-top:16px;font-weight:500;color:var(--text-bright)">Coverage matrix</p>')
+            parts.append('<table><thead><tr><th>Source file</th>')
+            for dt in diataxis_types:
+                parts.append(f'<th style="text-align:center">{_h(dt)}</th>')
+            parts.append('</tr></thead><tbody>')
+            for entry in scorecard.coverage_entries:
+                doc_types = {doc["classification"] for doc in entry.covering_docs}
+                parts.append(f'<tr><td>{_h(entry.source_path)}</td>')
+                for dt in diataxis_types:
+                    if dt in doc_types:
+                        parts.append('<td style="text-align:center"><span class="ok">&#10003;</span></td>')
+                    else:
+                        parts.append('<td style="text-align:center"><span class="miss">&#10007;</span></td>')
+                parts.append('</tr>')
+            parts.append('</tbody></table>')
+            if collapse:
+                parts.append('</details>')
+
+    # Uncovered files
+    uncovered = [e for e in scorecard.coverage_entries if not e.covering_docs]
+    if uncovered:
+        parts.append(f'<p style="margin-top:16px;font-weight:500;color:var(--text-bright)">Uncovered source files ({len(uncovered)})</p>')
+        parts.append('<ul class="file-list">')
+        for entry in uncovered:
+            purpose = ""
+            if entry.topic_signature and entry.topic_signature.get("purpose"):
+                purpose = f' <span class="purpose">— {_h(entry.topic_signature["purpose"])}</span>'
+            parts.append(f'<li>{_h(entry.source_path)}{purpose}</li>')
+        parts.append('</ul>')
+
+    parts.append('</div></div>')
+    return "\n".join(parts)
+
+
+def _html_accuracy_section(result: "AuditResult") -> str:
+    """Build the accuracy section HTML."""
+    scorecard = result.scorecard
+    accuracy_issues = [i for i in result.issues if i.category.startswith("doc_") and i.severity == "error"]
+    if not accuracy_issues and not scorecard.accuracy_by_category:
+        return ""
+
+    parts: list[str] = []
+    parts.append('<div class="section" id="section-accuracy">')
+    parts.append('<div class="section-head">Accuracy</div>')
+    parts.append('<div class="section-body">')
+    parts.append(f'<p>{scorecard.total_accuracy_errors} error(s) across {scorecard.live_doc_count} live doc(s) '
+                 f'({scorecard.accuracy_errors_per_doc:.2f} per doc)</p>')
+
+    if scorecard.accuracy_by_category:
+        parts.append('<table><thead><tr><th>Category</th><th>Count</th></tr></thead><tbody>')
+        for cat, count in sorted(scorecard.accuracy_by_category.items()):
+            parts.append(f'<tr><td>{_h(cat)}</td><td>{count}</td></tr>')
+        parts.append('</tbody></table>')
+
+    # Group accuracy issues by category
+    by_cat: dict[str, list] = {}
+    for issue in accuracy_issues:
+        by_cat.setdefault(issue.category, []).append(issue)
+
+    for cat in sorted(by_cat.keys()):
+        parts.append(f'<p style="font-weight:500;color:var(--text-bright);margin-top:12px">{_h(cat)}</p>')
+        parts.append('<ul class="file-list">')
+        for issue in by_cat[cat]:
+            parts.append(f'<li>{_h(str(issue.path))}: {_h(issue.message)}</li>')
+        parts.append('</ul>')
+
+    parts.append('</div></div>')
+    return "\n".join(parts)
+
+
+def _html_junk_section(result: "AuditResult") -> str:
+    """Build the junk code section HTML."""
+    scorecard = result.scorecard
+    if not scorecard.junk_by_category and scorecard.junk_item_count == 0:
+        return ""
+
+    parts: list[str] = []
+    parts.append('<div class="section" id="section-junk">')
+    parts.append('<div class="section-head">Junk Code</div>')
+    parts.append('<div class="section-body">')
+    parts.append(f'<p>{scorecard.junk_fraction:.1%} of source lines ({scorecard.junk_total_lines}/{scorecard.junk_total_source_lines}) '
+                 f'across {scorecard.junk_file_count} file(s)</p>')
+
+    # By category
+    if scorecard.junk_by_category:
+        parts.append('<table><thead><tr><th>Category</th><th>Items</th><th>Lines</th></tr></thead><tbody>')
+        for cat in sorted(scorecard.junk_by_category.keys()):
+            items = scorecard.junk_by_category[cat]
+            cat_lines = scorecard.junk_by_category_lines.get(cat, 0)
+            parts.append(f'<tr><td>{_h(cat)}</td><td>{items}</td><td>{cat_lines}</td></tr>')
+        parts.append('</tbody></table>')
+
+    # Worst files
+    worst = [e for e in scorecard.junk_entries if e.junk_fraction > 0.05][:10]
+    if worst:
+        parts.append('<p style="font-weight:500;color:var(--text-bright);margin-top:12px">Worst files</p>')
+        parts.append('<table><thead><tr><th>File</th><th>Junk %</th><th>Junk / Total</th></tr></thead><tbody>')
+        for entry in worst:
+            parts.append(f'<tr><td>{_h(entry.source_path)}</td><td>{entry.junk_fraction:.0%}</td>'
+                         f'<td>{entry.junk_lines}/{entry.total_lines}</td></tr>')
+        parts.append('</tbody></table>')
+
+    # Individual findings
+    junk_issues = [i for i in result.issues if i.category in scorecard.junk_by_category
+                   or i.category in ("dead_symbol", "unactuated_config", "commented_out_code",
+                                     "dead_code", "unreachable_code")]
+    if junk_issues:
+        collapse = len(junk_issues) > 20
+        if collapse:
+            parts.append(f'<details><summary>All findings ({len(junk_issues)})</summary>')
+        parts.append('<ul class="file-list">')
+        for issue in junk_issues:
+            parts.append(f'<li>{_h(str(issue.path))}: {_h(issue.message)}</li>')
+        parts.append('</ul>')
+        if collapse:
+            parts.append('</details>')
+
+    parts.append('</div></div>')
+    return "\n".join(parts)
+
+
+def _html_dead_docs_section(scorecard: "Scorecard") -> str:
+    """Build the dead docs section HTML."""
+    if not scorecard.dead_docs:
+        return ""
+
+    parts: list[str] = []
+    parts.append('<div class="section" id="section-dead-docs">')
+    parts.append('<div class="section-head">Dead Documentation</div>')
+    parts.append('<div class="section-body">')
+    parts.append(f'<p>{len(scorecard.dead_docs)} file(s) classified as debris</p>')
+    parts.append('<ul class="file-list">')
+    for doc in scorecard.dead_docs:
+        parts.append(f'<li>{_h(doc)}</li>')
+    parts.append('</ul>')
+    parts.append('</div></div>')
+    return "\n".join(parts)
+
+
+def _html_enforcement_section(scorecard: "Scorecard") -> str:
+    """Build the enforcement section HTML."""
+    if scorecard.enforcement_by_schema is None:
+        return ""
+
+    parts: list[str] = []
+    parts.append('<div class="section" id="section-enforcement">')
+    parts.append('<div class="section-head">Enforcement</div>')
+    parts.append('<div class="section-body">')
+    parts.append(f'<p>{scorecard.enforcement_unactuated}/{scorecard.enforcement_total_obligations} '
+                 f'obligations unactuated ({scorecard.enforcement_pct_unactuated:.0f}%)</p>')
+
+    if scorecard.enforcement_by_schema:
+        parts.append('<table><thead><tr><th>Schema</th><th>Unactuated</th><th>Fields</th></tr></thead><tbody>')
+        for schema, info in sorted(scorecard.enforcement_by_schema.items()):
+            fields = ", ".join(info["fields"])
+            parts.append(f'<tr><td>{_h(schema)}</td><td>{info["unactuated"]}</td><td>{_h(fields)}</td></tr>')
+        parts.append('</tbody></table>')
+
+    parts.append('</div></div>')
+    return "\n".join(parts)
+
+
+def format_audit_html(result: AuditResult) -> str:
+    """Format audit result as a self-contained HTML dashboard."""
+    scorecard = result.scorecard
+    errors = [i for i in result.issues if i.severity == "error"]
+    warnings = [i for i in result.issues if i.severity == "warning"]
+    passed = result.passed
+
+    parts: list[str] = []
+    parts.append("<!DOCTYPE html>")
+    parts.append('<html lang="en"><head>')
+    parts.append('<meta charset="UTF-8">')
+    parts.append('<meta name="viewport" content="width=device-width, initial-scale=1.0">')
+    parts.append(f'<title>Docstar Audit Report</title>')
+    parts.append(f'<style>{_AUDIT_CSS}</style>')
+    parts.append('</head><body>')
+
+    # Header
+    badge_cls = "badge-pass" if passed else "badge-fail"
+    badge_text = "PASSED" if passed else "FAILED"
+    parts.append(f'<div class="header"><h1>Docstar Audit</h1>'
+                 f'<span class="badge {badge_cls}">{badge_text}</span></div>')
+
+    parts.append('<div class="container">')
+
+    # Metric cards
+    if scorecard:
+        cov_color = _color_for_pct(scorecard.coverage_pct)
+        dead_color = "green" if len(scorecard.dead_docs) == 0 else "coral"
+        err_color = "green" if scorecard.accuracy_errors_per_doc < 0.5 else ("amber" if scorecard.accuracy_errors_per_doc < 1.5 else "coral")
+        junk_pct_val = scorecard.junk_fraction * 100
+        junk_color = "green" if junk_pct_val < 5 else ("amber" if junk_pct_val < 15 else "coral")
+
+        parts.append('<div class="cards">')
+        parts.append(_html_metric_card(
+            "Coverage", f"{scorecard.coverage_pct:.0f}%",
+            f"{scorecard.covered_count}/{scorecard.total_source_count} files",
+            "section-coverage", cov_color))
+        parts.append(_html_metric_card(
+            "Dead Docs", str(len(scorecard.dead_docs)),
+            "debris files",
+            "section-dead-docs", dead_color))
+        parts.append(_html_metric_card(
+            "Errors/Doc", f"{scorecard.accuracy_errors_per_doc:.2f}",
+            f"{scorecard.total_accuracy_errors} total",
+            "section-accuracy", err_color))
+        parts.append(_html_metric_card(
+            "Junk", f"{scorecard.junk_fraction:.1%}",
+            f"{scorecard.junk_total_lines} lines",
+            "section-junk", junk_color))
+        parts.append('</div>')
+
+        # Sections
+        parts.append(_html_coverage_section(scorecard))
+        parts.append(_html_accuracy_section(result))
+        parts.append(_html_junk_section(result))
+        parts.append(_html_dead_docs_section(scorecard))
+        parts.append(_html_enforcement_section(scorecard))
+
+    parts.append('</div>')  # container
+
+    # Footer
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    parts.append(f'<div class="footer">{len(errors)} error(s), {len(warnings)} warning(s) &middot; {_h(now)}</div>')
+
+    parts.append('</body></html>')
+    return "\n".join(parts)
