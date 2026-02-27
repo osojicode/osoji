@@ -18,6 +18,7 @@ from .shadow import check_shadow_docs, generate_shadow_docs
 from .debris import analyze_docs
 from .scorecard import Scorecard, build_scorecard
 from .walker import _matches_ignore
+from tabulate import tabulate as _tabulate
 
 
 # Registry of all junk analyzers. New analyzers are added here.
@@ -391,35 +392,41 @@ def run_audit(
     return AuditResult(issues=issues, scorecard=scorecard)
 
 
+def _table(headers: list[str], rows: list[list[str]], fmt: str = "simple") -> str:
+    """Render a table using tabulate."""
+    return _tabulate(rows, headers=headers, tablefmt=fmt)
+
+
 def _format_scorecard_section(scorecard: Scorecard) -> list[str]:
-    """Format the scorecard as markdown lines for insertion into the report."""
+    """Format the scorecard as aligned console tables for insertion into the report."""
     lines: list[str] = []
     lines.append("## Scorecard\n")
 
     # Summary table
-    lines.append("| Metric | Value |")
-    lines.append("|--------|-------|")
-    lines.append(f"| Source file coverage | {scorecard.coverage_pct:.0f}% ({scorecard.covered_count}/{scorecard.total_source_count} files) |")
-    lines.append(f"| Dead docs (debris) | {len(scorecard.dead_docs)} |")
-    lines.append(f"| Accuracy errors / live doc | {scorecard.accuracy_errors_per_doc:.2f} |")
-    lines.append(f"| Junk code fraction | {scorecard.junk_fraction:.1%} ({scorecard.junk_total_lines} lines in {scorecard.junk_file_count} files) |")
+    summary_rows = [
+        ["Source file coverage", f"{scorecard.coverage_pct:.0f}% ({scorecard.covered_count}/{scorecard.total_source_count} files)"],
+        ["Dead docs (debris)", str(len(scorecard.dead_docs))],
+        ["Accuracy errors / live doc", f"{scorecard.accuracy_errors_per_doc:.2f}"],
+        ["Junk code fraction", f"{scorecard.junk_fraction:.1%} ({scorecard.junk_total_lines} lines in {scorecard.junk_file_count} files)"],
+    ]
     if scorecard.enforcement_total_obligations is not None:
-        lines.append(f"| Unactuated config | {scorecard.enforcement_unactuated}/{scorecard.enforcement_total_obligations} ({scorecard.enforcement_pct_unactuated:.0f}%) |")
+        summary_rows.append(["Unactuated config", f"{scorecard.enforcement_unactuated}/{scorecard.enforcement_total_obligations} ({scorecard.enforcement_pct_unactuated:.0f}%)"])
     else:
-        lines.append("| Unactuated config | — (not scanned) |")
+        summary_rows.append(["Unactuated config", "— (not scanned)"])
+    lines.append(_table(["Metric", "Value"], summary_rows))
     lines.append("")
 
     # Doc linkage by type
     if scorecard.coverage_by_type:
         lines.append("### Doc linkage by type\n")
         lines.append("*Fraction of docs of each type that link to at least one source file.*\n")
-        lines.append("| Type | Linked | Total | % |")
-        lines.append("|------|--------|-------|---|")
+        type_rows = []
         for cls in sorted(scorecard.coverage_by_type.keys()):
             linked = scorecard.type_covered_counts.get(cls, 0)
             total = scorecard.type_total_counts.get(cls, 0)
             pct = scorecard.coverage_by_type[cls]
-            lines.append(f"| {cls} | {linked} | {total} | {pct:.0f}% |")
+            type_rows.append([cls, str(linked), str(total), f"{pct:.0f}%"])
+        lines.append(_table(["Type", "Linked", "Total", "%"], type_rows))
         lines.append("")
 
     # Uncovered source files
@@ -443,41 +450,40 @@ def _format_scorecard_section(scorecard: Scorecard) -> list[str]:
     # Accuracy by category
     if scorecard.accuracy_by_category:
         lines.append("### Accuracy errors by category\n")
-        lines.append("| Category | Count |")
-        lines.append("|----------|-------|")
-        for cat, count in sorted(scorecard.accuracy_by_category.items()):
-            lines.append(f"| {cat} | {count} |")
+        acc_rows = [[cat, str(count)] for cat, count in sorted(scorecard.accuracy_by_category.items())]
+        lines.append(_table(["Category", "Count"], acc_rows))
         lines.append("")
 
     # Junk code by category
     if scorecard.junk_by_category:
         lines.append("### Junk code by category\n")
-        lines.append("| Category | Items | Lines |")
-        lines.append("|----------|-------|-------|")
+        junk_rows = []
         for cat in sorted(scorecard.junk_by_category.keys()):
             items = scorecard.junk_by_category[cat]
             cat_lines = scorecard.junk_by_category_lines.get(cat, 0)
-            lines.append(f"| {cat} | {items} | {cat_lines} |")
+            junk_rows.append([cat, str(items), str(cat_lines)])
+        lines.append(_table(["Category", "Items", "Lines"], junk_rows))
         lines.append("")
 
     # Worst files by junk fraction
     worst = [e for e in scorecard.junk_entries if e.junk_fraction > 0.05][:5]
     if worst:
         lines.append("### Worst files by junk fraction\n")
-        lines.append("| File | Junk % | Junk lines / Total |")
-        lines.append("|------|--------|-------------------|")
-        for entry in worst:
-            lines.append(f"| `{entry.source_path}` | {entry.junk_fraction:.0%} | {entry.junk_lines}/{entry.total_lines} |")
+        worst_rows = [
+            [entry.source_path, f"{entry.junk_fraction:.0%}", f"{entry.junk_lines}/{entry.total_lines}"]
+            for entry in worst
+        ]
+        lines.append(_table(["File", "Junk %", "Junk lines / Total"], worst_rows))
         lines.append("")
 
     # Enforcement by schema
     if scorecard.enforcement_by_schema:
         lines.append("### Enforcement by schema\n")
-        lines.append("| Schema | Unactuated | Fields |")
-        lines.append("|--------|------------|--------|")
+        enf_rows = []
         for schema, info in sorted(scorecard.enforcement_by_schema.items()):
             fields = ", ".join(info["fields"])
-            lines.append(f"| `{schema}` | {info['unactuated']} | {fields} |")
+            enf_rows.append([schema, str(info["unactuated"]), fields])
+        lines.append(_table(["Schema", "Unactuated", "Fields"], enf_rows))
         lines.append("")
 
     # Missing phases note — derived from JUNK_ANALYZERS registry so names
