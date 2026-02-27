@@ -5,7 +5,7 @@ from pathlib import Path
 
 import click
 
-from .audit import run_audit, format_audit_report, format_audit_json
+from .audit import run_audit, format_audit_report, format_audit_json, format_audit_html
 from .config import Config
 from .diff import run_diff, format_diff_report, format_diff_json
 from .shadow import generate_shadow_docs_async, generate_shadow_docs, check_shadow_docs, dry_run_shadow
@@ -158,7 +158,7 @@ def stats(path: Path, verbose: bool, no_gitignore: bool) -> None:
 @click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
 @click.option("--fix/--no-fix", default=True, help="Auto-fix shadow docs (default: yes)")
 @click.option("--verbose", "-v", is_flag=True, help="Show detailed output")
-@click.option("--format", "output_format", type=click.Choice(["text", "json"]), default="text", help="Output format")
+@click.option("--format", "output_format", type=click.Choice(["text", "json", "html"]), default="text", help="Output format")
 @click.option("--dead-code", is_flag=True, help="Detect cross-file dead code (LLM calls for ambiguous candidates)")
 @click.option("--dead-plumbing", is_flag=True, help="Detect unactuated config obligations (LLM calls)")
 @click.option("--dead-deps", is_flag=True, help="Detect unused package dependencies (LLM calls)")
@@ -199,6 +199,12 @@ def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: b
 
     if output_format == "json":
         click.echo(format_audit_json(result))
+    elif output_format == "html":
+        html_str = format_audit_html(result)
+        out_path = config.analysis_root / "report.html"
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(html_str, encoding="utf-8")
+        click.echo(f"Report written to {out_path}")
     else:
         report = format_audit_report(result, verbose=verbose)
         click.echo(report)
