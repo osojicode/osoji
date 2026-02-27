@@ -252,3 +252,61 @@ class TestStringLiterals:
         db = FactsDB(_make_config(tmp_path))
         defined = db.strings_by_usage("defined", kind="identifier")
         assert "dead_code" in defined.get("src/a.py", set())
+
+
+class TestMalformedEntries:
+    """Ensure non-dict entries in list fields are silently filtered out."""
+
+    def test_string_literals_plain_strings_filtered(self, tmp_path):
+        """string_literals containing plain strings are silently dropped."""
+        _write_facts(tmp_path, "src/a.py", {
+            "imports": [],
+            "exports": [],
+            "calls": [],
+            "string_literals": ["foo", "bar"],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        facts = db.get_file("src/a.py")
+        assert facts is not None
+        assert facts.string_literals == []
+
+    def test_string_literals_mixed_types_filtered(self, tmp_path):
+        """Only dict entries survive when string_literals has mixed types."""
+        _write_facts(tmp_path, "src/a.py", {
+            "imports": [],
+            "exports": [],
+            "calls": [],
+            "string_literals": [
+                "plain_string",
+                {"value": "good", "usage": "produced", "kind": "identifier", "context": "ok", "line": 1},
+                42,
+                {"value": "also_good", "usage": "checked", "kind": "config", "context": "ok", "line": 2},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        facts = db.get_file("src/a.py")
+        assert facts is not None
+        assert len(facts.string_literals) == 2
+        assert facts.string_literals[0]["value"] == "good"
+        assert facts.string_literals[1]["value"] == "also_good"
+
+    def test_all_list_fields_filter_non_dicts(self, tmp_path):
+        """imports, exports, and calls also filter out non-dict entries."""
+        _write_facts(tmp_path, "src/a.py", {
+            "imports": ["bad_import", {"source": ".b", "names": ["x"], "is_reexport": False}],
+            "exports": [99, {"name": "foo", "kind": "function", "line": 1}],
+            "calls": [None, {"target": "print", "line": 5}],
+            "string_literals": [],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        facts = db.get_file("src/a.py")
+        assert facts is not None
+        assert len(facts.imports) == 1
+        assert facts.imports[0]["source"] == ".b"
+        assert len(facts.exports) == 1
+        assert facts.exports[0]["name"] == "foo"
+        assert len(facts.calls) == 1
+        assert facts.calls[0]["target"] == "print"

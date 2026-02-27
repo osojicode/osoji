@@ -159,6 +159,16 @@ class TestArrayItems:
         schema = {"type": "array", "items": {"type": "string"}}
         assert validate_tool_input([], schema) == []
 
+    def test_string_in_object_array_rejected(self):
+        """A string where items: {type: 'object'} is expected triggers an error."""
+        schema = {"type": "array", "items": {"type": "object"}}
+        errs = validate_tool_input(["foo", "bar"], schema)
+        assert len(errs) == 2
+        assert "[0]" in errs[0]
+        assert "expected object" in errs[0]
+        assert "got str" in errs[0]
+        assert "[1]" in errs[1]
+
 
 class TestNestedPaths:
     """Dot-path error messages for nested structures."""

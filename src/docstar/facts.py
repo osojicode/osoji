@@ -21,6 +21,11 @@ class FileFacts:
     string_literals: list[dict] = field(default_factory=list)
 
 
+def _only_dicts(items: list) -> list[dict]:
+    """Filter a list to keep only dict entries, discarding malformed LLM output."""
+    return [x for x in items if isinstance(x, dict)]
+
+
 class FactsDB:
     """In-memory database of structured facts extracted during shadow generation.
 
@@ -47,10 +52,10 @@ class FactsDB:
                 self._files[source_norm] = FileFacts(
                     source=source_norm,
                     source_hash=data.get("source_hash", ""),
-                    imports=data.get("imports", []),
-                    exports=data.get("exports", []),
-                    calls=data.get("calls", []),
-                    string_literals=data.get("string_literals", []),
+                    imports=_only_dicts(data.get("imports", [])),
+                    exports=_only_dicts(data.get("exports", [])),
+                    calls=_only_dicts(data.get("calls", [])),
+                    string_literals=_only_dicts(data.get("string_literals", [])),
                 )
             except (json.JSONDecodeError, KeyError):
                 continue
