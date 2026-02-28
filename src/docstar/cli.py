@@ -74,8 +74,9 @@ def check(path: Path, no_gitignore: bool) -> None:
 
     click.echo(f"Found {len(issues)} file(s) with issues:\n")
 
+    status_colors = {"stale": "yellow", "missing": "red", "stale-impl": "cyan"}
     for file_path, status in issues:
-        status_color = "yellow" if status == "stale" else "red"
+        status_color = status_colors.get(status, "red")
         click.echo(f"  [{click.style(status, fg=status_color)}] {file_path}")
 
     click.echo(f"\nRun 'docstar shadow {path}' to update.")

@@ -1,6 +1,7 @@
 """Hashing and line number preprocessing utilities."""
 
 import hashlib
+from functools import lru_cache
 from pathlib import Path
 
 
@@ -92,5 +93,55 @@ def extract_children_hash(shadow_content: str) -> str | None:
     """Extract the children hash from a directory shadow doc header."""
     for line in shadow_content.splitlines()[:10]:
         if line.startswith("@children-hash:"):
+            return line.split(":", 1)[1].strip()
+    return None
+
+
+# --- Implementation hash ---
+# Files whose content affects shadow doc output.
+# Sorted alphabetically so reordering the tuple changes the hash.
+_IMPL_HASH_SOURCES = (
+    "src/docstar/config.py",
+    "src/docstar/hasher.py",
+    "src/docstar/llm/anthropic.py",
+    "src/docstar/llm/base.py",
+    "src/docstar/llm/types.py",
+    "src/docstar/llm/validate.py",
+    "src/docstar/shadow.py",
+    "src/docstar/tools.py",
+)
+
+
+@lru_cache(maxsize=1)
+def compute_impl_hash() -> str:
+    """Compute a composite hash over the implementation files that affect shadow output.
+
+    Each entry is "rel_path:file_hash" sorted alphabetically, so renaming or
+    reordering a file changes the hash.  Cached for the lifetime of the process.
+    """
+    # Resolve package root: this file lives at src/docstar/hasher.py
+    pkg_dir = Path(__file__).resolve().parent          # src/docstar/
+    project_root = pkg_dir.parent.parent               # project root
+
+    entries: list[str] = []
+    for rel in sorted(_IMPL_HASH_SOURCES):
+        full = project_root / rel
+        if full.exists():
+            h = compute_file_hash(full)
+        else:
+            h = "missing"
+        entries.append(f"{rel}:{h}")
+
+    return compute_hash("\n".join(entries))
+
+
+def extract_impl_hash(shadow_content: str) -> str | None:
+    """Extract the impl hash from a shadow doc header.
+
+    Looks for a line like: @impl-hash: abc123...
+    Returns None if not found (old-format doc).
+    """
+    for line in shadow_content.splitlines()[:10]:
+        if line.startswith("@impl-hash:"):
             return line.split(":", 1)[1].strip()
     return None
