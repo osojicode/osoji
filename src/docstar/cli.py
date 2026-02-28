@@ -308,9 +308,9 @@ def hooks_install(
     all_success = True
     for hook_name, success, message in results:
         if success:
-            click.echo(f"  ✓ {message}")
+            click.echo(f"  [ok] {message}")
         else:
-            click.echo(f"  ✗ {message}")
+            click.echo(f"  [FAIL] {message}")
             all_success = False
 
     if all_success:
@@ -328,9 +328,9 @@ def hooks_uninstall(path: Path) -> None:
 
     for hook_name, success, message in results:
         if success:
-            click.echo(f"  ✓ {message}")
+            click.echo(f"  [ok] {message}")
         else:
-            click.echo(f"  ✗ {message}")
+            click.echo(f"  [FAIL] {message}")
 
 
 @main.group()
