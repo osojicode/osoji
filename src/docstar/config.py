@@ -222,6 +222,11 @@ class Config:
         return self.analysis_root / "scorecard.json"
 
     @property
+    def staleness_manifest_path(self) -> Path:
+        """Return the path to the staleness manifest JSON."""
+        return self.root_path / SHADOW_DIR / "staleness.json"
+
+    @property
     def rules_path(self) -> Path:
         """Path to natural language rules file."""
         return self.root_path / ".docstar" / "rules"
