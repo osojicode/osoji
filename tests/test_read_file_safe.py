@@ -79,10 +79,48 @@ class TestReadFileSafe:
         assert not is_binary
 
     def test_high_non_text_ratio_detected_as_binary(self, tmp_path: Path):
-        """A file with >10% non-text bytes should be detected as binary."""
+        """A file with >10% non-text bytes (invalid UTF-8) detected as binary."""
         f = tmp_path / "weird.dat"
-        # 80 regular chars + 20 control chars = 20% non-text
-        text_bytes = b"x" * 80 + b"\x01" * 20
+        # 80 regular chars + 20 invalid-UTF-8 bytes (0xfe is never valid in UTF-8)
+        text_bytes = b"x" * 80 + b"\xfe" * 20
         f.write_bytes(text_bytes)
+        content, is_binary = read_file_safe(f)
+        assert is_binary
+
+    def test_utf8_box_drawing_not_binary(self, tmp_path: Path):
+        """UTF-8 files with box-drawing characters must not be flagged binary."""
+        f = tmp_path / "decorators.ts"
+        # Simulate TS files with Unicode box-drawing separators (U+2500 = ─)
+        separator = "// " + "\u2500" * 60 + "\n"
+        code = "const x = 1;\n"
+        # Enough separators to exceed 10% non-ASCII if checked byte-by-byte
+        content = (separator + code) * 30
+        f.write_text(content, encoding="utf-8")
+        result, is_binary = read_file_safe(f)
+        assert not is_binary
+        assert "\u2500" in result
+
+    def test_utf8_emoji_not_binary(self, tmp_path: Path):
+        """UTF-8 files with emoji / accented characters are text."""
+        f = tmp_path / "i18n.py"
+        content = "# Héllo wörld 🌍🚀✅\nprint('café')\n" * 20
+        f.write_text(content, encoding="utf-8")
+        result, is_binary = read_file_safe(f)
+        assert not is_binary
+        assert "café" in result
+
+    def test_jpeg_still_binary_after_utf8_fix(self, tmp_path: Path):
+        """JPEG data is not valid UTF-8 and still detected as binary."""
+        f = tmp_path / "photo.jpg"
+        # JPEG-like: high bytes that are NOT valid UTF-8 sequences
+        data = b"\xff\xd8\xff\xe0" + bytes(range(128, 256)) * 10
+        f.write_bytes(data)
+        content, is_binary = read_file_safe(f)
+        assert is_binary
+
+    def test_png_still_binary_after_utf8_fix(self, tmp_path: Path):
+        """PNG signature has null bytes → still caught as binary."""
+        f = tmp_path / "icon.png"
+        f.write_bytes(b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR")
         content, is_binary = read_file_safe(f)
         assert is_binary
