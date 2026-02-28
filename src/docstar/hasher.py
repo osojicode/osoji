@@ -38,10 +38,28 @@ def read_file_safe(path: Path) -> tuple[str, bool]:
     if b'\x00' in raw:
         return "", True
 
-    # Check 2: non-text byte ratio
-    # Text bytes: printable ASCII (0x20-0x7e) + tab (0x09) + newline (0x0a) + CR (0x0d)
-    # Strip UTF-8 BOM before ratio check (BOM bytes are non-ASCII but valid text)
+    # Check 2: valid UTF-8 → text (skip byte-ratio heuristic)
+    # Real binary files (JPEG, etc.) are virtually never valid UTF-8, and the
+    # null-byte check above already catches most binary formats. This prevents
+    # false positives on UTF-8 files with multi-byte characters (e.g. box-drawing,
+    # emoji, CJK) that have a high ratio of non-ASCII bytes.
     check_raw = raw[3:] if raw.startswith(b'\xef\xbb\xbf') else raw
+    try:
+        check_raw.decode("utf-8")  # strict — raises on any invalid sequence
+        is_valid_utf8 = True
+    except UnicodeDecodeError as e:
+        # The 8KB slice may truncate a multi-byte sequence at the boundary.
+        # If the only error is within the last 3 bytes, it's just truncation.
+        is_valid_utf8 = e.start >= len(check_raw) - 3
+
+    if is_valid_utf8:
+        try:
+            return path.read_text(encoding="utf-8-sig"), False
+        except UnicodeDecodeError:
+            return path.read_text(encoding="utf-8", errors="replace"), False
+
+    # Check 3: non-text byte ratio (only reached for non-UTF-8 files)
+    # Text bytes: printable ASCII (0x20-0x7e) + tab (0x09) + newline (0x0a) + CR (0x0d)
     _TEXT_BYTES = frozenset(range(0x20, 0x7f)) | {0x09, 0x0a, 0x0d}
     if check_raw:
         non_text = sum(1 for b in check_raw if b not in _TEXT_BYTES)
