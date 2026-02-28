@@ -47,6 +47,7 @@ export analysis, and string contract checking.
 - `src/docstar/tools.py` — Tool definitions (schemas) for LLM tool use
 - `src/docstar/debris.py` — Documentation accuracy analysis
 - `src/docstar/deadcode.py` — Dead code detection
+- `src/docstar/plumbing.py` — Dead plumbing detection (unactuated config obligations)
 - `src/docstar/junk.py` — Junk code analysis (with `junk_cicd.py`, `junk_deps.py`, `junk_orphan.py`)
 - `src/docstar/scorecard.py` — Audit scorecard generation
 - `src/docstar/viz.py` — Visualization server; serves `viz.html` dashboard

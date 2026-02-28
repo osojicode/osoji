@@ -483,3 +483,113 @@ class TestContractFramework:
         assert isinstance(checker, ContractChecker)
         assert checker.contract_type == "string_contract"
         assert checker.description != ""
+
+
+# --- Tool schema key suppression tests ---
+
+class TestToolSchemaKeySuppression:
+    """Tool schema property keys and enum values should not be flagged."""
+
+    def test_tool_schema_keys_not_flagged_as_violations(self, tmp_path):
+        """Strings like 'imports', 'exports' from tool schemas are suppressed in violations."""
+        # "imports" and "exports" are property keys in the tool schemas in tools.py.
+        # If a file checks them but they aren't "produced" internally, they should
+        # NOT be flagged because the tool schema is the external producer.
+        _write_facts(tmp_path, "src/registry.py", {
+            "string_literals": [
+                {"value": "alpha", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/handler.py", {
+            "string_literals": [
+                {"value": "alpha", "context": "check", "line": 10, "kind": "identifier", "usage": "checked"},
+                # These are tool schema property keys — should be suppressed
+                {"value": "imports", "context": "data.get('imports')", "line": 20, "kind": "identifier", "usage": "checked"},
+                {"value": "exports", "context": "data.get('exports')", "line": 21, "kind": "identifier", "usage": "checked"},
+                {"value": "calls", "context": "data.get('calls')", "line": 22, "kind": "identifier", "usage": "checked"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        violations = checker.check()
+        flagged = {v.evidence["value"] for v in violations}
+        assert "imports" not in flagged
+        assert "exports" not in flagged
+        assert "calls" not in flagged
+
+    def test_json_schema_vocabulary_not_flagged(self, tmp_path):
+        """JSON Schema vocab like 'enum', 'required', 'properties' is in _COMMON_STRINGS."""
+        _write_facts(tmp_path, "src/registry.py", {
+            "string_literals": [
+                {"value": "alpha", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/validate.py", {
+            "string_literals": [
+                {"value": "alpha", "context": "check", "line": 10, "kind": "identifier", "usage": "checked"},
+                {"value": "enum", "context": "schema keyword", "line": 20, "kind": "identifier", "usage": "checked"},
+                {"value": "required", "context": "schema keyword", "line": 21, "kind": "identifier", "usage": "checked"},
+                {"value": "properties", "context": "schema keyword", "line": 22, "kind": "identifier", "usage": "checked"},
+                {"value": "minimum", "context": "schema keyword", "line": 23, "kind": "identifier", "usage": "checked"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        violations = checker.check()
+        flagged = {v.evidence["value"] for v in violations}
+        assert "enum" not in flagged
+        assert "required" not in flagged
+        assert "properties" not in flagged
+        assert "minimum" not in flagged
+
+    def test_tool_schema_enum_values_excluded_from_fragility(self, tmp_path):
+        """Tool schema enum values (e.g. 'stale_comment') excluded from fragility detection."""
+        # "stale_comment" is an enum value in the SUBMIT_SHADOW_DOC_TOOL schema.
+        # It should not appear as a fragile implicit contract.
+        _write_facts(tmp_path, "src/producer.py", {
+            "string_literals": [
+                {"value": "stale_comment", "context": "appended to list", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/consumer.py", {
+            "string_literals": [
+                {"value": "stale_comment", "context": "membership check", "line": 20, "kind": "identifier", "usage": "checked"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        findings = checker.find_contracts()
+        implicit = [f for f in findings if f.finding_type == "implicit_contract"]
+        # stale_comment is a tool schema enum value, so it should be filtered out
+        implicit_values = []
+        for f in implicit:
+            if f.value:
+                implicit_values.append(f.value)
+            elif f.evidence.get("values"):
+                implicit_values.extend(f.evidence["values"])
+        assert "stale_comment" not in implicit_values
+
+    def test_common_format_names_not_flagged(self, tmp_path):
+        """Common format names like 'json', 'html' are in _COMMON_STRINGS."""
+        _write_facts(tmp_path, "src/registry.py", {
+            "string_literals": [
+                {"value": "alpha", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/cli.py", {
+            "string_literals": [
+                {"value": "alpha", "context": "check", "line": 10, "kind": "identifier", "usage": "checked"},
+                {"value": "json", "context": "click.Choice", "line": 20, "kind": "identifier", "usage": "checked"},
+                {"value": "html", "context": "click.Choice", "line": 21, "kind": "identifier", "usage": "checked"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        violations = checker.check()
+        flagged = {v.evidence["value"] for v in violations}
+        assert "json" not in flagged
+        assert "html" not in flagged

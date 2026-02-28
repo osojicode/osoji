@@ -88,10 +88,50 @@ def _collect_tool_names() -> set[str]:
         return set()
 
 
+def _collect_tool_schema_keys() -> set[str]:
+    """Collect property names and enum values from LLM tool schemas.
+
+    These form an external contract with the LLM — code that does
+    data.get("imports") on LLM-generated JSON has the tool schema as
+    its producer, not internal code.
+    """
+    try:
+        from . import tools as tools_mod
+        keys: set[str] = set()
+        for attr_name in dir(tools_mod):
+            obj = getattr(tools_mod, attr_name)
+            if isinstance(obj, dict) and "input_schema" in obj:
+                _extract_schema_keys(obj["input_schema"], keys)
+        return keys
+    except ImportError:
+        return set()
+
+
+def _extract_schema_keys(schema: dict, keys: set[str]) -> None:
+    """Recursively extract property names and enum values from a JSON Schema."""
+    if not isinstance(schema, dict):
+        return
+    if "properties" in schema:
+        for prop_name, prop_schema in schema["properties"].items():
+            keys.add(prop_name)
+            _extract_schema_keys(prop_schema, keys)
+    if "enum" in schema:
+        for val in schema["enum"]:
+            if isinstance(val, str):
+                keys.add(val)
+    if "items" in schema and isinstance(schema["items"], dict):
+        _extract_schema_keys(schema["items"], keys)
+
+
 _COMMON_STRINGS = {
     "id", "name", "type", "error", "status", "value", "key", "data",
     "result", "message", "path", "file", "url", "true", "false", "none",
     "null", "ok", "yes", "no",
+    # JSON Schema standard vocabulary
+    "enum", "minimum", "maximum", "required", "properties", "items",
+    "string", "integer", "number", "boolean", "array", "object",
+    # Common format/output names
+    "json", "html", "text", "xml", "csv", "yaml",
 }
 
 
@@ -140,6 +180,7 @@ class StringContractChecker(ContractChecker):
     def __init__(self, facts_db: FactsDB):
         super().__init__(facts_db)
         self._tool_names = _collect_tool_names()
+        self._tool_schema_keys = _collect_tool_schema_keys()
         self._data: StringContractData | None = None
 
     @property
@@ -231,6 +272,11 @@ class StringContractChecker(ContractChecker):
 
             matched = checked_values & data.all_produced_values
             unmatched = checked_values - matched
+
+            # Filter noise from unmatched (after ratio computation to preserve
+            # partial-match logic — schema keys can still anchor the match ratio)
+            unmatched -= self._tool_schema_keys
+            unmatched -= {v for v in unmatched if v.lower() in _COMMON_STRINGS}
 
             if not unmatched:
                 continue
@@ -348,6 +394,8 @@ class StringContractChecker(ContractChecker):
         if value.lower() in _COMMON_STRINGS:
             return False
         if value in self._tool_names:
+            return False
+        if value in self._tool_schema_keys:
             return False
         return True
 

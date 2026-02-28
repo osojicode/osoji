@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .config import Config
+from .config import Config, DIRECTORY_SHADOW_FILENAME
 from .debris import DocAnalysisResult
 from .deadcode import DeadCodeVerification
 from .junk import JunkAnalysisResult
@@ -119,7 +119,7 @@ def build_scorecard(
     all_source_files: set[str] = set()
     if shadow_root.exists():
         for shadow_file in shadow_root.rglob("*.shadow.md"):
-            if shadow_file.name == "_directory.shadow.md":
+            if shadow_file.name == DIRECTORY_SHADOW_FILENAME:
                 continue
             relative = shadow_file.relative_to(shadow_root)
             source_str = str(relative).removesuffix(".shadow.md").replace("\\", "/")

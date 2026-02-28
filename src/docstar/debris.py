@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config
+from .config import Config, DIRECTORY_SHADOW_FILENAME
 from .hasher import read_file_safe
 from .llm.base import LLMProvider
 from .llm.factory import create_provider
@@ -124,7 +124,7 @@ def _find_referenced_sources(config: Config, doc_content: str) -> list[Path]:
     source_files: dict[str, Path] = {}
     for shadow_path in shadow_root.rglob("*.shadow.md"):
         # Skip directory roll-ups
-        if shadow_path.name == "_directory.shadow.md":
+        if shadow_path.name == DIRECTORY_SHADOW_FILENAME:
             continue
 
         # Recover source path from shadow path
@@ -187,7 +187,7 @@ def _load_directory_summaries(config: Config) -> dict[str, tuple[str, list[Path]
 
     summaries: dict[str, tuple[str, list[Path]]] = {}
 
-    for dir_shadow in shadow_root.rglob("_directory.shadow.md"):
+    for dir_shadow in shadow_root.rglob(DIRECTORY_SHADOW_FILENAME):
         try:
             content = dir_shadow.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
@@ -202,7 +202,7 @@ def _load_directory_summaries(config: Config) -> dict[str, tuple[str, list[Path]
         # Find child file shadow docs in this directory (non-recursive)
         child_files: list[Path] = []
         for child in dir_shadow.parent.iterdir():
-            if child.name == "_directory.shadow.md":
+            if child.name == DIRECTORY_SHADOW_FILENAME:
                 continue
             if child.is_file() and child.name.endswith(".shadow.md"):
                 source_str = str(child.relative_to(shadow_root)).removesuffix(".shadow.md")
@@ -471,7 +471,7 @@ def _gather_project_evidence(
     shadowed_files: set[str] = set()
     if shadow_root.exists():
         for shadow_path in shadow_root.rglob("*.shadow.md"):
-            if shadow_path.name == "_directory.shadow.md":
+            if shadow_path.name == DIRECTORY_SHADOW_FILENAME:
                 continue
             relative_shadow = shadow_path.relative_to(shadow_root)
             source_str = str(relative_shadow).removesuffix(".shadow.md").replace("\\", "/")
