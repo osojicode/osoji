@@ -5,7 +5,7 @@ from pathlib import Path
 
 import click
 
-from .audit import run_audit, format_audit_report, format_audit_json, format_audit_html
+from .audit import run_audit, format_audit_report, format_audit_json, format_audit_html, load_audit_result
 from .config import Config
 from .diff import run_diff, format_diff_report, format_diff_json
 from .shadow import generate_shadow_docs_async, generate_shadow_docs, check_shadow_docs, dry_run_shadow
@@ -208,6 +208,38 @@ def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: b
     else:
         report = format_audit_report(result, verbose=verbose)
         click.echo(report)
+
+    if not result.passed:
+        raise SystemExit(1)
+
+
+@main.command()
+@click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
+@click.option("--format", "output_format", type=click.Choice(["text", "json", "html"]), default="text", help="Output format")
+@click.option("--verbose", "-v", is_flag=True, help="Show detailed output")
+def report(path: Path, output_format: str, verbose: bool) -> None:
+    """Re-render the last audit result in a different format (no re-analysis).
+
+    Loads the cached result from the most recent 'docstar audit' run and
+    formats it as text, JSON, or HTML. No LLM calls are made.
+    """
+    config = Config(root_path=path.resolve())
+    try:
+        result = load_audit_result(config)
+    except FileNotFoundError:
+        raise click.ClickException("No cached audit result. Run 'docstar audit' first.")
+
+    if output_format == "json":
+        click.echo(format_audit_json(result))
+    elif output_format == "html":
+        html_str = format_audit_html(result)
+        out_path = config.analysis_root / "report.html"
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(html_str, encoding="utf-8")
+        click.echo(f"Report written to {out_path}")
+    else:
+        report_text = format_audit_report(result, verbose=verbose)
+        click.echo(report_text)
 
     if not result.passed:
         raise SystemExit(1)

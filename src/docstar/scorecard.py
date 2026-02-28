@@ -64,6 +64,10 @@ class Scorecard:
     enforcement_pct_unactuated: float | None
     enforcement_by_schema: dict[str, dict] | None
 
+    # Obligations (None if --obligations not run)
+    obligation_violations: int | None = None
+    obligation_implicit_contracts: int | None = None
+
 
 def merge_ranges(ranges: list[tuple[int, int]]) -> list[tuple[int, int]]:
     """Merge overlapping integer ranges. Returns sorted, non-overlapping ranges."""

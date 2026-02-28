@@ -7,7 +7,13 @@ import pytest
 
 from docstar.config import Config
 from docstar.facts import FactsDB
-from docstar.obligations import StringContractChecker
+from docstar.obligations import (
+    CONTRACT_CHECKERS,
+    ContractChecker,
+    ContractFinding,
+    StringContractChecker,
+    run_all_contract_checks,
+)
 
 
 # --- Helpers ---
@@ -252,3 +258,228 @@ class TestIntegrationReproducer:
         for v in violations:
             assert v.severity == "warning"
             assert v.obligation_type == "string_contract"
+
+
+# --- Fragility detection tests ---
+
+class TestFragilityDetection:
+    def test_fully_implicit_contract_detected(self, tmp_path):
+        """Value produced in one file and checked in another with no definer -> flagged."""
+        _write_facts(tmp_path, "src/producer.py", {
+            "string_literals": [
+                {"value": "my_category", "context": "appended to list", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/consumer.py", {
+            "string_literals": [
+                {"value": "my_category", "context": "membership check", "line": 20, "kind": "identifier", "usage": "checked"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        findings = checker.find_contracts()
+        implicit = [f for f in findings if f.finding_type == "implicit_contract"]
+        assert len(implicit) == 1
+        assert implicit[0].severity == "info"
+        assert implicit[0].producer_file == "src/producer.py"
+        assert implicit[0].consumer_file == "src/consumer.py"
+
+    def test_robust_contract_not_flagged(self, tmp_path):
+        """Both producer and checker import from definer -> not flagged."""
+        _write_facts(tmp_path, "src/constants.py", {
+            "string_literals": [
+                {"value": "my_category", "context": "constant definition", "line": 5, "kind": "identifier", "usage": "defined"},
+            ],
+            "exports": [{"name": "MY_CATEGORY", "kind": "variable", "line": 5}],
+        })
+        _write_facts(tmp_path, "src/producer.py", {
+            "imports": [{"source": ".constants", "names": ["MY_CATEGORY"]}],
+            "string_literals": [
+                {"value": "my_category", "context": "appended to list", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/consumer.py", {
+            "imports": [{"source": ".constants", "names": ["MY_CATEGORY"]}],
+            "string_literals": [
+                {"value": "my_category", "context": "membership check", "line": 20, "kind": "identifier", "usage": "checked"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        findings = checker.find_contracts()
+        implicit = [f for f in findings if f.finding_type == "implicit_contract"]
+        assert len(implicit) == 0
+
+    def test_partially_robust_flagged(self, tmp_path):
+        """Only producer links to definer, checker doesn't -> flagged."""
+        _write_facts(tmp_path, "src/constants.py", {
+            "string_literals": [
+                {"value": "my_category", "context": "constant definition", "line": 5, "kind": "identifier", "usage": "defined"},
+            ],
+            "exports": [{"name": "MY_CATEGORY", "kind": "variable", "line": 5}],
+        })
+        _write_facts(tmp_path, "src/producer.py", {
+            "imports": [{"source": ".constants", "names": ["MY_CATEGORY"]}],
+            "string_literals": [
+                {"value": "my_category", "context": "appended to list", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/consumer.py", {
+            "string_literals": [
+                {"value": "my_category", "context": "membership check", "line": 20, "kind": "identifier", "usage": "checked"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        findings = checker.find_contracts()
+        implicit = [f for f in findings if f.finding_type == "implicit_contract"]
+        assert len(implicit) == 1
+
+    def test_same_file_contract_not_flagged(self, tmp_path):
+        """Value produced and checked in same file -> not flagged."""
+        _write_facts(tmp_path, "src/handler.py", {
+            "string_literals": [
+                {"value": "my_category", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+                {"value": "my_category", "context": "checked", "line": 20, "kind": "identifier", "usage": "checked"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        findings = checker.find_contracts()
+        implicit = [f for f in findings if f.finding_type == "implicit_contract"]
+        assert len(implicit) == 0
+
+    def test_grouping_works(self, tmp_path):
+        """3 implicit values between same file pair -> 1 grouped finding."""
+        _write_facts(tmp_path, "src/producer.py", {
+            "string_literals": [
+                {"value": "cat_alpha", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+                {"value": "cat_beta", "context": "produced", "line": 11, "kind": "identifier", "usage": "produced"},
+                {"value": "cat_gamma", "context": "produced", "line": 12, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/consumer.py", {
+            "string_literals": [
+                {"value": "cat_alpha", "context": "checked", "line": 20, "kind": "identifier", "usage": "checked"},
+                {"value": "cat_beta", "context": "checked", "line": 21, "kind": "identifier", "usage": "checked"},
+                {"value": "cat_gamma", "context": "checked", "line": 22, "kind": "identifier", "usage": "checked"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        findings = checker.find_contracts()
+        implicit = [f for f in findings if f.finding_type == "implicit_contract"]
+        assert len(implicit) == 1
+        assert implicit[0].value is None  # grouped
+        assert implicit[0].evidence["count"] == 3
+        assert implicit[0].confidence == 0.8  # min(0.9, 0.5 + 0.1 * 3)
+
+    def test_test_files_included_for_fragility(self, tmp_path):
+        """Test files ARE included as consumers for fragility detection (unlike violations)."""
+        _write_facts(tmp_path, "src/producer.py", {
+            "string_literals": [
+                {"value": "my_category", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "tests/test_handler.py", {
+            "string_literals": [
+                {"value": "my_category", "context": "assertion", "line": 20, "kind": "identifier", "usage": "checked"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        findings = checker.find_contracts()
+        implicit = [f for f in findings if f.finding_type == "implicit_contract"]
+        assert len(implicit) == 1
+        assert implicit[0].consumer_file == "tests/test_handler.py"
+
+    def test_common_short_strings_excluded(self, tmp_path):
+        """Short strings and common strings are excluded from fragility detection."""
+        _write_facts(tmp_path, "src/producer.py", {
+            "string_literals": [
+                {"value": "id", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+                {"value": "ok", "context": "produced", "line": 11, "kind": "identifier", "usage": "produced"},
+                {"value": "ab", "context": "produced", "line": 12, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/consumer.py", {
+            "string_literals": [
+                {"value": "id", "context": "checked", "line": 20, "kind": "identifier", "usage": "checked"},
+                {"value": "ok", "context": "checked", "line": 21, "kind": "identifier", "usage": "checked"},
+                {"value": "ab", "context": "checked", "line": 22, "kind": "identifier", "usage": "checked"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        findings = checker.find_contracts()
+        implicit = [f for f in findings if f.finding_type == "implicit_contract"]
+        assert len(implicit) == 0
+
+
+# --- Contract framework tests ---
+
+class TestContractFramework:
+    def test_registry_contains_string_checker(self):
+        """Registry should contain StringContractChecker."""
+        assert StringContractChecker in CONTRACT_CHECKERS
+
+    def test_run_all_returns_findings(self, tmp_path):
+        """run_all_contract_checks() returns a list of ContractFinding."""
+        _write_facts(tmp_path, "src/producer.py", {
+            "string_literals": [
+                {"value": "my_category", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/consumer.py", {
+            "string_literals": [
+                {"value": "my_category", "context": "checked", "line": 20, "kind": "identifier", "usage": "checked"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        findings = run_all_contract_checks(db)
+        assert isinstance(findings, list)
+        assert all(isinstance(f, ContractFinding) for f in findings)
+
+    def test_contract_finding_fields(self, tmp_path):
+        """ContractFinding has correct fields."""
+        _write_facts(tmp_path, "src/producer.py", {
+            "string_literals": [
+                {"value": "my_category", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/consumer.py", {
+            "string_literals": [
+                {"value": "my_category", "context": "checked", "line": 20, "kind": "identifier", "usage": "checked"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        findings = run_all_contract_checks(db)
+        assert len(findings) > 0
+        f = findings[0]
+        assert hasattr(f, "finding_type")
+        assert hasattr(f, "contract_type")
+        assert hasattr(f, "producer_file")
+        assert hasattr(f, "consumer_file")
+        assert hasattr(f, "severity")
+        assert hasattr(f, "confidence")
+        assert hasattr(f, "description")
+        assert hasattr(f, "evidence")
+        assert hasattr(f, "remediation")
+        assert f.contract_type == "string_contract"
+
+    def test_string_checker_is_contract_checker(self, tmp_path):
+        """StringContractChecker is a ContractChecker subclass."""
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        assert isinstance(checker, ContractChecker)
+        assert checker.contract_type == "string_contract"
+        assert checker.description != ""
