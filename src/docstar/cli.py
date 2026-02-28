@@ -8,7 +8,7 @@ import click
 from .audit import run_audit, format_audit_report, format_audit_json, format_audit_html, load_audit_result
 from .config import Config
 from .diff import run_diff, format_diff_report, format_diff_json
-from .shadow import generate_shadow_docs_async, generate_shadow_docs, check_shadow_docs, dry_run_shadow
+from .shadow import generate_shadow_docs_async, generate_shadow_docs, check_shadow_docs, mark_stale_docs, dry_run_shadow
 from .stats import gather_stats, format_stats_report
 from .hooks import install_hooks, uninstall_hooks
 from .safety import check_staged_files, check_files as safety_check_files
@@ -58,28 +58,51 @@ def shadow(path: Path, force: bool, verbose: bool, dry_run: bool, no_gitignore: 
 
 @main.command()
 @click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
+@click.option("--dry-run", is_flag=True, help="Just print report, no file modifications")
 @click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
-def check(path: Path, no_gitignore: bool) -> None:
+def check(path: Path, dry_run: bool, no_gitignore: bool) -> None:
     """Check for stale or missing shadow documentation.
+
+    By default, injects stale warnings into shadow docs and writes a
+    staleness manifest.  Use --dry-run for a read-only report.
 
     PATH is the root directory to check (defaults to current directory).
     """
     config = Config(root_path=path.resolve(), respect_gitignore=not no_gitignore)
 
-    issues = check_shadow_docs(config)
+    if dry_run:
+        issues = check_shadow_docs(config)
 
-    if not issues:
+        if not issues:
+            click.echo("All shadow documentation is up to date.")
+            return
+
+        click.echo(f"Found {len(issues)} file(s) with issues:\n")
+
+        status_colors = {"stale": "yellow", "missing": "red", "stale-impl": "cyan"}
+        for file_path, status in issues:
+            status_color = status_colors.get(status, "red")
+            click.echo(f"  [{click.style(status, fg=status_color)}] {file_path}")
+
+        click.echo(f"\nRun 'docstar shadow {path}' to update.")
+        return
+
+    result = mark_stale_docs(config)
+
+    if not result.stale_files:
         click.echo("All shadow documentation is up to date.")
         return
 
-    click.echo(f"Found {len(issues)} file(s) with issues:\n")
+    click.echo(f"Found {len(result.stale_files)} file(s) with issues:\n")
 
     status_colors = {"stale": "yellow", "missing": "red", "stale-impl": "cyan"}
-    for file_path, status in issues:
+    for file_path, status in result.stale_files:
         status_color = status_colors.get(status, "red")
         click.echo(f"  [{click.style(status, fg=status_color)}] {file_path}")
 
-    click.echo(f"\nRun 'docstar shadow {path}' to update.")
+    click.echo(f"\nMarked {result.marked_count} shadow doc(s) with stale warnings.")
+    click.echo(f"Manifest written to {config.staleness_manifest_path}")
+    click.echo(f"\nRun 'docstar shadow {path}' to regenerate.")
 
 
 @main.command()

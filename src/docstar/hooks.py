@@ -51,31 +51,20 @@ if [ $SAFETY_RESULT -ne 0 ]; then
     exit 1
 fi
 
-# Step 2: Documentation audit
+# Step 2: Mark stale shadow docs (fast, no LLM calls)
 echo ""
-echo "Docstar: Running documentation audit..."
+echo "Docstar: Checking shadow documentation freshness..."
 echo ""
 
-"$DOCSTAR" audit .
+"$DOCSTAR" check .
 
-RESULT=$?
-
-if [ $RESULT -ne 0 ]; then
-    echo ""
-    echo "Commit blocked by Docstar audit."
-    echo ""
-    echo "Options:"
-    echo "  1. Fix the issues manually"
-    echo "  2. Feed the audit output to your AI coding agent"
-    echo "  3. Add rules to .docstar/rules to override"
-    echo ""
-    exit 1
-fi
-
-# Stage any updated shadow docs
+# Stage any updated shadow docs and staleness manifest
 SHADOW_DIR=".docstar/shadow"
 if [ -d "$SHADOW_DIR" ]; then
     git add "$SHADOW_DIR" 2>/dev/null || true
+fi
+if [ -f ".docstar/staleness.json" ]; then
+    git add ".docstar/staleness.json" 2>/dev/null || true
 fi
 
 exit 0

@@ -40,6 +40,11 @@ _MAX_INPUT_TOKENS = 150_000       # trigger threshold for chunking
 _CHUNK_TARGET_TOKENS = 120_000    # per-chunk target (room for prompt+output)
 _CHUNK_OVERLAP_FRACTION = 0.05    # 5% overlap at boundaries
 
+# --- Stale warning lines injected by `docstar check` ---
+STALE_WARNING_SOURCE = "> \u26a0 STALE \u2014 source content has changed since this doc was generated"
+STALE_WARNING_IMPL = "> \u26a0 STALE \u2014 generation toolchain has changed since this doc was generated"
+_STALE_WARNINGS = {STALE_WARNING_SOURCE, STALE_WARNING_IMPL}
+
 
 @dataclass
 class Finding:
@@ -73,7 +78,7 @@ def assemble_shadow_doc(file_path: Path, source_hash: str, body: str) -> str:
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     impl_hash = compute_impl_hash()
     header = f"# {file_path}\n@source-hash: {source_hash}\n@impl-hash: {impl_hash}\n@generated: {timestamp}\n\n"
-    return header + body
+    return header + strip_stale_warnings(body)
 
 
 def assemble_directory_shadow_doc(dir_path: Path, children_hash: str, body: str) -> str:
@@ -81,7 +86,7 @@ def assemble_directory_shadow_doc(dir_path: Path, children_hash: str, body: str)
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     impl_hash = compute_impl_hash()
     header = f"# {dir_path}/\n@children-hash: {children_hash}\n@impl-hash: {impl_hash}\n@generated: {timestamp}\n\n"
-    return header + body
+    return header + strip_stale_warnings(body)
 
 
 _TRANSIENT_ERRNOS = {errno.EINVAL, errno.EIO}
@@ -137,14 +142,101 @@ def is_stale(config: Config, source_path: Path) -> bool:
 
 
 def _extract_body_from_shadow(shadow_content: str) -> str:
-    """Extract the body from a shadow doc (skip header)."""
+    """Extract the body from a shadow doc (skip header and stale warnings)."""
     lines = shadow_content.split("\n")
     body_start = 0
     for i, line in enumerate(lines):
         if line == "" and i > 0:
             body_start = i + 1
             break
-    return "\n".join(lines[body_start:])
+    return strip_stale_warnings("\n".join(lines[body_start:]))
+
+
+def strip_stale_warnings(content: str) -> str:
+    """Remove all stale warning lines from content."""
+    lines = content.split("\n")
+    filtered = [line for line in lines if line not in _STALE_WARNINGS]
+    return "\n".join(filtered)
+
+
+def inject_stale_warning(shadow_path: Path, reason: str) -> int:
+    """Inject a stale warning line into an existing shadow doc.
+
+    Args:
+        shadow_path: Path to the shadow doc file.
+        reason: ``"stale"`` for source warning, ``"stale-impl"`` for impl warning.
+
+    Returns the number of new warning lines injected (0 if already present or
+    the reason is not recognised).
+    """
+    warning = STALE_WARNING_SOURCE if reason == "stale" else (
+        STALE_WARNING_IMPL if reason == "stale-impl" else None
+    )
+    if warning is None:
+        return 0
+
+    content = shadow_path.read_text(encoding="utf-8")
+    lines = content.split("\n")
+
+    # Already present?
+    if warning in lines:
+        return 0
+
+    # Find the header blank line — first empty line after line 0
+    insert_idx = 0
+    for i, line in enumerate(lines):
+        if line == "" and i > 0:
+            insert_idx = i + 1
+            break
+
+    # Skip past any existing warning lines at the insertion point
+    while insert_idx < len(lines) and lines[insert_idx] in _STALE_WARNINGS:
+        insert_idx += 1
+
+    lines.insert(insert_idx, warning)
+    shadow_path.write_text("\n".join(lines), encoding="utf-8")
+    return 1
+
+
+@dataclass
+class MarkStaleResult:
+    """Result from mark_stale_docs."""
+
+    stale_files: list[tuple[Path, str]]
+    marked_count: int
+
+
+def mark_stale_docs(config: Config) -> MarkStaleResult:
+    """Check all shadow docs and inject stale warnings + write manifest.
+
+    No LLM calls.  Returns a ``MarkStaleResult`` with the list of stale
+    files and how many were actually marked (missing files are skipped).
+    """
+    issues = check_shadow_docs(config)
+    marked = 0
+
+    for rel_path, reason in issues:
+        if reason == "missing":
+            continue
+        shadow_path = config.shadow_path_for(config.root_path / rel_path)
+        if not shadow_path.exists():
+            continue
+        marked += inject_stale_warning(shadow_path, reason)
+
+    # Write staleness manifest
+    manifest = {
+        "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "stale": [
+            {"path": str(rel), "reason": reason}
+            for rel, reason in issues
+        ],
+    }
+    config.staleness_manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    config.staleness_manifest_path.write_text(
+        json.dumps(manifest, indent=2), encoding="utf-8"
+    )
+
+    return MarkStaleResult(stale_files=issues, marked_count=marked)
 
 
 def is_directory_stale(config: Config, dir_path: Path, current_children_hash: str) -> bool:
