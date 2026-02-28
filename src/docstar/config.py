@@ -120,6 +120,7 @@ DEFAULT_EXTENSIONS: set[str] = {
 # Shadow doc output directory name
 SHADOW_DIR = ".docstar"
 SHADOW_SUBDIR = "shadow"
+DIRECTORY_SHADOW_FILENAME = "_directory.shadow.md"
 
 # LLM model to use
 DEFAULT_MODEL = "claude-sonnet-4-20250514"
@@ -177,7 +178,7 @@ class Config:
         relative = dir_path.relative_to(self.root_path)
         if relative == Path("."):
             return self.shadow_root / "_root.shadow.md"
-        return self.shadow_root / relative / "_directory.shadow.md"
+        return self.shadow_root / relative / DIRECTORY_SHADOW_FILENAME
 
     @property
     def analysis_root(self) -> Path:
