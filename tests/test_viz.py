@@ -254,7 +254,7 @@ class TestAssembleSignaturesLoaded:
 
 
 class TestAssembleTokenCacheLoaded:
-    def test_compression_arc_present(self, tmp_path):
+    def test_compression_ratio_arc_present(self, tmp_path):
         _write_source(tmp_path, "big.py", "x = 1\n" * 100)
         _write_token_cache(tmp_path, {
             "big.py": {"source_tokens": 1000, "shadow_tokens": 300},
@@ -265,9 +265,10 @@ class TestAssembleTokenCacheLoaded:
 
         tree = data["tree"]
         file_node = next(c for c in tree["children"] if c["name"] == "big.py")
-        comp_arcs = [a for a in file_node["arcs"] if a["label"] == "Compression"]
+        comp_arcs = [a for a in file_node["arcs"] if a["label"] == "Compression Ratio"]
         assert len(comp_arcs) == 1
-        assert abs(comp_arcs[0]["value"] - 0.7) < 0.01  # 1 - 300/1000 = 0.7
+        assert abs(comp_arcs[0]["value"] - 0.3) < 0.01  # 300/1000 = 0.3 ratio
+        assert comp_arcs[0]["color"] == "#7a8a9a"  # neutral color
 
 
 class TestAssembleMissingSidecar:
@@ -282,6 +283,7 @@ class TestAssembleMissingSidecar:
         assert file_node["arcs"] == []
         assert file_node["badges"] == []
         assert file_node["preview"] is None
+        assert file_node["health"] is None  # never processed → null
         assert file_node["detail"]["Staleness"] == "\u2713 Current"
 
 
@@ -331,12 +333,12 @@ class TestArcsDataDriven:
         tree = data["tree"]
         file_node = next(c for c in tree["children"] if c["name"] == "mixed.py")
         arc_labels = {a["label"] for a in file_node["arcs"]}
-        assert "Compression" in arc_labels
+        assert "Compression Ratio" in arc_labels
         assert "Junk" in arc_labels
 
-        comp = next(a for a in file_node["arcs"] if a["label"] == "Compression")
-        assert comp["color"] == "#2dd4bf"
-        assert abs(comp["value"] - 0.7) < 0.01  # 1 - 150/500
+        comp = next(a for a in file_node["arcs"] if a["label"] == "Compression Ratio")
+        assert comp["color"] == "#7a8a9a"  # neutral
+        assert abs(comp["value"] - 0.3) < 0.01  # 150/500 = 0.3 ratio
 
         junk = next(a for a in file_node["arcs"] if a["label"] == "Junk")
         assert junk["color"] == "#f6993f"
@@ -353,7 +355,7 @@ class TestGenericSchemaNoDocstarConcepts:
         tree = data["tree"]
         file_node = next(c for c in tree["children"] if c["name"] == "clean.py")
 
-        allowed_keys = {"name", "type", "path", "size", "health", "arcs", "badges", "detail", "preview"}
+        allowed_keys = {"name", "type", "path", "size", "health", "has_errors", "arcs", "badges", "detail", "preview"}
         assert set(file_node.keys()) == allowed_keys
 
 
@@ -382,70 +384,74 @@ class TestHealthPerfect:
         assert _compute_file_health(node) == 1.0
 
 
-class TestHealthNoShadow:
-    def test_no_shadow_penalty(self):
+class TestHealthNullWhenNeverProcessed:
+    def test_no_shadow_no_findings_returns_none(self):
         node = {"has_shadow": False, "is_stale": False, "error_count": 0, "warning_count": 0,
                 "junk_fraction": 0.0, "token_stats": None}
-        assert abs(_compute_file_health(node) - 0.80) < 0.01
+        assert _compute_file_health(node) is None
+
+    def test_no_shadow_but_findings_returns_score(self):
+        """File with findings but no shadow → has been audited, return a score."""
+        node = {"has_shadow": False, "is_stale": False, "error_count": 1, "warning_count": 0,
+                "junk_fraction": 0.0, "token_stats": None}
+        result = _compute_file_health(node)
+        assert result is not None
+        # no_shadow * error = 0.8 * 0.8 = 0.64
+        assert abs(result - 0.64) < 0.01
 
 
 class TestHealthStale:
     def test_stale_penalty(self):
         node = {"has_shadow": True, "is_stale": True, "error_count": 0, "warning_count": 0,
                 "junk_fraction": 0.0, "token_stats": None}
-        assert abs(_compute_file_health(node) - 0.75) < 0.01
+        # Geometric: 1.0 * 0.8 = 0.8
+        assert abs(_compute_file_health(node) - 0.80) < 0.01
 
 
 class TestHealthFindings:
-    def test_errors_and_warnings_reduce(self):
+    def test_errors_and_warnings_compound_geometrically(self):
         node = {"has_shadow": True, "is_stale": False, "error_count": 2, "warning_count": 3,
                 "junk_fraction": 0.0, "token_stats": None}
-        # Penalty: 2 * 0.10 + 3 * 0.03 = 0.29
-        expected = 1.0 - 0.29
+        # 5 findings: 0.8^5 = 0.32768
+        expected = 0.8 ** 5
         assert abs(_compute_file_health(node) - expected) < 0.01
 
 
 class TestHealthStalePlusFindings:
-    def test_stale_halves_findings_penalty(self):
+    def test_stale_and_findings_compound(self):
         node = {"has_shadow": True, "is_stale": True, "error_count": 2, "warning_count": 0,
                 "junk_fraction": 0.0, "token_stats": None}
-        # Stale: -0.25, findings: (2 * 0.10) * 0.5 = 0.10
-        expected = 1.0 - 0.25 - 0.10
+        # stale + 2 errors = 3 penalties: 0.8^3 = 0.512
+        expected = 0.8 ** 3
         assert abs(_compute_file_health(node) - expected) < 0.01
 
 
 class TestHealthJunk:
     def test_junk_fraction_penalty(self):
         node = {"has_shadow": True, "is_stale": False, "error_count": 0, "warning_count": 0,
-                "junk_fraction": 0.4, "token_stats": None}
-        # Penalty: 0.4 * 0.50 = 0.20
-        expected = 1.0 - 0.20
-        assert abs(_compute_file_health(node) - expected) < 0.01
-
-
-class TestHealthJunkCapped:
-    def test_junk_penalty_capped_at_025(self):
-        node = {"has_shadow": True, "is_stale": False, "error_count": 0, "warning_count": 0,
-                "junk_fraction": 1.0, "token_stats": None}
-        # 1.0 * 0.50 = 0.50, capped at 0.25
-        expected = 1.0 - 0.25
-        assert abs(_compute_file_health(node) - expected) < 0.01
-
-
-class TestHealthCompression:
-    def test_poor_compression_penalty(self):
-        node = {"has_shadow": True, "is_stale": False, "error_count": 0, "warning_count": 0,
-                "junk_fraction": 0.0, "token_stats": {"source_tokens": 100, "shadow_tokens": 60}}
-        # ratio = 0.6, penalty = (0.6 - 0.3) * 0.20 = 0.06
-        expected = 1.0 - 0.06
+                "junk_fraction": 0.5, "token_stats": None}
+        # Continuous: 1.0 * (1 - 0.2 * 0.5) = 0.9
+        expected = 1.0 * (1.0 - 0.2 * 0.5)
         assert abs(_compute_file_health(node) - expected) < 0.01
 
 
 class TestHealthFloor:
-    def test_multiple_penalties_floor_at_zero(self):
-        node = {"has_shadow": False, "is_stale": True, "error_count": 10, "warning_count": 10,
-                "junk_fraction": 1.0, "token_stats": {"source_tokens": 100, "shadow_tokens": 90}}
-        assert _compute_file_health(node) == 0.0
+    def test_many_penalties_approach_zero(self):
+        node = {"has_shadow": True, "is_stale": True, "error_count": 20, "warning_count": 20,
+                "junk_fraction": 1.0, "token_stats": None}
+        result = _compute_file_health(node)
+        # Geometric compounding: approaches but may not reach exactly 0
+        assert result < 0.001
+
+
+class TestHealthManyWarnings:
+    def test_100_warnings_produces_low_score(self):
+        """With geometric compounding, many warnings should noticeably reduce health."""
+        node = {"has_shadow": True, "is_stale": False, "error_count": 0, "warning_count": 5,
+                "junk_fraction": 0.0, "token_stats": None}
+        # 0.8^5 = 0.32768
+        expected = 0.8 ** 5
+        assert abs(_compute_file_health(node) - expected) < 0.01
 
 
 class TestAggregateWeighted:

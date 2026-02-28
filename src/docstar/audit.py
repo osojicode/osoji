@@ -18,7 +18,7 @@ from .junk_orphan import OrphanedFilesAnalyzer
 from .rate_limiter import RateLimiter, get_config_with_overrides
 from .shadow import check_shadow_docs, generate_shadow_docs
 from .debris import analyze_docs
-from .scorecard import Scorecard, build_scorecard
+from .scorecard import CoverageEntry, JunkCodeEntry, Scorecard, build_scorecard
 from .walker import _matches_ignore
 from tabulate import tabulate as _tabulate
 
@@ -328,25 +328,27 @@ def run_audit(
         print(f"  [{elapsed:.1f}s]", flush=True)
 
     # 3.5. Obligation checking (pure Python, no LLM)
+    obligation_findings = []
     if obligations:
         print("Docstar: Checking cross-file obligations...", flush=True)
         phase_start = time_module.monotonic()
         from .facts import FactsDB
-        from .obligations import StringContractChecker
+        from .obligations import run_all_contract_checks
         facts_db = FactsDB(config)
-        checker = StringContractChecker(facts_db)
-        violations = checker.check()
-        for v in violations:
+        obligation_findings = run_all_contract_checks(facts_db)
+        for f in obligation_findings:
             issues.append(AuditIssue(
-                path=Path(v.checking_file),
-                severity=v.severity,
-                category=f"obligation_{v.obligation_type}",
-                message=v.description,
-                remediation=f"Check string contract with {v.source_file}",
+                path=Path(f.consumer_file),
+                severity=f.severity,
+                category=f"obligation_{f.finding_type}",
+                message=f.description,
+                remediation=f.remediation,
             ))
         if verbose:
+            n_violations = sum(1 for f in obligation_findings if f.finding_type == "violation")
+            n_implicit = sum(1 for f in obligation_findings if f.finding_type == "implicit_contract")
             elapsed = time_module.monotonic() - phase_start
-            print(f"  [{elapsed:.1f}s] {len(violations)} violation(s)", flush=True)
+            print(f"  [{elapsed:.1f}s] {n_violations} violation(s), {n_implicit} implicit contract(s)", flush=True)
 
     # 4. Unified junk analysis (opt-in per analyzer)
     junk_results: dict[str, JunkAnalysisResult] = {}
@@ -383,6 +385,14 @@ def run_audit(
         analysis_results=analysis_results,
         junk_results=junk_results if junk_results else None,
     )
+    # Attach obligation counts if obligations phase ran
+    if obligations and obligation_findings:
+        scorecard.obligation_violations = sum(
+            1 for f in obligation_findings if f.finding_type == "violation"
+        )
+        scorecard.obligation_implicit_contracts = sum(
+            1 for f in obligation_findings if f.finding_type == "implicit_contract"
+        )
     _serialize_json(config.scorecard_path, asdict(scorecard))
 
     # Print token summary
@@ -390,6 +400,86 @@ def run_audit(
     total_tok = in_tok + out_tok
     if total_tok > 0:
         print(f"API tokens: {in_tok:,}^ {out_tok:,}v ({total_tok:,} total)", flush=True)
+
+    result = AuditResult(issues=issues, scorecard=scorecard)
+    serialize_audit_result(config, result)
+    return result
+
+
+def serialize_audit_result(config: Config, result: AuditResult) -> Path:
+    """Persist AuditResult to .docstar/analysis/audit-result.json."""
+    data = json.loads(format_audit_json(result))
+    out_path = config.analysis_root / "audit-result.json"
+    _serialize_json(out_path, data)
+    return out_path
+
+
+def load_audit_result(config: Config) -> AuditResult:
+    """Load a previously-serialized AuditResult. Raises FileNotFoundError if missing."""
+    path = config.analysis_root / "audit-result.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+
+    issues = [
+        AuditIssue(
+            path=Path(i["path"]),
+            severity=i["severity"],
+            category=i["category"],
+            message=i["message"],
+            remediation=i["remediation"],
+            line_start=i.get("line_start"),
+            line_end=i.get("line_end"),
+        )
+        for i in data.get("issues", [])
+    ]
+
+    scorecard = None
+    if "scorecard" in data:
+        sc = data["scorecard"]
+        scorecard = Scorecard(
+            coverage_entries=[
+                CoverageEntry(
+                    source_path=e["source_path"],
+                    topic_signature=e["topic_signature"],
+                    covering_docs=e["covering_docs"],
+                )
+                for e in sc["coverage_entries"]
+            ],
+            coverage_pct=sc["coverage_pct"],
+            covered_count=sc["covered_count"],
+            total_source_count=sc["total_source_count"],
+            coverage_by_type=sc["coverage_by_type"],
+            type_covered_counts=sc["type_covered_counts"],
+            type_total_counts=sc["type_total_counts"],
+            dead_docs=sc["dead_docs"],
+            total_accuracy_errors=sc["total_accuracy_errors"],
+            live_doc_count=sc["live_doc_count"],
+            accuracy_errors_per_doc=sc["accuracy_errors_per_doc"],
+            accuracy_by_category=sc["accuracy_by_category"],
+            junk_total_lines=sc["junk_total_lines"],
+            junk_total_source_lines=sc["junk_total_source_lines"],
+            junk_fraction=sc["junk_fraction"],
+            junk_item_count=sc["junk_item_count"],
+            junk_file_count=sc["junk_file_count"],
+            junk_by_category=sc["junk_by_category"],
+            junk_by_category_lines=sc["junk_by_category_lines"],
+            junk_entries=[
+                JunkCodeEntry(
+                    source_path=e["source_path"],
+                    total_lines=e["total_lines"],
+                    junk_lines=e["junk_lines"],
+                    junk_fraction=e["junk_fraction"],
+                    items=e["items"],
+                )
+                for e in sc["junk_entries"]
+            ],
+            junk_sources=sc["junk_sources"],
+            enforcement_total_obligations=sc.get("enforcement_total_obligations"),
+            enforcement_unactuated=sc.get("enforcement_unactuated"),
+            enforcement_pct_unactuated=sc.get("enforcement_pct_unactuated"),
+            enforcement_by_schema=sc.get("enforcement_by_schema"),
+            obligation_violations=sc.get("obligation_violations"),
+            obligation_implicit_contracts=sc.get("obligation_implicit_contracts"),
+        )
 
     return AuditResult(issues=issues, scorecard=scorecard)
 
@@ -537,8 +627,15 @@ def format_audit_report(result: AuditResult, verbose: bool = False) -> str:
             lines.append(f"- `{issue.path}`: {issue.message}")
         lines.append("")
 
+    infos = [i for i in result.issues if i.severity == "info"]
+    if infos:
+        lines.append("## Info (advisory)\n")
+        for issue in infos:
+            lines.append(f"- `{issue.path}`: {issue.message}")
+        lines.append("")
+
     lines.append("---")
-    lines.append(f"**Result**: {len(errors)} error(s), {len(warnings)} warning(s)")
+    lines.append(f"**Result**: {len(errors)} error(s), {len(warnings)} warning(s), {len(infos)} info(s)")
 
     if errors:
         lines.append("")
@@ -553,6 +650,7 @@ def format_audit_json(result: AuditResult) -> str:
         "passed": result.passed,
         "errors": sum(1 for i in result.issues if i.severity == "error"),
         "warnings": sum(1 for i in result.issues if i.severity == "warning"),
+        "infos": sum(1 for i in result.issues if i.severity == "info"),
         "issues": [
             {
                 "path": str(issue.path),

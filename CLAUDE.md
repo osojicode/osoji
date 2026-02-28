@@ -38,7 +38,7 @@ export analysis, and string contract checking.
 
 ## Key architecture
 
-- `src/docstar/cli.py` — Click CLI with subcommands: `shadow`, `check`, `diff`, `stats`, `audit`, `hooks`, `safety`, `viz`
+- `src/docstar/cli.py` — Click CLI with subcommands: `shadow`, `check`, `diff`, `stats`, `audit`, `report`, `hooks`, `safety`, `viz`
 - `src/docstar/shadow.py` — Core shadow doc generation engine
 - `src/docstar/audit.py` — Multi-phase audit orchestration
 - `src/docstar/llm/` — LLM provider abstraction (Anthropic), validation, rate limiting

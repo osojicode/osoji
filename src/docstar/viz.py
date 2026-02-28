@@ -40,46 +40,50 @@ def _safe_read_json(path: Path) -> dict | None:
 # Health scoring
 # ---------------------------------------------------------------------------
 
-def _compute_file_health(node: dict) -> float:
+def _compute_file_health(node: dict) -> float | None:
     """Compute health score for a single file node (0.0–1.0).
 
-    Factors:
-    - No shadow doc: -0.20
-    - Shadow doc is stale: -0.25
-    - Error findings: -0.10 each (halved if stale), capped at -0.30 total findings
-    - Warning findings: -0.03 each (halved if stale), within same cap
-    - Junk fraction: junk_frac * 0.50, capped at -0.25
-    - Poor compression (ratio > 0.3): (ratio - 0.3) * 0.20, capped at -0.10
+    Returns None if the file has no shadow doc data at all (never processed).
+
+    Penalties compound geometrically: each -0.2 penalty multiplies score by 0.8.
+    Two penalties → 0.8 * 0.8 = 0.64, three → 0.512, etc.
+
+    Penalty triggers (each -0.2):
+    - No shadow doc
+    - Shadow doc is stale
+    - Each error finding
+    - Each warning finding
+    - Junk fraction (scaled: junk_frac * 0.2 per full fraction)
     """
+    # No shadow doc and no findings → never processed, health unknown
+    if (not node.get("has_shadow")
+            and node.get("error_count", 0) == 0
+            and node.get("warning_count", 0) == 0):
+        return None
+
+    PENALTY = 0.2
+    factor = 1.0 - PENALTY  # 0.8
+
     score = 1.0
-    is_stale = node.get("is_stale", False)
 
     if not node.get("has_shadow"):
-        score -= 0.20
+        score *= factor
 
-    if is_stale:
-        score -= 0.25
+    if node.get("is_stale", False):
+        score *= factor
 
-    # Findings penalty (halved if stale)
+    # Each finding is a separate penalty
     error_count = node.get("error_count", 0)
     warning_count = node.get("warning_count", 0)
-    stale_mult = 0.5 if is_stale else 1.0
-    findings_penalty = (error_count * 0.10 + warning_count * 0.03) * stale_mult
-    findings_penalty = min(findings_penalty, 0.30)
-    score -= findings_penalty
+    for _ in range(error_count):
+        score *= factor
+    for _ in range(warning_count):
+        score *= factor
 
-    # Junk penalty
+    # Junk fraction: continuous geometric penalty
     junk_frac = node.get("junk_fraction", 0.0)
-    junk_penalty = min(junk_frac * 0.50, 0.25)
-    score -= junk_penalty
-
-    # Compression penalty
-    token_stats = node.get("token_stats")
-    if token_stats and token_stats.get("source_tokens", 0) > 0:
-        ratio = token_stats["shadow_tokens"] / token_stats["source_tokens"]
-        if ratio > 0.3:
-            compression_penalty = min((ratio - 0.3) * 0.20, 0.10)
-            score -= compression_penalty
+    if junk_frac > 0:
+        score *= (1.0 - PENALTY * junk_frac)
 
     return max(0.0, min(1.0, score))
 
@@ -87,13 +91,16 @@ def _compute_file_health(node: dict) -> float:
 def _compute_aggregate_health(file_nodes: list[dict]) -> float | None:
     """Weighted average of file health scores by line count.
 
-    Returns None if no files have lines.
+    Skips files with None health (never processed).
+    Returns None if no files contribute.
     """
     total_weight = 0
     weighted_sum = 0.0
     for node in file_nodes:
+        health = node.get("health_score")
+        if health is None:
+            continue
         lines = node.get("lines", 0)
-        health = node.get("health_score", 1.0)
         total_weight += lines
         weighted_sum += lines * health
     if total_weight == 0:
@@ -108,10 +115,14 @@ def _compute_aggregate_health(file_nodes: list[dict]) -> float | None:
 def _to_generic_node(raw: dict) -> dict:
     """Convert docstar-specific file data to generic renderer schema."""
     arcs = []
+
+    # Compression arc: shows compression ratio (0% = full ring, 90% = 1/10 ring).
+    # Neutral color, separate from health.
     token_stats = raw.get("token_stats")
     if token_stats and token_stats.get("source_tokens", 0) > 0:
-        savings = 1.0 - (token_stats["shadow_tokens"] / token_stats["source_tokens"])
-        arcs.append({"label": "Compression", "value": max(0.0, savings), "color": "#2dd4bf"})
+        ratio = token_stats["shadow_tokens"] / token_stats["source_tokens"]
+        ratio = max(0.0, min(1.0, ratio))
+        arcs.append({"label": "Compression Ratio", "value": ratio, "color": "#7a8a9a"})
 
     junk_frac = raw.get("junk_fraction", 0.0)
     if junk_frac > 0:
@@ -136,7 +147,8 @@ def _to_generic_node(raw: dict) -> dict:
         "type": "file",
         "path": raw["path"],
         "size": raw.get("lines", 0),
-        "health": raw.get("health_score", 1.0),
+        "health": raw.get("health_score"),
+        "has_errors": raw.get("error_count", 0) > 0,
         "arcs": arcs,
         "badges": [raw["file_role"]] if raw.get("file_role") else [],
         "detail": detail,

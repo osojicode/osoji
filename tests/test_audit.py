@@ -9,6 +9,8 @@ from docstar.audit import (
     AuditResult,
     _format_scorecard_section,
     format_audit_html,
+    serialize_audit_result,
+    load_audit_result,
 )
 from docstar.scorecard import CoverageEntry, JunkCodeEntry, Scorecard
 
@@ -409,3 +411,168 @@ class TestScorecardCounts:
         assert sc.covered_count == 0
         for entry in sc.coverage_entries:
             assert entry.covering_docs == []
+
+
+# --- Serialize / load round-trip ---
+
+class TestAuditResultRoundTrip:
+    def test_round_trip_basic(self, temp_dir):
+        """AuditResult survives serialize → load with all fields intact."""
+        from docstar.config import Config
+
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        original = AuditResult(
+            issues=[
+                AuditIssue(
+                    path=Path("docs/guide.md"),
+                    severity="error",
+                    category="debris",
+                    message="Stale doc",
+                    remediation="Delete it",
+                    line_start=10,
+                    line_end=20,
+                ),
+                AuditIssue(
+                    path=Path("src/utils.py"),
+                    severity="warning",
+                    category="stale_shadow",
+                    message="Shadow is stale",
+                    remediation="Run docstar shadow",
+                ),
+            ],
+            scorecard=_minimal_scorecard(
+                coverage_pct=75.0,
+                covered_count=3,
+                total_source_count=4,
+                dead_docs=["docs/old.md"],
+            ),
+        )
+
+        serialize_audit_result(config, original)
+        loaded = load_audit_result(config)
+
+        assert len(loaded.issues) == len(original.issues)
+        assert loaded.issues[0].severity == "error"
+        assert loaded.issues[0].category == "debris"
+        assert loaded.issues[0].message == "Stale doc"
+        assert loaded.issues[0].line_start == 10
+        assert loaded.issues[0].line_end == 20
+        assert loaded.issues[1].line_start is None
+        assert loaded.scorecard.coverage_pct == 75.0
+        assert loaded.scorecard.covered_count == 3
+        assert loaded.scorecard.dead_docs == ["docs/old.md"]
+
+    def test_missing_file_raises(self, temp_dir):
+        """load_audit_result raises FileNotFoundError when no cache exists."""
+        from docstar.config import Config
+
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        with pytest.raises(FileNotFoundError):
+            load_audit_result(config)
+
+    def test_path_objects_round_trip(self, temp_dir):
+        """AuditIssue.path round-trips through str() → Path()."""
+        from docstar.config import Config
+
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        original = AuditResult(
+            issues=[
+                AuditIssue(
+                    path=Path("src/deep/nested/file.py"),
+                    severity="warning",
+                    category="test",
+                    message="test",
+                    remediation="test",
+                ),
+            ],
+            scorecard=_minimal_scorecard(),
+        )
+
+        serialize_audit_result(config, original)
+        loaded = load_audit_result(config)
+
+        assert isinstance(loaded.issues[0].path, Path)
+        assert loaded.issues[0].path == Path("src/deep/nested/file.py")
+
+    def test_scorecard_nested_objects_round_trip(self, temp_dir):
+        """CoverageEntry and JunkCodeEntry survive round-trip."""
+        from docstar.config import Config
+
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        coverage_entries = [
+            CoverageEntry(
+                source_path="src/a.py",
+                topic_signature={"purpose": "Auth handler"},
+                covering_docs=[{"path": "docs/a.md", "classification": "reference"}],
+            ),
+            CoverageEntry(
+                source_path="src/b.py",
+                topic_signature=None,
+                covering_docs=[],
+            ),
+        ]
+        junk_entries = [
+            JunkCodeEntry(
+                source_path="src/c.py",
+                total_lines=100,
+                junk_lines=15,
+                junk_fraction=0.15,
+                items=[{"category": "dead_code", "line_start": 10, "line_end": 24}],
+            ),
+        ]
+        original = AuditResult(
+            issues=[],
+            scorecard=_minimal_scorecard(
+                coverage_entries=coverage_entries,
+                junk_entries=junk_entries,
+                obligation_violations=3,
+                obligation_implicit_contracts=7,
+            ),
+        )
+
+        serialize_audit_result(config, original)
+        loaded = load_audit_result(config)
+
+        # CoverageEntry
+        assert len(loaded.scorecard.coverage_entries) == 2
+        ce0 = loaded.scorecard.coverage_entries[0]
+        assert ce0.source_path == "src/a.py"
+        assert ce0.topic_signature == {"purpose": "Auth handler"}
+        assert ce0.covering_docs == [{"path": "docs/a.md", "classification": "reference"}]
+        ce1 = loaded.scorecard.coverage_entries[1]
+        assert ce1.topic_signature is None
+        assert ce1.covering_docs == []
+
+        # JunkCodeEntry
+        assert len(loaded.scorecard.junk_entries) == 1
+        je0 = loaded.scorecard.junk_entries[0]
+        assert je0.source_path == "src/c.py"
+        assert je0.total_lines == 100
+        assert je0.junk_lines == 15
+        assert je0.junk_fraction == pytest.approx(0.15)
+        assert je0.items == [{"category": "dead_code", "line_start": 10, "line_end": 24}]
+
+        # Obligation fields
+        assert loaded.scorecard.obligation_violations == 3
+        assert loaded.scorecard.obligation_implicit_contracts == 7
+
+    def test_passed_and_counts_preserved(self, temp_dir):
+        """The passed/errors/warnings properties work correctly after round-trip."""
+        from docstar.config import Config
+
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        original = AuditResult(
+            issues=[
+                AuditIssue(Path("a.md"), "error", "debris", "bad", "fix"),
+                AuditIssue(Path("b.md"), "warning", "stale", "old", "update"),
+                AuditIssue(Path("c.md"), "info", "note", "fyi", "none"),
+            ],
+            scorecard=_minimal_scorecard(),
+        )
+
+        serialize_audit_result(config, original)
+        loaded = load_audit_result(config)
+
+        assert loaded.has_errors is True
+        assert loaded.has_warnings is True
+        assert loaded.passed is False

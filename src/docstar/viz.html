@@ -177,14 +177,15 @@
 
   /* Links */
   .link {
-    stroke: var(--border);
-    stroke-opacity: 0.3;
+    stroke: #4a7a9b;
+    stroke-opacity: 0.35;
     stroke-width: 1;
     fill: none;
   }
 
   .link.highlighted {
-    stroke-opacity: 0.6;
+    stroke: #6aa4c8;
+    stroke-opacity: 0.7;
     stroke-width: 1.5;
   }
 
@@ -199,8 +200,8 @@
   }
 
   .node-dir circle {
-    fill: none;
-    stroke: var(--border);
+    fill: rgba(90, 140, 180, 0.06);
+    stroke: #5a8cb4;
     stroke-width: 1.5;
     stroke-dasharray: 3 3;
     cursor: pointer;
@@ -217,7 +218,7 @@
 
   .node-dir .node-label {
     font-size: 11px;
-    fill: var(--text);
+    fill: #8ab4d4;
     font-weight: 500;
   }
 
@@ -464,6 +465,8 @@
 <div class="footer" id="footer">
   <span>Health</span>
   <div class="health-gradient"></div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#5a7a94"></div><span>No data</span></div>
+  <div class="legend-item" style="gap:4px"><div style="width:10px;height:10px;border-radius:50%;border:2px solid #e74c3c;box-sizing:border-box"></div><span>Errors</span></div>
   <div class="legend-separator"></div>
   <div class="size-legend">
     <span>Size</span>
@@ -492,16 +495,59 @@
 (function() {
   'use strict';
 
-  // Health color scale
+  // Health color scale — null health gets gray (no data)
+  const NO_DATA_COLOR = '#5a7a94';
   const healthColor = d3.scaleLinear()
     .domain([0, 0.5, 1])
     .range(['#e74c3c', '#f6b93b', '#34d399'])
     .clamp(true);
+  function nodeColor(d) {
+    return d.health != null ? healthColor(d.health) : NO_DATA_COLOR;
+  }
 
   // Node radius from size (line count)
   function nodeRadius(d) {
-    if (d.type === 'directory') return 8;
-    return Math.max(4, Math.min(30, Math.sqrt(d.size || 1) * 1.5));
+    if (d.type === 'directory') return 10;
+    return Math.max(4, Math.sqrt(d.size || 1) * 2.5);
+  }
+
+  // Radial pre-layout: pack the parachute before letting forces billow.
+  // Each subtree gets an angular sector proportional to its descendant count.
+  // Root at origin, children on expanding rings.
+  function radialPreLayout(root, ringSpacing) {
+    // 1. Count total leaf-equivalent weight for each node
+    function countWeight(node) {
+      if (!node.children || node.children.length === 0) {
+        node._weight = 1;
+        return 1;
+      }
+      let total = 0;
+      for (const child of node.children) {
+        total += countWeight(child);
+      }
+      node._weight = total;
+      return total;
+    }
+    countWeight(root);
+
+    // 2. Recursively assign (x, y) by apportioning angular sectors
+    function layout(node, depth, startAngle, endAngle) {
+      const midAngle = (startAngle + endAngle) / 2;
+      const r = depth * ringSpacing;
+      node.x = r * Math.cos(midAngle);
+      node.y = r * Math.sin(midAngle);
+
+      if (!node.children || node.children.length === 0) return;
+
+      const totalWeight = node._weight;
+      let cursor = startAngle;
+      for (const child of node.children) {
+        const sweep = (child._weight / totalWeight) * (endAngle - startAngle);
+        layout(child, depth + 1, cursor, cursor + sweep);
+        cursor += sweep;
+      }
+    }
+    layout(root, 0, 0, Math.PI * 2);
   }
 
   // Flatten tree into nodes[] + links[]
@@ -583,6 +629,9 @@
       arcLegendEl.appendChild(el);
     });
 
+    // Pre-layout: radial sectors so simulation starts untangled
+    radialPreLayout(data.tree, 150);
+
     // Flatten tree
     const { nodes, links } = flattenTree(data.tree);
 
@@ -607,20 +656,41 @@
     const simulation = d3.forceSimulation(nodes)
       .force('link', d3.forceLink(links).id((d, i) => i)
         .distance(d => {
-          const target = d.target;
-          if (target.type === 'directory') {
-            const childCount = (target.children || []).length;
-            return 60 + childCount * 8;
-          }
-          return 40;
+          const src = d.source;
+          const tgt = d.target;
+          // Dir-to-dir: long leash to separate clusters
+          if (src.type === 'directory' && tgt.type === 'directory') return 300;
+          // Dir-to-file: longer leash scales with sibling count
+          const parent = src.type === 'directory' ? src : tgt;
+          const childCount = (parent.children || []).length;
+          return 120 + childCount * 10;
         })
-        .strength(0.8))
+        .strength(d => {
+          // Strong leash — dominates over charge so files stay near parent
+          const src = d.source;
+          const tgt = d.target;
+          if (src.type === 'directory' && tgt.type === 'directory') return 0.4;
+          const parent = src.type === 'directory' ? src : tgt;
+          const childCount = (parent.children || []).length;
+          return childCount > 10 ? 0.3 : 0.5;
+        }))
       .force('charge', d3.forceManyBody()
-        .strength(d => d.type === 'directory' ? -200 : -60))
+        // No distanceMax — long-range repulsion pushes subdirectories apart
+        .strength(d => d.type === 'directory' ? -300 : -50))
       .force('center', d3.forceCenter(0, 0).strength(0.03))
-      .force('collide', d3.forceCollide(d => nodeRadius(d) + 5).strength(0.8))
-      .alphaDecay(0.015)
+      .force('collide', d3.forceCollide(d => nodeRadius(d) + 6).strength(0))
+      .alphaDecay(0.01)
       .velocityDecay(0.3);
+
+    // Phase the collision shell in after the graph untangles
+    simulation.on('tick.collide', () => {
+      const alpha = simulation.alpha();
+      // alpha starts ~1 and decays toward 0; fade shell in below 0.4
+      if (alpha < 0.4) {
+        const t = 1 - (alpha / 0.4); // 0→1 as alpha goes 0.4→0
+        simulation.force('collide').strength(t * 0.6);
+      }
+    });
 
     // Links
     const link = g.append('g')
@@ -640,23 +710,33 @@
     node.filter(d => d.type === 'file')
       .append('circle')
       .attr('r', d => nodeRadius(d))
-      .attr('fill', d => healthColor(d.health != null ? d.health : 1));
+      .attr('fill', d => nodeColor(d));
+
+    // Coral error ring around files with errors
+    node.filter(d => d.type === 'file' && d.has_errors)
+      .append('circle')
+      .attr('r', d => nodeRadius(d) + 2)
+      .attr('fill', 'none')
+      .attr('stroke', '#e74c3c')
+      .attr('stroke-width', 2)
+      .attr('stroke-opacity', 0.9);
 
     // Directory circles
     node.filter(d => d.type === 'directory')
       .append('circle')
-      .attr('r', 8);
+      .attr('r', 10);
 
     // Arcs for files
     node.filter(d => d.type === 'file' && d.arcs && d.arcs.length > 0)
       .each(function(d) {
         const el = d3.select(this);
         const r = nodeRadius(d);
+        const errOffset = d.has_errors ? 6 : 0; // push arcs out past error ring
         const arcWidth = 2;
         const gap = 2.5;
 
         d.arcs.forEach((arc, i) => {
-          const arcRadius = r + 4 + i * (arcWidth + gap);
+          const arcRadius = r + 4 + errOffset + i * (arcWidth + gap);
           const endAngle = arc.value * Math.PI * 2;
           if (endAngle < 0.02) return; // skip tiny arcs
 
@@ -774,8 +854,12 @@
 
       if (d.type === 'file') {
         // Health bar
-        const h = d.health != null ? d.health : 1;
-        html += `<div class="detail-health-bar"><div class="detail-health-fill" style="width:${h * 100}%;background:${healthColor(h)}"></div></div>`;
+        if (d.health != null) {
+          const h = d.health;
+          html += `<div class="detail-health-bar"><div class="detail-health-fill" style="width:${h * 100}%;background:${healthColor(h)}"></div></div>`;
+        } else {
+          html += `<div class="detail-health-bar"><div class="detail-health-fill" style="width:100%;background:${NO_DATA_COLOR};opacity:0.4"></div></div>`;
+        }
 
         // Badges
         if (d.badges && d.badges.length > 0) {
