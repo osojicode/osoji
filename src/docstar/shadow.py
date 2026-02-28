@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Callable
 
 from .config import Config
-from .hasher import add_line_numbers, compute_children_hash, compute_file_hash, extract_children_hash, extract_source_hash, read_file_safe
+from .hasher import add_line_numbers, compute_children_hash, compute_file_hash, compute_impl_hash, extract_children_hash, extract_impl_hash, extract_source_hash, read_file_safe
 from .llm import (
     create_provider,
     LLMProvider,
@@ -71,14 +71,16 @@ class ShadowResult:
 def assemble_shadow_doc(file_path: Path, source_hash: str, body: str) -> str:
     """Assemble a complete shadow doc with header."""
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    header = f"# {file_path}\n@source-hash: {source_hash}\n@generated: {timestamp}\n\n"
+    impl_hash = compute_impl_hash()
+    header = f"# {file_path}\n@source-hash: {source_hash}\n@impl-hash: {impl_hash}\n@generated: {timestamp}\n\n"
     return header + body
 
 
 def assemble_directory_shadow_doc(dir_path: Path, children_hash: str, body: str) -> str:
     """Assemble a complete directory shadow doc with header."""
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    header = f"# {dir_path}/\n@children-hash: {children_hash}\n@generated: {timestamp}\n\n"
+    impl_hash = compute_impl_hash()
+    header = f"# {dir_path}/\n@children-hash: {children_hash}\n@impl-hash: {impl_hash}\n@generated: {timestamp}\n\n"
     return header + body
 
 
@@ -104,6 +106,7 @@ def is_stale(config: Config, source_path: Path) -> bool:
     Returns True if:
     - Shadow doc doesn't exist
     - Source hash doesn't match
+    - Impl hash doesn't match or is missing
     - Force flag is set
     """
     if config.force:
@@ -120,7 +123,15 @@ def is_stale(config: Config, source_path: Path) -> bool:
             return True
 
         current_hash = compute_file_hash(source_path)
-        return cached_hash != current_hash
+        if cached_hash != current_hash:
+            return True
+
+        # Impl hash check — missing means old-format doc, treat as stale
+        cached_impl = extract_impl_hash(shadow_content)
+        if cached_impl is None or cached_impl != compute_impl_hash():
+            return True
+
+        return False
     except Exception:
         return True
 
@@ -143,6 +154,7 @@ def is_directory_stale(config: Config, dir_path: Path, current_children_hash: st
     - Force flag is set
     - Shadow doc doesn't exist
     - Children hash doesn't match (any subtree change)
+    - Impl hash doesn't match or is missing
     - Old format without @children-hash header
     """
     if config.force:
@@ -157,9 +169,55 @@ def is_directory_stale(config: Config, dir_path: Path, current_children_hash: st
         cached_hash = extract_children_hash(shadow_content)
         if cached_hash is None:
             return True
-        return current_children_hash != cached_hash
+        if current_children_hash != cached_hash:
+            return True
+
+        # Impl hash check
+        cached_impl = extract_impl_hash(shadow_content)
+        if cached_impl is None or cached_impl != compute_impl_hash():
+            return True
+
+        return False
     except Exception:
         return True
+
+
+def staleness_reason(config: Config, source_path: Path) -> str | None:
+    """Return the reason a file's shadow doc is stale, or None if current.
+
+    Returns:
+        None        — shadow doc exists and both hashes match
+        "missing"   — shadow doc does not exist
+        "stale"     — source content hash differs
+        "stale-impl"— source matches but impl hash differs or is absent
+    """
+    if config.force:
+        shadow_path = config.shadow_path_for(source_path)
+        if not shadow_path.exists():
+            return "missing"
+        return "stale"   # force treats everything as stale
+
+    shadow_path = config.shadow_path_for(source_path)
+    if not shadow_path.exists():
+        return "missing"
+
+    try:
+        shadow_content = shadow_path.read_text(encoding="utf-8")
+        cached_hash = extract_source_hash(shadow_content)
+        if cached_hash is None:
+            return "stale"
+
+        current_hash = compute_file_hash(source_path)
+        if cached_hash != current_hash:
+            return "stale"
+
+        cached_impl = extract_impl_hash(shadow_content)
+        if cached_impl is None or cached_impl != compute_impl_hash():
+            return "stale-impl"
+
+        return None
+    except Exception:
+        return "stale"
 
 
 async def generate_file_shadow_doc_async(
@@ -1233,13 +1291,24 @@ def dry_run_shadow(config: Config, verbose: bool = False) -> None:
         print("No source files found to process.", flush=True)
         return
 
-    # Calculate which are stale
-    stale_files = [f for f in files if is_stale(config, f)]
+    # Compute staleness reasons for all files
+    reasons: dict[Path, str] = {}
+    for f in files:
+        r = staleness_reason(config, f)
+        if r is not None:
+            reasons[f] = r
+    stale_files = list(reasons.keys())
     cached_files = len(files) - len(stale_files)
 
+    impl_hash = compute_impl_hash()
+    impl_stale_count = sum(1 for r in reasons.values() if r == "stale-impl")
+
     print(f"Dry run for: {config.root_path}\n", flush=True)
+    print(f"Impl hash: {impl_hash}", flush=True)
     print(f"Total source files: {len(files)}", flush=True)
     print(f"  Would generate: {len(stale_files)}", flush=True)
+    if impl_stale_count:
+        print(f"    (impl-only stale: {impl_stale_count})", flush=True)
     print(f"  Already cached:  {cached_files}", flush=True)
     print(f"Directories: {len(dirs)}", flush=True)
 
@@ -1274,11 +1343,12 @@ def dry_run_shadow(config: Config, verbose: bool = False) -> None:
         for f in sorted(stale_files, key=lambda p: str(p.relative_to(config.root_path))):
             relative = f.relative_to(config.root_path)
             size = f.stat().st_size
-            print(f"  {relative}  ({size:,} bytes)", flush=True)
+            reason = reasons[f]
+            print(f"  [{reason}] {relative}  ({size:,} bytes)", flush=True)
 
         if cached_files:
             print(f"\nCached ({cached_files}):", flush=True)
-            cached = [f for f in files if not is_stale(config, f)]
+            cached = [f for f in files if f not in reasons]
             for f in sorted(cached, key=lambda p: str(p.relative_to(config.root_path))):
                 relative = f.relative_to(config.root_path)
                 print(f"  {relative}", flush=True)
@@ -1307,18 +1377,16 @@ def generate_shadow_docs(
 def check_shadow_docs(config: Config) -> list[tuple[Path, str]]:
     """Check for stale or missing shadow docs.
 
-    Returns a list of (path, status) tuples where status is 'missing' or 'stale'.
+    Returns a list of (path, status) tuples where status is
+    'missing', 'stale', or 'stale-impl'.
     """
     files = discover_files(config)
     issues: list[tuple[Path, str]] = []
 
     for file_path in files:
-        shadow_path = config.shadow_path_for(file_path)
         relative = file_path.relative_to(config.root_path)
-
-        if not shadow_path.exists():
-            issues.append((relative, "missing"))
-        elif is_stale(config, file_path):
-            issues.append((relative, "stale"))
+        reason = staleness_reason(config, file_path)
+        if reason is not None:
+            issues.append((relative, reason))
 
     return issues

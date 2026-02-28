@@ -9,7 +9,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 
 from .config import Config
-from .hasher import compute_file_hash, extract_source_hash
+from .hasher import compute_file_hash, compute_impl_hash, extract_impl_hash, extract_source_hash
 from .scorecard import merge_ranges
 from .walker import discover_files, discover_directories
 
@@ -215,7 +215,13 @@ def assemble_viz_data(config: Config) -> dict:
                 if stored_hash is not None:
                     try:
                         current_hash = compute_file_hash(file_path)
-                        node["is_stale"] = stored_hash != current_hash
+                        if stored_hash != current_hash:
+                            node["is_stale"] = True
+                        else:
+                            # Source matches — check impl hash
+                            cached_impl = extract_impl_hash(shadow_content)
+                            if cached_impl is None or cached_impl != compute_impl_hash():
+                                node["is_stale"] = True
                     except OSError:
                         pass
             except OSError:
