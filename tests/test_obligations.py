@@ -593,3 +593,126 @@ class TestToolSchemaKeySuppression:
         flagged = {v.evidence["value"] for v in violations}
         assert "json" not in flagged
         assert "html" not in flagged
+
+
+# --- External input usage type tests ---
+
+class TestExternalInputUsage:
+    """Tests that strings marked external_input by the LLM are not flagged."""
+
+    def test_external_input_not_in_checked_set(self, tmp_path):
+        """Env var strings marked external_input don't appear as violations."""
+        _write_facts(tmp_path, "src/registry.py", {
+            "string_literals": [
+                {"value": "alpha", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/server.py", {
+            "string_literals": [
+                # Internal checked string that matches a producer — anchors partial match
+                {"value": "alpha", "context": "membership test", "line": 10, "kind": "identifier", "usage": "checked"},
+                # External input strings — should NOT be flagged
+                {"value": "PROCTOR_MUX_PORT", "context": "process.env read", "line": 20, "kind": "identifier", "usage": "external_input"},
+                {"value": "NODE_ENV", "context": "process.env read", "line": 21, "kind": "identifier", "usage": "external_input"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        violations = checker.check()
+        flagged = {v.evidence["value"] for v in violations}
+        assert "PROCTOR_MUX_PORT" not in flagged
+        assert "NODE_ENV" not in flagged
+
+    def test_mixed_checked_and_external_input(self, tmp_path):
+        """Only unmatched checked strings are flagged; external_input strings are ignored."""
+        _write_facts(tmp_path, "src/registry.py", {
+            "string_literals": [
+                {"value": "alpha", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/handler.py", {
+            "string_literals": [
+                # Matched checked string — anchors partial match
+                {"value": "alpha", "context": "check", "line": 10, "kind": "identifier", "usage": "checked"},
+                # Unmatched checked string — should be flagged
+                {"value": "beta_missing", "context": "check", "line": 11, "kind": "identifier", "usage": "checked"},
+                # External input — should NOT be flagged
+                {"value": "GET", "context": "req.method check", "line": 20, "kind": "identifier", "usage": "external_input"},
+                {"value": "POST", "context": "req.method check", "line": 21, "kind": "identifier", "usage": "external_input"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        violations = checker.check()
+        flagged = {v.evidence["value"] for v in violations}
+        assert "beta_missing" in flagged
+        assert "GET" not in flagged
+        assert "POST" not in flagged
+
+
+# --- Runtime globals safety net tests ---
+
+class TestRuntimeGlobalsSafetyNet:
+    """Tests the comparison_source fallback for well-known runtime globals."""
+
+    def test_process_env_comparison_skipped(self, tmp_path):
+        """String with comparison_source 'process.env' is not flagged."""
+        _write_facts(tmp_path, "src/registry.py", {
+            "string_literals": [
+                {"value": "alpha", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/config.js", {
+            "string_literals": [
+                {"value": "alpha", "context": "check", "line": 10, "kind": "identifier", "usage": "checked"},
+                {"value": "PROCTOR_PORT", "context": "env var lookup", "line": 20, "kind": "identifier", "usage": "checked", "comparison_source": "process.env"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        violations = checker.check()
+        flagged = {v.evidence["value"] for v in violations}
+        assert "PROCTOR_PORT" not in flagged
+
+    def test_req_url_comparison_skipped(self, tmp_path):
+        """String with comparison_source 'req.url' is not flagged."""
+        _write_facts(tmp_path, "src/registry.py", {
+            "string_literals": [
+                {"value": "alpha", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/router.js", {
+            "string_literals": [
+                {"value": "alpha", "context": "check", "line": 10, "kind": "identifier", "usage": "checked"},
+                {"value": "/api/health", "context": "route match", "line": 20, "kind": "identifier", "usage": "checked", "comparison_source": "req.url"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        violations = checker.check()
+        flagged = {v.evidence["value"] for v in violations}
+        assert "/api/health" not in flagged
+
+    def test_non_global_comparison_still_flagged(self, tmp_path):
+        """String with comparison_source 'myVar' (not a runtime global) is still flagged."""
+        _write_facts(tmp_path, "src/registry.py", {
+            "string_literals": [
+                {"value": "alpha", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/handler.py", {
+            "string_literals": [
+                {"value": "alpha", "context": "check", "line": 10, "kind": "identifier", "usage": "checked"},
+                {"value": "some_value", "context": "equality check", "line": 20, "kind": "identifier", "usage": "checked", "comparison_source": "myVar"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        violations = checker.check()
+        flagged = {v.evidence["value"] for v in violations}
+        assert "some_value" in flagged
