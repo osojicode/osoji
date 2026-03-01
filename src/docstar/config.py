@@ -123,7 +123,7 @@ SHADOW_SUBDIR = "shadow"
 DIRECTORY_SHADOW_FILENAME = "_directory.shadow.md"
 
 # LLM model to use
-DEFAULT_MODEL = "claude-sonnet-4-20250514"
+DEFAULT_MODEL = "claude-sonnet-4-6"
 
 
 @dataclass
