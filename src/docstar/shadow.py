@@ -367,6 +367,12 @@ ALSO: Populate the imports, exports, calls, and string_literals arrays:
   keys/names/categories, user-facing messages, config values). NOT every string. Set usage to
   "produced" if emitted/returned, "checked" if used in membership test/equality, "defined" if
   assigned to a constant, "unknown" if unclear from local context.
+  "produced" includes dict/mapping values, default parameter values, dataclass field defaults,
+  and set/list/tuple literal elements — any position where the string is stored for later retrieval.
+  SKIP well-known external conventions — strings defined by external ecosystems, not the project:
+  programming language names (python, javascript, rust, go), testing framework conventions
+  (test_, _test, spec_), standard file extensions (.py, .env, .json, .yaml), standard directory
+  names (node_modules, __pycache__), and similar well-known patterns with no internal "producer".
   For strings with usage "checked", also set comparison_source to the variable or expression
   the string is compared against (e.g., "tool_call.name", "schema.get(key)", "category",
   "os.environ"). This is the other side of the ==, in, not in, or .get() expression."""
