@@ -123,6 +123,24 @@ def _extract_schema_keys(schema: dict, keys: set[str]) -> None:
         _extract_schema_keys(schema["items"], keys)
 
 
+_RUNTIME_GLOBALS = {
+    "process",      # Node.js: process.env, process.argv
+    "os",           # Python: os.environ, os.getenv
+    "sys",          # Python: sys.argv
+    "req",          # HTTP: req.url, req.method, req.headers
+    "request",      # HTTP: request.url, request.method
+    "res",          # HTTP: res.statusCode
+    "response",     # HTTP: response.status
+    "event",        # DOM: event.key, event.type
+    "e",            # DOM: e.key, e.type (common shorthand)
+    "window",       # Browser: window.location
+    "document",     # Browser: document.cookie
+    "globalThis",   # Universal global
+    "self",         # Web Worker global
+    "Deno",         # Deno runtime
+}
+
+
 _COMMON_STRINGS = {
     "id", "name", "type", "error", "status", "value", "key", "data",
     "result", "message", "path", "file", "url", "true", "false", "none",
@@ -483,12 +501,17 @@ class StringContractChecker(ContractChecker):
     # --- External origin detection (unchanged from original) ---
 
     def _is_external_origin(self, file_path: str, comparison_source: str | None) -> bool:
-        """Check if comparison_source traces to an external import in the file."""
+        """Check if comparison_source traces to an external import or runtime global."""
         if not comparison_source:
             return False
         root = comparison_source.split(".")[0].split("[")[0].split("(")[0].strip()
         if not root:
             return False
+
+        # Safety net: well-known runtime globals that are external by definition
+        if root in _RUNTIME_GLOBALS:
+            return True
+
         file_facts = self.facts.get_file(file_path)
         if not file_facts:
             return False
