@@ -75,6 +75,10 @@ NOT obligation-bearing:
 - Data shape fields: type, kind, format, version
 - Descriptive: status, state, result
 - Position/metadata fields: line_start, line_end, line_number, offset, column, index
+- LLM tool schema constraints: minimum, maximum, enum, range constraints on fields inside
+  tool definitions for structured LLM output (e.g., Anthropic tool_use schemas). These
+  constraints guide the LLM's output format, not application code — enforcement happens
+  at the API layer, not in the application.
 
 IMPORTANT: Only extract obligations that are TEXTUALLY STATED in the schema (in descriptions,
 comments, or constraint declarations). Do NOT infer obligations from field names alone.

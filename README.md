@@ -96,6 +96,9 @@ docstar audit /path/to/project --dead-cicd
 # Detect orphaned source files
 docstar audit /path/to/project --orphaned-files
 
+# Check cross-file string contracts (no LLM calls)
+docstar audit /path/to/project --obligations
+
 # Run all junk analysis phases
 docstar audit /path/to/project --junk
 
@@ -172,7 +175,7 @@ docstar hooks uninstall
 ```
 
 **Installed hooks:**
-- `pre-commit` (default: on): Runs safety check and documentation audit, blocking commits if either fails
+- `pre-commit` (default: on): Runs safety check (blocks on failure) and shadow doc staleness check (non-blocking)
 - `pre-push` (default: on): Warns about stale shadow docs before push
 - `post-commit` (default: off): Reminds to update after commit
 

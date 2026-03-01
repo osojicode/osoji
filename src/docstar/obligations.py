@@ -240,10 +240,6 @@ class StringContractChecker(ContractChecker):
                 elif usage == "defined":
                     defined.setdefault(value, []).append(occ)
 
-        all_produced: set[str] = set()
-        for values in producers.values():
-            all_produced.add(values[0].file)  # just need the values as keys
-        # Actually, all_produced_values is the union of produced + defined VALUE keys
         all_produced_values = set(producers.keys()) | set(defined.keys())
 
         self._data = StringContractData(
