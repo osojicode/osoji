@@ -364,15 +364,22 @@ ALSO: Populate the imports, exports, calls, and string_literals arrays:
 - exports: Public API surface only (things importable by other files)
 - calls: Significant cross-file calls from exported symbols and module-level code (not same-file, not internal helpers)
 - string_literals: String constants that participate in cross-file contracts (identifiers used as
-  keys/names/categories, user-facing messages, config values). NOT every string. Set usage to
-  "produced" if emitted/returned, "checked" if used in membership test/equality, "defined" if
-  assigned to a constant, "unknown" if unclear from local context.
-  "produced" includes dict/mapping values, default parameter values, dataclass field defaults,
-  and set/list/tuple literal elements — any position where the string is stored for later retrieval.
-  SKIP well-known external conventions — strings defined by external ecosystems, not the project:
+  keys/names/categories, user-facing messages, config values). NOT every string.
+  IMPORTANT: Dict/mapping values, default parameter values, and collection literal elements
+  are PRODUCTION sites — classify these as "produced" even if the same string also appears
+  in equality checks elsewhere in the file.
+  Set usage to "produced" if emitted/returned/appended (including dict values, collection
+  literal elements, default parameter values), "checked" if used in membership test/equality
+  against a project-internal value, "defined" if assigned to a constant, "external_input" if
+  the string enters from outside the project boundary at runtime (environment variable names
+  read from process.env/os.environ, CLI flags/arguments from process.argv/sys.argv, HTTP
+  request properties like method/url/headers, DOM/browser event values like keyboard keys,
+  wire protocol method names like JSON-RPC/MCP/gRPC methods, OS signal names) — not hardcoded
+  literals, or "unknown" if unclear from local context.
+  ALWAYS SKIP these well-known external convention strings — do not extract them at all:
   programming language names (python, javascript, rust, go), testing framework conventions
   (test_, _test, spec_), standard file extensions (.py, .env, .json, .yaml), standard directory
-  names (node_modules, __pycache__), and similar well-known patterns with no internal "producer".
+  names (node_modules, __pycache__), and similar ecosystem-standard patterns.
   For strings with usage "checked", also set comparison_source to the variable or expression
   the string is compared against (e.g., "tool_call.name", "schema.get(key)", "category",
   "os.environ"). This is the other side of the ==, in, not in, or .get() expression."""

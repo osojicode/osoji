@@ -205,8 +205,19 @@ to work with this code effectively.""",
                         },
                         "usage": {
                             "type": "string",
-                            "enum": ["produced", "checked", "defined", "unknown"],
-                            "description": "produced = emitted/returned/appended, including dict/mapping values, default parameter values, and collection literal elements; checked = membership test/equality; defined = assigned to constant; unknown = can't tell. Skip well-known external conventions (language names, test framework patterns, standard extensions) that have no internal producer.",
+                            "enum": ["produced", "checked", "defined", "external_input", "unknown"],
+                            "description": "produced = emitted/returned/appended, including dict/mapping values, "
+                                           "default parameter values, and collection literal elements "
+                                           "(dict values are production sites even if the same string is also checked); "
+                                           "checked = membership test/equality against an internal project value; "
+                                           "defined = assigned to constant; "
+                                           "external_input = string enters from outside the project at runtime "
+                                           "(environment variables, CLI arguments/flags, HTTP request fields, "
+                                           "DOM/browser events, wire protocol method names, OS signals) — "
+                                           "not hardcoded string literals; "
+                                           "unknown = can't tell. "
+                                           "Always skip well-known external conventions (language names, test framework "
+                                           "patterns, standard extensions) — do not extract them.",
                         },
                         "comparison_source": {
                             "type": "string",
