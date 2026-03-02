@@ -34,10 +34,6 @@ def _tool_use_block(tool_id, name, tool_input):
     return {"type": "tool_use", "id": tool_id, "name": name, "input": tool_input}
 
 
-def _text_block(text):
-    return {"type": "text", "text": text}
-
-
 SIMPLE_SCHEMA = {
     "type": "object",
     "properties": {

@@ -34,6 +34,13 @@ class JunkFinding:
     original_purpose: str     # what the item was for
     metadata: dict[str, Any] = field(default_factory=dict)
 
+    def __post_init__(self) -> None:
+        if self.line_end is not None and self.line_end < self.line_start:
+            raise ValueError(
+                f"line_end ({self.line_end}) must be >= line_start ({self.line_start}) "
+                f"for {self.name!r} in {self.source_path}"
+            )
+
 
 @dataclass
 class JunkAnalysisResult:
@@ -118,6 +125,28 @@ class JunkAnalyzer(ABC):
                 await logging_provider.close()
 
         return asyncio.run(_run())
+
+
+def validate_line_ranges(tool_name: str, tool_input: dict) -> list[str]:
+    """Tool input validator: ensure line_end >= line_start in findings/items arrays.
+
+    Usable as a ``tool_input_validators`` entry on ``CompletionOptions``.
+    """
+    errors: list[str] = []
+    for key in ("findings", "items", "obligations", "candidates"):
+        items = tool_input.get(key, [])
+        if not isinstance(items, list):
+            continue
+        for i, item in enumerate(items):
+            if not isinstance(item, dict):
+                continue
+            ls = item.get("line_start")
+            le = item.get("line_end")
+            if ls is not None and le is not None and le < ls:
+                errors.append(
+                    f"{key}[{i}]: line_end ({le}) must be >= line_start ({ls})"
+                )
+    return errors
 
 
 def load_shadow_content(config: Config, relative_path: str) -> str:

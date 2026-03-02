@@ -161,9 +161,7 @@ class AnthropicProvider(LLMProvider):
 
             if has_errors:
                 # Build retry conversation
-                assistant_blocks = [
-                    b for b in response.content
-                ]
+                assistant_blocks = list(response.content)
                 retry_assistant = {
                     "role": "assistant",
                     "content": [

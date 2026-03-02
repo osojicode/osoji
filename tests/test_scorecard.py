@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from docstar.config import Config
-from docstar.debris import DocAnalysisResult, DocFinding
+from docstar.doc_analysis import DocAnalysisResult, DocFinding
 from docstar.deadcode import DeadCodeVerification
 from docstar.plumbing import PlumbingResult, PlumbingVerification
 from docstar.junk import JunkAnalysisResult, JunkFinding

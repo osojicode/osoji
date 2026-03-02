@@ -1,12 +1,9 @@
 """Git hook management for automatic shadow doc updates."""
 
-import os
 import stat
 import subprocess
 from pathlib import Path
 from typing import Optional
-
-from .config import Config
 
 
 # Hook templates
@@ -252,8 +249,7 @@ def uninstall_hooks(repo_path: Path) -> list[tuple[str, bool, str]]:
 def get_staged_files_all(repo_path: Path) -> list[Path]:
     """Get list of all staged files without extension filtering.
 
-    Unlike get_staged_files(), this returns all staged files regardless
-    of extension, for use by safety checks.
+    Returns all staged files regardless of extension, for use by safety checks.
 
     Args:
         repo_path: Path to the repository

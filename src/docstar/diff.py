@@ -6,7 +6,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from .config import Config
-from .debris import find_doc_candidates
+from .doc_analysis import find_doc_candidates
+from .facts import FactsDB
 from .hooks import find_git_root
 from .shadow import is_stale
 from .walker import _matches_ignore
@@ -157,51 +158,90 @@ def check_stale_shadows(config: Config, changed_sources: list[DiffFileChange]) -
     return stale
 
 
-def _build_search_patterns(source_path: Path) -> list[str]:
-    """Build text search patterns for a source file path.
-
-    Generates patterns like:
-    - "src/docstar/config.py" (full relative path)
-    - "config.py" (filename)
-    - "docstar.config" (Python module-style)
-    """
-    patterns = []
-
-    # Full relative path (forward slashes)
-    patterns.append(str(source_path).replace("\\", "/"))
-
-    # Filename only
-    patterns.append(source_path.name)
-
-    # Module-style reference (for Python files)
-    if source_path.suffix == ".py":
-        # src/docstar/config.py -> docstar.config
-        parts = list(source_path.with_suffix("").parts)
-        # Strip common prefixes like "src"
-        if parts and parts[0] == "src":
-            parts = parts[1:]
-        if len(parts) > 1:
-            # Remove __init__ from module path
-            if parts[-1] == "__init__":
-                parts = parts[:-1]
-            patterns.append(".".join(parts))
-
-    return patterns
-
-
 def find_doc_references(config: Config, changed_sources: list[DiffFileChange]) -> list[DocReference]:
-    """Search .md files for references to changed source files."""
+    """Find documentation files that reference changed source files.
+
+    Uses FactsDB (populated during ``docstar shadow .``) for fast lookups.
+    Falls back to text-grep when FactsDB has no doc entries.
+    """
     if not changed_sources:
         return []
 
+    facts_db = FactsDB(config)
+    has_doc_facts = bool(facts_db.doc_files())
+
+    if has_doc_facts:
+        return _find_doc_references_via_facts(config, facts_db, changed_sources)
+    return _find_doc_references_via_grep(config, changed_sources)
+
+
+def _find_doc_references_via_facts(
+    config: Config,
+    facts_db: FactsDB,
+    changed_sources: list[DiffFileChange],
+) -> list[DocReference]:
+    """Look up doc references from FactsDB (fast, language-agnostic)."""
+    references: list[DocReference] = []
+
+    for change in changed_sources:
+        source_str = str(change.path).replace("\\", "/")
+        doc_paths = facts_db.docs_referencing(source_str)
+
+        for doc_rel in doc_paths:
+            doc_abs = config.root_path / doc_rel
+            if not doc_abs.exists():
+                continue
+
+            # Find the actual line(s) referencing this source for context
+            try:
+                content = doc_abs.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                continue
+
+            # Use filename as minimal search pattern for line-level context
+            search_term = change.path.name
+            found_line = False
+            for line_num, line in enumerate(content.splitlines(), start=1):
+                if search_term in line:
+                    references.append(DocReference(
+                        doc_path=Path(doc_rel),
+                        source_path=change.path,
+                        line_number=line_num,
+                        line_content=line.strip(),
+                        source_deleted=(change.change_type == "deleted"),
+                    ))
+                    found_line = True
+                    break
+
+            if not found_line:
+                # FactsDB says it references the source but we couldn't find the exact line
+                references.append(DocReference(
+                    doc_path=Path(doc_rel),
+                    source_path=change.path,
+                    line_number=0,
+                    line_content="(reference found via FactsDB)",
+                    source_deleted=(change.change_type == "deleted"),
+                ))
+
+    return references
+
+
+def _find_doc_references_via_grep(
+    config: Config,
+    changed_sources: list[DiffFileChange],
+) -> list[DocReference]:
+    """Fallback: text-grep search for source references in doc files."""
     doc_candidates = find_doc_candidates(config)
     if not doc_candidates:
         return []
 
-    # Build search patterns for each changed source
+    # Build search patterns for each changed source (filename + full path)
     source_patterns: list[tuple[DiffFileChange, list[str]]] = []
     for change in changed_sources:
-        patterns = _build_search_patterns(change.path)
+        patterns = [
+            str(change.path).replace("\\", "/"),
+            change.path.name,
+        ]
         source_patterns.append((change, patterns))
 
     references: list[DocReference] = []
@@ -225,7 +265,7 @@ def find_doc_references(config: Config, changed_sources: list[DiffFileChange]) -
                             line_content=line.strip(),
                             source_deleted=(change.change_type == "deleted"),
                         ))
-                        break  # One match per (line, source) pair is enough
+                        break
 
     return references
 

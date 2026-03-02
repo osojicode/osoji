@@ -102,7 +102,7 @@ docstar audit /path/to/project --obligations
 # Run all junk analysis phases
 docstar audit /path/to/project --junk
 
-# Run all optional phases (equivalent to --junk)
+# Run all optional phases (equivalent to --junk --obligations)
 docstar audit /path/to/project --full
 ```
 

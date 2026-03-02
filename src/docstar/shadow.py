@@ -1011,7 +1011,7 @@ async def generate_directory_shadows(
                 child_entries: list[tuple[str, str]] = []
 
                 # Child files: (name, file_content_hash)
-                for file_path in get_direct_children(config, dir_path, all_files):
+                for file_path in get_direct_children(dir_path, all_files):
                     if file_path in file_bodies:
                         child_entries.append((file_path.name, compute_file_hash(file_path)))
 
@@ -1044,7 +1044,7 @@ async def generate_directory_shadows(
                 # Gather summaries for LLM call
                 child_summaries: list[tuple[Path, str]] = []
 
-                for file_path in get_direct_children(config, dir_path, all_files):
+                for file_path in get_direct_children(dir_path, all_files):
                     if file_path in file_bodies:
                         child_summaries.append((file_path, file_bodies[file_path]))
 
@@ -1268,6 +1268,12 @@ async def generate_shadow_docs_async(
                     relative = dir_path
                 print(f"  [ERROR] {relative}/: {err_msg}", flush=True)
 
+        # Extract doc-to-source references (no LLM calls)
+        print("\nExtracting doc references...", flush=True)
+        doc_count = extract_doc_references(config, verbose=verbose)
+        if doc_count:
+            print(f"Processed {doc_count} doc file(s)", flush=True)
+
         # Clean up orphan shadow docs
         print("\nCleaning up orphans...", flush=True)
         orphan_count = cleanup_orphan_shadows(config, files, dirs, verbose=verbose)
@@ -1298,6 +1304,123 @@ async def generate_shadow_docs_async(
 
     finally:
         await logging_provider.close()
+
+
+def extract_doc_references(config: Config, verbose: bool = False) -> int:
+    """Extract source file references from documentation files and write facts.
+
+    Scans each doc file for references to source files that have shadow docs,
+    using filename matching, relative paths, and module-style references.
+    Results are written to ``.docstar/facts/<doc_path>.facts.json`` so that
+    :class:`FactsDB` can load them alongside source facts.
+
+    Returns the number of doc files processed.
+    """
+    from .config import DIRECTORY_SHADOW_FILENAME
+    from .hasher import compute_hash
+
+    shadow_root = config.shadow_root
+    if not shadow_root.exists():
+        return 0
+
+    # Build a mapping: various reference forms -> normalised source path
+    source_files: dict[str, str] = {}
+    for shadow_path in shadow_root.rglob("*.shadow.md"):
+        if shadow_path.name == DIRECTORY_SHADOW_FILENAME:
+            continue
+        relative_shadow = shadow_path.relative_to(shadow_root)
+        source_str = str(relative_shadow).removesuffix(".shadow.md").replace("\\", "/")
+        source_path = Path(source_str)
+
+        # Full relative path
+        source_files[source_str] = source_str
+        # Filename only (skip very short names to avoid false positives)
+        if len(source_path.name) >= 4:
+            source_files[source_path.name] = source_str
+        # Module-style (Python)
+        if source_path.suffix == ".py":
+            parts = list(source_path.with_suffix("").parts)
+            if parts and parts[0] == "src":
+                parts = parts[1:]
+            if parts and parts[-1] == "__init__":
+                parts = parts[:-1]
+            if len(parts) > 1:
+                source_files[".".join(parts)] = source_str
+
+    if not source_files:
+        return 0
+
+    # Find doc files
+    doc_candidates: list[Path] = []
+    from .walker import list_repo_files, _matches_ignore
+    all_paths, _ = list_repo_files(config)
+    docstarignore = config.load_docstarignore()
+
+    for path in all_paths:
+        if not path.is_absolute():
+            path = config.root_path / path
+        if not path.is_file():
+            continue
+        relative = path.relative_to(config.root_path)
+        rel_str = str(relative).replace("\\", "/")
+        if rel_str.startswith(".docstar"):
+            continue
+        if _matches_ignore(relative, config.ignore_patterns):
+            continue
+        if docstarignore and _matches_ignore(relative, docstarignore):
+            continue
+        if config.is_doc_candidate(path):
+            doc_candidates.append(path)
+
+    if not doc_candidates:
+        return 0
+
+    processed = 0
+    for doc_path in doc_candidates:
+        try:
+            content = doc_path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+
+        relative = doc_path.relative_to(config.root_path)
+        rel_str = str(relative).replace("\\", "/")
+
+        # Find which source files this doc references
+        found: dict[str, str] = {}  # source_path -> ref_key that matched
+        for ref_key, source_path in source_files.items():
+            if ref_key in content and source_path not in found:
+                found[source_path] = ref_key
+
+        # Build imports list (source file references)
+        imports: list[dict] = []
+        for source_path, ref_key in sorted(found.items()):
+            imports.append({
+                "source": source_path,
+                "names": [],
+                "context": f"doc references {source_path} via '{ref_key}'",
+            })
+
+        # Write facts file
+        facts_data = {
+            "source": rel_str,
+            "source_hash": compute_hash(content),
+            "imports": imports,
+            "exports": [],
+            "calls": [],
+            "string_literals": [],
+            "classification": "doc",  # marks this as a doc file in FactsDB
+            "topics": [],
+        }
+
+        facts_path = config.facts_path_for(relative)
+        facts_path.parent.mkdir(parents=True, exist_ok=True)
+        facts_path.write_text(json.dumps(facts_data, indent=2), encoding="utf-8")
+        processed += 1
+
+        if verbose:
+            print(f"  [doc-refs] {rel_str}: {len(imports)} source reference(s)", flush=True)
+
+    return processed
 
 
 def cleanup_orphan_shadows(config: Config, files: list[Path], dirs: list[Path], verbose: bool = False) -> int:

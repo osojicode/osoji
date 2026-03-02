@@ -156,7 +156,7 @@ class TestFindDocCandidatesIgnore:
 
     def test_ignored_docs_excluded(self, temp_dir):
         """Doc files under an ignored directory should be excluded."""
-        from docstar.debris import find_doc_candidates
+        from docstar.doc_analysis import find_doc_candidates
 
         # Create a doc in root
         (temp_dir / "README.md").write_text("# Readme\n")
@@ -177,7 +177,7 @@ class TestFindDocCandidatesIgnore:
 
     def test_multi_segment_ignored_docs_excluded(self, temp_dir):
         """Doc files under a multi-segment ignore pattern should be excluded."""
-        from docstar.debris import find_doc_candidates
+        from docstar.doc_analysis import find_doc_candidates
 
         # Create a doc in root
         (temp_dir / "README.md").write_text("# Readme\n")

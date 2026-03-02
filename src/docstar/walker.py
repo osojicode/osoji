@@ -196,7 +196,7 @@ def discover_directories(config: Config, files: list[Path]) -> list[Path]:
     return dir_list
 
 
-def get_direct_children(config: Config, dir_path: Path, all_files: list[Path]) -> list[Path]:
+def get_direct_children(dir_path: Path, all_files: list[Path]) -> list[Path]:
     """Get files that are direct children of a directory."""
     return [f for f in all_files if f.parent == dir_path]
 
