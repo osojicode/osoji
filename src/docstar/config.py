@@ -147,6 +147,10 @@ class Config:
     doc_filenames: set[str] = field(default_factory=lambda: DOC_FILENAMES.copy())
     doc_directories: set[str] = field(default_factory=lambda: DOC_DIRECTORIES.copy())
 
+    def _to_relative(self, path: Path) -> Path:
+        """Normalize a path to project-relative, accepting both absolute and relative."""
+        return path.relative_to(self.root_path) if path.is_absolute() else path
+
     @property
     def shadow_root(self) -> Path:
         """Return the root directory for shadow docs."""
@@ -159,27 +163,27 @@ class Config:
 
     def shadow_path_for(self, source_path: Path) -> Path:
         """Return the shadow doc path for a given source file."""
-        relative = source_path.relative_to(self.root_path)
+        relative = self._to_relative(source_path)
         return self.shadow_root / (str(relative) + ".shadow.md")
 
     def findings_path_for(self, source_path: Path) -> Path:
         """Return the findings JSON path for a given source file."""
-        relative = source_path.relative_to(self.root_path)
+        relative = self._to_relative(source_path)
         return self.root_path / SHADOW_DIR / "findings" / (str(relative) + ".findings.json")
 
     def symbols_path_for(self, source_path: Path) -> Path:
         """Return the symbols JSON sidecar path for a given source file."""
-        relative = source_path.relative_to(self.root_path)
+        relative = self._to_relative(source_path)
         return self.root_path / SHADOW_DIR / "symbols" / (str(relative) + ".symbols.json")
 
     def facts_path_for(self, source_path: Path) -> Path:
         """Return the facts JSON path for a given source file."""
-        relative = source_path.relative_to(self.root_path)
+        relative = self._to_relative(source_path)
         return self.root_path / SHADOW_DIR / "facts" / (str(relative) + ".facts.json")
 
     def shadow_path_for_dir(self, dir_path: Path) -> Path:
         """Return the shadow doc path for a directory roll-up."""
-        relative = dir_path.relative_to(self.root_path)
+        relative = self._to_relative(dir_path)
         if relative == Path("."):
             return self.shadow_root / "_root.shadow.md"
         return self.shadow_root / relative / DIRECTORY_SHADOW_FILENAME
@@ -191,32 +195,32 @@ class Config:
 
     def analysis_docs_path_for(self, doc_path: Path) -> Path:
         """Return the analysis JSON path for a given doc file."""
-        relative = doc_path.relative_to(self.root_path) if doc_path.is_absolute() else doc_path
+        relative = self._to_relative(doc_path)
         return self.analysis_root / "docs" / (str(relative) + ".analysis.json")
 
     def analysis_deadcode_path_for(self, source_path: Path) -> Path:
         """Return the dead-code analysis JSON path for a given source file."""
-        relative = source_path.relative_to(self.root_path) if source_path.is_absolute() else source_path
+        relative = self._to_relative(source_path)
         return self.analysis_root / "dead-code" / (str(relative) + ".deadcode.json")
 
     def analysis_plumbing_path_for(self, source_path: Path) -> Path:
         """Return the plumbing analysis JSON path for a given source file."""
-        relative = source_path.relative_to(self.root_path) if source_path.is_absolute() else source_path
+        relative = self._to_relative(source_path)
         return self.analysis_root / "plumbing" / (str(relative) + ".plumbing.json")
 
     def analysis_junk_path_for(self, analyzer_name: str, source_path: Path) -> Path:
         """Return the junk analysis JSON path for a given source file and analyzer."""
-        relative = source_path.relative_to(self.root_path) if source_path.is_absolute() else source_path
+        relative = self._to_relative(source_path)
         return self.analysis_root / "junk" / analyzer_name / (str(relative) + f".{analyzer_name}.json")
 
     def signatures_path_for(self, source_path: Path) -> Path:
         """Return the signature JSON path for a given source file."""
-        relative = source_path.relative_to(self.root_path) if source_path.is_absolute() else source_path
+        relative = self._to_relative(source_path)
         return self.root_path / SHADOW_DIR / "signatures" / (str(relative) + ".signature.json")
 
     def signatures_path_for_dir(self, dir_path: Path) -> Path:
         """Return the signature JSON path for a directory."""
-        relative = dir_path.relative_to(self.root_path) if dir_path.is_absolute() else dir_path
+        relative = self._to_relative(dir_path)
         if relative == Path("."):
             return self.root_path / SHADOW_DIR / "signatures" / "_directory.signature.json"
         return self.root_path / SHADOW_DIR / "signatures" / relative / "_directory.signature.json"
