@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config
+from .config import Config, MODEL_SMALL
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content
 from .llm.base import LLMProvider
 from .llm.factory import create_provider
@@ -116,7 +116,7 @@ async def extract_obligations_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_EXTRACT_OBLIGATIONS_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model="claude-haiku-4-5-20251001",
+            model=MODEL_SMALL,
             max_tokens=2048,
             tools=get_extract_obligations_tool_definitions(),
             tool_choice={"type": "tool", "name": "extract_obligations"},

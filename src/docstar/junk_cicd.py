@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config
+from .config import Config, MODEL_SMALL
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult
 from .llm.base import LLMProvider
 from .llm.types import Message, MessageRole, CompletionOptions
@@ -14,7 +14,6 @@ from .rate_limiter import RateLimiter
 from .tools import get_dead_cicd_tool_definitions, get_extract_cicd_elements_tool_definitions
 from .walker import list_repo_files
 
-HAIKU_MODEL = "claude-haiku-4-5-20251001"
 
 
 @dataclass
@@ -342,7 +341,7 @@ async def _parse_cicd_via_haiku(
         messages=[Message(role=MessageRole.USER, content="\n".join(lines))],
         system=_EXTRACT_CICD_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=HAIKU_MODEL,
+            model=MODEL_SMALL,
             max_tokens=4096,
             tools=get_extract_cicd_elements_tool_definitions(),
             tool_choice={"type": "tool", "name": "extract_cicd_elements"},

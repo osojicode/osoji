@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config, DIRECTORY_SHADOW_FILENAME
+from .config import Config, DIRECTORY_SHADOW_FILENAME, MODEL_SMALL, MODEL_MEDIUM, MODEL_LARGE
 from .hasher import read_file_safe
 from .llm.base import LLMProvider
 from .llm.factory import create_provider
@@ -163,7 +163,7 @@ def _find_referenced_sources(config: Config, doc_content: str) -> list[Path]:
 
 # --- Tier 2: Topic matching via Haiku ---
 
-MATCH_MODEL = "claude-haiku-4-5-20251001"
+MATCH_MODEL = MODEL_SMALL
 
 _MATCH_SYSTEM_PROMPT = """You are a documentation-to-code matcher. Given a documentation file and a list of source code directory summaries, identify which directories contain code relevant to this documentation.
 
@@ -285,7 +285,7 @@ Return the directory paths using the match_doc_topics tool."""
     return matched_files, result.input_tokens, result.output_tokens, topic_signature
 
 
-ANALYZE_MODEL = "claude-opus-4-6"
+ANALYZE_MODEL = MODEL_LARGE
 
 # --- Unified analysis (Opus) ---
 
@@ -428,7 +428,7 @@ async def _analyze_document_async(
 
 # --- Tier 4: Error-finding verification ---
 
-VERIFY_MODEL = "claude-sonnet-4-20250514"
+VERIFY_MODEL = MODEL_MEDIUM
 
 _VERIFY_SYSTEM_PROMPT = """You are a documentation accuracy verifier performing a second-pass review.
 
