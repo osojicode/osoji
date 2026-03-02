@@ -15,7 +15,7 @@ from .facts import FactsDB
 
 @dataclass
 class ObligationViolation:
-    """A detected cross-file contract violation (legacy model, kept for compat)."""
+    """A detected cross-file contract violation (backward-compatible model)."""
 
     obligation_type: str       # "string_contract"
     source_file: str           # file containing the producer/definition

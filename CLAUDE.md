@@ -22,9 +22,10 @@ the same structural understanding in a fraction of the tokens:
 - `_root.shadow.md` — project/directory overview
 - `<file>.shadow.md` — per-file summary with line references
 
-The pre-commit hook runs `docstar check` which marks stale docs with warning
-lines and writes `.docstar/staleness.json`, but does not regenerate them
-(no LLM calls). Run `docstar shadow .` explicitly to regenerate.
+The pre-commit hook runs `docstar safety check` (blocks on failure) then
+`docstar check` which marks stale docs with warning lines and writes
+`.docstar/staleness.json`, but does not regenerate them (no LLM calls).
+Run `docstar shadow .` explicitly to regenerate.
 Use `docstar check --dry-run` for a read-only report without file modifications.
 
 ## Structured facts (.docstar/facts/)
@@ -47,7 +48,7 @@ export analysis, and string contract checking.
 - `src/docstar/facts.py` — Structured facts database and queries
 - `src/docstar/obligations.py` — String contract / obligation checking
 - `src/docstar/tools.py` — Tool definitions (schemas) for LLM tool use
-- `src/docstar/debris.py` — Documentation accuracy analysis
+- `src/docstar/doc_analysis.py` — Documentation accuracy analysis
 - `src/docstar/deadcode.py` — Dead code detection
 - `src/docstar/plumbing.py` — Dead plumbing detection (unactuated config obligations)
 - `src/docstar/junk.py` — Junk code analysis (with `junk_cicd.py`, `junk_deps.py`, `junk_orphan.py`)
@@ -56,7 +57,7 @@ export analysis, and string contract checking.
 
 ## Style
 
-- Python 3.13+, type hints throughout
+- Python 3.11+, type hints throughout
 - Tests use pytest with `tmp_path` fixtures and `unittest.mock`
 - Async where needed (LLM calls), sync otherwise
 - Commit messages: imperative mood, concise

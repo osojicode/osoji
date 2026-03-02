@@ -101,6 +101,9 @@ async def _run_trial_case_002(provider, config, tmp_path, expected) -> bool:
     audit_path = tmp_path / "src" / "docstar" / "audit.py"
     file_content = audit_path.read_text(errors="ignore")
 
+    # Line numbers are coupled to the snapshotted fixture file in
+    # tests/fixtures/prompt_regression/dead_code/case_002_internal_dataclass/source/,
+    # NOT to the live src/docstar/audit.py. Update if the fixture changes.
     candidates = [
         DeadCodeCandidate(
             source_path="src/docstar/audit.py",

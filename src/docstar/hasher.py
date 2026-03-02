@@ -59,8 +59,6 @@ def read_file_safe(path: Path) -> tuple[str, bool]:
             return path.read_text(encoding="utf-8", errors="replace"), False
 
     # Check 3: non-text byte ratio (only reached for non-UTF-8 files)
-    # Text bytes: printable ASCII (0x20-0x7e) + tab (0x09) + newline (0x0a) + CR (0x0d)
-    _TEXT_BYTES = frozenset(range(0x20, 0x7f)) | {0x09, 0x0a, 0x0d}
     if check_raw:
         non_text = sum(1 for b in check_raw if b not in _TEXT_BYTES)
         if non_text / len(check_raw) > 0.10:  # >10% non-text = binary
@@ -70,6 +68,9 @@ def read_file_safe(path: Path) -> tuple[str, bool]:
         return path.read_text(encoding="utf-8-sig"), False
     except UnicodeDecodeError:
         return path.read_text(encoding="utf-8", errors="replace"), False
+
+
+_TEXT_BYTES = frozenset(range(0x20, 0x7f)) | {0x09, 0x0a, 0x0d}
 
 
 def add_line_numbers(content: str) -> str:

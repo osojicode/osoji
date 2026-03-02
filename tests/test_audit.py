@@ -327,7 +327,7 @@ class TestHTMLReport:
         assert 'href="#section-junk"' in html
 
 
-# --- Scorecard count fields (new in Commit 1) ---
+# --- Scorecard count fields ---
 
 class TestScorecardCounts:
     def test_covered_and_total_match(self, temp_dir):
@@ -347,7 +347,7 @@ class TestScorecardCounts:
             src.parent.mkdir(parents=True, exist_ok=True)
             src.write_text("pass\n")
 
-        from docstar.debris import DocAnalysisResult
+        from docstar.doc_analysis import DocAnalysisResult
         results = [
             DocAnalysisResult(
                 path=Path("docs/guide.md"), classification="how-to",
@@ -364,7 +364,7 @@ class TestScorecardCounts:
         """type_covered_counts and type_total_counts populated correctly."""
         from docstar.config import Config
         from docstar.scorecard import build_scorecard
-        from docstar.debris import DocAnalysisResult
+        from docstar.doc_analysis import DocAnalysisResult
 
         config = Config(root_path=temp_dir, respect_gitignore=False)
 

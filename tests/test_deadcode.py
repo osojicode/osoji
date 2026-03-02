@@ -488,9 +488,9 @@ class TestVerifyBatch:
         )
         call_args = mock_provider.complete.call_args
         options = call_args.kwargs.get("options") or call_args[1].get("options")
-        assert len(options.tool_input_validators) == 1
+        assert len(options.tool_input_validators) == 2
 
-        # The validator should pass when all symbols are present
+        # The first validator should pass when all symbols are present
         validator = options.tool_input_validators[0]
         errs = validator("verify_dead_code", {
             "verdicts": [{"symbol_name": "func_a"}],

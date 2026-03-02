@@ -11,7 +11,12 @@ from .config import Config
 
 @dataclass
 class FileFacts:
-    """Parsed facts for a single source file."""
+    """Parsed facts for a single file (source or documentation).
+
+    For source files: all fields populated by LLM extraction.
+    For doc files: ``imports`` stores source file references (with context),
+    ``exports``/``calls``/``string_literals`` are empty.
+    """
 
     source: str
     source_hash: str
@@ -19,6 +24,9 @@ class FileFacts:
     exports: list[dict] = field(default_factory=list)
     calls: list[dict] = field(default_factory=list)
     string_literals: list[dict] = field(default_factory=list)
+    # Doc-specific fields (None for source files):
+    classification: str | None = None
+    topics: list[str] | None = None
 
 
 def _only_dicts(items: list) -> list[dict]:
@@ -56,6 +64,8 @@ class FactsDB:
                     exports=_only_dicts(data.get("exports", [])),
                     calls=_only_dicts(data.get("calls", [])),
                     string_literals=_only_dicts(data.get("string_literals", [])),
+                    classification=data.get("classification"),
+                    topics=data.get("topics"),
                 )
             except (json.JSONDecodeError, KeyError):
                 continue
@@ -154,6 +164,33 @@ class FactsDB:
                 return candidate
 
         return None
+
+    def is_doc(self, path: str) -> bool:
+        """Check if a facts entry represents a documentation file."""
+        facts = self._files.get(path.replace("\\", "/"))
+        return facts is not None and facts.classification is not None
+
+    def doc_files(self) -> list[str]:
+        """Return paths of all documentation files with facts data."""
+        return [p for p, f in self._files.items() if f.classification is not None]
+
+    def docs_referencing(self, source_path: str) -> list[str]:
+        """Return doc file paths whose imports reference the given source file.
+
+        Doc files store source references in the ``imports`` field using the
+        ``source`` key.  This method checks for exact matches against the
+        normalised *source_path*.
+        """
+        source_norm = source_path.replace("\\", "/")
+        result: list[str] = []
+        for file_path, facts in self._files.items():
+            if facts.classification is None:
+                continue  # skip source files
+            for imp in facts.imports:
+                if imp.get("source", "").replace("\\", "/") == source_norm:
+                    result.append(file_path)
+                    break
+        return result
 
     def importers_of(self, source_path: str) -> list[str]:
         """Return files that import from the given path."""

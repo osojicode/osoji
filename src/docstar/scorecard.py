@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from .config import Config, DIRECTORY_SHADOW_FILENAME
-from .debris import DocAnalysisResult
+from .doc_analysis import DocAnalysisResult
 from .deadcode import DeadCodeVerification
 from .junk import JunkAnalysisResult
 from .plumbing import PlumbingResult, PlumbingVerification
@@ -107,7 +107,7 @@ def build_scorecard(
     config: Config,
     analysis_results: list[DocAnalysisResult],
     junk_results: dict[str, JunkAnalysisResult] | None = None,
-    # Backward compat (keep during transition):
+    # Backward compat:
     dead_code_results: list[DeadCodeVerification] | None = None,
     plumbing_result: PlumbingResult | None = None,
 ) -> Scorecard:
@@ -189,7 +189,7 @@ def build_scorecard(
     junk_items_by_file: dict[str, list[dict]] = {}
     junk_sources: list[str] = []
 
-    # Phase 3: Code debris findings from .docstar/findings/
+    # Code debris findings from .docstar/findings/
     findings_dir = config.root_path / ".docstar" / "findings"
     if findings_dir.exists():
         junk_sources.append("code_debris")

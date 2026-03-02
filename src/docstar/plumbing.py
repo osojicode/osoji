@@ -15,10 +15,8 @@ from typing import Callable
 from .config import Config, MODEL_SMALL
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content
 from .llm.base import LLMProvider
-from .llm.factory import create_provider
-from .llm.logging import LoggingProvider
 from .llm.types import Message, MessageRole, CompletionOptions
-from .rate_limiter import RateLimiter, get_config_with_overrides
+from .rate_limiter import RateLimiter
 from .symbols import load_files_by_role
 from .tools import get_extract_obligations_tool_definitions, get_verify_actuation_tool_definitions
 from .walker import list_repo_files, _matches_ignore

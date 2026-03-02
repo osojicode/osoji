@@ -6,7 +6,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config, DIRECTORY_SHADOW_FILENAME, MODEL_SMALL, MODEL_MEDIUM, MODEL_LARGE
+from .config import Config, DIRECTORY_SHADOW_FILENAME, MODEL_SMALL, MODEL_MEDIUM, MODEL_LARGE, SHADOW_DIR
+from .facts import FactsDB
 from .hasher import read_file_safe
 from .llm.base import LLMProvider
 from .llm.factory import create_provider
@@ -84,7 +85,7 @@ def find_doc_candidates(config: Config) -> list[Path]:
         relative = path.relative_to(config.root_path)
 
         # Skip shadow doc directory
-        if str(relative).startswith(".docstar"):
+        if str(relative).startswith(SHADOW_DIR):
             continue
 
         # Skip default ignore patterns
@@ -105,39 +106,45 @@ def find_doc_candidates(config: Config) -> list[Path]:
 # --- Tier 1: Explicit reference matching (no LLM) ---
 
 
-def _find_referenced_sources(config: Config, doc_content: str) -> list[Path]:
-    """Extract source file references from .md text.
+def _find_referenced_sources(
+    config: Config, doc_content: str, *, doc_path: Path | None = None, facts_db: FactsDB | None = None,
+) -> list[Path]:
+    """Extract source file references from a documentation file.
 
-    Looks for:
-    - Relative paths (src/docstar/config.py)
-    - Filenames with source extensions (config.py)
-    - Module-style references (docstar.config)
+    When *facts_db* has doc-reference entries (populated by ``docstar shadow .``),
+    the lookup is a fast FactsDB query.  Otherwise falls back to regex matching
+    against shadow doc filenames.
     """
+    # Fast path: query FactsDB if doc references are available
+    if facts_db is not None and doc_path is not None:
+        relative = doc_path.relative_to(config.root_path) if doc_path.is_absolute() else doc_path
+        rel_str = str(relative).replace("\\", "/")
+        doc_facts = facts_db.get_file(rel_str)
+        if doc_facts is not None and doc_facts.classification is not None:
+            return [Path(imp.get("source", "")) for imp in doc_facts.imports if imp.get("source")]
+
+    # Fallback: regex matching against shadow doc filenames
+    return _find_referenced_sources_regex(config, doc_content)
+
+
+def _find_referenced_sources_regex(config: Config, doc_content: str) -> list[Path]:
+    """Regex-based source reference extraction (fallback when FactsDB has no doc entries)."""
     referenced: list[Path] = []
     shadow_root = config.shadow_root
 
-    # Collect all source files that have shadow docs
     if not shadow_root.exists():
         return []
 
-    # Build a mapping: various reference forms -> source path
     source_files: dict[str, Path] = {}
     for shadow_path in shadow_root.rglob("*.shadow.md"):
-        # Skip directory roll-ups
         if shadow_path.name == DIRECTORY_SHADOW_FILENAME:
             continue
-
-        # Recover source path from shadow path
         relative_shadow = shadow_path.relative_to(shadow_root)
-        # Remove .shadow.md suffix
         source_str = str(relative_shadow).removesuffix(".shadow.md")
         source_path = Path(source_str)
 
-        # Full relative path
         source_files[str(source_path).replace("\\", "/")] = source_path
-        # Filename only
         source_files[source_path.name] = source_path
-        # Module-style (Python)
         if source_path.suffix == ".py":
             parts = list(source_path.with_suffix("").parts)
             if parts and parts[0] == "src":
@@ -147,11 +154,10 @@ def _find_referenced_sources(config: Config, doc_content: str) -> list[Path]:
             if len(parts) > 1:
                 source_files[".".join(parts)] = source_path
 
-    # Search doc content for references
     found: set[str] = set()
     for ref_key, source_path in source_files.items():
         if len(ref_key) < 4:
-            continue  # Skip very short matches to avoid false positives
+            continue
         if ref_key in doc_content:
             path_str = str(source_path)
             if path_str not in found:
@@ -502,7 +508,7 @@ def _gather_project_evidence(
         rel_str = str(relative).replace("\\", "/")
 
         # Skip .docstar/
-        if rel_str.startswith(".docstar"):
+        if rel_str.startswith(SHADOW_DIR):
             continue
 
         # Skip ignore patterns
@@ -694,6 +700,9 @@ async def analyze_docs_async(
     # Load directory summaries once (file I/O only)
     dir_summaries = _load_directory_summaries(config)
 
+    # Load FactsDB once for doc-to-source reference lookups
+    facts_db = FactsDB(config)
+
     semaphore = asyncio.Semaphore(config.max_concurrency)
     completed = 0
     total = len(candidates)
@@ -725,8 +734,10 @@ async def analyze_docs_async(
                 if len(content) > 50000:
                     content = content[:50000] + "\n\n[... content truncated ...]"
 
-                # Tier 1: Explicit reference matching (no LLM)
-                explicit_refs = _find_referenced_sources(config, content)
+                # Tier 1: Explicit reference matching (FactsDB fast path, regex fallback)
+                explicit_refs = _find_referenced_sources(
+                    config, content, doc_path=doc_path, facts_db=facts_db,
+                )
 
                 # Tier 2: Haiku topic matching (always runs)
                 est_input = estimate_tokens_offline(content)

@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Callable
 
 from .config import Config
-from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content
+from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content, validate_line_ranges
 from .llm.base import LLMProvider
 from .llm.factory import create_provider
 from .llm.logging import LoggingProvider
@@ -428,7 +428,7 @@ async def _verify_batch_async(
             max_tokens=max(1024, len(candidates) * 250),
             tools=get_dead_code_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_dead_code"},
-            tool_input_validators=[check_completeness],
+            tool_input_validators=[check_completeness, validate_line_ranges],
         ),
     )
 

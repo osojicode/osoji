@@ -17,7 +17,7 @@ from .junk_cicd import DeadCICDAnalyzer
 from .junk_orphan import OrphanedFilesAnalyzer
 from .rate_limiter import RateLimiter, get_config_with_overrides
 from .shadow import check_shadow_docs, generate_shadow_docs
-from .debris import analyze_docs
+from .doc_analysis import analyze_docs
 from .scorecard import CoverageEntry, JunkCodeEntry, Scorecard, build_scorecard
 from .walker import _matches_ignore
 from tabulate import tabulate as _tabulate
