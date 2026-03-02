@@ -122,8 +122,12 @@ SHADOW_DIR = ".docstar"
 SHADOW_SUBDIR = "shadow"
 DIRECTORY_SHADOW_FILENAME = "_directory.shadow.md"
 
-# LLM model to use
-DEFAULT_MODEL = "claude-sonnet-4-6"
+# LLM model tiers — single source of truth for all model IDs
+MODEL_SMALL = "claude-haiku-4-5-20251001"     # Fast scanning/filtering
+MODEL_MEDIUM = "claude-sonnet-4-6"            # General-purpose analysis
+MODEL_LARGE = "claude-opus-4-6"               # Complex classification
+
+DEFAULT_MODEL = MODEL_MEDIUM
 
 
 @dataclass

@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config
+from .config import Config, MODEL_SMALL
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult
 from .llm.base import LLMProvider
 from .llm.types import Message, MessageRole, CompletionOptions
@@ -15,7 +15,6 @@ from .rate_limiter import RateLimiter
 from .tools import get_dead_deps_tool_definitions, get_resolve_import_names_tool_definitions, get_classify_deps_tool_definitions
 from .walker import list_repo_files, _matches_ignore
 
-HAIKU_MODEL = "claude-haiku-4-5-20251001"
 
 
 @dataclass
@@ -178,7 +177,7 @@ async def _resolve_import_names_batch_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(lines))],
         system=_RESOLVE_IMPORTS_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=HAIKU_MODEL,
+            model=MODEL_SMALL,
             max_tokens=max(1024, len(packages) * 50),
             tools=get_resolve_import_names_tool_definitions(),
             tool_choice={"type": "tool", "name": "resolve_import_names"},
@@ -242,7 +241,7 @@ async def _classify_deps_batch_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(lines))],
         system=_CLASSIFY_DEPS_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=HAIKU_MODEL,
+            model=MODEL_SMALL,
             max_tokens=max(1024, len(candidates) * 80),
             tools=get_classify_deps_tool_definitions(),
             tool_choice={"type": "tool", "name": "classify_deps"},

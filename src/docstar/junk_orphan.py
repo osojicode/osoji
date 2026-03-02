@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config
+from .config import Config, MODEL_SMALL
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content
 from .llm.base import LLMProvider
 from .llm.types import Message, MessageRole, CompletionOptions
@@ -20,7 +20,6 @@ from .tools import (
     get_verify_orphan_files_tool_definitions,
 )
 
-HAIKU_MODEL = "claude-haiku-4-5-20251001"
 
 
 @dataclass
@@ -152,7 +151,7 @@ async def _identify_entry_points_async(
             messages=[Message(role=MessageRole.USER, content="\n".join(lines))],
             system=_ENTRY_POINTS_SYSTEM_PROMPT,
             options=CompletionOptions(
-                model=HAIKU_MODEL,
+                model=MODEL_SMALL,
                 max_tokens=max(1024, len(batch) * 60),
                 tools=get_identify_entry_points_tool_definitions(),
                 tool_choice={"type": "tool", "name": "identify_entry_points"},
@@ -238,7 +237,7 @@ async def _identify_relationships_async(
             messages=[Message(role=MessageRole.USER, content="\n".join(lines))],
             system=_RELATIONSHIPS_SYSTEM_PROMPT,
             options=CompletionOptions(
-                model=HAIKU_MODEL,
+                model=MODEL_SMALL,
                 max_tokens=max(1024, len(batch) * 80),
                 tools=get_identify_relationships_tool_definitions(),
                 tool_choice={"type": "tool", "name": "identify_relationships"},

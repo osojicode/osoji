@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from anthropic import AsyncAnthropic
 
+from ..config import MODEL_MEDIUM
 from .types import Message, MessageRole
 
 
@@ -45,7 +46,7 @@ class TokenCounter:
         self,
         messages: list[Message],
         system: str | None = None,
-        model: str = "claude-sonnet-4-20250514",
+        model: str = MODEL_MEDIUM,
     ) -> int:
         """Count tokens for messages using Anthropic API.
 
@@ -80,7 +81,7 @@ class TokenCounter:
     async def count_text_async(
         self,
         text: str,
-        model: str = "claude-sonnet-4-20250514",
+        model: str = MODEL_MEDIUM,
     ) -> int:
         """Count tokens for plain text using Anthropic API.
 
@@ -110,7 +111,7 @@ class TokenCounter:
     def count_text_sync(
         self,
         text: str,
-        model: str = "claude-sonnet-4-20250514",
+        model: str = MODEL_MEDIUM,
     ) -> int:
         """Count tokens for plain text synchronously.
 
