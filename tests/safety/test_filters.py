@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from docstar.safety.filters import (
+from osoji.safety.filters import (
     BINARY_EXTENSIONS,
     CHECKABLE_EXTENSIONS,
     SKIP_DIRECTORIES,
@@ -84,9 +84,9 @@ class TestShouldCheckFile:
         assert should_check_file(Path("build/lib/pkg/main.py")) is False
         assert should_check_file(Path("dist/pkg-1.0.0.tar.gz")) is False
 
-    def test_skips_docstar_directory(self):
-        """Should skip .docstar output directory."""
-        assert should_check_file(Path(".docstar/shadow/main.py.md")) is False
+    def test_skips_osoji_directory(self):
+        """Should skip .osoji output directory."""
+        assert should_check_file(Path(".osoji/shadow/main.py.md")) is False
 
     def test_checks_files_without_extension(self):
         """Should check files without extension (like Makefile)."""

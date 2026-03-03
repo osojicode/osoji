@@ -5,15 +5,15 @@ from pathlib import Path
 
 import pytest
 
-from docstar.config import Config
-from docstar.facts import FactsDB
+from osoji.config import Config
+from osoji.facts import FactsDB
 
 
 # --- Helpers ---
 
 def _write_facts(temp_dir: Path, source: str, facts: dict) -> None:
     """Write a .facts.json file for a given source path."""
-    facts_dir = temp_dir / ".docstar" / "facts"
+    facts_dir = temp_dir / ".osoji" / "facts"
     facts_file = facts_dir / (source + ".facts.json")
     facts_file.parent.mkdir(parents=True, exist_ok=True)
     data = {

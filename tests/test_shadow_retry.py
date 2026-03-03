@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import pytest
 
-from docstar.shadow import _write_with_retry
+from osoji.shadow import _write_with_retry
 
 
 @pytest.fixture

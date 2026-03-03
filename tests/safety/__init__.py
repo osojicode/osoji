@@ -1,1 +1,1 @@
-"""Tests for docstar.safety module."""
+"""Tests for osoji.safety module."""

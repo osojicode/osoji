@@ -6,9 +6,9 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from docstar.config import Config
-from docstar.llm.types import CompletionResult, ToolCall
-from docstar.plumbing import (
+from osoji.config import Config
+from osoji.llm.types import CompletionResult, ToolCall
+from osoji.plumbing import (
     ConfigObligation,
     PlumbingResult,
     PlumbingVerification,
@@ -17,15 +17,15 @@ from docstar.plumbing import (
     extract_obligations_async,
     verify_actuation_async,
 )
-from docstar.rate_limiter import RateLimiter, RateLimiterConfig
-from docstar.symbols import load_file_roles, load_files_by_role
+from osoji.rate_limiter import RateLimiter, RateLimiterConfig
+from osoji.symbols import load_file_roles, load_files_by_role
 
 
 # --- Helpers ---
 
 def _write_symbols(temp_dir, source, symbols, file_role=None):
     """Helper to write a symbols JSON sidecar."""
-    symbols_dir = temp_dir / ".docstar" / "symbols"
+    symbols_dir = temp_dir / ".osoji" / "symbols"
     sidecar = symbols_dir / (source + ".symbols.json")
     sidecar.parent.mkdir(parents=True, exist_ok=True)
     data = {
@@ -48,7 +48,7 @@ def _write_source(temp_dir, path, content):
 
 def _write_shadow(temp_dir, source, content):
     """Helper to write a shadow doc."""
-    shadow_dir = temp_dir / ".docstar" / "shadow"
+    shadow_dir = temp_dir / ".osoji" / "shadow"
     shadow_file = shadow_dir / (source + ".shadow.md")
     shadow_file.parent.mkdir(parents=True, exist_ok=True)
     shadow_file.write_text(content)
@@ -103,7 +103,7 @@ class TestFileRoles:
         assert schemas == []
 
     def test_load_file_roles_no_symbols_dir(self, temp_dir):
-        """No .docstar/symbols/ → empty dict."""
+        """No .osoji/symbols/ → empty dict."""
         config = Config(root_path=temp_dir, respect_gitignore=False)
         roles = load_file_roles(config)
         assert roles == {}

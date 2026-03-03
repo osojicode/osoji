@@ -572,7 +572,7 @@ def scan_imports(
 
     # Scan all repo files
     all_paths, _ = list_repo_files(config)
-    docstarignore = config.load_docstarignore()
+    osojiignore = config.load_osojiignore()
 
     for path in all_paths:
         if not path.is_absolute():
@@ -584,11 +584,11 @@ def scan_imports(
         relative = path.relative_to(config.root_path)
         rel_str = str(relative).replace("\\", "/")
 
-        if rel_str.startswith(".docstar"):
+        if rel_str.startswith(".osoji"):
             continue
         if _matches_ignore(relative, config.ignore_patterns):
             continue
-        if docstarignore and _matches_ignore(relative, docstarignore):
+        if osojiignore and _matches_ignore(relative, osojiignore):
             continue
 
         # Skip manifest files themselves

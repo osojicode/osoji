@@ -6,9 +6,9 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from docstar.config import Config
-from docstar.junk import JunkAnalysisResult
-from docstar.junk_deps import (
+from osoji.config import Config
+from osoji.junk import JunkAnalysisResult
+from osoji.junk_deps import (
     DeadDepsAnalyzer,
     DependencyCandidate,
     DepVerification,
@@ -27,8 +27,8 @@ from docstar.junk_deps import (
     parse_manifest,
     scan_imports,
 )
-from docstar.llm.types import CompletionResult, ToolCall
-from docstar.rate_limiter import RateLimiter, RateLimiterConfig
+from osoji.llm.types import CompletionResult, ToolCall
+from osoji.rate_limiter import RateLimiter, RateLimiterConfig
 
 
 # --- Helpers ---
@@ -729,5 +729,5 @@ class TestDeadDepsAnalyzer:
         assert "dependencies" in analyzer.description.lower() or "deps" in analyzer.description.lower()
 
     def test_is_junk_analyzer_subclass(self):
-        from docstar.junk import JunkAnalyzer
+        from osoji.junk import JunkAnalyzer
         assert issubclass(DeadDepsAnalyzer, JunkAnalyzer)

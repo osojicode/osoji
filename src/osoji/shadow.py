@@ -1,0 +1,1622 @@
+"""Core shadow documentation generation orchestration."""
+
+from __future__ import annotations
+
+import asyncio
+import errno
+import json
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Callable
+
+from .config import Config, SHADOW_DIR
+from .hasher import add_line_numbers, compute_children_hash, compute_file_hash, compute_impl_hash, extract_children_hash, extract_impl_hash, extract_source_hash, read_file_safe
+from .llm import (
+    create_provider,
+    LLMProvider,
+    LoggingProvider,
+    Message,
+    MessageRole,
+    CompletionOptions,
+    CompletionResult,
+    estimate_tokens_offline,
+)
+from .rate_limiter import RateLimiter, get_config_with_overrides
+from .tools import get_file_tool_definitions, get_directory_tool_definitions
+from .walker import (
+    discover_files,
+    discover_directories,
+    get_direct_children,
+    get_child_directories,
+)
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+# --- Large file chunking constants ---
+_MAX_INPUT_TOKENS = 150_000       # trigger threshold for chunking
+_CHUNK_TARGET_TOKENS = 120_000    # per-chunk target (room for prompt+output)
+_CHUNK_OVERLAP_FRACTION = 0.05    # 5% overlap at boundaries
+
+# --- Stale warning lines injected by `osoji check` ---
+STALE_WARNING_SOURCE = "> \u26a0 STALE \u2014 source content has changed since this doc was generated"
+STALE_WARNING_IMPL = "> \u26a0 STALE \u2014 generation toolchain has changed since this doc was generated"
+_STALE_WARNINGS = {STALE_WARNING_SOURCE, STALE_WARNING_IMPL}
+
+
+@dataclass
+class Finding:
+    """A code debris finding from shadow generation."""
+
+    category: str
+    line_start: int
+    line_end: int
+    severity: str  # "error" or "warning"
+    description: str
+    suggestion: str | None = None
+
+
+@dataclass
+class ShadowResult:
+    """Result from processing a single file."""
+
+    path: Path
+    body: str
+    cached: bool
+    error: str | None = None
+    input_tokens: int = 0
+    output_tokens: int = 0
+    findings: list[Finding] = field(default_factory=list)
+    symbols: list[dict] = field(default_factory=list)
+    file_role: str | None = None
+
+
+def assemble_shadow_doc(file_path: Path, source_hash: str, body: str) -> str:
+    """Assemble a complete shadow doc with header."""
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    impl_hash = compute_impl_hash()
+    header = f"# {file_path}\n@source-hash: {source_hash}\n@impl-hash: {impl_hash}\n@generated: {timestamp}\n\n"
+    return header + strip_stale_warnings(body)
+
+
+def assemble_directory_shadow_doc(dir_path: Path, children_hash: str, body: str) -> str:
+    """Assemble a complete directory shadow doc with header."""
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    impl_hash = compute_impl_hash()
+    header = f"# {dir_path}/\n@children-hash: {children_hash}\n@impl-hash: {impl_hash}\n@generated: {timestamp}\n\n"
+    return header + strip_stale_warnings(body)
+
+
+_TRANSIENT_ERRNOS = {errno.EINVAL, errno.EIO}
+_RETRY_DELAYS = [0.5, 1.0, 2.0]
+
+
+async def _write_with_retry(path: Path, content: str) -> None:
+    """Write text to a file, retrying on transient OS errors (e.g. DrvFs/EINVAL)."""
+    for attempt in range(len(_RETRY_DELAYS) + 1):
+        try:
+            path.write_text(content, encoding="utf-8")
+            return
+        except OSError as exc:
+            if exc.errno not in _TRANSIENT_ERRNOS or attempt >= len(_RETRY_DELAYS):
+                raise
+            await asyncio.sleep(_RETRY_DELAYS[attempt])
+
+
+def is_stale(config: Config, source_path: Path) -> bool:
+    """Check if a shadow doc needs regeneration.
+
+    Returns True if:
+    - Shadow doc doesn't exist
+    - Source hash doesn't match
+    - Impl hash doesn't match or is missing
+    - Force flag is set
+    """
+    if config.force:
+        return True
+
+    shadow_path = config.shadow_path_for(source_path)
+    if not shadow_path.exists():
+        return True
+
+    try:
+        shadow_content = shadow_path.read_text(encoding="utf-8")
+        cached_hash = extract_source_hash(shadow_content)
+        if cached_hash is None:
+            return True
+
+        current_hash = compute_file_hash(source_path)
+        if cached_hash != current_hash:
+            return True
+
+        # Impl hash check — missing means old-format doc, treat as stale
+        cached_impl = extract_impl_hash(shadow_content)
+        if cached_impl is None or cached_impl != compute_impl_hash():
+            return True
+
+        return False
+    except Exception:
+        return True
+
+
+def _extract_body_from_shadow(shadow_content: str) -> str:
+    """Extract the body from a shadow doc (skip header and stale warnings)."""
+    lines = shadow_content.split("\n")
+    body_start = 0
+    for i, line in enumerate(lines):
+        if line == "" and i > 0:
+            body_start = i + 1
+            break
+    return strip_stale_warnings("\n".join(lines[body_start:]))
+
+
+def strip_stale_warnings(content: str) -> str:
+    """Remove all stale warning lines from content."""
+    lines = content.split("\n")
+    filtered = [line for line in lines if line not in _STALE_WARNINGS]
+    return "\n".join(filtered)
+
+
+def inject_stale_warning(shadow_path: Path, reason: str) -> int:
+    """Inject a stale warning line into an existing shadow doc.
+
+    Args:
+        shadow_path: Path to the shadow doc file.
+        reason: ``"stale"`` for source warning, ``"stale-impl"`` for impl warning.
+
+    Returns the number of new warning lines injected (0 if already present or
+    the reason is not recognised).
+    """
+    warning = STALE_WARNING_SOURCE if reason == "stale" else (
+        STALE_WARNING_IMPL if reason == "stale-impl" else None
+    )
+    if warning is None:
+        return 0
+
+    content = shadow_path.read_text(encoding="utf-8")
+    lines = content.split("\n")
+
+    # Already present?
+    if warning in lines:
+        return 0
+
+    # Find the header blank line — first empty line after line 0
+    insert_idx = 0
+    for i, line in enumerate(lines):
+        if line == "" and i > 0:
+            insert_idx = i + 1
+            break
+
+    # Skip past any existing warning lines at the insertion point
+    while insert_idx < len(lines) and lines[insert_idx] in _STALE_WARNINGS:
+        insert_idx += 1
+
+    lines.insert(insert_idx, warning)
+    shadow_path.write_text("\n".join(lines), encoding="utf-8")
+    return 1
+
+
+@dataclass
+class MarkStaleResult:
+    """Result from mark_stale_docs."""
+
+    stale_files: list[tuple[Path, str]]
+    marked_count: int
+
+
+def mark_stale_docs(config: Config) -> MarkStaleResult:
+    """Check all shadow docs and inject stale warnings + write manifest.
+
+    No LLM calls.  Returns a ``MarkStaleResult`` with the list of stale
+    files and how many were actually marked (missing files are skipped).
+    """
+    issues = check_shadow_docs(config)
+    marked = 0
+
+    for rel_path, reason in issues:
+        if reason == "missing":
+            continue
+        shadow_path = config.shadow_path_for(config.root_path / rel_path)
+        if not shadow_path.exists():
+            continue
+        marked += inject_stale_warning(shadow_path, reason)
+
+    # Write staleness manifest
+    manifest = {
+        "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "stale": [
+            {"path": str(rel), "reason": reason}
+            for rel, reason in issues
+        ],
+    }
+    config.staleness_manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    config.staleness_manifest_path.write_text(
+        json.dumps(manifest, indent=2), encoding="utf-8"
+    )
+
+    return MarkStaleResult(stale_files=issues, marked_count=marked)
+
+
+def is_directory_stale(config: Config, dir_path: Path, current_children_hash: str) -> bool:
+    """Check if a directory shadow doc needs regeneration.
+
+    Returns True if:
+    - Force flag is set
+    - Shadow doc doesn't exist
+    - Children hash doesn't match (any subtree change)
+    - Impl hash doesn't match or is missing
+    - Old format without @children-hash header
+    """
+    if config.force:
+        return True
+
+    shadow_path = config.shadow_path_for_dir(dir_path)
+    if not shadow_path.exists():
+        return True
+
+    try:
+        shadow_content = shadow_path.read_text(encoding="utf-8")
+        cached_hash = extract_children_hash(shadow_content)
+        if cached_hash is None:
+            return True
+        if current_children_hash != cached_hash:
+            return True
+
+        # Impl hash check
+        cached_impl = extract_impl_hash(shadow_content)
+        if cached_impl is None or cached_impl != compute_impl_hash():
+            return True
+
+        return False
+    except Exception:
+        return True
+
+
+def staleness_reason(config: Config, source_path: Path) -> str | None:
+    """Return the reason a file's shadow doc is stale, or None if current.
+
+    Returns:
+        None        — shadow doc exists and both hashes match
+        "missing"   — shadow doc does not exist
+        "stale"     — source content hash differs
+        "stale-impl"— source matches but impl hash differs or is absent
+    """
+    if config.force:
+        shadow_path = config.shadow_path_for(source_path)
+        if not shadow_path.exists():
+            return "missing"
+        return "stale"   # force treats everything as stale
+
+    shadow_path = config.shadow_path_for(source_path)
+    if not shadow_path.exists():
+        return "missing"
+
+    try:
+        shadow_content = shadow_path.read_text(encoding="utf-8")
+        cached_hash = extract_source_hash(shadow_content)
+        if cached_hash is None:
+            return "stale"
+
+        current_hash = compute_file_hash(source_path)
+        if cached_hash != current_hash:
+            return "stale"
+
+        cached_impl = extract_impl_hash(shadow_content)
+        if cached_impl is None or cached_impl != compute_impl_hash():
+            return "stale-impl"
+
+        return None
+    except Exception:
+        return "stale"
+
+
+async def generate_file_shadow_doc_async(
+    provider: LLMProvider,
+    config: Config,
+    file_path: Path,
+    numbered_content: str,
+) -> tuple[str, int, int, list[Finding], list[dict], str, dict | None, dict]:
+    """Generate a shadow doc for a single file asynchronously.
+
+    Uses tool_choice to force the LLM to call submit_shadow_doc.
+    Returns tuple of (content, input_tokens, output_tokens, findings, symbols, file_role, topic_signature, facts).
+    """
+    relative_path = file_path.relative_to(config.root_path)
+
+    system_prompt = """You are a documentation expert generating shadow documentation for AI agent consumption.
+
+Shadow docs are semantically dense summaries that help AI agents quickly understand code.
+
+You MUST use the submit_shadow_doc tool to submit your documentation.
+Do not include any header or metadata - just the documentation body.
+
+ALSO: While analyzing the code, identify any "debris" that CURRENTLY misleads an AI coding agent:
+- Stale comments that CONTRADICT the current code (the comment says X but the code does Y)
+- Misleading docstrings whose description does not match the actual implementation
+- Commented-out code blocks (3+ lines) that agents might reference
+- Expired TODO/FIXME comments that reference completed work or removed features
+- Dead code (unreachable branches, unused functions defined but never called within this file)
+
+Do NOT flag comments that accurately describe the current implementation, even if they describe
+implementation details. A comment is stale only if it is CURRENTLY wrong, not if it COULD
+become wrong in the future.
+
+Report these as findings in the tool call. If the code is clean, submit an empty findings array.
+
+ALSO: Populate the symbols array with ALL functions, classes, constants, and module-level variables
+defined in this file. For each, set visibility to "public" if the symbol is importable/exported,
+or "internal" if it is a private helper (underscore-prefixed, file-local, not part of the public API).
+Include the symbol name, kind, line range, and visibility.
+
+ALSO: Classify the file's architectural role using the file_role field. The key distinction:
+- "schema" = defines data shapes with RUNTIME validation (Zod schemas, Pydantic models, JSON Schema validators)
+- "types" = type-only definitions consumed by compiler/linter only (TypeScript interfaces, type aliases, enums)
+Choose the single best-fit role for the file's primary purpose.
+
+ALSO: Populate the topic_signature with a one-sentence purpose statement and 3-7 key topic
+noun phrases (e.g., "JWT validation", "rate limiting", "database connection pooling").
+These are used for documentation coverage analysis.
+
+ALSO: Populate the imports, exports, calls, and string_literals arrays:
+- imports: Every import in this file (source specifier, imported names, whether it's a re-export)
+- exports: Public API surface only (things importable by other files)
+- calls: Significant cross-file calls from exported symbols and module-level code (not same-file, not internal helpers)
+- string_literals: String constants that participate in cross-file contracts (identifiers used as
+  keys/names/categories, user-facing messages, config values). NOT every string.
+  IMPORTANT: Dict/mapping values, default parameter values, and collection literal elements
+  are PRODUCTION sites — classify these as "produced" even if the same string also appears
+  in equality checks elsewhere in the file.
+  Set usage to "produced" if emitted/returned/appended (including dict values, collection
+  literal elements, default parameter values), "checked" if used in membership test/equality
+  against a project-internal value, "defined" if assigned to a constant, "external_input" if
+  the string enters from outside the project boundary at runtime (environment variable names
+  read from process.env/os.environ, CLI flags/arguments from process.argv/sys.argv, HTTP
+  request properties like method/url/headers, DOM/browser event values like keyboard keys,
+  wire protocol method names like JSON-RPC/MCP/gRPC methods, OS signal names) — not hardcoded
+  literals, or "unknown" if unclear from local context.
+  ALWAYS SKIP these well-known external convention strings — do not extract them at all:
+  programming language names (python, javascript, rust, go), testing framework conventions
+  (test_, _test, spec_), standard file extensions (.py, .env, .json, .yaml), standard directory
+  names (node_modules, __pycache__), and similar ecosystem-standard patterns.
+  For strings with usage "checked", also set comparison_source to the variable or expression
+  the string is compared against (e.g., "tool_call.name", "schema.get(key)", "category",
+  "os.environ"). This is the other side of the ==, in, not in, or .get() expression."""
+
+    user_prompt = f"""Generate shadow documentation for the following file:
+
+**File:** {relative_path}
+
+```
+{numbered_content}
+```
+
+Analyze this code and submit a shadow doc using the submit_shadow_doc tool.
+Include line number references for key elements (e.g., "MyClass (L15-45)").
+"""
+
+    messages = [Message(role=MessageRole.USER, content=user_prompt)]
+    options = CompletionOptions(
+        model=config.model,
+        max_tokens=4096,
+        tools=get_file_tool_definitions(),
+        tool_choice={"type": "tool", "name": "submit_shadow_doc"},
+    )
+
+    result = await provider.complete(messages, system_prompt, options)
+
+    for tool_call in result.tool_calls:
+        if tool_call.name == "submit_shadow_doc":
+            findings_data = tool_call.input.get("findings", [])
+            findings = [
+                Finding(
+                    category=f["category"],
+                    line_start=f["line_start"],
+                    line_end=f["line_end"],
+                    severity=f["severity"],
+                    description=f["description"],
+                    suggestion=f.get("suggestion"),
+                )
+                for f in findings_data
+                if f.get("valid", True)
+            ]
+            symbols = tool_call.input.get("symbols") or tool_call.input.get("public_symbols", [])
+            file_role = tool_call.input.get("file_role", "service")
+            topic_signature = tool_call.input.get("topic_signature")
+            facts = {
+                "imports": tool_call.input.get("imports", []),
+                "exports": tool_call.input.get("exports", []),
+                "calls": tool_call.input.get("calls", []),
+                "string_literals": tool_call.input.get("string_literals", []),
+            }
+            return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings, symbols, file_role, topic_signature, facts)
+
+    raise RuntimeError(f"LLM did not call submit_shadow_doc tool for {file_path}")
+
+
+async def generate_directory_shadow_doc_async(
+    provider: LLMProvider,
+    config: Config,
+    dir_path: Path,
+    child_summaries: list[tuple[Path, str]],
+) -> tuple[str, int, int, dict | None]:
+    """Generate a roll-up shadow doc for a directory asynchronously.
+
+    Uses tool_choice to force the LLM to call submit_directory_shadow_doc.
+    Returns tuple of (content, input_tokens, output_tokens, topic_signature).
+    """
+    relative_path = dir_path.relative_to(config.root_path)
+    if relative_path == Path("."):
+        relative_path = Path("(root)")
+
+    system_prompt = """You are a documentation expert generating shadow documentation for AI agent consumption.
+
+You are creating a directory-level roll-up summary that synthesizes the shadow docs
+of all files in the directory.
+You MUST use the submit_directory_shadow_doc tool to submit your documentation.
+Do not include any header or metadata - just the documentation body.
+
+ALSO: Populate the topic_signature with a one-sentence purpose and 3-7 key topic noun phrases
+describing this directory/module's responsibilities."""
+
+    # Build the child summaries section
+    summaries_text = "\n\n---\n\n".join(
+        f"**{path.name}:**\n{summary}" for path, summary in child_summaries
+    )
+
+    user_prompt = f"""Generate a directory-level shadow documentation roll-up for:
+
+**Directory:** {relative_path}
+
+The following are the shadow docs for files/subdirectories in this directory:
+
+{summaries_text}
+
+Synthesize these into a cohesive directory-level summary using the submit_directory_shadow_doc tool.
+Focus on:
+- The overall purpose of this directory/module
+- How the components work together
+- Key entry points and public API
+"""
+
+    messages = [Message(role=MessageRole.USER, content=user_prompt)]
+    options = CompletionOptions(
+        model=config.model,
+        max_tokens=4096,
+        tools=get_directory_tool_definitions(),
+        tool_choice={"type": "tool", "name": "submit_directory_shadow_doc"},
+    )
+
+    result = await provider.complete(messages, system_prompt, options)
+
+    for tool_call in result.tool_calls:
+        if tool_call.name == "submit_directory_shadow_doc":
+            topic_signature = tool_call.input.get("topic_signature")
+            return (tool_call.input["content"], result.input_tokens, result.output_tokens, topic_signature)
+
+    raise RuntimeError(f"LLM did not call submit_directory_shadow_doc tool for {dir_path}")
+
+
+async def process_file_async(
+    provider: LLMProvider,
+    config: Config,
+    file_path: Path,
+    rate_limiter: RateLimiter | None = None,
+) -> ShadowResult:
+    """Process a single file and generate/retrieve its shadow doc asynchronously.
+
+    Args:
+        provider: LLM provider to use
+        config: Configuration
+        file_path: Path to file to process
+        rate_limiter: Optional rate limiter for chunked file processing
+
+    Returns ShadowResult with path, body, cached status, and any error.
+    """
+    shadow_path = config.shadow_path_for(file_path)
+
+    # Check if we can use cached version
+    if not is_stale(config, file_path):
+        shadow_content = shadow_path.read_text(encoding="utf-8")
+        body = _extract_body_from_shadow(shadow_content)
+        return ShadowResult(path=file_path, body=body, cached=True)
+
+    try:
+        content, is_binary = read_file_safe(file_path)
+        if is_binary:
+            return ShadowResult(
+                path=file_path, body="", cached=False,
+                error="Binary file detected, skipping",
+            )
+
+        numbered_content = add_line_numbers(content)
+        source_hash = compute_file_hash(file_path)
+
+        # Check if file is oversized and needs chunked processing
+        estimated_tokens = estimate_tokens_offline(numbered_content)
+        if estimated_tokens > _MAX_INPUT_TOKENS:
+            logger.info(
+                f"Large file detected ({estimated_tokens} est. tokens): {file_path.name}, "
+                f"using chunked processing"
+            )
+            body, input_tokens, output_tokens, findings, symbols, file_role, topic_signature, facts = (
+                await _process_large_file_async(
+                    provider, config, file_path, numbered_content, rate_limiter
+                )
+            )
+        else:
+            body, input_tokens, output_tokens, findings, symbols, file_role, topic_signature, facts = (
+                await generate_file_shadow_doc_async(
+                    provider, config, file_path, numbered_content
+                )
+            )
+
+        full_doc = assemble_shadow_doc(
+            file_path.relative_to(config.root_path), source_hash, body
+        )
+
+        # Write shadow doc
+        shadow_path.parent.mkdir(parents=True, exist_ok=True)
+        await _write_with_retry(shadow_path, full_doc)
+
+        # Write findings JSON
+        findings_path = config.findings_path_for(file_path)
+        findings_path.parent.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        findings_json = {
+            "source": str(file_path.relative_to(config.root_path)),
+            "source_hash": source_hash,
+            "generated": timestamp,
+            "findings": [
+                {
+                    "category": f.category,
+                    "line_start": f.line_start,
+                    "line_end": f.line_end,
+                    "severity": f.severity,
+                    "description": f.description,
+                    "suggestion": f.suggestion,
+                }
+                for f in findings
+            ],
+        }
+        await _write_with_retry(findings_path, json.dumps(findings_json, indent=2))
+
+        # Write symbols JSON sidecar (includes file_role even without symbols)
+        if symbols or file_role:
+            symbols_path = config.symbols_path_for(file_path)
+            symbols_path.parent.mkdir(parents=True, exist_ok=True)
+            symbols_json = {
+                "source": str(file_path.relative_to(config.root_path)),
+                "source_hash": source_hash,
+                "generated": timestamp,
+                "file_role": file_role,
+                "symbols": symbols,
+            }
+            await _write_with_retry(symbols_path, json.dumps(symbols_json, indent=2))
+
+        # Write topic signature JSON
+        if topic_signature:
+            sig_path = config.signatures_path_for(file_path)
+            sig_path.parent.mkdir(parents=True, exist_ok=True)
+            relative_str = str(file_path.relative_to(config.root_path)).replace("\\", "/")
+            sig_json = {
+                "path": relative_str,
+                "kind": "source",
+                "purpose": topic_signature.get("purpose", ""),
+                "topics": topic_signature.get("topics", []),
+                "public_surface": [s["name"] for s in symbols if s.get("visibility") != "internal"],
+            }
+            await _write_with_retry(sig_path, json.dumps(sig_json, indent=2))
+
+        # Write facts JSON
+        if facts and any(facts.get(k) for k in ("imports", "exports", "calls", "string_literals")):
+            facts_path = config.facts_path_for(file_path)
+            facts_path.parent.mkdir(parents=True, exist_ok=True)
+            facts_json = {
+                "source": str(file_path.relative_to(config.root_path)),
+                "source_hash": source_hash,
+                "generated": timestamp,
+                **facts,
+            }
+            await _write_with_retry(facts_path, json.dumps(facts_json, indent=2))
+
+        return ShadowResult(
+            path=file_path,
+            body=body,
+            cached=False,
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+            findings=findings,
+            symbols=symbols,
+            file_role=file_role,
+        )
+    except Exception as e:
+        return ShadowResult(path=file_path, body="", cached=False, error=str(e))
+
+
+def _split_into_chunks(
+    numbered_content: str,
+    chunk_target_tokens: int = _CHUNK_TARGET_TOKENS,
+    overlap_fraction: float = _CHUNK_OVERLAP_FRACTION,
+) -> list[tuple[str, int, int]]:
+    """Split numbered content into line-based chunks with overlap.
+
+    Returns list of (chunk_text, start_line, end_line).
+    """
+    lines = numbered_content.splitlines()
+    total_lines = len(lines)
+    if total_lines == 0:
+        return []
+
+    # Estimate chars per chunk (~4 chars per token)
+    chars_per_chunk = chunk_target_tokens * 4
+    overlap_lines = max(1, int(total_lines * overlap_fraction))
+
+    chunks: list[tuple[str, int, int]] = []
+    start = 0
+
+    while start < total_lines:
+        # Find end of this chunk by character budget
+        char_count = 0
+        end = start
+        while end < total_lines and char_count < chars_per_chunk:
+            char_count += len(lines[end]) + 1  # +1 for newline
+            end += 1
+
+        chunk_text = "\n".join(lines[start:end])
+        chunks.append((chunk_text, start + 1, end))  # 1-based line numbers
+
+        if end >= total_lines:
+            break
+
+        # Advance with overlap
+        start = max(start + 1, end - overlap_lines)
+
+    return chunks
+
+
+async def _generate_chunk_rollup_async(
+    provider: LLMProvider,
+    config: Config,
+    file_path: Path,
+    chunk_shadows: list[str],
+) -> tuple[str, int, int, list[Finding], list[dict], str, dict | None, dict]:
+    """Combine multiple chunk shadows into a single file shadow doc.
+
+    Returns (content, input_tokens, output_tokens, findings, symbols, file_role, topic_signature, facts).
+    """
+    relative_path = file_path.relative_to(config.root_path)
+
+    system_prompt = """You are a documentation expert generating shadow documentation for AI agent consumption.
+
+You are combining shadow documentation from multiple chunks of a single large file into
+one cohesive shadow doc. Deduplicate overlapping content, merge symbol lists, and combine
+findings. The result should read as if it were generated from the whole file at once.
+
+You MUST use the submit_shadow_doc tool to submit your documentation.
+Do not include any header or metadata - just the documentation body.
+
+Merge findings from all chunks, deduplicating any that appear in overlapping regions.
+Merge symbols from all chunks, deduplicating by name.
+Choose the most appropriate file_role from the chunks.
+Generate a unified topic_signature covering the entire file.
+Merge imports, exports, calls, and string_literals from all chunks, deduplicating by value."""
+
+    chunks_text = "\n\n---\n\n".join(
+        f"**Chunk {i + 1} of {len(chunk_shadows)}:**\n{shadow}"
+        for i, shadow in enumerate(chunk_shadows)
+    )
+
+    user_prompt = f"""Combine these chunk shadow docs for: **{relative_path}**
+
+{chunks_text}
+
+Merge these into a single cohesive shadow doc using the submit_shadow_doc tool."""
+
+    messages = [Message(role=MessageRole.USER, content=user_prompt)]
+    options = CompletionOptions(
+        model=config.model,
+        max_tokens=4096,
+        tools=get_file_tool_definitions(),
+        tool_choice={"type": "tool", "name": "submit_shadow_doc"},
+    )
+
+    result = await provider.complete(messages, system_prompt, options)
+
+    for tool_call in result.tool_calls:
+        if tool_call.name == "submit_shadow_doc":
+            findings_data = tool_call.input.get("findings", [])
+            findings = [
+                Finding(
+                    category=f["category"],
+                    line_start=f["line_start"],
+                    line_end=f["line_end"],
+                    severity=f["severity"],
+                    description=f["description"],
+                    suggestion=f.get("suggestion"),
+                )
+                for f in findings_data
+                if f.get("valid", True)
+            ]
+            symbols = tool_call.input.get("symbols") or tool_call.input.get("public_symbols", [])
+            file_role = tool_call.input.get("file_role", "service")
+            topic_signature = tool_call.input.get("topic_signature")
+            facts = {
+                "imports": tool_call.input.get("imports", []),
+                "exports": tool_call.input.get("exports", []),
+                "calls": tool_call.input.get("calls", []),
+                "string_literals": tool_call.input.get("string_literals", []),
+            }
+            return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings, symbols, file_role, topic_signature, facts)
+
+    raise RuntimeError(f"LLM did not call submit_shadow_doc tool for chunk rollup of {file_path}")
+
+
+async def _process_large_file_async(
+    provider: LLMProvider,
+    config: Config,
+    file_path: Path,
+    numbered_content: str,
+    rate_limiter: RateLimiter | None = None,
+) -> tuple[str, int, int, list[Finding], list[dict], str, dict | None, dict]:
+    """Process a large file by splitting into chunks, generating shadow docs per chunk,
+    then combining into a single shadow doc.
+
+    Returns (content, input_tokens, output_tokens, findings, symbols, file_role, topic_signature, facts).
+    """
+    chunks = _split_into_chunks(numbered_content)
+    total_chunks = len(chunks)
+    relative_path = file_path.relative_to(config.root_path)
+
+    logger.info(f"Splitting {relative_path} into {total_chunks} chunks")
+
+    chunk_shadows: list[str] = []
+    total_input_tokens = 0
+    total_output_tokens = 0
+    all_findings: list[Finding] = []
+    all_symbols: list[dict] = []
+
+    for i, (chunk_text, start_line, end_line) in enumerate(chunks):
+        prefixed_chunk = f"[Part {i + 1} of {total_chunks}, lines {start_line}-{end_line}]\n\n{chunk_text}"
+
+        if rate_limiter is not None:
+            est_input = estimate_tokens_offline(prefixed_chunk)
+            await rate_limiter.throttle(estimated_input_tokens=est_input)
+
+        body, in_tok, out_tok, findings, symbols, _file_role, _topic_sig, _chunk_facts = (
+            await generate_file_shadow_doc_async(
+                provider, config, file_path, prefixed_chunk
+            )
+        )
+
+        if rate_limiter is not None:
+            rate_limiter.record_usage(input_tokens=in_tok, output_tokens=out_tok)
+
+        chunk_shadows.append(body)
+        total_input_tokens += in_tok
+        total_output_tokens += out_tok
+        all_findings.extend(findings)
+        all_symbols.extend(symbols)
+
+    # Rollup: combine chunk shadows into a single shadow doc
+    if rate_limiter is not None:
+        est_input = estimate_tokens_offline("\n".join(chunk_shadows))
+        await rate_limiter.throttle(estimated_input_tokens=est_input)
+
+    rollup_body, rollup_in, rollup_out, rollup_findings, rollup_symbols, file_role, topic_signature, rollup_facts = (
+        await _generate_chunk_rollup_async(provider, config, file_path, chunk_shadows)
+    )
+
+    if rate_limiter is not None:
+        rate_limiter.record_usage(input_tokens=rollup_in, output_tokens=rollup_out)
+
+    total_input_tokens += rollup_in
+    total_output_tokens += rollup_out
+
+    return (rollup_body, total_input_tokens, total_output_tokens,
+            rollup_findings, rollup_symbols, file_role, topic_signature, rollup_facts)
+
+
+def _format_tokens_short(input_tokens: int, output_tokens: int) -> str:
+    """Format token counts compactly, e.g. '42.1K^ 5.3Kv'."""
+    if input_tokens == 0 and output_tokens == 0:
+        return ""
+    def _fmt(n: int) -> str:
+        if n >= 1_000_000:
+            return f"{n / 1_000_000:.1f}M"
+        if n >= 1_000:
+            return f"{n / 1_000:.1f}K"
+        return str(n)
+    return f"{_fmt(input_tokens)}^ {_fmt(output_tokens)}v"
+
+
+def format_progress_bar(completed: int, total: int, width: int = 30) -> str:
+    """Format a visual progress bar like [####......]."""
+    if total <= 0:
+        return f"[{'#' * width}]"
+    filled = int(width * completed / total)
+    return f"[{'#' * filled}{'.' * (width - filled)}]"
+
+
+def _make_shadow_progress(token_getter=None):
+    """Create shadow progress callback with optional token display."""
+    def progress(completed: int, total: int, path: Path, status: str) -> None:
+        pct = completed / total * 100 if total > 0 else 0
+        bar = format_progress_bar(completed, total)
+        symbols = {
+            "cached": "[cached]",
+            "generated": "[OK]",
+            "error": "[ERROR]",
+            "processing": "[...]",
+            "empty": "[empty]",
+        }
+        symbol = symbols.get(status, "[...]")
+        tok_str = ""
+        if token_getter:
+            in_tok, out_tok = token_getter()
+            tok_str = _format_tokens_short(in_tok, out_tok)
+            if tok_str:
+                tok_str = f" {tok_str}"
+        print(f"\r{bar} {pct:.0f}%{tok_str} [{completed}/{total}] {symbol} {path.name}\033[K", end="", flush=True)
+        if completed == total:
+            print()
+    return progress
+
+
+async def generate_shadows_parallel(
+    provider: LLMProvider,
+    rate_limiter: RateLimiter,
+    config: Config,
+    files: list[Path],
+    on_progress: Callable[[int, int, Path, str], None] | None = None,
+) -> list[ShadowResult]:
+    """Generate shadow docs in parallel with rate limiting.
+
+    Args:
+        provider: LLM provider to use
+        rate_limiter: Rate limiter for API calls
+        config: Configuration
+        files: List of files to process
+        on_progress: Optional callback for progress updates
+
+    Returns:
+        List of ShadowResult objects
+    """
+    semaphore = asyncio.Semaphore(config.max_concurrency)
+    completed = 0
+    total = len(files)
+    lock = asyncio.Lock()
+
+    async def process_one(file_path: Path) -> ShadowResult:
+        nonlocal completed
+
+        async with semaphore:
+            # Check if cached first (no rate limiting needed)
+            if not is_stale(config, file_path):
+                shadow_path = config.shadow_path_for(file_path)
+                shadow_content = shadow_path.read_text(encoding="utf-8")
+                body = _extract_body_from_shadow(shadow_content)
+                result = ShadowResult(path=file_path, body=body, cached=True)
+            else:
+                # Need to make API call - throttle first with token estimate
+                est_input = file_path.stat().st_size // 4
+                await rate_limiter.throttle(estimated_input_tokens=est_input)
+                result = await process_file_async(
+                    provider, config, file_path, rate_limiter=rate_limiter
+                )
+                # Record actual token usage from API response
+                if not result.cached and not result.error:
+                    rate_limiter.record_usage(
+                        input_tokens=result.input_tokens,
+                        output_tokens=result.output_tokens,
+                    )
+
+            async with lock:
+                completed += 1
+                if on_progress:
+                    status = "cached" if result.cached else ("error" if result.error else "generated")
+                    on_progress(completed, total, file_path, status)
+
+            return result
+
+    tasks = [process_one(f) for f in files]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Convert exceptions to ShadowResults
+    final_results: list[ShadowResult] = []
+    for i, result in enumerate(results):
+        if isinstance(result, Exception):
+            final_results.append(
+                ShadowResult(path=files[i], body="", cached=False, error=str(result))
+            )
+        else:
+            final_results.append(result)
+
+    return final_results
+
+
+async def generate_directory_shadows(
+    provider: LLMProvider,
+    rate_limiter: RateLimiter,
+    config: Config,
+    file_results: list[ShadowResult],
+    all_files: list[Path],
+    all_dirs: list[Path],
+    on_progress: Callable[[int, int, Path, str], None] | None = None,
+) -> tuple[dict[Path, str], dict[Path, str], list[tuple[Path, str]]]:
+    """Generate directory roll-up shadow docs with dependency-based parallelism.
+
+    Directories are processed as soon as all their children (files + subdirs)
+    are complete, maximizing parallelism while respecting dependencies.
+
+    Args:
+        provider: LLM provider to use
+        rate_limiter: Rate limiter for API calls
+        config: Configuration
+        file_results: Results from file processing
+        all_files: List of all discovered files
+        all_dirs: List of all discovered directories
+        on_progress: Optional callback for progress updates (completed, total, path, status)
+
+    Returns:
+        Tuple of (dir_bodies dict, dir_children_hashes dict, dir_errors list)
+    """
+    # Build file bodies dict from results
+    file_bodies: dict[Path, str] = {}
+    for result in file_results:
+        if not result.error:
+            file_bodies[result.path] = result.body
+
+    # Shared state protected by lock
+    dir_bodies: dict[Path, str] = {}
+    dir_children_hashes: dict[Path, str] = {}
+    dir_errors: list[tuple[Path, str]] = []
+    lock = asyncio.Lock()
+    semaphore = asyncio.Semaphore(config.max_concurrency)
+
+    # Build dependency info for each directory
+    # pending_children[dir] = set of child directories not yet complete
+    pending_children: dict[Path, set[Path]] = {}
+    # parent_of[child_dir] = parent_dir
+    parent_of: dict[Path, Path] = {}
+
+    for dir_path in all_dirs:
+        child_dirs = set(get_child_directories(dir_path, all_dirs))
+        pending_children[dir_path] = child_dirs
+        for child_dir in child_dirs:
+            parent_of[child_dir] = dir_path
+
+    # Queue of directories ready to process
+    ready_queue: asyncio.Queue[Path] = asyncio.Queue()
+
+    # Find initially ready directories (no pending child directories)
+    for dir_path in all_dirs:
+        if not pending_children[dir_path]:
+            await ready_queue.put(dir_path)
+
+    # Track completion
+    completed_count = 0
+    total_dirs = len(all_dirs)
+
+    async def process_directory(dir_path: Path) -> None:
+        """Process a single directory and notify parent when done."""
+        nonlocal completed_count
+
+        async with semaphore:
+            relative_path = dir_path.relative_to(config.root_path)
+            if relative_path == Path("."):
+                relative_path = Path("(root)")
+
+            try:
+                # Build child_entries for Merkle hash
+                child_entries: list[tuple[str, str]] = []
+
+                # Child files: (name, file_content_hash)
+                for file_path in get_direct_children(dir_path, all_files):
+                    if file_path in file_bodies:
+                        child_entries.append((file_path.name, compute_file_hash(file_path)))
+
+                # Child dirs: (name, children_hash) — already computed (bottom-up)
+                async with lock:
+                    for child_dir in get_child_directories(dir_path, all_dirs):
+                        if child_dir in dir_children_hashes:
+                            child_entries.append((child_dir.name, dir_children_hashes[child_dir]))
+
+                current_hash = compute_children_hash(child_entries)
+
+                # Check if cached
+                if not is_directory_stale(config, dir_path, current_hash):
+                    shadow_path = config.shadow_path_for_dir(dir_path)
+                    shadow_content = shadow_path.read_text(encoding="utf-8")
+                    body = _extract_body_from_shadow(shadow_content)
+                    async with lock:
+                        dir_bodies[dir_path] = body
+                        dir_children_hashes[dir_path] = current_hash
+                        completed_count += 1
+                        if on_progress:
+                            on_progress(completed_count, total_dirs, dir_path, "cached")
+                        if dir_path in parent_of:
+                            parent = parent_of[dir_path]
+                            pending_children[parent].discard(dir_path)
+                            if not pending_children[parent]:
+                                await ready_queue.put(parent)
+                    return
+
+                # Gather summaries for LLM call
+                child_summaries: list[tuple[Path, str]] = []
+
+                for file_path in get_direct_children(dir_path, all_files):
+                    if file_path in file_bodies:
+                        child_summaries.append((file_path, file_bodies[file_path]))
+
+                async with lock:
+                    for child_dir in get_child_directories(dir_path, all_dirs):
+                        if child_dir in dir_bodies:
+                            child_summaries.append((child_dir, dir_bodies[child_dir]))
+
+                if not child_summaries:
+                    # Empty directory - mark complete and notify parent
+                    async with lock:
+                        dir_bodies[dir_path] = ""
+                        dir_children_hashes[dir_path] = current_hash
+                        completed_count += 1
+                        if on_progress:
+                            on_progress(completed_count, total_dirs, dir_path, "empty")
+                        if dir_path in parent_of:
+                            parent = parent_of[dir_path]
+                            pending_children[parent].discard(dir_path)
+                            if not pending_children[parent]:
+                                await ready_queue.put(parent)
+                    return
+
+                if on_progress:
+                    on_progress(completed_count, total_dirs, dir_path, "processing")
+
+                est_input = sum(len(s) for _, s in child_summaries) // 4
+                await rate_limiter.throttle(estimated_input_tokens=est_input)
+                body, input_tokens, output_tokens, topic_signature = await generate_directory_shadow_doc_async(
+                    provider, config, dir_path, child_summaries
+                )
+                full_doc = assemble_directory_shadow_doc(relative_path, current_hash, body)
+
+                # Write shadow doc
+                shadow_path = config.shadow_path_for_dir(dir_path)
+                shadow_path.parent.mkdir(parents=True, exist_ok=True)
+                await _write_with_retry(shadow_path, full_doc)
+
+                # Write directory topic signature
+                if topic_signature:
+                    sig_path = config.signatures_path_for_dir(dir_path)
+                    sig_path.parent.mkdir(parents=True, exist_ok=True)
+                    sig_json = {
+                        "path": str(relative_path).replace("\\", "/"),
+                        "kind": "directory",
+                        "purpose": topic_signature.get("purpose", ""),
+                        "topics": topic_signature.get("topics", []),
+                    }
+                    await _write_with_retry(sig_path, json.dumps(sig_json, indent=2))
+
+                # Record actual token usage from API response
+                rate_limiter.record_usage(
+                    input_tokens=input_tokens,
+                    output_tokens=output_tokens,
+                )
+
+                # Update state and notify parent
+                async with lock:
+                    dir_bodies[dir_path] = body
+                    dir_children_hashes[dir_path] = current_hash
+                    completed_count += 1
+                    if on_progress:
+                        on_progress(completed_count, total_dirs, dir_path, "generated")
+                    if dir_path in parent_of:
+                        parent = parent_of[dir_path]
+                        pending_children[parent].discard(dir_path)
+                        if not pending_children[parent]:
+                            await ready_queue.put(parent)
+
+            except Exception as e:
+                # Store sentinel hash so parent can still compute its hash
+                sentinel_hash = compute_children_hash([])
+                async with lock:
+                    dir_errors.append((dir_path, str(e)))
+                    dir_bodies[dir_path] = ""
+                    dir_children_hashes[dir_path] = sentinel_hash
+                    completed_count += 1
+                    if on_progress:
+                        on_progress(completed_count, total_dirs, dir_path, "error")
+                    if dir_path in parent_of:
+                        parent = parent_of[dir_path]
+                        pending_children[parent].discard(dir_path)
+                        if not pending_children[parent]:
+                            await ready_queue.put(parent)
+
+    # Process directories as they become ready
+    active_tasks: set[asyncio.Task] = set()
+
+    while completed_count < total_dirs:
+        # Start new tasks for ready directories
+        while not ready_queue.empty():
+            dir_path = await ready_queue.get()
+            task = asyncio.create_task(process_directory(dir_path))
+            active_tasks.add(task)
+            task.add_done_callback(active_tasks.discard)
+
+        # Wait for at least one task to complete if we have active tasks
+        if active_tasks:
+            done, _ = await asyncio.wait(
+                active_tasks, return_when=asyncio.FIRST_COMPLETED
+            )
+            # Collect exceptions (don't crash)
+            for task in done:
+                exc = task.exception()
+                if exc:
+                    dir_errors.append((Path("<unknown>"), str(exc)))
+        else:
+            # No active tasks and queue empty - wait a bit for queue
+            await asyncio.sleep(0.01)
+
+    # Wait for any remaining tasks
+    if active_tasks:
+        await asyncio.gather(*active_tasks)
+
+    return dir_bodies, dir_children_hashes, dir_errors
+
+
+async def generate_shadow_docs_async(
+    config: Config,
+    verbose: bool = False,
+    rate_limiter: RateLimiter | None = None,
+) -> bool:
+    """Async entry point for shadow generation.
+
+    Args:
+        config: Configuration for shadow generation
+        verbose: If True, show detailed progress including token counts
+        rate_limiter: Optional shared rate limiter. If None, creates one internally.
+
+    Returns:
+        True if all files and directories were processed successfully, False if any had errors.
+    """
+    print(f"Generating shadow documentation for: {config.root_path}", flush=True)
+
+    # Discover files and directories
+    print("Discovering files...", flush=True)
+    files = discover_files(config)
+    dirs = discover_directories(config, files)
+
+    if not files:
+        print("No source files found to process.", flush=True)
+        return True
+
+    print(f"Found {len(files)} source files in {len(dirs)} directories", flush=True)
+    print(f"Concurrency: {config.max_concurrency}", flush=True)
+
+    # Create provider with logging wrapper
+    provider = create_provider("anthropic")
+    logging_provider = LoggingProvider(provider, verbose=verbose)
+
+    # Create rate limiter if not provided externally
+    if rate_limiter is None:
+        rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
+
+    try:
+        # Process files in parallel
+        import time as time_module
+        file_start = time_module.monotonic()
+        print("\nProcessing files:", flush=True)
+        token_getter = lambda: (logging_provider.stats.total_input_tokens, logging_provider.stats.total_output_tokens)
+        progress_callback = _make_shadow_progress(token_getter) if not verbose else None
+
+        if verbose:
+            # In verbose mode, print each file on its own line
+            def verbose_progress(completed: int, total: int, path: Path, status: str) -> None:
+                relative = path.relative_to(config.root_path)
+                symbols = {"cached": "[cached]", "generated": "[OK]", "error": "[ERROR]"}
+                in_tok, out_tok = token_getter()
+                tok_str = _format_tokens_short(in_tok, out_tok)
+                tok_suffix = f" {tok_str}" if tok_str else ""
+                print(f"  {symbols.get(status, '[...]')}{tok_suffix} {relative}", flush=True)
+
+            progress_callback = verbose_progress
+
+        results = await generate_shadows_parallel(
+            logging_provider, rate_limiter, config, files, progress_callback
+        )
+
+        file_elapsed = time_module.monotonic() - file_start
+        print(f"\n[Files completed in {file_elapsed:.1f}s]", flush=True)
+
+        # Report any errors
+        errors = [r for r in results if r.error]
+        if errors:
+            print(f"\n{len(errors)} file(s) had errors:", flush=True)
+            for r in errors:
+                relative = r.path.relative_to(config.root_path)
+                print(f"  [ERROR] {relative}: {r.error}", flush=True)
+
+        # Directory roll-ups (dependency-based parallelism)
+        dir_start = time_module.monotonic()
+        print("\nRolling up directories:", flush=True)
+        dir_progress_callback = _make_shadow_progress(token_getter) if not verbose else None
+
+        if verbose:
+            def verbose_dir_progress(completed: int, total: int, path: Path, status: str) -> None:
+                relative = path.relative_to(config.root_path)
+                if relative == Path("."):
+                    relative = Path("(root)")
+                symbols = {"cached": "[cached]", "generated": "[OK]", "error": "[ERROR]", "empty": "[empty]", "processing": "[...]"}
+                in_tok, out_tok = token_getter()
+                tok_str = _format_tokens_short(in_tok, out_tok)
+                tok_suffix = f" {tok_str}" if tok_str else ""
+                print(f"  {symbols.get(status, '[...]')}{tok_suffix} {relative}/", flush=True)
+
+            dir_progress_callback = verbose_dir_progress
+
+        dir_bodies, _dir_hashes, dir_errors = await generate_directory_shadows(
+            logging_provider, rate_limiter, config, results, files, dirs, dir_progress_callback
+        )
+        dir_elapsed = time_module.monotonic() - dir_start
+        print(f"[Directories completed in {dir_elapsed:.1f}s]", flush=True)
+
+        # Report any directory errors
+        if dir_errors:
+            print(f"\n{len(dir_errors)} directory(ies) had errors:", flush=True)
+            for dir_path, err_msg in dir_errors:
+                try:
+                    relative = dir_path.relative_to(config.root_path)
+                except ValueError:
+                    relative = dir_path
+                print(f"  [ERROR] {relative}/: {err_msg}", flush=True)
+
+        # Extract doc-to-source references (no LLM calls)
+        print("\nExtracting doc references...", flush=True)
+        doc_count = extract_doc_references(config, verbose=verbose)
+        if doc_count:
+            print(f"Processed {doc_count} doc file(s)", flush=True)
+
+        # Clean up orphan shadow docs
+        print("\nCleaning up orphans...", flush=True)
+        orphan_count = cleanup_orphan_shadows(config, files, dirs, verbose=verbose)
+        if orphan_count > 0:
+            print(f"Removed {orphan_count} orphan shadow doc(s)", flush=True)
+
+        print(f"\nShadow documentation written to: {config.shadow_root}", flush=True)
+        print(logging_provider.get_token_summary(), flush=True)
+
+        # Print findings summary
+        all_findings: list[tuple[Path, Finding]] = []
+        for r in results:
+            for f in r.findings:
+                all_findings.append((r.path, f))
+
+        if all_findings:
+            error_count = sum(1 for _, f in all_findings if f.severity == "error")
+            warn_count = sum(1 for _, f in all_findings if f.severity == "warning")
+            print(f"\nCode debris findings: {len(all_findings)} issue(s) ({error_count} error(s), {warn_count} warning(s))", flush=True)
+            for file_path, f in all_findings:
+                relative = file_path.relative_to(config.root_path)
+                severity_label = "ERROR" if f.severity == "error" else "WARN "
+                line_range = f"L{f.line_start}-{f.line_end}" if f.line_start != f.line_end else f"L{f.line_start}"
+                print(f"  {severity_label} {relative}:{line_range}  {f.description}", flush=True)
+            print("\nRun 'osoji audit' for the full report.", flush=True)
+
+        return not errors and not dir_errors
+
+    finally:
+        await logging_provider.close()
+
+
+def extract_doc_references(config: Config, verbose: bool = False) -> int:
+    """Extract source file references from documentation files and write facts.
+
+    Scans each doc file for references to source files that have shadow docs,
+    using filename matching, relative paths, and module-style references.
+    Results are written to ``.osoji/facts/<doc_path>.facts.json`` so that
+    :class:`FactsDB` can load them alongside source facts.
+
+    Returns the number of doc files processed.
+    """
+    from .config import DIRECTORY_SHADOW_FILENAME
+    from .hasher import compute_hash
+
+    shadow_root = config.shadow_root
+    if not shadow_root.exists():
+        return 0
+
+    # Build a mapping: various reference forms -> normalised source path
+    source_files: dict[str, str] = {}
+    for shadow_path in shadow_root.rglob("*.shadow.md"):
+        if shadow_path.name == DIRECTORY_SHADOW_FILENAME:
+            continue
+        relative_shadow = shadow_path.relative_to(shadow_root)
+        source_str = str(relative_shadow).removesuffix(".shadow.md").replace("\\", "/")
+        source_path = Path(source_str)
+
+        # Full relative path
+        source_files[source_str] = source_str
+        # Filename only (skip very short names to avoid false positives)
+        if len(source_path.name) >= 4:
+            source_files[source_path.name] = source_str
+        # Module-style (Python)
+        if source_path.suffix == ".py":
+            parts = list(source_path.with_suffix("").parts)
+            if parts and parts[0] == "src":
+                parts = parts[1:]
+            if parts and parts[-1] == "__init__":
+                parts = parts[:-1]
+            if len(parts) > 1:
+                source_files[".".join(parts)] = source_str
+
+    if not source_files:
+        return 0
+
+    # Find doc files
+    doc_candidates: list[Path] = []
+    from .walker import list_repo_files, _matches_ignore
+    all_paths, _ = list_repo_files(config)
+    osojiignore = config.load_osojiignore()
+
+    for path in all_paths:
+        if not path.is_absolute():
+            path = config.root_path / path
+        if not path.is_file():
+            continue
+        relative = path.relative_to(config.root_path)
+        rel_str = str(relative).replace("\\", "/")
+        if rel_str.startswith(SHADOW_DIR):
+            continue
+        if _matches_ignore(relative, config.ignore_patterns):
+            continue
+        if osojiignore and _matches_ignore(relative, osojiignore):
+            continue
+        if config.is_doc_candidate(path):
+            doc_candidates.append(path)
+
+    if not doc_candidates:
+        return 0
+
+    processed = 0
+    for doc_path in doc_candidates:
+        try:
+            content = doc_path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+
+        relative = doc_path.relative_to(config.root_path)
+        rel_str = str(relative).replace("\\", "/")
+
+        # Find which source files this doc references
+        found: dict[str, str] = {}  # source_path -> ref_key that matched
+        for ref_key, source_path in source_files.items():
+            if ref_key in content and source_path not in found:
+                found[source_path] = ref_key
+
+        # Build imports list (source file references)
+        imports: list[dict] = []
+        for source_path, ref_key in sorted(found.items()):
+            imports.append({
+                "source": source_path,
+                "names": [],
+                "context": f"doc references {source_path} via '{ref_key}'",
+            })
+
+        # Write facts file
+        facts_data = {
+            "source": rel_str,
+            "source_hash": compute_hash(content),
+            "imports": imports,
+            "exports": [],
+            "calls": [],
+            "string_literals": [],
+            "classification": "doc",  # marks this as a doc file in FactsDB
+            "topics": [],
+        }
+
+        facts_path = config.facts_path_for(relative)
+        facts_path.parent.mkdir(parents=True, exist_ok=True)
+        facts_path.write_text(json.dumps(facts_data, indent=2), encoding="utf-8")
+        processed += 1
+
+        if verbose:
+            print(f"  [doc-refs] {rel_str}: {len(imports)} source reference(s)", flush=True)
+
+    return processed
+
+
+def cleanup_orphan_shadows(config: Config, files: list[Path], dirs: list[Path], verbose: bool = False) -> int:
+    """Remove shadow docs that no longer correspond to discovered source files.
+
+    Returns the number of orphan files removed.
+    """
+    shadow_root = config.shadow_root
+    if not shadow_root.exists():
+        return 0
+
+    # Build set of expected shadow paths
+    expected: set[Path] = set()
+    for f in files:
+        expected.add(config.shadow_path_for(f))
+    for d in dirs:
+        expected.add(config.shadow_path_for_dir(d))
+
+    # Also keep the root shadow doc
+    expected.add(shadow_root / "_root.shadow.md")
+
+    # Find all existing shadow docs
+    existing = list(shadow_root.rglob("*.shadow.md"))
+
+    orphans = [p for p in existing if p not in expected]
+    for orphan in orphans:
+        if verbose:
+            relative = orphan.relative_to(config.root_path)
+            print(f"  [removing orphan] {relative}", flush=True)
+        orphan.unlink()
+
+    # Also clean up orphan findings
+    findings_dir = config.root_path / SHADOW_DIR / "findings"
+    if findings_dir.exists():
+        expected_findings: set[Path] = set()
+        for f in files:
+            expected_findings.add(config.findings_path_for(f))
+        for findings_file in list(findings_dir.rglob("*.findings.json")):
+            if findings_file not in expected_findings:
+                if verbose:
+                    relative = findings_file.relative_to(config.root_path)
+                    print(f"  [removing orphan] {relative}", flush=True)
+                findings_file.unlink()
+                orphans.append(findings_file)
+
+    # Also clean up orphan symbols
+    symbols_dir = config.root_path / SHADOW_DIR / "symbols"
+    if symbols_dir.exists():
+        expected_symbols: set[Path] = set()
+        for f in files:
+            expected_symbols.add(config.symbols_path_for(f))
+        for symbols_file in list(symbols_dir.rglob("*.symbols.json")):
+            if symbols_file not in expected_symbols:
+                if verbose:
+                    relative = symbols_file.relative_to(config.root_path)
+                    print(f"  [removing orphan] {relative}", flush=True)
+                symbols_file.unlink()
+                orphans.append(symbols_file)
+
+    # Also clean up orphan facts
+    facts_dir = config.root_path / SHADOW_DIR / "facts"
+    if facts_dir.exists():
+        expected_facts: set[Path] = set()
+        for f in files:
+            expected_facts.add(config.facts_path_for(f))
+        for facts_file in list(facts_dir.rglob("*.facts.json")):
+            if facts_file not in expected_facts:
+                if verbose:
+                    relative = facts_file.relative_to(config.root_path)
+                    print(f"  [removing orphan] {relative}", flush=True)
+                facts_file.unlink()
+                orphans.append(facts_file)
+
+    # Remove empty directories (bottom-up)
+    for dirpath in sorted(shadow_root.rglob("*"), key=lambda p: -len(p.parts)):
+        if dirpath.is_dir() and not any(dirpath.iterdir()):
+            dirpath.rmdir()
+    for cleanup_dir in [findings_dir, symbols_dir, facts_dir]:
+        if cleanup_dir.exists():
+            for dirpath in sorted(cleanup_dir.rglob("*"), key=lambda p: -len(p.parts)):
+                if dirpath.is_dir() and not any(dirpath.iterdir()):
+                    dirpath.rmdir()
+
+    return len(orphans)
+
+
+def dry_run_shadow(config: Config, verbose: bool = False) -> None:
+    """Show what shadow generation would process, without making LLM calls.
+
+    Prints file count, file list, estimated tokens, and estimated cost.
+    """
+    files = discover_files(config)
+    dirs = discover_directories(config, files)
+
+    if not files:
+        print("No source files found to process.", flush=True)
+        return
+
+    # Compute staleness reasons for all files
+    reasons: dict[Path, str] = {}
+    for f in files:
+        r = staleness_reason(config, f)
+        if r is not None:
+            reasons[f] = r
+    stale_files = list(reasons.keys())
+    cached_files = len(files) - len(stale_files)
+
+    impl_hash = compute_impl_hash()
+    impl_stale_count = sum(1 for r in reasons.values() if r == "stale-impl")
+
+    print(f"Dry run for: {config.root_path}\n", flush=True)
+    print(f"Impl hash: {impl_hash}", flush=True)
+    print(f"Total source files: {len(files)}", flush=True)
+    print(f"  Would generate: {len(stale_files)}", flush=True)
+    if impl_stale_count:
+        print(f"    (impl-only stale: {impl_stale_count})", flush=True)
+    print(f"  Already cached:  {cached_files}", flush=True)
+    print(f"Directories: {len(dirs)}", flush=True)
+
+    # Estimate tokens and cost for stale files
+    total_bytes = 0
+    for f in stale_files:
+        try:
+            total_bytes += f.stat().st_size
+        except OSError:
+            pass
+
+    # Rough estimate: 1 token ~ 3.3 bytes of source code
+    est_input_tokens = int(total_bytes / 3.3)
+    # Output typically ~20% of input for shadow docs
+    est_output_tokens = int(est_input_tokens * 0.2)
+    # Directory rollups add ~30% more output tokens
+    est_dir_output = int(est_output_tokens * 0.3)
+
+    total_input = est_input_tokens
+    total_output = est_output_tokens + est_dir_output
+
+    # Sonnet pricing: $3/MTok input, $15/MTok output
+    est_cost = (total_input / 1_000_000 * 3.0) + (total_output / 1_000_000 * 15.0)
+
+    print(f"\nEstimated tokens (for {len(stale_files)} file(s) to generate):", flush=True)
+    print(f"  Input:  ~{total_input:,}", flush=True)
+    print(f"  Output: ~{total_output:,}", flush=True)
+    print(f"Estimated cost: ~${est_cost:.2f}", flush=True)
+
+    if verbose:
+        print(f"\nFiles to process ({len(stale_files)}):", flush=True)
+        for f in sorted(stale_files, key=lambda p: str(p.relative_to(config.root_path))):
+            relative = f.relative_to(config.root_path)
+            size = f.stat().st_size
+            reason = reasons[f]
+            print(f"  [{reason}] {relative}  ({size:,} bytes)", flush=True)
+
+        if cached_files:
+            print(f"\nCached ({cached_files}):", flush=True)
+            cached = [f for f in files if f not in reasons]
+            for f in sorted(cached, key=lambda p: str(p.relative_to(config.root_path))):
+                relative = f.relative_to(config.root_path)
+                print(f"  {relative}", flush=True)
+
+
+def generate_shadow_docs(
+    config: Config,
+    verbose: bool = False,
+    rate_limiter: RateLimiter | None = None,
+) -> bool:
+    """Generate shadow documentation for an entire codebase (sync wrapper).
+
+    This is the backward-compatible sync entry point.
+
+    Args:
+        config: Configuration for shadow generation
+        verbose: If True, show detailed progress
+        rate_limiter: Optional shared rate limiter. If None, creates one internally.
+
+    Returns:
+        True if all files and directories were processed successfully, False if any had errors.
+    """
+    return asyncio.run(generate_shadow_docs_async(config, verbose=verbose, rate_limiter=rate_limiter))
+
+
+def check_shadow_docs(config: Config) -> list[tuple[Path, str]]:
+    """Check for stale or missing shadow docs.
+
+    Returns a list of (path, status) tuples where status is
+    'missing', 'stale', or 'stale-impl'.
+    """
+    files = discover_files(config)
+    issues: list[tuple[Path, str]] = []
+
+    for file_path in files:
+        relative = file_path.relative_to(config.root_path)
+        reason = staleness_reason(config, file_path)
+        if reason is not None:
+            issues.append((relative, reason))
+
+    return issues

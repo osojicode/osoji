@@ -6,8 +6,8 @@ from unittest.mock import patch
 
 import pytest
 
-from docstar.config import Config
-from docstar.shadow import extract_doc_references
+from osoji.config import Config
+from osoji.shadow import extract_doc_references
 
 
 def _setup_project(tmp_path: Path) -> Config:
@@ -18,7 +18,7 @@ def _setup_project(tmp_path: Path) -> Config:
     src.write_text("def hello(): pass\n", encoding="utf-8")
 
     # Shadow doc for the source file
-    shadow = tmp_path / ".docstar" / "shadow" / "src" / "foo.py.shadow.md"
+    shadow = tmp_path / ".osoji" / "shadow" / "src" / "foo.py.shadow.md"
     shadow.parent.mkdir(parents=True, exist_ok=True)
     shadow.write_text("# src/foo.py\n@source-hash: abc123\n", encoding="utf-8")
 
@@ -35,7 +35,7 @@ class TestExtractDocReferences:
         config = _setup_project(tmp_path)
         files = [tmp_path / "README.md", tmp_path / "src" / "foo.py"]
 
-        with patch("docstar.walker.list_repo_files", return_value=(files, False)):
+        with patch("osoji.walker.list_repo_files", return_value=(files, False)):
             count = extract_doc_references(config, verbose=False)
 
         assert count == 1

@@ -2,7 +2,7 @@
 
 import pytest
 
-from docstar.safety.paths import (
+from osoji.safety.paths import (
     PATTERNS,
     check_file_for_paths,
     get_pattern_descriptions,
@@ -149,9 +149,9 @@ class TestDatedFolders:
     """Tests for dated project folder detection."""
 
     def test_detects_dated_folder_with_space(self, temp_dir):
-        """Should detect /260124 DOCSTAR/ pattern."""
+        """Should detect /260124 OSOJI/ pattern."""
         test_file = temp_dir / "test.py"
-        test_file.write_text('project = "/code/260124 DOCSTAR/src"')
+        test_file.write_text('project = "/code/260124 OSOJI/src"')
 
         findings = check_file_for_paths(test_file)
         dated_findings = [f for f in findings if f.pattern_name == "dated_folder"]

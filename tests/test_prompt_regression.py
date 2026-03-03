@@ -19,9 +19,9 @@ from pathlib import Path
 
 import pytest
 
-from docstar.config import Config
-from docstar.deadcode import DeadCodeCandidate, _verify_batch_async, scan_references
-from docstar.llm.factory import create_provider
+from osoji.config import Config
+from osoji.deadcode import DeadCodeCandidate, _verify_batch_async, scan_references
+from osoji.llm.factory import create_provider
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "prompt_regression"
 
@@ -39,12 +39,12 @@ def _setup_case_dir(tmp_path: Path, case_dir: Path) -> Config:
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src_file, dest)
 
-    # Copy symbols into .docstar/symbols/
+    # Copy symbols into .osoji/symbols/
     if symbols_dir.exists():
-        docstar_symbols = tmp_path / ".docstar" / "symbols"
+        osoji_symbols = tmp_path / ".osoji" / "symbols"
         for sym_file in symbols_dir.rglob("*.symbols.json"):
             rel = sym_file.relative_to(symbols_dir)
-            dest = docstar_symbols / rel
+            dest = osoji_symbols / rel
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(sym_file, dest)
 
@@ -71,7 +71,7 @@ async def _run_trial_case_001(provider, config, tmp_path, expected) -> bool:
     if not tools_candidates:
         return False
 
-    tools_path = tmp_path / "src" / "docstar" / "tools.py"
+    tools_path = tmp_path / "src" / "osoji" / "tools.py"
     file_content = tools_path.read_text(errors="ignore")
 
     verifications, _, _ = await _verify_batch_async(
@@ -98,15 +98,15 @@ async def _run_trial_case_001(provider, config, tmp_path, expected) -> bool:
 
 async def _run_trial_case_002(provider, config, tmp_path, expected) -> bool:
     """Run one LLM verification trial for case_002. Returns True if all pass."""
-    audit_path = tmp_path / "src" / "docstar" / "audit.py"
+    audit_path = tmp_path / "src" / "osoji" / "audit.py"
     file_content = audit_path.read_text(errors="ignore")
 
     # Line numbers are coupled to the snapshotted fixture file in
     # tests/fixtures/prompt_regression/dead_code/case_002_internal_dataclass/source/,
-    # NOT to the live src/docstar/audit.py. Update if the fixture changes.
+    # NOT to the live src/osoji/audit.py. Update if the fixture changes.
     candidates = [
         DeadCodeCandidate(
-            source_path="src/docstar/audit.py",
+            source_path="src/osoji/audit.py",
             name=name,
             kind="class",
             line_start={"AuditIssue": 19, "AuditResult": 32}[name],
@@ -140,7 +140,7 @@ async def _run_trial_case_002(provider, config, tmp_path, expected) -> bool:
 
 async def _run_trial_plumbing_001(provider, config, source_path, source_content) -> bool:
     """Run one trial for plumbing case_001. Returns True if no obligations extracted."""
-    from docstar.plumbing import extract_obligations_async
+    from osoji.plumbing import extract_obligations_async
 
     obligations, _, _ = await extract_obligations_async(
         provider, config, source_path, source_content, "",
@@ -161,7 +161,7 @@ async def _run_trial_plumbing_001(provider, config, source_path, source_content)
 
 async def _run_trial_string_extraction_001(provider, config, file_path, numbered_content, expected) -> bool:
     """Run one trial for string extraction case_001. Returns True if facts are correct."""
-    from docstar.shadow import generate_file_shadow_doc_async
+    from osoji.shadow import generate_file_shadow_doc_async
 
     _, _, _, _, _, _, _, facts = await generate_file_shadow_doc_async(
         provider, config, file_path, numbered_content,

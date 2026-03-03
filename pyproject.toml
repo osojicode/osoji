@@ -3,14 +3,14 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "docstar"
+name = "osojicode"
 version = "0.1.0"
 description = "Shadow documentation engine - generates semantically dense summaries of codebases for AI agent consumption"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [
-    { name = "Docstar Authors" }
+    { name = "Osoji Authors" }
 ]
 dependencies = [
     "anthropic>=0.39.0",
@@ -24,13 +24,13 @@ all = ["detect-secrets>=1.4.0"]
 dev = ["pytest>=7.0.0", "pytest-mock>=3.10.0", "pytest-asyncio>=0.21.0", "scipy>=1.11.0"]
 
 [project.scripts]
-docstar = "docstar.cli:main"
+osoji = "osoji.cli:main"
 
 [tool.pytest.ini_options]
 markers = ["prompt_regression: tests that make real LLM API calls to verify prompt behavior"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/docstar"]
+packages = ["src/osoji"]
 
 [tool.hatch.build.targets.wheel.force-include]
-"src/docstar/viz.html" = "docstar/viz.html"
+"src/osoji/viz.html" = "osoji/viz.html"

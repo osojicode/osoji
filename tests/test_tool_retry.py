@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from docstar.llm.types import (
+from osoji.llm.types import (
     CompletionOptions,
     CompletionResult,
     Message,
@@ -14,7 +14,7 @@ from docstar.llm.types import (
     ToolCall,
     ToolDefinition,
 )
-from docstar.llm.anthropic import AnthropicProvider
+from osoji.llm.anthropic import AnthropicProvider
 
 
 def _make_response(content_blocks, input_tokens=100, output_tokens=50):
@@ -55,7 +55,7 @@ FORCED_CHOICE = {"type": "tool", "name": "test_tool"}
 def provider():
     """Create a provider with mocked client."""
     with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"}):
-        with patch("docstar.llm.anthropic.anthropic.AsyncAnthropic"):
+        with patch("osoji.llm.anthropic.anthropic.AsyncAnthropic"):
             p = AnthropicProvider()
     return p
 

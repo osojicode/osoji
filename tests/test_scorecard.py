@@ -5,24 +5,24 @@ from pathlib import Path
 
 import pytest
 
-from docstar.config import Config
-from docstar.doc_analysis import DocAnalysisResult, DocFinding
-from docstar.deadcode import DeadCodeVerification
-from docstar.plumbing import PlumbingResult, PlumbingVerification
-from docstar.junk import JunkAnalysisResult, JunkFinding
-from docstar.scorecard import (
+from osoji.config import Config
+from osoji.doc_analysis import DocAnalysisResult, DocFinding
+from osoji.deadcode import DeadCodeVerification
+from osoji.plumbing import PlumbingResult, PlumbingVerification
+from osoji.junk import JunkAnalysisResult, JunkFinding
+from osoji.scorecard import (
     Scorecard,
     build_scorecard,
     merge_ranges,
 )
-from docstar.audit import _format_scorecard_section
+from osoji.audit import _format_scorecard_section
 
 
 # --- Helpers ---
 
 def _write_shadow(temp_dir, source):
     """Create a minimal shadow doc so the source is inventoried."""
-    shadow_dir = temp_dir / ".docstar" / "shadow"
+    shadow_dir = temp_dir / ".osoji" / "shadow"
     shadow_file = shadow_dir / (source + ".shadow.md")
     shadow_file.parent.mkdir(parents=True, exist_ok=True)
     shadow_file.write_text(f"# {source}\n@source-hash: abc\n\nShadow doc.")
@@ -37,7 +37,7 @@ def _write_source(temp_dir, path, content="# placeholder\n"):
 
 def _write_signature(temp_dir, source, purpose="Does things", topics=None):
     """Write a topic signature JSON."""
-    sig_dir = temp_dir / ".docstar" / "signatures"
+    sig_dir = temp_dir / ".osoji" / "signatures"
     sig_file = sig_dir / (source + ".signature.json")
     sig_file.parent.mkdir(parents=True, exist_ok=True)
     data = {
@@ -52,7 +52,7 @@ def _write_signature(temp_dir, source, purpose="Does things", topics=None):
 
 def _write_findings(temp_dir, source, findings):
     """Write a findings JSON file for a source."""
-    findings_dir = temp_dir / ".docstar" / "findings"
+    findings_dir = temp_dir / ".osoji" / "findings"
     findings_file = findings_dir / (source + ".findings.json")
     findings_file.parent.mkdir(parents=True, exist_ok=True)
     data = {

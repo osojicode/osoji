@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from docstar.config import Config, SHADOW_DIR
-from docstar.hasher import compute_file_hash, compute_impl_hash, extract_source_hash
-from docstar.shadow import (
+from osoji.config import Config, SHADOW_DIR
+from osoji.hasher import compute_file_hash, compute_impl_hash, extract_source_hash
+from osoji.shadow import (
     STALE_WARNING_SOURCE,
     STALE_WARNING_IMPL,
     _STALE_WARNINGS,
@@ -187,7 +187,7 @@ def project(tmp_path):
     src2 = tmp_path / "world.py"
     src2.write_text("print('world')", encoding="utf-8")
 
-    shadow_dir = tmp_path / ".docstar" / "shadow"
+    shadow_dir = tmp_path / ".osoji" / "shadow"
     shadow_dir.mkdir(parents=True)
 
     return tmp_path
@@ -278,5 +278,5 @@ class TestMarkStaleDocs:
 class TestConfigStalenessManifestPath:
     def test_resolves_correctly(self, tmp_path):
         config = Config(root_path=tmp_path)
-        expected = tmp_path / ".docstar" / "staleness.json"
+        expected = tmp_path / ".osoji" / "staleness.json"
         assert config.staleness_manifest_path == expected
