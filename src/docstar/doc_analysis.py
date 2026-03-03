@@ -336,6 +336,13 @@ Set `confirmed: false` if on reflection the evidence is inconclusive, the doc an
 are consistent, or the shadow docs simply don't cover the claim (shadow docs are summaries,
 not exhaustive — absence of detail is not a contradiction).
 
+Severity rules — commission vs omission:
+- If a doc file states something that contradicts the actual codebase (wrong path, wrong
+  behavior, wrong API, wrong location of a file or module), classify as severity=error
+  (commission — actively misleading).
+- If it merely omits information (doesn't mention a module, skips a feature), classify as
+  severity=warning (omission — incomplete but not wrong).
+
 For each finding, include the shadow doc path and a brief verbatim evidence quote.
 
 For each finding, also provide `search_terms`: the specific technical identifiers (command names,

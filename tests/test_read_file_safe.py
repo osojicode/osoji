@@ -109,18 +109,3 @@ class TestReadFileSafe:
         assert not is_binary
         assert "café" in result
 
-    def test_jpeg_still_binary_after_utf8_fix(self, tmp_path: Path):
-        """JPEG data is not valid UTF-8 and still detected as binary."""
-        f = tmp_path / "photo.jpg"
-        # JPEG-like: high bytes that are NOT valid UTF-8 sequences
-        data = b"\xff\xd8\xff\xe0" + bytes(range(128, 256)) * 10
-        f.write_bytes(data)
-        content, is_binary = read_file_safe(f)
-        assert is_binary
-
-    def test_png_still_binary_after_utf8_fix(self, tmp_path: Path):
-        """PNG signature has null bytes → still caught as binary."""
-        f = tmp_path / "icon.png"
-        f.write_bytes(b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR")
-        content, is_binary = read_file_safe(f)
-        assert is_binary

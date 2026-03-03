@@ -72,10 +72,7 @@ def check_file_for_paths(file_path: Path) -> list[PathFinding]:
         file_path: Path to the file to check
 
     Returns:
-        List of PathFinding objects for each match found
-
-    Raises:
-        OSError: If file cannot be read
+        List of PathFinding objects for each match found (empty if file cannot be read)
     """
     try:
         content = file_path.read_text(encoding="utf-8", errors="replace")

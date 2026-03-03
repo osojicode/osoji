@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config, MODEL_SMALL
+from .config import Config, MODEL_SMALL, SHADOW_DIR
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content
 from .llm.base import LLMProvider
 from .llm.types import Message, MessageRole, CompletionOptions
@@ -275,7 +275,7 @@ def _find_field_references(
         relative = path.relative_to(config.root_path)
         rel_str = str(relative).replace("\\", "/")
 
-        if rel_str.startswith(".docstar"):
+        if rel_str.startswith(SHADOW_DIR):
             continue
         if rel_str == defining_file:
             continue

@@ -54,6 +54,14 @@ to work with this code effectively.""",
                             "type": "string",
                             "description": "What should be done to fix this issue",
                         },
+                        "valid": {
+                            "type": "boolean",
+                            "default": True,
+                            "description": (
+                                "Set to false to retract this finding if on reflection "
+                                "it is incorrect. Defaults to true."
+                            ),
+                        },
                     },
                     "required": ["category", "line_start", "line_end", "severity", "description"],
                 },
