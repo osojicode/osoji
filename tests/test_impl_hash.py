@@ -5,15 +5,15 @@ from pathlib import Path
 
 import pytest
 
-from docstar.hasher import compute_impl_hash, extract_impl_hash, _IMPL_HASH_SOURCES
-from docstar.shadow import (
+from osoji.hasher import compute_impl_hash, extract_impl_hash, _IMPL_HASH_SOURCES
+from osoji.shadow import (
     assemble_shadow_doc,
     assemble_directory_shadow_doc,
     is_stale,
     is_directory_stale,
     staleness_reason,
 )
-from docstar.config import Config
+from osoji.config import Config
 
 
 # ---------------------------------------------------------------------------
@@ -104,8 +104,8 @@ def project(tmp_path):
     src = tmp_path / "hello.py"
     src.write_text("print('hello')", encoding="utf-8")
 
-    docstar_dir = tmp_path / ".docstar" / "shadow"
-    docstar_dir.mkdir(parents=True)
+    osoji_dir = tmp_path / ".osoji" / "shadow"
+    osoji_dir.mkdir(parents=True)
 
     return tmp_path, src
 
@@ -120,7 +120,7 @@ class TestIsStaleImplHash:
         config = _make_config(root)
 
         # Write a shadow doc WITHOUT @impl-hash (old format)
-        from docstar.hasher import compute_file_hash
+        from osoji.hasher import compute_file_hash
         source_hash = compute_file_hash(src)
         shadow_path = config.shadow_path_for(src)
         shadow_path.parent.mkdir(parents=True, exist_ok=True)
@@ -135,7 +135,7 @@ class TestIsStaleImplHash:
         root, src = project
         config = _make_config(root)
 
-        from docstar.hasher import compute_file_hash
+        from osoji.hasher import compute_file_hash
         source_hash = compute_file_hash(src)
         shadow_path = config.shadow_path_for(src)
         shadow_path.parent.mkdir(parents=True, exist_ok=True)
@@ -151,7 +151,7 @@ class TestIsStaleImplHash:
         config = _make_config(root)
 
         # Use assemble_shadow_doc which embeds both hashes correctly
-        from docstar.hasher import compute_file_hash
+        from osoji.hasher import compute_file_hash
         source_hash = compute_file_hash(src)
         shadow_path = config.shadow_path_for(src)
         shadow_path.parent.mkdir(parents=True, exist_ok=True)
@@ -230,7 +230,7 @@ class TestStalenessReason:
         root, src = project
         config = _make_config(root)
 
-        from docstar.hasher import compute_file_hash
+        from osoji.hasher import compute_file_hash
         source_hash = compute_file_hash(src)
         shadow_path = config.shadow_path_for(src)
         shadow_path.parent.mkdir(parents=True, exist_ok=True)
@@ -245,7 +245,7 @@ class TestStalenessReason:
         root, src = project
         config = _make_config(root)
 
-        from docstar.hasher import compute_file_hash
+        from osoji.hasher import compute_file_hash
         source_hash = compute_file_hash(src)
         shadow_path = config.shadow_path_for(src)
         shadow_path.parent.mkdir(parents=True, exist_ok=True)
@@ -260,7 +260,7 @@ class TestStalenessReason:
         root, src = project
         config = _make_config(root)
 
-        from docstar.hasher import compute_file_hash
+        from osoji.hasher import compute_file_hash
         source_hash = compute_file_hash(src)
         shadow_path = config.shadow_path_for(src)
         shadow_path.parent.mkdir(parents=True, exist_ok=True)
@@ -273,7 +273,7 @@ class TestStalenessReason:
         root, src = project
         config = _make_config(root, force=True)
 
-        from docstar.hasher import compute_file_hash
+        from osoji.hasher import compute_file_hash
         source_hash = compute_file_hash(src)
         shadow_path = config.shadow_path_for(src)
         shadow_path.parent.mkdir(parents=True, exist_ok=True)

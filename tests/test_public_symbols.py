@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from docstar.config import Config
-from docstar.symbols import load_all_symbols
+from osoji.config import Config
+from osoji.symbols import load_all_symbols
 
 
 class TestSymbolsPathFor:
@@ -15,7 +15,7 @@ class TestSymbolsPathFor:
     def test_basic_path(self, temp_dir):
         config = Config(root_path=temp_dir)
         src = temp_dir / "src" / "main.py"
-        expected = temp_dir / ".docstar" / "symbols" / "src" / "main.py.symbols.json"
+        expected = temp_dir / ".osoji" / "symbols" / "src" / "main.py.symbols.json"
         assert config.symbols_path_for(src) == expected
 
     def test_nested_path(self, temp_dir):
@@ -78,7 +78,7 @@ class TestLoadAllSymbols:
 
     def test_loads_single_file(self, temp_dir):
         config = Config(root_path=temp_dir)
-        symbols_dir = temp_dir / ".docstar" / "symbols" / "src"
+        symbols_dir = temp_dir / ".osoji" / "symbols" / "src"
         symbols_dir.mkdir(parents=True)
 
         data = {
@@ -98,7 +98,7 @@ class TestLoadAllSymbols:
 
     def test_loads_multiple_files(self, temp_dir):
         config = Config(root_path=temp_dir)
-        symbols_dir = temp_dir / ".docstar" / "symbols"
+        symbols_dir = temp_dir / ".osoji" / "symbols"
         symbols_dir.mkdir(parents=True)
 
         for name, source in [("a.py", "a.py"), ("b.py", "b.py")]:
@@ -124,7 +124,7 @@ class TestLoadAllSymbols:
 
     def test_skips_empty_symbols(self, temp_dir):
         config = Config(root_path=temp_dir)
-        symbols_dir = temp_dir / ".docstar" / "symbols"
+        symbols_dir = temp_dir / ".osoji" / "symbols"
         symbols_dir.mkdir(parents=True)
 
         data = {
@@ -140,7 +140,7 @@ class TestLoadAllSymbols:
 
     def test_skips_malformed_json(self, temp_dir):
         config = Config(root_path=temp_dir)
-        symbols_dir = temp_dir / ".docstar" / "symbols"
+        symbols_dir = temp_dir / ".osoji" / "symbols"
         symbols_dir.mkdir(parents=True)
 
         (symbols_dir / "bad.py.symbols.json").write_text("not json{{{")

@@ -7,20 +7,20 @@ from pathlib import Path
 
 import pytest
 
-from docstar.config import Config
-from docstar.hasher import compute_hash
-from docstar.viz import (
+from osoji.config import Config
+from osoji.hasher import compute_hash
+from osoji.viz import (
     _compute_file_health,
     _compute_aggregate_health,
     _to_generic_node,
     assemble_viz_data,
     VizHandler,
 )
-from docstar.walker import clear_repo_files_cache
+from osoji.walker import clear_repo_files_cache
 
 
 # ---------------------------------------------------------------------------
-# Helpers — create synthetic .docstar/ sidecars in tmp_path
+# Helpers — create synthetic .osoji/ sidecars in tmp_path
 # ---------------------------------------------------------------------------
 
 def _write_source(root: Path, rel_path: str, content: str = "x = 1\n") -> Path:
@@ -31,7 +31,7 @@ def _write_source(root: Path, rel_path: str, content: str = "x = 1\n") -> Path:
 
 
 def _write_shadow(root: Path, rel_path: str, content: str | None = None, *, source_hash: str | None = None) -> Path:
-    shadow_dir = root / ".docstar" / "shadow"
+    shadow_dir = root / ".osoji" / "shadow"
     shadow_file = shadow_dir / (rel_path + ".shadow.md")
     shadow_file.parent.mkdir(parents=True, exist_ok=True)
     if content is None:
@@ -43,7 +43,7 @@ def _write_shadow(root: Path, rel_path: str, content: str | None = None, *, sour
 
 
 def _write_dir_shadow(root: Path, dir_rel: str, content: str = "# Directory\nOverview.") -> Path:
-    shadow_dir = root / ".docstar" / "shadow"
+    shadow_dir = root / ".osoji" / "shadow"
     if dir_rel == "" or dir_rel == ".":
         shadow_file = shadow_dir / "_root.shadow.md"
     else:
@@ -54,7 +54,7 @@ def _write_dir_shadow(root: Path, dir_rel: str, content: str = "# Directory\nOve
 
 
 def _write_findings(root: Path, rel_path: str, findings: list[dict]) -> Path:
-    findings_dir = root / ".docstar" / "findings"
+    findings_dir = root / ".osoji" / "findings"
     findings_file = findings_dir / (rel_path + ".findings.json")
     findings_file.parent.mkdir(parents=True, exist_ok=True)
     data = {
@@ -68,7 +68,7 @@ def _write_findings(root: Path, rel_path: str, findings: list[dict]) -> Path:
 
 
 def _write_symbols(root: Path, rel_path: str, symbols: list[dict], file_role: str | None = None) -> Path:
-    symbols_dir = root / ".docstar" / "symbols"
+    symbols_dir = root / ".osoji" / "symbols"
     sidecar = symbols_dir / (rel_path + ".symbols.json")
     sidecar.parent.mkdir(parents=True, exist_ok=True)
     data = {
@@ -84,7 +84,7 @@ def _write_symbols(root: Path, rel_path: str, symbols: list[dict], file_role: st
 
 
 def _write_signature(root: Path, rel_path: str, purpose: str = "Does things", topics: list[str] | None = None) -> Path:
-    sig_dir = root / ".docstar" / "signatures"
+    sig_dir = root / ".osoji" / "signatures"
     sig_file = sig_dir / (rel_path + ".signature.json")
     sig_file.parent.mkdir(parents=True, exist_ok=True)
     data = {
@@ -99,14 +99,14 @@ def _write_signature(root: Path, rel_path: str, purpose: str = "Does things", to
 
 
 def _write_token_cache(root: Path, entries: dict) -> Path:
-    tc_path = root / ".docstar" / "token-cache.json"
+    tc_path = root / ".osoji" / "token-cache.json"
     tc_path.parent.mkdir(parents=True, exist_ok=True)
     tc_path.write_text(json.dumps(entries), encoding="utf-8")
     return tc_path
 
 
 def _write_scorecard(root: Path, data: dict | None = None) -> Path:
-    sc_path = root / ".docstar" / "analysis" / "scorecard.json"
+    sc_path = root / ".osoji" / "analysis" / "scorecard.json"
     sc_path.parent.mkdir(parents=True, exist_ok=True)
     sc_path.write_text(json.dumps(data or {"coverage_pct": 50.0}), encoding="utf-8")
     return sc_path
@@ -345,7 +345,7 @@ class TestArcsDataDriven:
         assert junk["value"] > 0
 
 
-class TestGenericSchemaNoDocstarConcepts:
+class TestGenericSchemaNoOsojiConcepts:
     def test_node_keys_are_generic(self, tmp_path):
         _write_source(tmp_path, "clean.py", "x = 1\n")
 

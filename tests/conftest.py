@@ -1,4 +1,4 @@
-"""Shared pytest fixtures for docstar tests."""
+"""Shared pytest fixtures for osoji tests."""
 
 import shutil
 import tempfile
@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from docstar.walker import clear_repo_files_cache
+from osoji.walker import clear_repo_files_cache
 
 
 def pytest_addoption(parser):

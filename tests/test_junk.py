@@ -6,24 +6,24 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from docstar.config import Config
-from docstar.junk import (
+from osoji.config import Config
+from osoji.junk import (
     JunkAnalyzer,
     JunkAnalysisResult,
     JunkFinding,
     load_shadow_content,
 )
-from docstar.deadcode import DeadCodeAnalyzer
-from docstar.plumbing import DeadPlumbingAnalyzer
-from docstar.llm.types import CompletionResult, ToolCall
-from docstar.rate_limiter import RateLimiter, RateLimiterConfig
+from osoji.deadcode import DeadCodeAnalyzer
+from osoji.plumbing import DeadPlumbingAnalyzer
+from osoji.llm.types import CompletionResult, ToolCall
+from osoji.rate_limiter import RateLimiter, RateLimiterConfig
 
 
 # --- Helpers ---
 
 def _write_shadow(temp_dir, source, content="# Shadow\nShadow doc content."):
     """Helper to write a shadow doc."""
-    shadow_dir = temp_dir / ".docstar" / "shadow"
+    shadow_dir = temp_dir / ".osoji" / "shadow"
     shadow_file = shadow_dir / (source + ".shadow.md")
     shadow_file.parent.mkdir(parents=True, exist_ok=True)
     shadow_file.write_text(content)
@@ -31,7 +31,7 @@ def _write_shadow(temp_dir, source, content="# Shadow\nShadow doc content."):
 
 def _write_symbols(temp_dir, source, symbols, file_role=None):
     """Helper to write a symbols JSON sidecar."""
-    symbols_dir = temp_dir / ".docstar" / "symbols"
+    symbols_dir = temp_dir / ".osoji" / "symbols"
     sidecar = symbols_dir / (source + ".symbols.json")
     sidecar.parent.mkdir(parents=True, exist_ok=True)
     data = {

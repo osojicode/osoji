@@ -6,9 +6,9 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from docstar.config import Config
-from docstar.junk import JunkAnalysisResult
-from docstar.junk_orphan import (
+from osoji.config import Config
+from osoji.junk import JunkAnalysisResult
+from osoji.junk_orphan import (
     OrphanCandidate,
     OrphanVerification,
     OrphanedFilesAnalyzer,
@@ -21,8 +21,8 @@ from docstar.junk_orphan import (
     detect_orphaned_files_async,
     find_orphans,
 )
-from docstar.llm.types import CompletionResult, ToolCall
-from docstar.rate_limiter import RateLimiter, RateLimiterConfig
+from osoji.llm.types import CompletionResult, ToolCall
+from osoji.rate_limiter import RateLimiter, RateLimiterConfig
 
 
 # --- Helpers ---
@@ -36,7 +36,7 @@ def _write_source(temp_dir, path, content):
 
 def _write_signature(temp_dir, source_path, purpose="", topics=None):
     """Helper to write a signature JSON file."""
-    sig_path = temp_dir / ".docstar" / "signatures" / (source_path + ".signature.json")
+    sig_path = temp_dir / ".osoji" / "signatures" / (source_path + ".signature.json")
     sig_path.parent.mkdir(parents=True, exist_ok=True)
     sig_path.write_text(json.dumps({
         "path": source_path,
@@ -374,7 +374,7 @@ class TestLoadSignatures:
 
     def test_skips_directory_signatures(self, temp_dir):
         config = Config(root_path=temp_dir, respect_gitignore=False)
-        sig_path = temp_dir / ".docstar" / "signatures" / "_directory.signature.json"
+        sig_path = temp_dir / ".osoji" / "signatures" / "_directory.signature.json"
         sig_path.parent.mkdir(parents=True, exist_ok=True)
         sig_path.write_text(json.dumps({"path": ".", "purpose": "Root"}))
         sigs = _load_signatures(config)
@@ -396,7 +396,7 @@ class TestOrphanedFilesAnalyzer:
         assert "orphan" in analyzer.description.lower()
 
     def test_is_junk_analyzer_subclass(self):
-        from docstar.junk import JunkAnalyzer
+        from osoji.junk import JunkAnalyzer
         assert issubclass(OrphanedFilesAnalyzer, JunkAnalyzer)
 
     @pytest.mark.asyncio

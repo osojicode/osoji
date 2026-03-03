@@ -9,7 +9,7 @@ from unittest import mock
 
 import pytest
 
-from docstar.rate_limiter import (
+from osoji.rate_limiter import (
     ANTHROPIC_DEFAULTS,
     GOOGLE_DEFAULTS,
     OPENAI_DEFAULTS,

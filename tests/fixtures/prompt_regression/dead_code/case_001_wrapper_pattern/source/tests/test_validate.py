@@ -2,9 +2,9 @@
 
 import pytest
 
-from docstar.llm.validate import validate_tool_input
-from docstar.llm.types import CompletionOptions, CompletionResult, ToolCall, ToolDefinition
-from docstar.tools import SUBMIT_SHADOW_DOC_TOOL, SUBMIT_DIRECTORY_SHADOW_DOC_TOOL
+from osoji.llm.validate import validate_tool_input
+from osoji.llm.types import CompletionOptions, CompletionResult, ToolCall, ToolDefinition
+from osoji.tools import SUBMIT_SHADOW_DOC_TOOL, SUBMIT_DIRECTORY_SHADOW_DOC_TOOL
 
 
 class TestTypeChecking:
@@ -376,7 +376,7 @@ class TestToolInputValidators:
         """Custom validators run alongside schema validation in the provider."""
         from types import SimpleNamespace
         from unittest.mock import AsyncMock, MagicMock, patch
-        from docstar.llm.anthropic import AnthropicProvider
+        from osoji.llm.anthropic import AnthropicProvider
 
         # Use SimpleNamespace for content blocks because MagicMock(name=...)
         # sets the mock's internal _mock_name, not the .name attribute.
@@ -437,8 +437,8 @@ class TestToolInputValidators:
             side_effect=[mock_response, mock_retry_response]
         )
 
-        from docstar.llm.types import Message, MessageRole
-        from docstar.tools import get_dead_code_tool_definitions
+        from osoji.llm.types import Message, MessageRole
+        from osoji.tools import get_dead_code_tool_definitions
 
         expected_names = {"func_a", "func_b"}
 

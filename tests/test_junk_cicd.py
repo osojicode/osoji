@@ -6,9 +6,9 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from docstar.config import Config
-from docstar.junk import JunkAnalysisResult
-from docstar.junk_cicd import (
+from osoji.config import Config
+from osoji.junk import JunkAnalysisResult
+from osoji.junk_cicd import (
     CICDCandidate,
     CICDElement,
     CICDVerification,
@@ -24,8 +24,8 @@ from docstar.junk_cicd import (
     detect_dead_cicd_async,
     discover_cicd_files,
 )
-from docstar.llm.types import CompletionResult, ToolCall
-from docstar.rate_limiter import RateLimiter, RateLimiterConfig
+from osoji.llm.types import CompletionResult, ToolCall
+from osoji.rate_limiter import RateLimiter, RateLimiterConfig
 
 
 # --- Helpers ---
@@ -505,7 +505,7 @@ class TestDeadCICDAnalyzer:
         assert "ci/cd" in analyzer.description.lower() or "cicd" in analyzer.description.lower()
 
     def test_is_junk_analyzer_subclass(self):
-        from docstar.junk import JunkAnalyzer
+        from osoji.junk import JunkAnalyzer
         assert issubclass(DeadCICDAnalyzer, JunkAnalyzer)
 
 

@@ -1,1 +1,1 @@
-"""Tests for docstar package."""
+"""Tests for osoji package."""

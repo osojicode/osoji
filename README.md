@@ -1,4 +1,4 @@
-# Docstar - Shadow Documentation Engine
+# Osoji - Shadow Documentation Engine
 
 Generates "shadow documentation" - semantically dense summaries of codebases optimized for AI agent consumption.
 
@@ -27,19 +27,19 @@ This ensures the key is available for both CLI usage and git hooks.
 ### Generate Shadow Documentation
 
 ```bash
-docstar shadow /path/to/project
+osoji shadow /path/to/project
 ```
 
 Force regeneration of all files (ignore cached hashes):
 
 ```bash
-docstar shadow /path/to/project --force
+osoji shadow /path/to/project --force
 ```
 
 ### Check for Stale Documentation
 
 ```bash
-docstar check /path/to/project
+osoji check /path/to/project
 ```
 
 ### View Token Statistics
@@ -47,16 +47,16 @@ docstar check /path/to/project
 See how much compression shadow docs provide:
 
 ```bash
-docstar stats /path/to/project
+osoji stats /path/to/project
 
 # With per-file breakdown
-docstar stats /path/to/project --verbose
+osoji stats /path/to/project --verbose
 ```
 
 Sample output:
 ```
 ============================================================
-DOCSTAR TOKEN STATISTICS
+OSOJI TOKEN STATISTICS
 ============================================================
 
 Files analyzed:      7
@@ -76,40 +76,40 @@ Token savings:       59.7%
 Run a documentation audit to classify docs and validate their accuracy against source code:
 
 ```bash
-docstar audit /path/to/project
+osoji audit /path/to/project
 
 # Skip auto-fixing shadow docs
-docstar audit /path/to/project --no-fix
+osoji audit /path/to/project --no-fix
 
 # Also detect cross-file dead code
-docstar audit /path/to/project --dead-code
+osoji audit /path/to/project --dead-code
 
 # Detect unactuated config/schema obligations
-docstar audit /path/to/project --dead-plumbing
+osoji audit /path/to/project --dead-plumbing
 
 # Detect unused package dependencies
-docstar audit /path/to/project --dead-deps
+osoji audit /path/to/project --dead-deps
 
 # Detect stale CI/CD pipeline elements
-docstar audit /path/to/project --dead-cicd
+osoji audit /path/to/project --dead-cicd
 
 # Detect orphaned source files
-docstar audit /path/to/project --orphaned-files
+osoji audit /path/to/project --orphaned-files
 
 # Check cross-file string contracts (no LLM calls)
-docstar audit /path/to/project --obligations
+osoji audit /path/to/project --obligations
 
 # Run all junk analysis phases
-docstar audit /path/to/project --junk
+osoji audit /path/to/project --junk
 
 # Run all optional phases (equivalent to --junk --obligations)
-docstar audit /path/to/project --full
+osoji audit /path/to/project --full
 ```
 
 The audit checks for:
 - **Documentation classification**: Categorizes each doc via the Diataxis framework, flagging process artifacts (debris) as errors
 - **Accuracy validation**: Matches docs to relevant source code (via explicit references and semantic topic matching), then validates accuracy against shadow docs with evidence quotes
-- **Code debris**: Surfaces findings from shadow generation (stale comments, misleading docstrings, dead code) stored in `.docstar/findings/`
+- **Code debris**: Surfaces findings from shadow generation (stale comments, misleading docstrings, dead code) stored in `.osoji/findings/`
 - **Stale shadow docs**: Auto-fixed by default
 - **Cross-file dead code** (opt-in with `--dead-code`): Detects unused symbols across the codebase
 - **Dead plumbing** (opt-in with `--dead-plumbing`): Detects unactuated config/schema obligations
@@ -117,7 +117,7 @@ The audit checks for:
 - **Dead CI/CD** (opt-in with `--dead-cicd`): Detects stale CI/CD pipeline elements (unused jobs, targets, stages)
 - **Orphaned files** (opt-in with `--orphaned-files`): Detects source files unreachable from entry points via purpose graph analysis
 
-Override findings with project-specific rules in `.docstar/rules`:
+Override findings with project-specific rules in `.osoji/rules`:
 ```
 Keep CLAUDE_CODE_PROMPT.md as historical reference.
 Files in docs/internal/ are team documentation, not debris.
@@ -128,7 +128,7 @@ Files in docs/internal/ are team documentation, not debris.
 Launch an interactive browser-based visualization of your codebase health:
 
 ```bash
-docstar viz /path/to/project
+osoji viz /path/to/project
 ```
 
 Opens a local web page showing codebase structure, documentation coverage, and health metrics as an interactive graph.
@@ -138,11 +138,11 @@ Opens a local web page showing codebase structure, documentation coverage, and h
 Show documentation impact of source changes against a git ref:
 
 ```bash
-docstar diff                    # Compare against main
-docstar diff develop            # Compare against develop
-docstar diff HEAD~5             # Compare against 5 commits ago
-docstar diff main --update      # Also regenerate stale shadows
-docstar diff main --format json # Machine-readable output
+osoji diff                    # Compare against main
+osoji diff develop            # Compare against develop
+osoji diff HEAD~5             # Compare against 5 commits ago
+osoji diff main --update      # Also regenerate stale shadows
+osoji diff main --format json # Machine-readable output
 ```
 
 ### Safety Checks
@@ -150,13 +150,13 @@ docstar diff main --format json # Machine-readable output
 Scan files for personal paths and secrets before committing:
 
 ```bash
-docstar safety check              # Check staged files
-docstar safety check src/*.py     # Check specific files
-docstar safety patterns           # Show detection patterns
-docstar safety self-test          # Verify docstar package itself
+osoji safety check              # Check staged files
+osoji safety check src/*.py     # Check specific files
+osoji safety patterns           # Show detection patterns
+osoji safety self-test          # Verify osoji package itself
 ```
 
-Install `detect-secrets` for secret detection: `pip install 'docstar[safety]'`
+Install `detect-secrets` for secret detection: `pip install 'osoji[safety]'`
 
 ### Git Hooks for Automatic Updates
 
@@ -164,14 +164,14 @@ Install git hooks to enforce documentation quality:
 
 ```bash
 # Install hooks (pre-commit + pre-push by default)
-docstar hooks install
+osoji hooks install
 
 # Selective hook installation
-docstar hooks install --no-pre-push            # pre-commit only
-docstar hooks install --no-pre-commit --post-commit  # post-commit only
+osoji hooks install --no-pre-push            # pre-commit only
+osoji hooks install --no-pre-commit --post-commit  # post-commit only
 
 # Remove hooks
-docstar hooks uninstall
+osoji hooks uninstall
 ```
 
 **Installed hooks:**
@@ -181,7 +181,7 @@ docstar hooks uninstall
 
 ## Output
 
-Shadow documentation is written to `.docstar/shadow/` in the target directory, mirroring the source structure with `.shadow.md` extensions.
+Shadow documentation is written to `.osoji/shadow/` in the target directory, mirroring the source structure with `.shadow.md` extensions.
 
 Each shadow doc contains:
 - Source file path and hash for staleness detection
@@ -199,7 +199,7 @@ Each shadow doc contains:
 
 ## Rate Limits
 
-Docstar respects Anthropic API rate limits automatically. Override defaults via environment variables:
+Osoji respects Anthropic API rate limits automatically. Override defaults via environment variables:
 
 ```bash
 export ANTHROPIC_RPM=4000          # Requests per minute

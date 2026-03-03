@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-from docstar.cli import main
+from osoji.cli import main
 
 
 @pytest.fixture
@@ -15,7 +15,7 @@ def runner():
 
 
 class TestSafetyCheck:
-    """Tests for 'docstar safety check' command."""
+    """Tests for 'osoji safety check' command."""
 
     def test_check_clean_file(self, runner, temp_dir):
         """Clean file should pass check."""
@@ -60,7 +60,7 @@ class TestSafetyCheck:
 
 
 class TestSafetyPatterns:
-    """Tests for 'docstar safety patterns' command."""
+    """Tests for 'osoji safety patterns' command."""
 
     def test_patterns_shows_all_patterns(self, runner):
         """Should show all pattern names and descriptions."""
@@ -97,21 +97,21 @@ class TestSafetyPatterns:
 
 
 class TestSafetySelfTest:
-    """Tests for 'docstar safety self-test' command."""
+    """Tests for 'osoji safety self-test' command."""
 
     def test_self_test_passes(self, runner):
-        """Self-test should pass (docstar package should be clean)."""
+        """Self-test should pass (osoji package should be clean)."""
         result = runner.invoke(main, ["safety", "self-test"])
 
         assert result.exit_code == 0
         assert "passed" in result.output.lower()
 
     def test_self_test_scans_package(self, runner):
-        """Self-test should scan the docstar package."""
+        """Self-test should scan the osoji package."""
         result = runner.invoke(main, ["safety", "self-test"])
 
         # Should mention scanning
-        assert "Scanning" in result.output or "docstar" in result.output
+        assert "Scanning" in result.output or "osoji" in result.output
 
 
 class TestSafetyHelp:

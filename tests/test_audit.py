@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from docstar.audit import (
+from osoji.audit import (
     AuditIssue,
     AuditResult,
     _format_scorecard_section,
@@ -12,7 +12,7 @@ from docstar.audit import (
     serialize_audit_result,
     load_audit_result,
 )
-from docstar.scorecard import CoverageEntry, JunkCodeEntry, Scorecard
+from osoji.scorecard import CoverageEntry, JunkCodeEntry, Scorecard
 
 
 def _minimal_scorecard(**overrides) -> Scorecard:
@@ -332,13 +332,13 @@ class TestHTMLReport:
 class TestScorecardCounts:
     def test_covered_and_total_match(self, temp_dir):
         """covered_count and total_source_count populated correctly."""
-        from docstar.config import Config
-        from docstar.scorecard import build_scorecard
+        from osoji.config import Config
+        from osoji.scorecard import build_scorecard
 
         config = Config(root_path=temp_dir, respect_gitignore=False)
 
         # Create shadow inventory
-        shadow_dir = temp_dir / ".docstar" / "shadow"
+        shadow_dir = temp_dir / ".osoji" / "shadow"
         for name in ["src/a.py", "src/b.py", "src/c.py"]:
             sf = shadow_dir / (name + ".shadow.md")
             sf.parent.mkdir(parents=True, exist_ok=True)
@@ -347,7 +347,7 @@ class TestScorecardCounts:
             src.parent.mkdir(parents=True, exist_ok=True)
             src.write_text("pass\n")
 
-        from docstar.doc_analysis import DocAnalysisResult
+        from osoji.doc_analysis import DocAnalysisResult
         results = [
             DocAnalysisResult(
                 path=Path("docs/guide.md"), classification="how-to",
@@ -362,9 +362,9 @@ class TestScorecardCounts:
 
     def test_type_counts_populated(self, temp_dir):
         """type_covered_counts and type_total_counts populated correctly."""
-        from docstar.config import Config
-        from docstar.scorecard import build_scorecard
-        from docstar.doc_analysis import DocAnalysisResult
+        from osoji.config import Config
+        from osoji.scorecard import build_scorecard
+        from osoji.doc_analysis import DocAnalysisResult
 
         config = Config(root_path=temp_dir, respect_gitignore=False)
 
@@ -393,12 +393,12 @@ class TestScorecardCounts:
 
     def test_uncovered_entries_have_empty_covering_docs(self, temp_dir):
         """Uncovered entries have empty covering_docs list."""
-        from docstar.config import Config
-        from docstar.scorecard import build_scorecard
+        from osoji.config import Config
+        from osoji.scorecard import build_scorecard
 
         config = Config(root_path=temp_dir, respect_gitignore=False)
 
-        shadow_dir = temp_dir / ".docstar" / "shadow"
+        shadow_dir = temp_dir / ".osoji" / "shadow"
         for name in ["src/a.py", "src/b.py"]:
             sf = shadow_dir / (name + ".shadow.md")
             sf.parent.mkdir(parents=True, exist_ok=True)
@@ -418,7 +418,7 @@ class TestScorecardCounts:
 class TestAuditResultRoundTrip:
     def test_round_trip_basic(self, temp_dir):
         """AuditResult survives serialize → load with all fields intact."""
-        from docstar.config import Config
+        from osoji.config import Config
 
         config = Config(root_path=temp_dir, respect_gitignore=False)
         original = AuditResult(
@@ -437,7 +437,7 @@ class TestAuditResultRoundTrip:
                     severity="warning",
                     category="stale_shadow",
                     message="Shadow is stale",
-                    remediation="Run docstar shadow",
+                    remediation="Run osoji shadow",
                 ),
             ],
             scorecard=_minimal_scorecard(
@@ -464,7 +464,7 @@ class TestAuditResultRoundTrip:
 
     def test_missing_file_raises(self, temp_dir):
         """load_audit_result raises FileNotFoundError when no cache exists."""
-        from docstar.config import Config
+        from osoji.config import Config
 
         config = Config(root_path=temp_dir, respect_gitignore=False)
         with pytest.raises(FileNotFoundError):
@@ -472,7 +472,7 @@ class TestAuditResultRoundTrip:
 
     def test_path_objects_round_trip(self, temp_dir):
         """AuditIssue.path round-trips through str() → Path()."""
-        from docstar.config import Config
+        from osoji.config import Config
 
         config = Config(root_path=temp_dir, respect_gitignore=False)
         original = AuditResult(
@@ -496,7 +496,7 @@ class TestAuditResultRoundTrip:
 
     def test_scorecard_nested_objects_round_trip(self, temp_dir):
         """CoverageEntry and JunkCodeEntry survive round-trip."""
-        from docstar.config import Config
+        from osoji.config import Config
 
         config = Config(root_path=temp_dir, respect_gitignore=False)
         coverage_entries = [
@@ -558,7 +558,7 @@ class TestAuditResultRoundTrip:
 
     def test_passed_and_counts_preserved(self, temp_dir):
         """The passed/errors/warnings properties work correctly after round-trip."""
-        from docstar.config import Config
+        from osoji.config import Config
 
         config = Config(root_path=temp_dir, respect_gitignore=False)
         original = AuditResult(

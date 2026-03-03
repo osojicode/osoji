@@ -7,8 +7,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from docstar.config import Config
-from docstar.deadcode import (
+from osoji.config import Config
+from osoji.deadcode import (
     DeadCodeCandidate,
     DeadCodeVerification,
     GrepHit,
@@ -17,13 +17,13 @@ from docstar.deadcode import (
     detect_dead_code_async,
     scan_references,
 )
-from docstar.llm.types import CompletionResult, ToolCall
-from docstar.rate_limiter import RateLimiter, RateLimiterConfig
+from osoji.llm.types import CompletionResult, ToolCall
+from osoji.rate_limiter import RateLimiter, RateLimiterConfig
 
 
 def _write_symbols(temp_dir, source, symbols):
     """Helper to write a symbols JSON sidecar."""
-    symbols_dir = temp_dir / ".docstar" / "symbols"
+    symbols_dir = temp_dir / ".osoji" / "symbols"
     # Mirror the source path structure
     sidecar = symbols_dir / (source + ".symbols.json")
     sidecar.parent.mkdir(parents=True, exist_ok=True)
@@ -99,7 +99,7 @@ class TestScanReferences:
         assert "main" not in zero_names
 
     def test_no_symbols_directory_returns_empty(self, temp_dir):
-        """No .docstar/symbols/ → empty lists."""
+        """No .osoji/symbols/ → empty lists."""
         config = Config(root_path=temp_dir, respect_gitignore=False)
         _write_source(temp_dir, "src/main.py", "print('hello')\n")
 
@@ -616,7 +616,7 @@ class TestDetectDeadCodeAsync:
     async def test_empty_symbols_returns_empty(self, temp_dir):
         """No symbols data → empty results."""
         config = Config(root_path=temp_dir, respect_gitignore=False)
-        # No .docstar/symbols/ at all
+        # No .osoji/symbols/ at all
 
         mock_provider = AsyncMock()
         rate_limiter = RateLimiter(RateLimiterConfig())

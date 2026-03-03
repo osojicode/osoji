@@ -4,12 +4,12 @@ from pathlib import Path
 
 import pytest
 
-from docstar.safety.checker import (
+from osoji.safety.checker import (
     check_file,
     check_files,
     format_check_result,
 )
-from docstar.safety.models import CheckResult, PathFinding
+from osoji.safety.models import CheckResult, PathFinding
 
 
 class TestCheckFile:
