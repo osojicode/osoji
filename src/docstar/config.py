@@ -4,6 +4,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 
+# Shadow doc output directory name
+SHADOW_DIR = ".docstar"
+
 # Directories to ignore during traversal
 DEFAULT_IGNORE_PATTERNS: set[str] = {
     ".git",
@@ -23,7 +26,7 @@ DEFAULT_IGNORE_PATTERNS: set[str] = {
     ".env",
     "build",
     "dist",
-    ".docstar",
+    SHADOW_DIR,
     ".idea",
     ".vscode",
     ".github",
@@ -117,8 +120,6 @@ DEFAULT_EXTENSIONS: set[str] = {
     ".ini",
 }
 
-# Shadow doc output directory name
-SHADOW_DIR = ".docstar"
 SHADOW_SUBDIR = "shadow"
 DIRECTORY_SHADOW_FILENAME = "_directory.shadow.md"
 
@@ -238,7 +239,7 @@ class Config:
     @property
     def rules_path(self) -> Path:
         """Path to natural language rules file."""
-        return self.root_path / ".docstar" / "rules"
+        return self.root_path / SHADOW_DIR / "rules"
 
     @property
     def ignore_path(self) -> Path:

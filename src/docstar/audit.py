@@ -8,7 +8,7 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .config import Config
+from .config import Config, SHADOW_DIR
 from .junk import JunkAnalyzer, JunkAnalysisResult
 from .deadcode import DeadCodeAnalyzer
 from .plumbing import DeadPlumbingAnalyzer
@@ -300,7 +300,7 @@ def run_audit(
     # 3. Surface code debris findings from shadow generation
     print("Docstar: Checking code debris findings...", flush=True)
     phase_start = time_module.monotonic()
-    findings_dir = config.root_path / ".docstar" / "findings"
+    findings_dir = config.root_path / SHADOW_DIR / "findings"
     if findings_dir.exists():
         for findings_file in sorted(findings_dir.rglob("*.findings.json")):
             try:

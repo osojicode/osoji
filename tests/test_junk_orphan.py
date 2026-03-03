@@ -34,17 +34,6 @@ def _write_source(temp_dir, path, content):
     full.write_text(content)
 
 
-def _write_symbols(temp_dir, source_path, symbols, file_role="service"):
-    """Helper to write a symbols JSON file."""
-    sig_path = temp_dir / ".docstar" / "symbols" / (source_path + ".symbols.json")
-    sig_path.parent.mkdir(parents=True, exist_ok=True)
-    sig_path.write_text(json.dumps({
-        "source": source_path,
-        "symbols": symbols,
-        "file_role": file_role,
-    }))
-
-
 def _write_signature(temp_dir, source_path, purpose="", topics=None):
     """Helper to write a signature JSON file."""
     sig_path = temp_dir / ".docstar" / "signatures" / (source_path + ".signature.json")

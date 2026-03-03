@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config
+from .config import Config, SHADOW_DIR
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content, validate_line_ranges
 from .llm.base import LLMProvider
 from .llm.factory import create_provider
@@ -56,6 +56,19 @@ class DeadCodeVerification:
     remediation: str
 
 
+def _merged_refs(name: str, file_refs: dict) -> dict[str, list[int]]:
+    """Get file references for a symbol, merging qualified and bare name hits."""
+    refs = dict(file_refs.get(name, {}))
+    if "." in name:
+        bare = name.rsplit(".", 1)[1]
+        for f, lines in file_refs.get(bare, {}).items():
+            if f in refs:
+                refs[f] = list(set(refs[f]) | set(lines))
+            else:
+                refs[f] = lines
+    return refs
+
+
 def _extract_context(lines: list[str], line_number: int, radius: int = 5) -> str:
     """Extract ±radius lines of context around a match (1-indexed line_number)."""
     idx = line_number - 1  # convert to 0-indexed
@@ -85,6 +98,13 @@ def scan_references(
     for symbols in all_symbols.values():
         for sym in symbols:
             symbol_names.add(sym["name"])
+            # Also add bare method name for class-qualified symbols
+            # (e.g. "Config.method_name" -> also add "method_name")
+            # so case-insensitive instance refs like config.method_name match
+            if "." in sym["name"]:
+                bare = sym["name"].rsplit(".", 1)[1]
+                if bare:
+                    symbol_names.add(bare)
 
     if not symbol_names:
         return [], []
@@ -120,7 +140,7 @@ def scan_references(
         rel_str = str(relative).replace("\\", "/")
 
         # Skip .docstar/
-        if rel_str.startswith(".docstar"):
+        if rel_str.startswith(SHADOW_DIR):
             continue
 
         # Skip ignore patterns
@@ -164,7 +184,7 @@ def scan_references(
         source_norm = source_path.replace("\\", "/")
         for sym in symbols:
             name = sym["name"]
-            refs = file_refs.get(name, {})
+            refs = _merged_refs(name, file_refs)
             # Count files other than the defining file
             external_count = sum(
                 1 for f in refs if f != source_norm
@@ -273,7 +293,7 @@ def scan_references(
             ))
         elif ext_count <= threshold:
             # Build GrepHit objects
-            refs = file_refs.get(name, {})
+            refs = _merged_refs(name, file_refs)
             grep_hits: list[GrepHit] = []
             for ref_file, line_numbers in refs.items():
                 if ref_file == source_norm:
@@ -328,6 +348,9 @@ The symbol has NO grep hits outside its defining file. But it may still be alive
   function; a dataclass returned by an exported API). The liveness flows FROM the
   externally-referenced entry point INTO what it calls/uses — a sibling function that
   merely references the same constant is NOT alive through this path.
+- Cross-file dataclass field writes: before flagging a dataclass/struct field as dead,
+  check whether it may be set by importing modules post-construction (obj.field = value
+  pattern). Fields with default values that are set externally are not dead.
 
 ## Decision rule for zero-reference symbols
 If a zero-reference symbol does not match ANY of the liveness patterns above, it IS dead code.

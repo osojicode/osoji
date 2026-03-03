@@ -47,7 +47,7 @@ def assert_pass_rate(
     """Assert observed k/n passes is consistent with p >= threshold.
 
     Raises AssertionError with diagnostic message if we cannot reject
-    H0: p <= 0.6*p0 at the given alpha level.
+    H0: p <= p0*(1-relative_drop) at the given alpha level.
     """
     threshold = p0 * (1 - relative_drop)
     result = binomtest(k, n, threshold, alternative="greater")

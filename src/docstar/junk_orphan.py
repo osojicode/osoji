@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config, MODEL_SMALL
+from .config import Config, MODEL_SMALL, SHADOW_DIR
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content
 from .llm.base import LLMProvider
 from .llm.types import Message, MessageRole, CompletionOptions
@@ -377,7 +377,7 @@ async def _verify_orphans_batch_async(
 def _load_signatures(config: Config) -> list[dict]:
     """Load all file signatures from .docstar/signatures/."""
     sigs: list[dict] = []
-    sig_dir = config.root_path / ".docstar" / "signatures"
+    sig_dir = config.root_path / SHADOW_DIR / "signatures"
     if not sig_dir.exists():
         return sigs
 
@@ -579,7 +579,7 @@ class OrphanedFilesAnalyzer(JunkAnalyzer):
         from .llm.logging import LoggingProvider
         from .rate_limiter import get_config_with_overrides
 
-        symbols_dir = config.root_path / ".docstar" / "symbols"
+        symbols_dir = config.root_path / SHADOW_DIR / "symbols"
         if not symbols_dir.exists():
             print("  [skip] No symbols data found. Run 'docstar shadow .' first.", flush=True)
             return JunkAnalysisResult(findings=[], total_candidates=0, analyzer_name=self.name)

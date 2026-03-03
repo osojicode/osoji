@@ -5,7 +5,7 @@ import subprocess
 from collections.abc import Iterable
 from pathlib import Path
 
-from .config import Config
+from .config import Config, SHADOW_DIR
 from .hooks import find_git_root
 
 # Module-level cache: root_path → (file list, used_git flag)
@@ -67,7 +67,7 @@ def _git_ls_files(root: Path) -> list[Path] | None:
     paths: list[Path] = []
     for line in result.stdout.splitlines():
         line = line.strip()
-        if line and not line.startswith(".docstar/"):
+        if line and not line.startswith(SHADOW_DIR + "/"):
             # Use simple path join — root is already resolved
             paths.append(root / line)
     print(f"  Git returned {len(paths)} files", flush=True)
@@ -126,7 +126,7 @@ def discover_files(config: Config) -> list[Path]:
         relative = path.relative_to(config.root_path)
 
         # Skip .docstar directory early (our own output)
-        if str(relative).startswith(".docstar"):
+        if str(relative).startswith(SHADOW_DIR):
             continue
 
         # Check extension before expensive is_file() stat call

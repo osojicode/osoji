@@ -3,6 +3,10 @@
 from .base import LLMProvider
 from .anthropic import AnthropicProvider
 
+_PROVIDERS: dict[str, type[LLMProvider]] = {
+    "anthropic": AnthropicProvider,
+}
+
 
 def create_provider(name: str = "anthropic") -> LLMProvider:
     """Create an LLM provider by name.
@@ -16,10 +20,12 @@ def create_provider(name: str = "anthropic") -> LLMProvider:
     Raises:
         ValueError: If the provider name is unknown
     """
-    if name == "anthropic":
-        return AnthropicProvider()
+    cls = _PROVIDERS.get(name)
+    if cls is not None:
+        return cls()
 
+    valid = ", ".join(sorted(_PROVIDERS))
     raise ValueError(
         f"Unknown provider: {name}. "
-        f"Valid providers: anthropic"
+        f"Valid providers: {valid}"
     )

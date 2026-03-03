@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
-from .config import Config
+from .config import Config, SHADOW_DIR
 from .hasher import add_line_numbers, compute_children_hash, compute_file_hash, compute_impl_hash, extract_children_hash, extract_impl_hash, extract_source_hash, read_file_safe
 from .llm import (
     create_provider,
@@ -419,6 +419,7 @@ Include line number references for key elements (e.g., "MyClass (L15-45)").
                     suggestion=f.get("suggestion"),
                 )
                 for f in findings_data
+                if f.get("valid", True)
             ]
             symbols = tool_call.input.get("symbols") or tool_call.input.get("public_symbols", [])
             file_role = tool_call.input.get("file_role", "service")
@@ -736,6 +737,7 @@ Merge these into a single cohesive shadow doc using the submit_shadow_doc tool."
                     suggestion=f.get("suggestion"),
                 )
                 for f in findings_data
+                if f.get("valid", True)
             ]
             symbols = tool_call.input.get("symbols") or tool_call.input.get("public_symbols", [])
             file_role = tool_call.input.get("file_role", "service")
@@ -1186,7 +1188,7 @@ async def generate_shadow_docs_async(
 
     if not files:
         print("No source files found to process.", flush=True)
-        return
+        return True
 
     print(f"Found {len(files)} source files in {len(dirs)} directories", flush=True)
     print(f"Concurrency: {config.max_concurrency}", flush=True)
@@ -1363,7 +1365,7 @@ def extract_doc_references(config: Config, verbose: bool = False) -> int:
             continue
         relative = path.relative_to(config.root_path)
         rel_str = str(relative).replace("\\", "/")
-        if rel_str.startswith(".docstar"):
+        if rel_str.startswith(SHADOW_DIR):
             continue
         if _matches_ignore(relative, config.ignore_patterns):
             continue
@@ -1453,7 +1455,7 @@ def cleanup_orphan_shadows(config: Config, files: list[Path], dirs: list[Path], 
         orphan.unlink()
 
     # Also clean up orphan findings
-    findings_dir = config.root_path / ".docstar" / "findings"
+    findings_dir = config.root_path / SHADOW_DIR / "findings"
     if findings_dir.exists():
         expected_findings: set[Path] = set()
         for f in files:
@@ -1467,7 +1469,7 @@ def cleanup_orphan_shadows(config: Config, files: list[Path], dirs: list[Path], 
                 orphans.append(findings_file)
 
     # Also clean up orphan symbols
-    symbols_dir = config.root_path / ".docstar" / "symbols"
+    symbols_dir = config.root_path / SHADOW_DIR / "symbols"
     if symbols_dir.exists():
         expected_symbols: set[Path] = set()
         for f in files:
@@ -1481,7 +1483,7 @@ def cleanup_orphan_shadows(config: Config, files: list[Path], dirs: list[Path], 
                 orphans.append(symbols_file)
 
     # Also clean up orphan facts
-    facts_dir = config.root_path / ".docstar" / "facts"
+    facts_dir = config.root_path / SHADOW_DIR / "facts"
     if facts_dir.exists():
         expected_facts: set[Path] = set()
         for f in files:

@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
 
-from .config import Config
+from .config import Config, SHADOW_DIR
 from .llm.base import LLMProvider
 from .llm.factory import create_provider
 from .llm.logging import LoggingProvider
@@ -108,7 +108,7 @@ class JunkAnalyzer(ABC):
         Creates provider and rate limiter internally (unless provided),
         runs async analysis, then cleans up.
         """
-        symbols_dir = config.root_path / ".docstar" / "symbols"
+        symbols_dir = config.root_path / SHADOW_DIR / "symbols"
         if not symbols_dir.exists():
             print(f"  [skip] No symbols data found. Run 'docstar shadow .' first.", flush=True)
             return JunkAnalysisResult(findings=[], total_candidates=0, analyzer_name=self.name)
@@ -133,7 +133,7 @@ def validate_line_ranges(tool_name: str, tool_input: dict) -> list[str]:
     Usable as a ``tool_input_validators`` entry on ``CompletionOptions``.
     """
     errors: list[str] = []
-    for key in ("findings", "items", "obligations", "candidates"):
+    for key in ("findings", "items", "obligations"):
         items = tool_input.get(key, [])
         if not isinstance(items, list):
             continue

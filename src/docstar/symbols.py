@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from .config import Config
+from .config import Config, SHADOW_DIR
 
 
 def load_all_symbols(config: Config) -> dict[str, list[dict]]:
@@ -16,7 +16,7 @@ def load_all_symbols(config: Config) -> dict[str, list[dict]]:
 
     Each symbol dict has keys: name, kind, line_start, and optionally line_end.
     """
-    symbols_dir = config.root_path / ".docstar" / "symbols"
+    symbols_dir = config.root_path / SHADOW_DIR / "symbols"
     if not symbols_dir.exists():
         return {}
 
@@ -40,7 +40,7 @@ def load_file_roles(config: Config) -> dict[str, str]:
     Returns dict mapping relative source path -> role string.
     Files without file_role key (old cache) are omitted.
     """
-    symbols_dir = config.root_path / ".docstar" / "symbols"
+    symbols_dir = config.root_path / SHADOW_DIR / "symbols"
     if not symbols_dir.exists():
         return {}
 

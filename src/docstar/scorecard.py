@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .config import Config, DIRECTORY_SHADOW_FILENAME
+from .config import Config, DIRECTORY_SHADOW_FILENAME, SHADOW_DIR
 from .doc_analysis import DocAnalysisResult
 from .deadcode import DeadCodeVerification
 from .junk import JunkAnalysisResult
@@ -190,7 +190,7 @@ def build_scorecard(
     junk_sources: list[str] = []
 
     # Code debris findings from .docstar/findings/
-    findings_dir = config.root_path / ".docstar" / "findings"
+    findings_dir = config.root_path / SHADOW_DIR / "findings"
     if findings_dir.exists():
         junk_sources.append("code_debris")
         for findings_file in findings_dir.rglob("*.findings.json"):

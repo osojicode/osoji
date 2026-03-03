@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+from ..config import SHADOW_DIR
+
 
 # Extensions that should be checked for safety issues
 CHECKABLE_EXTENSIONS: set[str] = {
@@ -139,7 +141,7 @@ SKIP_DIRECTORIES: set[str] = {
     ".idea",
     ".vscode",
     # Docstar own output
-    ".docstar",
+    SHADOW_DIR,
 }
 
 

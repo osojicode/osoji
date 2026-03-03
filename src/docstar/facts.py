@@ -6,7 +6,7 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .config import Config
+from .config import Config, SHADOW_DIR
 
 
 @dataclass
@@ -47,7 +47,7 @@ class FactsDB:
         self._load(config)
 
     def _load(self, config: Config) -> None:
-        facts_dir = config.root_path / ".docstar" / "facts"
+        facts_dir = config.root_path / SHADOW_DIR / "facts"
         if not facts_dir.exists():
             return
         for facts_file in facts_dir.rglob("*.facts.json"):

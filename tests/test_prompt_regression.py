@@ -206,8 +206,7 @@ async def _run_trial_string_extraction_001(provider, config, file_path, numbered
 async def _run_parallel_trials(trial_fn, n: int) -> tuple[int, int]:
     """Run n trials in parallel. Returns (passes, total).
 
-    No concurrency limit here — rate limiting is handled by the Anthropic API
-    (4,000 RPM default) and we stay well under that with N <= 80.
+    No concurrency limit here — rate limiting is handled by the rate_limiter module.
     """
     outcomes = await asyncio.gather(*[trial_fn() for _ in range(n)])
     passes = sum(1 for o in outcomes if o)

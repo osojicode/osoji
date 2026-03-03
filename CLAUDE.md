@@ -42,10 +42,13 @@ export analysis, and string contract checking.
 ## Key architecture
 
 - `src/docstar/cli.py` — Click CLI with subcommands: `shadow`, `check` (`--dry-run`), `diff`, `stats`, `audit`, `report`, `hooks`, `safety`, `viz`
+- `src/docstar/config.py` — Configuration, path helpers, model tier constants
 - `src/docstar/shadow.py` — Core shadow doc generation engine
 - `src/docstar/audit.py` — Multi-phase audit orchestration
-- `src/docstar/llm/` — LLM provider abstraction (Anthropic), validation, rate limiting
+- `src/docstar/llm/` — LLM provider abstraction (Anthropic), validation, token counting
+- `src/docstar/rate_limiter.py` — Token-bucket rate limiter for API calls
 - `src/docstar/facts.py` — Structured facts database and queries
+- `src/docstar/symbols.py` — Symbol extraction and loading from `.docstar/symbols/`
 - `src/docstar/obligations.py` — String contract / obligation checking
 - `src/docstar/tools.py` — Tool definitions (schemas) for LLM tool use
 - `src/docstar/doc_analysis.py` — Documentation accuracy analysis
@@ -53,6 +56,9 @@ export analysis, and string contract checking.
 - `src/docstar/plumbing.py` — Dead plumbing detection (unactuated config obligations)
 - `src/docstar/junk.py` — Junk code analysis (with `junk_cicd.py`, `junk_deps.py`, `junk_orphan.py`)
 - `src/docstar/scorecard.py` — Audit scorecard generation
+- `src/docstar/safety/` — Pre-commit safety checks (personal path detection, filters)
+- `src/docstar/walker.py` — Repository file discovery (git ls-files / fallback walk)
+- `src/docstar/hooks.py` — Git hook installation and management
 - `src/docstar/viz.py` — Visualization server; serves `viz.html` dashboard
 
 ## Style

@@ -101,6 +101,7 @@ def _collect_tool_schema_keys() -> set[str]:
         for attr_name in dir(tools_mod):
             obj = getattr(tools_mod, attr_name)
             if isinstance(obj, dict) and "input_schema" in obj:
+                keys.update(obj.keys())
                 _extract_schema_keys(obj["input_schema"], keys)
         return keys
     except ImportError:
@@ -268,7 +269,7 @@ class StringContractChecker(ContractChecker):
         )
         return self._data
 
-    # --- Violation detection (ratio algorithm — identical to original) ---
+    # --- Violation detection (ratio algorithm) ---
 
     def _check_violations(self, data: StringContractData) -> list[ContractFinding]:
         """Ratio-based violation detection. Reimplements check() using StringContractData."""
@@ -291,6 +292,7 @@ class StringContractChecker(ContractChecker):
             # partial-match logic — schema keys can still anchor the match ratio)
             unmatched -= self._tool_schema_keys
             unmatched -= {v for v in unmatched if v.lower() in _COMMON_STRINGS}
+            unmatched -= {v for v in unmatched if len(v) < 3}
 
             if not unmatched:
                 continue
@@ -498,7 +500,7 @@ class StringContractChecker(ContractChecker):
             ))
         return violations
 
-    # --- External origin detection (unchanged from original) ---
+    # --- External origin detection ---
 
     def _is_external_origin(self, file_path: str, comparison_source: str | None) -> bool:
         """Check if comparison_source traces to an external import or runtime global."""

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
-
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -107,24 +105,6 @@ class TokenCounter:
             self._cache[cache_key] = count
 
         return count
-
-    def count_text_sync(
-        self,
-        text: str,
-        model: str = MODEL_MEDIUM,
-    ) -> int:
-        """Count tokens for plain text synchronously.
-
-        Sync wrapper around count_text_async.
-
-        Args:
-            text: Text to count tokens for
-            model: Model to count tokens for
-
-        Returns:
-            Number of tokens
-        """
-        return asyncio.run(self.count_text_async(text, model))
 
     async def close(self) -> None:
         """Close the underlying client connection."""
