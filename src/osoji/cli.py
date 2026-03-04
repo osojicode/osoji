@@ -434,17 +434,5 @@ def safety_patterns() -> None:
         click.echo("  Install with: pip install 'osoji[safety]'")
 
 
-@main.command()
-@click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
-@click.option("--port", "-p", default=8765, type=int, help="Port to serve on")
-@click.option("--no-open", is_flag=True, help="Don't auto-open browser")
-@click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
-def viz(path: Path, port: int, no_open: bool, no_gitignore: bool) -> None:
-    """Open interactive codebase health visualization in browser."""
-    config = Config(root_path=path.resolve(), respect_gitignore=not no_gitignore)
-    from .viz import serve_viz
-    serve_viz(config, port=port, open_browser=not no_open)
-
-
 if __name__ == "__main__":
     main()
