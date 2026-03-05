@@ -87,6 +87,21 @@ to work with this code effectively.""",
                             "enum": ["public", "internal"],
                             "description": "public = importable/exported API; internal = private helpers, underscored functions, file-local utilities",
                         },
+                        "parameters": {
+                            "type": "array",
+                            "description": "For function/method symbols: list all parameters. Omit for classes, constants, variables.",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {"type": "string", "description": "Parameter name"},
+                                    "optional": {
+                                        "type": "boolean",
+                                        "description": "true if parameter has a default value or is typed as optional (e.g. = None, ?: , Optional[T], default arguments in any language)",
+                                    },
+                                },
+                                "required": ["name", "optional"],
+                            },
+                        },
                     },
                     "required": ["name", "kind", "line_start", "visibility"],
                 },
@@ -527,6 +542,137 @@ def get_analyze_document_tool_definitions() -> list[ToolDefinition]:
 def get_dead_code_tool_definitions() -> list[ToolDefinition]:
     """Return ToolDefinition objects for dead code verification."""
     return [_dict_to_tool_definition(VERIFY_DEAD_CODE_TOOL)]
+
+
+# Tool definition for code debris verification (cross-file evidence)
+VERIFY_DEBRIS_TOOL = {
+    "name": "verify_debris_findings",
+    "description": """Verify whether code debris findings (flagged during single-file shadow analysis) are genuine issues or false positives.
+
+Each finding was generated from single-file context and may miss cross-file usage. You are given
+cross-file evidence from the facts database showing where the flagged symbol/field appears in other files.
+
+For each finding, determine:
+- CONFIRMED: The finding is genuine. Cross-file references do not represent real usage
+  (e.g. they are name collisions, comments, string literals, or unrelated symbols).
+- DISMISSED: The finding is a false positive. Cross-file references show genuine usage
+  (e.g. another file imports and sets the field, calls the function, etc.).
+
+Provide a verdict for EVERY finding listed.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "verdicts": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "finding_index": {
+                            "type": "integer",
+                            "description": "Zero-based index of the finding being judged",
+                        },
+                        "confirmed": {
+                            "type": "boolean",
+                            "description": "True if the finding is genuine (not a false positive)",
+                        },
+                        "reason": {
+                            "type": "string",
+                            "description": "Brief explanation of why the finding is confirmed or dismissed",
+                        },
+                    },
+                    "required": ["finding_index", "confirmed", "reason"],
+                },
+            },
+        },
+        "required": ["verdicts"],
+    },
+}
+
+
+def get_debris_verification_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for debris finding verification."""
+    return [_dict_to_tool_definition(VERIFY_DEBRIS_TOOL)]
+
+
+# Tool definition for dead parameter verification
+VERIFY_DEAD_PARAMETERS_TOOL = {
+    "name": "verify_dead_parameters",
+    "description": """Determine whether each listed optional parameter is truly dead (never passed by any caller) or alive.
+
+A parameter is ALIVE if:
+- ANY call site passes it as a keyword argument, positional argument, or via **kwargs spread
+- It is part of an interface/protocol that subclasses must implement
+- The function is a callback whose signature is constrained by a caller
+- It is required by an ABC or protocol definition
+
+A parameter is DEAD if:
+- No call site passes it AND no dynamic dispatch could provide it
+- All callers use the default value (explicitly or implicitly)
+
+For confirmed dead parameters, identify conditional branches in the function body that are
+gated EXCLUSIVELY by that parameter (e.g. `if param is not None:` blocks). Report their
+line ranges as gated_line_ranges.
+
+Provide a verdict for EVERY parameter listed.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "verdicts": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "function_name": {
+                            "type": "string",
+                            "description": "Name of the function containing the parameter",
+                        },
+                        "parameter_name": {
+                            "type": "string",
+                            "description": "Name of the parameter being judged",
+                        },
+                        "is_dead": {
+                            "type": "boolean",
+                            "description": "True if no caller ever passes this parameter",
+                        },
+                        "confidence": {
+                            "type": "number",
+                            "minimum": 0.0,
+                            "maximum": 1.0,
+                            "description": "Confidence in the is_dead judgment (1.0 = certain)",
+                        },
+                        "reason": {
+                            "type": "string",
+                            "description": "Brief explanation of why the parameter is dead or alive",
+                        },
+                        "remediation": {
+                            "type": "string",
+                            "description": "Suggested action (e.g. 'Remove parameter and gated branches')",
+                        },
+                        "gated_line_ranges": {
+                            "type": "array",
+                            "description": "Line ranges of conditional branches gated exclusively by this dead parameter",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "line_start": {"type": "integer", "minimum": 1},
+                                    "line_end": {"type": "integer", "minimum": 1},
+                                },
+                                "required": ["line_start", "line_end"],
+                            },
+                        },
+                    },
+                    "required": ["function_name", "parameter_name", "is_dead", "confidence", "reason", "remediation"],
+                },
+            },
+        },
+        "required": ["verdicts"],
+    },
+}
+
+
+def get_dead_parameter_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for dead parameter verification."""
+    return [_dict_to_tool_definition(VERIFY_DEAD_PARAMETERS_TOOL)]
 
 
 # Tool definition for doc finding verification (Sonnet, per document with errors)

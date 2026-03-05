@@ -716,3 +716,54 @@ class TestRuntimeGlobalsSafetyNet:
         violations = checker.check()
         flagged = {v.evidence["value"] for v in violations}
         assert "some_value" in flagged
+
+
+class TestContextAwareRemediation:
+    """Tests for context-aware remediation text on grouped implicit contracts."""
+
+    def test_many_contracts_gets_dependency_aware_text(self, tmp_path):
+        """When >3 implicit contracts between a file pair, remediation acknowledges dependencies."""
+        _write_facts(tmp_path, "src/producer.py", {
+            "string_literals": [
+                {"value": f"contract_{i}", "context": "produced", "line": i + 10,
+                 "kind": "identifier", "usage": "produced"}
+                for i in range(5)
+            ],
+        })
+        _write_facts(tmp_path, "src/consumer.py", {
+            "string_literals": [
+                {"value": f"contract_{i}", "context": "checked", "line": i + 20,
+                 "kind": "identifier", "usage": "checked"}
+                for i in range(5)
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        findings = checker.find_contracts()
+        implicit = [f for f in findings if f.finding_type == "implicit_contract"]
+        assert len(implicit) == 1
+        assert "known dependency" in implicit[0].remediation
+        assert "may be expected" in implicit[0].remediation
+
+    def test_few_contracts_gets_standard_text(self, tmp_path):
+        """When <=3 implicit contracts, use standard remediation text."""
+        _write_facts(tmp_path, "src/producer.py", {
+            "string_literals": [
+                {"value": "cat_alpha", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+                {"value": "cat_beta", "context": "produced", "line": 11, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/consumer.py", {
+            "string_literals": [
+                {"value": "cat_alpha", "context": "checked", "line": 20, "kind": "identifier", "usage": "checked"},
+                {"value": "cat_beta", "context": "checked", "line": 21, "kind": "identifier", "usage": "checked"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        findings = checker.find_contracts()
+        implicit = [f for f in findings if f.finding_type == "implicit_contract"]
+        assert len(implicit) == 1
+        assert "Extract shared constants" in implicit[0].remediation
