@@ -147,3 +147,49 @@ class TestLoadAllSymbols:
 
         result = load_all_symbols(config)
         assert result == {}
+
+    def test_loads_symbols_with_parameters(self, temp_dir):
+        """Symbols with parameters arrays load correctly through load_all_symbols()."""
+        config = Config(root_path=temp_dir)
+        symbols_dir = temp_dir / ".osoji" / "symbols" / "src"
+        symbols_dir.mkdir(parents=True)
+
+        data = {
+            "source": "src/module.py",
+            "source_hash": "abc123",
+            "symbols": [
+                {
+                    "name": "process",
+                    "kind": "function",
+                    "line_start": 5,
+                    "line_end": 20,
+                    "visibility": "public",
+                    "parameters": [
+                        {"name": "data", "optional": False},
+                        {"name": "verbose", "optional": True},
+                    ],
+                },
+                {
+                    "name": "Config",
+                    "kind": "class",
+                    "line_start": 25,
+                    "line_end": 50,
+                    "visibility": "public",
+                },
+            ],
+        }
+        (symbols_dir / "module.py.symbols.json").write_text(json.dumps(data))
+
+        result = load_all_symbols(config)
+        assert "src/module.py" in result
+        symbols = result["src/module.py"]
+        assert len(symbols) == 2
+
+        func_sym = symbols[0]
+        assert func_sym["name"] == "process"
+        assert len(func_sym["parameters"]) == 2
+        assert func_sym["parameters"][0] == {"name": "data", "optional": False}
+        assert func_sym["parameters"][1] == {"name": "verbose", "optional": True}
+
+        class_sym = symbols[1]
+        assert "parameters" not in class_sym
