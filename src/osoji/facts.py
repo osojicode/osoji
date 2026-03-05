@@ -274,6 +274,49 @@ class FactsDB:
                 result.setdefault(file_path, []).append(sl)
         return result
 
+    def cross_file_references(self, symbol_name: str, source_file: str) -> list[dict]:
+        """Find cross-file references to a symbol name.
+
+        Searches imports (named imports), calls, and exports across all files
+        except the defining file. Returns a list of evidence dicts:
+        [{"file": str, "kind": "import"|"call"|"export", "context": str}, ...]
+        """
+        source_norm = source_file.replace("\\", "/")
+        refs: list[dict] = []
+        for file_path, facts in self._files.items():
+            if file_path == source_norm:
+                continue
+            # Check imports: does this file import the symbol by name?
+            for imp in facts.imports:
+                names = imp.get("names", [])
+                if symbol_name in names:
+                    resolved = self._resolve_import_source(file_path, imp.get("source", ""))
+                    refs.append({
+                        "file": file_path,
+                        "kind": "import",
+                        "context": f"imports {symbol_name} from {imp.get('source', '?')}",
+                        "resolves_to_source": resolved == source_norm,
+                    })
+            # Check calls: does this file call the symbol?
+            for call in facts.calls:
+                callee = call.get("callee", "")
+                # Match bare name or qualified (e.g. "module.symbol_name")
+                if callee == symbol_name or callee.endswith(f".{symbol_name}"):
+                    refs.append({
+                        "file": file_path,
+                        "kind": "call",
+                        "context": f"calls {callee} at line {call.get('line', '?')}",
+                    })
+            # Check exports: does this file re-export the symbol?
+            for exp in facts.exports:
+                if exp.get("name") == symbol_name and file_path != source_norm:
+                    refs.append({
+                        "file": file_path,
+                        "kind": "export",
+                        "context": f"exports {symbol_name}",
+                    })
+        return refs
+
     def build_import_graph(self) -> dict[str, set[str]]:
         """Build file -> set of imported files graph."""
         graph: dict[str, set[str]] = {}

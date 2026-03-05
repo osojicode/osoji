@@ -254,6 +254,100 @@ class TestStringLiterals:
         assert "dead_code" in defined.get("src/a.py", set())
 
 
+class TestCrossFileReferences:
+    """Tests for FactsDB.cross_file_references()."""
+
+    def test_finds_import_reference(self, tmp_path):
+        """Detects when another file imports the symbol."""
+        _write_facts(tmp_path, "src/scorecard.py", {
+            "imports": [],
+            "exports": [{"name": "Scorecard", "kind": "class", "line": 10}],
+            "calls": [],
+            "string_literals": [],
+        })
+        _write_facts(tmp_path, "src/audit.py", {
+            "imports": [{"source": ".scorecard", "names": ["Scorecard"], "is_reexport": False}],
+            "exports": [],
+            "calls": [],
+            "string_literals": [],
+        })
+        db = FactsDB(_make_config(tmp_path))
+        refs = db.cross_file_references("Scorecard", "src/scorecard.py")
+        assert len(refs) >= 1
+        import_refs = [r for r in refs if r["kind"] == "import"]
+        assert len(import_refs) == 1
+        assert import_refs[0]["file"] == "src/audit.py"
+
+    def test_finds_call_reference(self, tmp_path):
+        """Detects when another file calls the symbol."""
+        _write_facts(tmp_path, "src/scorecard.py", {
+            "imports": [],
+            "exports": [{"name": "build_scorecard", "kind": "function", "line": 10}],
+            "calls": [],
+            "string_literals": [],
+        })
+        _write_facts(tmp_path, "src/audit.py", {
+            "imports": [],
+            "exports": [],
+            "calls": [{"callee": "build_scorecard", "line": 50}],
+            "string_literals": [],
+        })
+        db = FactsDB(_make_config(tmp_path))
+        refs = db.cross_file_references("build_scorecard", "src/scorecard.py")
+        call_refs = [r for r in refs if r["kind"] == "call"]
+        assert len(call_refs) == 1
+        assert call_refs[0]["file"] == "src/audit.py"
+
+    def test_finds_qualified_call(self, tmp_path):
+        """Detects qualified calls like module.symbol."""
+        _write_facts(tmp_path, "src/scorecard.py", {
+            "imports": [],
+            "exports": [{"name": "obligation_violations", "kind": "variable", "line": 66}],
+            "calls": [],
+            "string_literals": [],
+        })
+        _write_facts(tmp_path, "src/audit.py", {
+            "imports": [],
+            "exports": [],
+            "calls": [{"callee": "scorecard.obligation_violations", "line": 397}],
+            "string_literals": [],
+        })
+        db = FactsDB(_make_config(tmp_path))
+        refs = db.cross_file_references("obligation_violations", "src/scorecard.py")
+        call_refs = [r for r in refs if r["kind"] == "call"]
+        assert len(call_refs) == 1
+
+    def test_excludes_same_file(self, tmp_path):
+        """Does not include references from the defining file itself."""
+        _write_facts(tmp_path, "src/scorecard.py", {
+            "imports": [],
+            "exports": [{"name": "Scorecard", "kind": "class", "line": 10}],
+            "calls": [{"callee": "Scorecard", "line": 200}],
+            "string_literals": [],
+        })
+        db = FactsDB(_make_config(tmp_path))
+        refs = db.cross_file_references("Scorecard", "src/scorecard.py")
+        assert len(refs) == 0
+
+    def test_no_references(self, tmp_path):
+        """Returns empty list when no cross-file references exist."""
+        _write_facts(tmp_path, "src/scorecard.py", {
+            "imports": [],
+            "exports": [{"name": "orphan_func", "kind": "function", "line": 10}],
+            "calls": [],
+            "string_literals": [],
+        })
+        _write_facts(tmp_path, "src/other.py", {
+            "imports": [],
+            "exports": [],
+            "calls": [{"callee": "unrelated_func", "line": 5}],
+            "string_literals": [],
+        })
+        db = FactsDB(_make_config(tmp_path))
+        refs = db.cross_file_references("orphan_func", "src/scorecard.py")
+        assert refs == []
+
+
 class TestMalformedEntries:
     """Ensure non-dict entries in list fields are silently filtered out."""
 

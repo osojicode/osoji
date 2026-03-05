@@ -7,6 +7,7 @@ import pytest
 from osoji.audit import (
     AuditIssue,
     AuditResult,
+    _extract_symbol_from_debris,
     _format_scorecard_section,
     format_audit_html,
     serialize_audit_result,
@@ -63,7 +64,6 @@ class TestConsoleTables:
             accuracy_by_category={"stale_content": 2},
         )
         lines = _format_scorecard_section(sc)
-        text = "\n".join(lines)
         # The summary table and accuracy table should use tabulate simple format
         # which uses dashes and spaces, not pipe characters for separators
         table_lines = [l for l in lines if l.strip() and not l.startswith("#")
@@ -576,3 +576,24 @@ class TestAuditResultRoundTrip:
         assert loaded.has_errors is True
         assert loaded.has_warnings is True
         assert loaded.passed is False
+
+
+# --- Debris symbol extraction ---
+
+class TestExtractSymbolFromDebris:
+    def test_backtick_quoted(self):
+        assert _extract_symbol_from_debris("`obligation_violations` field defined but never set") == "obligation_violations"
+
+    def test_backtick_quoted_first(self):
+        assert _extract_symbol_from_debris("The `build_scorecard` function is unused") == "build_scorecard"
+
+    def test_bare_identifier(self):
+        assert _extract_symbol_from_debris("obligation_violations field defined but never set") == "obligation_violations"
+
+    def test_no_symbol(self):
+        # All filler words — nothing symbol-like
+        assert _extract_symbol_from_debris("the code was not used and has been dead") is None
+
+    def test_short_words_skipped(self):
+        # "id" is too short (2 chars), "the" and "was" are stopwords
+        assert _extract_symbol_from_debris("the id was set") is None

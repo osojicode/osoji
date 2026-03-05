@@ -442,6 +442,16 @@ class StringContractChecker(ContractChecker):
             if count > 5:
                 values_str += f" (+{count - 5} more)"
 
+            if count > 3:
+                remediation = (
+                    f"These files share {count} implicit string contracts. "
+                    f"If they have a known dependency (e.g. one file tests the other), "
+                    f"this may be expected. Otherwise, consider extracting shared values "
+                    f"to a common definition."
+                )
+            else:
+                remediation = self._suggest_remediation(producer, consumer)
+
             grouped.append(ContractFinding(
                 finding_type="implicit_contract",
                 contract_type="string_contract",
@@ -456,7 +466,7 @@ class StringContractChecker(ContractChecker):
                     "values": values,
                     "count": count,
                 },
-                remediation=self._suggest_remediation(producer, consumer),
+                remediation=remediation,
             ))
 
         grouped.sort(key=lambda f: (-f.confidence, f.consumer_file))
@@ -544,9 +554,6 @@ class StringContractChecker(ContractChecker):
 
 CONTRACT_CHECKERS: list[type[ContractChecker]] = [
     StringContractChecker,
-    # Future types:
-    # EnvVarContractChecker — detect env var name drift across config and code
-    # EventNameContractChecker — detect event name drift across publishers/subscribers
 ]
 
 

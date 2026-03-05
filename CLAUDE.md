@@ -46,19 +46,45 @@ export analysis, and string contract checking.
 - `src/osoji/shadow.py` — Core shadow doc generation engine
 - `src/osoji/audit.py` — Multi-phase audit orchestration
 - `src/osoji/llm/` — LLM provider abstraction (Anthropic), validation, token counting
-- `src/osoji/rate_limiter.py` — Token-bucket rate limiter for API calls
+- `src/osoji/rate_limiter.py` — Async leaky-bucket rate limiter (RPM + input/output TPM)
 - `src/osoji/facts.py` — Structured facts database and queries
 - `src/osoji/symbols.py` — Symbol extraction and loading from `.osoji/symbols/`
 - `src/osoji/obligations.py` — String contract / obligation checking
 - `src/osoji/tools.py` — Tool definitions (schemas) for LLM tool use
 - `src/osoji/doc_analysis.py` — Documentation accuracy analysis
 - `src/osoji/deadcode.py` — Dead code detection
+- `src/osoji/deadparam.py` — Dead parameter detection
 - `src/osoji/plumbing.py` — Dead plumbing detection (unactuated config obligations)
 - `src/osoji/junk.py` — Junk code analysis (with `junk_cicd.py`, `junk_deps.py`, `junk_orphan.py`)
 - `src/osoji/scorecard.py` — Audit scorecard generation
 - `src/osoji/safety/` — Pre-commit safety checks (personal path detection, filters)
 - `src/osoji/walker.py` — Repository file discovery (git ls-files / fallback walk)
+- `src/osoji/hasher.py` — SHA-256 hashing and Merkle staleness detection
+- `src/osoji/diff.py` — Git diff documentation impact analysis
+- `src/osoji/stats.py` — Token counting statistics
 - `src/osoji/hooks.py` — Git hook installation and management
+
+## Pipeline engineering principles
+
+- **Language agnosticism is non-negotiable.** All detection logic, system prompts,
+  candidate scanning heuristics, and post-processing filters must work identically
+  for any programming language. Never introduce patterns that assume Python conventions
+  (e.g. `test_` prefix for test files, `__init__.py` for packages, decorators for
+  framework registration). When dogfooding osoji on itself, be especially vigilant —
+  solutions that fix a Python false positive may break detection for Go, Rust, or Java.
+
+- **Signal conservation.** Every change to reduce false positives must be evaluated for
+  its impact on true positives, and vice versa. Frame proposals as: "This change would
+  prevent N false positives of type X. Could it suppress true positives? Under what
+  conditions?" If the answer is unclear, prefer keeping the finding and adjusting its
+  severity/confidence rather than suppressing it entirely.
+
+- **Facts DB is noisy — use LLM reasoning to filter.** LLM-extracted `.facts.json`
+  data may contain malformed entries, misclassified strings, or missing references.
+  Never use facts mechanically to suppress findings (e.g. "if referenced anywhere,
+  dismiss"). Instead, present facts as evidence to the LLM and let it reason about
+  whether the references represent genuine usage. The LLM can distinguish real imports
+  from name collisions, comments, or string literals — a mechanical filter cannot.
 
 ## Style
 
