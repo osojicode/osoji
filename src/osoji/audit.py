@@ -673,105 +673,142 @@ def format_audit_json(result: AuditResult) -> str:
 # HTML audit report
 # ---------------------------------------------------------------------------
 
+_HANKO_SVG = (
+    '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 100 100">'
+    '<defs><mask id="hm"><rect width="100" height="100" fill="white"/>'
+    '<rect x="44" y="0" width="14" height="30" fill="black"/></mask></defs>'
+    '<circle cx="50" cy="50" r="38" fill="none" stroke="#fafafa" stroke-width="8"'
+    ' stroke-dasharray="200 40" mask="url(#hm)"/>'
+    '<circle cx="50" cy="50" r="6" fill="#fafafa"/>'
+    '</svg>'
+)
+
 _AUDIT_CSS = """\
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap');
 
 :root {
-  --bg: #0a1628;
-  --bg-panel: #0f1f36;
-  --bg-card: #142540;
-  --border: #1e3a5f;
-  --text: #c8d6e5;
-  --text-dim: #5a7a94;
-  --text-bright: #e8f0f8;
-  --healthy: #34d399;
-  --amber: #f6b93b;
-  --coral: #e74c3c;
-  --dead: #8d7b68;
-  --cyan: #2dd4bf;
+  --bg: #1a1917;
+  --bg-panel: #211f1d;
+  --bg-card: #2a2826;
+  --border: #3a3835;
+  --border-subtle: #2a2826;
+  --text: #e0ddd6;
+  --text-dim: #a8a49c;
+  --healthy: #7aaa7e;
+  --amber: #c9a06e;
+  --coral: #d4715e;
+  --dead: #7a766e;
+  --accent: #d4715e;
+  --accent-surface: #2e2220;
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 300;
   background: var(--bg);
   color: var(--text);
-  line-height: 1.6;
+  line-height: 1.65;
   padding: 0;
 }
 
-a { color: var(--cyan); text-decoration: none; }
+a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 .header {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(10, 22, 40, 0.92);
-  backdrop-filter: blur(12px);
+  background: rgba(26, 25, 23, 0.92);
+  backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
-  padding: 16px 32px;
-  display: flex; align-items: center; gap: 20px;
+  padding: 14px 32px;
+  display: flex; align-items: center; gap: 16px;
 }
-.header h1 {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 18px; font-weight: 600;
-  color: var(--text-bright);
-  letter-spacing: 2px; text-transform: uppercase;
+.header-mark { display: flex; align-items: center; flex-shrink: 0; }
+.header-wordmark {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem; font-weight: 400;
+  color: var(--text); letter-spacing: 0.04em;
+  margin-left: 10px;
+}
+.header-divider {
+  width: 1px; height: 20px;
+  background: var(--border); margin: 0 4px;
+}
+.header-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem; font-weight: 300;
+  color: var(--text-dim);
+  letter-spacing: 0.15em; text-transform: uppercase;
 }
 .badge {
   display: inline-block; padding: 4px 14px;
-  border-radius: 4px; font-size: 13px; font-weight: 600;
-  letter-spacing: 1px; text-transform: uppercase;
+  border-radius: 2px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem; font-weight: 300;
+  letter-spacing: 0.15em; text-transform: uppercase;
 }
-.badge-pass { background: rgba(52,211,153,0.15); color: var(--healthy); border: 1px solid rgba(52,211,153,0.3); }
-.badge-fail { background: rgba(231,76,60,0.15); color: var(--coral); border: 1px solid rgba(231,76,60,0.3); }
+.badge-pass { background: rgba(122,170,126,0.15); color: var(--healthy); border: 1px solid rgba(122,170,126,0.3); }
+.badge-fail { background: rgba(212,113,94,0.15); color: var(--coral); border: 1px solid rgba(212,113,94,0.3); }
 
-.container { max-width: 1100px; margin: 0 auto; padding: 24px 32px 64px; }
+.container { max-width: 1200px; margin: 0 auto; padding: 1.5rem 2rem 4rem; }
 
-/* Metric cards row */
-.cards { display: flex; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+/* Metric cards — CSS grid with hairline borders */
+.cards {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1px; background: var(--border);
+  margin-bottom: 2rem;
+}
 .card {
-  flex: 1 1 180px;
   background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
   padding: 16px 20px;
   text-align: center;
-  transition: border-color 0.2s, transform 0.15s;
+  transition: background 0.2s;
   cursor: pointer;
   border-top: 3px solid var(--border);
 }
-.card:hover { transform: translateY(-2px); }
+.card:hover { background: var(--bg-panel); }
 .card-green  { border-top-color: var(--healthy); }
 .card-amber  { border-top-color: var(--amber); }
 .card-coral  { border-top-color: var(--coral); }
 .card-label {
-  font-size: 12px; color: var(--text-dim);
-  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem; font-weight: 300; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 6px;
 }
 .card-value {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 28px; font-weight: 600; color: var(--text-bright);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem; font-weight: 300; color: var(--text);
 }
 .card-detail {
   font-size: 12px; color: var(--text-dim); margin-top: 4px;
 }
 
 /* Sections */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 .section {
   background: var(--bg-panel);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 0;
   margin-bottom: 24px;
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  animation: fadeUp 0.4s ease both;
 }
+.section:nth-child(2) { animation-delay: 0.06s; }
+.section:nth-child(3) { animation-delay: 0.12s; }
+.section:nth-child(4) { animation-delay: 0.18s; }
+.section:nth-child(5) { animation-delay: 0.24s; }
 .section-head {
   padding: 14px 20px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 14px; font-weight: 600;
-  color: var(--text-bright);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem; font-weight: 300;
+  color: var(--text);
   border-bottom: 1px solid var(--border);
-  text-transform: uppercase; letter-spacing: 1px;
+  text-transform: uppercase; letter-spacing: 0.2em;
 }
 .section-body { padding: 20px; }
 .section-body p { margin-bottom: 12px; color: var(--text-dim); font-size: 14px; }
@@ -783,50 +820,55 @@ table {
 }
 th {
   text-align: left; padding: 8px 12px;
-  font-size: 12px; color: var(--text-dim);
-  text-transform: uppercase; letter-spacing: 0.5px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.15em;
   border-bottom: 1px solid var(--border);
 }
 td {
   padding: 8px 12px;
-  border-bottom: 1px solid rgba(30,58,95,0.4);
-  font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem; font-weight: 300;
 }
 tr:last-child td { border-bottom: none; }
-tr:hover td { background: rgba(45,212,191,0.03); }
+tr:hover td { background: rgba(212,113,94,0.04); }
 
 /* Coverage bar */
 .cov-bar-wrap {
-  background: rgba(30,58,95,0.5);
-  border-radius: 4px; height: 18px;
+  background: rgba(58,56,53,0.5);
+  border-radius: 0; height: 4px;
   overflow: hidden; margin-bottom: 16px;
 }
 .cov-bar-fill {
-  height: 100%; border-radius: 4px;
+  height: 100%; border-radius: 0;
   transition: width 0.5s ease;
 }
 
 /* Matrix icons */
 .ok  { color: var(--healthy); font-weight: 600; }
-.miss { color: var(--coral); opacity: 0.6; }
+.miss { color: var(--dead); opacity: 0.5; }
 
 /* Lists */
 ul.file-list { list-style: none; padding: 0; }
 ul.file-list li {
-  padding: 6px 0; font-family: 'IBM Plex Mono', monospace;
-  font-size: 13px; border-bottom: 1px solid rgba(30,58,95,0.3);
+  padding: 6px 0; font-family: 'DM Mono', monospace;
+  font-size: 0.75rem; font-weight: 300;
+  border-bottom: 1px solid var(--border-subtle);
 }
 ul.file-list li:last-child { border-bottom: none; }
-.purpose { color: var(--text-dim); font-family: 'IBM Plex Sans', system-ui; }
+.purpose { color: var(--text-dim); font-family: 'DM Sans', system-ui; }
 
 details summary {
-  cursor: pointer; color: var(--cyan); font-size: 13px;
-  margin-bottom: 8px;
+  cursor: pointer; color: var(--accent);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem; margin-bottom: 8px;
 }
 
 .footer {
   text-align: center; padding: 24px;
-  font-size: 12px; color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem; color: var(--dead);
   border-top: 1px solid var(--border);
 }
 
@@ -850,7 +892,7 @@ def _color_for_pct(pct: float) -> str:
 
 def _html_metric_card(label: str, value: str, detail: str, href: str, color: str) -> str:
     return (
-        f'<a href="#{_h(href)}" style="text-decoration:none;flex:1 1 180px">'
+        f'<a href="#{_h(href)}" style="text-decoration:none">'
         f'<div class="card card-{color}">'
         f'<div class="card-label">{_h(label)}</div>'
         f'<div class="card-value">{_h(value)}</div>'
@@ -894,7 +936,7 @@ def _html_coverage_section(scorecard: "Scorecard") -> str:
             if collapse:
                 parts.append(f'<details><summary>Coverage matrix ({len(scorecard.coverage_entries)} files)</summary>')
             else:
-                parts.append(f'<p style="margin-top:16px;font-weight:500;color:var(--text-bright)">Coverage matrix</p>')
+                parts.append(f'<p style="margin-top:16px;font-weight:400;color:var(--text)">Coverage matrix</p>')
             parts.append('<table><thead><tr><th>Source file</th>')
             for dt in diataxis_types:
                 parts.append(f'<th style="text-align:center">{_h(dt)}</th>')
@@ -915,7 +957,7 @@ def _html_coverage_section(scorecard: "Scorecard") -> str:
     # Uncovered files
     uncovered = [e for e in scorecard.coverage_entries if not e.covering_docs]
     if uncovered:
-        parts.append(f'<p style="margin-top:16px;font-weight:500;color:var(--text-bright)">Uncovered source files ({len(uncovered)})</p>')
+        parts.append(f'<p style="margin-top:16px;font-weight:400;color:var(--text)">Uncovered source files ({len(uncovered)})</p>')
         parts.append('<ul class="file-list">')
         for entry in uncovered:
             purpose = ""
@@ -954,7 +996,7 @@ def _html_accuracy_section(result: "AuditResult") -> str:
         by_cat.setdefault(issue.category, []).append(issue)
 
     for cat in sorted(by_cat.keys()):
-        parts.append(f'<p style="font-weight:500;color:var(--text-bright);margin-top:12px">{_h(cat)}</p>')
+        parts.append(f'<p style="font-weight:400;color:var(--text);margin-top:12px">{_h(cat)}</p>')
         parts.append('<ul class="file-list">')
         for issue in by_cat[cat]:
             parts.append(f'<li>{_h(str(issue.path))}: {_h(issue.message)}</li>')
@@ -989,7 +1031,7 @@ def _html_junk_section(result: "AuditResult") -> str:
     # Worst files
     worst = [e for e in scorecard.junk_entries if e.junk_fraction > 0.05][:10]
     if worst:
-        parts.append('<p style="font-weight:500;color:var(--text-bright);margin-top:12px">Worst files</p>')
+        parts.append('<p style="font-weight:400;color:var(--text);margin-top:12px">Worst files</p>')
         parts.append('<table><thead><tr><th>File</th><th>Junk %</th><th>Junk / Total</th></tr></thead><tbody>')
         for entry in worst:
             parts.append(f'<tr><td>{_h(entry.source_path)}</td><td>{entry.junk_fraction:.0%}</td>'
@@ -1068,15 +1110,22 @@ def format_audit_html(result: AuditResult) -> str:
     parts.append('<html lang="en"><head>')
     parts.append('<meta charset="UTF-8">')
     parts.append('<meta name="viewport" content="width=device-width, initial-scale=1.0">')
-    parts.append(f'<title>Osoji Audit Report</title>')
+    parts.append(f'<title>osojicode — Audit Report</title>')
     parts.append(f'<style>{_AUDIT_CSS}</style>')
     parts.append('</head><body>')
 
     # Header
     badge_cls = "badge-pass" if passed else "badge-fail"
     badge_text = "PASSED" if passed else "FAILED"
-    parts.append(f'<div class="header"><h1>Osoji Audit</h1>'
-                 f'<span class="badge {badge_cls}">{badge_text}</span></div>')
+    parts.append(
+        f'<div class="header">'
+        f'<span class="header-mark">{_HANKO_SVG}</span>'
+        f'<span class="header-wordmark">osojicode</span>'
+        f'<span class="header-divider"></span>'
+        f'<span class="header-label">Audit Report</span>'
+        f'<span class="badge {badge_cls}" style="margin-left:auto">{badge_text}</span>'
+        f'</div>'
+    )
 
     parts.append('<div class="container">')
 
@@ -1118,7 +1167,8 @@ def format_audit_html(result: AuditResult) -> str:
 
     # Footer
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    parts.append(f'<div class="footer">{len(errors)} error(s), {len(warnings)} warning(s) &middot; {_h(now)}</div>')
+    parts.append(f'<div class="footer">{len(errors)} error(s), {len(warnings)} warning(s) &middot; {_h(now)}'
+                 f'<br>osojicode</div>')
 
     parts.append('</body></html>')
     return "\n".join(parts)
