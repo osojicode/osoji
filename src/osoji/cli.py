@@ -184,6 +184,7 @@ def stats(path: Path, verbose: bool, no_gitignore: bool) -> None:
 @click.option("--verbose", "-v", is_flag=True, help="Show detailed output")
 @click.option("--format", "output_format", type=click.Choice(["text", "json", "html"]), default="text", help="Output format")
 @click.option("--dead-code", is_flag=True, help="Detect cross-file dead code (LLM calls for ambiguous candidates)")
+@click.option("--dead-params", is_flag=True, help="Detect dead function parameters (LLM calls)")
 @click.option("--dead-plumbing", is_flag=True, help="Detect unactuated config obligations (LLM calls)")
 @click.option("--dead-deps", is_flag=True, help="Detect unused package dependencies (LLM calls)")
 @click.option("--dead-cicd", is_flag=True, help="Detect stale CI/CD pipeline elements (LLM calls)")
@@ -192,7 +193,7 @@ def stats(path: Path, verbose: bool, no_gitignore: bool) -> None:
 @click.option("--obligations", is_flag=True, help="Check cross-file string contracts (no LLM calls)")
 @click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
 @click.option("--full", is_flag=True, help="Run all optional audit phases")
-def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, no_gitignore: bool, full: bool) -> None:
+def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: bool, dead_params: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, no_gitignore: bool, full: bool) -> None:
     """Run documentation audit.
 
     Checks for:
@@ -217,7 +218,7 @@ def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: b
     config = Config(root_path=path.resolve(), respect_gitignore=not no_gitignore)
 
     try:
-        result = run_audit(config, fix_shadow=fix, dead_code=dead_code, dead_plumbing=dead_plumbing, dead_deps=dead_deps, dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk, obligations=obligations, verbose=verbose)
+        result = run_audit(config, fix_shadow=fix, dead_code=dead_code, dead_params=dead_params, dead_plumbing=dead_plumbing, dead_deps=dead_deps, dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk, obligations=obligations, verbose=verbose)
     except RuntimeError as e:
         raise click.ClickException(str(e)) from e
 

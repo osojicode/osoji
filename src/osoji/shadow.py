@@ -348,7 +348,10 @@ Report these as findings in the tool call. If the code is clean, submit an empty
 ALSO: Populate the symbols array with ALL functions, classes, constants, and module-level variables
 defined in this file. For each, set visibility to "public" if the symbol is importable/exported,
 or "internal" if it is a private helper (underscore-prefixed, file-local, not part of the public API).
-Include the symbol name, kind, line range, and visibility.
+Include the symbol name, kind, line range, and visibility. For function and method symbols, include
+a parameters array listing each parameter with its name and whether it is optional (has a default
+value or is typed as optional). Omit language-specific receiver parameters (self, cls, this) and
+variadic collectors (*args, **kwargs, ...rest).
 
 ALSO: Classify the file's architectural role using the file_role field. The key distinction:
 - "schema" = defines data shapes with RUNTIME validation (Zod schemas, Pydantic models, JSON Schema validators)

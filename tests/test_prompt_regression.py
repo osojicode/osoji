@@ -21,6 +21,11 @@ import pytest
 
 from osoji.config import Config
 from osoji.deadcode import DeadCodeCandidate, _verify_batch_async, scan_references
+from osoji.deadparam import (
+    DeadParamCandidate,
+    scan_dead_param_candidates,
+    _verify_batch_async as _verify_dead_params_batch_async,
+)
 from osoji.llm.factory import create_provider
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "prompt_regression"
@@ -30,6 +35,7 @@ def _setup_case_dir(tmp_path: Path, case_dir: Path) -> Config:
     """Copy snapshotted source files into a temp project dir and return a Config."""
     source_dir = case_dir / "source"
     symbols_dir = case_dir / "symbols"
+    facts_dir = case_dir / "facts"
 
     # Copy source files
     for src_file in source_dir.rglob("*"):
@@ -47,6 +53,15 @@ def _setup_case_dir(tmp_path: Path, case_dir: Path) -> Config:
             dest = osoji_symbols / rel
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(sym_file, dest)
+
+    # Copy facts into .osoji/facts/
+    if facts_dir.exists():
+        osoji_facts = tmp_path / ".osoji" / "facts"
+        for facts_file in facts_dir.rglob("*.facts.json"):
+            rel = facts_file.relative_to(facts_dir)
+            dest = osoji_facts / rel
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(facts_file, dest)
 
     return Config(root_path=tmp_path, respect_gitignore=False)
 
@@ -385,6 +400,83 @@ async def test_string_extraction_001_dict_and_conventions(tmp_path, establish_ba
             return await _run_trial_string_extraction_001(
                 provider, config, dest, numbered_content, expected,
             )
+
+        await _run_statistical_test(
+            trial_fn, expected, expected_path, establish_baseline,
+        )
+    finally:
+        await provider.close()
+
+
+# ---------------------------------------------------------------------------
+# Dead params case 001: backward compat parameters
+# ---------------------------------------------------------------------------
+
+async def _run_trial_dead_params_001(provider, config, tmp_path, expected) -> bool:
+    """Run one LLM verification trial for dead_params case_001. Returns True if all pass."""
+    from osoji.junk import load_shadow_content
+
+    candidates = scan_dead_param_candidates(config)
+    if not candidates:
+        return False
+
+    # Group by (source_path, function_name) for batching
+    by_func: dict[tuple[str, str], list[DeadParamCandidate]] = {}
+    for c in candidates:
+        key = (c.source_path, c.function_name)
+        by_func.setdefault(key, []).append(c)
+
+    # Find the build_scorecard batch
+    scorecard_batch = None
+    for key, batch in by_func.items():
+        if "build_scorecard" in key[1]:
+            scorecard_batch = batch
+            break
+
+    if not scorecard_batch:
+        return False
+
+    source_path = scorecard_batch[0].source_path
+    src_file = tmp_path / source_path
+    file_content = src_file.read_text(errors="ignore")
+    shadow_content = load_shadow_content(config, source_path)
+
+    verifications, _, _ = await _verify_dead_params_batch_async(
+        provider, config, scorecard_batch,
+        file_content, shadow_content,
+    )
+
+    result_by_name = {v.param_name: v for v in verifications}
+
+    for dead_name in expected["dead"]:
+        if dead_name in result_by_name and not result_by_name[dead_name].is_dead:
+            return False
+
+    for alive_name in expected["alive"]:
+        if alive_name in result_by_name and result_by_name[alive_name].is_dead:
+            return False
+
+    return True
+
+
+@pytest.mark.prompt_regression
+@pytest.mark.asyncio
+async def test_dead_params_001_backward_compat(tmp_path, establish_baseline):
+    """build_scorecard backward-compat params dead_code_results and plumbing_result are dead.
+
+    Regression test verifying that the dead parameter analyzer correctly identifies
+    dead_code_results and plumbing_result as dead (no caller passes them) while
+    keeping config, analysis_results, and junk_results alive.
+    """
+    case_dir = FIXTURES_DIR / "dead_params" / "case_001_backward_compat"
+    expected_path = case_dir / "expected.json"
+    expected = json.loads(expected_path.read_text())
+    config = _setup_case_dir(tmp_path, case_dir)
+    provider = create_provider("anthropic")
+
+    try:
+        async def trial_fn():
+            return await _run_trial_dead_params_001(provider, config, tmp_path, expected)
 
         await _run_statistical_test(
             trial_fn, expected, expected_path, establish_baseline,

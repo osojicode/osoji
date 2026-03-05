@@ -7,8 +7,6 @@ import pytest
 
 from osoji.config import Config
 from osoji.doc_analysis import DocAnalysisResult, DocFinding
-from osoji.deadcode import DeadCodeVerification
-from osoji.plumbing import PlumbingResult, PlumbingVerification
 from osoji.junk import JunkAnalysisResult, JunkFinding
 from osoji.scorecard import (
     Scorecard,
@@ -342,45 +340,57 @@ class TestJunkCode:
         assert abs(sc.junk_fraction - 0.05) < 0.001
 
     def test_junk_with_dead_code_phase(self, temp_dir):
-        """Phase 4 dead code results folded into junk."""
+        """Dead code junk results folded into junk metrics."""
         config = Config(root_path=temp_dir, respect_gitignore=False)
         _write_shadow(temp_dir, "src/a.py")
         _write_source(temp_dir, "src/a.py", "\n".join(f"line {i}" for i in range(20)))
 
-        dead_code = [
-            DeadCodeVerification(
-                source_path="src/a.py", name="old_func", kind="function",
-                line_start=5, line_end=10, is_dead=True, confidence=0.9,
-                reason="unused", remediation="remove",
+        junk_results = {
+            "dead_code": JunkAnalysisResult(
+                findings=[
+                    JunkFinding(
+                        source_path="src/a.py", name="old_func", kind="function",
+                        category="dead_symbol", line_start=5, line_end=10,
+                        confidence=0.9, reason="unused", remediation="remove",
+                        original_purpose="function `old_func`",
+                    ),
+                ],
+                total_candidates=3,
+                analyzer_name="dead_code",
             ),
-        ]
-        sc = build_scorecard(config, [], dead_code_results=dead_code)
+        }
+        sc = build_scorecard(config, [], junk_results=junk_results)
         assert sc.junk_total_lines == 6  # lines 5-10
-        assert "dead_symbol" in sc.junk_sources
+        assert "dead_code" in sc.junk_sources
 
     def test_junk_with_dead_plumbing_phase(self, temp_dir):
-        """Phase 5 plumbing results folded into junk."""
+        """Dead plumbing junk results folded into junk metrics."""
         config = Config(root_path=temp_dir, respect_gitignore=False)
         _write_shadow(temp_dir, "src/schema.ts")
         _write_source(temp_dir, "src/schema.ts", "\n".join(f"line {i}" for i in range(20)))
 
-        plumbing = PlumbingResult(
-            verifications=[
-                PlumbingVerification(
-                    source_path="src/schema.ts", field_name="taskTimeoutMs",
-                    schema_name="Schema", line_start=5, line_end=5,
-                    is_actuated=False, confidence=0.9,
-                    trace="not enforced", remediation="add timer",
-                ),
-            ],
-            total_obligations=3,
-        )
-        sc = build_scorecard(config, [], plumbing_result=plumbing)
+        junk_results = {
+            "dead_plumbing": JunkAnalysisResult(
+                findings=[
+                    JunkFinding(
+                        source_path="src/schema.ts", name="taskTimeoutMs",
+                        kind="config_field", category="unactuated_config",
+                        line_start=5, line_end=5, confidence=0.9,
+                        reason="not enforced", remediation="add timer",
+                        original_purpose="field `taskTimeoutMs` in `Schema`",
+                        metadata={"schema_name": "Schema", "trace": "not enforced"},
+                    ),
+                ],
+                total_candidates=3,
+                analyzer_name="dead_plumbing",
+            ),
+        }
+        sc = build_scorecard(config, [], junk_results=junk_results)
         assert sc.junk_total_lines == 1
-        assert "unactuated_config" in sc.junk_sources
+        assert "dead_plumbing" in sc.junk_sources
 
     def test_junk_without_optional_phases(self, temp_dir):
-        """Without Phase 4/5, only Phase 3 contributes; dead_symbol absent from sources."""
+        """Without junk phases, only code debris contributes; dead_symbol absent from sources."""
         config = Config(root_path=temp_dir, respect_gitignore=False)
         _write_shadow(temp_dir, "src/a.py")
         _write_source(temp_dir, "src/a.py", "\n".join(f"line {i}" for i in range(10)))
@@ -389,7 +399,7 @@ class TestJunkCode:
              "severity": "warning", "description": "old"},
         ])
 
-        sc = build_scorecard(config, [], dead_code_results=None, plumbing_result=None)
+        sc = build_scorecard(config, [])
         assert "dead_symbol" not in sc.junk_sources
         assert "unactuated_config" not in sc.junk_sources
         assert sc.junk_sources == ["code_debris"]
@@ -440,20 +450,25 @@ class TestJunkCode:
 
 class TestEnforcement:
     def test_enforcement_with_plumbing(self, temp_dir):
-        """Correct total/unactuated/pct when plumbing is provided."""
+        """Correct total/unactuated/pct when plumbing junk results provided."""
         config = Config(root_path=temp_dir, respect_gitignore=False)
-        plumbing = PlumbingResult(
-            verifications=[
-                PlumbingVerification(
-                    source_path="src/schema.ts", field_name="taskTimeoutMs",
-                    schema_name="Schema", line_start=5, line_end=5,
-                    is_actuated=False, confidence=0.9,
-                    trace="not enforced", remediation="add timer",
-                ),
-            ],
-            total_obligations=4,
-        )
-        sc = build_scorecard(config, [], plumbing_result=plumbing)
+        junk_results = {
+            "dead_plumbing": JunkAnalysisResult(
+                findings=[
+                    JunkFinding(
+                        source_path="src/schema.ts", name="taskTimeoutMs",
+                        kind="config_field", category="unactuated_config",
+                        line_start=5, line_end=5, confidence=0.9,
+                        reason="not enforced", remediation="add timer",
+                        original_purpose="field `taskTimeoutMs` in `Schema`",
+                        metadata={"schema_name": "Schema", "trace": "not enforced"},
+                    ),
+                ],
+                total_candidates=4,
+                analyzer_name="dead_plumbing",
+            ),
+        }
+        sc = build_scorecard(config, [], junk_results=junk_results)
         assert sc.enforcement_total_obligations == 4
         assert sc.enforcement_unactuated == 1
         assert sc.enforcement_pct_unactuated == 25.0
@@ -461,7 +476,7 @@ class TestEnforcement:
     def test_enforcement_without_plumbing(self, temp_dir):
         """All enforcement fields None when plumbing not run."""
         config = Config(root_path=temp_dir, respect_gitignore=False)
-        sc = build_scorecard(config, [], plumbing_result=None)
+        sc = build_scorecard(config, [])
         assert sc.enforcement_total_obligations is None
         assert sc.enforcement_unactuated is None
         assert sc.enforcement_pct_unactuated is None
@@ -470,30 +485,39 @@ class TestEnforcement:
     def test_enforcement_by_schema_grouping(self, temp_dir):
         """Unactuated fields grouped by schema."""
         config = Config(root_path=temp_dir, respect_gitignore=False)
-        plumbing = PlumbingResult(
-            verifications=[
-                PlumbingVerification(
-                    source_path="src/schema.ts", field_name="taskTimeoutMs",
-                    schema_name="TrialSettings", line_start=5, line_end=5,
-                    is_actuated=False, confidence=0.9,
-                    trace="not enforced", remediation="add timer",
-                ),
-                PlumbingVerification(
-                    source_path="src/schema.ts", field_name="maxRetries",
-                    schema_name="TrialSettings", line_start=6, line_end=6,
-                    is_actuated=False, confidence=0.85,
-                    trace="not enforced", remediation="add retry logic",
-                ),
-                PlumbingVerification(
-                    source_path="src/other.ts", field_name="rateLimit",
-                    schema_name="ApiConfig", line_start=10, line_end=10,
-                    is_actuated=False, confidence=0.8,
-                    trace="not enforced", remediation="add rate limiter",
-                ),
-            ],
-            total_obligations=10,
-        )
-        sc = build_scorecard(config, [], plumbing_result=plumbing)
+        junk_results = {
+            "dead_plumbing": JunkAnalysisResult(
+                findings=[
+                    JunkFinding(
+                        source_path="src/schema.ts", name="taskTimeoutMs",
+                        kind="config_field", category="unactuated_config",
+                        line_start=5, line_end=5, confidence=0.9,
+                        reason="not enforced", remediation="add timer",
+                        original_purpose="field `taskTimeoutMs` in `TrialSettings`",
+                        metadata={"schema_name": "TrialSettings", "trace": "not enforced"},
+                    ),
+                    JunkFinding(
+                        source_path="src/schema.ts", name="maxRetries",
+                        kind="config_field", category="unactuated_config",
+                        line_start=6, line_end=6, confidence=0.85,
+                        reason="not enforced", remediation="add retry logic",
+                        original_purpose="field `maxRetries` in `TrialSettings`",
+                        metadata={"schema_name": "TrialSettings", "trace": "not enforced"},
+                    ),
+                    JunkFinding(
+                        source_path="src/other.ts", name="rateLimit",
+                        kind="config_field", category="unactuated_config",
+                        line_start=10, line_end=10, confidence=0.8,
+                        reason="not enforced", remediation="add rate limiter",
+                        original_purpose="field `rateLimit` in `ApiConfig`",
+                        metadata={"schema_name": "ApiConfig", "trace": "not enforced"},
+                    ),
+                ],
+                total_candidates=10,
+                analyzer_name="dead_plumbing",
+            ),
+        }
+        sc = build_scorecard(config, [], junk_results=junk_results)
         assert "src/schema.ts:TrialSettings" in sc.enforcement_by_schema
         assert "src/other.ts:ApiConfig" in sc.enforcement_by_schema
         ts = sc.enforcement_by_schema["src/schema.ts:TrialSettings"]
@@ -503,11 +527,14 @@ class TestEnforcement:
     def test_enforcement_zero_unactuated(self, temp_dir):
         """Zero unactuated obligations: zeros not None."""
         config = Config(root_path=temp_dir, respect_gitignore=False)
-        plumbing = PlumbingResult(
-            verifications=[],
-            total_obligations=5,
-        )
-        sc = build_scorecard(config, [], plumbing_result=plumbing)
+        junk_results = {
+            "dead_plumbing": JunkAnalysisResult(
+                findings=[],
+                total_candidates=5,
+                analyzer_name="dead_plumbing",
+            ),
+        }
+        sc = build_scorecard(config, [], junk_results=junk_results)
         assert sc.enforcement_total_obligations == 5
         assert sc.enforcement_unactuated == 0
         assert sc.enforcement_pct_unactuated == 0.0
@@ -601,56 +628,6 @@ class TestJunkResults:
         assert ts["unactuated"] == 2
         assert set(ts["fields"]) == {"taskTimeoutMs", "maxRetries"}
 
-    def test_backward_compat_old_params_still_work(self, temp_dir):
-        """Old dead_code_results and plumbing_result params still work."""
-        config = Config(root_path=temp_dir, respect_gitignore=False)
-        _write_shadow(temp_dir, "src/a.py")
-        _write_source(temp_dir, "src/a.py", "\n".join(f"line {i}" for i in range(20)))
-
-        dead_code = [
-            DeadCodeVerification(
-                source_path="src/a.py", name="old_func", kind="function",
-                line_start=5, line_end=10, is_dead=True, confidence=0.9,
-                reason="unused", remediation="remove",
-            ),
-        ]
-        sc = build_scorecard(config, [], dead_code_results=dead_code)
-        assert sc.junk_total_lines == 6
-        assert "dead_symbol" in sc.junk_sources
-
-    def test_junk_results_takes_precedence_over_old_params(self, temp_dir):
-        """When both junk_results and old params provided, junk_results wins."""
-        config = Config(root_path=temp_dir, respect_gitignore=False)
-        _write_shadow(temp_dir, "src/a.py")
-        _write_source(temp_dir, "src/a.py", "\n".join(f"line {i}" for i in range(20)))
-
-        junk_results = {
-            "dead_code": JunkAnalysisResult(
-                findings=[
-                    JunkFinding(
-                        source_path="src/a.py", name="new_finding", kind="function",
-                        category="dead_symbol", line_start=1, line_end=2,
-                        confidence=0.95, reason="unused new", remediation="remove",
-                        original_purpose="function `new_finding`",
-                    ),
-                ],
-                total_candidates=1,
-                analyzer_name="dead_code",
-            ),
-        }
-        old_dead_code = [
-            DeadCodeVerification(
-                source_path="src/a.py", name="old_finding", kind="function",
-                line_start=5, line_end=10, is_dead=True, confidence=0.9,
-                reason="unused old", remediation="remove",
-            ),
-        ]
-        # Pass both — junk_results should take precedence
-        sc = build_scorecard(config, [], junk_results=junk_results, dead_code_results=old_dead_code)
-        # Should only have 2 lines (from junk_results), not 6 (from old params)
-        assert sc.junk_total_lines == 2
-        # dead_symbol should appear only once in sources
-        assert sc.junk_sources.count("dead_code") == 1
 
 
 # --- Empty audit ---
@@ -713,11 +690,11 @@ class TestMissingPhasesNote:
     """
 
     ALL_ANALYZER_NAMES = [
-        "dead_code", "dead_plumbing", "dead_deps", "dead_cicd", "orphaned_files",
+        "dead_code", "dead_params", "dead_plumbing", "dead_deps", "dead_cicd", "orphaned_files",
     ]
 
     def test_all_phases_no_missing_message(self):
-        """When all 5 analyzers + code_debris ran, no 'Phases not run' message."""
+        """When all 6 analyzers + code_debris ran, no 'Phases not run' message."""
         sc = _minimal_scorecard(
             junk_sources=["code_debris"] + self.ALL_ANALYZER_NAMES,
         )
@@ -726,12 +703,13 @@ class TestMissingPhasesNote:
         assert "Phases not run" not in text
 
     def test_missing_phases_listed(self):
-        """With only code_debris, all 5 --flags should appear."""
+        """With only code_debris, all 6 --flags should appear."""
         sc = _minimal_scorecard(junk_sources=["code_debris"])
         lines = _format_scorecard_section(sc)
         text = "\n".join(lines)
         assert "Phases not run" in text
         assert "`--dead-code`" in text
+        assert "`--dead-params`" in text
         assert "`--dead-plumbing`" in text
         assert "`--dead-deps`" in text
         assert "`--dead-cicd`" in text
@@ -749,6 +727,7 @@ class TestMissingPhasesNote:
         assert "`--dead-code`" not in text
         assert "`--dead-plumbing`" not in text
         # Missing phases should appear
+        assert "`--dead-params`" in text
         assert "`--dead-deps`" in text
         assert "`--dead-cicd`" in text
         assert "`--orphaned-files`" in text
