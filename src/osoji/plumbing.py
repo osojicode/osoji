@@ -475,7 +475,7 @@ class DeadPlumbingAnalyzer(JunkAnalyzer):
                 original_purpose=f"field `{v.field_name}` in `{v.schema_name}`",
                 metadata={"schema_name": v.schema_name, "trace": v.trace},
             )
-            for v in result.verifications if not v.is_actuated
+            for v in result.verifications
         ]
         return JunkAnalysisResult(
             findings=findings,

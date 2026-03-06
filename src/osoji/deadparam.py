@@ -61,6 +61,7 @@ class DeadParamVerification:
     confidence: float
     reason: str
     remediation: str
+    param_line: int = 0
     gated_line_ranges: list[tuple[int, int]] = field(default_factory=list)
 
 
@@ -114,6 +115,18 @@ def scan_dead_param_candidates(
         if not functions:
             continue
 
+        # Build class-for-method map using line-range containment
+        classes = [s for s in symbols if s["kind"] == "class"]
+        class_for_method: dict[str, str] = {}
+        for func_sym in functions:
+            fl = func_sym["line_start"]
+            for cls in classes:
+                cls_start = cls["line_start"]
+                cls_end = cls.get("line_end", cls_start)
+                if cls_start <= fl <= cls_end:
+                    class_for_method[func_sym["name"]] = cls["name"]
+                    break
+
         # Read source file
         src_file = config.root_path / source_path
         if not src_file.is_file():
@@ -147,9 +160,19 @@ def scan_dead_param_candidates(
                 continue
 
             # Grep for call sites across the repo
-            # Build regex: function_name( to find call sites
-            call_pattern = re.compile(r"\b" + re.escape(func_name) + r"\s*\(")
+            # For dotted names (e.g. "ClassName.method"), use just the method name
+            # so instance calls like `obj.method(` are matched
+            grep_name = func_name.rsplit(".", 1)[-1] if "." in func_name else func_name
+            call_patterns = [re.compile(r"\b" + re.escape(grep_name) + r"\s*\(")]
+            # For constructors nested inside a class, also grep for ClassName(
+            parent_class = class_for_method.get(func_name)
+            if parent_class:
+                call_patterns.append(re.compile(r"\b" + re.escape(parent_class) + r"\s*\("))
             call_sites: list[CallSite] = []
+
+            # Definition range for same-file filtering
+            func_def_start = sym["line_start"]
+            func_def_end = sym.get("line_end", func_def_start)
 
             for path in all_paths:
                 if not path.is_absolute():
@@ -163,13 +186,12 @@ def scan_dead_param_candidates(
 
                 if rel_str.startswith(SHADOW_DIR):
                     continue
-                # Skip the defining file itself
-                if rel_str == source_norm:
-                    continue
                 if _matches_ignore(relative, config.ignore_patterns):
                     continue
                 if osojiignore and _matches_ignore(relative, osojiignore):
                     continue
+
+                is_defining_file = rel_str == source_norm
 
                 # Read file (with caching)
                 if rel_str in file_lines_cache:
@@ -183,11 +205,15 @@ def scan_dead_param_candidates(
                     file_lines_cache[rel_str] = lines
 
                 for line_idx, line in enumerate(lines):
-                    if call_pattern.search(line):
-                        context = _extract_context(lines, line_idx + 1)
+                    if any(p.search(line) for p in call_patterns):
+                        line_num = line_idx + 1
+                        # In defining file, skip matches inside the function's own body
+                        if is_defining_file and func_def_start <= line_num <= func_def_end:
+                            continue
+                        context = _extract_context(lines, line_num)
                         call_sites.append(CallSite(
                             file_path=rel_str,
-                            line_number=line_idx + 1,
+                            line_number=line_num,
                             context=context,
                         ))
 
@@ -331,6 +357,7 @@ async def _verify_batch_async(
                         confidence=verdict["confidence"],
                         reason=verdict["reason"],
                         remediation=verdict["remediation"],
+                        param_line=cand.param_line,
                         gated_line_ranges=gated,
                     ))
 
@@ -462,8 +489,8 @@ class DeadParameterAnalyzer(JunkAnalyzer):
                 line_start = min(r[0] for r in v.gated_line_ranges)
                 line_end = max(r[1] for r in v.gated_line_ranges)
             else:
-                line_start = 1
-                line_end = 1
+                line_start = v.param_line or 1
+                line_end = v.param_line or 1
             findings.append(JunkFinding(
                 source_path=v.source_path,
                 name=f"{v.function_name}.{v.param_name}",

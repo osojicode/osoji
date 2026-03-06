@@ -78,7 +78,7 @@ class FactsDB:
         """Return all file paths with facts data."""
         return list(self._files.keys())
 
-    def _resolve_import_source(self, importing_file: str, source_specifier: str) -> str | None:
+    def resolve_import_source(self, importing_file: str, source_specifier: str) -> str | None:
         """Resolve an import source specifier to a project-relative file path.
 
         Returns None for external packages (not found in project).
@@ -165,11 +165,6 @@ class FactsDB:
 
         return None
 
-    def is_doc(self, path: str) -> bool:
-        """Check if a facts entry represents a documentation file."""
-        facts = self._files.get(path.replace("\\", "/"))
-        return facts is not None and facts.classification is not None
-
     def doc_files(self) -> list[str]:
         """Return paths of all documentation files with facts data."""
         return [p for p, f in self._files.items() if f.classification is not None]
@@ -200,7 +195,7 @@ class FactsDB:
             if file_path == source_norm:
                 continue
             for imp in facts.imports:
-                resolved = self._resolve_import_source(file_path, imp.get("source", ""))
+                resolved = self.resolve_import_source(file_path, imp.get("source", ""))
                 if resolved == source_norm:
                     importers.append(file_path)
                     break
@@ -214,7 +209,7 @@ class FactsDB:
             return []
         result: list[str] = []
         for imp in facts.imports:
-            resolved = self._resolve_import_source(file_norm, imp.get("source", ""))
+            resolved = self.resolve_import_source(file_norm, imp.get("source", ""))
             if resolved and resolved in self._files:
                 result.append(resolved)
         return list(set(result))
@@ -233,7 +228,7 @@ class FactsDB:
         imported_from: dict[str, set[str]] = {}
         for file_path, facts in self._files.items():
             for imp in facts.imports:
-                resolved = self._resolve_import_source(file_path, imp.get("source", ""))
+                resolved = self.resolve_import_source(file_path, imp.get("source", ""))
                 if resolved:
                     names = set(imp.get("names", []))
                     imported_from.setdefault(resolved, set()).update(names)
@@ -290,7 +285,7 @@ class FactsDB:
             for imp in facts.imports:
                 names = imp.get("names", [])
                 if symbol_name in names:
-                    resolved = self._resolve_import_source(file_path, imp.get("source", ""))
+                    resolved = self.resolve_import_source(file_path, imp.get("source", ""))
                     refs.append({
                         "file": file_path,
                         "kind": "import",
@@ -299,13 +294,13 @@ class FactsDB:
                     })
             # Check calls: does this file call the symbol?
             for call in facts.calls:
-                callee = call.get("callee", "")
+                target = call.get("to", "")
                 # Match bare name or qualified (e.g. "module.symbol_name")
-                if callee == symbol_name or callee.endswith(f".{symbol_name}"):
+                if target == symbol_name or target.endswith(f".{symbol_name}"):
                     refs.append({
                         "file": file_path,
                         "kind": "call",
-                        "context": f"calls {callee} at line {call.get('line', '?')}",
+                        "context": f"calls {target} at line {call.get('line', '?')}",
                     })
             # Check exports: does this file re-export the symbol?
             for exp in facts.exports:
@@ -324,25 +319,3 @@ class FactsDB:
             graph[file_path] = set(self.imports_of(file_path))
         return graph
 
-    def unreachable_files(self, entry_points: set[str]) -> set[str]:
-        """Find files not reachable from any entry point via imports."""
-        graph = self.build_import_graph()
-        # Build bidirectional adjacency for reachability
-        adjacency: dict[str, set[str]] = {}
-        for src, targets in graph.items():
-            adjacency.setdefault(src, set()).update(targets)
-            for t in targets:
-                adjacency.setdefault(t, set()).add(src)
-
-        # BFS from entry points
-        visited: set[str] = set()
-        queue = list(entry_points & set(self._files.keys()))
-        visited.update(queue)
-        while queue:
-            current = queue.pop(0)
-            for neighbor in adjacency.get(current, set()):
-                if neighbor not in visited:
-                    visited.add(neighbor)
-                    queue.append(neighbor)
-
-        return set(self._files.keys()) - visited

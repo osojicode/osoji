@@ -64,11 +64,8 @@ def check_files(file_paths: list[Path]) -> CheckResult:
     return combined
 
 
-def check_staged_files(repo_path: Path | None = None) -> CheckResult:
+def check_staged_files() -> CheckResult:
     """Check all staged files in a git repository.
-
-    Args:
-        repo_path: Path to repository root. Defaults to current directory.
 
     Returns:
         CheckResult for all staged files
@@ -76,8 +73,7 @@ def check_staged_files(repo_path: Path | None = None) -> CheckResult:
     # Import here to avoid circular imports
     from ..hooks import find_git_root, get_staged_files_all
 
-    if repo_path is None:
-        repo_path = Path.cwd()
+    repo_path = Path.cwd()
 
     git_root = find_git_root(repo_path)
     if git_root is None:

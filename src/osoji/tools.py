@@ -29,7 +29,7 @@ to work with this code effectively.""",
             },
             "findings": {
                 "type": "array",
-                "description": "Code quality issues found during analysis. Report stale comments, misleading docstrings, commented-out code blocks, and expired TODOs. Empty array if none found.",
+                "description": "Code quality issues found during analysis. Report stale comments, misleading docstrings, commented-out code blocks, expired TODOs, dead code, and latent bugs. Empty array if none found.",
                 "items": {
                     "type": "object",
                     "properties": {
@@ -41,6 +41,7 @@ to work with this code effectively.""",
                                 "commented_out_code",
                                 "expired_todo",
                                 "dead_code",
+                                "latent_bug",
                             ],
                         },
                         "line_start": {"type": "integer", "minimum": 1},
@@ -60,6 +61,14 @@ to work with this code effectively.""",
                             "description": (
                                 "Set to false to retract this finding if on reflection "
                                 "it is incorrect. Defaults to true."
+                            ),
+                        },
+                        "cross_file_verification_needed": {
+                            "type": "boolean",
+                            "default": False,
+                            "description": (
+                                "Set true when this finding references behavior in OTHER files "
+                                "that cannot be verified from the current file alone."
                             ),
                         },
                     },

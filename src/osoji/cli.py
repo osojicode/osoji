@@ -18,7 +18,7 @@ from .safety.paths import get_pattern_descriptions, PATTERNS, self_test as paths
 
 
 @click.group()
-@click.version_option()
+@click.version_option(package_name="osojicode")
 def main() -> None:
     """Osoji - Shadow Documentation Engine.
 

@@ -79,7 +79,6 @@ class TokenCounter:
     async def count_text_async(
         self,
         text: str,
-        model: str = MODEL_MEDIUM,
     ) -> int:
         """Count tokens for plain text using Anthropic API.
 
@@ -87,18 +86,17 @@ class TokenCounter:
 
         Args:
             text: Text to count tokens for
-            model: Model to count tokens for
 
         Returns:
             Number of tokens
         """
         # Check cache first
-        cache_key = f"{model}:{hash(text)}"
+        cache_key = f"{MODEL_MEDIUM}:{hash(text)}"
         if cache_key in self._cache:
             return self._cache[cache_key]
 
         messages = [Message(role=MessageRole.USER, content=text)]
-        count = await self.count_tokens_async(messages, model=model)
+        count = await self.count_tokens_async(messages, model=MODEL_MEDIUM)
 
         # Cache the result (limit cache size)
         if len(self._cache) < 10_000:

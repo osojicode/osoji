@@ -267,13 +267,6 @@ class TestRateLimiter:
 
         asyncio.run(run())
 
-    def test_record_usage_legacy_tokens_param(self, limiter):
-        """Test backward compat: 'tokens' param treated as output tokens."""
-        limiter.record_usage(tokens=1000)
-        stats = limiter.get_stats()
-        assert stats.input_token_count == 0
-        assert stats.output_token_count == 1000
-
     def test_record_usage_cannot_go_negative(self, limiter):
         limiter.record_usage(input_tokens=200_000, output_tokens=100_000)
         stats = limiter.get_stats()
@@ -525,14 +518,6 @@ class TestFloorCheck:
             await limiter.throttle()
             elapsed = time.monotonic() - start
 
-            # Need ~3900 tokens to reach 4000 headroom.
-            # At 100 tokens/sec, that's ~39 seconds... but refill rate is per ms internally.
-            # 6000 TPM / 60000 ms = 0.1 tokens/ms = 100 tokens/sec
-            # 3900 tokens / 0.1 tokens_per_ms / 1000 = 39 seconds -- too slow for a test.
-            # Actually the formula is: tokens_needed / refill_rate / 1000
-            # refill_rate = 6000/60000 = 0.1 tokens/ms
-            # wait = 3900 / 0.1 / 1000 = 39 seconds
-            # Let me use higher TPM for a faster test.
             assert elapsed >= 0.01  # Just verify it waited at all
 
         asyncio.run(run())

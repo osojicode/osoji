@@ -8,8 +8,8 @@ from pathlib import Path
 from .config import Config, SHADOW_DIR
 from .hooks import find_git_root
 
-# Module-level cache: root_path → (file list, used_git flag)
-_repo_files_cache: dict[Path, tuple[list[Path], bool]] = {}
+# Module-level cache: (root_path, respect_gitignore) → (file list, used_git flag)
+_repo_files_cache: dict[tuple[Path, bool], tuple[list[Path], bool]] = {}
 
 
 def clear_repo_files_cache() -> None:
@@ -81,7 +81,7 @@ def list_repo_files(config: Config) -> tuple[Iterable[Path], bool]:
     git ls-files was used (True) or rglob fallback (False).
     Results are cached per root_path so git ls-files only runs once.
     """
-    key = config.root_path
+    key = (config.root_path, config.respect_gitignore)
 
     if key in _repo_files_cache:
         cached_paths, used_git = _repo_files_cache[key]
