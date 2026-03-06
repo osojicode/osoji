@@ -597,3 +597,152 @@ class TestExtractSymbolFromDebris:
     def test_short_words_skipped(self):
         # "id" is too short (2 chars), "the" and "was" are stopwords
         assert _extract_symbol_from_debris("the id was set") is None
+
+
+# --- PF-3: stale_comment cross-file verification ---
+
+class TestStaleCommentCrossFileVerification:
+    def test_stale_comment_with_flag_is_eligible_for_verification(self):
+        """stale_comment findings with cross_file_verification_needed go through verification."""
+        import asyncio
+        from unittest.mock import AsyncMock, MagicMock, patch
+        from osoji.audit import _verify_debris_findings_async
+        from osoji.config import Config
+
+        findings = [
+            {
+                "source": "tests/test_audit.py",
+                "category": "stale_comment",
+                "description": "`run_audit` comment references removed field",
+                "severity": "warning",
+                "line_start": 10,
+                "line_end": 12,
+                "cross_file_verification_needed": True,
+            },
+        ]
+
+        # Mock FactsDB to return cross-file refs for the extracted symbol
+        mock_facts_db = MagicMock()
+        mock_facts_db.cross_file_references.return_value = [
+            {"file": "src/audit.py", "kind": "import", "context": "run_audit used here"},
+        ]
+
+        mock_rate_limiter = MagicMock()
+        mock_rate_limiter.acquire = AsyncMock()
+
+        # Mock the LLM to dismiss the finding (confirmed=false = false positive)
+        from osoji.llm.types import ToolCall
+        mock_result = MagicMock()
+        mock_result.tool_calls = [ToolCall(
+            id="tc1",
+            name="verify_debris_findings",
+            input={"verdicts": [{"finding_index": 0, "confirmed": False, "reason": "used in audit.py"}]},
+        )]
+        mock_result.input_tokens = 100
+        mock_result.output_tokens = 50
+        config = MagicMock(spec=Config)
+        config.model = "claude-sonnet-4-20250514"
+
+        with patch("osoji.facts.FactsDB", return_value=mock_facts_db), \
+             patch("osoji.llm.factory.create_provider") as mock_create, \
+             patch("osoji.junk.load_shadow_content", return_value="shadow"):
+            mock_provider = AsyncMock()
+            mock_provider.complete = AsyncMock(return_value=mock_result)
+            mock_create.return_value = mock_provider
+            with patch("osoji.llm.logging.LoggingProvider", return_value=mock_provider):
+                suppressed = asyncio.run(
+                    _verify_debris_findings_async(config, findings, mock_rate_limiter)
+                )
+
+        # The finding should be suppressed (dismissed as false positive)
+        assert 0 in suppressed
+
+    def test_stale_comment_without_flag_is_not_eligible(self):
+        """stale_comment findings WITHOUT cross_file_verification_needed are skipped."""
+        import asyncio
+        from unittest.mock import MagicMock, patch, AsyncMock
+        from osoji.audit import _verify_debris_findings_async
+        from osoji.config import Config
+
+        findings = [
+            {
+                "source": "tests/test_audit.py",
+                "category": "stale_comment",
+                "description": "`some_func` comment is stale",
+                "severity": "warning",
+                "line_start": 10,
+                "line_end": 12,
+                # No cross_file_verification_needed flag
+            },
+        ]
+
+        mock_facts_db = MagicMock()
+        mock_rate_limiter = MagicMock()
+        mock_rate_limiter.acquire = AsyncMock()
+        config = MagicMock(spec=Config)
+
+        with patch("osoji.facts.FactsDB", return_value=mock_facts_db):
+            suppressed = asyncio.run(
+                _verify_debris_findings_async(config, findings, mock_rate_limiter)
+            )
+
+        # No candidates → empty set returned, no LLM call
+        assert suppressed == set()
+        mock_facts_db.cross_file_references.assert_not_called()
+
+
+class TestLatentBugCrossFileVerification:
+    def test_latent_bug_eligible_for_cross_file_verification(self):
+        """latent_bug findings are always eligible for cross-file verification."""
+        import asyncio
+        from unittest.mock import AsyncMock, MagicMock, patch
+        from osoji.audit import _verify_debris_findings_async
+        from osoji.config import Config
+
+        findings = [
+            {
+                "source": "src/audit.py",
+                "category": "latent_bug",
+                "description": "`result.usage` accessed but CompletionResult has no usage attribute",
+                "severity": "error",
+                "line_start": 306,
+                "line_end": 309,
+            },
+        ]
+
+        mock_facts_db = MagicMock()
+        mock_facts_db.cross_file_references.return_value = [
+            {"file": "src/llm/types.py", "kind": "export", "context": "CompletionResult defined here"},
+        ]
+
+        mock_rate_limiter = MagicMock()
+        mock_rate_limiter.acquire = AsyncMock()
+
+        from osoji.llm.types import ToolCall
+        mock_result = MagicMock()
+        mock_result.tool_calls = [ToolCall(
+            id="tc1",
+            name="verify_debris_findings",
+            input={"verdicts": [{"finding_index": 0, "confirmed": True, "reason": "CompletionResult has no .usage"}]},
+        )]
+        mock_result.input_tokens = 100
+        mock_result.output_tokens = 50
+
+        config = MagicMock(spec=Config)
+        config.model = "claude-sonnet-4-20250514"
+
+        with patch("osoji.facts.FactsDB", return_value=mock_facts_db), \
+             patch("osoji.llm.factory.create_provider") as mock_create, \
+             patch("osoji.junk.load_shadow_content", return_value="shadow"):
+            mock_provider = AsyncMock()
+            mock_provider.complete = AsyncMock(return_value=mock_result)
+            mock_create.return_value = mock_provider
+            with patch("osoji.llm.logging.LoggingProvider", return_value=mock_provider):
+                suppressed = asyncio.run(
+                    _verify_debris_findings_async(config, findings, mock_rate_limiter)
+                )
+
+        # Finding confirmed (not suppressed)
+        assert 0 not in suppressed
+        # Verify that cross_file_references was called (latent_bug is eligible)
+        mock_facts_db.cross_file_references.assert_called_once()

@@ -304,7 +304,6 @@ class RateLimiter:
         self,
         input_tokens: int = 0,
         output_tokens: int = 0,
-        tokens: Optional[int] = None,
     ) -> None:
         """Record token usage after a request completes.
 
@@ -313,11 +312,7 @@ class RateLimiter:
         Args:
             input_tokens: Number of input tokens used
             output_tokens: Number of output tokens used
-            tokens: Legacy param - treated as output tokens for backward compat
         """
-        # Handle legacy single-value tokens param
-        if tokens is not None:
-            output_tokens = tokens
 
         # Warn for large input token usage (>10% of input TPM)
         if input_tokens > self._config.input_tokens_per_minute * 0.1:

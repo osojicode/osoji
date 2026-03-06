@@ -33,13 +33,6 @@ class FileStats:
             return None
         return self.shadow_tokens / self.source_tokens
 
-    @property
-    def savings_percent(self) -> float | None:
-        """Return percentage of tokens saved. Higher is better."""
-        ratio = self.compression_ratio
-        if ratio is None:
-            return None
-        return (1 - ratio) * 100
 
 
 @dataclass
@@ -151,7 +144,7 @@ async def _gather_file_stats_cached(
 
     return FileStats(
         source_path=source_path.relative_to(config.root_path),
-        shadow_path=shadow_path.relative_to(config.root_path) if shadow_exists else shadow_path,
+        shadow_path=shadow_path.relative_to(config.root_path),
         source_tokens=source_tokens,
         shadow_tokens=shadow_tokens,
         source_exists=True,
@@ -216,7 +209,7 @@ async def gather_stats_async(config: Config, use_api: bool = True) -> ProjectSta
 
             file_stats.append(FileStats(
                 source_path=source_path.relative_to(config.root_path),
-                shadow_path=shadow_path.relative_to(config.root_path) if shadow_exists else shadow_path,
+                shadow_path=shadow_path.relative_to(config.root_path),
                 source_tokens=source_tokens,
                 shadow_tokens=shadow_tokens,
                 source_exists=True,

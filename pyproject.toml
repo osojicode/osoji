@@ -27,6 +27,8 @@ dev = ["pytest>=7.0.0", "pytest-mock>=3.10.0", "pytest-asyncio>=0.21.0", "scipy>
 osoji = "osoji.cli:main"
 
 [tool.pytest.ini_options]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"
 markers = ["prompt_regression: tests that make real LLM API calls to verify prompt behavior"]
 
 [tool.hatch.build.targets.wheel]

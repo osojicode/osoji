@@ -203,6 +203,9 @@ Guidelines:
 - A comment mentioning the name, a string literal with the same text, or a different
   symbol that happens to share the name = NOT genuine usage → CONFIRM the finding
 - If references are ambiguous, lean toward CONFIRMING (keep the finding)
+- For latent_bug findings: check whether cross-file evidence shows the type actually HAS
+  the accessed attribute/method. If evidence confirms the attribute exists, DISMISS.
+  If evidence is absent or ambiguous, CONFIRM.
 
 Use the verify_debris_findings tool with a verdict for EVERY finding."""
 
@@ -227,7 +230,13 @@ async def _verify_debris_findings_async(
     # Collect findings that have cross-file evidence
     candidates: list[tuple[int, dict, list[dict]]] = []  # (index, finding, refs)
     for i, finding in enumerate(debris_findings):
-        if finding.get("category") != "dead_code":
+        category = finding.get("category", "")
+        # Verify dead_code/latent_bug findings AND stale_comment findings flagged for cross-file verification
+        if category in ("dead_code", "latent_bug"):
+            pass  # always eligible
+        elif category == "stale_comment" and finding.get("cross_file_verification_needed"):
+            pass  # LLM flagged this as needing cross-file check
+        else:
             continue
         # Extract symbol name from description (format: "L{start}-{end}: {description}")
         desc = finding.get("description", "")
@@ -298,8 +307,8 @@ async def _verify_debris_findings_async(
         ),
     )
     rate_limiter.record_usage(
-        input_tokens=result.usage.get("input_tokens", 0) if result.usage else 0,
-        output_tokens=result.usage.get("output_tokens", 0) if result.usage else 0,
+        input_tokens=result.input_tokens,
+        output_tokens=result.output_tokens,
     )
 
     # Collect dismissed finding indices (mapped back to original indices)
@@ -477,10 +486,14 @@ def run_audit(
             except (json.JSONDecodeError, KeyError):
                 continue
 
-    # Two-phase verification: verify dead_code findings against cross-file evidence
-    has_dead_code = any(f.get("category") == "dead_code" for f in raw_debris)
+    # Two-phase verification: verify findings against cross-file evidence
+    needs_verification = any(
+        f.get("category") in ("dead_code", "latent_bug")
+        or (f.get("category") == "stale_comment" and f.get("cross_file_verification_needed"))
+        for f in raw_debris
+    )
     suppressed_indices: set[int] = set()
-    if has_dead_code:
+    if needs_verification:
         try:
             suppressed_indices = asyncio.run(
                 _verify_debris_findings_async(config, raw_debris, rate_limiter)
@@ -1152,6 +1165,8 @@ def _html_coverage_section(scorecard: "Scorecard") -> str:
 def _html_accuracy_section(result: "AuditResult") -> str:
     """Build the accuracy section HTML."""
     scorecard = result.scorecard
+    if scorecard is None:
+        return ""
     accuracy_issues = [i for i in result.issues if i.category.startswith("doc_") and i.severity == "error"]
     if not accuracy_issues and not scorecard.accuracy_by_category:
         return ""
@@ -1188,6 +1203,8 @@ def _html_accuracy_section(result: "AuditResult") -> str:
 def _html_junk_section(result: "AuditResult") -> str:
     """Build the junk code section HTML."""
     scorecard = result.scorecard
+    if scorecard is None:
+        return ""
     if not scorecard.junk_by_category and scorecard.junk_item_count == 0:
         return ""
 
@@ -1220,7 +1237,7 @@ def _html_junk_section(result: "AuditResult") -> str:
     # Individual findings
     junk_issues = [i for i in result.issues if i.category in scorecard.junk_by_category
                    or i.category in ("dead_symbol", "unactuated_config", "commented_out_code",
-                                     "dead_code", "unreachable_code")]
+                                     "dead_code", "unreachable_code", "latent_bug")]
     if junk_issues:
         collapse = len(junk_issues) > 20
         if collapse:

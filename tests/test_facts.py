@@ -289,7 +289,7 @@ class TestCrossFileReferences:
         _write_facts(tmp_path, "src/audit.py", {
             "imports": [],
             "exports": [],
-            "calls": [{"callee": "build_scorecard", "line": 50}],
+            "calls": [{"to": "build_scorecard", "line": 50}],
             "string_literals": [],
         })
         db = FactsDB(_make_config(tmp_path))
@@ -309,7 +309,7 @@ class TestCrossFileReferences:
         _write_facts(tmp_path, "src/audit.py", {
             "imports": [],
             "exports": [],
-            "calls": [{"callee": "scorecard.obligation_violations", "line": 397}],
+            "calls": [{"to": "scorecard.obligation_violations", "line": 397}],
             "string_literals": [],
         })
         db = FactsDB(_make_config(tmp_path))
@@ -322,7 +322,7 @@ class TestCrossFileReferences:
         _write_facts(tmp_path, "src/scorecard.py", {
             "imports": [],
             "exports": [{"name": "Scorecard", "kind": "class", "line": 10}],
-            "calls": [{"callee": "Scorecard", "line": 200}],
+            "calls": [{"to": "Scorecard", "line": 200}],
             "string_literals": [],
         })
         db = FactsDB(_make_config(tmp_path))
@@ -340,7 +340,7 @@ class TestCrossFileReferences:
         _write_facts(tmp_path, "src/other.py", {
             "imports": [],
             "exports": [],
-            "calls": [{"callee": "unrelated_func", "line": 5}],
+            "calls": [{"to": "unrelated_func", "line": 5}],
             "string_literals": [],
         })
         db = FactsDB(_make_config(tmp_path))

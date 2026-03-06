@@ -216,6 +216,56 @@ class TestScanCandidates:
 
         assert len(candidates) == 0
 
+    def test_dotted_method_name_matches_instance_calls(self, temp_dir):
+        """Dotted symbol names (Class.method) should match instance calls (obj.method)."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+
+        # Source file with a class method
+        _write_source(temp_dir, "src/analyzer.py", "\n".join([
+            "class MyAnalyzer:",
+            "    def analyze(self, data, rate_limiter=None):",
+            "        pass",
+        ]))
+        # Symbols use dotted name convention
+        _write_symbols(temp_dir, "src/analyzer.py", [
+            {"name": "MyAnalyzer", "kind": "class", "line_start": 1,
+             "line_end": 3, "visibility": "public"},
+            {"name": "MyAnalyzer.analyze", "kind": "function", "line_start": 2,
+             "line_end": 3, "visibility": "public",
+             "parameters": [
+                 {"name": "data", "optional": False},
+                 {"name": "rate_limiter", "optional": True},
+             ]},
+        ])
+
+        # Caller uses instance call: analyzer.analyze(...)
+        _write_source(temp_dir, "src/runner.py", "\n".join([
+            "from .analyzer import MyAnalyzer",
+            "",
+            "def run():",
+            "    analyzer = MyAnalyzer()",
+            "    analyzer.analyze(my_data)",
+        ]))
+        _write_facts(temp_dir, "src/analyzer.py", exports=[{"name": "MyAnalyzer"}])
+        _write_facts(temp_dir, "src/runner.py", imports=[
+            {"source": ".analyzer", "names": ["MyAnalyzer"]},
+        ])
+
+        with patch("osoji.deadparam.list_repo_files") as mock_list:
+            mock_list.return_value = (
+                [temp_dir / "src/analyzer.py", temp_dir / "src/runner.py"],
+                [],
+            )
+            candidates = scan_dead_param_candidates(config)
+
+        # Should find the optional param since the instance call is detected
+        assert len(candidates) >= 1
+        param_names = [c.param_name for c in candidates]
+        assert "rate_limiter" in param_names
+        # Should have found the call site via instance call
+        rl_candidate = [c for c in candidates if c.param_name == "rate_limiter"][0]
+        assert len(rl_candidate.call_sites) >= 1
+
 
 # --- Phase 2: LLM verification (mocked) ---
 
@@ -423,3 +473,150 @@ class TestScorecardIntegration:
         assert sc.junk_total_lines == 11  # lines 20-30
         assert "dead_params" in sc.junk_sources
         assert sc.junk_by_category.get("dead_parameter", 0) == 1
+
+
+# --- PF-1: Same-file callers are visible ---
+
+class TestSameFileCaller:
+    def test_same_file_caller_outside_definition_is_visible(self, temp_dir):
+        """A same-file caller outside the function definition should be a call site."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+
+        # Function defined at lines 1-5, called at line 10 from a different function
+        _write_source(temp_dir, "src/deadcode.py", "\n".join([
+            "def detect_dead_code_async(",         # line 1
+            "    config,",                          # line 2
+            "    on_progress=None,",                # line 3
+            "):",                                   # line 4
+            "    return []",                        # line 5
+            "",                                     # line 6
+            "class DeadCodeAnalyzer:",              # line 7
+            "    def analyze_async(self):",         # line 8
+            "        return detect_dead_code_async(",  # line 9 — same-file caller
+            "            self.config,",             # line 10
+            "            on_progress=self.cb,",     # line 11
+            "        )",                            # line 12
+        ]))
+        _write_symbols(temp_dir, "src/deadcode.py", [
+            {"name": "detect_dead_code_async", "kind": "function", "line_start": 1,
+             "line_end": 5, "visibility": "public",
+             "parameters": [
+                 {"name": "config", "optional": False},
+                 {"name": "on_progress", "optional": True},
+             ]},
+            {"name": "DeadCodeAnalyzer", "kind": "class", "line_start": 7,
+             "line_end": 12, "visibility": "public"},
+            {"name": "analyze_async", "kind": "function", "line_start": 8,
+             "line_end": 12, "visibility": "public", "parameters": []},
+        ])
+
+        # Another file imports it (so importers_of returns non-empty)
+        _write_source(temp_dir, "src/other.py", "from .deadcode import detect_dead_code_async\n")
+        _write_facts(temp_dir, "src/deadcode.py", exports=[{"name": "detect_dead_code_async"}])
+        _write_facts(temp_dir, "src/other.py", imports=[
+            {"source": ".deadcode", "names": ["detect_dead_code_async"]},
+        ])
+
+        with patch("osoji.deadparam.list_repo_files") as mock_list:
+            mock_list.return_value = (
+                [temp_dir / "src/deadcode.py", temp_dir / "src/other.py"],
+                [],
+            )
+            candidates = scan_dead_param_candidates(config)
+
+        # on_progress should be a candidate with call sites (same-file caller at line 9)
+        on_progress_cands = [c for c in candidates if c.param_name == "on_progress"]
+        assert len(on_progress_cands) == 1
+        # The same-file caller outside the definition should appear as a call site
+        assert any(cs.file_path == "src/deadcode.py" for cs in on_progress_cands[0].call_sites)
+
+    def test_same_file_match_inside_definition_is_excluded(self, temp_dir):
+        """A match inside the function's own definition range should NOT be a call site."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+
+        # Function references its own name inside its body (e.g., recursion comment)
+        _write_source(temp_dir, "src/mod.py", "\n".join([
+            "def process(",                         # line 1
+            "    data,",                            # line 2
+            "    verbose=False,",                   # line 3
+            "):",                                   # line 4
+            "    # recursive: process(data)",       # line 5 — inside definition
+            "    return data",                      # line 6
+            "",                                     # line 7
+            "def caller():",                        # line 8
+            "    return process(data)",             # line 9 — same-file caller
+        ]))
+        _write_symbols(temp_dir, "src/mod.py", [
+            {"name": "process", "kind": "function", "line_start": 1,
+             "line_end": 6, "visibility": "public",
+             "parameters": [
+                 {"name": "data", "optional": False},
+                 {"name": "verbose", "optional": True},
+             ]},
+        ])
+        _write_source(temp_dir, "src/other.py", "from .mod import process\n")
+        _write_facts(temp_dir, "src/mod.py", exports=[{"name": "process"}])
+        _write_facts(temp_dir, "src/other.py", imports=[
+            {"source": ".mod", "names": ["process"]},
+        ])
+
+        with patch("osoji.deadparam.list_repo_files") as mock_list:
+            mock_list.return_value = (
+                [temp_dir / "src/mod.py", temp_dir / "src/other.py"],
+                [],
+            )
+            candidates = scan_dead_param_candidates(config)
+
+        verbose_cands = [c for c in candidates if c.param_name == "verbose"]
+        assert len(verbose_cands) == 1
+        # Call site at line 9 (outside definition), NOT line 5 (inside definition)
+        same_file_sites = [cs for cs in verbose_cands[0].call_sites if cs.file_path == "src/mod.py"]
+        assert len(same_file_sites) == 1
+        assert same_file_sites[0].line_number == 9
+
+
+# --- PF-2: Constructor class name pattern ---
+
+class TestConstructorPattern:
+    def test_class_constructor_call_is_detected(self, temp_dir):
+        """ClassName( should match as a call site for __init__ params."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+
+        _write_source(temp_dir, "src/logging.py", "\n".join([
+            "class LoggingProvider:",                        # line 1
+            "    def __init__(self, verbose=False):",        # line 2
+            "        self.verbose = verbose",                # line 3
+        ]))
+        _write_symbols(temp_dir, "src/logging.py", [
+            {"name": "LoggingProvider", "kind": "class", "line_start": 1,
+             "line_end": 3, "visibility": "public"},
+            {"name": "__init__", "kind": "function", "line_start": 2,
+             "line_end": 3, "visibility": "public",
+             "parameters": [
+                 {"name": "verbose", "optional": True},
+             ]},
+        ])
+
+        # Caller uses ClassName( not __init__(
+        _write_source(temp_dir, "src/caller.py", "\n".join([
+            "from .logging import LoggingProvider",
+            "",
+            "def make():",
+            "    return LoggingProvider(verbose=True)",
+        ]))
+        _write_facts(temp_dir, "src/logging.py", exports=[{"name": "LoggingProvider"}])
+        _write_facts(temp_dir, "src/caller.py", imports=[
+            {"source": ".logging", "names": ["LoggingProvider"]},
+        ])
+
+        with patch("osoji.deadparam.list_repo_files") as mock_list:
+            mock_list.return_value = (
+                [temp_dir / "src/logging.py", temp_dir / "src/caller.py"],
+                [],
+            )
+            candidates = scan_dead_param_candidates(config)
+
+        verbose_cands = [c for c in candidates if c.param_name == "verbose"]
+        assert len(verbose_cands) == 1
+        # Should find the ClassName( call site
+        assert any(cs.file_path == "src/caller.py" for cs in verbose_cands[0].call_sites)

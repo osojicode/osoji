@@ -151,7 +151,6 @@ def _parse_github_workflow(content: str, path: str) -> list[CICDElement]:
 
     for job_name, start, end in jobs:
         job_lines = lines[start:end + 1]
-        job_text = "\n".join(job_lines)
 
         # Extract referenced paths and commands from run: and uses: lines
         paths: list[str] = []
@@ -278,7 +277,6 @@ def _parse_gitlab_ci(content: str, path: str) -> list[CICDElement]:
     for idx, (job_name, start) in enumerate(jobs):
         end = jobs[idx + 1][1] - 1 if idx + 1 < len(jobs) else len(lines) - 1
         job_lines = lines[start:end + 1]
-        job_text = "\n".join(job_lines)
 
         paths: list[str] = []
         commands: list[str] = []

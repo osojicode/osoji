@@ -89,11 +89,3 @@ class LoggingProvider(LLMProvider):
             f"API calls: {s.request_count} | "
             f"Tokens: {total:,} (in: {s.total_input_tokens:,}, out: {s.total_output_tokens:,})"
         )
-
-    def get_total_tokens(self) -> int:
-        """Get total tokens used across all requests.
-
-        Returns:
-            Sum of input and output tokens
-        """
-        return self._stats.total_input_tokens + self._stats.total_output_tokens

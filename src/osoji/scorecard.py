@@ -275,11 +275,9 @@ def build_scorecard(
             schema_name = f.metadata.get("schema_name", "")
             key = f"{f.source_path}:{schema_name}" if schema_name else f.source_path
             if key not in enforcement_by_schema:
-                enforcement_by_schema[key] = {"total": 0, "unactuated": 0, "fields": []}
+                enforcement_by_schema[key] = {"unactuated": 0, "fields": []}
             enforcement_by_schema[key]["unactuated"] += 1
             enforcement_by_schema[key]["fields"].append(f.name)
-        for key in enforcement_by_schema:
-            enforcement_by_schema[key]["total"] = enforcement_by_schema[key]["unactuated"]
     else:
         enforcement_total = None
         enforcement_unactuated = None

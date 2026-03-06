@@ -56,6 +56,7 @@ class Finding:
     severity: str  # "error" or "warning"
     description: str
     suggestion: str | None = None
+    cross_file_verification_needed: bool = False
 
 
 @dataclass
@@ -337,11 +338,32 @@ ALSO: While analyzing the code, identify any "debris" that CURRENTLY misleads an
 - Misleading docstrings whose description does not match the actual implementation
 - Commented-out code blocks (3+ lines) that agents might reference
 - Expired TODO/FIXME comments that reference completed work or removed features
-- Dead code (unreachable branches, unused functions defined but never called within this file)
+- Dead code (unreachable branches, unused functions defined but never called within this file).
+  When evaluating whether a filter on a function's return value is redundant, do not infer
+  what the function returns from its name alone. Read the actual return logic before judging
+  a consumer's post-filter as dead code.
+- Latent bugs: code that will crash or produce wrong results at runtime due to
+  interface mismatches visible within this file. Examples in any language:
+  * Accessing an attribute/field/property not present on the type being used
+  * Calling a function/method with wrong argument count or types
+  * Using dict-style API (.get(), bracket access) on a non-dict object, or vice versa
+  * Unguarded dereference of a value that could be null/nil/None
+  Only flag where the mismatch is clearly visible from THIS file. If the type
+  comes from another file and you cannot verify, set cross_file_verification_needed=true.
+  Before flagging unguarded dict/list access as a latent bug, check whether the same file
+  contains validation logic, schema enforcement, data construction, or loop iteration that
+  guarantees the key/index exists at the point of access.
+  Hardcoded defaults, opinionated API choices, and intentional design constraints are NOT
+  latent bugs unless they cause crashes or produce incorrect results at runtime.
+  Use severity "error" for latent bugs. Do NOT flag stylistic issues or speculative bugs.
 
 Do NOT flag comments that accurately describe the current implementation, even if they describe
 implementation details. A comment is stale only if it is CURRENTLY wrong, not if it COULD
 become wrong in the future.
+
+If a finding references behavior in OTHER files that you cannot verify from this file alone
+(e.g., a comment describes a function in another module, or references a field defined elsewhere),
+set cross_file_verification_needed=true on that finding so it can be verified in a later pass.
 
 Report these as findings in the tool call. If the code is clean, submit an empty findings array.
 
@@ -420,6 +442,7 @@ Include line number references for key elements (e.g., "MyClass (L15-45)").
                     severity=f["severity"],
                     description=f["description"],
                     suggestion=f.get("suggestion"),
+                    cross_file_verification_needed=f.get("cross_file_verification_needed", False),
                 )
                 for f in findings_data
                 if f.get("valid", True)
@@ -579,6 +602,7 @@ async def process_file_async(
                     "severity": f.severity,
                     "description": f.description,
                     "suggestion": f.suggestion,
+                    "cross_file_verification_needed": f.cross_file_verification_needed,
                 }
                 for f in findings
             ],
@@ -738,6 +762,7 @@ Merge these into a single cohesive shadow doc using the submit_shadow_doc tool."
                     severity=f["severity"],
                     description=f["description"],
                     suggestion=f.get("suggestion"),
+                    cross_file_verification_needed=f.get("cross_file_verification_needed", False),
                 )
                 for f in findings_data
                 if f.get("valid", True)

@@ -15,11 +15,13 @@ pytest tests/test_facts.py -v  # single module
 
 Every source file has a corresponding `.shadow.md` in `.osoji/shadow/` that
 summarises purpose, key components, dependencies, and design notes. Directory-level
-`_root.shadow.md` files aggregate their children.
+roll-up docs aggregate their children: `_root.shadow.md` at the project root,
+`_directory.shadow.md` in subdirectories.
 
 **For coding agents**: read shadow docs instead of parsing entire files. They give you
 the same structural understanding in a fraction of the tokens:
-- `_root.shadow.md` — project/directory overview
+- `_root.shadow.md` — project root overview
+- `_directory.shadow.md` — subdirectory overview
 - `<file>.shadow.md` — per-file summary with line references
 
 The pre-commit hook runs `osoji safety check` (blocks on failure) then

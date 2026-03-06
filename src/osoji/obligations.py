@@ -544,7 +544,7 @@ class StringContractChecker(ContractChecker):
             return False
         if source.startswith("."):
             return False  # relative imports are always internal
-        resolved = self.facts._resolve_import_source(importing_file, source)
+        resolved = self.facts.resolve_import_source(importing_file, source)
         return resolved is None
 
 
