@@ -88,6 +88,14 @@ export analysis, and string contract checking.
   whether the references represent genuine usage. The LLM can distinguish real imports
   from name collisions, comments, or string literals — a mechanical filter cannot.
 
+- **Implicit contracts: surface silent failures.** When two files share a string
+  literal (e.g. a dict key), renaming in one silently breaks the other at runtime
+  (a value-level error). When both import a shared constant, a rename causes an
+  ImportError or NameError at load time (a name-level error). The obligation checker
+  exists to find these implicit string contracts. Remediation text should explain
+  this distinction — the goal is to convert silent value-level mismatches into loud
+  name-level errors, not merely to "extract constants."
+
 ## Style
 
 - Python 3.11+, type hints throughout

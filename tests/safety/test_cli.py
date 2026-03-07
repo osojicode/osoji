@@ -6,6 +6,7 @@ import pytest
 from click.testing import CliRunner
 
 from osoji.cli import main
+from osoji.safety.paths import PATTERNS
 
 
 @pytest.fixture
@@ -86,7 +87,7 @@ class TestSafetyPatterns:
         result = runner.invoke(main, ["safety", "patterns"])
 
         assert result.exit_code == 0
-        assert "Total: 6 patterns" in result.output
+        assert f"Total: {len(PATTERNS)} patterns" in result.output
 
     def test_patterns_shows_secrets_status(self, runner):
         """Should show detect-secrets installation status."""

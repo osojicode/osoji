@@ -713,10 +713,10 @@ async def _verify_batch_async(
                     verifications.append(DepVerification(
                         manifest_path=cand.manifest_path,
                         package_name=cand.package_name,
-                        is_dead=verdict["is_dead"],
-                        confidence=verdict["confidence"],
-                        reason=verdict["reason"],
-                        remediation=verdict["remediation"],
+                        is_dead=verdict.get("is_dead", False),
+                        confidence=verdict.get("confidence", 0.5),
+                        reason=verdict.get("reason", ""),
+                        remediation=verdict.get("remediation", ""),
                         usage_type=verdict.get("usage_type", "unused"),
                         line_number=cand.line_number,
                     ))

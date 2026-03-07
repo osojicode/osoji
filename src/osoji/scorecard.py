@@ -1,7 +1,7 @@
 """Scorecard: pure-Python aggregation of audit phase results into headline metrics."""
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 from .config import Config, DIRECTORY_SHADOW_FILENAME, SHADOW_DIR

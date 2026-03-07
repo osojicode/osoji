@@ -304,7 +304,7 @@ class FactsDB:
                     })
             # Check exports: does this file re-export the symbol?
             for exp in facts.exports:
-                if exp.get("name") == symbol_name and file_path != source_norm:
+                if exp.get("name") == symbol_name:
                     refs.append({
                         "file": file_path,
                         "kind": "export",

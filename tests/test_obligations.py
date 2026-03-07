@@ -745,6 +745,7 @@ class TestContextAwareRemediation:
         assert len(implicit) == 1
         assert "known dependency" in implicit[0].remediation
         assert "may be expected" in implicit[0].remediation
+        assert "import error" in implicit[0].remediation
 
     def test_few_contracts_gets_standard_text(self, tmp_path):
         """When <=3 implicit contracts, use standard remediation text."""
@@ -767,3 +768,4 @@ class TestContextAwareRemediation:
         implicit = [f for f in findings if f.finding_type == "implicit_contract"]
         assert len(implicit) == 1
         assert "Extract shared constants" in implicit[0].remediation
+        assert "import error" in implicit[0].remediation

@@ -68,7 +68,7 @@ def _is_test_file(path: str) -> bool:
 
 
 def _collect_tool_names() -> set[str]:
-    """Collect all LLM tool names defined in tools.py."""
+    """Collect all LLM tool names from tool definition functions in tools.py."""
     try:
         from . import tools as tools_mod
         names: set[str] = set()
@@ -447,7 +447,7 @@ class StringContractChecker(ContractChecker):
                     f"These files share {count} implicit string contracts. "
                     f"If they have a known dependency (e.g. one file tests the other), "
                     f"this may be expected. Otherwise, consider extracting shared values "
-                    f"to a common definition."
+                    f"to a common definition so a rename triggers an import error instead of a silent mismatch."
                 )
             else:
                 remediation = self._suggest_remediation(producer, consumer)
@@ -487,8 +487,8 @@ class StringContractChecker(ContractChecker):
 
         if common:
             pkg = "/".join(common)
-            return f"Extract shared constants to a module in {pkg}/"
-        return "Extract shared constants to a common enum or registry module"
+            return f"Extract shared constants to a module in {pkg}/ so a rename triggers an import error instead of a silent mismatch"
+        return "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch"
 
     # --- Legacy conversion ---
 
