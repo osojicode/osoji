@@ -851,7 +851,7 @@ class DeadCICDAnalyzer(JunkAnalyzer):
                 remediation=v.remediation,
                 original_purpose=f"{v.element_type} `{v.element_name}`",
             )
-            for v in results if v.is_dead
+            for v in results
         ]
         return JunkAnalysisResult(
             findings=findings,

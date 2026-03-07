@@ -408,7 +408,7 @@ def run_audit(
             remediation="Run 'osoji shadow .' to update",
         ))
 
-    # 2. Unified documentation analysis (replaces debris + xref)
+    # 2. Unified documentation analysis
     print("Osoji: Analyzing documentation...", flush=True)
     phase_start = time_module.monotonic()
     analysis_results = analyze_docs(config, on_progress=progress_cb, rate_limiter=rate_limiter)

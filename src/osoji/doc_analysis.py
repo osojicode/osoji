@@ -360,7 +360,7 @@ async def _analyze_document_async(
     shadow_contexts: list[tuple[Path, str]],
     rules_text: str,
 ) -> tuple[DocAnalysisResult, int, int]:
-    """Analyze a single doc: classify + validate in one Sonnet call.
+    """Analyze a single doc: classify + validate in one LLM call.
 
     Returns (DocAnalysisResult, input_tokens, output_tokens).
     """

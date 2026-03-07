@@ -23,7 +23,6 @@ class FileStats:
     shadow_path: Path
     source_tokens: int
     shadow_tokens: int
-    source_exists: bool = True
     shadow_exists: bool = True
 
     @property
@@ -43,7 +42,7 @@ class ProjectStats:
 
     @property
     def total_source_tokens(self) -> int:
-        return sum(f.source_tokens for f in self.files if f.source_exists)
+        return sum(f.source_tokens for f in self.files)
 
     @property
     def total_shadow_tokens(self) -> int:
@@ -147,7 +146,6 @@ async def _gather_file_stats_cached(
         shadow_path=shadow_path.relative_to(config.root_path),
         source_tokens=source_tokens,
         shadow_tokens=shadow_tokens,
-        source_exists=True,
         shadow_exists=shadow_exists,
     )
 
@@ -212,7 +210,6 @@ async def gather_stats_async(config: Config, use_api: bool = True) -> ProjectSta
                 shadow_path=shadow_path.relative_to(config.root_path),
                 source_tokens=source_tokens,
                 shadow_tokens=shadow_tokens,
-                source_exists=True,
                 shadow_exists=shadow_exists,
             ))
 
