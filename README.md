@@ -16,13 +16,41 @@ pip install -e .
 
 ## Usage
 
-Set your Anthropic API key in your shell profile (`~/.bashrc` or `~/.zshrc`):
+Osoji defaults to `anthropic`, but `shadow`, `audit`, `stats`, and `diff --update` can all switch providers with `--provider` and `--model`.
+
+Configure Anthropic as the default provider:
 
 ```bash
 export ANTHROPIC_API_KEY=your-api-key
+osoji shadow /path/to/project
 ```
 
-This ensures the key is available for both CLI usage and git hooks.
+Switch providers per command:
+
+```bash
+osoji shadow /path/to/project --provider openai --model gpt-4.1-mini
+osoji audit /path/to/project --provider google --model gemini-2.0-flash
+osoji stats /path/to/project --provider openrouter --model openai/gpt-4.1-mini
+```
+
+Or configure provider selection through environment variables so hooks inherit the same runtime automatically:
+
+```bash
+export OSOJI_PROVIDER=openai
+export OSOJI_MODEL=gpt-4.1-mini
+export OPENAI_API_KEY=your-api-key
+
+# Optional tier-specific overrides for audit pipelines
+export OSOJI_MODEL_SMALL=gpt-4.1-mini
+export OSOJI_MODEL_MEDIUM=gpt-4.1
+export OSOJI_MODEL_LARGE=o3
+```
+
+Supported provider credentials:
+- `ANTHROPIC_API_KEY`
+- `OPENAI_API_KEY`
+- `GEMINI_API_KEY`
+- `OPENROUTER_API_KEY`
 
 ### Generate Shadow Documentation
 
@@ -51,6 +79,9 @@ osoji stats /path/to/project
 
 # With per-file breakdown
 osoji stats /path/to/project --verbose
+
+# Count tokens with a specific provider/model
+osoji stats /path/to/project --provider openai --model gpt-4.1-mini
 ```
 
 Sample output:
@@ -80,6 +111,9 @@ osoji audit /path/to/project
 
 # Skip auto-fixing shadow docs
 osoji audit /path/to/project --no-fix
+
+# Run against a non-default provider/model
+osoji audit /path/to/project --provider google --model gemini-2.0-flash
 
 # Also detect cross-file dead code
 osoji audit /path/to/project --dead-code
@@ -142,6 +176,7 @@ osoji diff                    # Compare against main
 osoji diff develop            # Compare against develop
 osoji diff HEAD~5             # Compare against 5 commits ago
 osoji diff main --update      # Also regenerate stale shadows
+osoji diff main --update --provider openai --model gpt-4.1-mini
 osoji diff main --format json # Machine-readable output
 ```
 
@@ -194,16 +229,27 @@ Each shadow doc contains:
 2. **Tool-forced output**: LLM must call structured tools - no text parsing required
 3. **Incremental updates**: Skips unchanged files by comparing source hashes
 4. **Line number preprocessing**: Provides line context to the LLM for precise references
-5. **Multi-model pipeline**: Shadow generation uses Sonnet. Audit uses Haiku for fast topic matching, Opus for classification and validation, and Sonnet for error-finding verification.
+5. **Tiered provider runtime**: Shadow generation uses the configured medium model. Audit uses the configured small, medium, and large tiers through a shared provider runtime that supports Anthropic, OpenAI, Google Gemini, and OpenRouter.
 6. **Git integration**: Hooks keep docs synchronized with code changes
 
 ## Rate Limits
 
-Osoji respects Anthropic API rate limits automatically. Override defaults via environment variables:
+Osoji applies provider-specific defaults and supports environment overrides for every provider. Use `{PROVIDER}_RPM`, `{PROVIDER}_INPUT_TPM`, `{PROVIDER}_OUTPUT_TPM`, or `{PROVIDER}_TPM` (legacy combined override).
 
 ```bash
-export ANTHROPIC_RPM=4000          # Requests per minute
-export ANTHROPIC_INPUT_TPM=2000000  # Input tokens per minute
-export ANTHROPIC_OUTPUT_TPM=400000  # Output tokens per minute
-export ANTHROPIC_TPM=1000000       # Set both input and output TPM (legacy; INPUT_TPM/OUTPUT_TPM take precedence)
+export ANTHROPIC_RPM=4000
+export ANTHROPIC_INPUT_TPM=2000000
+export ANTHROPIC_OUTPUT_TPM=400000
+
+export OPENAI_RPM=500
+export OPENAI_INPUT_TPM=500000
+export OPENAI_OUTPUT_TPM=500000
+
+export GOOGLE_RPM=300
+export GOOGLE_INPUT_TPM=5000000
+export GOOGLE_OUTPUT_TPM=5000000
+
+export OPENROUTER_RPM=300
+export OPENROUTER_TPM=500000
+export OPENROUTER_OUTPUT_TPM=350000
 ```

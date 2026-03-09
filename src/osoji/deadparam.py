@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
+from .async_utils import gather_with_buffer
 from .config import Config, SHADOW_DIR
 from .facts import FactsDB
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content, validate_line_ranges
@@ -326,8 +327,9 @@ async def _verify_batch_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_DEAD_PARAM_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=config.model,
+            model=config.model_for("medium"),
             max_tokens=max(1024, len(candidates) * 300),
+            reservation_key="deadparam.verify_batch",
             tools=get_dead_parameter_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_dead_parameters"},
             tool_input_validators=[check_completeness, validate_line_ranges],
@@ -413,7 +415,6 @@ async def detect_dead_params_async(
 
     results: list[DeadParamVerification] = []
     batches = list(by_func.values())
-    semaphore = asyncio.Semaphore(config.max_concurrency)
     completed_batches = 0
     total_batches = len(batches)
     lock = asyncio.Lock()
@@ -422,43 +423,39 @@ async def detect_dead_params_async(
         nonlocal completed_batches
 
         source_path = batch[0].source_path
-        async with semaphore:
-            await rate_limiter.throttle()
-            try:
-                verifications, in_tok, out_tok = await _verify_batch_async(
-                    provider,
-                    config,
-                    batch,
-                    file_contents.get(source_path, ""),
-                    shadow_contents.get(source_path, ""),
-                )
-                rate_limiter.record_usage(input_tokens=in_tok, output_tokens=out_tok)
-                async with lock:
-                    completed_batches += 1
-                    for v in verifications:
-                        results.append(v)
-                    if on_progress:
-                        on_progress(
-                            completed_batches, total_batches,
-                            Path(source_path),
-                            f"{sum(1 for v in verifications if v.is_dead)} dead",
-                        )
-                return verifications
-            except Exception as e:
-                async with lock:
-                    completed_batches += 1
-                    if on_progress:
-                        on_progress(
-                            completed_batches, total_batches,
-                            Path(source_path), "error",
-                        )
-                func_name = batch[0].function_name
-                params = [c.param_name for c in batch]
-                print(f"  [error] {source_path}:{func_name}({params}): {e}", flush=True)
-                return []
+        try:
+            verifications, _in_tok, _out_tok = await _verify_batch_async(
+                provider,
+                config,
+                batch,
+                file_contents.get(source_path, ""),
+                shadow_contents.get(source_path, ""),
+            )
+            async with lock:
+                completed_batches += 1
+                for v in verifications:
+                    results.append(v)
+                if on_progress:
+                    on_progress(
+                        completed_batches, total_batches,
+                        Path(source_path),
+                        f"{sum(1 for v in verifications if v.is_dead)} dead",
+                    )
+            return verifications
+        except Exception as e:
+            async with lock:
+                completed_batches += 1
+                if on_progress:
+                    on_progress(
+                        completed_batches, total_batches,
+                        Path(source_path), "error",
+                    )
+            func_name = batch[0].function_name
+            params = [c.param_name for c in batch]
+            print(f"  [error] {source_path}:{func_name}({params}): {e}", flush=True)
+            return []
 
-    tasks = [process_batch(b) for b in batches]
-    await asyncio.gather(*tasks)
+    await gather_with_buffer([lambda batch=batch: process_batch(batch) for batch in batches])
 
     return results
 

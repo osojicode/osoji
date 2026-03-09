@@ -318,7 +318,7 @@ class TestVerification:
         provider = AsyncMock()
         provider.complete = AsyncMock(return_value=mock_result)
         config = MagicMock()
-        config.model = "claude-sonnet-4-20250514"
+        config.model_for.return_value = "claude-sonnet-4-20250514"
 
         import asyncio
         verifications, in_tok, out_tok = asyncio.run(
@@ -378,7 +378,7 @@ class TestVerification:
         provider = AsyncMock()
         provider.complete = AsyncMock(return_value=mock_result)
         config = MagicMock()
-        config.model = "claude-sonnet-4-20250514"
+        config.model_for.return_value = "claude-sonnet-4-20250514"
 
         import asyncio
         verifications, _, _ = asyncio.run(

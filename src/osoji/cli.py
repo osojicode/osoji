@@ -11,10 +11,31 @@ from .diff import run_diff, format_diff_report, format_diff_json
 from .shadow import generate_shadow_docs_async, generate_shadow_docs, check_shadow_docs, mark_stale_docs, dry_run_shadow
 from .stats import gather_stats, format_stats_report
 from .hooks import install_hooks, uninstall_hooks
+from .llm import provider_names
 from .safety import check_staged_files, check_files as safety_check_files
 from .safety.checker import format_check_result
 from .safety.secrets import is_available as secrets_available
 from .safety.paths import get_pattern_descriptions, PATTERNS, self_test as paths_self_test
+
+
+_LLM_PROVIDER_CHOICE = click.Choice(provider_names(), case_sensitive=False)
+
+
+def _build_llm_config(
+    path: Path,
+    *,
+    force: bool = False,
+    no_gitignore: bool = False,
+    provider: str | None = None,
+    model: str | None = None,
+) -> Config:
+    return Config(
+        root_path=path.resolve(),
+        force=force,
+        respect_gitignore=not no_gitignore,
+        provider=provider,
+        model=model,
+    )
 
 
 @click.group()
@@ -32,16 +53,20 @@ def main() -> None:
 @click.option("--force", "-f", is_flag=True, help="Regenerate all files, ignoring cached hashes")
 @click.option("--verbose", "-v", is_flag=True, help="Show detailed progress")
 @click.option("--dry-run", is_flag=True, help="Show what would be processed without making LLM calls")
+@click.option("--provider", type=_LLM_PROVIDER_CHOICE, help="LLM provider to use")
+@click.option("--model", help="Model ID to use for LLM requests")
 @click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
-def shadow(path: Path, force: bool, verbose: bool, dry_run: bool, no_gitignore: bool) -> None:
+def shadow(path: Path, force: bool, verbose: bool, dry_run: bool, provider: str | None, model: str | None, no_gitignore: bool) -> None:
     """Generate shadow documentation for a codebase.
 
     PATH is the root directory to process (defaults to current directory).
     """
-    config = Config(
-        root_path=path.resolve(),
+    config = _build_llm_config(
+        path,
         force=force,
-        respect_gitignore=not no_gitignore,
+        no_gitignore=no_gitignore,
+        provider=provider,
+        model=model,
     )
 
     if dry_run:
@@ -68,7 +93,10 @@ def check(path: Path, dry_run: bool, no_gitignore: bool) -> None:
 
     PATH is the root directory to check (defaults to current directory).
     """
-    config = Config(root_path=path.resolve(), respect_gitignore=not no_gitignore)
+    config = _build_llm_config(
+        path,
+        no_gitignore=no_gitignore,
+    )
 
     if dry_run:
         issues = check_shadow_docs(config)
@@ -109,7 +137,9 @@ def check(path: Path, dry_run: bool, no_gitignore: bool) -> None:
 @click.argument("base_ref", default="main")
 @click.option("--update", is_flag=True, help="Regenerate stale shadow docs")
 @click.option("--format", "output_format", type=click.Choice(["text", "json"]), default="text", help="Output format")
-def diff(base_ref: str, update: bool, output_format: str) -> None:
+@click.option("--provider", type=_LLM_PROVIDER_CHOICE, help="LLM provider to use for shadow regeneration")
+@click.option("--model", help="Model ID to use for shadow regeneration")
+def diff(base_ref: str, update: bool, output_format: str, provider: str | None, model: str | None) -> None:
     """Show documentation impact of source changes.
 
     Compare current HEAD against BASE_REF (defaults to main) and report:
@@ -126,7 +156,11 @@ def diff(base_ref: str, update: bool, output_format: str) -> None:
 
     Exit codes: 0 = no issues, 1 = issues found
     """
-    config = Config(root_path=Path(".").resolve())
+    config = _build_llm_config(
+        Path("."),
+        provider=provider,
+        model=model,
+    )
 
     try:
         report = run_diff(config, base_ref)
@@ -160,8 +194,10 @@ def diff(base_ref: str, update: bool, output_format: str) -> None:
 @main.command()
 @click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
 @click.option("--verbose", "-v", is_flag=True, help="Show per-file breakdown")
+@click.option("--provider", type=_LLM_PROVIDER_CHOICE, help="LLM provider to use for token counting")
+@click.option("--model", help="Model ID to use for provider-aware token counting")
 @click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
-def stats(path: Path, verbose: bool, no_gitignore: bool) -> None:
+def stats(path: Path, verbose: bool, provider: str | None, model: str | None, no_gitignore: bool) -> None:
     """Show token statistics for source files vs shadow docs.
 
     Compares token counts between source code and generated shadow documentation
@@ -169,7 +205,12 @@ def stats(path: Path, verbose: bool, no_gitignore: bool) -> None:
 
     PATH is the root directory to analyze (defaults to current directory).
     """
-    config = Config(root_path=path.resolve(), respect_gitignore=not no_gitignore)
+    config = _build_llm_config(
+        path,
+        no_gitignore=no_gitignore,
+        provider=provider,
+        model=model,
+    )
 
     click.echo("Gathering token statistics...")
     project_stats = gather_stats(config)
@@ -191,9 +232,11 @@ def stats(path: Path, verbose: bool, no_gitignore: bool) -> None:
 @click.option("--orphaned-files", is_flag=True, help="Detect orphaned source files (LLM calls)")
 @click.option("--junk", is_flag=True, help="Run all junk code analysis phases")
 @click.option("--obligations", is_flag=True, help="Check cross-file string contracts (no LLM calls)")
+@click.option("--provider", type=_LLM_PROVIDER_CHOICE, help="LLM provider to use")
+@click.option("--model", help="Model ID to use for LLM requests")
 @click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
 @click.option("--full", is_flag=True, help="Run all optional audit phases")
-def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: bool, dead_params: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, no_gitignore: bool, full: bool) -> None:
+def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: bool, dead_params: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, provider: str | None, model: str | None, no_gitignore: bool, full: bool) -> None:
     """Run documentation audit.
 
     Checks for:
@@ -215,7 +258,12 @@ def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: b
     if full:
         junk = True
         obligations = True
-    config = Config(root_path=path.resolve(), respect_gitignore=not no_gitignore)
+    config = _build_llm_config(
+        path,
+        no_gitignore=no_gitignore,
+        provider=provider,
+        model=model,
+    )
 
     try:
         result = run_audit(config, fix_shadow=fix, dead_code=dead_code, dead_params=dead_params, dead_plumbing=dead_plumbing, dead_deps=dead_deps, dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk, obligations=obligations, verbose=verbose)

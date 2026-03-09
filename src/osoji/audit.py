@@ -22,7 +22,22 @@ from .shadow import check_shadow_docs, generate_shadow_docs
 from .doc_analysis import analyze_docs
 from .scorecard import CoverageEntry, JunkCodeEntry, Scorecard, build_scorecard
 from .walker import _matches_ignore
-from tabulate import tabulate as _tabulate
+try:
+    from tabulate import tabulate as _tabulate
+except ModuleNotFoundError:
+    def _tabulate(rows, headers, tablefmt="simple"):
+        widths = [len(str(header)) for header in headers]
+        for row in rows:
+            for i, cell in enumerate(row):
+                widths[i] = max(widths[i], len(str(cell)))
+
+        def format_row(row):
+            return "  ".join(str(cell).ljust(widths[i]) for i, cell in enumerate(row))
+
+        header_line = format_row(headers)
+        separator = "  ".join("-" * width for width in widths)
+        body = [format_row(row) for row in rows]
+        return "\n".join([header_line, separator, *body])
 
 
 # Registry of all junk analyzers. New analyzers are added here.
@@ -222,9 +237,8 @@ async def _verify_debris_findings_async(
     Returns a set of indices (into debris_findings) that should be suppressed (false positives).
     """
     from .facts import FactsDB
-    from .llm.factory import create_provider
-    from .llm.logging import LoggingProvider
-    from .llm.types import Message, MessageRole, CompletionOptions
+    from .llm import CompletionOptions, Message, MessageRole
+    from .llm.runtime import create_runtime
     from .symbols import load_all_symbols
     from .tools import get_debris_verification_tool_definitions
 
@@ -312,9 +326,6 @@ async def _verify_debris_findings_async(
         "using the verify_debris_findings tool."
     )
 
-    provider = create_provider("anthropic")
-    logging_provider = LoggingProvider(provider)
-
     expected_indices = set(range(len(candidates)))
 
     def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
@@ -325,22 +336,22 @@ async def _verify_debris_findings_async(
         missing = expected_indices - got
         return [f"Missing verdict for finding index {i}" for i in sorted(missing)]
 
-    await rate_limiter.acquire(estimated_input_tokens=len("\n".join(user_parts)) // 4)
-    result = await logging_provider.complete(
-        messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
-        system=_DEBRIS_VERIFY_SYSTEM_PROMPT,
-        options=CompletionOptions(
-            model=config.model,
-            max_tokens=max(512, len(candidates) * 150),
-            tools=get_debris_verification_tool_definitions(),
-            tool_choice={"type": "tool", "name": "verify_debris_findings"},
-            tool_input_validators=[check_completeness],
-        ),
-    )
-    rate_limiter.record_usage(
-        input_tokens=result.input_tokens,
-        output_tokens=result.output_tokens,
-    )
+    logging_provider, _ = create_runtime(config, rate_limiter=rate_limiter)
+    try:
+        result = await logging_provider.complete(
+            messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
+            system=_DEBRIS_VERIFY_SYSTEM_PROMPT,
+            options=CompletionOptions(
+                model=config.model_for("medium"),
+                max_tokens=max(512, len(candidates) * 150),
+                reservation_key="audit.verify_debris",
+                tools=get_debris_verification_tool_definitions(),
+                tool_choice={"type": "tool", "name": "verify_debris_findings"},
+                tool_input_validators=[check_completeness],
+            ),
+        )
+    finally:
+        await logging_provider.close()
 
     # Collect dismissed finding indices (mapped back to original indices)
     suppressed: set[int] = set()
@@ -505,7 +516,7 @@ def run_audit(
     osojiignore = config.load_osojiignore()
 
     # Shared rate limiter across all phases so token budgets are tracked globally
-    rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
+    rate_limiter = RateLimiter(get_config_with_overrides(config.provider or "anthropic"))
     progress_cb = _make_progress_verbose(config, rate_limiter) if verbose else _make_progress_default(config, rate_limiter)
 
     # Clean stale analysis directory (fresh each run)

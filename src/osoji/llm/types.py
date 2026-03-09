@@ -46,9 +46,26 @@ class CompletionOptions:
     model: str
     max_tokens: int = 4096
     temperature: float = 0.0
+    reservation_key: str = "default"
+    estimated_input_tokens: int | None = None
+    reserved_output_tokens: int | None = None
     tools: list[ToolDefinition] = field(default_factory=list)
     tool_choice: dict[str, str] | None = None
     tool_input_validators: list[Callable[[str, dict], list[str]]] = field(default_factory=list)
+
+
+@dataclass
+class RateLimitMetadata:
+    """Per-request reservation and headroom details."""
+
+    reservation_key: str
+    reserved_input_tokens: int
+    reserved_output_tokens: int
+    actual_input_tokens: int
+    actual_output_tokens: int
+    retry_count: int
+    input_headroom_pct: float
+    output_headroom_pct: float
 
 
 @dataclass
@@ -61,3 +78,4 @@ class CompletionResult:
     output_tokens: int
     model: str
     stop_reason: str | None
+    rate_limit: RateLimitMetadata | None = None

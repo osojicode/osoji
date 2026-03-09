@@ -630,9 +630,6 @@ class TestStaleCommentCrossFileVerification:
             {"file": "src/audit.py", "kind": "import", "context": "run_audit used here"},
         ]
 
-        mock_rate_limiter = MagicMock()
-        mock_rate_limiter.acquire = AsyncMock()
-
         # Mock the LLM to dismiss the finding (confirmed=false = false positive)
         from osoji.llm.types import ToolCall
         mock_result = MagicMock()
@@ -644,19 +641,19 @@ class TestStaleCommentCrossFileVerification:
         mock_result.input_tokens = 100
         mock_result.output_tokens = 50
         config = MagicMock(spec=Config)
-        config.model = "claude-sonnet-4-20250514"
+        config.model_for.return_value = "claude-sonnet-4-20250514"
 
         with patch("osoji.facts.FactsDB", return_value=mock_facts_db), \
-             patch("osoji.llm.factory.create_provider") as mock_create, \
+             patch("osoji.llm.runtime.create_runtime") as mock_create, \
              patch("osoji.junk.load_shadow_content", return_value="shadow"), \
              patch("osoji.symbols.load_all_symbols", return_value={}):
             mock_provider = AsyncMock()
             mock_provider.complete = AsyncMock(return_value=mock_result)
-            mock_create.return_value = mock_provider
-            with patch("osoji.llm.logging.LoggingProvider", return_value=mock_provider):
-                suppressed = asyncio.run(
-                    _verify_debris_findings_async(config, findings, mock_rate_limiter)
-                )
+            mock_provider.close = AsyncMock()
+            mock_create.return_value = (mock_provider, MagicMock())
+            suppressed = asyncio.run(
+                _verify_debris_findings_async(config, findings, MagicMock())
+            )
 
         # The finding should be suppressed (dismissed as false positive)
         assert 0 in suppressed
@@ -681,14 +678,12 @@ class TestStaleCommentCrossFileVerification:
         ]
 
         mock_facts_db = MagicMock()
-        mock_rate_limiter = MagicMock()
-        mock_rate_limiter.acquire = AsyncMock()
         config = MagicMock(spec=Config)
 
         with patch("osoji.facts.FactsDB", return_value=mock_facts_db), \
              patch("osoji.symbols.load_all_symbols", return_value={}):
             suppressed = asyncio.run(
-                _verify_debris_findings_async(config, findings, mock_rate_limiter)
+                _verify_debris_findings_async(config, findings, MagicMock())
             )
 
         # No candidates → empty set returned, no LLM call
@@ -720,9 +715,6 @@ class TestLatentBugCrossFileVerification:
             {"file": "src/llm/types.py", "kind": "export", "context": "CompletionResult defined here"},
         ]
 
-        mock_rate_limiter = MagicMock()
-        mock_rate_limiter.acquire = AsyncMock()
-
         from osoji.llm.types import ToolCall
         mock_result = MagicMock()
         mock_result.tool_calls = [ToolCall(
@@ -734,20 +726,20 @@ class TestLatentBugCrossFileVerification:
         mock_result.output_tokens = 50
 
         config = MagicMock(spec=Config)
-        config.model = "claude-sonnet-4-20250514"
+        config.model_for.return_value = "claude-sonnet-4-20250514"
         config.root_path = tmp_path
 
         with patch("osoji.facts.FactsDB", return_value=mock_facts_db), \
-             patch("osoji.llm.factory.create_provider") as mock_create, \
+             patch("osoji.llm.runtime.create_runtime") as mock_create, \
              patch("osoji.junk.load_shadow_content", return_value="shadow"), \
              patch("osoji.symbols.load_all_symbols", return_value={}):
             mock_provider = AsyncMock()
             mock_provider.complete = AsyncMock(return_value=mock_result)
-            mock_create.return_value = mock_provider
-            with patch("osoji.llm.logging.LoggingProvider", return_value=mock_provider):
-                suppressed = asyncio.run(
-                    _verify_debris_findings_async(config, findings, mock_rate_limiter)
-                )
+            mock_provider.close = AsyncMock()
+            mock_create.return_value = (mock_provider, MagicMock())
+            suppressed = asyncio.run(
+                _verify_debris_findings_async(config, findings, MagicMock())
+            )
 
         # Finding confirmed (not suppressed)
         assert 0 not in suppressed

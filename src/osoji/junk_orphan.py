@@ -8,9 +8,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config, MODEL_SMALL, SHADOW_DIR
+from .async_utils import gather_with_buffer
+from .config import Config, SHADOW_DIR
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content
 from .llm.base import LLMProvider
+from .llm.runtime import create_runtime
 from .llm.types import Message, MessageRole, CompletionOptions
 from .rate_limiter import RateLimiter
 from .symbols import load_all_symbols, load_file_roles
@@ -146,19 +148,18 @@ async def _identify_entry_points_async(
             missing = expected - got
             return [f"Missing verdict for '{p}'" for p in sorted(missing)]
 
-        await rate_limiter.throttle()
         result = await provider.complete(
             messages=[Message(role=MessageRole.USER, content="\n".join(lines))],
             system=_ENTRY_POINTS_SYSTEM_PROMPT,
             options=CompletionOptions(
-                model=MODEL_SMALL,
+                model=config.model_for("small"),
                 max_tokens=max(1024, len(batch) * 60),
+                reservation_key="junk_orphan.identify_entry_points",
                 tools=get_identify_entry_points_tool_definitions(),
                 tool_choice={"type": "tool", "name": "identify_entry_points"},
                 tool_input_validators=[check_completeness],
             ),
         )
-        rate_limiter.record_usage(input_tokens=result.input_tokens, output_tokens=result.output_tokens)
 
         for tc in result.tool_calls:
             if tc.name == "identify_entry_points":
@@ -232,18 +233,17 @@ async def _identify_relationships_async(
 
         lines.append("\nIdentify semantic relationships between disconnected and connected files.")
 
-        await rate_limiter.throttle()
         result = await provider.complete(
             messages=[Message(role=MessageRole.USER, content="\n".join(lines))],
             system=_RELATIONSHIPS_SYSTEM_PROMPT,
             options=CompletionOptions(
-                model=MODEL_SMALL,
+                model=config.model_for("small"),
                 max_tokens=max(1024, len(batch) * 80),
+                reservation_key="junk_orphan.identify_relationships",
                 tools=get_identify_relationships_tool_definitions(),
                 tool_choice={"type": "tool", "name": "identify_relationships"},
             ),
         )
-        rate_limiter.record_usage(input_tokens=result.input_tokens, output_tokens=result.output_tokens)
 
         for tc in result.tool_calls:
             if tc.name == "identify_relationships":
@@ -336,13 +336,13 @@ async def _verify_orphans_batch_async(
         missing = expected - got
         return [f"Missing verdict for '{p}'" for p in sorted(missing)]
 
-    await rate_limiter.throttle()
     result = await provider.complete(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_VERIFY_ORPHANS_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=config.model,
+            model=config.model_for("medium"),
             max_tokens=max(1024, len(orphans) * 200),
+            reservation_key="junk_orphan.verify",
             tools=get_verify_orphan_files_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_orphan_files"},
             tool_input_validators=[check_completeness],
@@ -512,7 +512,6 @@ async def detect_orphaned_files_async(
 
     # Phase 6: Sonnet verification (batch up to 10 per call)
     results: list[OrphanVerification] = []
-    semaphore = asyncio.Semaphore(config.max_concurrency)
     completed = 0
     total_batches = (len(orphans) + 9) // 10
     lock = asyncio.Lock()
@@ -520,40 +519,37 @@ async def detect_orphaned_files_async(
     async def process_batch(batch: list[OrphanCandidate]) -> list[OrphanVerification]:
         nonlocal completed
 
-        async with semaphore:
-            try:
-                verifications, in_tok, out_tok = await _verify_orphans_batch_async(
-                    provider, rate_limiter, config, batch, shadow_contents,
-                )
-                rate_limiter.record_usage(input_tokens=in_tok, output_tokens=out_tok)
+        try:
+            verifications, _in_tok, _out_tok = await _verify_orphans_batch_async(
+                provider, rate_limiter, config, batch, shadow_contents,
+            )
 
-                async with lock:
-                    completed += 1
-                    dead_count = sum(1 for v in verifications if v.is_orphaned)
-                    for v in verifications:
-                        if v.is_orphaned:
-                            results.append(v)
-                    if on_progress:
-                        on_progress(
-                            completed, total_batches,
-                            Path(batch[0].source_path),
-                            f"{dead_count} orphaned",
-                        )
-                return verifications
-            except Exception as e:
-                async with lock:
-                    completed += 1
-                    if on_progress:
-                        on_progress(
-                            completed, total_batches,
-                            Path(batch[0].source_path), "error",
-                        )
-                print(f"  [error] orphan verification: {e}", flush=True)
-                return []
+            async with lock:
+                completed += 1
+                dead_count = sum(1 for v in verifications if v.is_orphaned)
+                for v in verifications:
+                    if v.is_orphaned:
+                        results.append(v)
+                if on_progress:
+                    on_progress(
+                        completed, total_batches,
+                        Path(batch[0].source_path),
+                        f"{dead_count} orphaned",
+                    )
+            return verifications
+        except Exception as e:
+            async with lock:
+                completed += 1
+                if on_progress:
+                    on_progress(
+                        completed, total_batches,
+                        Path(batch[0].source_path), "error",
+                    )
+            print(f"  [error] orphan verification: {e}", flush=True)
+            return []
 
     batches = [orphans[i:i + 10] for i in range(0, len(orphans), 10)]
-    tasks = [process_batch(b) for b in batches]
-    await asyncio.gather(*tasks)
+    await gather_with_buffer([lambda batch=batch: process_batch(batch) for batch in batches])
 
     return results
 
@@ -575,19 +571,13 @@ class OrphanedFilesAnalyzer(JunkAnalyzer):
 
     def analyze(self, config, on_progress=None, rate_limiter=None):
         """Sync wrapper — requires symbols data."""
-        from .llm.factory import create_provider
-        from .llm.logging import LoggingProvider
-        from .rate_limiter import get_config_with_overrides
-
         symbols_dir = config.root_path / SHADOW_DIR / "symbols"
         if not symbols_dir.exists():
             print("  [skip] No symbols data found. Run 'osoji shadow .' first.", flush=True)
             return JunkAnalysisResult(findings=[], total_candidates=0, analyzer_name=self.name)
 
         async def _run() -> JunkAnalysisResult:
-            provider = create_provider("anthropic")
-            logging_provider = LoggingProvider(provider)
-            rl = rate_limiter if rate_limiter is not None else RateLimiter(get_config_with_overrides("anthropic"))
+            logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
             try:
                 return await self.analyze_async(
                     logging_provider, rl, config, on_progress

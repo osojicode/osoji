@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
+from .async_utils import gather_with_buffer
 from .config import Config, SHADOW_DIR
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content, validate_line_ranges
 from .llm.base import LLMProvider
@@ -445,8 +446,9 @@ async def _verify_batch_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_DEAD_CODE_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=config.model,
+            model=config.model_for("medium"),
             max_tokens=max(1024, len(candidates) * 250),
+            reservation_key="deadcode.verify_batch",
             tools=get_dead_code_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_dead_code"},
             tool_input_validators=[check_completeness, validate_line_ranges],
@@ -577,7 +579,6 @@ async def detect_dead_code_async(
         if current_batch:
             batches.append(current_batch)
 
-    semaphore = asyncio.Semaphore(config.max_concurrency)
     completed_batches = 0
     total_batches = len(batches)
     lock = asyncio.Lock()
@@ -586,51 +587,47 @@ async def detect_dead_code_async(
         nonlocal completed_batches
 
         source_path = batch[0].source_path
-        async with semaphore:
-            await rate_limiter.throttle()
-            try:
-                # Collect ref shadow docs for all candidates in batch
-                ref_shadows: dict[str, str] = {}
-                for candidate in batch:
-                    for hit in candidate.grep_hits:
-                        if hit.file_path not in ref_shadows:
-                            ref_shadows[hit.file_path] = shadow_contents.get(hit.file_path, "")
+        try:
+            # Collect ref shadow docs for all candidates in batch
+            ref_shadows: dict[str, str] = {}
+            for candidate in batch:
+                for hit in candidate.grep_hits:
+                    if hit.file_path not in ref_shadows:
+                        ref_shadows[hit.file_path] = shadow_contents.get(hit.file_path, "")
 
-                verifications, verify_in, verify_out = await _verify_batch_async(
-                    provider,
-                    config,
-                    batch,
-                    file_contents.get(source_path, ""),
-                    shadow_contents.get(source_path, ""),
-                    ref_shadows,
-                )
-                rate_limiter.record_usage(input_tokens=verify_in, output_tokens=verify_out)
-                async with lock:
-                    completed_batches += 1
-                    for v in verifications:
-                        if v.is_dead:
-                            results.append(v)
-                    if on_progress:
-                        on_progress(
-                            completed_batches, total_batches,
-                            Path(source_path),
-                            f"{sum(1 for v in verifications if v.is_dead)} dead",
-                        )
-                return verifications
-            except Exception as e:
-                async with lock:
-                    completed_batches += 1
-                    if on_progress:
-                        on_progress(
-                            completed_batches, total_batches,
-                            Path(source_path), "error",
-                        )
-                names = [c.name for c in batch]
-                print(f"  [error] {source_path}:{names}: {e}", flush=True)
-                return []
+            verifications, _verify_in, _verify_out = await _verify_batch_async(
+                provider,
+                config,
+                batch,
+                file_contents.get(source_path, ""),
+                shadow_contents.get(source_path, ""),
+                ref_shadows,
+            )
+            async with lock:
+                completed_batches += 1
+                for v in verifications:
+                    if v.is_dead:
+                        results.append(v)
+                if on_progress:
+                    on_progress(
+                        completed_batches, total_batches,
+                        Path(source_path),
+                        f"{sum(1 for v in verifications if v.is_dead)} dead",
+                    )
+            return verifications
+        except Exception as e:
+            async with lock:
+                completed_batches += 1
+                if on_progress:
+                    on_progress(
+                        completed_batches, total_batches,
+                        Path(source_path), "error",
+                    )
+            names = [c.name for c in batch]
+            print(f"  [error] {source_path}:{names}: {e}", flush=True)
+            return []
 
-    tasks = [process_batch(b) for b in batches]
-    await asyncio.gather(*tasks)
+    await gather_with_buffer([lambda batch=batch: process_batch(batch) for batch in batches])
 
     return results
 

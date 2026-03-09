@@ -6,15 +6,15 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config, DIRECTORY_SHADOW_FILENAME, MODEL_SMALL, MODEL_MEDIUM, MODEL_LARGE, SHADOW_DIR
+from .async_utils import gather_with_buffer
+from .config import Config, DIRECTORY_SHADOW_FILENAME, SHADOW_DIR
 from .facts import FactsDB
 from .hasher import read_file_safe
 from .llm.base import LLMProvider
-from .llm.factory import create_provider
-from .llm.logging import LoggingProvider
+from .llm.runtime import create_runtime
 from .llm.tokens import estimate_tokens_offline
 from .llm.types import Message, MessageRole, CompletionOptions
-from .rate_limiter import RateLimiter, get_config_with_overrides
+from .rate_limiter import RateLimiter
 from .tools import (
     get_match_doc_topics_tool_definitions,
     get_analyze_document_tool_definitions,
@@ -169,8 +169,6 @@ def _find_referenced_sources_regex(config: Config, doc_content: str) -> list[Pat
 
 # --- Tier 2: Topic matching via Haiku ---
 
-MATCH_MODEL = MODEL_SMALL
-
 _MATCH_SYSTEM_PROMPT = """You are a documentation-to-code matcher. Given a documentation file and a list of source code directory summaries, identify which directories contain code relevant to this documentation.
 
 Return the directory paths whose code is discussed, referenced, or semantically relevant to the doc — even if the doc doesn't explicitly name the files.
@@ -266,8 +264,9 @@ Return the directory paths using the match_doc_topics tool."""
         messages=[Message(role=MessageRole.USER, content=user_prompt)],
         system=_MATCH_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=MATCH_MODEL,
+            model=config.model_for("small"),
             max_tokens=1024,
+            reservation_key="doc.match_topics",
             tools=get_match_doc_topics_tool_definitions(),
             tool_choice={"type": "tool", "name": "match_doc_topics"},
         ),
@@ -290,8 +289,6 @@ Return the directory paths using the match_doc_topics tool."""
 
     return matched_files, result.input_tokens, result.output_tokens, topic_signature
 
-
-ANALYZE_MODEL = MODEL_LARGE
 
 # --- Unified analysis (Opus) ---
 
@@ -397,8 +394,9 @@ async def _analyze_document_async(
         messages=[Message(role=MessageRole.USER, content=user_prompt)],
         system=_ANALYZE_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=ANALYZE_MODEL,
+            model=config.model_for("large"),
             max_tokens=2048,
+            reservation_key="doc.analyze",
             tools=get_analyze_document_tool_definitions(),
             tool_choice={"type": "tool", "name": "analyze_document"},
         ),
@@ -440,8 +438,6 @@ async def _analyze_document_async(
 
 
 # --- Tier 4: Error-finding verification ---
-
-VERIFY_MODEL = MODEL_MEDIUM
 
 _VERIFY_SYSTEM_PROMPT = """You are a documentation accuracy verifier performing a second-pass review.
 
@@ -639,8 +635,9 @@ async def _verify_error_findings_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_VERIFY_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=VERIFY_MODEL,
+            model=config.model_for("medium"),
             max_tokens=max(1024, len(error_findings) * 300),
+            reservation_key="doc.verify_errors",
             tools=get_verify_doc_finding_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_doc_finding"},
             tool_input_validators=[check_completeness],
@@ -710,7 +707,6 @@ async def analyze_docs_async(
     # Load FactsDB once for doc-to-source reference lookups
     facts_db = FactsDB(config)
 
-    semaphore = asyncio.Semaphore(config.max_concurrency)
     completed = 0
     total = len(candidates)
     lock = asyncio.Lock()
@@ -719,113 +715,101 @@ async def analyze_docs_async(
     async def process_one(doc_path: Path) -> DocAnalysisResult | None:
         nonlocal completed
 
-        async with semaphore:
+        try:
+            # Read doc content (safe encoding)
             try:
-                # Read doc content (safe encoding)
-                try:
-                    content, is_binary = read_file_safe(doc_path)
-                    if is_binary:
-                        async with lock:
-                            completed += 1
-                            if on_progress:
-                                on_progress(completed, total, doc_path, "error")
-                        return None
-                except OSError:
+                content, is_binary = read_file_safe(doc_path)
+                if is_binary:
                     async with lock:
                         completed += 1
                         if on_progress:
                             on_progress(completed, total, doc_path, "error")
                     return None
-
-                # Truncate large docs
-                if len(content) > 50000:
-                    content = content[:50000] + "\n\n[... content truncated ...]"
-
-                # Tier 1: Explicit reference matching (FactsDB fast path, regex fallback)
-                explicit_refs = _find_referenced_sources(
-                    config, content, doc_path=doc_path, facts_db=facts_db,
-                )
-
-                # Tier 2: Haiku topic matching (always runs)
-                est_input = estimate_tokens_offline(content)
-                await rate_limiter.throttle(estimated_input_tokens=est_input)
-                haiku_matches, haiku_in, haiku_out, doc_topic_signature = await _match_topics_async(
-                    provider, config, content, dir_summaries
-                )
-                rate_limiter.record_usage(input_tokens=haiku_in, output_tokens=haiku_out)
-
-                # Merge and deduplicate
-                all_sources: dict[str, Path] = {}
-                for p in explicit_refs:
-                    all_sources[str(p).replace("\\", "/")] = p
-                for p in haiku_matches:
-                    key = str(p).replace("\\", "/")
-                    if key not in all_sources:
-                        all_sources[key] = p
-
-                # Load file-level shadow docs, respecting char cap
-                shadow_contexts: list[tuple[Path, str]] = []
-                total_chars = 0
-                for source_path in all_sources.values():
-                    shadow_path = shadow_root / (str(source_path) + ".shadow.md")
-                    if not shadow_path.exists():
-                        continue
-                    try:
-                        shadow_content = shadow_path.read_text(encoding="utf-8")
-                    except (OSError, UnicodeDecodeError):
-                        continue
-                    if total_chars + len(shadow_content) > _SHADOW_CHAR_CAP:
-                        break
-                    shadow_contexts.append((source_path, shadow_content))
-                    total_chars += len(shadow_content)
-
-                # Opus analysis (classify + validate)
-                shadow_chars = sum(len(s) for _, s in shadow_contexts)
-                est_input = estimate_tokens_offline(content) + shadow_chars // 4
-                await rate_limiter.throttle(estimated_input_tokens=est_input)
-                analysis, analyze_in, analyze_out = await _analyze_document_async(
-                    provider, config, doc_path, content, shadow_contexts, rules_text
-                )
-                rate_limiter.record_usage(input_tokens=analyze_in, output_tokens=analyze_out)
-
-                # Tier 4: Verify error-severity findings against full project
-                error_findings = [f for f in analysis.findings if f.severity == "error"]
-                if error_findings:
-                    est_input = estimate_tokens_offline(content) + len(error_findings) * 500
-                    await rate_limiter.throttle(estimated_input_tokens=est_input)
-                    verified, v_in, v_out = await _verify_error_findings_async(
-                        provider, config, doc_path, content, error_findings
-                    )
-                    rate_limiter.record_usage(input_tokens=v_in, output_tokens=v_out)
-                    non_errors = [f for f in analysis.findings if f.severity != "error"]
-                    analysis.findings = non_errors + verified
-
-                # Attach topic signature from Haiku matching
-                analysis.topic_signature = doc_topic_signature
-
-                async with lock:
-                    completed += 1
-                    results.append(analysis)
-                    if analysis.is_debris:
-                        status = "debris"
-                    elif analysis.findings:
-                        status = f"found {len(analysis.findings)}"
-                    else:
-                        status = "ok"
-                    if on_progress:
-                        on_progress(completed, total, doc_path, status)
-                return analysis
-
-            except Exception as e:
+            except OSError:
                 async with lock:
                     completed += 1
                     if on_progress:
                         on_progress(completed, total, doc_path, "error")
-                print(f"  [error] {doc_path}: {e}", flush=True)
                 return None
 
-    tasks = [process_one(path) for path in candidates]
-    await asyncio.gather(*tasks)
+            # Truncate large docs
+            if len(content) > 50000:
+                content = content[:50000] + "\n\n[... content truncated ...]"
+
+            # Tier 1: Explicit reference matching (FactsDB fast path, regex fallback)
+            explicit_refs = _find_referenced_sources(
+                config, content, doc_path=doc_path, facts_db=facts_db,
+            )
+
+            # Tier 2: Haiku topic matching (always runs)
+            haiku_matches, _haiku_in, _haiku_out, doc_topic_signature = await _match_topics_async(
+                provider, config, content, dir_summaries
+            )
+
+            # Merge and deduplicate
+            all_sources: dict[str, Path] = {}
+            for p in explicit_refs:
+                all_sources[str(p).replace("\\", "/")] = p
+            for p in haiku_matches:
+                key = str(p).replace("\\", "/")
+                if key not in all_sources:
+                    all_sources[key] = p
+
+            # Load file-level shadow docs, respecting char cap
+            shadow_contexts: list[tuple[Path, str]] = []
+            total_chars = 0
+            for source_path in all_sources.values():
+                shadow_path = shadow_root / (str(source_path) + ".shadow.md")
+                if not shadow_path.exists():
+                    continue
+                try:
+                    shadow_content = shadow_path.read_text(encoding="utf-8")
+                except (OSError, UnicodeDecodeError):
+                    continue
+                if total_chars + len(shadow_content) > _SHADOW_CHAR_CAP:
+                    break
+                shadow_contexts.append((source_path, shadow_content))
+                total_chars += len(shadow_content)
+
+            # Opus analysis (classify + validate)
+            analysis, _analyze_in, _analyze_out = await _analyze_document_async(
+                provider, config, doc_path, content, shadow_contexts, rules_text
+            )
+
+            # Tier 4: Verify error-severity findings against full project
+            error_findings = [f for f in analysis.findings if f.severity == "error"]
+            if error_findings:
+                verified, _v_in, _v_out = await _verify_error_findings_async(
+                    provider, config, doc_path, content, error_findings
+                )
+                non_errors = [f for f in analysis.findings if f.severity != "error"]
+                analysis.findings = non_errors + verified
+
+            # Attach topic signature from Haiku matching
+            analysis.topic_signature = doc_topic_signature
+
+            async with lock:
+                completed += 1
+                results.append(analysis)
+                if analysis.is_debris:
+                    status = "debris"
+                elif analysis.findings:
+                    status = f"found {len(analysis.findings)}"
+                else:
+                    status = "ok"
+                if on_progress:
+                    on_progress(completed, total, doc_path, status)
+            return analysis
+
+        except Exception as e:
+            async with lock:
+                completed += 1
+                if on_progress:
+                    on_progress(completed, total, doc_path, "error")
+            print(f"  [error] {doc_path}: {e}", flush=True)
+            return None
+
+    await gather_with_buffer([lambda path=path: process_one(path) for path in candidates])
 
     return results
 
@@ -844,9 +828,7 @@ def analyze_docs(
         return []
 
     async def _run() -> list[DocAnalysisResult]:
-        provider = create_provider("anthropic")
-        logging_provider = LoggingProvider(provider)
-        rl = rate_limiter if rate_limiter is not None else RateLimiter(get_config_with_overrides("anthropic"))
+        logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
         try:
             return await analyze_docs_async(
                 logging_provider, rl, config, on_progress

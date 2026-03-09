@@ -13,9 +13,8 @@ from typing import Any, Callable
 
 from .config import Config, SHADOW_DIR
 from .llm.base import LLMProvider
-from .llm.factory import create_provider
-from .llm.logging import LoggingProvider
-from .rate_limiter import RateLimiter, get_config_with_overrides
+from .llm.runtime import create_runtime
+from .rate_limiter import RateLimiter
 
 
 @dataclass
@@ -114,9 +113,7 @@ class JunkAnalyzer(ABC):
             return JunkAnalysisResult(findings=[], total_candidates=0, analyzer_name=self.name)
 
         async def _run() -> JunkAnalysisResult:
-            provider = create_provider("anthropic")
-            logging_provider = LoggingProvider(provider)
-            rl = rate_limiter if rate_limiter is not None else RateLimiter(get_config_with_overrides("anthropic"))
+            logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
             try:
                 return await self.analyze_async(
                     logging_provider, rl, config, on_progress

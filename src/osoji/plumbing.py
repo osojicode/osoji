@@ -12,7 +12,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config, MODEL_SMALL, SHADOW_DIR
+from .async_utils import gather_with_buffer
+from .config import Config, SHADOW_DIR
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content
 from .llm.base import LLMProvider
 from .llm.types import Message, MessageRole, CompletionOptions
@@ -114,8 +115,9 @@ async def extract_obligations_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_EXTRACT_OBLIGATIONS_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=MODEL_SMALL,
+            model=config.model_for("small"),
             max_tokens=2048,
+            reservation_key="plumbing.extract_obligations",
             tools=get_extract_obligations_tool_definitions(),
             tool_choice={"type": "tool", "name": "extract_obligations"},
         ),
@@ -216,8 +218,9 @@ async def verify_actuation_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_VERIFY_ACTUATION_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=config.model,
+            model=config.model_for("medium"),
             max_tokens=1024,
+            reservation_key="plumbing.verify_actuation",
             tools=get_verify_actuation_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_actuation"},
         ),
@@ -342,18 +345,18 @@ async def detect_dead_plumbing_async(
 
         shadow_content = _load_shadow_content(config, source_path)
 
-        await rate_limiter.throttle()
         try:
-            obligations, in_tok, out_tok = await extract_obligations_async(
+            obligations, _in_tok, _out_tok = await extract_obligations_async(
                 provider, config, source_path, source_content, shadow_content
             )
-            rate_limiter.record_usage(input_tokens=in_tok, output_tokens=out_tok)
             return obligations
         except Exception as e:
             print(f"  [error] extracting obligations from {source_path}: {e}", flush=True)
             return []
 
-    extraction_results = await asyncio.gather(*[extract_one(sp) for sp in schema_files])
+    extraction_results = await gather_with_buffer(
+        [lambda source_path=sp: extract_one(source_path) for sp in schema_files]
+    )
     all_obligations: list[ConfigObligation] = []
     for obligations in extraction_results:
         all_obligations.extend(obligations)
@@ -366,7 +369,6 @@ async def detect_dead_plumbing_async(
 
     # Step 3: Verify actuation for each obligation (Phase B)
     results: list[PlumbingVerification] = []
-    semaphore = asyncio.Semaphore(config.max_concurrency)
     completed = 0
     total = len(all_obligations)
     lock = asyncio.Lock()
@@ -385,61 +387,58 @@ async def detect_dead_plumbing_async(
     async def verify_one(obligation: ConfigObligation) -> PlumbingVerification | None:
         nonlocal completed
 
-        async with semaphore:
-            # Find referencing files
-            refs = _find_field_references(config, obligation.field_name, obligation.source_path, file_content_cache)
+        # Find referencing files
+        refs = _find_field_references(config, obligation.field_name, obligation.source_path, file_content_cache)
 
-            # Load shadow docs for referencing files
-            ref_shadows: dict[str, str] = {}
-            for ref_path in refs:
-                shadow = _load_shadow_content(config, ref_path)
+        # Load shadow docs for referencing files
+        ref_shadows: dict[str, str] = {}
+        for ref_path in refs:
+            shadow = _load_shadow_content(config, ref_path)
+            if shadow:
+                ref_shadows[ref_path] = shadow
+
+        # Build sibling shadows (other obligations from same schema)
+        schema_key = f"{obligation.source_path}:{obligation.schema_name}"
+        siblings = obligations_by_schema.get(schema_key, [])
+        sibling_shadows: dict[str, str] = {}
+        for sibling in siblings:
+            if sibling.field_name == obligation.field_name:
+                continue
+            sib_refs = _find_field_references(config, sibling.field_name, obligation.source_path, file_content_cache)
+            for sib_ref in sib_refs:
+                shadow = _load_shadow_content(config, sib_ref)
                 if shadow:
-                    ref_shadows[ref_path] = shadow
+                    label = f"`{sibling.field_name}` in `{sib_ref}`"
+                    sibling_shadows[label] = shadow
 
-            # Build sibling shadows (other obligations from same schema)
-            schema_key = f"{obligation.source_path}:{obligation.schema_name}"
-            siblings = obligations_by_schema.get(schema_key, [])
-            sibling_shadows: dict[str, str] = {}
-            for sibling in siblings:
-                if sibling.field_name == obligation.field_name:
-                    continue
-                # Find sibling's referencing files and collect their shadows
-                sib_refs = _find_field_references(config, sibling.field_name, obligation.source_path, file_content_cache)
-                for sib_ref in sib_refs:
-                    shadow = _load_shadow_content(config, sib_ref)
-                    if shadow:
-                        label = f"`{sibling.field_name}` in `{sib_ref}`"
-                        sibling_shadows[label] = shadow
+        schema_shadow = _load_shadow_content(config, obligation.source_path)
 
-            schema_shadow = _load_shadow_content(config, obligation.source_path)
+        try:
+            verification, _in_tok, _out_tok = await verify_actuation_async(
+                provider, config, obligation,
+                schema_shadow, ref_shadows, sibling_shadows,
+            )
 
-            await rate_limiter.throttle()
-            try:
-                verification, in_tok, out_tok = await verify_actuation_async(
-                    provider, config, obligation,
-                    schema_shadow, ref_shadows, sibling_shadows,
-                )
-                rate_limiter.record_usage(input_tokens=in_tok, output_tokens=out_tok)
+            async with lock:
+                completed += 1
+                if not verification.is_actuated:
+                    results.append(verification)
+                status = "ok" if verification.is_actuated else "unactuated"
+                if on_progress:
+                    on_progress(completed, total, Path(obligation.source_path), status)
 
-                async with lock:
-                    completed += 1
-                    if not verification.is_actuated:
-                        results.append(verification)
-                    status = "ok" if verification.is_actuated else "unactuated"
-                    if on_progress:
-                        on_progress(completed, total, Path(obligation.source_path), status)
+            return verification
+        except Exception as e:
+            async with lock:
+                completed += 1
+                if on_progress:
+                    on_progress(completed, total, Path(obligation.source_path), "error")
+            print(f"  [error] {obligation.source_path}:{obligation.field_name}: {e}", flush=True)
+            return None
 
-                return verification
-            except Exception as e:
-                async with lock:
-                    completed += 1
-                    if on_progress:
-                        on_progress(completed, total, Path(obligation.source_path), "error")
-                print(f"  [error] {obligation.source_path}:{obligation.field_name}: {e}", flush=True)
-                return None
-
-    tasks = [verify_one(obl) for obl in all_obligations]
-    await asyncio.gather(*tasks)
+    await gather_with_buffer(
+        [lambda obligation=obl: verify_one(obligation) for obl in all_obligations]
+    )
 
     return PlumbingResult(verifications=results, total_obligations=len(all_obligations))
 

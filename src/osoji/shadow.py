@@ -10,19 +10,19 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
+from .async_utils import MAX_PENDING_TASKS, gather_with_buffer
 from .config import Config, SHADOW_DIR
 from .hasher import add_line_numbers, compute_children_hash, compute_file_hash, compute_impl_hash, extract_children_hash, extract_impl_hash, extract_source_hash, read_file_safe
 from .llm import (
-    create_provider,
     LLMProvider,
-    LoggingProvider,
     Message,
     MessageRole,
     CompletionOptions,
     CompletionResult,
     estimate_tokens_offline,
 )
-from .rate_limiter import RateLimiter, get_config_with_overrides
+from .llm.runtime import create_runtime
+from .rate_limiter import RateLimiter
 from .tools import get_file_tool_definitions, get_directory_tool_definitions
 from .walker import (
     discover_files,
@@ -433,8 +433,9 @@ Include line number references for key elements (e.g., "MyClass (L15-45)").
 
     messages = [Message(role=MessageRole.USER, content=user_prompt)]
     options = CompletionOptions(
-        model=config.model,
+        model=config.model_for("medium"),
         max_tokens=4096,
+        reservation_key="shadow.file",
         tools=get_file_tool_definitions(),
         tool_choice={"type": "tool", "name": "submit_shadow_doc"},
     )
@@ -519,8 +520,9 @@ Focus on:
 
     messages = [Message(role=MessageRole.USER, content=user_prompt)]
     options = CompletionOptions(
-        model=config.model,
+        model=config.model_for("medium"),
         max_tokens=4096,
+        reservation_key="shadow.directory",
         tools=get_directory_tool_definitions(),
         tool_choice={"type": "tool", "name": "submit_directory_shadow_doc"},
     )
@@ -579,7 +581,7 @@ async def process_file_async(
             )
             body, input_tokens, output_tokens, findings, symbols, file_role, topic_signature, facts = (
                 await _process_large_file_async(
-                    provider, config, file_path, numbered_content, rate_limiter
+                    provider, config, file_path, numbered_content
                 )
             )
         else:
@@ -754,8 +756,9 @@ Merge these into a single cohesive shadow doc using the submit_shadow_doc tool."
 
     messages = [Message(role=MessageRole.USER, content=user_prompt)]
     options = CompletionOptions(
-        model=config.model,
+        model=config.model_for("medium"),
         max_tokens=4096,
+        reservation_key="shadow.chunk_rollup",
         tools=get_file_tool_definitions(),
         tool_choice={"type": "tool", "name": "submit_shadow_doc"},
     )
@@ -798,7 +801,6 @@ async def _process_large_file_async(
     config: Config,
     file_path: Path,
     numbered_content: str,
-    rate_limiter: RateLimiter | None = None,
 ) -> tuple[str, int, int, list[Finding], list[dict], str, dict | None, dict]:
     """Process a large file by splitting into chunks, generating shadow docs per chunk,
     then combining into a single shadow doc.
@@ -820,18 +822,11 @@ async def _process_large_file_async(
     for i, (chunk_text, start_line, end_line) in enumerate(chunks):
         prefixed_chunk = f"[Part {i + 1} of {total_chunks}, lines {start_line}-{end_line}]\n\n{chunk_text}"
 
-        if rate_limiter is not None:
-            est_input = estimate_tokens_offline(prefixed_chunk)
-            await rate_limiter.throttle(estimated_input_tokens=est_input)
-
         body, in_tok, out_tok, findings, symbols, _file_role, _topic_sig, _chunk_facts = (
             await generate_file_shadow_doc_async(
                 provider, config, file_path, prefixed_chunk
             )
         )
-
-        if rate_limiter is not None:
-            rate_limiter.record_usage(input_tokens=in_tok, output_tokens=out_tok)
 
         chunk_shadows.append(body)
         total_input_tokens += in_tok
@@ -840,16 +835,9 @@ async def _process_large_file_async(
         all_symbols.extend(symbols)
 
     # Rollup: combine chunk shadows into a single shadow doc
-    if rate_limiter is not None:
-        est_input = estimate_tokens_offline("\n".join(chunk_shadows))
-        await rate_limiter.throttle(estimated_input_tokens=est_input)
-
     rollup_body, rollup_in, rollup_out, rollup_findings, rollup_symbols, file_role, topic_signature, rollup_facts = (
         await _generate_chunk_rollup_async(provider, config, file_path, chunk_shadows)
     )
-
-    if rate_limiter is not None:
-        rate_limiter.record_usage(input_tokens=rollup_in, output_tokens=rollup_out)
 
     total_input_tokens += rollup_in
     total_output_tokens += rollup_out
@@ -911,11 +899,11 @@ async def generate_shadows_parallel(
     files: list[Path],
     on_progress: Callable[[int, int, Path, str], None] | None = None,
 ) -> list[ShadowResult]:
-    """Generate shadow docs in parallel with rate limiting.
+    """Generate shadow docs in parallel.
 
     Args:
         provider: LLM provider to use
-        rate_limiter: Rate limiter for API calls
+        rate_limiter: Shared rate limiter backing the wrapped provider
         config: Configuration
         files: List of files to process
         on_progress: Optional callback for progress updates
@@ -923,7 +911,6 @@ async def generate_shadows_parallel(
     Returns:
         List of ShadowResult objects
     """
-    semaphore = asyncio.Semaphore(config.max_concurrency)
     completed = 0
     total = len(files)
     lock = asyncio.Lock()
@@ -931,37 +918,30 @@ async def generate_shadows_parallel(
     async def process_one(file_path: Path) -> ShadowResult:
         nonlocal completed
 
-        async with semaphore:
-            # Check if cached first (no rate limiting needed)
-            if not is_stale(config, file_path):
-                shadow_path = config.shadow_path_for(file_path)
-                shadow_content = shadow_path.read_text(encoding="utf-8")
-                body = _extract_body_from_shadow(shadow_content)
-                result = ShadowResult(path=file_path, body=body, cached=True)
-            else:
-                # Need to make API call - throttle first with token estimate
-                est_input = file_path.stat().st_size // 4
-                await rate_limiter.throttle(estimated_input_tokens=est_input)
-                result = await process_file_async(
-                    provider, config, file_path, rate_limiter=rate_limiter
-                )
-                # Record actual token usage from API response
-                if not result.cached and not result.error:
-                    rate_limiter.record_usage(
-                        input_tokens=result.input_tokens,
-                        output_tokens=result.output_tokens,
-                    )
+        # Check if cached first (no rate limiting needed)
+        if not is_stale(config, file_path):
+            shadow_path = config.shadow_path_for(file_path)
+            shadow_content = shadow_path.read_text(encoding="utf-8")
+            body = _extract_body_from_shadow(shadow_content)
+            result = ShadowResult(path=file_path, body=body, cached=True)
+        else:
+            result = await process_file_async(
+                provider, config, file_path, rate_limiter=rate_limiter
+            )
 
-            async with lock:
-                completed += 1
-                if on_progress:
-                    status = "cached" if result.cached else ("error" if result.error else "generated")
-                    on_progress(completed, total, file_path, status)
+        async with lock:
+            completed += 1
+            if on_progress:
+                status = "cached" if result.cached else ("error" if result.error else "generated")
+                on_progress(completed, total, file_path, status)
 
-            return result
+        return result
 
-    tasks = [process_one(f) for f in files]
-    results = await asyncio.gather(*tasks, return_exceptions=True)
+    results = await gather_with_buffer(
+        [lambda file_path=file_path: process_one(file_path) for file_path in files],
+        max_pending=MAX_PENDING_TASKS,
+        return_exceptions=True,
+    )
 
     # Convert exceptions to ShadowResults
     final_results: list[ShadowResult] = []
@@ -1013,7 +993,6 @@ async def generate_directory_shadows(
     dir_children_hashes: dict[Path, str] = {}
     dir_errors: list[tuple[Path, str]] = []
     lock = asyncio.Lock()
-    semaphore = asyncio.Semaphore(config.max_concurrency)
 
     # Build dependency info for each directory
     # pending_children[dir] = set of child directories not yet complete
@@ -1043,141 +1022,132 @@ async def generate_directory_shadows(
         """Process a single directory and notify parent when done."""
         nonlocal completed_count
 
-        async with semaphore:
-            relative_path = dir_path.relative_to(config.root_path)
-            if relative_path == Path("."):
-                relative_path = Path("(root)")
+        relative_path = dir_path.relative_to(config.root_path)
+        if relative_path == Path("."):
+            relative_path = Path("(root)")
 
-            try:
-                # Build child_entries for Merkle hash
-                child_entries: list[tuple[str, str]] = []
+        try:
+            # Build child_entries for Merkle hash
+            child_entries: list[tuple[str, str]] = []
 
-                # Child files: (name, file_content_hash)
-                for file_path in get_direct_children(dir_path, all_files):
-                    if file_path in file_bodies:
-                        child_entries.append((file_path.name, compute_file_hash(file_path)))
+            # Child files: (name, file_content_hash)
+            for file_path in get_direct_children(dir_path, all_files):
+                if file_path in file_bodies:
+                    child_entries.append((file_path.name, compute_file_hash(file_path)))
 
-                # Child dirs: (name, children_hash) — already computed (bottom-up)
-                async with lock:
-                    for child_dir in get_child_directories(dir_path, all_dirs):
-                        if child_dir in dir_children_hashes:
-                            child_entries.append((child_dir.name, dir_children_hashes[child_dir]))
+            # Child dirs: (name, children_hash) — already computed (bottom-up)
+            async with lock:
+                for child_dir in get_child_directories(dir_path, all_dirs):
+                    if child_dir in dir_children_hashes:
+                        child_entries.append((child_dir.name, dir_children_hashes[child_dir]))
 
-                current_hash = compute_children_hash(child_entries)
+            current_hash = compute_children_hash(child_entries)
 
-                # Check if cached
-                if not is_directory_stale(config, dir_path, current_hash):
-                    shadow_path = config.shadow_path_for_dir(dir_path)
-                    shadow_content = shadow_path.read_text(encoding="utf-8")
-                    body = _extract_body_from_shadow(shadow_content)
-                    async with lock:
-                        dir_bodies[dir_path] = body
-                        dir_children_hashes[dir_path] = current_hash
-                        completed_count += 1
-                        if on_progress:
-                            on_progress(completed_count, total_dirs, dir_path, "cached")
-                        if dir_path in parent_of:
-                            parent = parent_of[dir_path]
-                            pending_children[parent].discard(dir_path)
-                            if not pending_children[parent]:
-                                await ready_queue.put(parent)
-                    return
-
-                # Gather summaries for LLM call
-                child_summaries: list[tuple[Path, str]] = []
-
-                for file_path in get_direct_children(dir_path, all_files):
-                    if file_path in file_bodies:
-                        child_summaries.append((file_path, file_bodies[file_path]))
-
-                async with lock:
-                    for child_dir in get_child_directories(dir_path, all_dirs):
-                        if child_dir in dir_bodies:
-                            child_summaries.append((child_dir, dir_bodies[child_dir]))
-
-                if not child_summaries:
-                    # Empty directory - mark complete and notify parent
-                    async with lock:
-                        dir_bodies[dir_path] = ""
-                        dir_children_hashes[dir_path] = current_hash
-                        completed_count += 1
-                        if on_progress:
-                            on_progress(completed_count, total_dirs, dir_path, "empty")
-                        if dir_path in parent_of:
-                            parent = parent_of[dir_path]
-                            pending_children[parent].discard(dir_path)
-                            if not pending_children[parent]:
-                                await ready_queue.put(parent)
-                    return
-
-                if on_progress:
-                    on_progress(completed_count, total_dirs, dir_path, "processing")
-
-                est_input = sum(len(s) for _, s in child_summaries) // 4
-                await rate_limiter.throttle(estimated_input_tokens=est_input)
-                body, input_tokens, output_tokens, topic_signature = await generate_directory_shadow_doc_async(
-                    provider, config, dir_path, child_summaries
-                )
-                full_doc = assemble_directory_shadow_doc(relative_path, current_hash, body)
-
-                # Write shadow doc
+            # Check if cached
+            if not is_directory_stale(config, dir_path, current_hash):
                 shadow_path = config.shadow_path_for_dir(dir_path)
-                shadow_path.parent.mkdir(parents=True, exist_ok=True)
-                await _write_with_retry(shadow_path, full_doc)
-
-                # Write directory topic signature
-                if topic_signature:
-                    sig_path = config.signatures_path_for_dir(dir_path)
-                    sig_path.parent.mkdir(parents=True, exist_ok=True)
-                    sig_json = {
-                        "path": str(relative_path).replace("\\", "/"),
-                        "kind": "directory",
-                        "purpose": topic_signature.get("purpose", ""),
-                        "topics": topic_signature.get("topics", []),
-                    }
-                    await _write_with_retry(sig_path, json.dumps(sig_json, indent=2))
-
-                # Record actual token usage from API response
-                rate_limiter.record_usage(
-                    input_tokens=input_tokens,
-                    output_tokens=output_tokens,
-                )
-
-                # Update state and notify parent
+                shadow_content = shadow_path.read_text(encoding="utf-8")
+                body = _extract_body_from_shadow(shadow_content)
                 async with lock:
                     dir_bodies[dir_path] = body
                     dir_children_hashes[dir_path] = current_hash
                     completed_count += 1
                     if on_progress:
-                        on_progress(completed_count, total_dirs, dir_path, "generated")
+                        on_progress(completed_count, total_dirs, dir_path, "cached")
                     if dir_path in parent_of:
                         parent = parent_of[dir_path]
                         pending_children[parent].discard(dir_path)
                         if not pending_children[parent]:
                             await ready_queue.put(parent)
+                return
 
-            except Exception as e:
-                # Store sentinel hash so parent can still compute its hash
-                sentinel_hash = compute_children_hash([])
+            # Gather summaries for LLM call
+            child_summaries: list[tuple[Path, str]] = []
+
+            for file_path in get_direct_children(dir_path, all_files):
+                if file_path in file_bodies:
+                    child_summaries.append((file_path, file_bodies[file_path]))
+
+            async with lock:
+                for child_dir in get_child_directories(dir_path, all_dirs):
+                    if child_dir in dir_bodies:
+                        child_summaries.append((child_dir, dir_bodies[child_dir]))
+
+            if not child_summaries:
+                # Empty directory - mark complete and notify parent
                 async with lock:
-                    dir_errors.append((dir_path, str(e)))
                     dir_bodies[dir_path] = ""
-                    dir_children_hashes[dir_path] = sentinel_hash
+                    dir_children_hashes[dir_path] = current_hash
                     completed_count += 1
                     if on_progress:
-                        on_progress(completed_count, total_dirs, dir_path, "error")
+                        on_progress(completed_count, total_dirs, dir_path, "empty")
                     if dir_path in parent_of:
                         parent = parent_of[dir_path]
                         pending_children[parent].discard(dir_path)
                         if not pending_children[parent]:
                             await ready_queue.put(parent)
+                return
+
+            if on_progress:
+                on_progress(completed_count, total_dirs, dir_path, "processing")
+
+            body, _input_tokens, _output_tokens, topic_signature = await generate_directory_shadow_doc_async(
+                provider, config, dir_path, child_summaries
+            )
+            full_doc = assemble_directory_shadow_doc(relative_path, current_hash, body)
+
+            # Write shadow doc
+            shadow_path = config.shadow_path_for_dir(dir_path)
+            shadow_path.parent.mkdir(parents=True, exist_ok=True)
+            await _write_with_retry(shadow_path, full_doc)
+
+            # Write directory topic signature
+            if topic_signature:
+                sig_path = config.signatures_path_for_dir(dir_path)
+                sig_path.parent.mkdir(parents=True, exist_ok=True)
+                sig_json = {
+                    "path": str(relative_path).replace("\\", "/"),
+                    "kind": "directory",
+                    "purpose": topic_signature.get("purpose", ""),
+                    "topics": topic_signature.get("topics", []),
+                }
+                await _write_with_retry(sig_path, json.dumps(sig_json, indent=2))
+
+            # Update state and notify parent
+            async with lock:
+                dir_bodies[dir_path] = body
+                dir_children_hashes[dir_path] = current_hash
+                completed_count += 1
+                if on_progress:
+                    on_progress(completed_count, total_dirs, dir_path, "generated")
+                if dir_path in parent_of:
+                    parent = parent_of[dir_path]
+                    pending_children[parent].discard(dir_path)
+                    if not pending_children[parent]:
+                        await ready_queue.put(parent)
+
+        except Exception as e:
+            # Store sentinel hash so parent can still compute its hash
+            sentinel_hash = compute_children_hash([])
+            async with lock:
+                dir_errors.append((dir_path, str(e)))
+                dir_bodies[dir_path] = ""
+                dir_children_hashes[dir_path] = sentinel_hash
+                completed_count += 1
+                if on_progress:
+                    on_progress(completed_count, total_dirs, dir_path, "error")
+                if dir_path in parent_of:
+                    parent = parent_of[dir_path]
+                    pending_children[parent].discard(dir_path)
+                    if not pending_children[parent]:
+                        await ready_queue.put(parent)
 
     # Process directories as they become ready
     active_tasks: set[asyncio.Task] = set()
 
     while completed_count < total_dirs:
         # Start new tasks for ready directories
-        while not ready_queue.empty():
+        while len(active_tasks) < MAX_PENDING_TASKS and not ready_queue.empty():
             dir_path = await ready_queue.get()
             task = asyncio.create_task(process_directory(dir_path))
             active_tasks.add(task)
@@ -1231,15 +1201,14 @@ async def generate_shadow_docs_async(
         return True
 
     print(f"Found {len(files)} source files in {len(dirs)} directories", flush=True)
-    print(f"Concurrency: {config.max_concurrency}", flush=True)
 
     # Create provider with logging wrapper
-    provider = create_provider("anthropic")
-    logging_provider = LoggingProvider(provider, verbose=verbose)
-
     # Create rate limiter if not provided externally
-    if rate_limiter is None:
-        rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
+    logging_provider, rate_limiter = create_runtime(
+        config,
+        verbose=verbose,
+        rate_limiter=rate_limiter,
+    )
 
     try:
         # Process files in parallel

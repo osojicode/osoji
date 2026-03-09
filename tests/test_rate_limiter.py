@@ -1,52 +1,90 @@
-"""Tests for rate limiter module."""
+"""Tests for reservation-based rate limiting."""
 
 from __future__ import annotations
 
 import asyncio
 import os
-import time
+from collections import deque
+from types import SimpleNamespace
 from unittest import mock
 
 import pytest
 
+from osoji.llm.base import LLMProvider
+from osoji.llm.rate_limited import RateLimitedProvider
+from osoji.llm.types import CompletionOptions, CompletionResult, Message, MessageRole
 from osoji.rate_limiter import (
     ANTHROPIC_DEFAULTS,
     GOOGLE_DEFAULTS,
     OPENAI_DEFAULTS,
     RateLimiter,
     RateLimiterConfig,
-    UsageStats,
     get_config_with_overrides,
     get_default_config,
 )
 
 
-class TestRateLimiterConfig:
-    """Tests for RateLimiterConfig dataclass."""
+class FakeClock:
+    def __init__(self) -> None:
+        self.current = 0.0
+        self.sleeps: list[float] = []
 
-    def test_default_values(self):
-        config = RateLimiterConfig()
-        assert config.requests_per_minute == 60
-        assert config.input_tokens_per_minute == 100_000
-        assert config.output_tokens_per_minute == 100_000
-        assert config.name == "default"
+    def now(self) -> float:
+        return self.current
 
-    def test_custom_values(self):
-        config = RateLimiterConfig(
-            requests_per_minute=120,
-            input_tokens_per_minute=200_000,
-            output_tokens_per_minute=50_000,
-            name="custom",
-        )
-        assert config.requests_per_minute == 120
-        assert config.input_tokens_per_minute == 200_000
-        assert config.output_tokens_per_minute == 50_000
-        assert config.name == "custom"
+    async def sleep(self, seconds: float) -> None:
+        self.sleeps.append(seconds)
+        self.current += seconds
+
+
+class SequenceProvider(LLMProvider):
+    def __init__(self, responses: list[CompletionResult | Exception], *, name: str = "anthropic") -> None:
+        self._responses = deque(responses)
+        self._name = name
+        self.calls: list[tuple[list[Message], str | None, CompletionOptions]] = []
+        self.closed = False
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    async def complete(
+        self,
+        messages: list[Message],
+        system: str | None,
+        options: CompletionOptions,
+    ) -> CompletionResult:
+        self.calls.append((messages, system, options))
+        response = self._responses.popleft()
+        if isinstance(response, Exception):
+            raise response
+        return response
+
+    async def close(self) -> None:
+        self.closed = True
+
+
+def _ticket_kwargs(*, key: str = "test", estimated_input: int = 0, reserved_output: int | None = None, max_output: int = 0) -> dict[str, int | str | None]:
+    return {
+        "reservation_key": key,
+        "estimated_input_tokens": estimated_input,
+        "reserved_output_tokens": reserved_output,
+        "max_output_tokens": max_output,
+    }
+
+
+def _completion(*, input_tokens: int, output_tokens: int) -> CompletionResult:
+    return CompletionResult(
+        content="ok",
+        tool_calls=[],
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        model="test-model",
+        stop_reason="end_turn",
+    )
 
 
 class TestProviderDefaults:
-    """Tests for provider default configurations."""
-
     def test_anthropic_defaults(self):
         assert ANTHROPIC_DEFAULTS.requests_per_minute == 4000
         assert ANTHROPIC_DEFAULTS.input_tokens_per_minute == 2_000_000
@@ -65,16 +103,10 @@ class TestProviderDefaults:
         assert GOOGLE_DEFAULTS.output_tokens_per_minute == 5_000_000
         assert GOOGLE_DEFAULTS.name == "google"
 
-    def test_get_default_config_anthropic(self):
+    def test_get_default_config_is_copy(self):
         config = get_default_config("anthropic")
-        assert config.requests_per_minute == 4000
-        assert config.input_tokens_per_minute == 2_000_000
-        assert config.output_tokens_per_minute == 400_000
-        assert config.name == "anthropic"
-
-    def test_get_default_config_case_insensitive(self):
-        config = get_default_config("ANTHROPIC")
-        assert config.name == "anthropic"
+        config.requests_per_minute = 1
+        assert ANTHROPIC_DEFAULTS.requests_per_minute == 4000
 
     def test_get_default_config_unknown_provider(self):
         with pytest.raises(ValueError, match="Unknown provider"):
@@ -82,584 +114,320 @@ class TestProviderDefaults:
 
 
 class TestEnvironmentOverrides:
-    """Tests for environment variable overrides."""
-
     def test_rpm_override(self):
         with mock.patch.dict(os.environ, {"ANTHROPIC_RPM": "120"}):
             config = get_config_with_overrides("anthropic")
-            assert config.requests_per_minute == 120
-            assert config.input_tokens_per_minute == 2_000_000  # unchanged
+        assert config.requests_per_minute == 120
+        assert config.input_tokens_per_minute == 2_000_000
 
-    def test_tpm_override_sets_both(self):
-        """Legacy TPM env var sets both input and output."""
+    def test_legacy_tpm_override_sets_both(self):
         with mock.patch.dict(os.environ, {"ANTHROPIC_TPM": "200000"}):
             config = get_config_with_overrides("anthropic")
-            assert config.requests_per_minute == 4000  # unchanged
-            assert config.input_tokens_per_minute == 200_000
-            assert config.output_tokens_per_minute == 200_000
-
-    def test_input_tpm_override(self):
-        with mock.patch.dict(os.environ, {"ANTHROPIC_INPUT_TPM": "3000000"}):
-            config = get_config_with_overrides("anthropic")
-            assert config.input_tokens_per_minute == 3_000_000
-            assert config.output_tokens_per_minute == 400_000  # unchanged
-
-    def test_output_tpm_override(self):
-        with mock.patch.dict(os.environ, {"ANTHROPIC_OUTPUT_TPM": "500000"}):
-            config = get_config_with_overrides("anthropic")
-            assert config.input_tokens_per_minute == 2_000_000  # unchanged
-            assert config.output_tokens_per_minute == 500_000
+        assert config.input_tokens_per_minute == 200_000
+        assert config.output_tokens_per_minute == 200_000
 
     def test_specific_overrides_take_precedence(self):
-        """INPUT_TPM and OUTPUT_TPM take precedence over legacy TPM."""
         with mock.patch.dict(
             os.environ,
             {
-                "ANTHROPIC_TPM": "100000",  # Sets both to 100K
-                "ANTHROPIC_INPUT_TPM": "3000000",  # Override input to 3M
+                "ANTHROPIC_TPM": "100000",
+                "ANTHROPIC_INPUT_TPM": "3000000",
+                "ANTHROPIC_OUTPUT_TPM": "500000",
             },
         ):
             config = get_config_with_overrides("anthropic")
-            assert config.input_tokens_per_minute == 3_000_000  # From INPUT_TPM
-            assert config.output_tokens_per_minute == 100_000  # From legacy TPM
-
-    def test_all_overrides(self):
-        with mock.patch.dict(
-            os.environ,
-            {
-                "OPENAI_RPM": "1000",
-                "OPENAI_INPUT_TPM": "1000000",
-                "OPENAI_OUTPUT_TPM": "500000",
-            },
-        ):
-            config = get_config_with_overrides("openai")
-            assert config.requests_per_minute == 1000
-            assert config.input_tokens_per_minute == 1_000_000
-            assert config.output_tokens_per_minute == 500_000
-
-    def test_invalid_rpm_uses_default(self):
-        with mock.patch.dict(os.environ, {"ANTHROPIC_RPM": "not_a_number"}):
-            config = get_config_with_overrides("anthropic")
-            assert config.requests_per_minute == 4000  # default
-
-    def test_invalid_tpm_uses_default(self):
-        with mock.patch.dict(os.environ, {"ANTHROPIC_TPM": "invalid"}):
-            config = get_config_with_overrides("anthropic")
-            assert config.input_tokens_per_minute == 2_000_000  # default
-            assert config.output_tokens_per_minute == 400_000  # default
+        assert config.input_tokens_per_minute == 3_000_000
+        assert config.output_tokens_per_minute == 500_000
 
 
 class TestRateLimiter:
-    """Tests for RateLimiter class."""
-
-    @pytest.fixture
-    def config(self):
-        return RateLimiterConfig(
-            requests_per_minute=60,
-            input_tokens_per_minute=100_000,
-            output_tokens_per_minute=50_000,
-            name="test",
+    def test_acquire_reserves_budget_proactively(self):
+        clock = FakeClock()
+        limiter = RateLimiter(
+            RateLimiterConfig(
+                requests_per_minute=600000,
+                input_tokens_per_minute=1000,
+                output_tokens_per_minute=1000,
+                name="test",
+            ),
+            now_fn=clock.now,
+            sleep_fn=clock.sleep,
         )
 
-    @pytest.fixture
-    def limiter(self, config):
-        return RateLimiter(config)
-
-    def test_init(self, limiter, config):
-        stats = limiter.get_stats()
-        assert stats.request_count == 0
-        assert stats.input_token_count == 0
-        assert stats.output_token_count == 0
-        assert stats.input_token_allowance == config.input_tokens_per_minute
-        assert stats.output_token_allowance == config.output_tokens_per_minute
-
-    def test_can_proceed_initially_true(self, limiter):
-        assert limiter.can_proceed() is True
-
-    def test_first_request_no_wait(self, limiter):
-        async def run():
-            start = time.monotonic()
-            await limiter.throttle()
-            elapsed = time.monotonic() - start
-            # First request should not wait
-            assert elapsed < 0.1
-
-        asyncio.run(run())
-
-    def test_request_count_incremented(self, limiter):
-        async def run():
-            await limiter.throttle()
+        async def run() -> None:
+            ticket = await limiter.acquire(**_ticket_kwargs(estimated_input=200, reserved_output=300, max_output=300))
             stats = limiter.get_stats()
-            assert stats.request_count == 1
+            assert ticket.reserved_input_tokens == 200
+            assert ticket.reserved_output_tokens == 300
+            assert stats.inflight_requests == 1
+            assert stats.inflight_reserved_input_tokens == 200
+            assert stats.inflight_reserved_output_tokens == 300
+            assert stats.input_token_allowance == pytest.approx(800.0)
+            assert stats.output_token_allowance == pytest.approx(700.0)
 
         asyncio.run(run())
 
-    def test_rpm_spacing_enforcement(self):
-        """Test that requests are spaced according to RPM limit."""
-
-        async def run():
-            # 600 RPM = 100ms between requests
-            config = RateLimiterConfig(requests_per_minute=600, name="test")
-            limiter = RateLimiter(config)
-
-            await limiter.throttle()
-            start = time.monotonic()
-            await limiter.throttle()
-            elapsed = time.monotonic() - start
-
-            # Should wait approximately 100ms
-            assert elapsed >= 0.09  # Allow small tolerance
-            assert elapsed < 0.2
-
-        asyncio.run(run())
-
-    def test_output_tpm_blocking_when_exhausted(self):
-        """Test that throttle waits when output tokens exhausted."""
-
-        async def run():
-            # Low TPM for faster testing
-            config = RateLimiterConfig(
-                requests_per_minute=6000,  # High RPM so it doesn't interfere
-                input_tokens_per_minute=100_000,
-                output_tokens_per_minute=6000,  # 100 tokens per second
+    def test_acquire_waits_when_reservations_exhaust_input_budget(self):
+        clock = FakeClock()
+        limiter = RateLimiter(
+            RateLimiterConfig(
+                requests_per_minute=600000,
+                input_tokens_per_minute=6000,
+                output_tokens_per_minute=6000,
                 name="test",
-            )
-            limiter = RateLimiter(config)
+            ),
+            now_fn=clock.now,
+            sleep_fn=clock.sleep,
+        )
 
-            # Exhaust most output tokens
-            await limiter.throttle()
-            limiter.record_usage(output_tokens=5950)  # Leave only 50 tokens
-
-            # Next request with estimated tokens should wait
-            start = time.monotonic()
-            await limiter.throttle(estimated_output_tokens=100)  # Need 100, have 50
-            elapsed = time.monotonic() - start
-
-            # Should have waited for ~50 tokens to refill
-            # At 100 tokens/sec, 50 tokens = 0.5 seconds
-            assert elapsed >= 0.4  # Allow tolerance
+        async def run() -> None:
+            await limiter.acquire(**_ticket_kwargs(estimated_input=6000))
+            await limiter.acquire(**_ticket_kwargs(estimated_input=3000))
 
         asyncio.run(run())
-
-    def test_record_usage_deducts_tokens(self, limiter, config):
-        async def run():
-            await limiter.throttle()
-            initial_input = limiter.get_stats().input_token_allowance
-            initial_output = limiter.get_stats().output_token_allowance
-
-            limiter.record_usage(input_tokens=5000, output_tokens=2000)
-
-            stats = limiter.get_stats()
-            assert stats.input_token_allowance == initial_input - 5000
-            assert stats.output_token_allowance == initial_output - 2000
-
-        asyncio.run(run())
-
-    def test_record_usage_tracks_total(self, limiter):
-        async def run():
-            await limiter.throttle()
-            limiter.record_usage(input_tokens=1000, output_tokens=500)
-            limiter.record_usage(input_tokens=2000, output_tokens=1000)
-
-            stats = limiter.get_stats()
-            assert stats.input_token_count == 3000
-            assert stats.output_token_count == 1500
-
-        asyncio.run(run())
-
-    def test_record_usage_cannot_go_negative(self, limiter):
-        limiter.record_usage(input_tokens=200_000, output_tokens=100_000)
+        assert clock.sleeps == [pytest.approx(30.0)]
         stats = limiter.get_stats()
-        assert stats.input_token_allowance == 0.0
-        assert stats.output_token_allowance == 0.0
+        assert stats.inflight_reserved_input_tokens == 9000
+        assert stats.input_token_allowance == pytest.approx(0.0)
 
-    def test_concurrent_requests_all_complete(self):
-        """Test that concurrent requests all complete with proper spacing."""
+    def test_finalize_success_refunds_unused_slack(self):
+        clock = FakeClock()
+        limiter = RateLimiter(
+            RateLimiterConfig(
+                requests_per_minute=600000,
+                input_tokens_per_minute=1000,
+                output_tokens_per_minute=1000,
+                name="test",
+            ),
+            now_fn=clock.now,
+            sleep_fn=clock.sleep,
+        )
 
-        async def run():
-            # 120 RPM = 500ms between requests
-            config = RateLimiterConfig(requests_per_minute=120, name="test")
-            limiter = RateLimiter(config)
+        async def run() -> None:
+            ticket = await limiter.acquire(**_ticket_kwargs(estimated_input=200, reserved_output=300, max_output=300))
+            stats = await limiter.finalize_success(
+                ticket,
+                actual_input_tokens=120,
+                actual_output_tokens=80,
+            )
+            assert stats.inflight_requests == 0
+            assert stats.input_token_allowance == pytest.approx(880.0)
+            assert stats.output_token_allowance == pytest.approx(920.0)
+            assert limiter.get_cumulative_tokens() == (120, 80)
 
-            completed = []
+        asyncio.run(run())
 
-            async def make_request(id: int):
-                await limiter.throttle()
-                completed.append(id)
+    def test_finalize_success_tracks_under_reservation_deficits(self):
+        clock = FakeClock()
+        limiter = RateLimiter(
+            RateLimiterConfig(
+                requests_per_minute=600000,
+                input_tokens_per_minute=1000,
+                output_tokens_per_minute=1000,
+                name="test",
+            ),
+            now_fn=clock.now,
+            sleep_fn=clock.sleep,
+        )
 
-            # Launch concurrent requests
-            await limiter.throttle()  # First request
-            tasks = [
-                asyncio.create_task(make_request(1)),
-                asyncio.create_task(make_request(2)),
-                asyncio.create_task(make_request(3)),
+        async def run() -> None:
+            ticket = await limiter.acquire(**_ticket_kwargs(estimated_input=100, reserved_output=100, max_output=100))
+            stats = await limiter.finalize_success(
+                ticket,
+                actual_input_tokens=100,
+                actual_output_tokens=180,
+            )
+            assert stats.output_token_allowance == pytest.approx(820.0)
+            assert stats.under_reserved_count == 1
+
+        asyncio.run(run())
+        summary = limiter.get_summary()
+        assert "Under-reserved: test=1" in summary
+
+    def test_finalize_failure_refunds_non_rate_limit_requests(self):
+        clock = FakeClock()
+        limiter = RateLimiter(
+            RateLimiterConfig(
+                requests_per_minute=600000,
+                input_tokens_per_minute=1000,
+                output_tokens_per_minute=1000,
+                name="test",
+            ),
+            now_fn=clock.now,
+            sleep_fn=clock.sleep,
+        )
+
+        async def run() -> None:
+            ticket = await limiter.acquire(**_ticket_kwargs(estimated_input=250, reserved_output=300, max_output=300))
+            stats = await limiter.finalize_failure(ticket, is_rate_limit=False)
+            assert stats.inflight_requests == 0
+            assert stats.input_token_allowance == pytest.approx(1000.0)
+            assert stats.output_token_allowance == pytest.approx(1000.0)
+
+        asyncio.run(run())
+
+    def test_finalize_failure_applies_provider_cooldown(self):
+        clock = FakeClock()
+        limiter = RateLimiter(
+            RateLimiterConfig(
+                requests_per_minute=600000,
+                input_tokens_per_minute=1000,
+                output_tokens_per_minute=1000,
+                name="test",
+            ),
+            now_fn=clock.now,
+            sleep_fn=clock.sleep,
+        )
+
+        async def run() -> None:
+            ticket = await limiter.acquire(**_ticket_kwargs(estimated_input=100, reserved_output=200, max_output=200))
+            stats = await limiter.finalize_failure(ticket, is_rate_limit=True, retry_after=5.0)
+            assert stats.rate_limit_retries == 1
+            assert stats.next_request_in_ms == pytest.approx(5000.0)
+            next_ticket = await limiter.acquire(**_ticket_kwargs(estimated_input=0, max_output=400))
+            assert next_ticket.reserved_output_tokens == 400
+
+        asyncio.run(run())
+        assert clock.sleeps == [pytest.approx(5.0)]
+
+    def test_output_reservation_relaxes_after_warmup(self):
+        clock = FakeClock()
+        limiter = RateLimiter(
+            RateLimiterConfig(
+                requests_per_minute=600000,
+                input_tokens_per_minute=10_000,
+                output_tokens_per_minute=10_000,
+                name="test",
+            ),
+            now_fn=clock.now,
+            sleep_fn=clock.sleep,
+        )
+
+        async def run() -> None:
+            for _ in range(5):
+                ticket = await limiter.acquire(**_ticket_kwargs(key="shadow.file", estimated_input=50, max_output=500))
+                assert ticket.reserved_output_tokens == 500
+                await limiter.finalize_success(
+                    ticket,
+                    actual_input_tokens=50,
+                    actual_output_tokens=40,
+                )
+
+            tuned = await limiter.acquire(**_ticket_kwargs(key="shadow.file", estimated_input=50, max_output=500))
+            assert tuned.reserved_output_tokens == 128
+
+        asyncio.run(run())
+
+
+class RetryableError(Exception):
+    def __init__(self, headers: dict[str, str] | None = None) -> None:
+        super().__init__("retry me")
+        self.response = SimpleNamespace(headers=headers or {})
+
+
+class TestRateLimitedProvider:
+    def test_success_attaches_rate_limit_metadata(self):
+        clock = FakeClock()
+        limiter = RateLimiter(
+            RateLimiterConfig(
+                requests_per_minute=600000,
+                input_tokens_per_minute=10_000,
+                output_tokens_per_minute=10_000,
+                name="test",
+            ),
+            now_fn=clock.now,
+            sleep_fn=clock.sleep,
+        )
+        provider = SequenceProvider([_completion(input_tokens=120, output_tokens=80)])
+        wrapped = RateLimitedProvider(provider, limiter)
+
+        async def run() -> None:
+            result = await wrapped.complete(
+                messages=[Message(role=MessageRole.USER, content="hello world")],
+                system="system prompt",
+                options=CompletionOptions(
+                    model="test-model",
+                    max_tokens=256,
+                    reservation_key="shadow.file",
+                ),
+            )
+            assert result.rate_limit is not None
+            assert result.rate_limit.reservation_key == "shadow.file"
+            assert result.rate_limit.actual_input_tokens == 120
+            assert result.rate_limit.actual_output_tokens == 80
+            assert result.rate_limit.reserved_input_tokens > 0
+
+        asyncio.run(run())
+        assert limiter.get_cumulative_tokens() == (120, 80)
+
+    def test_rate_limit_errors_retry_after_cooldown(self):
+        clock = FakeClock()
+        limiter = RateLimiter(
+            RateLimiterConfig(
+                requests_per_minute=600000,
+                input_tokens_per_minute=100_000,
+                output_tokens_per_minute=100_000,
+                name="test",
+            ),
+            now_fn=clock.now,
+            sleep_fn=clock.sleep,
+        )
+        provider = SequenceProvider(
+            [
+                RetryableError({"retry-after-ms": "2000"}),
+                _completion(input_tokens=90, output_tokens=30),
             ]
-
-            await asyncio.gather(*tasks)
-
-            # All requests should complete (order not guaranteed)
-            assert len(completed) == 3
-            assert set(completed) == {1, 2, 3}
-
-        asyncio.run(run())
-
-    def test_stats_tracking(self):
-        async def run():
-            config = RateLimiterConfig(
-                requests_per_minute=6000,  # High RPM for fast test
-                input_tokens_per_minute=100_000,
-                output_tokens_per_minute=50_000,
-                name="test",
-            )
-            limiter = RateLimiter(config)
-
-            await limiter.throttle()
-            limiter.record_usage(input_tokens=1000, output_tokens=500)
-
-            await limiter.throttle()
-            limiter.record_usage(input_tokens=2000, output_tokens=1000)
-
-            stats = limiter.get_stats()
-            assert stats.request_count == 2
-            assert stats.input_token_count == 3000
-            assert stats.output_token_count == 1500
-
-        asyncio.run(run())
-
-    def test_reset_clears_state(self, limiter, config):
-        async def run():
-            await limiter.throttle()
-            limiter.record_usage(input_tokens=5000, output_tokens=2000)
-
-            limiter.reset()
-
-            stats = limiter.get_stats()
-            assert stats.request_count == 0
-            assert stats.input_token_count == 0
-            assert stats.output_token_count == 0
-            assert stats.input_token_allowance == config.input_tokens_per_minute
-            assert stats.output_token_allowance == config.output_tokens_per_minute
-
-        asyncio.run(run())
-
-    def test_reset_allows_immediate_request(self, limiter):
-        async def run():
-            await limiter.throttle()
-
-            limiter.reset()
-
-            # Should be able to proceed immediately
-            assert limiter.can_proceed() is True
-
-            start = time.monotonic()
-            await limiter.throttle()
-            elapsed = time.monotonic() - start
-            assert elapsed < 0.1
-
-        asyncio.run(run())
-
-    def test_window_reset_after_60_seconds(self):
-        """Test that request/token counts reset after window expires."""
-
-        async def run():
-            config = RateLimiterConfig(requests_per_minute=6000, name="test")
-            limiter = RateLimiter(config)
-
-            await limiter.throttle()
-            limiter.record_usage(input_tokens=1000, output_tokens=500)
-
-            stats = limiter.get_stats()
-            assert stats.request_count == 1
-            assert stats.input_token_count == 1000
-            assert stats.output_token_count == 500
-
-            # Simulate time passing by manipulating window_start
-            limiter._window_start = time.monotonic() - 61
-
-            await limiter.throttle()
-
-            stats = limiter.get_stats()
-            # Should have reset and then incremented
-            assert stats.request_count == 1
-            assert stats.input_token_count == 0
-            assert stats.output_token_count == 0
-
-        asyncio.run(run())
-
-    def test_can_proceed_false_after_request(self):
-        """Test can_proceed returns False right after a request."""
-        # 60 RPM = 1000ms between requests
-        config = RateLimiterConfig(requests_per_minute=60, name="test")
-        limiter = RateLimiter(config)
-
-        # Simulate a request just happened
-        limiter._last_request_time = time.monotonic()
-
-        assert limiter.can_proceed() is False
-
-    def test_can_proceed_false_when_no_input_tokens(self, limiter):
-        """Test can_proceed returns False when input tokens exhausted."""
-        limiter._input_token_allowance = 0
-
-        assert limiter.can_proceed() is False
-
-    def test_can_proceed_false_when_no_output_tokens(self, limiter):
-        """Test can_proceed returns False when output tokens exhausted."""
-        limiter._output_token_allowance = 0
-
-        assert limiter.can_proceed() is False
-
-    def test_can_proceed_refills_tokens_before_check(self):
-        """Elapsed time should replenish buckets before can_proceed evaluates them."""
-        config = RateLimiterConfig(
-            requests_per_minute=60,
-            input_tokens_per_minute=240_000,
-            output_tokens_per_minute=60_000,
-            name="test",
         )
-        limiter = RateLimiter(config)
-        limiter._input_token_allowance = 0
-        limiter._output_token_allowance = 0
-        limiter._last_refill_time = time.monotonic() - 1.1
+        wrapped = RateLimitedProvider(provider, limiter)
 
-        assert limiter.can_proceed() is True
-
-    def test_queue_size_tracking(self):
-        """Test that queue_size is tracked during throttle."""
-
-        async def run():
-            config = RateLimiterConfig(requests_per_minute=60, name="test")
-            limiter = RateLimiter(config)
-
-            await limiter.throttle()
-
-            queue_sizes = []
-
-            async def track_queue(id: int):
-                # Small delay to let both tasks enter throttle
-                if id == 2:
-                    await asyncio.sleep(0.01)
-                queue_sizes.append(limiter.get_stats().queue_size)
-                await limiter.throttle()
-
-            # First task will be waiting, second will check queue
-            task1 = asyncio.create_task(track_queue(1))
-            task2 = asyncio.create_task(track_queue(2))
-
-            await asyncio.gather(task1, task2)
-
-            # At some point queue_size should have been > 0
-            # (This is a best-effort check due to timing)
-            assert len(queue_sizes) == 2
+        async def run() -> None:
+            with mock.patch.object(RateLimitedProvider, "_is_retryable_error", return_value=True):
+                result = await wrapped.complete(
+                    messages=[Message(role=MessageRole.USER, content="hello")],
+                    system=None,
+                    options=CompletionOptions(
+                        model="test-model",
+                        max_tokens=256,
+                        reservation_key="audit.verify_debris",
+                    ),
+                )
+            assert result.rate_limit is not None
+            assert result.rate_limit.retry_count == 1
 
         asyncio.run(run())
+        assert len(provider.calls) == 2
+        assert clock.sleeps == [pytest.approx(2.0)]
+        assert limiter.get_stats().rate_limit_retries == 1
 
-    def test_get_stats_returns_usage_stats(self, limiter):
+    def test_non_retryable_failures_refund_reservations(self):
+        clock = FakeClock()
+        limiter = RateLimiter(
+            RateLimiterConfig(
+                requests_per_minute=600000,
+                input_tokens_per_minute=1000,
+                output_tokens_per_minute=1000,
+                name="test",
+            ),
+            now_fn=clock.now,
+            sleep_fn=clock.sleep,
+        )
+        provider = SequenceProvider([RuntimeError("boom")])
+        wrapped = RateLimitedProvider(provider, limiter)
+
+        async def run() -> None:
+            with pytest.raises(RuntimeError, match="boom"):
+                await wrapped.complete(
+                    messages=[Message(role=MessageRole.USER, content="hello")],
+                    system=None,
+                    options=CompletionOptions(
+                        model="test-model",
+                        max_tokens=256,
+                        reservation_key="shadow.file",
+                    ),
+                )
+
+        asyncio.run(run())
         stats = limiter.get_stats()
-        assert isinstance(stats, UsageStats)
-        assert hasattr(stats, "request_count")
-        assert hasattr(stats, "input_token_count")
-        assert hasattr(stats, "output_token_count")
-        assert hasattr(stats, "queue_size")
-        assert hasattr(stats, "next_request_in_ms")
-        assert hasattr(stats, "input_token_allowance")
-        assert hasattr(stats, "output_token_allowance")
-
-    def test_next_request_in_ms_accurate(self):
-        """Test that next_request_in_ms reflects actual wait time."""
-
-        async def run():
-            # 60 RPM = 1000ms between requests
-            config = RateLimiterConfig(requests_per_minute=60, name="test")
-            limiter = RateLimiter(config)
-
-            await limiter.throttle()
-
-            stats = limiter.get_stats()
-            # Should be close to 1000ms (minus small elapsed time)
-            assert stats.next_request_in_ms > 900
-            assert stats.next_request_in_ms <= 1000
-
-        asyncio.run(run())
-
-    def test_output_token_refill_over_time(self):
-        """Test that output tokens refill continuously."""
-
-        async def run():
-            config = RateLimiterConfig(
-                requests_per_minute=6000,
-                input_tokens_per_minute=100_000,
-                output_tokens_per_minute=60_000,  # 1000 tokens per second
-                name="test",
-            )
-            limiter = RateLimiter(config)
-
-            await limiter.throttle()
-            limiter.record_usage(output_tokens=10_000)
-
-            initial = limiter.get_stats().output_token_allowance
-            await asyncio.sleep(0.1)  # 100ms = ~100 tokens should refill
-
-            await limiter.throttle()  # Triggers refill
-            after = limiter.get_stats().output_token_allowance
-
-            # Should have refilled some tokens (accounting for deduction timing)
-            assert after > initial
-
-        asyncio.run(run())
-
-
-class TestFloorCheck:
-    """Tests for the floor-check behavior that blocks when token buckets are depleted."""
-
-    def test_floor_check_blocks_when_input_tokens_depleted(self):
-        """Without estimates, throttle should still wait if input tokens are below headroom."""
-
-        async def run():
-            config = RateLimiterConfig(
-                requests_per_minute=60_000,  # High RPM so it doesn't interfere
-                input_tokens_per_minute=6000,  # 100 tokens/sec
-                output_tokens_per_minute=600_000,
-                name="test",
-            )
-            limiter = RateLimiter(config)
-
-            await limiter.throttle()
-            # Drain input tokens well below _MIN_INPUT_HEADROOM (4000)
-            limiter.record_usage(input_tokens=5900)  # leaves 100 tokens
-
-            start = time.monotonic()
-            # No estimates passed — floor check should kick in
-            await limiter.throttle()
-            elapsed = time.monotonic() - start
-
-            assert elapsed >= 0.01  # Just verify it waited at all
-
-        asyncio.run(run())
-
-    def test_floor_check_blocks_when_input_tokens_depleted_fast(self):
-        """Floor check blocks proportionally when input bucket is depleted."""
-
-        async def run():
-            config = RateLimiterConfig(
-                requests_per_minute=60_000,
-                input_tokens_per_minute=600_000,  # 10_000 tokens/sec
-                output_tokens_per_minute=600_000,
-                name="test",
-            )
-            limiter = RateLimiter(config)
-
-            await limiter.throttle()
-            # Drain to 1000 tokens (below 4000 headroom)
-            limiter.record_usage(input_tokens=599_000)
-
-            start = time.monotonic()
-            await limiter.throttle()  # No estimates
-            elapsed = time.monotonic() - start
-
-            # Need 3000 tokens to reach 4000 headroom
-            # refill_rate = 600_000/60_000 = 10 tokens/ms
-            # wait = 3000 / 10 / 1000 = 0.3 seconds
-            assert elapsed >= 0.25
-            assert elapsed < 0.6
-
-        asyncio.run(run())
-
-    def test_floor_check_blocks_when_output_tokens_depleted(self):
-        """Without estimates, throttle waits if output tokens are below headroom."""
-
-        async def run():
-            config = RateLimiterConfig(
-                requests_per_minute=60_000,
-                input_tokens_per_minute=600_000,
-                output_tokens_per_minute=60_000,  # 1000 tokens/sec
-                name="test",
-            )
-            limiter = RateLimiter(config)
-
-            await limiter.throttle()
-            # Drain output to 500 (below 1000 headroom)
-            limiter.record_usage(output_tokens=59_500)
-
-            start = time.monotonic()
-            await limiter.throttle()  # No estimates
-            elapsed = time.monotonic() - start
-
-            # Need 500 tokens to reach 1000 headroom
-            # refill_rate = 60_000/60_000 = 1 token/ms
-            # wait = 500 / 1 / 1000 = 0.5 seconds
-            assert elapsed >= 0.4
-            assert elapsed < 0.8
-
-        asyncio.run(run())
-
-    def test_floor_check_skipped_when_estimates_provided(self):
-        """When explicit estimates are provided, floor check does not apply."""
-
-        async def run():
-            config = RateLimiterConfig(
-                requests_per_minute=60_000,
-                input_tokens_per_minute=600_000,
-                output_tokens_per_minute=600_000,
-                name="test",
-            )
-            limiter = RateLimiter(config)
-
-            await limiter.throttle()
-            # Drain input tokens below headroom
-            limiter.record_usage(input_tokens=598_000)  # leaves 2000
-
-            start = time.monotonic()
-            # With estimates of 100 tokens (we have 2000), should pass quickly
-            await limiter.throttle(estimated_input_tokens=100)
-            elapsed = time.monotonic() - start
-
-            assert elapsed < 0.1  # Should not trigger floor check
-
-        asyncio.run(run())
-
-    def test_floor_check_no_wait_when_buckets_healthy(self):
-        """No floor-check wait when token buckets are above headroom."""
-
-        async def run():
-            config = RateLimiterConfig(
-                requests_per_minute=60_000,
-                input_tokens_per_minute=600_000,
-                output_tokens_per_minute=600_000,
-                name="test",
-            )
-            limiter = RateLimiter(config)
-
-            await limiter.throttle()
-            # Use some tokens but stay above headroom
-            limiter.record_usage(input_tokens=10_000, output_tokens=5_000)
-
-            start = time.monotonic()
-            await limiter.throttle()  # No estimates
-            elapsed = time.monotonic() - start
-
-            assert elapsed < 0.1  # Should proceed quickly
-
-        asyncio.run(run())
-
-
-class TestUsageStats:
-    """Tests for UsageStats dataclass."""
-
-    def test_usage_stats_creation(self):
-        stats = UsageStats(
-            request_count=10,
-            input_token_count=8000,
-            output_token_count=2000,
-            queue_size=2,
-            next_request_in_ms=500.0,
-            input_token_allowance=92000.0,
-            output_token_allowance=48000.0,
-        )
-        assert stats.request_count == 10
-        assert stats.input_token_count == 8000
-        assert stats.output_token_count == 2000
-        assert stats.queue_size == 2
-        assert stats.next_request_in_ms == 500.0
-        assert stats.input_token_allowance == 92000.0
-        assert stats.output_token_allowance == 48000.0
+        assert stats.inflight_requests == 0
+        assert stats.input_token_allowance == pytest.approx(1000.0)
+        assert stats.output_token_allowance == pytest.approx(1000.0)

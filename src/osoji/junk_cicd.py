@@ -6,9 +6,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config, MODEL_SMALL
+from .async_utils import gather_with_buffer
+from .config import ANTHROPIC_MODEL_SMALL, Config
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult
 from .llm.base import LLMProvider
+from .llm.runtime import create_runtime
 from .llm.types import Message, MessageRole, CompletionOptions
 from .rate_limiter import RateLimiter
 from .tools import get_dead_cicd_tool_definitions, get_extract_cicd_elements_tool_definitions
@@ -324,6 +326,7 @@ async def _parse_cicd_via_haiku(
     content: str,
     path: str,
     cicd_type: str,
+    config: Config | None = None,
 ) -> tuple[list[CICDElement], int, int]:
     """Parse a CI/CD file using Haiku when no regex parser is available.
 
@@ -339,8 +342,9 @@ async def _parse_cicd_via_haiku(
         messages=[Message(role=MessageRole.USER, content="\n".join(lines))],
         system=_EXTRACT_CICD_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=MODEL_SMALL,
+            model=config.model_for("small") if config is not None else ANTHROPIC_MODEL_SMALL,
             max_tokens=4096,
+            reservation_key="junk_cicd.extract_elements",
             tools=get_extract_cicd_elements_tool_definitions(),
             tool_choice={"type": "tool", "name": "extract_cicd_elements"},
         ),
@@ -581,8 +585,9 @@ async def _verify_batch_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_DEAD_CICD_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=config.model,
+            model=config.model_for("medium"),
             max_tokens=max(1024, len(candidates) * 200),
+            reservation_key="junk_cicd.verify",
             tools=get_dead_cicd_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_dead_cicd"},
             tool_input_validators=[check_completeness],
@@ -709,11 +714,9 @@ async def detect_dead_cicd_async(
         else:
             # Use Haiku for unsupported CI/CD systems
             try:
-                await rate_limiter.throttle()
-                haiku_elements, in_tok, out_tok = await _parse_cicd_via_haiku(
-                    provider, content, rel_path, cicd_type,
+                haiku_elements, _in_tok, _out_tok = await _parse_cicd_via_haiku(
+                    provider, content, rel_path, cicd_type, config,
                 )
-                rate_limiter.record_usage(input_tokens=in_tok, output_tokens=out_tok)
                 all_elements.extend(haiku_elements)
                 if haiku_elements:
                     print(f"  Haiku parsed {len(haiku_elements)} element(s) from {rel_path}", flush=True)
@@ -750,7 +753,6 @@ async def detect_dead_cicd_async(
         by_file.setdefault(cand.cicd_file, []).append(cand)
 
     results: list[CICDVerification] = []
-    semaphore = asyncio.Semaphore(config.max_concurrency)
     completed_files = 0
     total_files = len(by_file)
     lock = asyncio.Lock()
@@ -761,43 +763,38 @@ async def detect_dead_cicd_async(
     ) -> list[CICDVerification]:
         nonlocal completed_files
 
-        async with semaphore:
-            await rate_limiter.throttle()
-            try:
-                verifications, in_tok, out_tok = await _verify_batch_async(
-                    provider, config, file_candidates, repo_summary,
-                )
-                rate_limiter.record_usage(input_tokens=in_tok, output_tokens=out_tok)
+        try:
+            verifications, _in_tok, _out_tok = await _verify_batch_async(
+                provider, config, file_candidates, repo_summary,
+            )
 
-                async with lock:
-                    completed_files += 1
-                    dead_count = sum(1 for v in verifications if v.is_dead)
-                    for v in verifications:
-                        if v.is_dead:
-                            results.append(v)
-                    if on_progress:
-                        on_progress(
-                            completed_files, total_files,
-                            Path(cicd_file),
-                            f"{dead_count} dead",
-                        )
-                return verifications
-            except Exception as e:
-                async with lock:
-                    completed_files += 1
-                    if on_progress:
-                        on_progress(
-                            completed_files, total_files,
-                            Path(cicd_file), "error",
-                        )
-                print(f"  [error] {cicd_file}: {e}", flush=True)
-                return []
+            async with lock:
+                completed_files += 1
+                dead_count = sum(1 for v in verifications if v.is_dead)
+                for v in verifications:
+                    if v.is_dead:
+                        results.append(v)
+                if on_progress:
+                    on_progress(
+                        completed_files, total_files,
+                        Path(cicd_file),
+                        f"{dead_count} dead",
+                    )
+            return verifications
+        except Exception as e:
+            async with lock:
+                completed_files += 1
+                if on_progress:
+                    on_progress(
+                        completed_files, total_files,
+                        Path(cicd_file), "error",
+                    )
+            print(f"  [error] {cicd_file}: {e}", flush=True)
+            return []
 
-    tasks = [
-        process_file(cf, cands)
-        for cf, cands in by_file.items()
-    ]
-    await asyncio.gather(*tasks)
+    await gather_with_buffer(
+        [lambda cicd_file=cf, cands=cands: process_file(cicd_file, cands) for cf, cands in by_file.items()]
+    )
 
     return results
 
@@ -819,14 +816,9 @@ class DeadCICDAnalyzer(JunkAnalyzer):
 
     def analyze(self, config, on_progress=None, rate_limiter=None):
         """Sync wrapper — skip symbols-dir check (CI/CD doesn't need symbols)."""
-        from .llm.factory import create_provider
-        from .llm.logging import LoggingProvider
-        from .rate_limiter import get_config_with_overrides
 
         async def _run() -> JunkAnalysisResult:
-            provider = create_provider("anthropic")
-            logging_provider = LoggingProvider(provider)
-            rl = rate_limiter if rate_limiter is not None else RateLimiter(get_config_with_overrides("anthropic"))
+            logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
             try:
                 return await self.analyze_async(
                     logging_provider, rl, config, on_progress

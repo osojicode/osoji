@@ -67,8 +67,17 @@ class LoggingProvider(LLMProvider):
         self._stats.request_count += 1
 
         if self._verbose:
+            extra = ""
+            if result.rate_limit is not None:
+                reserved = result.rate_limit
+                extra = (
+                    f" reserved={reserved.reserved_input_tokens:,}/{reserved.reserved_output_tokens:,}"
+                    f" headroom={reserved.input_headroom_pct:.0f}%/{reserved.output_headroom_pct:.0f}%"
+                )
+                if reserved.retry_count:
+                    extra += f" retries={reserved.retry_count}"
             print(
-                f"    [tokens] in={result.input_tokens:,} out={result.output_tokens:,}"
+                f"    [tokens] in={result.input_tokens:,} out={result.output_tokens:,}{extra}"
             )
 
         return result
@@ -85,7 +94,13 @@ class LoggingProvider(LLMProvider):
         """
         s = self._stats
         total = s.total_input_tokens + s.total_output_tokens
-        return (
+        summary = (
             f"API calls: {s.request_count} | "
             f"Tokens: {total:,} (in: {s.total_input_tokens:,}, out: {s.total_output_tokens:,})"
         )
+        get_rate_limit_summary = getattr(self._provider, "get_rate_limit_summary", None)
+        if callable(get_rate_limit_summary):
+            rate_summary = get_rate_limit_summary()
+            if rate_summary:
+                return f"{summary}\n{rate_summary}"
+        return summary

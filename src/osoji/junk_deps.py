@@ -7,9 +7,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config, MODEL_SMALL, SHADOW_DIR
+from .async_utils import gather_with_buffer
+from .config import ANTHROPIC_MODEL_SMALL, Config, SHADOW_DIR
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult
 from .llm.base import LLMProvider
+from .llm.runtime import create_runtime
 from .llm.types import Message, MessageRole, CompletionOptions
 from .rate_limiter import RateLimiter
 from .tools import get_dead_deps_tool_definitions, get_resolve_import_names_tool_definitions, get_classify_deps_tool_definitions
@@ -147,6 +149,7 @@ Provide a resolution for EVERY package listed."""
 async def _resolve_import_names_batch_async(
     provider: LLMProvider,
     packages: list[tuple[str, str]],  # (package_name, ecosystem)
+    config: Config | None = None,
 ) -> tuple[dict[str, list[str]], int, int]:
     """Batch Haiku call to resolve package names to import names.
 
@@ -177,8 +180,9 @@ async def _resolve_import_names_batch_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(lines))],
         system=_RESOLVE_IMPORTS_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=MODEL_SMALL,
+            model=config.model_for("small") if config is not None else ANTHROPIC_MODEL_SMALL,
             max_tokens=max(1024, len(packages) * 50),
+            reservation_key="junk_deps.resolve_import_names",
             tools=get_resolve_import_names_tool_definitions(),
             tool_choice={"type": "tool", "name": "resolve_import_names"},
             tool_input_validators=[check_completeness],
@@ -210,6 +214,7 @@ async def _classify_deps_batch_async(
     provider: LLMProvider,
     candidates: list[DependencyCandidate],
     manifest_content: str,
+    config: Config | None = None,
 ) -> tuple[list[DependencyCandidate], dict[str, str], int, int]:
     """Batch Haiku call to classify zero-import dependencies.
 
@@ -241,8 +246,9 @@ async def _classify_deps_batch_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(lines))],
         system=_CLASSIFY_DEPS_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=MODEL_SMALL,
+            model=config.model_for("small") if config is not None else ANTHROPIC_MODEL_SMALL,
             max_tokens=max(1024, len(candidates) * 80),
+            reservation_key="junk_deps.classify",
             tools=get_classify_deps_tool_definitions(),
             tool_choice={"type": "tool", "name": "classify_deps"},
             tool_input_validators=[check_completeness],
@@ -693,8 +699,9 @@ async def _verify_batch_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_DEAD_DEPS_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=config.model,
+            model=config.model_for("medium"),
             max_tokens=max(1024, len(candidates) * 200),
+            reservation_key="junk_deps.verify",
             tools=get_dead_deps_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_dead_deps"},
             tool_input_validators=[check_completeness],
@@ -817,15 +824,13 @@ async def detect_dead_deps_async(
 
     if to_resolve:
         try:
-            await rate_limiter.throttle()
             # Batch up to 80 per call
             haiku_resolved: dict[str, list[str]] = {}
             for i in range(0, len(to_resolve), 80):
                 batch = to_resolve[i:i + 80]
-                resolved, in_tok, out_tok = await _resolve_import_names_batch_async(
-                    provider, batch,
+                resolved, _in_tok, _out_tok = await _resolve_import_names_batch_async(
+                    provider, batch, config,
                 )
-                rate_limiter.record_usage(input_tokens=in_tok, output_tokens=out_tok)
                 haiku_resolved.update(resolved)
 
             # Update candidate import names with Haiku results
@@ -871,14 +876,12 @@ async def detect_dead_deps_async(
     genuine_candidates: list[DependencyCandidate] = []
     for manifest_path, cands in by_manifest_classify.items():
         try:
-            await rate_limiter.throttle()
             # Batch up to 50 per call
             for i in range(0, len(cands), 50):
                 batch = cands[i:i + 50]
-                genuine, _class_map, in_tok, out_tok = await _classify_deps_batch_async(
-                    provider, batch, manifest_contents.get(manifest_path, ""),
+                genuine, _class_map, _in_tok, _out_tok = await _classify_deps_batch_async(
+                    provider, batch, manifest_contents.get(manifest_path, ""), config,
                 )
-                rate_limiter.record_usage(input_tokens=in_tok, output_tokens=out_tok)
                 genuine_candidates.extend(genuine)
         except Exception as e:
             print(f"  [warn] Haiku classification failed for {manifest_path}, sending all to Sonnet: {e}", flush=True)
@@ -899,7 +902,6 @@ async def detect_dead_deps_async(
         by_manifest.setdefault(cand.manifest_path, []).append(cand)
 
     results: list[DepVerification] = []
-    semaphore = asyncio.Semaphore(config.max_concurrency)
     completed_manifests = 0
     total_manifests = len(by_manifest)
     lock = asyncio.Lock()
@@ -910,46 +912,44 @@ async def detect_dead_deps_async(
     ) -> list[DepVerification]:
         nonlocal completed_manifests
 
-        async with semaphore:
-            await rate_limiter.throttle()
-            try:
-                config_snippets = _find_config_snippets(config, candidates)
-                verifications, in_tok, out_tok = await _verify_batch_async(
-                    provider, config, candidates,
-                    manifest_contents.get(manifest_path, ""),
-                    config_snippets,
-                )
-                rate_limiter.record_usage(input_tokens=in_tok, output_tokens=out_tok)
+        try:
+            config_snippets = _find_config_snippets(config, candidates)
+            verifications, _in_tok, _out_tok = await _verify_batch_async(
+                provider, config, candidates,
+                manifest_contents.get(manifest_path, ""),
+                config_snippets,
+            )
 
-                async with lock:
-                    completed_manifests += 1
-                    dead_count = sum(1 for v in verifications if v.is_dead)
-                    for v in verifications:
-                        if v.is_dead:
-                            results.append(v)
-                    if on_progress:
-                        on_progress(
-                            completed_manifests, total_manifests,
-                            Path(manifest_path),
-                            f"{dead_count} dead",
-                        )
-                return verifications
-            except Exception as e:
-                async with lock:
-                    completed_manifests += 1
-                    if on_progress:
-                        on_progress(
-                            completed_manifests, total_manifests,
-                            Path(manifest_path), "error",
-                        )
-                print(f"  [error] {manifest_path}: {e}", flush=True)
-                return []
+            async with lock:
+                completed_manifests += 1
+                dead_count = sum(1 for v in verifications if v.is_dead)
+                for v in verifications:
+                    if v.is_dead:
+                        results.append(v)
+                if on_progress:
+                    on_progress(
+                        completed_manifests, total_manifests,
+                        Path(manifest_path),
+                        f"{dead_count} dead",
+                    )
+            return verifications
+        except Exception as e:
+            async with lock:
+                completed_manifests += 1
+                if on_progress:
+                    on_progress(
+                        completed_manifests, total_manifests,
+                        Path(manifest_path), "error",
+                    )
+            print(f"  [error] {manifest_path}: {e}", flush=True)
+            return []
 
-    tasks = [
-        process_manifest(mp, cands)
-        for mp, cands in by_manifest.items()
-    ]
-    await asyncio.gather(*tasks)
+    await gather_with_buffer(
+        [
+            lambda manifest_path=mp, cands=cands: process_manifest(manifest_path, cands)
+            for mp, cands in by_manifest.items()
+        ]
+    )
 
     return results
 
@@ -971,14 +971,9 @@ class DeadDepsAnalyzer(JunkAnalyzer):
 
     def analyze(self, config, on_progress=None, rate_limiter=None):
         """Sync wrapper — skip symbols-dir check (deps don't need symbols)."""
-        from .llm.factory import create_provider
-        from .llm.logging import LoggingProvider
-        from .rate_limiter import get_config_with_overrides
 
         async def _run() -> JunkAnalysisResult:
-            provider = create_provider("anthropic")
-            logging_provider = LoggingProvider(provider)
-            rl = rate_limiter if rate_limiter is not None else RateLimiter(get_config_with_overrides("anthropic"))
+            logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
             try:
                 return await self.analyze_async(
                     logging_provider, rl, config, on_progress
