@@ -196,6 +196,8 @@ class FactsDB:
         for file_path, facts in self._files.items():
             if file_path == source_norm:
                 continue
+            if facts.classification is not None:
+                continue
             for imp in facts.imports:
                 resolved = self.resolve_import_source(file_path, imp.get("source", ""))
                 if resolved == source_norm:

@@ -11,6 +11,7 @@ from .async_utils import gather_with_buffer
 from .config import Config, SHADOW_DIR
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content, validate_line_ranges
 from .llm.base import LLMProvider
+from .llm.budgets import input_budget_for_config
 from .llm.types import Message, MessageRole, CompletionOptions
 from .rate_limiter import RateLimiter
 from .symbols import load_all_symbols
@@ -146,6 +147,8 @@ def scan_references(
         if _matches_ignore(relative, config.ignore_patterns):
             continue
         if osojiignore and _matches_ignore(relative, osojiignore):
+            continue
+        if config.is_doc_candidate(relative):
             continue
 
         try:
@@ -448,6 +451,7 @@ async def _verify_batch_async(
         options=CompletionOptions(
             model=config.model_for("medium"),
             max_tokens=max(1024, len(candidates) * 250),
+            max_input_tokens=input_budget_for_config(config),
             reservation_key="deadcode.verify_batch",
             tools=get_dead_code_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_dead_code"},

@@ -266,6 +266,52 @@ class TestScanCandidates:
         rl_candidate = [c for c in candidates if c.param_name == "rate_limiter"][0]
         assert len(rl_candidate.call_sites) >= 1
 
+    def test_common_name_scan_only_checks_importers(self, temp_dir):
+        """Repo-wide name collisions should not become dead-param call-site evidence."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+
+        _write_source(temp_dir, "src/launcher.py", "\n".join([
+            "def log(message, error=False):",
+            "    return message",
+        ]))
+        _write_symbols(temp_dir, "src/launcher.py", [
+            {"name": "log", "kind": "function", "line_start": 1,
+             "line_end": 2, "visibility": "public",
+             "parameters": [
+                 {"name": "message", "optional": False},
+                 {"name": "error", "optional": True},
+             ]},
+        ])
+        _write_facts(temp_dir, "src/launcher.py", exports=[{"name": "log"}])
+
+        _write_source(temp_dir, "src/cli.py", "\n".join([
+            "from .launcher import log",
+            "def run():",
+            "    return log('ok')",
+        ]))
+        _write_facts(temp_dir, "src/cli.py", imports=[{"source": ".launcher", "names": ["log"]}])
+
+        _write_source(temp_dir, "src/noisy.py", "\n".join([
+            "def log(message):",
+            "    return message",
+            "result = log('noise')",
+        ]))
+        _write_facts(temp_dir, "src/noisy.py")
+
+        with patch("osoji.deadparam.list_repo_files") as mock_list:
+            mock_list.return_value = (
+                [
+                    temp_dir / "src/launcher.py",
+                    temp_dir / "src/cli.py",
+                    temp_dir / "src/noisy.py",
+                ],
+                [],
+            )
+            candidates = scan_dead_param_candidates(config)
+
+        error_candidate = next(c for c in candidates if c.param_name == "error")
+        assert {call_site.file_path for call_site in error_candidate.call_sites} == {"src/cli.py"}
+
 
 # --- Phase 2: LLM verification (mocked) ---
 
@@ -387,6 +433,100 @@ class TestVerification:
 
         assert len(verifications) == 1
         assert verifications[0].is_dead is False
+
+    def test_verify_batch_splits_and_merges_alive(self):
+        """A later caller chunk proving the param is passed should keep it alive."""
+        from osoji.deadparam import _verify_batch_async
+        from osoji.llm.types import CompletionResult, ToolCall
+
+        call_sites = [
+            CallSite(
+                "src/caller.py",
+                line_number=index + 1,
+                context=f"    log('message {index}')",
+            )
+            for index in range(6)
+        ]
+        candidates = [
+            DeadParamCandidate(
+                source_path="src/launcher.py",
+                function_name="log",
+                param_name="error",
+                param_line=1,
+                has_default=True,
+                call_sites=call_sites,
+            ),
+        ]
+
+        provider = AsyncMock()
+        provider.complete = AsyncMock(side_effect=[
+            CompletionResult(
+                content="",
+                tool_calls=[
+                    ToolCall(
+                        id="tc1",
+                        name="verify_dead_parameters",
+                        input={
+                            "verdicts": [{
+                                "function_name": "log",
+                                "parameter_name": "error",
+                                "is_dead": True,
+                                "confidence": 0.7,
+                                "reason": "No passing call appears in this chunk",
+                                "remediation": "Remove parameter",
+                            }],
+                        },
+                    ),
+                ],
+                input_tokens=100,
+                output_tokens=40,
+                model="claude-sonnet-4-20250514",
+                stop_reason="tool_use",
+            ),
+            CompletionResult(
+                content="",
+                tool_calls=[
+                    ToolCall(
+                        id="tc2",
+                        name="verify_dead_parameters",
+                        input={
+                            "verdicts": [{
+                                "function_name": "log",
+                                "parameter_name": "error",
+                                "is_dead": False,
+                                "confidence": 0.95,
+                                "reason": "Caller passes error=True in this chunk",
+                                "remediation": "Keep",
+                            }],
+                        },
+                    ),
+                ],
+                input_tokens=120,
+                output_tokens=50,
+                model="claude-sonnet-4-20250514",
+                stop_reason="tool_use",
+            ),
+        ])
+
+        config = MagicMock()
+        config.model_for.return_value = "claude-sonnet-4-20250514"
+        config.provider = "anthropic"
+
+        with patch(
+            "osoji.deadparam._estimate_deadparam_prompt_tokens",
+            side_effect=lambda _config, prompt: 999999 if prompt.count("### Call site") > 5 else 1,
+        ):
+            import asyncio
+
+            verifications, in_tok, out_tok = asyncio.run(
+                _verify_batch_async(provider, config, candidates, "file content", "shadow content")
+            )
+
+        assert provider.complete.call_count == 2
+        assert len(verifications) == 1
+        assert verifications[0].is_dead is False
+        assert in_tok == 220
+        assert out_tok == 90
 
 
 # --- Analyzer class ---

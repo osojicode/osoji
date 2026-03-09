@@ -108,6 +108,16 @@ class TestFileRoles:
         roles = load_file_roles(config)
         assert roles == {}
 
+    def test_doc_json_sidecar_is_excluded_from_schema_roles(self, temp_dir):
+        """Documentation JSON should stay a doc candidate, not a source schema file."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_source(temp_dir, "docs/debugAdapterProtocol.json", '{"definitions": {}}')
+        _write_symbols(temp_dir, "docs/debugAdapterProtocol.json", [], file_role="schema")
+        _write_symbols(temp_dir, "src/runtime-schema.json", [], file_role="schema")
+
+        assert config.is_doc_candidate(Path("docs/debugAdapterProtocol.json")) is True
+        assert load_files_by_role(config, "schema") == ["src/runtime-schema.json"]
+
 
 # --- Tests for reference scanning ---
 
@@ -140,6 +150,17 @@ class TestFieldReferences:
         refs = _find_field_references(config, "timeout", "src/schema.ts")
         # "timeoutHandler" should not match "timeout" due to word boundary
         assert "src/other.ts" not in refs
+
+    def test_doc_candidates_are_excluded_from_reference_scan(self, temp_dir):
+        """Dead-plumbing reference scanning should ignore documentation files."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_source(temp_dir, "src/schema.ts", "export const taskTimeoutMs = z.number();\n")
+        _write_source(temp_dir, "docs/reference.json", '{"taskTimeoutMs": "documented"}\n')
+        _write_source(temp_dir, "src/runner.ts", "const timeout = config.taskTimeoutMs;\n")
+
+        refs = _find_field_references(config, "taskTimeoutMs", "src/schema.ts")
+        assert "src/runner.ts" in refs
+        assert "docs/reference.json" not in refs
 
 
 # --- Tests for obligation extraction ---
@@ -449,3 +470,21 @@ class TestDetectDeadPlumbing:
         assert isinstance(result, PlumbingResult)
         assert result.verifications == []
         assert result.total_obligations == 0
+
+    @pytest.mark.asyncio
+    async def test_doc_json_schema_sidecar_does_not_trigger_plumbing(self, temp_dir):
+        """A docs/*.json sidecar marked schema should not enter dead-plumbing analysis."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_source(temp_dir, "docs/debugAdapterProtocol.json", '{"definitions": {}}')
+        _write_symbols(temp_dir, "docs/debugAdapterProtocol.json", [], file_role="schema")
+
+        mock_provider = AsyncMock()
+        rate_limiter = RateLimiter(RateLimiterConfig())
+
+        result = await detect_dead_plumbing_async(
+            mock_provider, rate_limiter, config,
+        )
+
+        assert result.verifications == []
+        assert result.total_obligations == 0
+        assert mock_provider.complete.await_count == 0

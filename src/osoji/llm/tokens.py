@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from typing import TYPE_CHECKING, Any, Callable
 
 if TYPE_CHECKING:
@@ -10,7 +11,7 @@ if TYPE_CHECKING:
 
 from ..config import ANTHROPIC_MODEL_MEDIUM, DEFAULT_PROVIDER
 from .registry import normalize_provider_name, qualify_model_name, strip_provider_prefix
-from .types import Message, MessageRole
+from .types import Message, MessageRole, ToolDefinition
 
 
 class TokenCounter:
@@ -154,3 +155,44 @@ def estimate_tokens_offline(text: str) -> int:
     """Estimate tokens without provider-specific counting."""
 
     return len(text) // 4
+
+
+def estimate_completion_input_tokens_offline(
+    messages: list[Message],
+    *,
+    system: str | None = None,
+    tools: list[ToolDefinition] | None = None,
+    tool_choice: dict[str, str] | None = None,
+) -> int:
+    """Estimate completion input size using the request payload shape."""
+
+    payload: dict[str, Any] = {
+        "system": system,
+        "messages": [
+            {
+                "role": (
+                    message.role.value
+                    if isinstance(message.role, MessageRole)
+                    else str(message.role)
+                ),
+                "content": message.content,
+            }
+            for message in messages
+        ],
+    }
+
+    if tools:
+        payload["tools"] = [
+            {
+                "name": tool.name,
+                "description": tool.description,
+                "input_schema": tool.input_schema,
+            }
+            for tool in tools
+        ]
+    if tool_choice:
+        payload["tool_choice"] = tool_choice
+
+    return estimate_tokens_offline(
+        json.dumps(payload, ensure_ascii=False, sort_keys=True, default=str)
+    )

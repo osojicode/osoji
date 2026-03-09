@@ -29,7 +29,7 @@ to work with this code effectively.""",
             },
             "findings": {
                 "type": "array",
-                "description": "Code quality issues found during analysis. Report stale comments, misleading docstrings, commented-out code blocks, expired TODOs, dead code, and latent bugs. Empty array if none found.",
+                "description": "Code quality issues found during analysis. Report stale comments, misleading docstrings, commented-out code blocks, expired TODOs, dead code, and latent bugs. Always include this field, using an empty array if none are found.",
                 "items": {
                     "type": "object",
                     "properties": {
@@ -381,7 +381,7 @@ Classification (Diataxis framework):
 A document with outdated content but ongoing purpose is stale, not debris. Classify it under its Diataxis category.
 
 Validation: check for contradictions between the doc and the shadow docs (source of truth).
-Report findings with evidence from shadow docs. Empty findings array if no issues found.""",
+Report findings with evidence from shadow docs. Always include the `findings` field, using an empty array if no issues are found.""",
     "input_schema": {
         "type": "object",
         "properties": {

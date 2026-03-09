@@ -10,6 +10,7 @@ Two-phase architecture matching DeadCodeAnalyzer:
 
 import asyncio
 import re
+from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
@@ -19,6 +20,8 @@ from .config import Config, SHADOW_DIR
 from .facts import FactsDB
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content, validate_line_ranges
 from .llm.base import LLMProvider
+from .llm.budgets import input_budget_for_config
+from .llm.tokens import estimate_completion_input_tokens_offline
 from .llm.types import Message, MessageRole, CompletionOptions
 from .rate_limiter import RateLimiter
 from .symbols import load_all_symbols
@@ -66,6 +69,11 @@ class DeadParamVerification:
     gated_line_ranges: list[tuple[int, int]] = field(default_factory=list)
 
 
+_MAX_DEFINING_FILE_CHARS = 40_000
+_MAX_CALL_SITES_PER_FILE = 5
+_MAX_CALL_SITES_PER_REQUEST = 50
+
+
 # --- Phase 1: Candidate scanning (pure Python) ---
 
 
@@ -79,6 +87,31 @@ def _extract_context(lines: list[str], line_number: int, radius: int = 10) -> st
         marker = ">>>" if i == idx else "   "
         context_lines.append(f"{marker} {i + 1:4d} | {lines[i]}")
     return "\n".join(context_lines)
+
+
+def _dedupe_call_sites(call_sites: list[CallSite]) -> list[CallSite]:
+    seen: set[tuple[str, int, str]] = set()
+    deduped: list[CallSite] = []
+    for call_site in sorted(call_sites, key=lambda item: (item.file_path, item.line_number, item.context)):
+        key = (call_site.file_path, call_site.line_number, call_site.context)
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(call_site)
+    return deduped
+
+
+def _partition_call_sites_by_file(call_sites: list[CallSite]) -> list[list[CallSite]]:
+    grouped: dict[str, list[CallSite]] = defaultdict(list)
+    for call_site in call_sites:
+        grouped[call_site.file_path].append(call_site)
+
+    groups: list[list[CallSite]] = []
+    for file_path in sorted(grouped):
+        file_sites = sorted(grouped[file_path], key=lambda item: item.line_number)
+        for start in range(0, len(file_sites), _MAX_CALL_SITES_PER_FILE):
+            groups.append(file_sites[start:start + _MAX_CALL_SITES_PER_FILE])
+    return groups
 
 
 def scan_dead_param_candidates(
@@ -104,6 +137,14 @@ def scan_dead_param_candidates(
     all_paths, _ = list_repo_files(config)
     all_paths = list(all_paths)
     osojiignore = config.load_osojiignore()
+    repo_files: dict[str, Path] = {}
+    for path in all_paths:
+        abs_path = path if path.is_absolute() else config.root_path / path
+        if not abs_path.is_file():
+            continue
+        relative = abs_path.relative_to(config.root_path)
+        rel_str = str(relative).replace("\\", "/")
+        repo_files[rel_str] = abs_path
 
     # Cache file contents
     file_lines_cache: dict[str, list[str]] = {}
@@ -160,7 +201,7 @@ def scan_dead_param_candidates(
             if not importers:
                 continue
 
-            # Grep for call sites across the repo
+            # Grep for call sites in plausible caller files only
             # For dotted names (e.g. "ClassName.method"), use just the method name
             # so instance calls like `obj.method(` are matched
             grep_name = func_name.rsplit(".", 1)[-1] if "." in func_name else func_name
@@ -175,21 +216,23 @@ def scan_dead_param_candidates(
             func_def_start = sym["line_start"]
             func_def_end = sym.get("line_end", func_def_start)
 
-            for path in all_paths:
-                if not path.is_absolute():
-                    path = config.root_path / path
+            candidate_paths = [source_norm]
+            candidate_paths.extend(sorted(set(importers)))
 
+            for rel_str in candidate_paths:
+                path = repo_files.get(rel_str, config.root_path / rel_str)
                 if not path.is_file():
                     continue
 
                 relative = path.relative_to(config.root_path)
-                rel_str = str(relative).replace("\\", "/")
 
                 if rel_str.startswith(SHADOW_DIR):
                     continue
                 if _matches_ignore(relative, config.ignore_patterns):
                     continue
                 if osojiignore and _matches_ignore(relative, osojiignore):
+                    continue
+                if config.is_doc_candidate(relative):
                     continue
 
                 is_defining_file = rel_str == source_norm
@@ -218,6 +261,7 @@ def scan_dead_param_candidates(
                             context=context,
                         ))
 
+            call_sites = _dedupe_call_sites(call_sites)
             if not call_sites:
                 continue
 
@@ -237,7 +281,7 @@ def scan_dead_param_candidates(
 
 # --- Phase 2: LLM verification ---
 
-_DEAD_PARAM_SYSTEM_PROMPT = """You are a dead parameter analyst. You are given a function with optional parameters, along with ALL call sites across the codebase.
+_DEAD_PARAM_SYSTEM_PROMPT = """You are a dead parameter analyst. You are given a function with optional parameters, along with a deduplicated chunk of call sites gathered from the codebase.
 
 Your job: determine whether each optional parameter is genuinely dead (never passed by any caller) or alive.
 
@@ -268,67 +312,182 @@ Report the line ranges of these gated branches.
 Use the verify_dead_parameters tool with a verdict for EVERY parameter under analysis."""
 
 
-async def _verify_batch_async(
-    provider: LLMProvider,
-    config: Config,
+def _build_deadparam_prompt(
     candidates: list[DeadParamCandidate],
     file_content: str,
     shadow_content: str,
-) -> tuple[list[DeadParamVerification], int, int]:
-    """Verify a batch of dead parameter candidates via one LLM call.
-
-    All candidates must be from the same defining file and function.
-    Returns (list[DeadParamVerification], input_tokens, output_tokens).
-    """
+    call_sites: list[CallSite],
+    *,
+    total_call_sites: int,
+) -> str:
     user_parts: list[str] = []
-
     source_path = candidates[0].source_path
     func_name = candidates[0].function_name
 
-    # List parameters under analysis
     user_parts.append("## Parameters under analysis\n")
     user_parts.append(f"Function: `{func_name}` in `{source_path}`\n")
-    for c in candidates:
-        default_str = "has default" if c.has_default else "no default"
-        user_parts.append(f"- `{c.param_name}` (function defined at line {c.param_line}, {default_str})")
+    for candidate in candidates:
+        default_str = "has default" if candidate.has_default else "no default"
+        user_parts.append(
+            f"- `{candidate.param_name}` (function defined at line {candidate.param_line}, {default_str})"
+        )
     user_parts.append("")
 
-    # Include defining file content
-    truncated = file_content[:100000] if len(file_content) > 100000 else file_content
+    truncated = file_content[:_MAX_DEFINING_FILE_CHARS]
+    if len(file_content) > _MAX_DEFINING_FILE_CHARS:
+        truncated += "\n\n[... defining file truncated ...]"
     user_parts.append(f"## Defining file: `{source_path}`\n```\n{truncated}\n```\n")
 
     if shadow_content:
         user_parts.append(f"## Shadow doc for `{source_path}`\n{shadow_content}\n")
 
-    # Include call sites (shared across all params since they're the same function)
-    call_sites = candidates[0].call_sites
-    user_parts.append(f"## Call sites ({len(call_sites)} total)\n")
-    for i, cs in enumerate(call_sites, 1):
-        user_parts.append(f"### Call site {i}: `{cs.file_path}` line {cs.line_number}\n```\n{cs.context}\n```\n")
+    user_parts.append(
+        f"## Call sites in this verification chunk ({len(call_sites)} of {total_call_sites} deduplicated call sites)\n"
+    )
+    for index, call_site in enumerate(call_sites, 1):
+        user_parts.append(
+            f"### Call site {index}: `{call_site.file_path}` line {call_site.line_number}\n```\n{call_site.context}\n```\n"
+        )
 
-    param_names = ", ".join(f"`{c.param_name}`" for c in candidates)
+    param_names = ", ".join(f"`{candidate.param_name}`" for candidate in candidates)
     user_parts.append(
         f"Provide a verdict for EVERY parameter listed ({param_names}) "
         "using the verify_dead_parameters tool."
     )
+    return "\n".join(user_parts)
 
-    # Build completeness validator
-    expected_params = {(c.function_name, c.param_name) for c in candidates}
+
+def _estimate_deadparam_prompt_tokens(config: Config, user_prompt: str) -> int:
+    return estimate_completion_input_tokens_offline(
+        [Message(role=MessageRole.USER, content=user_prompt)],
+        system=_DEAD_PARAM_SYSTEM_PROMPT,
+        tools=get_dead_parameter_tool_definitions(),
+        tool_choice={"type": "tool", "name": "verify_dead_parameters"},
+    )
+
+
+def _build_call_site_chunks(
+    config: Config,
+    candidates: list[DeadParamCandidate],
+    file_content: str,
+    shadow_content: str,
+) -> list[list[CallSite]]:
+    all_call_sites = _dedupe_call_sites(candidates[0].call_sites)
+    if not all_call_sites:
+        return []
+
+    max_input_tokens = input_budget_for_config(config)
+    file_groups = _partition_call_sites_by_file(all_call_sites)
+    chunks: list[list[CallSite]] = []
+    current_chunk: list[CallSite] = []
+
+    for group in file_groups:
+        if len(current_chunk) + len(group) > _MAX_CALL_SITES_PER_REQUEST and current_chunk:
+            chunks.append(current_chunk)
+            current_chunk = []
+
+        proposed_chunk = current_chunk + group
+        prompt = _build_deadparam_prompt(
+            candidates,
+            file_content,
+            shadow_content,
+            proposed_chunk,
+            total_call_sites=len(all_call_sites),
+        )
+        if current_chunk and _estimate_deadparam_prompt_tokens(config, prompt) > max_input_tokens:
+            chunks.append(current_chunk)
+            current_chunk = list(group)
+            continue
+
+        current_chunk = proposed_chunk
+
+    if current_chunk:
+        chunks.append(current_chunk)
+
+    return chunks
+
+
+def _merge_verifications(
+    candidates: list[DeadParamCandidate],
+    chunk_results: list[list[DeadParamVerification]],
+) -> list[DeadParamVerification]:
+    by_param: dict[str, list[DeadParamVerification]] = defaultdict(list)
+    for result in chunk_results:
+        for verification in result:
+            by_param[verification.param_name].append(verification)
+
+    merged: list[DeadParamVerification] = []
+    for candidate in candidates:
+        param_results = by_param.get(candidate.param_name, [])
+        if not param_results:
+            continue
+
+        alive_results = [result for result in param_results if not result.is_dead]
+        if alive_results:
+            merged.append(max(alive_results, key=lambda item: item.confidence))
+            continue
+
+        best_dead = max(param_results, key=lambda item: item.confidence)
+        gated_ranges = sorted(
+            {
+                gated_range
+                for result in param_results
+                for gated_range in result.gated_line_ranges
+            }
+        )
+        merged.append(
+            DeadParamVerification(
+                source_path=best_dead.source_path,
+                function_name=best_dead.function_name,
+                param_name=best_dead.param_name,
+                is_dead=True,
+                confidence=best_dead.confidence,
+                reason=best_dead.reason,
+                remediation=best_dead.remediation,
+                param_line=best_dead.param_line,
+                gated_line_ranges=gated_ranges,
+            )
+        )
+
+    return merged
+
+
+async def _verify_chunk_async(
+    provider: LLMProvider,
+    config: Config,
+    candidates: list[DeadParamCandidate],
+    file_content: str,
+    shadow_content: str,
+    *,
+    total_call_sites: int,
+) -> tuple[list[DeadParamVerification], int, int]:
+    """Verify one caller-evidence chunk for a single function."""
+
+    user_prompt = _build_deadparam_prompt(
+        candidates,
+        file_content,
+        shadow_content,
+        candidates[0].call_sites,
+        total_call_sites=total_call_sites,
+    )
+
+    expected_params = {(candidate.function_name, candidate.param_name) for candidate in candidates}
 
     def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
         if tool_name != "verify_dead_parameters":
             return []
         verdicts = tool_input.get("verdicts", [])
-        got = {(v.get("function_name"), v.get("parameter_name")) for v in verdicts}
+        got = {(verdict.get("function_name"), verdict.get("parameter_name")) for verdict in verdicts}
         missing = expected_params - got
         return [f"Missing verdict for {fn}.{pn}" for fn, pn in sorted(missing)]
 
     result = await provider.complete(
-        messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
+        messages=[Message(role=MessageRole.USER, content=user_prompt)],
         system=_DEAD_PARAM_SYSTEM_PROMPT,
         options=CompletionOptions(
             model=config.model_for("medium"),
             max_tokens=max(1024, len(candidates) * 300),
+            max_input_tokens=input_budget_for_config(config),
             reservation_key="deadparam.verify_batch",
             tools=get_dead_parameter_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_dead_parameters"},
@@ -336,40 +495,96 @@ async def _verify_batch_async(
         ),
     )
 
-    # Build lookup from candidates
-    candidate_by_param = {c.param_name: c for c in candidates}
-
+    candidate_by_param = {candidate.param_name: candidate for candidate in candidates}
     verifications: list[DeadParamVerification] = []
     for tool_call in result.tool_calls:
-        if tool_call.name == "verify_dead_parameters":
-            for verdict in tool_call.input.get("verdicts", []):
-                param_name = verdict.get("parameter_name", "")
-                cand = candidate_by_param.get(param_name)
-                if cand:
-                    gated = [
-                        (r["line_start"], r["line_end"])
-                        for r in verdict.get("gated_line_ranges", [])
-                        if isinstance(r, dict)
-                    ]
-                    verifications.append(DeadParamVerification(
-                        source_path=cand.source_path,
-                        function_name=cand.function_name,
-                        param_name=cand.param_name,
-                        is_dead=verdict["is_dead"],
-                        confidence=verdict["confidence"],
-                        reason=verdict["reason"],
-                        remediation=verdict["remediation"],
-                        param_line=cand.param_line,
-                        gated_line_ranges=gated,
-                    ))
+        if tool_call.name != "verify_dead_parameters":
+            continue
+        for verdict in tool_call.input.get("verdicts", []):
+            param_name = verdict.get("parameter_name", "")
+            candidate = candidate_by_param.get(param_name)
+            if candidate is None:
+                continue
+            gated = [
+                (line_range["line_start"], line_range["line_end"])
+                for line_range in verdict.get("gated_line_ranges", [])
+                if isinstance(line_range, dict)
+            ]
+            verifications.append(
+                DeadParamVerification(
+                    source_path=candidate.source_path,
+                    function_name=candidate.function_name,
+                    param_name=candidate.param_name,
+                    is_dead=verdict["is_dead"],
+                    confidence=verdict["confidence"],
+                    reason=verdict["reason"],
+                    remediation=verdict["remediation"],
+                    param_line=candidate.param_line,
+                    gated_line_ranges=gated,
+                )
+            )
 
     if not verifications:
         raise RuntimeError(
-            f"LLM did not return verdicts for {func_name} params: "
-            f"{[c.param_name for c in candidates]}"
+            f"LLM did not return verdicts for {candidates[0].function_name} params: "
+            f"{[candidate.param_name for candidate in candidates]}"
         )
 
     return verifications, result.input_tokens, result.output_tokens
+
+
+async def _verify_batch_async(
+    provider: LLMProvider,
+    config: Config,
+    candidates: list[DeadParamCandidate],
+    file_content: str,
+    shadow_content: str,
+) -> tuple[list[DeadParamVerification], int, int]:
+    """Verify one function's parameters, splitting caller evidence across requests."""
+
+    call_site_chunks = _build_call_site_chunks(config, candidates, file_content, shadow_content)
+    if not call_site_chunks:
+        raise RuntimeError(
+            f"No call sites available for {candidates[0].function_name} in {candidates[0].source_path}"
+        )
+
+    chunk_results: list[list[DeadParamVerification]] = []
+    total_input_tokens = 0
+    total_output_tokens = 0
+    total_call_sites = len(_dedupe_call_sites(candidates[0].call_sites))
+
+    for chunk in call_site_chunks:
+        chunk_candidates = [
+            DeadParamCandidate(
+                source_path=candidate.source_path,
+                function_name=candidate.function_name,
+                param_name=candidate.param_name,
+                param_line=candidate.param_line,
+                has_default=candidate.has_default,
+                call_sites=list(chunk),
+            )
+            for candidate in candidates
+        ]
+        verifications, input_tokens, output_tokens = await _verify_chunk_async(
+            provider,
+            config,
+            chunk_candidates,
+            file_content,
+            shadow_content,
+            total_call_sites=total_call_sites,
+        )
+        chunk_results.append(verifications)
+        total_input_tokens += input_tokens
+        total_output_tokens += output_tokens
+
+    merged = _merge_verifications(candidates, chunk_results)
+    if not merged:
+        raise RuntimeError(
+            f"LLM did not return verdicts for {candidates[0].function_name} params: "
+            f"{[candidate.param_name for candidate in candidates]}"
+        )
+
+    return merged, total_input_tokens, total_output_tokens
 
 
 async def detect_dead_params_async(

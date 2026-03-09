@@ -212,6 +212,17 @@ class TestCoverage:
         sc = build_scorecard(config, [])
         assert sc.coverage_entries[0].topic_signature is None
 
+    def test_doc_candidate_shadows_are_excluded_from_source_coverage(self, temp_dir):
+        """Stale cached shadows for docs/*.json should not count as source inventory."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_shadow(temp_dir, "src/a.py")
+        _write_shadow(temp_dir, "docs/debugAdapterProtocol.json")
+        _write_source(temp_dir, "src/a.py")
+        _write_source(temp_dir, "docs/debugAdapterProtocol.json", "{}")
+
+        sc = build_scorecard(config, [])
+        assert [entry.source_path for entry in sc.coverage_entries] == ["src/a.py"]
+
 
 # --- Dead docs ---
 

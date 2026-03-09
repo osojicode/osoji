@@ -118,6 +118,8 @@ def build_scorecard(
                 continue
             relative = shadow_file.relative_to(shadow_root)
             source_str = str(relative).removesuffix(".shadow.md").replace("\\", "/")
+            if config.is_doc_candidate(Path(source_str)):
+                continue
             all_source_files.add(source_str)
 
     # Invert matched_shadows: source -> list of covering docs

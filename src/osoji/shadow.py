@@ -373,7 +373,8 @@ If a finding references behavior in OTHER files that you cannot verify from this
 (e.g., a comment describes a function in another module, or references a field defined elsewhere),
 set cross_file_verification_needed=true on that finding so it can be verified in a later pass.
 
-Report these as findings in the tool call. If the code is clean, submit an empty findings array.
+Report these as findings in the tool call. The tool call MUST include a `findings` field.
+If the code is clean, submit `findings: []`.
 
 ALSO: Populate the symbols array with ALL functions, classes, constants, and module-level variables
 defined in this file. For each, set visibility to "public" if the symbol is importable/exported,
@@ -736,6 +737,7 @@ findings. The result should read as if it were generated from the whole file at 
 
 You MUST use the submit_shadow_doc tool to submit your documentation.
 Do not include any header or metadata - just the documentation body.
+Always include the `findings` field in the tool call, using `findings: []` when there are no issues.
 
 Merge findings from all chunks, deduplicating any that appear in overlapping regions.
 Merge symbols from all chunks, deduplicating by name.

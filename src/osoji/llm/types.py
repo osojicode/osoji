@@ -39,12 +39,67 @@ class ToolCall:
     input: dict[str, Any]
 
 
+class PromptTooLargeError(RuntimeError):
+    """Raised when a request exceeds the configured local input-token budget."""
+
+    def __init__(
+        self,
+        *,
+        estimated_tokens: int,
+        max_input_tokens: int,
+        model: str,
+        reservation_key: str,
+    ) -> None:
+        self.estimated_tokens = estimated_tokens
+        self.max_input_tokens = max_input_tokens
+        self.model = model
+        self.reservation_key = reservation_key
+        super().__init__(
+            "Estimated prompt is too long: "
+            f"{estimated_tokens} tokens > {max_input_tokens} maximum "
+            f"for {reservation_key} ({model})"
+        )
+
+
+class ToolSchemaValidationError(RuntimeError):
+    """Raised when a forced tool call stays invalid after all retry attempts."""
+
+    def __init__(
+        self,
+        *,
+        tool_errors: dict[str, list[str]],
+        attempts: int,
+    ) -> None:
+        self.tool_errors = tool_errors
+        self.attempts = attempts
+
+        if len(tool_errors) == 1:
+            tool_name, errors = next(iter(tool_errors.items()))
+            details = "; ".join(errors)
+            message = (
+                f"Schema validation failed after {attempts} attempts for "
+                f"{tool_name}: {details}"
+            )
+        else:
+            parts = [
+                f"{tool_name}: {'; '.join(errors)}"
+                for tool_name, errors in sorted(tool_errors.items())
+            ]
+            message = (
+                f"Schema validation failed after {attempts} attempts: "
+                + " | ".join(parts)
+            )
+
+        super().__init__(message)
+
+
 @dataclass
 class CompletionOptions:
     """Options for a completion request."""
 
     model: str
     max_tokens: int = 4096
+    max_input_tokens: int | None = None
     temperature: float = 0.0
     reservation_key: str = "default"
     estimated_input_tokens: int | None = None

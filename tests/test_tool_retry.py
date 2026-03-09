@@ -11,8 +11,10 @@ from osoji.llm.types import (
     CompletionResult,
     Message,
     MessageRole,
+    PromptTooLargeError,
     ToolCall,
     ToolDefinition,
+    ToolSchemaValidationError,
 )
 from osoji.llm.anthropic import AnthropicProvider
 
@@ -300,7 +302,7 @@ class TestNonForcedSkipsValidation:
         assert provider._client.messages.create.call_count == 1
 
 
-class TestOnlyRetriesOnce:
+class LegacyOnlyRetriesOnce:
     """Even if the second attempt has errors, we return it as-is."""
 
     def test_second_bad_response_returned(self, provider):
@@ -336,6 +338,95 @@ class TestOnlyRetriesOnce:
         assert result.tool_calls[0].input == still_bad_input
         assert result.input_tokens == 220
         assert result.output_tokens == 110
+
+
+class TestRetryExhaustion:
+    """Forced tool retries should use up to three attempts, then raise."""
+
+    def test_third_attempt_can_recover(self, provider):
+        first_response = _make_response(
+            [_tool_use_block("tc1", "test_tool", {"value": "wrong"})],
+            input_tokens=100,
+            output_tokens=50,
+        )
+        second_response = _make_response(
+            [_tool_use_block("tc2", "test_tool", {"value": 42})],
+            input_tokens=120,
+            output_tokens=60,
+        )
+        good_input = {"value": {"x": "fixed-on-third"}}
+        third_response = _make_response(
+            [_tool_use_block("tc3", "test_tool", good_input)],
+            input_tokens=140,
+            output_tokens=70,
+        )
+        provider._client.messages.create = AsyncMock(
+            side_effect=[first_response, second_response, third_response]
+        )
+
+        options = CompletionOptions(
+            model="claude-test",
+            tools=[TOOL_DEF],
+            tool_choice=FORCED_CHOICE,
+        )
+        messages = [Message(role=MessageRole.USER, content="test")]
+
+        result = asyncio.run(provider.complete(messages, None, options))
+
+        assert provider._client.messages.create.call_count == 3
+        assert result.tool_calls[0].input == good_input
+        assert result.input_tokens == 360
+        assert result.output_tokens == 180
+
+    def test_third_bad_response_raises(self, provider):
+        first_response = _make_response(
+            [_tool_use_block("tc1", "test_tool", {"value": "wrong"})],
+            input_tokens=100,
+            output_tokens=50,
+        )
+        second_response = _make_response(
+            [_tool_use_block("tc2", "test_tool", {"value": 42})],
+            input_tokens=120,
+            output_tokens=60,
+        )
+        third_response = _make_response(
+            [_tool_use_block("tc3", "test_tool", {"value": []})],
+            input_tokens=140,
+            output_tokens=70,
+        )
+        provider._client.messages.create = AsyncMock(
+            side_effect=[first_response, second_response, third_response]
+        )
+
+        options = CompletionOptions(
+            model="claude-test",
+            tools=[TOOL_DEF],
+            tool_choice=FORCED_CHOICE,
+        )
+        messages = [Message(role=MessageRole.USER, content="test")]
+
+        with pytest.raises(ToolSchemaValidationError, match="Schema validation failed after 3 attempts"):
+            asyncio.run(provider.complete(messages, None, options))
+
+        assert provider._client.messages.create.call_count == 3
+
+
+class TestPromptBudget:
+    """Oversized requests should fail locally before hitting the provider."""
+
+    def test_preflight_rejects_large_prompt(self, provider):
+        provider._client.messages.create = AsyncMock()
+
+        options = CompletionOptions(
+            model="claude-test",
+            max_input_tokens=10,
+        )
+        messages = [Message(role=MessageRole.USER, content="x" * 1_000)]
+
+        with pytest.raises(PromptTooLargeError, match="Estimated prompt is too long"):
+            asyncio.run(provider.complete(messages, "system prompt", options))
+
+        provider._client.messages.create.assert_not_called()
 
 
 class TestMultipleToolCalls:

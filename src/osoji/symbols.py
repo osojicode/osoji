@@ -8,6 +8,10 @@ from pathlib import Path
 from .config import Config, SHADOW_DIR
 
 
+def _is_source_doc_candidate(config: Config, source: str) -> bool:
+    return config.is_doc_candidate(Path(source))
+
+
 def load_all_symbols(config: Config) -> dict[str, list[dict]]:
     """Load all public symbols across the project.
 
@@ -26,7 +30,7 @@ def load_all_symbols(config: Config) -> dict[str, list[dict]]:
             data = json.loads(symbols_file.read_text(encoding="utf-8"))
             source = data.get("source")
             symbols = data.get("symbols", [])
-            if source and symbols:
+            if source and symbols and not _is_source_doc_candidate(config, source):
                 result[source] = symbols
         except (json.JSONDecodeError, KeyError, OSError):
             continue
@@ -50,7 +54,7 @@ def load_file_roles(config: Config) -> dict[str, str]:
             data = json.loads(symbols_file.read_text(encoding="utf-8"))
             source = data.get("source")
             role = data.get("file_role")
-            if source and role:
+            if source and role and not _is_source_doc_candidate(config, source):
                 result[source] = role
         except (json.JSONDecodeError, KeyError, OSError):
             continue

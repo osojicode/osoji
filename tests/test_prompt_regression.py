@@ -27,6 +27,7 @@ from osoji.deadparam import (
     _verify_batch_async as _verify_dead_params_batch_async,
 )
 from osoji.llm.factory import create_provider
+from osoji.symbols import load_files_by_role
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "prompt_regression"
 
@@ -64,6 +65,33 @@ def _setup_case_dir(tmp_path: Path, case_dir: Path) -> Config:
             shutil.copy2(facts_file, dest)
 
     return Config(root_path=tmp_path, respect_gitignore=False)
+
+
+def test_dead_params_002_high_fanout_fixture_limits_callers(tmp_path):
+    """High-fanout common-name fixture should only retain direct importer call sites."""
+    case_dir = FIXTURES_DIR / "dead_params" / "case_002_high_fanout"
+    expected = json.loads((case_dir / "expected.json").read_text())
+    config = _setup_case_dir(tmp_path, case_dir)
+
+    candidates = scan_dead_param_candidates(config)
+    candidate = next(
+        candidate
+        for candidate in candidates
+        if candidate.function_name == expected["function_name"]
+        and candidate.param_name == expected["param_name"]
+    )
+
+    assert sorted({call_site.file_path for call_site in candidate.call_sites}) == expected["call_site_files"]
+
+
+def test_plumbing_002_doc_json_fixture_stays_doc_only(tmp_path):
+    """Doc JSON fixture should remain a doc candidate and stay out of schema roles."""
+    case_dir = FIXTURES_DIR / "plumbing" / "case_002_doc_json_reference"
+    expected = json.loads((case_dir / "expected.json").read_text())
+    config = _setup_case_dir(tmp_path, case_dir)
+
+    assert config.is_doc_candidate(Path(expected["doc_file"])) is True
+    assert load_files_by_role(config, "schema") == expected["schema_files"]
 
 
 # ---------------------------------------------------------------------------

@@ -135,6 +135,11 @@ def discover_files(config: Config) -> list[Path]:
         if path.suffix not in config.extensions:
             continue
 
+        # Files under docs/ may use source-like extensions but should be
+        # analyzed as documentation, not as source shadows.
+        if config.is_doc_candidate(relative):
+            continue
+
         # Check all path components against ignore patterns
         # (catches .cargo, node_modules, vendor etc. even when committed to git)
         matched_pattern = _matches_ignore(relative, config.ignore_patterns)

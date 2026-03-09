@@ -808,7 +808,6 @@ class Config:
                 if normalized:
                     extra_patterns.append(normalized)
         return extra_patterns
-
     def is_doc_candidate(self, path: Path) -> bool:
         """Check if a path is a documentation file candidate.
 
@@ -817,15 +816,21 @@ class Config:
         - Filename (README, CHANGELOG, etc. regardless of extension)
         - Location (files in docs/ directory)
         """
-
-        if path.suffix.lower() in self.doc_extensions:
-            return True
-        if path.stem.upper() in {f.upper() for f in self.doc_filenames}:
-            return True
         try:
-            for parent in path.relative_to(self.root_path).parents:
-                if parent.name.lower() in {d.lower() for d in self.doc_directories}:
-                    return True
+            relative = path.relative_to(self.root_path) if path.is_absolute() else path
         except ValueError:
-            pass
+            relative = path
+
+        # Check extension
+        if relative.suffix.lower() in self.doc_extensions:
+            return True
+
+        # Check filename (without extension)
+        if relative.stem.upper() in {f.upper() for f in self.doc_filenames}:
+            return True
+
+        # Check if in a doc directory
+        for parent in relative.parents:
+            if parent.name.lower() in {d.lower() for d in self.doc_directories}:
+                return True
         return False

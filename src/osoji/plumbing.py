@@ -16,6 +16,7 @@ from .async_utils import gather_with_buffer
 from .config import Config, SHADOW_DIR
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content
 from .llm.base import LLMProvider
+from .llm.budgets import input_budget_for_config
 from .llm.types import Message, MessageRole, CompletionOptions
 from .rate_limiter import RateLimiter
 from .symbols import load_files_by_role
@@ -58,6 +59,95 @@ class PlumbingResult:
 
     verifications: list[PlumbingVerification]  # only unactuated
     total_obligations: int  # total fields examined
+
+
+_MAX_REFERENCING_SHADOWS = 12
+_MAX_SIBLING_SHADOWS = 6
+_MAX_SHADOW_EXCERPT_CHARS = 2_000
+_SHADOW_CONTEXT_RADIUS = 12
+
+
+def _is_test_like_path(path: str) -> bool:
+    path_lower = path.lower()
+    return (
+        "/test" in path_lower
+        or "/tests/" in path_lower
+        or path_lower.startswith("test/")
+        or path_lower.startswith("tests/")
+        or ".test." in path_lower
+        or ".spec." in path_lower
+        or path_lower.endswith("_test.py")
+        or path_lower.endswith("_spec.rb")
+    )
+
+
+def _path_from_shadow_label(label: str) -> str:
+    match = re.search(r"in `([^`]+)`", label)
+    return match.group(1) if match else label
+
+
+def _field_from_shadow_label(label: str) -> str | None:
+    match = re.match(r"`([^`]+)`", label)
+    return match.group(1) if match else None
+
+
+def _shadow_excerpt(
+    shadow: str,
+    *,
+    needle: str | None,
+    max_chars: int = _MAX_SHADOW_EXCERPT_CHARS,
+) -> str:
+    """Trim a shadow doc to the most relevant excerpt for a field."""
+
+    normalized = shadow.strip()
+    if not normalized:
+        return ""
+
+    if needle:
+        lines = normalized.splitlines()
+        for index, line in enumerate(lines):
+            if needle.lower() not in line.lower():
+                continue
+            start = max(0, index - _SHADOW_CONTEXT_RADIUS)
+            end = min(len(lines), index + _SHADOW_CONTEXT_RADIUS + 1)
+            excerpt = "\n".join(lines[start:end]).strip()
+            if len(excerpt) > max_chars:
+                excerpt = excerpt[:max_chars].rstrip() + "\n[... truncated ...]"
+            return excerpt
+
+    if len(normalized) <= max_chars:
+        return normalized
+    return normalized[:max_chars].rstrip() + "\n[... truncated ...]"
+
+
+def _select_shadow_excerpts(
+    shadows: dict[str, str],
+    *,
+    limit: int,
+    needle: str | None = None,
+    label_path: Callable[[str], str] | None = None,
+    label_needle: Callable[[str], str | None] | None = None,
+) -> tuple[list[tuple[str, str]], int]:
+    """Select the most useful shadow excerpts, preferring non-test files."""
+
+    path_resolver = label_path or (lambda label: label)
+    ordered = sorted(
+        shadows.items(),
+        key=lambda item: (
+            _is_test_like_path(path_resolver(item[0])),
+            path_resolver(item[0]),
+            item[0],
+        ),
+    )
+    selected: list[tuple[str, str]] = []
+    for label, shadow in ordered[:limit]:
+        excerpt = _shadow_excerpt(
+            shadow,
+            needle=label_needle(label) if label_needle else needle,
+        )
+        if excerpt:
+            selected.append((label, excerpt))
+    return selected, max(0, len(ordered) - len(selected))
 
 
 # --- Phase A: Obligation Extraction ---
@@ -117,6 +207,7 @@ async def extract_obligations_async(
         options=CompletionOptions(
             model=config.model_for("small"),
             max_tokens=2048,
+            max_input_tokens=input_budget_for_config(config),
             reservation_key="plumbing.extract_obligations",
             tools=get_extract_obligations_tool_definitions(),
             tool_choice={"type": "tool", "name": "extract_obligations"},
@@ -170,7 +261,8 @@ NOT actuation:
 - Including in a config object that is only read by other config code
 - Displaying in a UI
 
-Use the verify_actuation tool with your judgment."""
+You MUST call the verify_actuation tool with all required fields.
+Always include `trace` and `remediation`. If the field is actuated, set remediation to `None needed`."""
 
 
 async def verify_actuation_async(
@@ -198,21 +290,52 @@ async def verify_actuation_async(
 
     # Schema shadow doc
     if schema_shadow:
-        user_parts.append(f"## Schema shadow doc: `{obligation.source_path}`\n{schema_shadow}\n")
+        schema_excerpt = _shadow_excerpt(schema_shadow, needle=obligation.field_name)
+        user_parts.append(
+            f"## Schema shadow doc: `{obligation.source_path}`\n{schema_excerpt}\n"
+        )
 
     # Referencing file shadows
     if referencing_shadows:
-        user_parts.append(f"## Files referencing `{obligation.field_name}` ({len(referencing_shadows)} files)\n")
-        for path, shadow in referencing_shadows.items():
+        selected_refs, omitted_refs = _select_shadow_excerpts(
+            referencing_shadows,
+            limit=_MAX_REFERENCING_SHADOWS,
+            needle=obligation.field_name,
+        )
+        user_parts.append(
+            f"## Files referencing `{obligation.field_name}` "
+            f"(showing {len(selected_refs)} of {len(referencing_shadows)} files)\n"
+        )
+        for path, shadow in selected_refs:
             user_parts.append(f"### `{path}`\n{shadow}\n")
+        if omitted_refs:
+            user_parts.append(
+                f"[Omitted {omitted_refs} additional referencing shadow(s) after prioritizing non-test files.]\n"
+            )
 
     # Sibling field shadows (positive counterexamples)
     if sibling_shadows:
-        user_parts.append(f"## Sibling fields from same schema (for comparison)\n")
-        for label, shadow in sibling_shadows.items():
+        selected_siblings, omitted_siblings = _select_shadow_excerpts(
+            sibling_shadows,
+            limit=_MAX_SIBLING_SHADOWS,
+            label_path=_path_from_shadow_label,
+            label_needle=_field_from_shadow_label,
+        )
+        user_parts.append(
+            f"## Sibling fields from same schema for comparison "
+            f"(showing {len(selected_siblings)} of {len(sibling_shadows)} shadow(s))\n"
+        )
+        for label, shadow in selected_siblings:
             user_parts.append(f"### {label}\n{shadow}\n")
+        if omitted_siblings:
+            user_parts.append(
+                f"[Omitted {omitted_siblings} additional sibling comparison shadow(s) after prioritizing non-test files.]\n"
+            )
 
-    user_parts.append("Trace this field and determine if it is actuated using the verify_actuation tool.")
+    user_parts.append(
+        "Trace this field and determine if it is actuated using the verify_actuation tool. "
+        "The tool call MUST include `is_actuated`, `confidence`, `trace`, and `remediation`."
+    )
 
     result = await provider.complete(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
@@ -220,6 +343,7 @@ async def verify_actuation_async(
         options=CompletionOptions(
             model=config.model_for("medium"),
             max_tokens=1024,
+            max_input_tokens=input_budget_for_config(config),
             reservation_key="plumbing.verify_actuation",
             tools=get_verify_actuation_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_actuation"},
@@ -285,6 +409,8 @@ def _find_field_references(
         if _matches_ignore(relative, config.ignore_patterns):
             continue
         if osojiignore and _matches_ignore(relative, osojiignore):
+            continue
+        if config.is_doc_candidate(relative):
             continue
 
         # Use cache when available to avoid redundant file reads

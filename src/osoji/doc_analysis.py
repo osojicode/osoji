@@ -11,6 +11,7 @@ from .config import Config, DIRECTORY_SHADOW_FILENAME, SHADOW_DIR
 from .facts import FactsDB
 from .hasher import read_file_safe
 from .llm.base import LLMProvider
+from .llm.budgets import input_budget_for_config
 from .llm.runtime import create_runtime
 from .llm.tokens import estimate_tokens_offline
 from .llm.types import Message, MessageRole, CompletionOptions
@@ -266,6 +267,7 @@ Return the directory paths using the match_doc_topics tool."""
         options=CompletionOptions(
             model=config.model_for("small"),
             max_tokens=1024,
+            max_input_tokens=input_budget_for_config(config),
             reservation_key="doc.match_topics",
             tools=get_match_doc_topics_tool_definitions(),
             tool_choice={"type": "tool", "name": "match_doc_topics"},
@@ -346,7 +348,8 @@ For each finding, also provide `search_terms`: the specific technical identifier
 function names, config keys, CLI flags, file paths, etc.) that the finding makes claims about.
 These are used to search the broader project for corroborating or contradicting evidence.
 
-Use the analyze_document tool with your results."""
+You MUST call the analyze_document tool with all required fields.
+Always include a `findings` array. If the document has no issues, return `findings: []`."""
 
 
 async def _analyze_document_async(
@@ -388,7 +391,11 @@ async def _analyze_document_async(
 {shadow_text}
 """
 
-    user_prompt += "\nClassify this document and validate its accuracy using the analyze_document tool."
+    user_prompt += (
+        "\nClassify this document and validate its accuracy using the analyze_document tool. "
+        "The tool call MUST include `classification`, `confidence`, `classification_reason`, and `findings`. "
+        "If there are no issues, return `findings: []`."
+    )
 
     result = await provider.complete(
         messages=[Message(role=MessageRole.USER, content=user_prompt)],
@@ -396,6 +403,7 @@ async def _analyze_document_async(
         options=CompletionOptions(
             model=config.model_for("large"),
             max_tokens=2048,
+            max_input_tokens=input_budget_for_config(config),
             reservation_key="doc.analyze",
             tools=get_analyze_document_tool_definitions(),
             tool_choice={"type": "tool", "name": "analyze_document"},
@@ -637,6 +645,7 @@ async def _verify_error_findings_async(
         options=CompletionOptions(
             model=config.model_for("medium"),
             max_tokens=max(1024, len(error_findings) * 300),
+            max_input_tokens=input_budget_for_config(config),
             reservation_key="doc.verify_errors",
             tools=get_verify_doc_finding_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_doc_finding"},

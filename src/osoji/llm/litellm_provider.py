@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import logging
 import os
 from dataclasses import dataclass
 from typing import Any, Awaitable, Callable
@@ -12,17 +11,20 @@ import litellm
 
 from .base import LLMProvider
 from .registry import get_provider_spec, qualify_model_name
+from .tokens import estimate_completion_input_tokens_offline
 from .types import (
     CompletionOptions,
     CompletionResult,
     Message,
     MessageRole,
+    PromptTooLargeError,
     ToolCall,
     ToolDefinition,
+    ToolSchemaValidationError,
 )
 from .validate import validate_tool_input
 
-logger = logging.getLogger(__name__)
+_MAX_TOOL_VALIDATION_ATTEMPTS = 3
 
 
 @dataclass
@@ -85,46 +87,58 @@ class LiteLLMProvider(LLMProvider):
     ) -> CompletionResult:
         request_messages = self._convert_messages(messages, system)
         request_kwargs = self._build_request_kwargs(request_messages, options)
+        self._enforce_input_token_budget(messages, system, options)
 
         response = await self._client.messages.create(**request_kwargs)
         parsed = self._parse_response(response)
-        result = parsed.result
+        total_input_tokens = parsed.result.input_tokens
+        total_output_tokens = parsed.result.output_tokens
 
-        if self._should_validate_tool_calls(options, result.tool_calls):
-            schema_by_name = {tool.name: tool.input_schema for tool in options.tools}
-            tool_feedback, has_errors = self._build_tool_feedback(
-                result.tool_calls,
+        if not self._should_validate_tool_calls(options, parsed.result.tool_calls):
+            return parsed.result
+
+        schema_by_name = {tool.name: tool.input_schema for tool in options.tools}
+        conversation_messages = request_messages
+        attempts = 1
+
+        while True:
+            tool_feedback, tool_errors = self._build_tool_feedback(
+                parsed.result.tool_calls,
                 schema_by_name,
                 options.tool_input_validators,
             )
-
-            if has_errors and parsed.assistant_message is not None:
-                retry_kwargs = dict(request_kwargs)
-                retry_kwargs["messages"] = self._build_retry_messages(
-                    request_messages,
-                    parsed.assistant_message,
-                    tool_feedback,
-                    parsed.response_format,
-                )
-                retry_response = await self._client.messages.create(**retry_kwargs)
-                retry_parsed = self._parse_response(retry_response)
-                self._warn_if_retry_still_invalid(
-                    retry_parsed.result.tool_calls,
-                    schema_by_name,
-                    options.tool_input_validators,
-                )
-
-                retry_result = retry_parsed.result
+            if not tool_errors:
                 return CompletionResult(
-                    content=retry_result.content,
-                    tool_calls=retry_result.tool_calls,
-                    input_tokens=result.input_tokens + retry_result.input_tokens,
-                    output_tokens=result.output_tokens + retry_result.output_tokens,
-                    model=retry_result.model,
-                    stop_reason=retry_result.stop_reason,
+                    content=parsed.result.content,
+                    tool_calls=parsed.result.tool_calls,
+                    input_tokens=total_input_tokens,
+                    output_tokens=total_output_tokens,
+                    model=parsed.result.model,
+                    stop_reason=parsed.result.stop_reason,
                 )
 
-        return result
+            if parsed.assistant_message is None or attempts >= _MAX_TOOL_VALIDATION_ATTEMPTS:
+                raise ToolSchemaValidationError(
+                    tool_errors=tool_errors,
+                    attempts=attempts,
+                )
+
+            conversation_messages = self._build_retry_messages(
+                conversation_messages,
+                parsed.assistant_message,
+                tool_feedback,
+                parsed.response_format,
+            )
+            retry_messages = self._messages_from_api_payload(conversation_messages)
+            self._enforce_input_token_budget(retry_messages, None, options)
+
+            retry_kwargs = dict(request_kwargs)
+            retry_kwargs["messages"] = conversation_messages
+            retry_response = await self._client.messages.create(**retry_kwargs)
+            parsed = self._parse_response(retry_response)
+            total_input_tokens += parsed.result.input_tokens
+            total_output_tokens += parsed.result.output_tokens
+            attempts += 1
 
     async def close(self) -> None:
         await self._client.close()
@@ -201,20 +215,18 @@ class LiteLLMProvider(LLMProvider):
         tool_calls: list[ToolCall],
         schema_by_name: dict[str, dict[str, Any]],
         validators: list[Callable[[str, dict], list[str]]],
-    ) -> tuple[list[dict[str, Any]], bool]:
+    ) -> tuple[list[dict[str, Any]], dict[str, list[str]]]:
         tool_feedback: list[dict[str, Any]] = []
-        has_errors = False
+        tool_errors: dict[str, list[str]] = {}
 
         for tool_call in tool_calls:
-            errors: list[str] = []
-            schema = schema_by_name.get(tool_call.name)
-            if schema:
-                errors.extend(validate_tool_input(tool_call.input, schema))
-            for validator in validators:
-                errors.extend(validator(tool_call.name, tool_call.input))
+            errors = self._validate_tool_call(tool_call, schema_by_name, validators)
 
             if errors:
-                has_errors = True
+                tool_errors.setdefault(tool_call.name, [])
+                for error in errors:
+                    if error not in tool_errors[tool_call.name]:
+                        tool_errors[tool_call.name].append(error)
                 feedback = {
                     "tool_use_id": tool_call.id,
                     "name": tool_call.name,
@@ -233,7 +245,7 @@ class LiteLLMProvider(LLMProvider):
                 }
             tool_feedback.append(feedback)
 
-        return tool_feedback, has_errors
+        return tool_feedback, tool_errors
 
     def _build_retry_messages(
         self,
@@ -273,25 +285,57 @@ class LiteLLMProvider(LLMProvider):
             )
         return retry_messages
 
-    def _warn_if_retry_still_invalid(
+    def _validate_tool_call(
         self,
-        tool_calls: list[ToolCall],
+        tool_call: ToolCall,
         schema_by_name: dict[str, dict[str, Any]],
         validators: list[Callable[[str, dict], list[str]]],
-    ) -> None:
-        for tool_call in tool_calls:
-            retry_errors: list[str] = []
-            schema = schema_by_name.get(tool_call.name)
-            if schema:
-                retry_errors.extend(validate_tool_input(tool_call.input, schema))
-            for validator in validators:
-                retry_errors.extend(validator(tool_call.name, tool_call.input))
-            if retry_errors:
-                logger.warning(
-                    "Schema errors persist after retry for %s: %s",
-                    tool_call.name,
-                    "; ".join(retry_errors),
+    ) -> list[str]:
+        errors: list[str] = []
+        schema = schema_by_name.get(tool_call.name)
+        if schema:
+            errors.extend(validate_tool_input(tool_call.input, schema))
+        for validator in validators:
+            errors.extend(validator(tool_call.name, tool_call.input))
+        return errors
+
+    def _messages_from_api_payload(
+        self,
+        messages: list[dict[str, Any]],
+    ) -> list[Message]:
+        converted: list[Message] = []
+        for message in messages:
+            role = message.get("role", MessageRole.USER.value)
+            converted.append(
+                Message(
+                    role=MessageRole(role) if role in MessageRole._value2member_map_ else role,
+                    content=message.get("content", ""),
                 )
+            )
+        return converted
+
+    def _enforce_input_token_budget(
+        self,
+        messages: list[Message],
+        system: str | None,
+        options: CompletionOptions,
+    ) -> None:
+        if options.max_input_tokens is None:
+            return
+
+        estimated_tokens = estimate_completion_input_tokens_offline(
+            messages,
+            system=system,
+            tools=options.tools,
+            tool_choice=options.tool_choice,
+        )
+        if estimated_tokens > options.max_input_tokens:
+            raise PromptTooLargeError(
+                estimated_tokens=estimated_tokens,
+                max_input_tokens=options.max_input_tokens,
+                model=options.model,
+                reservation_key=options.reservation_key,
+            )
 
     def _parse_response(self, response: Any) -> _ParsedResponse:
         if self._looks_like_anthropic_response(response):
