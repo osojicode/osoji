@@ -153,6 +153,47 @@ _COMMON_STRINGS = {
     "json", "html", "text", "xml", "csv", "yaml",
 }
 
+_FILE_PATH_ROOTS = {
+    "file_name", "filename", "name_lower", "suffix", "suffix_lower",
+    "path", "file_path", "parts", "parts_lower",
+}
+
+_FILE_PATH_HINTS = {
+    "directory", "filename", "suffix", "extension", "basename",
+    "glob", "prefix check", "name prefix", "name check", "path part",
+}
+
+_SERIALIZED_KEY_ROOTS = {
+    "data", "item", "entry", "payload", "json", "record", "row", "obj",
+}
+
+_SERIALIZED_KEY_HINTS = {
+    "json", "schema", "serialized", "payload", "mapping", "dict", "key",
+    "tool input", "tool output", "facts",
+}
+
+_EXTERNAL_PROTOCOL_HINTS = {
+    "api", "protocol", "wire", "request", "response", "event",
+    "role string", "tool use", "tool result", "anthropic",
+}
+
+
+def _comparison_root(expr: str | None) -> str:
+    """Extract the root identifier from a comparison expression."""
+    if not expr:
+        return ""
+    return expr.split(".")[0].split("[")[0].split("(")[0].strip()
+
+
+def _occurrence_text(context: str, comparison_source: str | None) -> str:
+    """Normalize occurrence context for heuristic matching."""
+    return " ".join(part.strip().lower() for part in (context, comparison_source or "") if part)
+
+
+def _contains_any(text: str, needles: set[str]) -> bool:
+    """Check whether any hint string appears in the normalized text."""
+    return any(needle in text for needle in needles)
+
 
 # ---------------------------------------------------------------------------
 # ABC
@@ -282,7 +323,24 @@ class StringContractChecker(ContractChecker):
             if _is_test_file(file_path):
                 continue
 
-            checked_values = {e["value"] for e in checked_entries}
+            relevant_entries = [
+                entry
+                for entry in checked_entries
+                if not self._should_ignore_checked_occurrence(
+                    file_path,
+                    StringOccurrence(
+                        file=file_path,
+                        line=entry.get("line", 0),
+                        context=entry.get("context", ""),
+                        comparison_source=entry.get("comparison_source"),
+                    ),
+                )
+            ]
+
+            if not relevant_entries:
+                continue
+
+            checked_values = {e["value"] for e in relevant_entries}
             checked_values -= self._tool_names
 
             matched = checked_values & data.all_produced_values
@@ -300,11 +358,13 @@ class StringContractChecker(ContractChecker):
                 continue
 
             match_ratio = len(matched) / len(checked_values)
-            for entry in checked_entries:
+            seen_values: set[str] = set()
+            for entry in relevant_entries:
                 if entry["value"] not in unmatched:
                     continue
-                if self._is_external_origin(file_path, entry.get("comparison_source")):
+                if entry["value"] in seen_values:
                     continue
+                seen_values.add(entry["value"])
 
                 checker_context = entry.get("context")
                 findings.append(ContractFinding(
@@ -328,6 +388,45 @@ class StringContractChecker(ContractChecker):
         findings.sort(key=lambda f: (-f.confidence, f.consumer_file))
         return findings
 
+    def _should_ignore_checked_occurrence(self, file_path: str, occ: StringOccurrence) -> bool:
+        """Return True when a checked string clearly is not an internal repo contract."""
+        if self._is_external_origin(file_path, occ.comparison_source):
+            return True
+        if self._looks_like_file_or_path_occurrence(occ):
+            return True
+        if self._looks_like_serialized_key_occurrence(occ):
+            return True
+        if self._looks_like_external_protocol_occurrence(occ):
+            return True
+        return False
+
+    def _should_ignore_produced_occurrence(self, occ: StringOccurrence) -> bool:
+        """Return True when a produced string is clearly an external protocol or sentinel."""
+        if self._looks_like_file_or_path_occurrence(occ):
+            return True
+        if self._looks_like_external_protocol_occurrence(occ):
+            return True
+        return False
+
+    def _looks_like_file_or_path_occurrence(self, occ: StringOccurrence) -> bool:
+        """Heuristic filter for filename/path sentinels and directory checks."""
+        text = _occurrence_text(occ.context, occ.comparison_source)
+        root = _comparison_root(occ.comparison_source)
+        return root in _FILE_PATH_ROOTS or _contains_any(text, _FILE_PATH_HINTS)
+
+    def _looks_like_serialized_key_occurrence(self, occ: StringOccurrence) -> bool:
+        """Heuristic filter for object/JSON key reads from serialized data."""
+        text = _occurrence_text(occ.context, occ.comparison_source)
+        root = _comparison_root(occ.comparison_source)
+        if root not in _SERIALIZED_KEY_ROOTS:
+            return False
+        return _contains_any(text, _SERIALIZED_KEY_HINTS)
+
+    def _looks_like_external_protocol_occurrence(self, occ: StringOccurrence) -> bool:
+        """Heuristic filter for wire/API protocol literals."""
+        text = _occurrence_text(occ.context, occ.comparison_source)
+        return _contains_any(text, _EXTERNAL_PROTOCOL_HINTS)
+
     # --- Fragility detection ---
 
     def _check_fragility(self, data: StringContractData) -> list[ContractFinding]:
@@ -340,8 +439,19 @@ class StringContractChecker(ContractChecker):
             if not self._is_plausible_identifier(value):
                 continue
 
-            producer_files = {occ.file for occ in data.producers[value]}
-            checker_files = {occ.file for occ in data.checked[value]}
+            producer_occurrences = [
+                occ for occ in data.producers[value]
+                if not self._should_ignore_produced_occurrence(occ)
+            ]
+            checker_occurrences = [
+                occ for occ in data.checked[value]
+                if not self._should_ignore_checked_occurrence(occ.file, occ)
+            ]
+            if not producer_occurrences or not checker_occurrences:
+                continue
+
+            producer_files = {occ.file for occ in producer_occurrences}
+            checker_files = {occ.file for occ in checker_occurrences}
             definer_files = {occ.file for occ in data.defined.get(value, [])}
 
             for producer_file in producer_files:
@@ -368,8 +478,8 @@ class StringContractChecker(ContractChecker):
                             continue
 
                     # Find representative occurrences for evidence
-                    producer_occ = next(o for o in data.producers[value] if o.file == producer_file)
-                    checker_occ = next(o for o in data.checked[value] if o.file == checker_file)
+                    producer_occ = next(o for o in producer_occurrences if o.file == producer_file)
+                    checker_occ = next(o for o in checker_occurrences if o.file == checker_file)
 
                     raw_findings.append(ContractFinding(
                         finding_type="implicit_contract",

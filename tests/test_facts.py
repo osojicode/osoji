@@ -317,6 +317,27 @@ class TestCrossFileReferences:
         call_refs = [r for r in refs if r["kind"] == "call"]
         assert len(call_refs) == 1
 
+    def test_finds_member_write_reference(self, tmp_path):
+        """Detects cross-file field writes recorded in facts."""
+        _write_facts(tmp_path, "src/scorecard.py", {
+            "imports": [],
+            "exports": [{"name": "obligation_violations", "kind": "variable", "line": 66}],
+            "calls": [],
+            "string_literals": [],
+        })
+        _write_facts(tmp_path, "src/audit.py", {
+            "imports": [],
+            "exports": [],
+            "calls": [],
+            "member_writes": [{"container": "scorecard", "member": "obligation_violations", "line": 397}],
+            "string_literals": [],
+        })
+        db = FactsDB(_make_config(tmp_path))
+        refs = db.cross_file_references("obligation_violations", "src/scorecard.py")
+        write_refs = [r for r in refs if r["kind"] == "member_write"]
+        assert len(write_refs) == 1
+        assert write_refs[0]["file"] == "src/audit.py"
+
     def test_excludes_same_file(self, tmp_path):
         """Does not include references from the defining file itself."""
         _write_facts(tmp_path, "src/scorecard.py", {
@@ -392,6 +413,7 @@ class TestMalformedEntries:
             "imports": ["bad_import", {"source": ".b", "names": ["x"], "is_reexport": False}],
             "exports": [99, {"name": "foo", "kind": "function", "line": 1}],
             "calls": [None, {"target": "print", "line": 5}],
+            "member_writes": [False, {"container": "state", "member": "flag", "line": 6}],
             "string_literals": [],
         })
 
@@ -404,3 +426,5 @@ class TestMalformedEntries:
         assert facts.exports[0]["name"] == "foo"
         assert len(facts.calls) == 1
         assert facts.calls[0]["target"] == "print"
+        assert len(facts.member_writes) == 1
+        assert facts.member_writes[0]["member"] == "flag"

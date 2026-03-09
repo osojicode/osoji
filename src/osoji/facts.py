@@ -15,7 +15,7 @@ class FileFacts:
 
     For source files: all fields populated by LLM extraction.
     For doc files: ``imports`` stores source file references (with context),
-    ``exports``/``calls``/``string_literals`` are empty.
+    ``exports``/``calls``/``member_writes``/``string_literals`` are empty.
     """
 
     source: str
@@ -23,6 +23,7 @@ class FileFacts:
     imports: list[dict] = field(default_factory=list)
     exports: list[dict] = field(default_factory=list)
     calls: list[dict] = field(default_factory=list)
+    member_writes: list[dict] = field(default_factory=list)
     string_literals: list[dict] = field(default_factory=list)
     # Doc-specific fields (None for source files):
     classification: str | None = None
@@ -63,6 +64,7 @@ class FactsDB:
                     imports=_only_dicts(data.get("imports", [])),
                     exports=_only_dicts(data.get("exports", [])),
                     calls=_only_dicts(data.get("calls", [])),
+                    member_writes=_only_dicts(data.get("member_writes", [])),
                     string_literals=_only_dicts(data.get("string_literals", [])),
                     classification=data.get("classification"),
                     topics=data.get("topics"),
@@ -272,9 +274,9 @@ class FactsDB:
     def cross_file_references(self, symbol_name: str, source_file: str) -> list[dict]:
         """Find cross-file references to a symbol name.
 
-        Searches imports (named imports), calls, and exports across all files
+        Searches imports (named imports), calls, member writes, and exports across all files
         except the defining file. Returns a list of evidence dicts:
-        [{"file": str, "kind": "import"|"call"|"export", "context": str}, ...]
+        [{"file": str, "kind": "import"|"call"|"member_write"|"export", "context": str}, ...]
         """
         source_norm = source_file.replace("\\", "/")
         refs: list[dict] = []
@@ -301,6 +303,16 @@ class FactsDB:
                         "file": file_path,
                         "kind": "call",
                         "context": f"calls {target} at line {call.get('line', '?')}",
+                    })
+            # Check member writes: does this file write the symbol as a field/property?
+            for write in facts.member_writes:
+                member = write.get("member", "")
+                if member == symbol_name:
+                    container = write.get("container", "?")
+                    refs.append({
+                        "file": file_path,
+                        "kind": "member_write",
+                        "context": f"writes {container}.{member} at line {write.get('line', '?')}",
                     })
             # Check exports: does this file re-export the symbol?
             for exp in facts.exports:

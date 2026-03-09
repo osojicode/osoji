@@ -91,12 +91,12 @@ class AnthropicProvider(LLMProvider):
         response = await self._client.messages.create(**kwargs)
 
         # Extract results
-        content = None
+        text_blocks: list[str] = []
         tool_calls: list[ToolCall] = []
 
         for block in response.content:
             if block.type == "text":
-                content = block.text
+                text_blocks.append(block.text)
             elif block.type == "tool_use":
                 tool_calls.append(
                     ToolCall(
@@ -107,7 +107,7 @@ class AnthropicProvider(LLMProvider):
                 )
 
         result = CompletionResult(
-            content=content,
+            content="".join(text_blocks) or None,
             tool_calls=tool_calls,
             input_tokens=response.usage.input_tokens,
             output_tokens=response.usage.output_tokens,
@@ -191,11 +191,11 @@ class AnthropicProvider(LLMProvider):
                 retry_response = await self._client.messages.create(**retry_kwargs)
 
                 # Extract retry results
-                retry_content = None
+                retry_text_blocks: list[str] = []
                 retry_tool_calls: list[ToolCall] = []
                 for block in retry_response.content:
                     if block.type == "text":
-                        retry_content = block.text
+                        retry_text_blocks.append(block.text)
                     elif block.type == "tool_use":
                         retry_tool_calls.append(
                             ToolCall(
@@ -221,7 +221,7 @@ class AnthropicProvider(LLMProvider):
                         )
 
                 result = CompletionResult(
-                    content=retry_content,
+                    content="".join(retry_text_blocks) or None,
                     tool_calls=retry_tool_calls,
                     input_tokens=(
                         response.usage.input_tokens

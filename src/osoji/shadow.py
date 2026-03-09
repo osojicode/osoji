@@ -348,11 +348,17 @@ ALSO: While analyzing the code, identify any "debris" that CURRENTLY misleads an
   * Calling a function/method with wrong argument count or types
   * Using dict-style API (.get(), bracket access) on a non-dict object, or vice versa
   * Unguarded dereference of a value that could be null/nil/None
+  * Do NOT flag an inner-loop break/continue by pattern alone; only flag loop-control bugs when
+    the same file shows missed work, duplicate output, or an actually unreachable intended path
   Only flag where the mismatch is clearly visible from THIS file. If the type
   comes from another file and you cannot verify, set cross_file_verification_needed=true.
   Before flagging unguarded dict/list access as a latent bug, check whether the same file
   contains validation logic, schema enforcement, data construction, or loop iteration that
   guarantees the key/index exists at the point of access.
+  Private helpers may rely on same-file caller preconditions. Do NOT flag a helper as a latent
+  bug if the same file clearly validates or constrains the inputs before every call.
+  In tests and mocks, judge against the local fixture contract unless the code explicitly says it
+  mirrors a production type or schema.
   Hardcoded defaults, opinionated API choices, and intentional design constraints are NOT
   latent bugs unless they cause crashes or produce incorrect results at runtime.
   Use severity "error" for latent bugs. Do NOT flag stylistic issues or speculative bugs.
@@ -360,6 +366,8 @@ ALSO: While analyzing the code, identify any "debris" that CURRENTLY misleads an
 Do NOT flag comments that accurately describe the current implementation, even if they describe
 implementation details. A comment is stale only if it is CURRENTLY wrong, not if it COULD
 become wrong in the future.
+If a comment references a symbolic constant or model tier, resolve that constant from the same
+file before deciding the comment is stale.
 
 If a finding references behavior in OTHER files that you cannot verify from this file alone
 (e.g., a comment describes a function in another module, or references a field defined elsewhere),
@@ -384,10 +392,11 @@ ALSO: Populate the topic_signature with a one-sentence purpose statement and 3-7
 noun phrases (e.g., "JWT validation", "rate limiting", "database connection pooling").
 These are used for documentation coverage analysis.
 
-ALSO: Populate the imports, exports, calls, and string_literals arrays:
+ALSO: Populate the imports, exports, calls, member_writes, and string_literals arrays:
 - imports: Every import in this file (source specifier, imported names, whether it's a re-export)
 - exports: Public API surface only (things importable by other files)
 - calls: Significant cross-file calls from exported symbols and module-level code (not same-file, not internal helpers)
+- member_writes: Writes to object/class/dataclass fields that could demonstrate cross-file field usage
 - string_literals: String constants that participate in cross-file contracts (identifiers used as
   keys/names/categories, user-facing messages, config values). NOT every string.
   IMPORTANT: Dict/mapping values, default parameter values, and collection literal elements
@@ -404,7 +413,8 @@ ALSO: Populate the imports, exports, calls, and string_literals arrays:
   ALWAYS SKIP these well-known external convention strings — do not extract them at all:
   programming language names (python, javascript, rust, go), testing framework conventions
   (test_, _test, spec_), standard file extensions (.py, .env, .json, .yaml), standard directory
-  names (node_modules, __pycache__), and similar ecosystem-standard patterns.
+  names (node_modules, __pycache__), serialized-data keys, filename/path sentinels, wire/API
+  protocol literals, and similar ecosystem-standard patterns.
   For strings with usage "checked", also set comparison_source to the variable or expression
   the string is compared against (e.g., "tool_call.name", "schema.get(key)", "category",
   "os.environ"). This is the other side of the ==, in, not in, or .get() expression."""
@@ -454,6 +464,7 @@ Include line number references for key elements (e.g., "MyClass (L15-45)").
                 "imports": tool_call.input.get("imports", []),
                 "exports": tool_call.input.get("exports", []),
                 "calls": tool_call.input.get("calls", []),
+                "member_writes": tool_call.input.get("member_writes", []),
                 "string_literals": tool_call.input.get("string_literals", []),
             }
             return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings, symbols, file_role, topic_signature, facts)
@@ -637,7 +648,7 @@ async def process_file_async(
             await _write_with_retry(sig_path, json.dumps(sig_json, indent=2))
 
         # Write facts JSON
-        if facts and any(facts.get(k) for k in ("imports", "exports", "calls", "string_literals")):
+        if facts and any(facts.get(k) for k in ("imports", "exports", "calls", "member_writes", "string_literals")):
             facts_path = config.facts_path_for(file_path)
             facts_path.parent.mkdir(parents=True, exist_ok=True)
             facts_json = {
@@ -728,7 +739,7 @@ Merge findings from all chunks, deduplicating any that appear in overlapping reg
 Merge symbols from all chunks, deduplicating by name.
 Choose the most appropriate file_role from the chunks.
 Generate a unified topic_signature covering the entire file.
-Merge imports, exports, calls, and string_literals from all chunks, deduplicating by value."""
+Merge imports, exports, calls, member_writes, and string_literals from all chunks, deduplicating by value."""
 
     chunks_text = "\n\n---\n\n".join(
         f"**Chunk {i + 1} of {len(chunk_shadows)}:**\n{shadow}"
@@ -774,6 +785,7 @@ Merge these into a single cohesive shadow doc using the submit_shadow_doc tool."
                 "imports": tool_call.input.get("imports", []),
                 "exports": tool_call.input.get("exports", []),
                 "calls": tool_call.input.get("calls", []),
+                "member_writes": tool_call.input.get("member_writes", []),
                 "string_literals": tool_call.input.get("string_literals", []),
             }
             return (tool_call.input["content"], result.input_tokens, result.output_tokens, findings, symbols, file_role, topic_signature, facts)

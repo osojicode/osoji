@@ -1,9 +1,8 @@
 """Tests for cross-file dead code detection."""
 
 import json
-import math
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 import pytest
 

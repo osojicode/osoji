@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from osoji.config import Config, SHADOW_DIR
+from osoji.config import Config
 from osoji.hasher import compute_file_hash, compute_impl_hash, extract_source_hash
 from osoji.shadow import (
     STALE_WARNING_SOURCE,
