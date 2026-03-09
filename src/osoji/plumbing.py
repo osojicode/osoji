@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config, MODEL_SMALL, SHADOW_DIR
+from .config import Config, SHADOW_DIR
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content
 from .llm.base import LLMProvider
 from .llm.types import Message, MessageRole, CompletionOptions
@@ -74,7 +74,7 @@ NOT obligation-bearing:
 - Descriptive: status, state, result
 - Position/metadata fields: line_start, line_end, line_number, offset, column, index
 - LLM tool schema constraints: minimum, maximum, enum, range constraints on fields inside
-  tool definitions for structured LLM output (e.g., Anthropic tool_use schemas). These
+  tool definitions for structured LLM output (e.g., function/tool call schemas). These
   constraints guide the LLM's output format, not application code — enforcement happens
   at the API layer, not in the application.
 
@@ -114,7 +114,7 @@ async def extract_obligations_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_EXTRACT_OBLIGATIONS_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=MODEL_SMALL,
+            model=config.model_for("small"),
             max_tokens=2048,
             tools=get_extract_obligations_tool_definitions(),
             tool_choice={"type": "tool", "name": "extract_obligations"},
@@ -216,7 +216,7 @@ async def verify_actuation_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_VERIFY_ACTUATION_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=config.model,
+            model=config.model_for("medium"),
             max_tokens=1024,
             tools=get_verify_actuation_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_actuation"},
@@ -316,8 +316,8 @@ async def detect_dead_plumbing_async(
 ) -> PlumbingResult:
     """Detect unactuated config obligations across the project.
 
-    Phase A: Extract obligations from schema files (Haiku)
-    Phase B: Verify actuation for each obligation (Sonnet)
+    Phase A: Extract obligations from schema files (small analysis tier)
+    Phase B: Verify actuation for each obligation (medium analysis tier)
 
     Returns PlumbingResult with unactuated verifications and total obligation count.
     """

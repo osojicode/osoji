@@ -124,6 +124,8 @@ _IMPL_HASH_SOURCES = (
     "src/osoji/hasher.py",
     "src/osoji/llm/anthropic.py",
     "src/osoji/llm/base.py",
+    "src/osoji/llm/litellm_provider.py",
+    "src/osoji/llm/registry.py",
     "src/osoji/llm/types.py",
     "src/osoji/llm/validate.py",
     "src/osoji/shadow.py",

@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config, MODEL_SMALL, SHADOW_DIR
+from .config import Config, SHADOW_DIR
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult
 from .llm.base import LLMProvider
 from .llm.types import Message, MessageRole, CompletionOptions
@@ -75,7 +75,7 @@ _IMPORT_NAME_CACHE: dict[str, list[str]] = {
     "pynacl": ["nacl"],
 }
 
-# --- Build tools cache (fast pre-filter before Haiku classification) ---
+# --- Build tools cache (fast pre-filter before small-tier classification) ---
 
 _BUILD_TOOLS_CACHE: set[str] = {
     # Python build tools
@@ -129,7 +129,7 @@ def _resolve_import_names_heuristic(package_name: str, ecosystem: str) -> list[s
 
 
 
-# --- Haiku-backed import name resolution ---
+# --- Small-tier import name resolution ---
 
 _RESOLVE_IMPORTS_SYSTEM_PROMPT = """You are a package name resolution expert. For each package, return the importable module name(s) that would appear in import statements.
 
@@ -146,9 +146,10 @@ Provide a resolution for EVERY package listed."""
 
 async def _resolve_import_names_batch_async(
     provider: LLMProvider,
+    config: Config,
     packages: list[tuple[str, str]],  # (package_name, ecosystem)
 ) -> tuple[dict[str, list[str]], int, int]:
-    """Batch Haiku call to resolve package names to import names.
+    """Batch small-tier call to resolve package names to import names.
 
     Returns (package_name -> import_names, input_tokens, output_tokens).
     """
@@ -177,7 +178,7 @@ async def _resolve_import_names_batch_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(lines))],
         system=_RESOLVE_IMPORTS_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=MODEL_SMALL,
+            model=config.model_for("small"),
             max_tokens=max(1024, len(packages) * 50),
             tools=get_resolve_import_names_tool_definitions(),
             tool_choice={"type": "tool", "name": "resolve_import_names"},
@@ -197,7 +198,7 @@ async def _resolve_import_names_batch_async(
     return resolved, result.input_tokens, result.output_tokens
 
 
-# --- Haiku-backed dependency classification ---
+# --- Small-tier dependency classification ---
 
 _CLASSIFY_DEPS_SYSTEM_PROMPT = """You are a dependency usage classifier. For each zero-import dependency, determine HOW it is used based on its name and ecosystem context.
 
@@ -208,10 +209,11 @@ Only classify as `genuine_candidate` if the package does not fit any other categ
 
 async def _classify_deps_batch_async(
     provider: LLMProvider,
+    config: Config,
     candidates: list[DependencyCandidate],
     manifest_content: str,
 ) -> tuple[list[DependencyCandidate], dict[str, str], int, int]:
-    """Batch Haiku call to classify zero-import dependencies.
+    """Batch small-tier call to classify zero-import dependencies.
 
     Returns (genuine_candidates, classification_map, input_tokens, output_tokens).
     """
@@ -241,7 +243,7 @@ async def _classify_deps_batch_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(lines))],
         system=_CLASSIFY_DEPS_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=MODEL_SMALL,
+            model=config.model_for("small"),
             max_tokens=max(1024, len(candidates) * 80),
             tools=get_classify_deps_tool_definitions(),
             tool_choice={"type": "tool", "name": "classify_deps"},
@@ -693,7 +695,7 @@ async def _verify_batch_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_DEAD_DEPS_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=config.model,
+            model=config.model_for("medium"),
             max_tokens=max(1024, len(candidates) * 200),
             tools=get_dead_deps_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_dead_deps"},
@@ -805,7 +807,7 @@ async def detect_dead_deps_async(
 
     print(f"  Found {len(all_candidates)} dependency(ies) across all manifests", flush=True)
 
-    # --- Haiku import name resolution ---
+    # --- Small-tier import name resolution ---
     # Collect packages not already in cache
     to_resolve: list[tuple[str, str]] = []
     for cand in all_candidates:
@@ -823,19 +825,19 @@ async def detect_dead_deps_async(
             for i in range(0, len(to_resolve), 80):
                 batch = to_resolve[i:i + 80]
                 resolved, in_tok, out_tok = await _resolve_import_names_batch_async(
-                    provider, batch,
+                    provider, config, batch,
                 )
                 rate_limiter.record_usage(input_tokens=in_tok, output_tokens=out_tok)
                 haiku_resolved.update(resolved)
 
-            # Update candidate import names with Haiku results
+            # Update candidate import names with small-tier results
             for cand in all_candidates:
                 if cand.package_name in haiku_resolved:
                     cand.import_names = haiku_resolved[cand.package_name]
 
-            print(f"  Haiku resolved import names for {len(haiku_resolved)}/{len(to_resolve)} package(s)", flush=True)
+            print(f"  Small-tier import resolution covered {len(haiku_resolved)}/{len(to_resolve)} package(s)", flush=True)
         except Exception as e:
-            print(f"  [warn] Haiku import resolution failed, using heuristic: {e}", flush=True)
+            print(f"  [warn] Small-tier import resolution failed, using heuristic: {e}", flush=True)
 
     # Scan imports
     scan_imports(config, all_candidates)
@@ -862,7 +864,7 @@ async def detect_dead_deps_async(
     if not pre_filtered:
         return []
 
-    # --- Haiku dependency classification ---
+    # --- Small-tier dependency classification ---
     # Group by manifest for classification
     by_manifest_classify: dict[str, list[DependencyCandidate]] = {}
     for cand in pre_filtered:
@@ -876,24 +878,24 @@ async def detect_dead_deps_async(
             for i in range(0, len(cands), 50):
                 batch = cands[i:i + 50]
                 genuine, _class_map, in_tok, out_tok = await _classify_deps_batch_async(
-                    provider, batch, manifest_contents.get(manifest_path, ""),
+                    provider, config, batch, manifest_contents.get(manifest_path, ""),
                 )
                 rate_limiter.record_usage(input_tokens=in_tok, output_tokens=out_tok)
                 genuine_candidates.extend(genuine)
         except Exception as e:
-            print(f"  [warn] Haiku classification failed for {manifest_path}, sending all to Sonnet: {e}", flush=True)
+            print(f"  [warn] Small-tier classification failed for {manifest_path}, sending all to medium-tier verification: {e}", flush=True)
             genuine_candidates.extend(cands)
 
     print(
-        f"  {len(genuine_candidates)} genuine candidate(s) for Sonnet verification "
-        f"(Haiku filtered {len(pre_filtered) - len(genuine_candidates)})",
+        f"  {len(genuine_candidates)} genuine candidate(s) for medium-tier verification "
+        f"(small-tier filtered {len(pre_filtered) - len(genuine_candidates)})",
         flush=True,
     )
 
     if not genuine_candidates:
         return []
 
-    # Group candidates by manifest for Sonnet verification
+    # Group candidates by manifest for medium-tier verification
     by_manifest: dict[str, list[DependencyCandidate]] = {}
     for cand in genuine_candidates:
         by_manifest.setdefault(cand.manifest_path, []).append(cand)
@@ -971,14 +973,10 @@ class DeadDepsAnalyzer(JunkAnalyzer):
 
     def analyze(self, config, on_progress=None, rate_limiter=None):
         """Sync wrapper — skip symbols-dir check (deps don't need symbols)."""
-        from .llm.factory import create_provider
-        from .llm.logging import LoggingProvider
-        from .rate_limiter import get_config_with_overrides
+        from .llm.runtime import create_runtime
 
         async def _run() -> JunkAnalysisResult:
-            provider = create_provider("anthropic")
-            logging_provider = LoggingProvider(provider)
-            rl = rate_limiter if rate_limiter is not None else RateLimiter(get_config_with_overrides("anthropic"))
+            logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
             try:
                 return await self.analyze_async(
                     logging_provider, rl, config, on_progress

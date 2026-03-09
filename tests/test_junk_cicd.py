@@ -638,8 +638,9 @@ class TestHaikuCICDParsing:
               }
             }
         """)
+        config = Config(root_path=Path("."), respect_gitignore=False)
         elements, in_tok, out_tok = await _parse_cicd_via_haiku(
-            mock_provider, content, "Jenkinsfile", "jenkinsfile",
+            mock_provider, config, content, "Jenkinsfile", "jenkinsfile",
         )
         assert len(elements) == 2
         assert elements[0].element_name == "Build"
@@ -660,8 +661,9 @@ class TestHaikuCICDParsing:
             model="test", stop_reason="tool_use",
         )
 
+        config = Config(root_path=Path("."), respect_gitignore=False)
         elements, _, _ = await _parse_cicd_via_haiku(
-            mock_provider, "# empty", "Jenkinsfile", "jenkinsfile",
+            mock_provider, config, "# empty", "Jenkinsfile", "jenkinsfile",
         )
         assert elements == []
 

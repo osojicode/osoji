@@ -13,6 +13,7 @@ from osoji.rate_limiter import (
     ANTHROPIC_DEFAULTS,
     GOOGLE_DEFAULTS,
     OPENAI_DEFAULTS,
+    OPENROUTER_DEFAULTS,
     RateLimiter,
     RateLimiterConfig,
     UsageStats,
@@ -64,6 +65,19 @@ class TestProviderDefaults:
         assert GOOGLE_DEFAULTS.input_tokens_per_minute == 5_000_000
         assert GOOGLE_DEFAULTS.output_tokens_per_minute == 5_000_000
         assert GOOGLE_DEFAULTS.name == "google"
+
+    def test_openrouter_defaults(self):
+        assert OPENROUTER_DEFAULTS.requests_per_minute == 300
+        assert OPENROUTER_DEFAULTS.input_tokens_per_minute == 500_000
+        assert OPENROUTER_DEFAULTS.output_tokens_per_minute == 500_000
+        assert OPENROUTER_DEFAULTS.name == "openrouter"
+
+    def test_get_default_config_openrouter(self):
+        config = get_default_config("openrouter")
+        assert config.requests_per_minute == 300
+        assert config.input_tokens_per_minute == 500_000
+        assert config.output_tokens_per_minute == 500_000
+        assert config.name == "openrouter"
 
     def test_get_default_config_anthropic(self):
         config = get_default_config("anthropic")
@@ -136,6 +150,20 @@ class TestEnvironmentOverrides:
             assert config.requests_per_minute == 1000
             assert config.input_tokens_per_minute == 1_000_000
             assert config.output_tokens_per_minute == 500_000
+
+    def test_openrouter_overrides(self):
+        with mock.patch.dict(
+            os.environ,
+            {
+                "OPENROUTER_RPM": "250",
+                "OPENROUTER_TPM": "600000",
+                "OPENROUTER_OUTPUT_TPM": "350000",
+            },
+        ):
+            config = get_config_with_overrides("openrouter")
+            assert config.requests_per_minute == 250
+            assert config.input_tokens_per_minute == 600_000
+            assert config.output_tokens_per_minute == 350_000
 
     def test_invalid_rpm_uses_default(self):
         with mock.patch.dict(os.environ, {"ANTHROPIC_RPM": "not_a_number"}):

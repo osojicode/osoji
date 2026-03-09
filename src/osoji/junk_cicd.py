@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config, MODEL_SMALL
+from .config import Config
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult
 from .llm.base import LLMProvider
 from .llm.types import Message, MessageRole, CompletionOptions
@@ -321,11 +321,12 @@ Be thorough — extract ALL elements. For line numbers, count from line 1."""
 
 async def _parse_cicd_via_haiku(
     provider: LLMProvider,
+    config: Config,
     content: str,
     path: str,
     cicd_type: str,
 ) -> tuple[list[CICDElement], int, int]:
-    """Parse a CI/CD file using Haiku when no regex parser is available.
+    """Parse a CI/CD file using the small analysis tier when no regex parser is available.
 
     Returns (elements, input_tokens, output_tokens).
     """
@@ -339,7 +340,7 @@ async def _parse_cicd_via_haiku(
         messages=[Message(role=MessageRole.USER, content="\n".join(lines))],
         system=_EXTRACT_CICD_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=MODEL_SMALL,
+            model=config.model_for("small"),
             max_tokens=4096,
             tools=get_extract_cicd_elements_tool_definitions(),
             tool_choice={"type": "tool", "name": "extract_cicd_elements"},
@@ -581,7 +582,7 @@ async def _verify_batch_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_DEAD_CICD_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=config.model,
+            model=config.model_for("medium"),
             max_tokens=max(1024, len(candidates) * 200),
             tools=get_dead_cicd_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_dead_cicd"},
@@ -707,18 +708,18 @@ async def detect_dead_cicd_async(
             elements = parser(content, rel_path)
             all_elements.extend(elements)
         else:
-            # Use Haiku for unsupported CI/CD systems
+            # Use the small analysis tier for unsupported CI/CD systems
             try:
                 await rate_limiter.throttle()
                 haiku_elements, in_tok, out_tok = await _parse_cicd_via_haiku(
-                    provider, content, rel_path, cicd_type,
+                    provider, config, content, rel_path, cicd_type,
                 )
                 rate_limiter.record_usage(input_tokens=in_tok, output_tokens=out_tok)
                 all_elements.extend(haiku_elements)
                 if haiku_elements:
-                    print(f"  Haiku parsed {len(haiku_elements)} element(s) from {rel_path}", flush=True)
+                    print(f"  Small-tier parsing found {len(haiku_elements)} element(s) in {rel_path}", flush=True)
             except Exception as e:
-                print(f"  [warn] Haiku CI/CD parsing failed for {rel_path}: {e}", flush=True)
+                print(f"  [warn] Small-tier CI/CD parsing failed for {rel_path}: {e}", flush=True)
 
     if not all_elements:
         print("  No CI/CD elements found to analyze.", flush=True)
@@ -819,14 +820,10 @@ class DeadCICDAnalyzer(JunkAnalyzer):
 
     def analyze(self, config, on_progress=None, rate_limiter=None):
         """Sync wrapper — skip symbols-dir check (CI/CD doesn't need symbols)."""
-        from .llm.factory import create_provider
-        from .llm.logging import LoggingProvider
-        from .rate_limiter import get_config_with_overrides
+        from .llm.runtime import create_runtime
 
         async def _run() -> JunkAnalysisResult:
-            provider = create_provider("anthropic")
-            logging_provider = LoggingProvider(provider)
-            rl = rate_limiter if rate_limiter is not None else RateLimiter(get_config_with_overrides("anthropic"))
+            logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
             try:
                 return await self.analyze_async(
                     logging_provider, rl, config, on_progress

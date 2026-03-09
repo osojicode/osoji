@@ -15,6 +15,7 @@ authors = [
 dependencies = [
     "anthropic>=0.39.0",
     "click>=8.1.0",
+    "litellm>=1.63.0",
     "tabulate>=0.9.0",
 ]
 
@@ -29,7 +30,10 @@ osoji = "osoji.cli:main"
 [tool.pytest.ini_options]
 asyncio_mode = "strict"
 asyncio_default_fixture_loop_scope = "function"
-markers = ["prompt_regression: tests that make real LLM API calls to verify prompt behavior"]
+markers = [
+    "prompt_regression: tests that make real LLM API calls to verify prompt behavior",
+    "live_smoke: optional live provider smoke tests",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/osoji"]

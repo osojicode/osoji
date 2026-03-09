@@ -1,6 +1,7 @@
 # Osoji
 
-AI-powered documentation and code quality auditing tool. Uses Anthropic Claude to
+AI-powered documentation and code quality auditing tool. Uses a LiteLLM-backed
+provider runtime for Anthropic, OpenAI, Google Gemini, and OpenRouter to
 generate shadow documentation, extract structured facts, and detect code issues.
 
 ## Build & test

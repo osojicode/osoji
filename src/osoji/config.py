@@ -1,7 +1,9 @@
 """Configuration for Osoji."""
 
 from dataclasses import dataclass, field
+import os
 from pathlib import Path
+from typing import Literal
 
 
 # Shadow doc output directory name
@@ -123,12 +125,28 @@ DEFAULT_EXTENSIONS: set[str] = {
 SHADOW_SUBDIR = "shadow"
 DIRECTORY_SHADOW_FILENAME = "_directory.shadow.md"
 
-# LLM model tiers — single source of truth for all model IDs
-MODEL_SMALL = "claude-haiku-4-5-20251001"     # Fast scanning/filtering
-MODEL_MEDIUM = "claude-sonnet-4-6"            # General-purpose analysis
-MODEL_LARGE = "claude-opus-4-6"               # Complex classification
+DEFAULT_PROVIDER = "anthropic"
+ENV_PROVIDER = "OSOJI_PROVIDER"
+ENV_MODEL = "OSOJI_MODEL"
+ENV_MODEL_SMALL = "OSOJI_MODEL_SMALL"
+ENV_MODEL_MEDIUM = "OSOJI_MODEL_MEDIUM"
+ENV_MODEL_LARGE = "OSOJI_MODEL_LARGE"
 
-DEFAULT_MODEL = MODEL_MEDIUM
+# Anthropic tier defaults are preserved for backward compatibility.
+ANTHROPIC_MODEL_SMALL = "claude-haiku-4-5-20251001"  # Fast scanning/filtering
+ANTHROPIC_MODEL_MEDIUM = "claude-sonnet-4-6"         # General-purpose analysis
+ANTHROPIC_MODEL_LARGE = "claude-opus-4-6"            # Complex classification
+
+ModelTier = Literal["small", "medium", "large"]
+
+
+def _read_env(name: str) -> str | None:
+    """Read an environment variable, treating empty strings as unset."""
+    value = os.environ.get(name)
+    if value is None:
+        return None
+    stripped = value.strip()
+    return stripped or None
 
 
 @dataclass
@@ -138,7 +156,11 @@ class Config:
     root_path: Path
     ignore_patterns: set[str] = field(default_factory=lambda: DEFAULT_IGNORE_PATTERNS.copy())
     extensions: set[str] = field(default_factory=lambda: DEFAULT_EXTENSIONS.copy())
-    model: str = DEFAULT_MODEL
+    provider: str | None = None
+    model: str | None = None
+    model_small: str | None = None
+    model_medium: str | None = None
+    model_large: str | None = None
     force: bool = False
     max_concurrency: int = 100
     respect_gitignore: bool = True
@@ -147,6 +169,43 @@ class Config:
     doc_extensions: set[str] = field(default_factory=lambda: DOC_EXTENSIONS.copy())
     doc_filenames: set[str] = field(default_factory=lambda: DOC_FILENAMES.copy())
     doc_directories: set[str] = field(default_factory=lambda: DOC_DIRECTORIES.copy())
+
+    def __post_init__(self) -> None:
+        self.root_path = self.root_path.resolve()
+        self.provider = (self.provider or _read_env(ENV_PROVIDER) or DEFAULT_PROVIDER).lower()
+        self.model = self.model or _read_env(ENV_MODEL)
+        self.model_small = self.model_small or _read_env(ENV_MODEL_SMALL)
+        self.model_medium = self.model_medium or _read_env(ENV_MODEL_MEDIUM)
+        self.model_large = self.model_large or _read_env(ENV_MODEL_LARGE)
+
+    def model_for(self, tier: ModelTier = "medium") -> str:
+        """Resolve the model ID to use for a given tier."""
+        tier_overrides = {
+            "small": self.model_small,
+            "medium": self.model_medium,
+            "large": self.model_large,
+        }
+        override = tier_overrides[tier]
+        if override:
+            return override
+        if self.model:
+            return self.model
+        if self.provider == DEFAULT_PROVIDER:
+            return {
+                "small": ANTHROPIC_MODEL_SMALL,
+                "medium": ANTHROPIC_MODEL_MEDIUM,
+                "large": ANTHROPIC_MODEL_LARGE,
+            }[tier]
+
+        env_hint = {
+            "small": ENV_MODEL_SMALL,
+            "medium": ENV_MODEL_MEDIUM,
+            "large": ENV_MODEL_LARGE,
+        }[tier]
+        raise RuntimeError(
+            f"No model configured for provider '{self.provider}'. "
+            f"Set --model, {ENV_MODEL}, or {env_hint}."
+        )
 
     def _to_relative(self, path: Path) -> Path:
         """Normalize a path to project-relative, accepting both absolute and relative."""

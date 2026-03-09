@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config, MODEL_SMALL, SHADOW_DIR
+from .config import Config, SHADOW_DIR
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content
 from .llm.base import LLMProvider
 from .llm.types import Message, MessageRole, CompletionOptions
@@ -97,7 +97,7 @@ def _build_import_edges(all_symbols: dict[str, list[dict]], config: Config) -> d
     return adjacency
 
 
-# --- Phase 2: Entry point identification (Haiku) ---
+# --- Phase 2: Entry point identification (small analysis tier) ---
 
 _ENTRY_POINTS_SYSTEM_PROMPT = """You are identifying entry points in a software project.
 
@@ -118,7 +118,7 @@ async def _identify_entry_points_async(
     signatures: list[dict],
     config: Config,
 ) -> set[str]:
-    """Haiku batch call to identify entry points from file signatures."""
+    """Small-tier batch call to identify entry points from file signatures."""
     if not signatures:
         return set()
 
@@ -151,7 +151,7 @@ async def _identify_entry_points_async(
             messages=[Message(role=MessageRole.USER, content="\n".join(lines))],
             system=_ENTRY_POINTS_SYSTEM_PROMPT,
             options=CompletionOptions(
-                model=MODEL_SMALL,
+                model=config.model_for("small"),
                 max_tokens=max(1024, len(batch) * 60),
                 tools=get_identify_entry_points_tool_definitions(),
                 tool_choice={"type": "tool", "name": "identify_entry_points"},
@@ -189,7 +189,7 @@ def _identify_entry_points_heuristic(signatures: list[dict]) -> set[str]:
     return entry_points
 
 
-# --- Phase 3: Semantic relationship edges (Haiku) ---
+# --- Phase 3: Semantic relationship edges (small analysis tier) ---
 
 _RELATIONSHIPS_SYSTEM_PROMPT = """You are identifying semantic relationships between source files.
 
@@ -209,7 +209,7 @@ async def _identify_relationships_async(
     connected: list[dict],
     config: Config,
 ) -> list[tuple[str, str]]:
-    """Haiku identifies semantic relationships for disconnected files."""
+    """Small-tier analysis identifies semantic relationships for disconnected files."""
     if not disconnected or not connected:
         return []
 
@@ -237,7 +237,7 @@ async def _identify_relationships_async(
             messages=[Message(role=MessageRole.USER, content="\n".join(lines))],
             system=_RELATIONSHIPS_SYSTEM_PROMPT,
             options=CompletionOptions(
-                model=MODEL_SMALL,
+                model=config.model_for("small"),
                 max_tokens=max(1024, len(batch) * 80),
                 tools=get_identify_relationships_tool_definitions(),
                 tool_choice={"type": "tool", "name": "identify_relationships"},
@@ -281,7 +281,7 @@ def find_orphans(adjacency: dict[str, set[str]], entry_points: set[str]) -> list
     return sorted(all_nodes - visited)
 
 
-# --- Phase 5: Sonnet orphan verification ---
+# --- Phase 5: medium-tier orphan verification ---
 
 _VERIFY_ORPHANS_SYSTEM_PROMPT = """You are verifying whether source files are truly orphaned (unreachable and unused).
 
@@ -303,7 +303,7 @@ async def _verify_orphans_batch_async(
     orphans: list[OrphanCandidate],
     shadow_contents: dict[str, str],
 ) -> tuple[list[OrphanVerification], int, int]:
-    """Sonnet verification of orphan candidates.
+    """Medium-tier verification of orphan candidates.
 
     Returns (verifications, input_tokens, output_tokens).
     """
@@ -341,7 +341,7 @@ async def _verify_orphans_batch_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_VERIFY_ORPHANS_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=config.model,
+            model=config.model_for("medium"),
             max_tokens=max(1024, len(orphans) * 200),
             tools=get_verify_orphan_files_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_orphan_files"},
@@ -407,11 +407,11 @@ async def detect_orphaned_files_async(
 
     Pipeline:
     1. Build import edges (pure Python symbol cross-references)
-    2. Identify entry points (Haiku)
+    2. Identify entry points (small analysis tier)
     3. BFS from entry points → find disconnected files
-    4. Identify semantic relationships for disconnected files (Haiku)
+    4. Identify semantic relationships for disconnected files (small analysis tier)
     5. BFS again with semantic edges → find orphan candidates
-    6. Verify orphans (Sonnet)
+    6. Verify orphans (medium analysis tier)
     """
     # Load data sources
     all_symbols = load_all_symbols(config)
@@ -432,7 +432,7 @@ async def detect_orphaned_files_async(
     if not all_files:
         return []
 
-    # Build signatures for all files (for Haiku calls)
+    # Build signatures for all files (for small-tier calls)
     all_sigs: list[dict] = []
     for fpath in sorted(all_files):
         sig = sig_by_path.get(fpath, {})
@@ -444,14 +444,14 @@ async def detect_orphaned_files_async(
             "public_surface": sig.get("public_surface", []),
         })
 
-    # Phase 2: Identify entry points (Haiku with heuristic fallback)
+    # Phase 2: Identify entry points (small-tier with heuristic fallback)
     try:
         entry_points = await _identify_entry_points_async(
             provider, rate_limiter, all_sigs, config,
         )
-        print(f"  Haiku identified {len(entry_points)} entry point(s)", flush=True)
+        print(f"  Small-tier analysis identified {len(entry_points)} entry point(s)", flush=True)
     except Exception as e:
-        print(f"  [warn] Haiku entry point identification failed, using heuristics: {e}", flush=True)
+        print(f"  [warn] Small-tier entry point identification failed, using heuristics: {e}", flush=True)
         entry_points = _identify_entry_points_heuristic(all_sigs)
         print(f"  Heuristic identified {len(entry_points)} entry point(s)", flush=True)
 
@@ -466,7 +466,7 @@ async def detect_orphaned_files_async(
     if not orphan_candidates_1:
         return []
 
-    # Phase 4: Semantic relationships for disconnected files (Haiku)
+    # Phase 4: Semantic relationships for disconnected files (small-tier)
     disconnected_sigs = [s for s in all_sigs if s["path"] in set(orphan_candidates_1)]
     connected_sigs = [s for s in all_sigs if s["path"] not in set(orphan_candidates_1)]
 
@@ -478,9 +478,9 @@ async def detect_orphaned_files_async(
         for src, tgt in relationships:
             adjacency.setdefault(src, set()).add(tgt)
             adjacency.setdefault(tgt, set()).add(src)
-        print(f"  Haiku identified {len(relationships)} semantic relationship(s)", flush=True)
+        print(f"  Small-tier analysis identified {len(relationships)} semantic relationship(s)", flush=True)
     except Exception as e:
-        print(f"  [warn] Haiku relationship identification failed: {e}", flush=True)
+        print(f"  [warn] Small-tier relationship identification failed: {e}", flush=True)
         relationships = []
 
     # Phase 5: Second BFS with semantic edges
@@ -510,7 +510,7 @@ async def detect_orphaned_files_async(
     for o in orphans:
         shadow_contents[o.source_path] = load_shadow_content(config, o.source_path)
 
-    # Phase 6: Sonnet verification (batch up to 10 per call)
+    # Phase 6: medium-tier verification (batch up to 10 per call)
     results: list[OrphanVerification] = []
     semaphore = asyncio.Semaphore(config.max_concurrency)
     completed = 0
@@ -575,9 +575,7 @@ class OrphanedFilesAnalyzer(JunkAnalyzer):
 
     def analyze(self, config, on_progress=None, rate_limiter=None):
         """Sync wrapper — requires symbols data."""
-        from .llm.factory import create_provider
-        from .llm.logging import LoggingProvider
-        from .rate_limiter import get_config_with_overrides
+        from .llm.runtime import create_runtime
 
         symbols_dir = config.root_path / SHADOW_DIR / "symbols"
         if not symbols_dir.exists():
@@ -585,9 +583,7 @@ class OrphanedFilesAnalyzer(JunkAnalyzer):
             return JunkAnalysisResult(findings=[], total_candidates=0, analyzer_name=self.name)
 
         async def _run() -> JunkAnalysisResult:
-            provider = create_provider("anthropic")
-            logging_provider = LoggingProvider(provider)
-            rl = rate_limiter if rate_limiter is not None else RateLimiter(get_config_with_overrides("anthropic"))
+            logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
             try:
                 return await self.analyze_async(
                     logging_provider, rl, config, on_progress

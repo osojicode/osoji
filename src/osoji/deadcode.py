@@ -445,7 +445,7 @@ async def _verify_batch_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_DEAD_CODE_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=config.model,
+            model=config.model_for("medium"),
             max_tokens=max(1024, len(candidates) * 250),
             tools=get_dead_code_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_dead_code"},

@@ -390,8 +390,9 @@ class TestHaikuImportResolution:
             model="test", stop_reason="tool_use",
         )
 
+        config = Config(root_path=Path("."), respect_gitignore=False)
         resolved, in_tok, out_tok = await _resolve_import_names_batch_async(
-            mock_provider, [("my-pkg", "python"), ("another", "python")],
+            mock_provider, config, [("my-pkg", "python"), ("another", "python")],
         )
         assert resolved["my-pkg"] == ["my_pkg"]
         assert resolved["another"] == ["another"]
@@ -400,8 +401,9 @@ class TestHaikuImportResolution:
     @pytest.mark.asyncio
     async def test_empty_input_returns_empty(self):
         mock_provider = AsyncMock()
+        config = Config(root_path=Path("."), respect_gitignore=False)
         resolved, in_tok, out_tok = await _resolve_import_names_batch_async(
-            mock_provider, [],
+            mock_provider, config, [],
         )
         assert resolved == {}
         assert in_tok == 0
@@ -439,8 +441,9 @@ class TestHaikuDepClassification:
                 import_names=["unused_lib"], ecosystem="python", line_number=2,
             ),
         ]
+        config = Config(root_path=Path("."), respect_gitignore=False)
         genuine, class_map, in_tok, out_tok = await _classify_deps_batch_async(
-            mock_provider, candidates, "some-linter\nunused-lib\n",
+            mock_provider, config, candidates, "some-linter\nunused-lib\n",
         )
         assert len(genuine) == 1
         assert genuine[0].package_name == "unused-lib"
@@ -450,8 +453,9 @@ class TestHaikuDepClassification:
     @pytest.mark.asyncio
     async def test_empty_input_returns_empty(self):
         mock_provider = AsyncMock()
+        config = Config(root_path=Path("."), respect_gitignore=False)
         genuine, class_map, in_tok, out_tok = await _classify_deps_batch_async(
-            mock_provider, [], "",
+            mock_provider, config, [], "",
         )
         assert genuine == []
         assert class_map == {}

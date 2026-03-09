@@ -6,15 +6,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .config import Config, DIRECTORY_SHADOW_FILENAME, MODEL_SMALL, MODEL_MEDIUM, MODEL_LARGE, SHADOW_DIR
+from .config import Config, DIRECTORY_SHADOW_FILENAME, SHADOW_DIR
 from .facts import FactsDB
 from .hasher import read_file_safe
 from .llm.base import LLMProvider
-from .llm.factory import create_provider
-from .llm.logging import LoggingProvider
+from .llm.runtime import create_runtime
 from .llm.tokens import estimate_tokens_offline
 from .llm.types import Message, MessageRole, CompletionOptions
-from .rate_limiter import RateLimiter, get_config_with_overrides
+from .rate_limiter import RateLimiter
 from .tools import (
     get_match_doc_topics_tool_definitions,
     get_analyze_document_tool_definitions,
@@ -167,9 +166,7 @@ def _find_referenced_sources_regex(config: Config, doc_content: str) -> list[Pat
     return referenced
 
 
-# --- Tier 2: Topic matching via Haiku ---
-
-MATCH_MODEL = MODEL_SMALL
+# --- Tier 2: Topic matching via the small analysis tier ---
 
 _MATCH_SYSTEM_PROMPT = """You are a documentation-to-code matcher. Given a documentation file and a list of source code directory summaries, identify which directories contain code relevant to this documentation.
 
@@ -228,7 +225,7 @@ async def _match_topics_async(
     doc_content: str,
     dir_summaries: dict[str, tuple[str, list[Path]]],
 ) -> tuple[list[Path], int, int, dict | None]:
-    """Use Haiku to match a doc to relevant source files via directory summaries.
+    """Use the small analysis tier to match a doc to relevant source files via directory summaries.
 
     Sends doc content + all directory summaries.
     Returns (matched_source_file_paths, input_tokens, output_tokens, topic_signature).
@@ -246,7 +243,7 @@ async def _match_topics_async(
 
     listing = "\n".join(listing_parts)
 
-    # Truncate doc for Haiku (keep it lean)
+    # Truncate doc for the small analysis tier (keep it lean)
     doc_preview = doc_content[:10000]
     if len(doc_content) > 10000:
         doc_preview += "\n\n[... content truncated ...]"
@@ -266,7 +263,7 @@ Return the directory paths using the match_doc_topics tool."""
         messages=[Message(role=MessageRole.USER, content=user_prompt)],
         system=_MATCH_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=MATCH_MODEL,
+            model=config.model_for("small"),
             max_tokens=1024,
             tools=get_match_doc_topics_tool_definitions(),
             tool_choice={"type": "tool", "name": "match_doc_topics"},
@@ -291,9 +288,7 @@ Return the directory paths using the match_doc_topics tool."""
     return matched_files, result.input_tokens, result.output_tokens, topic_signature
 
 
-ANALYZE_MODEL = MODEL_LARGE
-
-# --- Unified analysis (Opus) ---
+# --- Unified analysis (large analysis tier) ---
 
 _ANALYZE_SYSTEM_PROMPT = """You are a documentation analyst performing two tasks:
 
@@ -397,7 +392,7 @@ async def _analyze_document_async(
         messages=[Message(role=MessageRole.USER, content=user_prompt)],
         system=_ANALYZE_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=ANALYZE_MODEL,
+            model=config.model_for("large"),
             max_tokens=2048,
             tools=get_analyze_document_tool_definitions(),
             tool_choice={"type": "tool", "name": "analyze_document"},
@@ -440,8 +435,6 @@ async def _analyze_document_async(
 
 
 # --- Tier 4: Error-finding verification ---
-
-VERIFY_MODEL = MODEL_MEDIUM
 
 _VERIFY_SYSTEM_PROMPT = """You are a documentation accuracy verifier performing a second-pass review.
 
@@ -571,7 +564,7 @@ async def _verify_error_findings_async(
 ) -> tuple[list[DocFinding], int, int]:
     """Verify error-severity findings by searching for contradicting evidence.
 
-    One Sonnet LLM call per document with errors. Presents original findings + grep evidence.
+    One medium-tier LLM call per document with errors. Presents original findings + grep evidence.
     Returns (verified_findings, input_tokens, output_tokens).
     If no additional evidence is found for ANY finding, skips the LLM call entirely.
     """
@@ -639,7 +632,7 @@ async def _verify_error_findings_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_VERIFY_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=VERIFY_MODEL,
+            model=config.model_for("medium"),
             max_tokens=max(1024, len(error_findings) * 300),
             tools=get_verify_doc_finding_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_doc_finding"},
@@ -682,7 +675,7 @@ async def _verify_error_findings_async(
 
 # --- Orchestration ---
 
-# Cap total shadow doc content per document to ~300K chars (~100K tokens, half Sonnet context)
+# Cap total shadow doc content per document to ~300K chars (~100K tokens, roughly half a large-model context)
 _SHADOW_CHAR_CAP = 300_000
 
 
@@ -746,7 +739,7 @@ async def analyze_docs_async(
                     config, content, doc_path=doc_path, facts_db=facts_db,
                 )
 
-                # Tier 2: Haiku topic matching (always runs)
+                # Tier 2: small-model topic matching (always runs)
                 est_input = estimate_tokens_offline(content)
                 await rate_limiter.throttle(estimated_input_tokens=est_input)
                 haiku_matches, haiku_in, haiku_out, doc_topic_signature = await _match_topics_async(
@@ -779,7 +772,7 @@ async def analyze_docs_async(
                     shadow_contexts.append((source_path, shadow_content))
                     total_chars += len(shadow_content)
 
-                # Opus analysis (classify + validate)
+                # Large-model analysis (classify + validate)
                 shadow_chars = sum(len(s) for _, s in shadow_contexts)
                 est_input = estimate_tokens_offline(content) + shadow_chars // 4
                 await rate_limiter.throttle(estimated_input_tokens=est_input)
@@ -800,7 +793,7 @@ async def analyze_docs_async(
                     non_errors = [f for f in analysis.findings if f.severity != "error"]
                     analysis.findings = non_errors + verified
 
-                # Attach topic signature from Haiku matching
+                # Attach topic signature from small-model matching
                 analysis.topic_signature = doc_topic_signature
 
                 async with lock:
@@ -844,9 +837,7 @@ def analyze_docs(
         return []
 
     async def _run() -> list[DocAnalysisResult]:
-        provider = create_provider("anthropic")
-        logging_provider = LoggingProvider(provider)
-        rl = rate_limiter if rate_limiter is not None else RateLimiter(get_config_with_overrides("anthropic"))
+        logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
         try:
             return await analyze_docs_async(
                 logging_provider, rl, config, on_progress

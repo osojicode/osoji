@@ -15,10 +15,13 @@ from .walker import discover_files
 
 logger = logging.getLogger(__name__)
 
+_OFFLINE_COUNTER_LABEL = "offline estimation (~4 chars/token)"
+
 
 @dataclass
 class FileStats:
     """Token statistics for a single file."""
+
     source_path: Path
     shadow_path: Path
     source_tokens: int
@@ -33,12 +36,13 @@ class FileStats:
         return self.shadow_tokens / self.source_tokens
 
 
-
 @dataclass
 class ProjectStats:
     """Aggregate token statistics for a project."""
+
     files: list[FileStats]
-    used_api: bool = True  # Whether Anthropic API was used for counting
+    used_api: bool = True
+    counter_label: str = "Anthropic API"
 
     @property
     def total_source_tokens(self) -> int:
@@ -66,12 +70,8 @@ class ProjectStats:
         return (1 - ratio) * 100
 
 
-
 def _load_token_cache(config: Config) -> dict:
-    """Load the persistent token-count cache from disk.
-
-    Returns an empty dict if the file is missing or corrupt.
-    """
+    """Load the persistent token-count cache from disk."""
     try:
         return json.loads(config.token_cache_path.read_text(encoding="utf-8"))
     except (FileNotFoundError, json.JSONDecodeError, OSError):
@@ -100,15 +100,15 @@ async def _gather_file_stats_cached(
     """Gather stats for a single file, using the persistent hash cache."""
     rel_key = str(source_path.relative_to(config.root_path))
     entry = token_cache.get(rel_key, {})
+    if entry.get("counter_key") != counter.cache_key_prefix:
+        entry = {}
 
-    # Read source content once (needed for hash and possibly API)
     try:
         source_content = source_path.read_text(encoding="utf-8")
     except Exception:
         source_content = ""
     source_hash = compute_hash(source_content) if source_content else ""
 
-    # Read shadow content once
     shadow_content = ""
     if shadow_exists:
         try:
@@ -117,7 +117,6 @@ async def _gather_file_stats_cached(
             pass
     shadow_hash = compute_hash(shadow_content) if shadow_content else ""
 
-    # Check source cache hit
     if source_content and entry.get("source_hash") == source_hash:
         source_tokens = entry["source_tokens"]
     elif source_content:
@@ -125,7 +124,6 @@ async def _gather_file_stats_cached(
     else:
         source_tokens = 0
 
-    # Check shadow cache hit
     if shadow_exists and shadow_content and entry.get("shadow_hash") == shadow_hash:
         shadow_tokens = entry["shadow_tokens"]
     elif shadow_exists and shadow_content:
@@ -133,8 +131,8 @@ async def _gather_file_stats_cached(
     else:
         shadow_tokens = 0
 
-    # Update cache entry
     token_cache[rel_key] = {
+        "counter_key": counter.cache_key_prefix,
         "source_hash": source_hash,
         "source_tokens": source_tokens,
         "shadow_hash": shadow_hash,
@@ -150,83 +148,93 @@ async def _gather_file_stats_cached(
     )
 
 
-async def gather_stats_async(config: Config, use_api: bool = True) -> ProjectStats:
-    """Gather token statistics for all files in the project asynchronously.
-
-    Args:
-        config: Project configuration
-        use_api: If True, use Anthropic API for accurate counts.
-                 If False, use offline estimation.
-
-    Returns:
-        ProjectStats with token counts for all files
-    """
-    files = discover_files(config)
+def _gather_file_stats_offline(config: Config, files: list[Path]) -> list[FileStats]:
+    """Gather stats using offline estimation only."""
     file_stats: list[FileStats] = []
+    for source_path in files:
+        shadow_path = config.shadow_path_for(source_path)
+        shadow_exists = shadow_path.exists()
 
-    if use_api:
-        token_cache = _load_token_cache(config)
-        counter = TokenCounter()
         try:
-            # Count tokens for all files concurrently, with hash cache
-            tasks = []
-            for source_path in files:
-                shadow_path = config.shadow_path_for(source_path)
-                shadow_exists = shadow_path.exists()
-                tasks.append(_gather_file_stats_cached(
-                    config, source_path, shadow_path, shadow_exists,
-                    counter, token_cache,
-                ))
-            file_stats = await asyncio.gather(*tasks)
-        finally:
-            await counter.close()
-        # Prune stale entries: only keep files we just processed
-        processed_keys = {str(p.relative_to(config.root_path)) for p in files}
-        token_cache = {k: v for k, v in token_cache.items() if k in processed_keys}
-        _save_token_cache(config, token_cache)
-    else:
-        # Offline mode - use character-based estimation
-        for source_path in files:
-            shadow_path = config.shadow_path_for(source_path)
-            shadow_exists = shadow_path.exists()
+            source_content = source_path.read_text(encoding="utf-8")
+            source_tokens = estimate_tokens_offline(source_content)
+        except Exception:
+            source_tokens = 0
 
+        if shadow_exists:
             try:
-                source_content = source_path.read_text(encoding="utf-8")
-                source_tokens = estimate_tokens_offline(source_content)
+                shadow_content = shadow_path.read_text(encoding="utf-8")
+                shadow_tokens = estimate_tokens_offline(shadow_content)
             except Exception:
-                source_tokens = 0
-
-            if shadow_exists:
-                try:
-                    shadow_content = shadow_path.read_text(encoding="utf-8")
-                    shadow_tokens = estimate_tokens_offline(shadow_content)
-                except Exception:
-                    shadow_tokens = 0
-            else:
                 shadow_tokens = 0
+        else:
+            shadow_tokens = 0
 
-            file_stats.append(FileStats(
+        file_stats.append(
+            FileStats(
                 source_path=source_path.relative_to(config.root_path),
                 shadow_path=shadow_path.relative_to(config.root_path),
                 source_tokens=source_tokens,
                 shadow_tokens=shadow_tokens,
                 shadow_exists=shadow_exists,
-            ))
+            )
+        )
+    return file_stats
 
-    return ProjectStats(files=file_stats, used_api=use_api)
+
+async def gather_stats_async(config: Config, use_api: bool = True) -> ProjectStats:
+    """Gather token statistics for all files in the project asynchronously."""
+    files = discover_files(config)
+    file_stats: list[FileStats] = []
+    counter_label = _OFFLINE_COUNTER_LABEL
+
+    if use_api:
+        default_model = config.model_for("medium")
+        token_cache = _load_token_cache(config)
+        counter = TokenCounter(provider=config.provider, default_model=default_model)
+        counter_label = counter.label
+        try:
+            tasks = []
+            for source_path in files:
+                shadow_path = config.shadow_path_for(source_path)
+                shadow_exists = shadow_path.exists()
+                tasks.append(
+                    _gather_file_stats_cached(
+                        config,
+                        source_path,
+                        shadow_path,
+                        shadow_exists,
+                        counter,
+                        token_cache,
+                    )
+                )
+            file_stats = await asyncio.gather(*tasks)
+            processed_keys = {str(p.relative_to(config.root_path)) for p in files}
+            token_cache = {k: v for k, v in token_cache.items() if k in processed_keys}
+            _save_token_cache(config, token_cache)
+            return ProjectStats(
+                files=file_stats,
+                used_api=True,
+                counter_label=counter_label,
+            )
+        except Exception as exc:
+            logger.warning(
+                "Falling back to offline token estimation for stats: %s",
+                exc,
+            )
+        finally:
+            await counter.close()
+
+    file_stats = _gather_file_stats_offline(config, files)
+    return ProjectStats(
+        files=file_stats,
+        used_api=False,
+        counter_label=_OFFLINE_COUNTER_LABEL,
+    )
 
 
 def gather_stats(config: Config) -> ProjectStats:
-    """Gather token statistics for all files in the project (sync wrapper).
-
-    Uses Anthropic API for accurate token counts.
-
-    Args:
-        config: Project configuration
-
-    Returns:
-        ProjectStats with token counts for all files
-    """
+    """Gather token statistics for all files in the project (sync wrapper)."""
     return asyncio.run(gather_stats_async(config, use_api=True))
 
 
@@ -239,7 +247,6 @@ def format_stats_report(stats: ProjectStats, verbose: bool = False) -> str:
     lines.append("=" * 60)
     lines.append("")
 
-    # Summary
     lines.append(f"Files analyzed:      {len(stats.files)}")
     lines.append(f"Files with shadows:  {stats.files_with_shadow}")
     lines.append("")
@@ -253,33 +260,26 @@ def format_stats_report(stats: ProjectStats, verbose: bool = False) -> str:
     else:
         lines.append("Compression ratio:   N/A (no shadow docs)")
 
-    # Per-file breakdown
     if verbose and stats.files:
         lines.append("")
         lines.append("-" * 60)
         lines.append("PER-FILE BREAKDOWN")
         lines.append("-" * 60)
 
-        # Sort by source tokens descending
         sorted_files = sorted(stats.files, key=lambda f: f.source_tokens, reverse=True)
-
-        for f in sorted_files:
-            status = "+" if f.shadow_exists else "-"
-            ratio = f.compression_ratio
+        for file_stats in sorted_files:
+            status = "+" if file_stats.shadow_exists else "-"
+            ratio = file_stats.compression_ratio
             ratio_str = f"{ratio:.0%}" if ratio is not None else "N/A"
+            lines.append(f"  {status} {file_stats.source_path}")
             lines.append(
-                f"  {status} {f.source_path}"
-            )
-            lines.append(
-                f"      source: {f.source_tokens:,} -> shadow: {f.shadow_tokens:,} ({ratio_str})"
+                f"      source: {file_stats.source_tokens:,} -> shadow: "
+                f"{file_stats.shadow_tokens:,} ({ratio_str})"
             )
 
     lines.append("")
     lines.append("-" * 60)
-    if stats.used_api:
-        lines.append("Token counts via Anthropic API")
-    else:
-        lines.append("Token counts via offline estimation (~4 chars/token)")
+    lines.append(f"Token counts via {stats.counter_label}")
     lines.append("=" * 60)
 
     return "\n".join(lines)

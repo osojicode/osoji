@@ -9,6 +9,8 @@ import time
 from dataclasses import dataclass
 from typing import Optional
 
+from .llm.registry import normalize_provider_name
+
 logger = logging.getLogger(__name__)
 
 # Floor headroom: block when token buckets fall below these thresholds,
@@ -62,10 +64,18 @@ GOOGLE_DEFAULTS = RateLimiterConfig(
     name="google",
 )
 
+OPENROUTER_DEFAULTS = RateLimiterConfig(
+    requests_per_minute=300,
+    input_tokens_per_minute=500_000,
+    output_tokens_per_minute=500_000,
+    name="openrouter",
+)
+
 _PROVIDER_DEFAULTS = {
     "anthropic": ANTHROPIC_DEFAULTS,
     "openai": OPENAI_DEFAULTS,
     "google": GOOGLE_DEFAULTS,
+    "openrouter": OPENROUTER_DEFAULTS,
 }
 
 
@@ -73,7 +83,7 @@ def get_default_config(provider: str) -> RateLimiterConfig:
     """Get default rate limiter config for a provider.
 
     Args:
-        provider: Provider name (anthropic, openai, google)
+        provider: Provider name (anthropic, openai, google, openrouter)
 
     Returns:
         Default config for the provider
@@ -81,7 +91,7 @@ def get_default_config(provider: str) -> RateLimiterConfig:
     Raises:
         ValueError: If provider is unknown
     """
-    provider = provider.lower()
+    provider = normalize_provider_name(provider)
     if provider not in _PROVIDER_DEFAULTS:
         raise ValueError(
             f"Unknown provider: {provider}. "
@@ -106,7 +116,7 @@ def get_config_with_overrides(provider: str) -> RateLimiterConfig:
         {PROVIDER}_TPM: Override both input and output (legacy, for backward compat)
 
     Args:
-        provider: Provider name (anthropic, openai, google)
+        provider: Provider name (anthropic, openai, google, openrouter)
 
     Returns:
         Config with any env var overrides applied

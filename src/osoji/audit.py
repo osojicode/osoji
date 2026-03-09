@@ -222,8 +222,7 @@ async def _verify_debris_findings_async(
     Returns a set of indices (into debris_findings) that should be suppressed (false positives).
     """
     from .facts import FactsDB
-    from .llm.factory import create_provider
-    from .llm.logging import LoggingProvider
+    from .llm.runtime import create_runtime
     from .llm.types import Message, MessageRole, CompletionOptions
     from .symbols import load_all_symbols
     from .tools import get_debris_verification_tool_definitions
@@ -312,8 +311,7 @@ async def _verify_debris_findings_async(
         "using the verify_debris_findings tool."
     )
 
-    provider = create_provider("anthropic")
-    logging_provider = LoggingProvider(provider)
+    logging_provider, _ = create_runtime(config, rate_limiter=rate_limiter)
 
     expected_indices = set(range(len(candidates)))
 
@@ -330,7 +328,7 @@ async def _verify_debris_findings_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_DEBRIS_VERIFY_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=config.model,
+            model=config.model_for("medium"),
             max_tokens=max(512, len(candidates) * 150),
             tools=get_debris_verification_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_debris_findings"},
@@ -505,7 +503,7 @@ def run_audit(
     osojiignore = config.load_osojiignore()
 
     # Shared rate limiter across all phases so token budgets are tracked globally
-    rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
+    rate_limiter = RateLimiter(get_config_with_overrides(config.provider))
     progress_cb = _make_progress_verbose(config, rate_limiter) if verbose else _make_progress_default(config, rate_limiter)
 
     # Clean stale analysis directory (fresh each run)

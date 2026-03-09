@@ -13,16 +13,15 @@ from typing import Callable
 from .config import Config, SHADOW_DIR
 from .hasher import add_line_numbers, compute_children_hash, compute_file_hash, compute_impl_hash, extract_children_hash, extract_impl_hash, extract_source_hash, read_file_safe
 from .llm import (
-    create_provider,
     LLMProvider,
-    LoggingProvider,
     Message,
     MessageRole,
     CompletionOptions,
     CompletionResult,
+    create_runtime,
     estimate_tokens_offline,
 )
-from .rate_limiter import RateLimiter, get_config_with_overrides
+from .rate_limiter import RateLimiter
 from .tools import get_file_tool_definitions, get_directory_tool_definitions
 from .walker import (
     discover_files,
@@ -433,7 +432,7 @@ Include line number references for key elements (e.g., "MyClass (L15-45)").
 
     messages = [Message(role=MessageRole.USER, content=user_prompt)]
     options = CompletionOptions(
-        model=config.model,
+        model=config.model_for("medium"),
         max_tokens=4096,
         tools=get_file_tool_definitions(),
         tool_choice={"type": "tool", "name": "submit_shadow_doc"},
@@ -519,7 +518,7 @@ Focus on:
 
     messages = [Message(role=MessageRole.USER, content=user_prompt)]
     options = CompletionOptions(
-        model=config.model,
+        model=config.model_for("medium"),
         max_tokens=4096,
         tools=get_directory_tool_definitions(),
         tool_choice={"type": "tool", "name": "submit_directory_shadow_doc"},
@@ -754,7 +753,7 @@ Merge these into a single cohesive shadow doc using the submit_shadow_doc tool."
 
     messages = [Message(role=MessageRole.USER, content=user_prompt)]
     options = CompletionOptions(
-        model=config.model,
+        model=config.model_for("medium"),
         max_tokens=4096,
         tools=get_file_tool_definitions(),
         tool_choice={"type": "tool", "name": "submit_shadow_doc"},
@@ -1233,13 +1232,11 @@ async def generate_shadow_docs_async(
     print(f"Found {len(files)} source files in {len(dirs)} directories", flush=True)
     print(f"Concurrency: {config.max_concurrency}", flush=True)
 
-    # Create provider with logging wrapper
-    provider = create_provider("anthropic")
-    logging_provider = LoggingProvider(provider, verbose=verbose)
-
-    # Create rate limiter if not provided externally
-    if rate_limiter is None:
-        rate_limiter = RateLimiter(get_config_with_overrides("anthropic"))
+    logging_provider, rate_limiter = create_runtime(
+        config,
+        verbose=verbose,
+        rate_limiter=rate_limiter,
+    )
 
     try:
         # Process files in parallel
@@ -1600,13 +1597,10 @@ def dry_run_shadow(config: Config, verbose: bool = False) -> None:
     total_input = est_input_tokens
     total_output = est_output_tokens + est_dir_output
 
-    # Sonnet pricing: $3/MTok input, $15/MTok output
-    est_cost = (total_input / 1_000_000 * 3.0) + (total_output / 1_000_000 * 15.0)
-
     print(f"\nEstimated tokens (for {len(stale_files)} file(s) to generate):", flush=True)
     print(f"  Input:  ~{total_input:,}", flush=True)
     print(f"  Output: ~{total_output:,}", flush=True)
-    print(f"Estimated cost: ~${est_cost:.2f}", flush=True)
+    print("Estimated cost: provider-specific pricing varies by provider/model", flush=True)
 
     if verbose:
         print(f"\nFiles to process ({len(stale_files)}):", flush=True)

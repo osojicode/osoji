@@ -326,7 +326,7 @@ async def _verify_batch_async(
         messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
         system=_DEAD_PARAM_SYSTEM_PROMPT,
         options=CompletionOptions(
-            model=config.model,
+            model=config.model_for("medium"),
             max_tokens=max(1024, len(candidates) * 300),
             tools=get_dead_parameter_tool_definitions(),
             tool_choice={"type": "tool", "name": "verify_dead_parameters"},

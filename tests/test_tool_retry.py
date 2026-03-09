@@ -1,4 +1,4 @@
-"""Tests for the tool-input validation + retry mechanism in AnthropicProvider."""
+"""Tests for tool-input validation and retry in provider wrappers backed by LiteLLM."""
 
 import asyncio
 from types import SimpleNamespace
@@ -336,6 +336,31 @@ class TestOnlyRetriesOnce:
         assert result.tool_calls[0].input == still_bad_input
         assert result.input_tokens == 220
         assert result.output_tokens == 110
+
+    def test_warning_logged_when_retry_still_invalid(self, provider, caplog):
+        bad_input = {"value": "wrong"}
+        first_response = _make_response([_tool_use_block("tc1", "test_tool", bad_input)])
+        second_response = _make_response([_tool_use_block("tc2", "test_tool", {"value": 42})])
+        provider._client.messages.create = AsyncMock(
+            side_effect=[first_response, second_response]
+        )
+
+        options = CompletionOptions(
+            model="claude-test",
+            tools=[TOOL_DEF],
+            tool_choice=FORCED_CHOICE,
+        )
+
+        with caplog.at_level("WARNING"):
+            asyncio.run(
+                provider.complete(
+                    [Message(role=MessageRole.USER, content="test")],
+                    None,
+                    options,
+                )
+            )
+
+        assert "Schema errors persist after retry" in caplog.text
 
 
 class TestMultipleToolCalls:

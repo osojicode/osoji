@@ -644,19 +644,19 @@ class TestStaleCommentCrossFileVerification:
         mock_result.input_tokens = 100
         mock_result.output_tokens = 50
         config = MagicMock(spec=Config)
-        config.model = "claude-sonnet-4-20250514"
+        config.provider = "anthropic"
+        config.model_for.return_value = "claude-sonnet-4-20250514"
 
         with patch("osoji.facts.FactsDB", return_value=mock_facts_db), \
-             patch("osoji.llm.factory.create_provider") as mock_create, \
+             patch("osoji.llm.runtime.create_runtime") as mock_create_runtime, \
              patch("osoji.junk.load_shadow_content", return_value="shadow"), \
              patch("osoji.symbols.load_all_symbols", return_value={}):
             mock_provider = AsyncMock()
             mock_provider.complete = AsyncMock(return_value=mock_result)
-            mock_create.return_value = mock_provider
-            with patch("osoji.llm.logging.LoggingProvider", return_value=mock_provider):
-                suppressed = asyncio.run(
-                    _verify_debris_findings_async(config, findings, mock_rate_limiter)
-                )
+            mock_create_runtime.return_value = (mock_provider, mock_rate_limiter)
+            suppressed = asyncio.run(
+                _verify_debris_findings_async(config, findings, mock_rate_limiter)
+            )
 
         # The finding should be suppressed (dismissed as false positive)
         assert 0 in suppressed
@@ -734,20 +734,20 @@ class TestLatentBugCrossFileVerification:
         mock_result.output_tokens = 50
 
         config = MagicMock(spec=Config)
-        config.model = "claude-sonnet-4-20250514"
+        config.provider = "anthropic"
+        config.model_for.return_value = "claude-sonnet-4-20250514"
         config.root_path = tmp_path
 
         with patch("osoji.facts.FactsDB", return_value=mock_facts_db), \
-             patch("osoji.llm.factory.create_provider") as mock_create, \
+             patch("osoji.llm.runtime.create_runtime") as mock_create_runtime, \
              patch("osoji.junk.load_shadow_content", return_value="shadow"), \
              patch("osoji.symbols.load_all_symbols", return_value={}):
             mock_provider = AsyncMock()
             mock_provider.complete = AsyncMock(return_value=mock_result)
-            mock_create.return_value = mock_provider
-            with patch("osoji.llm.logging.LoggingProvider", return_value=mock_provider):
-                suppressed = asyncio.run(
-                    _verify_debris_findings_async(config, findings, mock_rate_limiter)
-                )
+            mock_create_runtime.return_value = (mock_provider, mock_rate_limiter)
+            suppressed = asyncio.run(
+                _verify_debris_findings_async(config, findings, mock_rate_limiter)
+            )
 
         # Finding confirmed (not suppressed)
         assert 0 not in suppressed
