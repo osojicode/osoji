@@ -346,6 +346,7 @@ class RateLimiter:
             True if RPM and TPM constraints are satisfied
         """
         now = time.monotonic()
+        self._refill_tokens(now)
 
         # Check RPM constraint
         if self._last_request_time > 0:
@@ -353,8 +354,12 @@ class RateLimiter:
             if elapsed_ms < self._request_interval_ms:
                 return False
 
-        # Check we have at least some token allowance in both buckets
-        if self._input_token_allowance <= 0 or self._output_token_allowance <= 0:
+        required_input = min(_MIN_INPUT_HEADROOM, self._config.input_tokens_per_minute)
+        required_output = min(_MIN_OUTPUT_HEADROOM, self._config.output_tokens_per_minute)
+
+        if self._input_token_allowance < required_input:
+            return False
+        if self._output_token_allowance < required_output:
             return False
 
         return True

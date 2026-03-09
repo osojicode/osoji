@@ -7,8 +7,11 @@ import pytest
 from osoji.audit import (
     AuditIssue,
     AuditResult,
+    _extract_all_symbols_from_debris,
     _extract_symbol_from_debris,
     _format_scorecard_section,
+    _infer_variable_type,
+    _lookup_type_definitions,
     format_audit_html,
     serialize_audit_result,
     load_audit_result,
@@ -645,7 +648,8 @@ class TestStaleCommentCrossFileVerification:
 
         with patch("osoji.facts.FactsDB", return_value=mock_facts_db), \
              patch("osoji.llm.factory.create_provider") as mock_create, \
-             patch("osoji.junk.load_shadow_content", return_value="shadow"):
+             patch("osoji.junk.load_shadow_content", return_value="shadow"), \
+             patch("osoji.symbols.load_all_symbols", return_value={}):
             mock_provider = AsyncMock()
             mock_provider.complete = AsyncMock(return_value=mock_result)
             mock_create.return_value = mock_provider
@@ -681,7 +685,8 @@ class TestStaleCommentCrossFileVerification:
         mock_rate_limiter.acquire = AsyncMock()
         config = MagicMock(spec=Config)
 
-        with patch("osoji.facts.FactsDB", return_value=mock_facts_db):
+        with patch("osoji.facts.FactsDB", return_value=mock_facts_db), \
+             patch("osoji.symbols.load_all_symbols", return_value={}):
             suppressed = asyncio.run(
                 _verify_debris_findings_async(config, findings, mock_rate_limiter)
             )
@@ -692,7 +697,7 @@ class TestStaleCommentCrossFileVerification:
 
 
 class TestLatentBugCrossFileVerification:
-    def test_latent_bug_eligible_for_cross_file_verification(self):
+    def test_latent_bug_eligible_for_cross_file_verification(self, tmp_path):
         """latent_bug findings are always eligible for cross-file verification."""
         import asyncio
         from unittest.mock import AsyncMock, MagicMock, patch
@@ -730,10 +735,12 @@ class TestLatentBugCrossFileVerification:
 
         config = MagicMock(spec=Config)
         config.model = "claude-sonnet-4-20250514"
+        config.root_path = tmp_path
 
         with patch("osoji.facts.FactsDB", return_value=mock_facts_db), \
              patch("osoji.llm.factory.create_provider") as mock_create, \
-             patch("osoji.junk.load_shadow_content", return_value="shadow"):
+             patch("osoji.junk.load_shadow_content", return_value="shadow"), \
+             patch("osoji.symbols.load_all_symbols", return_value={}):
             mock_provider = AsyncMock()
             mock_provider.complete = AsyncMock(return_value=mock_result)
             mock_create.return_value = mock_provider
@@ -745,4 +752,187 @@ class TestLatentBugCrossFileVerification:
         # Finding confirmed (not suppressed)
         assert 0 not in suppressed
         # Verify that cross_file_references was called (latent_bug is eligible)
-        mock_facts_db.cross_file_references.assert_called_once()
+        mock_facts_db.cross_file_references.assert_called()
+
+
+# --- Multi-symbol extraction ---
+
+class TestExtractAllSymbolsFromDebris:
+    def test_multiple_backtick_symbols(self):
+        desc = "`options` field `tool_input_validators` is never set on CompletionOptions"
+        symbols = _extract_all_symbols_from_debris(desc)
+        assert "options" in symbols
+        assert "tool_input_validators" in symbols
+        assert "CompletionOptions" in symbols
+
+    def test_pascalcase_in_plain_text(self):
+        desc = "source_path attribute of JunkFinding is never read"
+        symbols = _extract_all_symbols_from_debris(desc)
+        assert "JunkFinding" in symbols
+
+    def test_backtick_plus_pascalcase(self):
+        desc = "`source_path` may not exist on JunkAnalysisResult"
+        symbols = _extract_all_symbols_from_debris(desc)
+        assert "source_path" in symbols
+        assert "JunkAnalysisResult" in symbols
+
+    def test_no_duplicates(self):
+        desc = "`CompletionOptions` type CompletionOptions has no field"
+        symbols = _extract_all_symbols_from_debris(desc)
+        assert symbols.count("CompletionOptions") == 1
+
+    def test_filler_words_excluded(self):
+        desc = "`field` defined but never `set`"
+        symbols = _extract_all_symbols_from_debris(desc)
+        assert "field" not in symbols
+        assert "set" not in symbols
+
+    def test_fallback_bare_identifier(self):
+        desc = "obligation_violations field defined but never set"
+        symbols = _extract_all_symbols_from_debris(desc)
+        assert symbols == ["obligation_violations"]
+
+    def test_empty_description(self):
+        assert _extract_all_symbols_from_debris("") == []
+
+    def test_all_caps_not_pascalcase(self):
+        """ALL_CAPS constants should not match PascalCase pattern."""
+        desc = "SHADOW_DIR constant is unused"
+        symbols = _extract_all_symbols_from_debris(desc)
+        # SHADOW_DIR should only come through fallback, not PascalCase
+        assert "SHADOW_DIR" in symbols
+
+    def test_backward_compat_wrapper(self):
+        """_extract_symbol_from_debris returns first symbol."""
+        assert _extract_symbol_from_debris("`foo` and `bar`") == "foo"
+        assert _extract_symbol_from_debris("the code was dead") is None
+
+
+# --- Type definition lookup ---
+
+class TestLookupTypeDefinitions:
+    def test_finds_class_definition(self, tmp_path):
+        from unittest.mock import MagicMock
+        config = MagicMock()
+        config.root_path = tmp_path
+
+        # Create a source file with a class
+        src = tmp_path / "types.py"
+        src.write_text("class Foo:\n    bar: int = 0\n    baz: str = ''\n", encoding="utf-8")
+
+        symbols_by_file = {
+            "types.py": [
+                {"name": "Foo", "kind": "class", "line_start": 1, "line_end": 3},
+            ],
+        }
+
+        result = _lookup_type_definitions(config, ["Foo"], symbols_by_file)
+        assert len(result) == 1
+        assert result[0]["type_name"] == "Foo"
+        assert result[0]["file"] == "types.py"
+        assert "bar: int" in result[0]["source"]
+
+    def test_skips_non_class_symbols(self, tmp_path):
+        from unittest.mock import MagicMock
+        config = MagicMock()
+        config.root_path = tmp_path
+
+        symbols_by_file = {
+            "mod.py": [
+                {"name": "Foo", "kind": "function", "line_start": 1, "line_end": 5},
+            ],
+        }
+
+        result = _lookup_type_definitions(config, ["Foo"], symbols_by_file)
+        assert result == []
+
+    def test_deduplicates_across_files(self, tmp_path):
+        from unittest.mock import MagicMock
+        config = MagicMock()
+        config.root_path = tmp_path
+
+        src1 = tmp_path / "a.py"
+        src1.write_text("class Foo:\n    pass\n", encoding="utf-8")
+        src2 = tmp_path / "b.py"
+        src2.write_text("class Foo:\n    pass\n", encoding="utf-8")
+
+        symbols_by_file = {
+            "a.py": [{"name": "Foo", "kind": "class", "line_start": 1, "line_end": 2}],
+            "b.py": [{"name": "Foo", "kind": "class", "line_start": 1, "line_end": 2}],
+        }
+
+        result = _lookup_type_definitions(config, ["Foo"], symbols_by_file)
+        assert len(result) == 1
+
+    def test_missing_file_skipped(self, tmp_path):
+        from unittest.mock import MagicMock
+        config = MagicMock()
+        config.root_path = tmp_path
+
+        symbols_by_file = {
+            "nonexistent.py": [
+                {"name": "Foo", "kind": "class", "line_start": 1, "line_end": 3},
+            ],
+        }
+
+        result = _lookup_type_definitions(config, ["Foo"], symbols_by_file)
+        assert result == []
+
+
+# --- Variable type inference ---
+
+class TestInferVariableType:
+    def test_finds_type_annotation(self, tmp_path):
+        from unittest.mock import MagicMock
+        config = MagicMock()
+        config.root_path = tmp_path
+
+        src = tmp_path / "mod.py"
+        src.write_text(
+            "def run(options: CompletionOptions) -> None:\n"
+            "    x = options.tool_choice\n"
+            "    y = options.max_tokens\n",
+            encoding="utf-8",
+        )
+
+        result = _infer_variable_type(
+            config, "mod.py", 3,
+            "`options.max_tokens` may not exist",
+        )
+        assert "CompletionOptions" in result
+
+    def test_no_dotted_reference(self, tmp_path):
+        from unittest.mock import MagicMock
+        config = MagicMock()
+        config.root_path = tmp_path
+
+        src = tmp_path / "mod.py"
+        src.write_text("x = 1\n", encoding="utf-8")
+
+        result = _infer_variable_type(
+            config, "mod.py", 1,
+            "`max_tokens` is unused",
+        )
+        assert result == []
+
+    def test_no_line_number(self, tmp_path):
+        from unittest.mock import MagicMock
+        config = MagicMock()
+        config.root_path = tmp_path
+
+        result = _infer_variable_type(
+            config, "mod.py", None,
+            "`options.field` issue",
+        )
+        assert result == []
+
+    def test_missing_file(self, tmp_path):
+        from unittest.mock import MagicMock
+        config = MagicMock()
+        config.root_path = tmp_path
+
+        result = _infer_variable_type(
+            config, "nonexistent.py", 10,
+            "`options.field` issue",
+        )
+        assert result == []

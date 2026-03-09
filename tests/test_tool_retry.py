@@ -34,6 +34,10 @@ def _tool_use_block(tool_id, name, tool_input):
     return {"type": "tool_use", "id": tool_id, "name": name, "input": tool_input}
 
 
+def _text_block(text):
+    return {"type": "text", "text": text}
+
+
 SIMPLE_SCHEMA = {
     "type": "object",
     "properties": {
@@ -88,6 +92,29 @@ class TestValidInputSkipsRetry:
         # API called exactly once
         assert provider._client.messages.create.call_count == 1
 
+    def test_multiple_text_blocks_are_concatenated(self, provider):
+        response = _make_response(
+            [
+                _text_block("hello "),
+                _text_block("world"),
+                _tool_use_block("tc1", "test_tool", {"value": {"x": "ok"}}),
+            ],
+            input_tokens=100,
+            output_tokens=50,
+        )
+        provider._client.messages.create = AsyncMock(return_value=response)
+
+        options = CompletionOptions(
+            model="claude-test",
+            tools=[TOOL_DEF],
+            tool_choice=FORCED_CHOICE,
+        )
+        messages = [Message(role=MessageRole.USER, content="test")]
+
+        result = asyncio.run(provider.complete(messages, None, options))
+
+        assert result.content == "hello world"
+
 
 class TestInvalidInputTriggersRetry:
     """When tool input has schema errors, provider should retry once."""
@@ -127,6 +154,41 @@ class TestInvalidInputTriggersRetry:
         # Tokens summed
         assert result.input_tokens == 220
         assert result.output_tokens == 110
+
+    def test_retry_multiple_text_blocks_are_concatenated(self, provider):
+        bad_input = {"value": "not-an-object"}
+        first_response = _make_response(
+            [
+                _text_block("retry "),
+                _tool_use_block("tc1", "test_tool", bad_input),
+            ],
+            input_tokens=100,
+            output_tokens=50,
+        )
+        good_input = {"value": {"x": "fixed"}}
+        second_response = _make_response(
+            [
+                _text_block("fixed "),
+                _text_block("response"),
+                _tool_use_block("tc2", "test_tool", good_input),
+            ],
+            input_tokens=120,
+            output_tokens=60,
+        )
+        provider._client.messages.create = AsyncMock(
+            side_effect=[first_response, second_response]
+        )
+
+        options = CompletionOptions(
+            model="claude-test",
+            tools=[TOOL_DEF],
+            tool_choice=FORCED_CHOICE,
+        )
+        messages = [Message(role=MessageRole.USER, content="test")]
+
+        result = asyncio.run(provider.complete(messages, None, options))
+
+        assert result.content == "fixed response"
 
     def test_retry_message_contains_errors(self, provider):
         """Verify the retry message includes validation errors."""

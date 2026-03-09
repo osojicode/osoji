@@ -219,9 +219,28 @@ to work with this code effectively.""",
                     "required": ["from_symbol", "to", "line"],
                 },
             },
+            "member_writes": {
+                "type": "array",
+                "description": "Cross-file relevant writes to object/class/dataclass fields, e.g. obj.status = 'done'. Include writes that could prove a field is used from another file.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "container": {
+                            "type": "string",
+                            "description": "Object/expression whose member is written, e.g. 'scorecard' or 'result.metrics'",
+                        },
+                        "member": {
+                            "type": "string",
+                            "description": "Field/property name being written",
+                        },
+                        "line": {"type": "integer", "minimum": 1},
+                    },
+                    "required": ["container", "member", "line"],
+                },
+            },
             "string_literals": {
                 "type": "array",
-                "description": "Notable string constants that participate in cross-file contracts: identifiers (keys, names, categories), messages, config values. NOT every string — skip file paths, import specifiers, docstrings, test data.",
+                "description": "Notable string constants that participate in cross-file contracts: identifiers, messages, config values. NOT every string — skip file paths, import specifiers, docstrings, test data, filename/path sentinels, serialized-data keys, and external protocol literals.",
                 "items": {
                     "type": "object",
                     "properties": {
@@ -249,7 +268,8 @@ to work with this code effectively.""",
                                            "not hardcoded string literals; "
                                            "unknown = can't tell. "
                                            "Always skip well-known external conventions (language names, test framework "
-                                           "patterns, standard extensions) — do not extract them.",
+                                           "patterns, standard extensions), filename/path sentinels, serialized-data "
+                                           "keys, and external protocol literals — do not extract them.",
                         },
                         "comparison_source": {
                             "type": "string",

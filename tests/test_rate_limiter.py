@@ -409,6 +409,21 @@ class TestRateLimiter:
 
         assert limiter.can_proceed() is False
 
+    def test_can_proceed_refills_tokens_before_check(self):
+        """Elapsed time should replenish buckets before can_proceed evaluates them."""
+        config = RateLimiterConfig(
+            requests_per_minute=60,
+            input_tokens_per_minute=240_000,
+            output_tokens_per_minute=60_000,
+            name="test",
+        )
+        limiter = RateLimiter(config)
+        limiter._input_token_allowance = 0
+        limiter._output_token_allowance = 0
+        limiter._last_refill_time = time.monotonic() - 1.1
+
+        assert limiter.can_proceed() is True
+
     def test_queue_size_tracking(self):
         """Test that queue_size is tracked during throttle."""
 

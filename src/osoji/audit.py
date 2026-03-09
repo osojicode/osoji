@@ -206,6 +206,8 @@ Guidelines:
 - For latent_bug findings: check whether cross-file evidence shows the type actually HAS
   the accessed attribute/method. If evidence confirms the attribute exists, DISMISS.
   If evidence is absent or ambiguous, CONFIRM.
+- When type/class definition source code is provided, use it as authoritative
+  evidence of the type's fields, methods, and default values.
 
 Use the verify_debris_findings tool with a verdict for EVERY finding."""
 
@@ -223,12 +225,14 @@ async def _verify_debris_findings_async(
     from .llm.factory import create_provider
     from .llm.logging import LoggingProvider
     from .llm.types import Message, MessageRole, CompletionOptions
+    from .symbols import load_all_symbols
     from .tools import get_debris_verification_tool_definitions
 
     facts_db = FactsDB(config)
+    symbols_by_file = load_all_symbols(config)
 
-    # Collect findings that have cross-file evidence
-    candidates: list[tuple[int, dict, list[dict]]] = []  # (index, finding, refs)
+    # Collect findings that have cross-file evidence or type definitions
+    candidates: list[tuple[int, dict, list[dict], list[dict]]] = []  # (index, finding, refs, type_defs)
     for i, finding in enumerate(debris_findings):
         category = finding.get("category", "")
         # Verify dead_code/latent_bug findings AND stale_comment findings flagged for cross-file verification
@@ -238,18 +242,36 @@ async def _verify_debris_findings_async(
             pass  # LLM flagged this as needing cross-file check
         else:
             continue
-        # Extract symbol name from description (format: "L{start}-{end}: {description}")
+
         desc = finding.get("description", "")
         source_path = finding.get("source", "")
-        # Try to find a symbol name from the description
-        # Descriptions are like "obligation_violations field defined but never set"
-        # or free-form. Extract the first word-like token as a candidate symbol name.
-        symbol = _extract_symbol_from_debris(desc)
-        if not symbol or not source_path:
+        if not source_path:
             continue
-        refs = facts_db.cross_file_references(symbol, source_path)
-        if refs:
-            candidates.append((i, finding, refs))
+
+        # Extract all symbols and find best cross-file refs
+        all_symbols = _extract_all_symbols_from_debris(desc)
+        if not all_symbols:
+            continue
+        best_refs: list[dict] = []
+        for sym in all_symbols:
+            refs = facts_db.cross_file_references(sym, source_path)
+            if len(refs) > len(best_refs):
+                best_refs = refs
+
+        # For latent_bug: also gather type definitions
+        type_defs: list[dict] = []
+        if category == "latent_bug":
+            # Type names from description (PascalCase, not ALL_CAPS)
+            type_names = [s for s in all_symbols if s[0].isupper() and not s.isupper()]
+            # Type names from source code annotations
+            line_num = finding.get("line_start")
+            inferred = _infer_variable_type(config, source_path, line_num, desc)
+            type_names.extend(inferred)
+            if type_names:
+                type_defs = _lookup_type_definitions(config, type_names, symbols_by_file)
+
+        if best_refs or type_defs:
+            candidates.append((i, finding, best_refs, type_defs))
 
     if not candidates:
         return set()
@@ -257,22 +279,31 @@ async def _verify_debris_findings_async(
     # Build LLM prompt with all candidates
     user_parts: list[str] = []
     user_parts.append("## Debris findings to verify\n")
-    for idx, (orig_idx, finding, refs) in enumerate(candidates):
+    for idx, (orig_idx, finding, refs, type_defs) in enumerate(candidates):
         source = finding.get("source", "?")
         desc = finding.get("description", "?")
         user_parts.append(f"### Finding {idx}: `{source}`")
         user_parts.append(f"**Description:** {desc}")
         user_parts.append(f"**Severity:** {finding.get('severity', '?')}")
-        user_parts.append(f"\n**Cross-file references:**")
-        for ref in refs:
-            resolves = " (resolves to source)" if ref.get("resolves_to_source") else ""
-            user_parts.append(f"- `{ref['file']}` [{ref['kind']}]: {ref['context']}{resolves}")
+        if refs:
+            user_parts.append(f"\n**Cross-file references:**")
+            for ref in refs:
+                resolves = " (resolves to source)" if ref.get("resolves_to_source") else ""
+                user_parts.append(f"- `{ref['file']}` [{ref['kind']}]: {ref['context']}{resolves}")
 
-        # Include shadow context for the referencing files
-        for ref in refs[:3]:  # Limit to avoid token explosion
-            shadow = load_shadow_content(config, ref["file"])
-            if shadow:
-                user_parts.append(f"\nShadow doc for `{ref['file']}`:\n{shadow[:2000]}")
+            # Include shadow context for the referencing files
+            for ref in refs[:3]:  # Limit to avoid token explosion
+                shadow = load_shadow_content(config, ref["file"])
+                if shadow:
+                    user_parts.append(f"\nShadow doc for `{ref['file']}`:\n{shadow[:2000]}")
+
+        # Include type definition source code for latent_bug findings
+        if type_defs:
+            user_parts.append("\n**Type definitions:**")
+            for td in type_defs:
+                user_parts.append(
+                    f"\n`{td['type_name']}` defined in `{td['file']}`:\n```\n{td['source']}\n```"
+                )
         user_parts.append("")
 
     finding_indices = ", ".join(str(i) for i in range(len(candidates)))
@@ -324,26 +355,122 @@ async def _verify_debris_findings_async(
     return suppressed
 
 
+_SYMBOL_FILLER = {
+    "field", "defined", "never", "set", "used", "unused", "dead", "code",
+    "the", "and", "but", "not", "this", "that", "from", "with", "are",
+    "was", "were", "has", "have", "been", "being",
+}
+
+
+def _extract_all_symbols_from_debris(description: str) -> list[str]:
+    """Extract all plausible symbol names from a debris finding description."""
+    import re
+    names: list[str] = []
+    seen: set[str] = set()
+    # 1. Backtick-quoted simple names
+    for m in re.finditer(r"`(\w+)`", description):
+        name = m.group(1)
+        if name.lower() not in _SYMBOL_FILLER and name not in seen:
+            names.append(name)
+            seen.add(name)
+    # 2. PascalCase words anywhere (catches type names in plain text)
+    for m in re.finditer(r"\b([A-Z][a-z]\w*(?:[A-Z][a-z]\w*)+)\b", description):
+        name = m.group(1)
+        if name not in seen:
+            names.append(name)
+            seen.add(name)
+    # 3. Fallback: bare identifier words (existing logic)
+    if not names:
+        for word in description.split():
+            word = word.strip(".,;:()")
+            if re.match(r"^[a-zA-Z_]\w{2,}$", word) and word.lower() not in _SYMBOL_FILLER:
+                if word not in seen:
+                    names.append(word)
+                    seen.add(word)
+                    break  # just one fallback
+    return names
+
+
 def _extract_symbol_from_debris(description: str) -> str | None:
     """Extract a plausible symbol name from a debris finding description.
 
-    Looks for backtick-quoted names first, then falls back to word extraction.
+    Thin wrapper around _extract_all_symbols_from_debris for backward compat.
+    """
+    names = _extract_all_symbols_from_debris(description)
+    return names[0] if names else None
+
+
+def _lookup_type_definitions(
+    config: Config,
+    type_names: list[str],
+    symbols_by_file: dict[str, list[dict]],
+) -> list[dict]:
+    """Look up class/type definitions in the symbols DB and return source snippets.
+
+    Returns list of {"type_name": str, "file": str, "source": str}.
+    """
+    results: list[dict] = []
+    seen: set[str] = set()
+    type_set = set(type_names)
+    for file_path, symbols in symbols_by_file.items():
+        for sym in symbols:
+            name = sym.get("name", "")
+            if name in type_set and name not in seen and sym.get("kind") in ("class", "type"):
+                full_path = config.root_path / file_path
+                if not full_path.exists():
+                    continue
+                try:
+                    lines = full_path.read_text(encoding="utf-8").splitlines()
+                except OSError:
+                    continue
+                start = sym.get("line_start", 1) - 1
+                end = min(sym.get("line_end", start + 30), start + 50)
+                snippet = "\n".join(
+                    f"{start + 1 + i}: {l}" for i, l in enumerate(lines[start:end])
+                )
+                results.append({"type_name": name, "file": file_path, "source": snippet})
+                seen.add(name)
+    return results
+
+
+def _infer_variable_type(
+    config: Config,
+    source_path: str,
+    line_number: int | None,
+    description: str,
+) -> list[str]:
+    """Extract type names from variable annotations near the finding line.
+
+    Looks for patterns like `var: TypeName` in function signatures and assignments
+    near the finding. Returns PascalCase type names found.
     """
     import re
-    # Try backtick-quoted names (e.g. "`obligation_violations` field defined but never set")
-    match = re.search(r"`(\w+)`", description)
-    if match:
-        return match.group(1)
-    # Try bare identifier-like words (skip common filler)
-    for word in description.split():
-        word = word.strip(".,;:()")
-        if re.match(r"^[a-zA-Z_]\w{2,}$", word) and word.lower() not in {
-            "field", "defined", "never", "set", "used", "unused", "dead", "code",
-            "the", "and", "but", "not", "this", "that", "from", "with", "are",
-            "was", "were", "has", "have", "been", "being",
-        }:
-            return word
-    return None
+    if not line_number:
+        return []
+    full_path = config.root_path / source_path
+    if not full_path.exists():
+        return []
+    # Extract variable names from dotted backtick references (e.g. `options.field`)
+    var_names: set[str] = set()
+    for m in re.finditer(r"`(\w+)\.\w+`", description):
+        var_names.add(m.group(1))
+    if not var_names:
+        return []
+
+    try:
+        lines = full_path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return []
+    start = max(0, line_number - 40)
+    type_names: list[str] = []
+    for var in var_names:
+        for i in range(line_number - 1, start - 1, -1):
+            line = lines[i] if i < len(lines) else ""
+            match = re.search(rf"\b{re.escape(var)}\s*:\s*[\"']?([A-Z]\w+)", line)
+            if match:
+                type_names.append(match.group(1))
+                break
+    return type_names
 
 
 def run_audit(
@@ -869,9 +996,9 @@ _HANKO_SVG = (
     '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 100 100">'
     '<defs><mask id="hm"><rect width="100" height="100" fill="white"/>'
     '<rect x="44" y="0" width="14" height="30" fill="black"/></mask></defs>'
-    '<circle cx="50" cy="50" r="38" fill="none" stroke="#fafafa" stroke-width="8"'
+    '<circle cx="50" cy="50" r="38" fill="none" stroke="currentColor" stroke-width="8"'
     ' stroke-dasharray="200 40" mask="url(#hm)"/>'
-    '<circle cx="50" cy="50" r="6" fill="#fafafa"/>'
+    '<circle cx="50" cy="50" r="6" fill="currentColor"/>'
     '</svg>'
 )
 
@@ -879,28 +1006,70 @@ _AUDIT_CSS = """\
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap');
 
 :root {
-  --bg: #1a1917;
-  --bg-panel: #211f1d;
-  --bg-card: #2a2826;
-  --border: #3a3835;
-  --border-subtle: #2a2826;
-  --text: #e0ddd6;
-  --text-dim: #a8a49c;
-  --healthy: #7aaa7e;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'DM Mono', 'SF Mono', 'Fira Code', monospace;
+  --radius-sm: 2px;
   --amber: #c9a06e;
-  --coral: #d4715e;
-  --dead: #7a766e;
+}
+
+[data-theme="light"] {
+  --surface-1: #fafafa;
+  --surface-2: #f5f4f0;
+  --surface-3: #edecea;
+  --surface-overlay: rgba(250,250,250,0.85);
+  --text-1: #2c2a26;
+  --text-2: #5c5850;
+  --text-3: #8a8580;
+  --border-subtle: #edecea;
+  --border-default: #dedad4;
+  --accent: #c4402f;
+  --accent-surface: #faf0ee;
+  --success: #5a8a5e;
+  --warning: #d4715e;
+  --info: #5c7a8a;
+  --shadow-sm: 0 1px 3px rgba(44,42,38,0.04);
+  --hanko-color: #2c2a26;
+  --badge-pass-bg: rgba(90,138,94,0.12);
+  --badge-pass-border: rgba(90,138,94,0.3);
+  --badge-fail-bg: rgba(196,64,47,0.10);
+  --badge-fail-border: rgba(196,64,47,0.25);
+  --hover-tint: rgba(196,64,47,0.04);
+  --bar-track: rgba(222,218,212,0.5);
+}
+
+[data-theme="dark"] {
+  --surface-1: #1a1917;
+  --surface-2: #211f1d;
+  --surface-3: #2a2826;
+  --surface-overlay: rgba(26,25,23,0.88);
+  --text-1: #e0ddd6;
+  --text-2: #a8a49c;
+  --text-3: #7a766e;
+  --border-subtle: #2a2826;
+  --border-default: #3a3835;
   --accent: #d4715e;
   --accent-surface: #2e2220;
+  --success: #7aaa7e;
+  --warning: #d4715e;
+  --info: #7a9aaa;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+  --hanko-color: #fafafa;
+  --badge-pass-bg: rgba(122,170,126,0.15);
+  --badge-pass-border: rgba(122,170,126,0.3);
+  --badge-fail-bg: rgba(212,113,94,0.15);
+  --badge-fail-border: rgba(212,113,94,0.3);
+  --hover-tint: rgba(212,113,94,0.04);
+  --bar-track: rgba(58,56,53,0.5);
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-weight: 300;
-  background: var(--bg);
-  color: var(--text);
+  background: var(--surface-1);
+  color: var(--text-1);
   line-height: 1.65;
   padding: 0;
 }
@@ -910,70 +1079,101 @@ a:hover { text-decoration: underline; }
 
 .header {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(26, 25, 23, 0.92);
+  background: var(--surface-overlay);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-default);
   padding: 14px 32px;
   display: flex; align-items: center; gap: 16px;
 }
-.header-mark { display: flex; align-items: center; flex-shrink: 0; }
+.header-mark { display: flex; align-items: center; flex-shrink: 0; color: var(--hanko-color); }
 .header-wordmark {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-serif);
   font-size: 1.15rem; font-weight: 400;
-  color: var(--text); letter-spacing: 0.04em;
+  color: var(--text-1); letter-spacing: 0.04em;
   margin-left: 10px;
 }
 .header-divider {
   width: 1px; height: 20px;
-  background: var(--border); margin: 0 4px;
+  background: var(--border-default); margin: 0 4px;
 }
 .header-label {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem; font-weight: 300;
-  color: var(--text-dim);
+  color: var(--text-2);
   letter-spacing: 0.15em; text-transform: uppercase;
 }
 .badge {
   display: inline-block; padding: 4px 14px;
-  border-radius: 2px;
-  font-family: 'DM Mono', monospace;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
   font-size: 0.7rem; font-weight: 300;
   letter-spacing: 0.15em; text-transform: uppercase;
 }
-.badge-pass { background: rgba(122,170,126,0.15); color: var(--healthy); border: 1px solid rgba(122,170,126,0.3); }
-.badge-fail { background: rgba(212,113,94,0.15); color: var(--coral); border: 1px solid rgba(212,113,94,0.3); }
+.badge-pass { background: var(--badge-pass-bg); color: var(--success); border: 1px solid var(--badge-pass-border); }
+.badge-fail { background: var(--badge-fail-bg); color: var(--warning); border: 1px solid var(--badge-fail-border); }
+
+.theme-toggle {
+  background: none; border: 1px solid var(--border-default);
+  color: var(--text-2); cursor: pointer;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  margin-left: 12px; padding: 0;
+}
+.theme-toggle:hover { color: var(--text-1); border-color: var(--text-2); }
+.theme-toggle .icon-sun,
+.theme-toggle .icon-moon { width: 16px; height: 16px; }
+[data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+[data-theme="light"] .theme-toggle .icon-sun { display: block; }
+[data-theme="light"] .theme-toggle .icon-moon { display: none; }
 
 .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem 2rem 4rem; }
+
+/* Interpretive guide */
+.guide {
+  border: 1px solid var(--border-subtle);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+.guide-heading {
+  font-family: var(--font-mono);
+  font-size: 0.7rem; font-weight: 300;
+  color: var(--text-3);
+  text-transform: uppercase; letter-spacing: 0.15em;
+  margin-bottom: 8px;
+}
 
 /* Metric cards — CSS grid with hairline borders */
 .cards {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1px; background: var(--border);
+  gap: 1px; background: var(--border-default);
   margin-bottom: 2rem;
 }
 .card {
-  background: var(--bg-card);
+  background: var(--surface-3);
   padding: 16px 20px;
   text-align: center;
   transition: background 0.2s;
   cursor: pointer;
-  border-top: 3px solid var(--border);
+  border-top: 3px solid var(--border-default);
 }
-.card:hover { background: var(--bg-panel); }
-.card-green  { border-top-color: var(--healthy); }
+.card:hover { background: var(--surface-2); }
+.card-green  { border-top-color: var(--success); }
 .card-amber  { border-top-color: var(--amber); }
-.card-coral  { border-top-color: var(--coral); }
+.card-coral  { border-top-color: var(--warning); }
 .card-label {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.7rem; font-weight: 300; color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.7rem; font-weight: 300; color: var(--text-2);
   text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 6px;
 }
 .card-value {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2.5rem; font-weight: 300; color: var(--text);
+  font-family: var(--font-serif);
+  font-size: 2.5rem; font-weight: 300; color: var(--text-1);
 }
 .card-detail {
-  font-size: 12px; color: var(--text-dim); margin-top: 4px;
+  font-size: 12px; color: var(--text-2); margin-top: 4px;
 }
 
 /* Sections */
@@ -982,12 +1182,12 @@ a:hover { text-decoration: underline; }
   to   { opacity: 1; transform: translateY(0); }
 }
 .section {
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border: 1px solid var(--border-default);
   border-radius: 0;
   margin-bottom: 24px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  box-shadow: var(--shadow-sm);
   animation: fadeUp 0.4s ease both;
 }
 .section:nth-child(2) { animation-delay: 0.06s; }
@@ -996,14 +1196,14 @@ a:hover { text-decoration: underline; }
 .section:nth-child(5) { animation-delay: 0.24s; }
 .section-head {
   padding: 14px 20px;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem; font-weight: 300;
-  color: var(--text);
-  border-bottom: 1px solid var(--border);
+  color: var(--text-1);
+  border-bottom: 1px solid var(--border-default);
   text-transform: uppercase; letter-spacing: 0.2em;
 }
 .section-body { padding: 20px; }
-.section-body p { margin-bottom: 12px; color: var(--text-dim); font-size: 14px; }
+.section-body p { margin-bottom: 12px; color: var(--text-2); font-size: 14px; }
 
 /* Tables */
 table {
@@ -1012,23 +1212,23 @@ table {
 }
 th {
   text-align: left; padding: 8px 12px;
-  font-family: 'DM Mono', monospace;
-  font-size: 0.65rem; color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.65rem; color: var(--text-2);
   text-transform: uppercase; letter-spacing: 0.15em;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-default);
 }
 td {
   padding: 8px 12px;
   border-bottom: 1px solid var(--border-subtle);
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.75rem; font-weight: 300;
 }
 tr:last-child td { border-bottom: none; }
-tr:hover td { background: rgba(212,113,94,0.04); }
+tr:hover td { background: var(--hover-tint); }
 
 /* Coverage bar */
 .cov-bar-wrap {
-  background: rgba(58,56,53,0.5);
+  background: var(--bar-track);
   border-radius: 0; height: 4px;
   overflow: hidden; margin-bottom: 16px;
 }
@@ -1038,30 +1238,30 @@ tr:hover td { background: rgba(212,113,94,0.04); }
 }
 
 /* Matrix icons */
-.ok  { color: var(--healthy); font-weight: 600; }
-.miss { color: var(--dead); opacity: 0.5; }
+.ok  { color: var(--success); font-weight: 600; }
+.miss { color: var(--text-3); opacity: 0.5; }
 
 /* Lists */
 ul.file-list { list-style: none; padding: 0; }
 ul.file-list li {
-  padding: 6px 0; font-family: 'DM Mono', monospace;
+  padding: 6px 0; font-family: var(--font-mono);
   font-size: 0.75rem; font-weight: 300;
   border-bottom: 1px solid var(--border-subtle);
 }
 ul.file-list li:last-child { border-bottom: none; }
-.purpose { color: var(--text-dim); font-family: 'DM Sans', system-ui; }
+.purpose { color: var(--text-2); font-family: var(--font-sans); }
 
 details summary {
   cursor: pointer; color: var(--accent);
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.75rem; margin-bottom: 8px;
 }
 
 .footer {
   text-align: center; padding: 24px;
-  font-family: 'DM Mono', monospace;
-  font-size: 0.7rem; color: var(--dead);
-  border-top: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.7rem; color: var(--text-3);
+  border-top: 1px solid var(--border-default);
 }
 
 html { scroll-behavior: smooth; }
@@ -1071,6 +1271,15 @@ html { scroll-behavior: smooth; }
 def _h(s: str) -> str:
     """Shortcut for html.escape."""
     return _html_mod.escape(str(s))
+
+
+def _issue_loc(issue: "AuditIssue") -> str:
+    """Return a line-number suffix like ':L10' or ':L10-L15' for an issue."""
+    if not issue.line_start:
+        return ""
+    if issue.line_end and issue.line_end != issue.line_start:
+        return f":L{issue.line_start}-L{issue.line_end}"
+    return f":L{issue.line_start}"
 
 
 def _color_for_pct(pct: float) -> str:
@@ -1102,7 +1311,7 @@ def _html_coverage_section(scorecard: "Scorecard") -> str:
 
     # Coverage bar
     pct = scorecard.coverage_pct
-    color = f"var(--{_color_for_pct(pct).replace('green','healthy')})"
+    color = f"var(--{_color_for_pct(pct).replace('green','success')})"
     parts.append(f'<div class="cov-bar-wrap"><div class="cov-bar-fill" style="width:{pct:.0f}%;background:{color}"></div></div>')
     parts.append(f'<p>{scorecard.covered_count}/{scorecard.total_source_count} source files covered ({pct:.0f}%)</p>')
 
@@ -1128,7 +1337,7 @@ def _html_coverage_section(scorecard: "Scorecard") -> str:
             if collapse:
                 parts.append(f'<details><summary>Coverage matrix ({len(scorecard.coverage_entries)} files)</summary>')
             else:
-                parts.append(f'<p style="margin-top:16px;font-weight:400;color:var(--text)">Coverage matrix</p>')
+                parts.append(f'<p style="margin-top:16px;font-weight:400;color:var(--text-1)">Coverage matrix</p>')
             parts.append('<table><thead><tr><th>Source file</th>')
             for dt in diataxis_types:
                 parts.append(f'<th style="text-align:center">{_h(dt)}</th>')
@@ -1149,7 +1358,7 @@ def _html_coverage_section(scorecard: "Scorecard") -> str:
     # Uncovered files
     uncovered = [e for e in scorecard.coverage_entries if not e.covering_docs]
     if uncovered:
-        parts.append(f'<p style="margin-top:16px;font-weight:400;color:var(--text)">Uncovered source files ({len(uncovered)})</p>')
+        parts.append(f'<p style="margin-top:16px;font-weight:400;color:var(--text-1)">Uncovered source files ({len(uncovered)})</p>')
         parts.append('<ul class="file-list">')
         for entry in uncovered:
             purpose = ""
@@ -1190,10 +1399,10 @@ def _html_accuracy_section(result: "AuditResult") -> str:
         by_cat.setdefault(issue.category, []).append(issue)
 
     for cat in sorted(by_cat.keys()):
-        parts.append(f'<p style="font-weight:400;color:var(--text);margin-top:12px">{_h(cat)}</p>')
+        parts.append(f'<p style="font-weight:400;color:var(--text-1);margin-top:12px">{_h(cat)}</p>')
         parts.append('<ul class="file-list">')
         for issue in by_cat[cat]:
-            parts.append(f'<li>{_h(str(issue.path))}: {_h(issue.message)}</li>')
+            parts.append(f'<li>{_h(str(issue.path))}{_issue_loc(issue)}: {_h(issue.message)}</li>')
         parts.append('</ul>')
 
     parts.append('</div></div>')
@@ -1227,7 +1436,7 @@ def _html_junk_section(result: "AuditResult") -> str:
     # Worst files
     worst = [e for e in scorecard.junk_entries if e.junk_fraction > 0.05][:10]
     if worst:
-        parts.append('<p style="font-weight:400;color:var(--text);margin-top:12px">Worst files</p>')
+        parts.append('<p style="font-weight:400;color:var(--text-1);margin-top:12px">Worst files</p>')
         parts.append('<table><thead><tr><th>File</th><th>Junk %</th><th>Junk / Total</th></tr></thead><tbody>')
         for entry in worst:
             parts.append(f'<tr><td>{_h(entry.source_path)}</td><td>{entry.junk_fraction:.0%}</td>'
@@ -1235,19 +1444,28 @@ def _html_junk_section(result: "AuditResult") -> str:
         parts.append('</tbody></table>')
 
     # Individual findings
-    junk_issues = [i for i in result.issues if i.category in scorecard.junk_by_category
-                   or i.category in ("dead_symbol", "unactuated_config", "commented_out_code",
-                                     "dead_code", "unreachable_code", "latent_bug")]
+    junk_categories = set(scorecard.junk_by_category.keys())
+    junk_issues = [i for i in result.issues if i.category in junk_categories]
     if junk_issues:
         collapse = len(junk_issues) > 20
         if collapse:
             parts.append(f'<details><summary>All findings ({len(junk_issues)})</summary>')
         parts.append('<ul class="file-list">')
         for issue in junk_issues:
-            parts.append(f'<li>{_h(str(issue.path))}: {_h(issue.message)}</li>')
+            parts.append(f'<li>{_h(str(issue.path))}{_issue_loc(issue)}: {_h(issue.message)}</li>')
         parts.append('</ul>')
         if collapse:
             parts.append('</details>')
+
+    # Phases not run notice
+    missing: list[str] = []
+    for analyzer_cls in JUNK_ANALYZERS:
+        a = analyzer_cls()
+        if a.name not in scorecard.junk_sources:
+            missing.append(f"--{a.cli_flag}")
+    if missing:
+        parts.append(f'<p style="font-style:italic;color:var(--text-3);margin-top:12px">'
+                     f'Phases not run: {_h(", ".join(missing))}. Re-run with those flags for a complete scorecard.</p>')
 
     parts.append('</div></div>')
     return "\n".join(parts)
@@ -1294,21 +1512,83 @@ def _html_enforcement_section(scorecard: "Scorecard") -> str:
     return "\n".join(parts)
 
 
+def _html_info_section(result: "AuditResult") -> str:
+    """Build the info-level issues section HTML."""
+    infos = [i for i in result.issues if i.severity == "info"]
+    if not infos:
+        return ""
+
+    parts: list[str] = []
+    parts.append('<div class="section" id="section-info">')
+    parts.append('<div class="section-head">Info</div>')
+    parts.append('<div class="section-body">')
+    parts.append(f'<p>{len(infos)} advisory finding(s)</p>')
+    collapse = len(infos) > 20
+    if collapse:
+        parts.append(f'<details><summary>All findings ({len(infos)})</summary>')
+    parts.append('<ul class="file-list">')
+    for issue in infos:
+        parts.append(f'<li>{_h(str(issue.path))}{_issue_loc(issue)}: {_h(issue.message)}</li>')
+    parts.append('</ul>')
+    if collapse:
+        parts.append('</details>')
+    parts.append('</div></div>')
+    return "\n".join(parts)
+
+
+_THEME_TOGGLE_ONCLICK = (
+    "var d=document.documentElement,t=d.getAttribute('data-theme')==='dark'?'light':'dark';"
+    "d.setAttribute('data-theme',t);"
+    "try{localStorage.setItem('osoji-theme',t);}catch(e){}"
+)
+
+_BODY_ONLOAD = (
+    "try{var t=localStorage.getItem('osoji-theme');"
+    "if(t){document.documentElement.setAttribute('data-theme',t);}"
+    "else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme:light)').matches)"
+    "{document.documentElement.setAttribute('data-theme','light');}"
+    "}catch(e){}"
+)
+
+_THEME_TOGGLE_BTN = (
+    f'<button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark mode"'
+    f' onclick="{_THEME_TOGGLE_ONCLICK}">'
+    '<svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
+    '<circle cx="12" cy="12" r="5"/>'
+    '<path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42'
+    'M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>'
+    '</svg>'
+    '<svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
+    '<path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>'
+    '</svg>'
+    '</button>'
+)
+
+_GUIDE_HTML = (
+    '<div class="guide">'
+    '<p class="guide-heading">How to read this report</p>'
+    '<p>Osoji flags; you judge. Findings are LLM-generated and will include '
+    'false positives. Treat each finding as a prompt for your attention.</p>'
+    '</div>'
+)
+
+
 def format_audit_html(result: AuditResult) -> str:
     """Format audit result as a self-contained HTML dashboard."""
     scorecard = result.scorecard
     errors = [i for i in result.issues if i.severity == "error"]
     warnings = [i for i in result.issues if i.severity == "warning"]
+    infos = [i for i in result.issues if i.severity == "info"]
     passed = result.passed
 
     parts: list[str] = []
     parts.append("<!DOCTYPE html>")
-    parts.append('<html lang="en"><head>')
+    parts.append('<html lang="en" data-theme="dark"><head>')
     parts.append('<meta charset="UTF-8">')
     parts.append('<meta name="viewport" content="width=device-width, initial-scale=1.0">')
     parts.append(f'<title>osojicode — Audit Report</title>')
     parts.append(f'<style>{_AUDIT_CSS}</style>')
-    parts.append('</head><body>')
+    parts.append(f'</head><body onload="{_BODY_ONLOAD}">')
 
     # Header
     badge_cls = "badge-pass" if passed else "badge-fail"
@@ -1320,6 +1600,7 @@ def format_audit_html(result: AuditResult) -> str:
         f'<span class="header-divider"></span>'
         f'<span class="header-label">Audit Report</span>'
         f'<span class="badge {badge_cls}" style="margin-left:auto">{badge_text}</span>'
+        f'{_THEME_TOGGLE_BTN}'
         f'</div>'
     )
 
@@ -1350,7 +1631,19 @@ def format_audit_html(result: AuditResult) -> str:
             "Junk", f"{scorecard.junk_fraction:.1%}",
             f"{scorecard.junk_total_lines} lines",
             "section-junk", junk_color))
+
+        # B6: Obligation metrics card
+        if scorecard.obligation_violations is not None:
+            obl_color = "green" if scorecard.obligation_violations == 0 else "coral"
+            parts.append(_html_metric_card(
+                "Obligations", str(scorecard.obligation_violations),
+                f"{scorecard.obligation_implicit_contracts} implicit contracts",
+                "section-enforcement", obl_color))
+
         parts.append('</div>')
+
+        # B7: Interpretive guide
+        parts.append(_GUIDE_HTML)
 
         # Sections
         parts.append(_html_coverage_section(scorecard))
@@ -1358,12 +1651,14 @@ def format_audit_html(result: AuditResult) -> str:
         parts.append(_html_junk_section(result))
         parts.append(_html_dead_docs_section(scorecard))
         parts.append(_html_enforcement_section(scorecard))
+        parts.append(_html_info_section(result))
 
     parts.append('</div>')  # container
 
     # Footer
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    parts.append(f'<div class="footer">{len(errors)} error(s), {len(warnings)} warning(s) &middot; {_h(now)}'
+    parts.append(f'<div class="footer">{len(errors)} error(s), {len(warnings)} warning(s), '
+                 f'{len(infos)} info(s) &middot; {_h(now)}'
                  f'<br>osojicode</div>')
 
     parts.append('</body></html>')

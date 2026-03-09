@@ -10,10 +10,8 @@ from typing import Callable
 from .config import Config, SHADOW_DIR
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content, validate_line_ranges
 from .llm.base import LLMProvider
-from .llm.factory import create_provider
-from .llm.logging import LoggingProvider
 from .llm.types import Message, MessageRole, CompletionOptions
-from .rate_limiter import RateLimiter, get_config_with_overrides
+from .rate_limiter import RateLimiter
 from .symbols import load_all_symbols
 from .tools import get_dead_code_tool_definitions
 from .walker import list_repo_files, _matches_ignore

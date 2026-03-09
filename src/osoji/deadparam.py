@@ -45,7 +45,7 @@ class DeadParamCandidate:
     source_path: str  # relative path to defining file
     function_name: str
     param_name: str
-    param_line: int  # line where the parameter appears
+    param_line: int  # line of the function definition (symbols lack per-parameter lines)
     has_default: bool  # whether it has a default value
     call_sites: list[CallSite] = field(default_factory=list)
 
@@ -289,7 +289,7 @@ async def _verify_batch_async(
     user_parts.append(f"Function: `{func_name}` in `{source_path}`\n")
     for c in candidates:
         default_str = "has default" if c.has_default else "no default"
-        user_parts.append(f"- `{c.param_name}` (line {c.param_line}, {default_str})")
+        user_parts.append(f"- `{c.param_name}` (function defined at line {c.param_line}, {default_str})")
     user_parts.append("")
 
     # Include defining file content

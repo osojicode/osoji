@@ -208,6 +208,48 @@ class TestComparisonSource:
         flagged = {v.evidence["value"] for v in violations}
         assert "orphan_val" in flagged
 
+    def test_filename_and_path_sentinels_skipped(self, tmp_path):
+        """Filename/path checks should not be treated as missing internal contracts."""
+        _write_facts(tmp_path, "src/registry.py", {
+            "string_literals": [
+                {"value": "alpha", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/filter.py", {
+            "string_literals": [
+                {"value": "alpha", "context": "membership test", "line": 10, "kind": "identifier", "usage": "checked"},
+                {"value": ".env", "context": "Name prefix check for environment files", "line": 20, "kind": "identifier", "usage": "checked", "comparison_source": "file_name"},
+                {"value": "paths.py", "context": "Filename check for self-test fixture", "line": 21, "kind": "identifier", "usage": "checked", "comparison_source": "name_lower"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        violations = checker.check()
+        flagged = {v.evidence["value"] for v in violations}
+        assert ".env" not in flagged
+        assert "paths.py" not in flagged
+
+    def test_serialized_json_keys_skipped(self, tmp_path):
+        """Serialized-data keys should not be treated as broken repo contracts."""
+        _write_facts(tmp_path, "src/registry.py", {
+            "string_literals": [
+                {"value": "alpha", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/loader.py", {
+            "string_literals": [
+                {"value": "alpha", "context": "membership test", "line": 10, "kind": "identifier", "usage": "checked"},
+                {"value": "source_hash", "context": "Key for file hash in facts JSON", "line": 20, "kind": "identifier", "usage": "checked", "comparison_source": "data.get(\"source_hash\", \"\")"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        violations = checker.check()
+        flagged = {v.evidence["value"] for v in violations}
+        assert "source_hash" not in flagged
+
 
 class TestIntegrationReproducer:
     """Integration test modeling the junk_sources bug pattern:
@@ -352,6 +394,25 @@ class TestFragilityDetection:
         findings = checker.find_contracts()
         implicit = [f for f in findings if f.finding_type == "implicit_contract"]
         assert len(implicit) == 0
+
+    def test_external_protocol_literals_skipped(self, tmp_path):
+        """Wire/API protocol literals should not create implicit-contract noise."""
+        _write_facts(tmp_path, "src/provider.py", {
+            "string_literals": [
+                {"value": "assistant", "context": "Anthropic API role string", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/provider_test_helpers.py", {
+            "string_literals": [
+                {"value": "assistant", "context": "expected API response role", "line": 20, "kind": "identifier", "usage": "checked", "comparison_source": "response.role"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        findings = checker.find_contracts()
+        implicit = [f for f in findings if f.finding_type == "implicit_contract"]
+        assert implicit == []
 
     def test_grouping_works(self, tmp_path):
         """3 implicit values between same file pair -> 1 grouped finding."""

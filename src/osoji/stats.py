@@ -265,7 +265,8 @@ def format_stats_report(stats: ProjectStats, verbose: bool = False) -> str:
 
         for f in sorted_files:
             status = "+" if f.shadow_exists else "-"
-            ratio_str = f"{f.compression_ratio:.0%}" if f.compression_ratio else "N/A"
+            ratio = f.compression_ratio
+            ratio_str = f"{ratio:.0%}" if ratio is not None else "N/A"
             lines.append(
                 f"  {status} {f.source_path}"
             )
