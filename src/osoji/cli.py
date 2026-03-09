@@ -1,6 +1,7 @@
 """Click CLI for Osoji."""
 
 import asyncio
+from dataclasses import dataclass
 from pathlib import Path
 
 import click
@@ -21,6 +22,14 @@ from .safety.paths import get_pattern_descriptions, PATTERNS, self_test as paths
 _LLM_PROVIDER_CHOICE = click.Choice(provider_names(), case_sensitive=False)
 
 
+@dataclass(frozen=True)
+class CLIState:
+    """Global CLI verbosity state."""
+
+    verbose: bool = False
+    quiet: bool = False
+
+
 def _build_llm_config(
     path: Path,
     *,
@@ -28,6 +37,8 @@ def _build_llm_config(
     no_gitignore: bool = False,
     provider: str | None = None,
     model: str | None = None,
+    verbose: bool = False,
+    quiet: bool = False,
 ) -> Config:
     return Config(
         root_path=path.resolve(),
@@ -35,46 +46,72 @@ def _build_llm_config(
         respect_gitignore=not no_gitignore,
         provider=provider,
         model=model,
+        verbose=verbose,
+        quiet=quiet,
     )
+
+
+def _cli_state(ctx: click.Context) -> CLIState:
+    """Return the inherited CLI state for the current command."""
+
+    state = ctx.find_object(CLIState)
+    return state if state is not None else CLIState()
+
+
+def _emit_config_banner(config: Config) -> None:
+    """Print config provenance for LLM-backed commands."""
+
+    if config.quiet:
+        return
+    click.echo(config.format_resolution_banner(), err=True)
 
 
 @click.group()
 @click.version_option(package_name="osojicode")
-def main() -> None:
+@click.option("--verbose", "-v", is_flag=True, help="Show detailed output")
+@click.option("--quiet", "-q", is_flag=True, help="Suppress nonessential diagnostic output")
+@click.pass_context
+def main(ctx: click.Context, verbose: bool, quiet: bool) -> None:
     """Osoji - Shadow Documentation Engine.
 
     Generate semantically dense documentation summaries optimized for AI agents.
     """
-    pass
+    if verbose and quiet:
+        raise click.UsageError("Cannot use --verbose and --quiet together.")
+    ctx.obj = CLIState(verbose=verbose, quiet=quiet)
 
 
 @main.command()
 @click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
 @click.option("--force", "-f", is_flag=True, help="Regenerate all files, ignoring cached hashes")
-@click.option("--verbose", "-v", is_flag=True, help="Show detailed progress")
 @click.option("--dry-run", is_flag=True, help="Show what would be processed without making LLM calls")
 @click.option("--provider", type=_LLM_PROVIDER_CHOICE, help="LLM provider to use")
 @click.option("--model", help="Model ID to use for LLM requests")
 @click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
-def shadow(path: Path, force: bool, verbose: bool, dry_run: bool, provider: str | None, model: str | None, no_gitignore: bool) -> None:
+@click.pass_context
+def shadow(ctx: click.Context, path: Path, force: bool, dry_run: bool, provider: str | None, model: str | None, no_gitignore: bool) -> None:
     """Generate shadow documentation for a codebase.
 
     PATH is the root directory to process (defaults to current directory).
     """
+    state = _cli_state(ctx)
     config = _build_llm_config(
         path,
         force=force,
         no_gitignore=no_gitignore,
         provider=provider,
         model=model,
+        verbose=state.verbose,
+        quiet=state.quiet,
     )
+    _emit_config_banner(config)
 
     if dry_run:
-        dry_run_shadow(config, verbose=verbose)
+        dry_run_shadow(config, verbose=state.verbose)
         return
 
     try:
-        success = asyncio.run(generate_shadow_docs_async(config, verbose=verbose))
+        success = asyncio.run(generate_shadow_docs_async(config, verbose=state.verbose))
     except RuntimeError as e:
         raise click.ClickException(str(e)) from e
     if not success:
@@ -139,7 +176,8 @@ def check(path: Path, dry_run: bool, no_gitignore: bool) -> None:
 @click.option("--format", "output_format", type=click.Choice(["text", "json"]), default="text", help="Output format")
 @click.option("--provider", type=_LLM_PROVIDER_CHOICE, help="LLM provider to use for shadow regeneration")
 @click.option("--model", help="Model ID to use for shadow regeneration")
-def diff(base_ref: str, update: bool, output_format: str, provider: str | None, model: str | None) -> None:
+@click.pass_context
+def diff(ctx: click.Context, base_ref: str, update: bool, output_format: str, provider: str | None, model: str | None) -> None:
     """Show documentation impact of source changes.
 
     Compare current HEAD against BASE_REF (defaults to main) and report:
@@ -156,11 +194,15 @@ def diff(base_ref: str, update: bool, output_format: str, provider: str | None, 
 
     Exit codes: 0 = no issues, 1 = issues found
     """
+    state = _cli_state(ctx)
     config = _build_llm_config(
         Path("."),
         provider=provider,
         model=model,
+        verbose=state.verbose,
+        quiet=state.quiet,
     )
+    _emit_config_banner(config)
 
     try:
         report = run_diff(config, base_ref)
@@ -174,7 +216,7 @@ def diff(base_ref: str, update: bool, output_format: str, provider: str | None, 
     if update and report.stale_shadows:
         click.echo("Osoji: Regenerating stale shadow documentation...")
         try:
-            success = generate_shadow_docs(config)
+            success = generate_shadow_docs(config, verbose=state.verbose)
             if not success:
                 raise click.ClickException("Some files or directories failed to process (see errors above)")
             # Re-run to get updated report
@@ -193,11 +235,11 @@ def diff(base_ref: str, update: bool, output_format: str, provider: str | None, 
 
 @main.command()
 @click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
-@click.option("--verbose", "-v", is_flag=True, help="Show per-file breakdown")
 @click.option("--provider", type=_LLM_PROVIDER_CHOICE, help="LLM provider to use for token counting")
 @click.option("--model", help="Model ID to use for provider-aware token counting")
 @click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
-def stats(path: Path, verbose: bool, provider: str | None, model: str | None, no_gitignore: bool) -> None:
+@click.pass_context
+def stats(ctx: click.Context, path: Path, provider: str | None, model: str | None, no_gitignore: bool) -> None:
     """Show token statistics for source files vs shadow docs.
 
     Compares token counts between source code and generated shadow documentation
@@ -205,24 +247,28 @@ def stats(path: Path, verbose: bool, provider: str | None, model: str | None, no
 
     PATH is the root directory to analyze (defaults to current directory).
     """
+    state = _cli_state(ctx)
     config = _build_llm_config(
         path,
         no_gitignore=no_gitignore,
         provider=provider,
         model=model,
+        verbose=state.verbose,
+        quiet=state.quiet,
     )
+    _emit_config_banner(config)
 
-    click.echo("Gathering token statistics...")
+    if not state.quiet:
+        click.echo("Gathering token statistics...")
     project_stats = gather_stats(config)
     
-    report = format_stats_report(project_stats, verbose=verbose)
+    report = format_stats_report(project_stats, verbose=state.verbose)
     click.echo(report)
 
 
 @main.command()
 @click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
 @click.option("--fix/--no-fix", default=True, help="Auto-fix shadow docs (default: yes)")
-@click.option("--verbose", "-v", is_flag=True, help="Show detailed output")
 @click.option("--format", "output_format", type=click.Choice(["text", "json", "html"]), default="text", help="Output format")
 @click.option("--dead-code", is_flag=True, help="Detect cross-file dead code (LLM calls for ambiguous candidates)")
 @click.option("--dead-params", is_flag=True, help="Detect dead function parameters (LLM calls)")
@@ -236,7 +282,8 @@ def stats(path: Path, verbose: bool, provider: str | None, model: str | None, no
 @click.option("--model", help="Model ID to use for LLM requests")
 @click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
 @click.option("--full", is_flag=True, help="Run all optional audit phases")
-def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: bool, dead_params: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, provider: str | None, model: str | None, no_gitignore: bool, full: bool) -> None:
+@click.pass_context
+def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_code: bool, dead_params: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, provider: str | None, model: str | None, no_gitignore: bool, full: bool) -> None:
     """Run documentation audit.
 
     Checks for:
@@ -258,15 +305,19 @@ def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: b
     if full:
         junk = True
         obligations = True
+    state = _cli_state(ctx)
     config = _build_llm_config(
         path,
         no_gitignore=no_gitignore,
         provider=provider,
         model=model,
+        verbose=state.verbose,
+        quiet=state.quiet,
     )
+    _emit_config_banner(config)
 
     try:
-        result = run_audit(config, fix_shadow=fix, dead_code=dead_code, dead_params=dead_params, dead_plumbing=dead_plumbing, dead_deps=dead_deps, dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk, obligations=obligations, verbose=verbose)
+        result = run_audit(config, fix_shadow=fix, dead_code=dead_code, dead_params=dead_params, dead_plumbing=dead_plumbing, dead_deps=dead_deps, dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk, obligations=obligations, verbose=state.verbose)
     except RuntimeError as e:
         raise click.ClickException(str(e)) from e
 
@@ -279,7 +330,7 @@ def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: b
         out_path.write_text(html_str, encoding="utf-8")
         click.echo(f"Report written to {out_path}")
     else:
-        report = format_audit_report(result, verbose=verbose)
+        report = format_audit_report(result, verbose=state.verbose)
         click.echo(report)
 
     if not result.passed:
@@ -289,14 +340,15 @@ def audit(path: Path, fix: bool, verbose: bool, output_format: str, dead_code: b
 @main.command()
 @click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
 @click.option("--format", "output_format", type=click.Choice(["text", "json", "html"]), default="text", help="Output format")
-@click.option("--verbose", "-v", is_flag=True, help="Show detailed output")
-def report(path: Path, output_format: str, verbose: bool) -> None:
+@click.pass_context
+def report(ctx: click.Context, path: Path, output_format: str) -> None:
     """Re-render the last audit result in a different format (no re-analysis).
 
     Loads the cached result from the most recent 'osoji audit' run and
     formats it as text, JSON, or HTML. No LLM calls are made.
     """
-    config = Config(root_path=path.resolve())
+    state = _cli_state(ctx)
+    config = Config(root_path=path.resolve(), verbose=state.verbose, quiet=state.quiet)
     try:
         result = load_audit_result(config)
     except FileNotFoundError:
@@ -311,7 +363,7 @@ def report(path: Path, output_format: str, verbose: bool) -> None:
         out_path.write_text(html_str, encoding="utf-8")
         click.echo(f"Report written to {out_path}")
     else:
-        report_text = format_audit_report(result, verbose=verbose)
+        report_text = format_audit_report(result, verbose=state.verbose)
         click.echo(report_text)
 
     if not result.passed:
@@ -390,8 +442,8 @@ def safety() -> None:
 
 @safety.command("check")
 @click.argument("files", nargs=-1, type=click.Path(exists=True, path_type=Path))
-@click.option("--verbose", "-v", is_flag=True, help="Show detailed output")
-def safety_check(files: tuple[Path, ...], verbose: bool) -> None:
+@click.pass_context
+def safety_check(ctx: click.Context, files: tuple[Path, ...]) -> None:
     """Check files for personal paths and secrets.
 
     If no FILES specified, checks all staged git files.
@@ -406,7 +458,7 @@ def safety_check(files: tuple[Path, ...], verbose: bool) -> None:
     else:
         result = check_staged_files()
 
-    report = format_check_result(result, verbose=verbose)
+    report = format_check_result(result, verbose=_cli_state(ctx).verbose)
     click.echo(report)
 
     if not result.passed:
@@ -481,6 +533,23 @@ def safety_patterns() -> None:
     else:
         click.echo("\ndetect-secrets: not installed")
         click.echo("  Install with: pip install 'osoji[safety]'")
+
+
+@main.group("config")
+def config_cmd() -> None:
+    """Inspect resolved Osoji configuration."""
+    pass
+
+
+@config_cmd.command("show")
+@click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
+@click.pass_context
+def config_show(ctx: click.Context, path: Path) -> None:
+    """Show the effective model policy for a project root."""
+
+    state = _cli_state(ctx)
+    config = _build_llm_config(path, verbose=state.verbose, quiet=state.quiet)
+    click.echo(config.format_resolution_banner())
 
 
 if __name__ == "__main__":

@@ -40,7 +40,7 @@ def _matches_ignore(path: Path, patterns: list[str] | set[str]) -> str | None:
     return None
 
 
-def _git_ls_files(root: Path) -> list[Path] | None:
+def _git_ls_files(root: Path, *, quiet: bool = False) -> list[Path] | None:
     """List files known to git, respecting .gitignore.
 
     Returns a list of absolute Paths, or None if git is unavailable
@@ -51,7 +51,8 @@ def _git_ls_files(root: Path) -> list[Path] | None:
     if git_root is None:
         return None
 
-    print("  Running git ls-files...", flush=True)
+    if not quiet:
+        print("  Running git ls-files...", flush=True)
     try:
         result = subprocess.run(
             ["git", "ls-files", "--cached", "--others", "--exclude-standard"],
@@ -70,7 +71,8 @@ def _git_ls_files(root: Path) -> list[Path] | None:
         if line and not line.startswith(SHADOW_DIR + "/"):
             # Use simple path join — root is already resolved
             paths.append(root / line)
-    print(f"  Git returned {len(paths)} files", flush=True)
+    if not quiet:
+        print(f"  Git returned {len(paths)} files", flush=True)
     return paths
 
 
@@ -88,7 +90,7 @@ def list_repo_files(config: Config) -> tuple[Iterable[Path], bool]:
         return list(cached_paths), used_git
 
     if config.respect_gitignore:
-        git_files = _git_ls_files(config.root_path)
+        git_files = _git_ls_files(config.root_path, quiet=config.quiet)
         if git_files is not None:
             _repo_files_cache[key] = (git_files, True)
             return list(git_files), True
@@ -151,14 +153,14 @@ def discover_files(config: Config) -> list[Path]:
             files.append(path)
 
         # Progress every 100 paths or at the end
-        if (i + 1) % 100 == 0 or i + 1 == total:
+        if not config.quiet and ((i + 1) % 100 == 0 or i + 1 == total):
             print(f"\r  Scanned {i + 1}/{total} paths ({len(files)} source files)\033[K", end="", flush=True)
 
-    if total > 0:
+    if not config.quiet and total > 0:
         print()  # newline after progress
 
     # Warn about git-tracked files matching default ignore patterns
-    if ignored_by_pattern:
+    if not config.quiet and ignored_by_pattern:
         total_ignored = sum(ignored_by_pattern.values())
         pattern_summary = ", ".join(
             f"{pat} ({count})" for pat, count in ignored_by_pattern.most_common(5)

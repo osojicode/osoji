@@ -54,7 +54,7 @@ class TestSafetyCheck:
         test_file = temp_dir / "clean.py"
         test_file.write_text("x = 1")
 
-        result = runner.invoke(main, ["safety", "check", "-v", str(test_file)])
+        result = runner.invoke(main, ["-v", "safety", "check", str(test_file)])
 
         assert result.exit_code == 0
         assert "Files checked" in result.output

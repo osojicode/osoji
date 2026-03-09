@@ -4,6 +4,7 @@ import json
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 from .config import Config
 from .doc_analysis import find_doc_candidates
@@ -52,6 +53,7 @@ class DiffImpactReport:
     changed_docs: list[DiffFileChange] = field(default_factory=list)
     stale_shadows: list[StaleShadow] = field(default_factory=list)
     doc_references: list[DocReference] = field(default_factory=list)
+    config_snapshot: dict[str, Any] | None = None
 
     @property
     def has_issues(self) -> bool:
@@ -282,7 +284,7 @@ def run_diff(config: Config, base_ref: str) -> DiffImpactReport:
     changes = get_diff_files(repo_root, base_ref, config)
 
     if not changes:
-        return DiffImpactReport(base_ref=base_ref)
+        return DiffImpactReport(base_ref=base_ref, config_snapshot=config.config_snapshot)
 
     source_changes = [c for c in changes if c.is_source]
     doc_changes = [c for c in changes if c.is_doc]
@@ -296,6 +298,7 @@ def run_diff(config: Config, base_ref: str) -> DiffImpactReport:
         changed_docs=doc_changes,
         stale_shadows=stale,
         doc_references=refs,
+        config_snapshot=config.config_snapshot,
     )
 
 
@@ -353,7 +356,7 @@ def format_diff_report(report: DiffImpactReport) -> str:
 
 def format_diff_json(report: DiffImpactReport) -> str:
     """Format a diff impact report as JSON."""
-    return json.dumps({
+    output = {
         "base_ref": report.base_ref,
         "has_issues": report.has_issues,
         "changed_source": [
@@ -388,4 +391,7 @@ def format_diff_json(report: DiffImpactReport) -> str:
             }
             for r in report.doc_references
         ],
-    }, indent=2)
+    }
+    if report.config_snapshot is not None:
+        output["config"] = report.config_snapshot
+    return json.dumps(output, indent=2)

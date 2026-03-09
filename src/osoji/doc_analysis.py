@@ -696,7 +696,8 @@ async def analyze_docs_async(
 
     shadow_root = config.shadow_root
     if not shadow_root.exists():
-        print("  [skip] No shadow docs found. Run 'osoji shadow .' first.", flush=True)
+        if not config.quiet:
+            print("  [skip] No shadow docs found. Run 'osoji shadow .' first.", flush=True)
         return []
 
     rules_text = config.load_rules_text()
@@ -806,7 +807,8 @@ async def analyze_docs_async(
                 completed += 1
                 if on_progress:
                     on_progress(completed, total, doc_path, "error")
-            print(f"  [error] {doc_path}: {e}", flush=True)
+            if not config.quiet:
+                print(f"  [error] {doc_path}: {e}", flush=True)
             return None
 
     await gather_with_buffer([lambda path=path: process_one(path) for path in candidates])

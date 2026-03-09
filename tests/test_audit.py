@@ -449,6 +449,15 @@ class TestAuditResultRoundTrip:
                 total_source_count=4,
                 dead_docs=["docs/old.md"],
             ),
+            config_snapshot={
+                "resolution_order": ["cli", "env", "project", "global", "builtin"],
+                "provider": {"value": "openai", "source": "project", "trace": []},
+                "models": {
+                    "small": {"value": "gpt-5-mini", "source": "global", "trace": []},
+                    "medium": {"value": "gpt-5.2", "source": "project", "trace": []},
+                    "large": {"value": "gpt-5.4", "source": "project", "trace": []},
+                },
+            },
         )
 
         serialize_audit_result(config, original)
@@ -464,6 +473,7 @@ class TestAuditResultRoundTrip:
         assert loaded.scorecard.coverage_pct == 75.0
         assert loaded.scorecard.covered_count == 3
         assert loaded.scorecard.dead_docs == ["docs/old.md"]
+        assert loaded.config_snapshot == original.config_snapshot
 
     def test_missing_file_raises(self, temp_dir):
         """load_audit_result raises FileNotFoundError when no cache exists."""

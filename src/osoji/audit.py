@@ -8,6 +8,7 @@ import time as time_module
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from .config import Config, SHADOW_DIR
 from .junk import JunkAnalyzer, JunkAnalysisResult, load_shadow_content
@@ -70,6 +71,7 @@ class AuditResult:
 
     issues: list[AuditIssue] = field(default_factory=list)
     scorecard: Scorecard | None = None
+    config_snapshot: dict[str, Any] | None = None
 
     @property
     def has_errors(self) -> bool:
@@ -103,9 +105,19 @@ def _serialize_json(path: Path, data: dict) -> None:
     path.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
 
 
+def _emit(config: Config, message: str = "", *, end: str = "\n") -> None:
+    """Print a diagnostic line unless quiet mode is enabled."""
+
+    if config.quiet:
+        return
+    print(message, end=end, flush=True)
+
+
 def _make_progress_default(config: Config, rate_limiter=None):
     """Create an inline progress bar callback (carriage return, same line)."""
     def progress(completed: int, total: int, path: Path, status: str) -> None:
+        if config.quiet:
+            return
         pct = completed / total * 100 if total > 0 else 0
         symbols = {
             "ok": "[ok]",
@@ -130,6 +142,8 @@ def _make_progress_default(config: Config, rate_limiter=None):
 def _make_progress_verbose(config: Config, rate_limiter=None):
     """Create a verbose progress callback (one line per file)."""
     def progress(completed: int, total: int, path: Path, status: str) -> None:
+        if config.quiet:
+            return
         symbols = {
             "ok": "[ok]",
             "debris": "[DEBRIS]",
@@ -525,17 +539,17 @@ def run_audit(
         shutil.rmtree(analysis_root)
 
     # 1. Check shadow docs (auto-fix if enabled)
-    print("Osoji: Checking shadow documentation...", flush=True)
+    _emit(config, "Osoji: Checking shadow documentation...")
     shadow_issues = check_shadow_docs(config)
 
     if fix_shadow and shadow_issues:
-        print(f"Osoji: Auto-updating {len(shadow_issues)} shadow doc(s)...", flush=True)
+        _emit(config, f"Osoji: Auto-updating {len(shadow_issues)} shadow doc(s)...")
         phase_start = time_module.monotonic()
         generate_shadow_docs(config, verbose=verbose, rate_limiter=rate_limiter)
         shadow_issues = []  # Cleared by regeneration
         if verbose:
             elapsed = time_module.monotonic() - phase_start
-            print(f"  [{elapsed:.1f}s]", flush=True)
+            _emit(config, f"  [{elapsed:.1f}s]")
 
     for path, status in shadow_issues:
         issues.append(AuditIssue(
@@ -547,12 +561,12 @@ def run_audit(
         ))
 
     # 2. Unified documentation analysis
-    print("Osoji: Analyzing documentation...", flush=True)
+    _emit(config, "Osoji: Analyzing documentation...")
     phase_start = time_module.monotonic()
     analysis_results = analyze_docs(config, on_progress=progress_cb, rate_limiter=rate_limiter)
     if verbose:
         elapsed = time_module.monotonic() - phase_start
-        print(f"  [{elapsed:.1f}s]", flush=True)
+        _emit(config, f"  [{elapsed:.1f}s]")
 
     for item in analysis_results:
         if item.is_debris:
@@ -600,7 +614,7 @@ def run_audit(
         })
 
     # 3. Surface code debris findings from shadow generation
-    print("Osoji: Checking code debris findings...", flush=True)
+    _emit(config, "Osoji: Checking code debris findings...")
     phase_start = time_module.monotonic()
     # Collect all debris findings first, then verify dead_code ones
     raw_debris: list[dict] = []  # [{source, category, severity, ...}, ...]
@@ -637,7 +651,7 @@ def run_audit(
                 _verify_debris_findings_async(config, raw_debris, rate_limiter)
             )
             if suppressed_indices and verbose:
-                print(f"  Dismissed {len(suppressed_indices)} false positive debris finding(s)", flush=True)
+                _emit(config, f"  Dismissed {len(suppressed_indices)} false positive debris finding(s)")
         except Exception:
             pass  # Verification is best-effort; on failure, keep all findings
 
@@ -655,12 +669,12 @@ def run_audit(
         ))
     if verbose:
         elapsed = time_module.monotonic() - phase_start
-        print(f"  [{elapsed:.1f}s]", flush=True)
+        _emit(config, f"  [{elapsed:.1f}s]")
 
     # 3.5. Obligation checking (pure Python, no LLM)
     obligation_findings = []
     if obligations:
-        print("Osoji: Checking cross-file obligations...", flush=True)
+        _emit(config, "Osoji: Checking cross-file obligations...")
         phase_start = time_module.monotonic()
         from .facts import FactsDB
         from .obligations import run_all_contract_checks
@@ -678,7 +692,7 @@ def run_audit(
             n_violations = sum(1 for f in obligation_findings if f.finding_type == "violation")
             n_implicit = sum(1 for f in obligation_findings if f.finding_type == "implicit_contract")
             elapsed = time_module.monotonic() - phase_start
-            print(f"  [{elapsed:.1f}s] {n_violations} violation(s), {n_implicit} implicit contract(s)", flush=True)
+            _emit(config, f"  [{elapsed:.1f}s] {n_violations} violation(s), {n_implicit} implicit contract(s)")
 
     # 4. Unified junk analysis (opt-in per analyzer)
     junk_results: dict[str, JunkAnalysisResult] = {}
@@ -688,13 +702,13 @@ def run_audit(
         analyzer = analyzer_cls()
         if analyzer.cli_flag not in enabled_flags:
             continue
-        print(f"Osoji: Running {analyzer.description}...", flush=True)
+        _emit(config, f"Osoji: Running {analyzer.description}...")
         phase_start = time_module.monotonic()
         result = analyzer.analyze(config, on_progress=progress_cb, rate_limiter=rate_limiter)
         junk_results[analyzer.name] = result
         if verbose:
             elapsed = time_module.monotonic() - phase_start
-            print(f"  [{elapsed:.1f}s]", flush=True)
+            _emit(config, f"  [{elapsed:.1f}s]")
 
         for item in result.findings:
             issues.append(AuditIssue(
@@ -709,7 +723,7 @@ def run_audit(
         _serialize_junk_results(config, analyzer.name, result)
 
     # 5. Scorecard (always runs)
-    print("Osoji: Building scorecard...", flush=True)
+    _emit(config, "Osoji: Building scorecard...")
     scorecard = build_scorecard(
         config,
         analysis_results=analysis_results,
@@ -729,9 +743,13 @@ def run_audit(
     in_tok, out_tok = rate_limiter.get_cumulative_tokens()
     total_tok = in_tok + out_tok
     if total_tok > 0:
-        print(f"API tokens: {in_tok:,}^ {out_tok:,}v ({total_tok:,} total)", flush=True)
+        _emit(config, f"API tokens: {in_tok:,}^ {out_tok:,}v ({total_tok:,} total)")
 
-    result = AuditResult(issues=issues, scorecard=scorecard)
+    result = AuditResult(
+        issues=issues,
+        scorecard=scorecard,
+        config_snapshot=config.config_snapshot,
+    )
     serialize_audit_result(config, result)
     return result
 
@@ -811,7 +829,11 @@ def load_audit_result(config: Config) -> AuditResult:
             obligation_implicit_contracts=sc.get("obligation_implicit_contracts"),
         )
 
-    return AuditResult(issues=issues, scorecard=scorecard)
+    return AuditResult(
+        issues=issues,
+        scorecard=scorecard,
+        config_snapshot=data.get("config"),
+    )
 
 
 def _table(headers: list[str], rows: list[list[str]], fmt: str = "simple") -> str:
@@ -994,6 +1016,8 @@ def format_audit_json(result: AuditResult) -> str:
             for issue in result.issues
         ],
     }
+    if result.config_snapshot is not None:
+        output["config"] = result.config_snapshot
     if result.scorecard:
         output["scorecard"] = asdict(result.scorecard)
     return json.dumps(output, indent=2, default=str)

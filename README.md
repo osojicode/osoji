@@ -28,22 +28,42 @@ osoji shadow /path/to/project
 Switch providers per command:
 
 ```bash
-osoji shadow /path/to/project --provider openai --model gpt-4.1-mini
+osoji shadow /path/to/project --provider openai --model gpt-5.2
 osoji audit /path/to/project --provider google --model gemini-2.0-flash
-osoji stats /path/to/project --provider openrouter --model openai/gpt-4.1-mini
+osoji stats /path/to/project --provider openrouter --model openai/gpt-5-mini
 ```
 
-Or configure provider selection through environment variables so hooks inherit the same runtime automatically:
+For lower-friction defaults, configure model policy in TOML:
 
 ```bash
-export OSOJI_PROVIDER=openai
-export OSOJI_MODEL=gpt-4.1-mini
-export OPENAI_API_KEY=your-api-key
+mkdir -p ~/.config/osoji
+cat > ~/.config/osoji/config.toml <<'EOF'
+default_provider = "openai"
 
-# Optional tier-specific overrides for audit pipelines
-export OSOJI_MODEL_SMALL=gpt-4.1-mini
-export OSOJI_MODEL_MEDIUM=gpt-4.1
-export OSOJI_MODEL_LARGE=o3
+[providers.openai]
+small = "gpt-5-mini"
+medium = "gpt-5.2"
+large = "gpt-5.4"
+EOF
+```
+
+Optional per-project personal override (recommended to gitignore):
+
+```bash
+cat > /path/to/project/.osoji.local.toml <<'EOF'
+default_provider = "openai"
+
+[providers.openai]
+medium = "gpt-5.4"
+EOF
+```
+
+Environment variables still override TOML when needed:
+
+```bash
+export OPENAI_API_KEY=your-api-key
+export OSOJI_PROVIDER=openai
+export OSOJI_MODEL_MEDIUM=gpt-5.4
 ```
 
 Supported provider credentials:
@@ -51,6 +71,16 @@ Supported provider credentials:
 - `OPENAI_API_KEY`
 - `GEMINI_API_KEY`
 - `OPENROUTER_API_KEY`
+
+Config precedence for provider/model resolution:
+
+1. CLI flags
+2. Environment variables
+3. `<project>/.osoji.local.toml`
+4. `~/.config/osoji/config.toml`
+5. Built-in defaults
+
+LLM-backed commands print the resolved config trace to `stderr` by default so it is obvious when a project-local config overrides global defaults. Use `osoji config show` to inspect the effective policy directly.
 
 ### Generate Shadow Documentation
 
@@ -78,10 +108,10 @@ See how much compression shadow docs provide:
 osoji stats /path/to/project
 
 # With per-file breakdown
-osoji stats /path/to/project --verbose
+osoji --verbose stats /path/to/project
 
 # Count tokens with a specific provider/model
-osoji stats /path/to/project --provider openai --model gpt-4.1-mini
+osoji stats /path/to/project --provider openai --model gpt-5.2
 ```
 
 Sample output:
@@ -176,7 +206,7 @@ osoji diff                    # Compare against main
 osoji diff develop            # Compare against develop
 osoji diff HEAD~5             # Compare against 5 commits ago
 osoji diff main --update      # Also regenerate stale shadows
-osoji diff main --update --provider openai --model gpt-4.1-mini
+osoji diff main --update --provider openai --model gpt-5.2
 osoji diff main --format json # Machine-readable output
 ```
 
