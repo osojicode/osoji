@@ -128,7 +128,7 @@ class CompletionOptions:
     model: str
     max_tokens: int = 4096
     max_input_tokens: int | None = None
-    temperature: float = 0.0
+    temperature: float | None = None  # None = omit; lets provider use its default
     reservation_key: str = "default"
     estimated_input_tokens: int | None = None
     reserved_output_tokens: int | None = None

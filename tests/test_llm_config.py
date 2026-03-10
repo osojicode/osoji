@@ -84,10 +84,8 @@ def test_tier_override_wins_over_base_model(monkeypatch, tmp_path):
 
 def test_project_policy_overrides_global_policy(monkeypatch, tmp_path):
     _clear_llm_env(monkeypatch)
-    home_dir = tmp_path / "home"
-    monkeypatch.setenv("HOME", str(home_dir))
 
-    global_config = home_dir / ".config" / "osoji" / "config.toml"
+    global_config = tmp_path / "global_config" / ".config" / "osoji" / "config.toml"
     global_config.parent.mkdir(parents=True, exist_ok=True)
     global_config.write_text(
         "\n".join(
@@ -101,6 +99,11 @@ def test_project_policy_overrides_global_policy(monkeypatch, tmp_path):
             ]
         ),
         encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        "osoji.config.get_global_config_path",
+        lambda: global_config,
     )
 
     project_config = tmp_path / LOCAL_CONFIG_FILENAME

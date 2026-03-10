@@ -197,6 +197,17 @@ osoji viz /path/to/project
 
 Opens a local web page showing codebase structure, documentation coverage, and health metrics as an interactive graph.
 
+### Observatory Export
+
+Export a stable, versioned observatory bundle for downstream consumers such as `osoji-teams`:
+
+```bash
+osoji export /path/to/project
+osoji export /path/to/project --output observatory.json
+```
+
+By default this writes `.osoji/analysis/observatory.json`. External tools should consume this bundle instead of reading raw `.osoji/` sidecars directly.
+
 ### Documentation Diff
 
 Show documentation impact of source changes against a git ref:

@@ -66,6 +66,14 @@ export analysis, and string contract checking.
 - `src/osoji/stats.py` — Token counting statistics
 - `src/osoji/hooks.py` — Git hook installation and management
 
+## LLM parameters
+
+- **Temperature**: `CompletionOptions.temperature` defaults to `None` (omit from request,
+  letting each provider use its own default). Do NOT set `temperature=0.0` — it breaks
+  models that reject explicit zero (e.g. gpt-5) and provides no benefit for structured
+  tool-use outputs where the JSON schema constrains the response. If a call site needs
+  explicit temperature control, pass a non-zero value.
+
 ## Pipeline engineering principles
 
 - **Language agnosticism is non-negotiable.** All detection logic, system prompts,

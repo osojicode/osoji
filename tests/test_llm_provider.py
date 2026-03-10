@@ -377,7 +377,7 @@ def test_openai_provider_logs_each_attempt(tmp_path, openai_provider):
     assert entries[1]["response"]["tool_calls"][0]["name"] == "test_tool"
 
 
-def test_openai_provider_forwards_zero_temperature(openai_provider):
+def test_openai_provider_forwards_explicit_temperature(openai_provider):
     response = _make_openai_response(content="ok", finish_reason="stop")
     openai_provider._client.messages.create = AsyncMock(return_value=response)
 
@@ -387,11 +387,37 @@ def test_openai_provider_forwards_zero_temperature(openai_provider):
             system="Return plain text.",
             options=CompletionOptions(
                 model="gpt-4.1-mini",
-                temperature=0.0,
+                temperature=0.3,
                 max_tokens=32,
             ),
         )
     )
 
-    assert openai_provider._client.messages.create.call_args.kwargs["temperature"] == 0.0
+    assert openai_provider._client.messages.create.call_args.kwargs["temperature"] == 0.3
+    assert result.content == "ok"
+
+
+def test_default_options_omit_temperature(openai_provider):
+    """CompletionOptions.temperature defaults to None, which must cause the
+    provider to omit the temperature key entirely.  This is a regression guard:
+    sending temperature=0.0 breaks models that reject explicit zero (e.g. gpt-5)
+    and is unnecessary for structured tool-use outputs where the JSON schema
+    already constrains the response.
+    """
+    response = _make_openai_response(content="ok", finish_reason="stop")
+    openai_provider._client.messages.create = AsyncMock(return_value=response)
+
+    result = asyncio.run(
+        openai_provider.complete(
+            messages=[Message(role=MessageRole.USER, content="Test")],
+            system="Return plain text.",
+            options=CompletionOptions(
+                model="gpt-4.1-mini",
+                max_tokens=32,
+            ),
+        )
+    )
+
+    kwargs = openai_provider._client.messages.create.call_args.kwargs
+    assert "temperature" not in kwargs
     assert result.content == "ok"
