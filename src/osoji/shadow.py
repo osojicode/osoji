@@ -608,6 +608,7 @@ async def process_file_async(
         findings_json = {
             "source": str(file_path.relative_to(config.root_path)),
             "source_hash": source_hash,
+            "impl_hash": compute_impl_hash(),
             "generated": timestamp,
             "findings": [
                 {

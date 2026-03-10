@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from osoji.hasher import compute_impl_hash, extract_impl_hash, _IMPL_HASH_SOURCES
+from osoji.hasher import compute_impl_hash, extract_impl_hash, _IMPL_HASH_EXCLUDES
 from osoji.shadow import (
     assemble_shadow_doc,
     assemble_directory_shadow_doc,
@@ -35,8 +35,8 @@ class TestComputeImplHash:
         h2 = compute_impl_hash()
         assert h1 == h2
 
-    def test_impl_hash_sources_are_sorted(self):
-        assert _IMPL_HASH_SOURCES == tuple(sorted(_IMPL_HASH_SOURCES))
+    def test_impl_hash_excludes_is_frozenset(self):
+        assert isinstance(_IMPL_HASH_EXCLUDES, frozenset)
 
 
 # ---------------------------------------------------------------------------

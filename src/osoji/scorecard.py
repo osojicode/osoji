@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .config import Config, DIRECTORY_SHADOW_FILENAME, SHADOW_DIR
 from .doc_analysis import DocAnalysisResult
+from .hasher import is_findings_current
 from .junk import JunkAnalysisResult
 
 
@@ -194,6 +195,11 @@ def build_scorecard(
             try:
                 data = json.loads(findings_file.read_text(encoding="utf-8"))
                 source = data.get("source", "")
+                if not is_findings_current(
+                    data.get("source_hash"), data.get("impl_hash"),
+                    config.root_path / source,
+                ):
+                    continue
                 for f in data.get("findings", []):
                     if source not in junk_items_by_file:
                         junk_items_by_file[source] = []

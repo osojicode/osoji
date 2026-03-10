@@ -117,41 +117,60 @@ def extract_children_hash(shadow_content: str) -> str | None:
 
 
 # --- Implementation hash ---
-# Files whose content affects shadow doc output.
-# Sorted alphabetically so reordering the tuple changes the hash.
-_IMPL_HASH_SOURCES = (
-    "src/osoji/config.py",
-    "src/osoji/hasher.py",
-    "src/osoji/llm/anthropic.py",
-    "src/osoji/llm/base.py",
-    "src/osoji/llm/types.py",
-    "src/osoji/llm/validate.py",
-    "src/osoji/shadow.py",
-    "src/osoji/tools.py",
-)
+# Files that cannot affect shadow/audit output.
+# Everything else under src/osoji/ IS included (blacklist approach).
+_IMPL_HASH_EXCLUDES = frozenset({
+    "__init__.py",           # version string only
+    "cli.py",               # CLI argument parsing, not analysis logic
+    "hooks.py",             # git hook management
+    "observatory.py",       # output consumer, not producer
+    "stats.py",             # token counting statistics
+    "safety/__init__.py",   # pre-commit safety checks —
+    "safety/checker.py",    #   entirely separate from
+    "safety/filters.py",    #   shadow/audit pipeline
+    "safety/models.py",
+    "safety/paths.py",
+    "safety/secrets.py",
+})
 
 
 @lru_cache(maxsize=1)
 def compute_impl_hash() -> str:
     """Compute a composite hash over the implementation files that affect shadow output.
 
-    Each entry is "rel_path:file_hash" sorted alphabetically, so renaming or
-    reordering a file changes the hash.  Cached for the lifetime of the process.
+    Auto-discovers all *.py under src/osoji/, excluding files in
+    _IMPL_HASH_EXCLUDES.  Each entry is "rel_path:file_hash" sorted
+    alphabetically, so adding/renaming a file changes the hash.
+    Cached for the lifetime of the process.
     """
     # Resolve package root: this file lives at src/osoji/hasher.py
     pkg_dir = Path(__file__).resolve().parent          # src/osoji/
-    project_root = pkg_dir.parent.parent               # project root
 
     entries: list[str] = []
-    for rel in sorted(_IMPL_HASH_SOURCES):
-        full = project_root / rel
-        if full.exists():
-            h = compute_file_hash(full)
-        else:
-            h = "missing"
+    for py_file in sorted(pkg_dir.rglob("*.py")):
+        rel = py_file.relative_to(pkg_dir).as_posix()
+        if rel in _IMPL_HASH_EXCLUDES:
+            continue
+        h = compute_file_hash(py_file)
         entries.append(f"{rel}:{h}")
 
     return compute_hash("\n".join(entries))
+
+
+def is_findings_current(
+    source_hash: str | None,
+    impl_hash: str | None,
+    source_path: Path,
+) -> bool:
+    """Check if a findings sidecar is current against source and implementation."""
+    if source_hash is None or impl_hash is None:
+        return False
+    try:
+        if compute_file_hash(source_path) != source_hash:
+            return False
+    except (OSError, ValueError):
+        return False
+    return compute_impl_hash() == impl_hash
 
 
 def extract_impl_hash(shadow_content: str) -> str | None:

@@ -50,12 +50,16 @@ def _write_signature(temp_dir, source, purpose="Does things", topics=None):
 
 def _write_findings(temp_dir, source, findings):
     """Write a findings JSON file for a source."""
+    from osoji.hasher import compute_file_hash, compute_impl_hash
     findings_dir = temp_dir / ".osoji" / "findings"
     findings_file = findings_dir / (source + ".findings.json")
     findings_file.parent.mkdir(parents=True, exist_ok=True)
+    source_path = temp_dir / source
+    source_hash = compute_file_hash(source_path) if source_path.exists() else "no-source"
     data = {
         "source": source,
-        "source_hash": "abc",
+        "source_hash": source_hash,
+        "impl_hash": compute_impl_hash(),
         "generated": "2025-01-01T00:00:00Z",
         "findings": findings,
     }
@@ -639,6 +643,80 @@ class TestJunkResults:
         assert ts["unactuated"] == 2
         assert set(ts["fields"]) == {"taskTimeoutMs", "maxRetries"}
 
+
+
+# --- Stale findings ---
+
+class TestStaleFindingsExcluded:
+    """Stale findings should be excluded from scorecard metrics."""
+
+    def test_mismatched_source_hash_excluded(self, temp_dir):
+        """Findings with wrong source_hash are skipped."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_shadow(temp_dir, "src/a.py")
+        _write_source(temp_dir, "src/a.py", "\n".join(f"line {i}" for i in range(10)))
+        # Write findings with correct hashes first
+        _write_findings(temp_dir, "src/a.py", [
+            {"category": "dead_code", "line_start": 1, "line_end": 5,
+             "severity": "warning", "description": "dead"},
+        ])
+        # Now change the source file so the hash no longer matches
+        (temp_dir / "src/a.py").write_text("completely different content\n")
+
+        sc = build_scorecard(config, [])
+        assert sc.junk_item_count == 0
+        assert sc.junk_total_lines == 0
+
+    def test_mismatched_impl_hash_excluded(self, temp_dir):
+        """Findings with wrong impl_hash are skipped."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_shadow(temp_dir, "src/a.py")
+        _write_source(temp_dir, "src/a.py", "\n".join(f"line {i}" for i in range(10)))
+
+        # Manually write findings with a bad impl_hash
+        from osoji.hasher import compute_file_hash
+        findings_dir = temp_dir / ".osoji" / "findings"
+        findings_file = findings_dir / "src/a.py.findings.json"
+        findings_file.parent.mkdir(parents=True, exist_ok=True)
+        data = {
+            "source": "src/a.py",
+            "source_hash": compute_file_hash(temp_dir / "src/a.py"),
+            "impl_hash": "bad_impl_hash",
+            "generated": "2025-01-01T00:00:00Z",
+            "findings": [
+                {"category": "dead_code", "line_start": 1, "line_end": 5,
+                 "severity": "warning", "description": "dead"},
+            ],
+        }
+        findings_file.write_text(json.dumps(data))
+
+        sc = build_scorecard(config, [])
+        assert sc.junk_item_count == 0
+
+    def test_missing_impl_hash_excluded(self, temp_dir):
+        """Findings without impl_hash (old format) are skipped."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_shadow(temp_dir, "src/a.py")
+        _write_source(temp_dir, "src/a.py", "\n".join(f"line {i}" for i in range(10)))
+
+        # Write findings without impl_hash field
+        from osoji.hasher import compute_file_hash
+        findings_dir = temp_dir / ".osoji" / "findings"
+        findings_file = findings_dir / "src/a.py.findings.json"
+        findings_file.parent.mkdir(parents=True, exist_ok=True)
+        data = {
+            "source": "src/a.py",
+            "source_hash": compute_file_hash(temp_dir / "src/a.py"),
+            "generated": "2025-01-01T00:00:00Z",
+            "findings": [
+                {"category": "dead_code", "line_start": 1, "line_end": 5,
+                 "severity": "warning", "description": "dead"},
+            ],
+        }
+        findings_file.write_text(json.dumps(data))
+
+        sc = build_scorecard(config, [])
+        assert sc.junk_item_count == 0
 
 
 # --- Empty audit ---

@@ -11,6 +11,7 @@ from .config import Config
 from .diff import run_diff, format_diff_report, format_diff_json
 from .shadow import generate_shadow_docs_async, generate_shadow_docs, check_shadow_docs, mark_stale_docs, dry_run_shadow
 from .stats import gather_stats, format_stats_report
+from .observatory import write_observatory_bundle
 from .hooks import install_hooks, uninstall_hooks
 from .llm import provider_names
 from .safety import check_staged_files, check_files as safety_check_files
@@ -282,8 +283,9 @@ def stats(ctx: click.Context, path: Path, provider: str | None, model: str | Non
 @click.option("--model", help="Model ID to use for LLM requests")
 @click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
 @click.option("--full", is_flag=True, help="Run all optional audit phases")
+@click.option("--force", "-f", is_flag=True, help="Regenerate all shadow docs and findings from scratch")
 @click.pass_context
-def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_code: bool, dead_params: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, provider: str | None, model: str | None, no_gitignore: bool, full: bool) -> None:
+def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_code: bool, dead_params: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, provider: str | None, model: str | None, no_gitignore: bool, full: bool, force: bool) -> None:
     """Run documentation audit.
 
     Checks for:
@@ -308,6 +310,7 @@ def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_co
     state = _cli_state(ctx)
     config = _build_llm_config(
         path,
+        force=force,
         no_gitignore=no_gitignore,
         provider=provider,
         model=model,
@@ -368,6 +371,25 @@ def report(ctx: click.Context, path: Path, output_format: str) -> None:
 
     if not result.passed:
         raise SystemExit(1)
+
+
+@main.command(name="export")
+@click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(dir_okay=False, path_type=Path),
+    help="Write the observatory bundle to this file (defaults to .osoji/analysis/observatory.json).",
+)
+@click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
+def export_bundle(path: Path, output: Path | None, no_gitignore: bool) -> None:
+    """Export a stable, versioned observatory bundle for downstream consumers."""
+    out_path = write_observatory_bundle(
+        path,
+        output_path=output,
+        respect_gitignore=not no_gitignore,
+    )
+    click.echo(f"Observatory bundle written to {out_path}")
 
 
 @main.group()

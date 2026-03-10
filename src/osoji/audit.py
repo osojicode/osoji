@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from .config import Config, SHADOW_DIR
+from .hasher import is_findings_current
 from .junk import JunkAnalyzer, JunkAnalysisResult, load_shadow_content
 from .deadcode import DeadCodeAnalyzer
 from .deadparam import DeadParameterAnalyzer
@@ -625,6 +626,11 @@ def run_audit(
                 data = json.loads(findings_file.read_text(encoding="utf-8"))
                 source_path_str = data["source"]
                 source_path = Path(source_path_str)
+                if not is_findings_current(
+                    data.get("source_hash"), data.get("impl_hash"),
+                    config.root_path / source_path,
+                ):
+                    continue
                 if _matches_ignore(source_path, config.ignore_patterns):
                     continue
                 if _matches_ignore(source_path, osojiignore):
