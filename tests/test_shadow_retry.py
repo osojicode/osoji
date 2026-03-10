@@ -7,6 +7,9 @@ from unittest.mock import patch
 
 import pytest
 
+from osoji.config import Config
+from osoji.llm.types import CompletionResult, ToolCall
+from osoji.shadow import generate_file_shadow_doc_async
 from osoji.shadow import _write_with_retry
 
 
@@ -76,3 +79,62 @@ class TestWriteWithRetry:
                 asyncio.run(_write_with_retry(tmp_file, "hello"))
 
         assert call_count == 1  # No retries for non-transient errors
+
+
+class _CapturingProvider:
+    def __init__(self):
+        self.options = None
+
+    async def complete(self, messages, system, options):
+        self.options = options
+        return CompletionResult(
+            content=None,
+            tool_calls=[
+                ToolCall(
+                    id="tc1",
+                    name="submit_shadow_doc",
+                    input={
+                        "content": "Shadow body",
+                        "findings": [],
+                        "symbols": [],
+                        "file_role": "utility",
+                        "topic_signature": {
+                            "purpose": "Summarizes a small helper module.",
+                            "topics": ["helpers", "tooling", "tests"],
+                        },
+                        "imports": [],
+                        "exports": [],
+                        "calls": [],
+                        "member_writes": [],
+                        "string_literals": [],
+                    },
+                )
+            ],
+            input_tokens=10,
+            output_tokens=20,
+            model="test-model",
+            stop_reason="tool_calls",
+        )
+
+    async def close(self):
+        return None
+
+
+def test_file_shadow_requests_use_higher_output_cap(tmp_path):
+    config = Config(root_path=tmp_path, respect_gitignore=False)
+    file_path = tmp_path / "sample.py"
+    file_path.write_text("def f():\n    return 1\n", encoding="utf-8")
+    numbered_content = "   1\tdef f():\n   2\t    return 1\n"
+    provider = _CapturingProvider()
+
+    asyncio.run(
+        generate_file_shadow_doc_async(
+            provider,
+            config,
+            file_path,
+            numbered_content,
+        )
+    )
+
+    assert provider.options is not None
+    assert provider.options.max_tokens == 8192

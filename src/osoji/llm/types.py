@@ -93,6 +93,34 @@ class ToolSchemaValidationError(RuntimeError):
         super().__init__(message)
 
 
+class RequiredToolCallError(RuntimeError):
+    """Raised when a forced tool call never appears after all retry attempts."""
+
+    def __init__(
+        self,
+        *,
+        tool_name: str,
+        attempts: int,
+        stop_reason: str | None,
+        observed_tool_names: list[str] | None = None,
+    ) -> None:
+        self.tool_name = tool_name
+        self.attempts = attempts
+        self.stop_reason = stop_reason
+        self.observed_tool_names = observed_tool_names or []
+
+        message = f"Required tool call '{tool_name}' missing after {attempts} attempts"
+        if stop_reason == "length":
+            message += " (response reached max_tokens before the tool call)"
+        elif stop_reason:
+            message += f" (last stop_reason={stop_reason})"
+        if self.observed_tool_names:
+            observed = ", ".join(sorted(set(self.observed_tool_names)))
+            message += f"; observed tool calls: {observed}"
+
+        super().__init__(message)
+
+
 @dataclass
 class CompletionOptions:
     """Options for a completion request."""

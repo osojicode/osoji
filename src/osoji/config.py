@@ -666,6 +666,18 @@ class Config:
         return self.root_path / SHADOW_DIR / SHADOW_SUBDIR
 
     @property
+    def logs_root(self) -> Path:
+        """Return the root directory for Osoji log files."""
+
+        return self.root_path / SHADOW_DIR / "logs"
+
+    @property
+    def llm_interactions_log_path(self) -> Path:
+        """Return the JSONL transcript path for model interactions."""
+
+        return self.logs_root / "llm-interactions.jsonl"
+
+    @property
     def token_cache_path(self) -> Path:
         """Return the path to the persistent token-count cache."""
 

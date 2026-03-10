@@ -1,6 +1,7 @@
 """Logging wrapper for LLM providers with token tracking."""
 
-from dataclasses import dataclass
+from collections import Counter
+from dataclasses import dataclass, field
 
 from .base import LLMProvider
 from .types import Message, CompletionOptions, CompletionResult
@@ -13,6 +14,8 @@ class TokenStats:
     total_input_tokens: int = 0
     total_output_tokens: int = 0
     request_count: int = 0
+    length_stop_count: int = 0
+    length_stop_examples: list[str] = field(default_factory=list)
 
 
 class LoggingProvider(LLMProvider):
@@ -65,6 +68,13 @@ class LoggingProvider(LLMProvider):
         self._stats.total_input_tokens += result.input_tokens
         self._stats.total_output_tokens += result.output_tokens
         self._stats.request_count += 1
+        if result.stop_reason == "length":
+            self._stats.length_stop_count += 1
+            example = (
+                f"{options.reservation_key} "
+                f"(model={result.model or options.model}, max_tokens={options.max_tokens})"
+            )
+            self._stats.length_stop_examples.append(example)
 
         if self._verbose:
             extra = ""
@@ -79,6 +89,13 @@ class LoggingProvider(LLMProvider):
             print(
                 f"    [tokens] in={result.input_tokens:,} out={result.output_tokens:,}{extra}"
             )
+            if result.stop_reason == "length":
+                print(
+                    "    [warn] stop_reason=length "
+                    f"key={options.reservation_key} "
+                    f"model={result.model or options.model} "
+                    f"max_tokens={options.max_tokens}"
+                )
 
         return result
 
@@ -98,6 +115,21 @@ class LoggingProvider(LLMProvider):
             f"API calls: {s.request_count} | "
             f"Tokens: {total:,} (in: {s.total_input_tokens:,}, out: {s.total_output_tokens:,})"
         )
+        if s.length_stop_count:
+            counts = Counter(s.length_stop_examples)
+            top_examples = ", ".join(
+                f"{example} x{count}" if count > 1 else example
+                for example, count in counts.most_common(3)
+            )
+            remainder = s.length_stop_count - sum(count for _, count in counts.most_common(3))
+            warning = (
+                f"Warnings: {s.length_stop_count} response(s) ended with stop_reason=length"
+            )
+            if top_examples:
+                warning += f"\nLength stops: {top_examples}"
+            if remainder > 0:
+                warning += f", ... (+{remainder} more)"
+            summary = f"{summary}\n{warning}"
         get_rate_limit_summary = getattr(self._provider, "get_rate_limit_summary", None)
         if callable(get_rate_limit_summary):
             rate_summary = get_rate_limit_summary()

@@ -19,6 +19,9 @@ def create_runtime(
     """Create a logging provider plus rate limiter from config."""
 
     provider = create_provider(config.provider or "anthropic")
+    set_interaction_log_path = getattr(provider, "set_interaction_log_path", None)
+    if callable(set_interaction_log_path):
+        set_interaction_log_path(config.llm_interactions_log_path)
     resolved_rate_limiter = (
         rate_limiter
         if rate_limiter is not None

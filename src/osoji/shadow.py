@@ -39,6 +39,7 @@ logger = logging.getLogger(__name__)
 _MAX_INPUT_TOKENS = 150_000       # trigger threshold for chunking
 _CHUNK_TARGET_TOKENS = 120_000    # per-chunk target (room for prompt+output)
 _CHUNK_OVERLAP_FRACTION = 0.05    # 5% overlap at boundaries
+_SHADOW_MAX_OUTPUT_TOKENS = 8192  # 4096 truncates forced tool calls on large OpenAI files
 
 # --- Stale warning lines injected by `osoji check` ---
 STALE_WARNING_SOURCE = "> \u26a0 STALE \u2014 source content has changed since this doc was generated"
@@ -435,7 +436,7 @@ Include line number references for key elements (e.g., "MyClass (L15-45)").
     messages = [Message(role=MessageRole.USER, content=user_prompt)]
     options = CompletionOptions(
         model=config.model_for("medium"),
-        max_tokens=4096,
+        max_tokens=_SHADOW_MAX_OUTPUT_TOKENS,
         reservation_key="shadow.file",
         tools=get_file_tool_definitions(),
         tool_choice={"type": "tool", "name": "submit_shadow_doc"},
@@ -522,7 +523,7 @@ Focus on:
     messages = [Message(role=MessageRole.USER, content=user_prompt)]
     options = CompletionOptions(
         model=config.model_for("medium"),
-        max_tokens=4096,
+        max_tokens=_SHADOW_MAX_OUTPUT_TOKENS,
         reservation_key="shadow.directory",
         tools=get_directory_tool_definitions(),
         tool_choice={"type": "tool", "name": "submit_directory_shadow_doc"},
@@ -759,7 +760,7 @@ Merge these into a single cohesive shadow doc using the submit_shadow_doc tool."
     messages = [Message(role=MessageRole.USER, content=user_prompt)]
     options = CompletionOptions(
         model=config.model_for("medium"),
-        max_tokens=4096,
+        max_tokens=_SHADOW_MAX_OUTPUT_TOKENS,
         reservation_key="shadow.chunk_rollup",
         tools=get_file_tool_definitions(),
         tool_choice={"type": "tool", "name": "submit_shadow_doc"},

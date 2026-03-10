@@ -1,6 +1,7 @@
 """Tests for provider registry, factory, and LiteLLM-backed adapters."""
 
 import asyncio
+import json
 from unittest.mock import AsyncMock
 
 import pytest
@@ -21,7 +22,14 @@ from osoji.llm.registry import (
     strip_provider_prefix,
 )
 from osoji.llm.runtime import create_runtime
-from osoji.llm.types import CompletionOptions, Message, MessageRole, ToolDefinition
+from osoji.llm.types import (
+    CompletionResult,
+    CompletionOptions,
+    Message,
+    MessageRole,
+    RequiredToolCallError,
+    ToolDefinition,
+)
 
 SIMPLE_SCHEMA = {
     "type": "object",
@@ -100,8 +108,50 @@ def test_create_runtime_wraps_provider_with_reservation_limiter(monkeypatch, tmp
         assert isinstance(logging_provider._provider, RateLimitedProvider)
         assert logging_provider.name == "openai"
         assert logging_provider._provider._rate_limiter is rate_limiter
+        assert logging_provider._provider._provider._interaction_log_path == config.llm_interactions_log_path
     finally:
         asyncio.run(logging_provider.close())
+
+
+def test_logging_provider_reports_length_stops_in_summary(capsys):
+    class StubProvider:
+        @property
+        def name(self):
+            return "openai"
+
+        async def complete(self, messages, system, options):
+            return CompletionResult(
+                content=None,
+                tool_calls=[],
+                input_tokens=100,
+                output_tokens=32,
+                model="gpt-test",
+                stop_reason="length",
+            )
+
+        async def close(self):
+            return None
+
+    provider = LoggingProvider(StubProvider(), verbose=True)
+
+    asyncio.run(
+        provider.complete(
+            messages=[Message(role=MessageRole.USER, content="Test")],
+            system="Return plain text.",
+            options=CompletionOptions(
+                model="gpt-4.1-mini",
+                max_tokens=128,
+                reservation_key="shadow.file",
+            ),
+        )
+    )
+
+    stdout = capsys.readouterr().out
+    assert "[warn] stop_reason=length" in stdout
+
+    summary = provider.get_token_summary()
+    assert "Warnings: 1 response(s) ended with stop_reason=length" in summary
+    assert "shadow.file (model=gpt-test, max_tokens=128)" in summary
 
 
 @pytest.fixture
@@ -162,6 +212,169 @@ def test_openai_provider_retries_invalid_tool_input(openai_provider):
     assert result.tool_calls[0].input == {"value": {"x": "ok"}}
     assert result.input_tokens == 220
     assert result.output_tokens == 110
+
+
+def test_openai_provider_retries_missing_required_tool_call(openai_provider):
+    first_response = _make_openai_response(
+        content=None,
+        tool_calls=None,
+        finish_reason="length",
+    )
+    second_response = _make_openai_response(
+        tool_calls=[
+            {
+                "id": "call_2",
+                "type": "function",
+                "function": {"name": "test_tool", "arguments": '{"value": {"x": "ok"}}'},
+            }
+        ],
+        input_tokens=120,
+        output_tokens=60,
+    )
+    openai_provider._client.messages.create = AsyncMock(
+        side_effect=[first_response, second_response]
+    )
+
+    result = asyncio.run(
+        openai_provider.complete(
+            messages=[Message(role=MessageRole.USER, content="Test")],
+            system="Use the tool.",
+            options=CompletionOptions(
+                model="gpt-4.1-mini",
+                max_tokens=128,
+                tools=[TOOL_DEF],
+                tool_choice={"type": "tool", "name": "test_tool"},
+            ),
+        )
+    )
+
+    assert openai_provider._client.messages.create.call_count == 2
+    assert openai_provider._client.messages.create.call_args_list[1].kwargs["max_tokens"] == 256
+    retry_messages = openai_provider._client.messages.create.call_args_list[1].kwargs["messages"]
+    assert retry_messages[-1]["role"] == "user"
+    assert "did not call the required tool `test_tool`" in retry_messages[-1]["content"]
+    assert "output token limit" in retry_messages[-1]["content"]
+    assert result.tool_calls[0].name == "test_tool"
+    assert result.input_tokens == 220
+    assert result.output_tokens == 110
+
+
+def test_openai_provider_missing_required_tool_call_raises_after_three_attempts(openai_provider):
+    no_tool_response = _make_openai_response(
+        content=None,
+        tool_calls=None,
+        finish_reason="length",
+    )
+    openai_provider._client.messages.create = AsyncMock(
+        side_effect=[no_tool_response, no_tool_response, no_tool_response]
+    )
+
+    with pytest.raises(
+        RequiredToolCallError,
+        match="Required tool call 'test_tool' missing after 3 attempts",
+    ):
+        asyncio.run(
+            openai_provider.complete(
+                messages=[Message(role=MessageRole.USER, content="Test")],
+                system="Use the tool.",
+                options=CompletionOptions(
+                    model="gpt-4.1-mini",
+                    max_tokens=128,
+                    tools=[TOOL_DEF],
+                    tool_choice={"type": "tool", "name": "test_tool"},
+                ),
+            )
+        )
+
+    assert openai_provider._client.messages.create.call_count == 3
+    assert openai_provider._client.messages.create.call_args_list[1].kwargs["max_tokens"] == 256
+    assert openai_provider._client.messages.create.call_args_list[2].kwargs["max_tokens"] == 256
+
+
+def test_openai_provider_does_not_expand_retry_budget_without_length_stop(openai_provider):
+    first_response = _make_openai_response(
+        content="I forgot the tool",
+        tool_calls=None,
+        finish_reason="stop",
+    )
+    second_response = _make_openai_response(
+        tool_calls=[
+            {
+                "id": "call_2",
+                "type": "function",
+                "function": {"name": "test_tool", "arguments": '{"value": {"x": "ok"}}'},
+            }
+        ],
+        input_tokens=120,
+        output_tokens=60,
+    )
+    openai_provider._client.messages.create = AsyncMock(
+        side_effect=[first_response, second_response]
+    )
+
+    asyncio.run(
+        openai_provider.complete(
+            messages=[Message(role=MessageRole.USER, content="Test")],
+            system="Use the tool.",
+            options=CompletionOptions(
+                model="gpt-4.1-mini",
+                max_tokens=128,
+                tools=[TOOL_DEF],
+                tool_choice={"type": "tool", "name": "test_tool"},
+            ),
+        )
+    )
+
+    assert openai_provider._client.messages.create.call_count == 2
+    assert openai_provider._client.messages.create.call_args_list[1].kwargs["max_tokens"] == 128
+
+
+def test_openai_provider_logs_each_attempt(tmp_path, openai_provider):
+    log_path = tmp_path / ".osoji" / "logs" / "llm-interactions.jsonl"
+    openai_provider.set_interaction_log_path(log_path)
+
+    first_response = _make_openai_response(
+        content=None,
+        tool_calls=None,
+        finish_reason="length",
+    )
+    second_response = _make_openai_response(
+        tool_calls=[
+            {
+                "id": "call_2",
+                "type": "function",
+                "function": {"name": "test_tool", "arguments": '{"value": {"x": "ok"}}'},
+            }
+        ],
+        input_tokens=120,
+        output_tokens=60,
+    )
+    openai_provider._client.messages.create = AsyncMock(
+        side_effect=[first_response, second_response]
+    )
+
+    asyncio.run(
+        openai_provider.complete(
+            messages=[Message(role=MessageRole.USER, content="Test")],
+            system="Use the tool.",
+            options=CompletionOptions(
+                model="gpt-4.1-mini",
+                tools=[TOOL_DEF],
+                tool_choice={"type": "tool", "name": "test_tool"},
+            ),
+        )
+    )
+
+    entries = [
+        json.loads(line)
+        for line in log_path.read_text(encoding="utf-8").splitlines()
+    ]
+    assert len(entries) == 2
+    assert entries[0]["attempt"] == 1
+    assert entries[0]["response"]["stop_reason"] == "length"
+    assert entries[0]["response"]["tool_calls"] == []
+    assert entries[1]["attempt"] == 2
+    assert entries[1]["response"]["tool_calls"][0]["name"] == "test_tool"
 
 
 def test_openai_provider_forwards_zero_temperature(openai_provider):
