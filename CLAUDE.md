@@ -83,6 +83,17 @@ export analysis, and string contract checking.
   framework registration). When dogfooding osoji on itself, be especially vigilant —
   solutions that fix a Python false positive may break detection for Go, Rust, or Java.
 
+- **Principles over catalogs in LLM prompts.** When instructing the LLM what to
+  extract, skip, or classify, describe the *principle* (e.g. "skip ecosystem convention
+  strings that couldn't form project-specific contracts") rather than enumerating
+  specific items (e.g. "skip python, javascript, .py, node_modules"). The LLM already
+  knows what ecosystem conventions are — a hardcoded list adds no information and
+  creates failure modes: it can never be exhaustive, expanding it destabilizes
+  classification by conflicting with other prompt instructions, and it tends to encode
+  language-specific assumptions (violating language agnosticism). Anti-pattern: if
+  you're tempted to add items to a skip/include list in a prompt, check whether the
+  surrounding principle is stated clearly enough instead.
+
 - **Signal conservation.** Every change to reduce false positives must be evaluated for
   its impact on true positives, and vice versa. Frame proposals as: "This change would
   prevent N false positives of type X. Could it suppress true positives? Under what
