@@ -238,6 +238,145 @@ def test_build_bundle_marks_audit_missing_when_no_cached_audit(temp_dir):
     assert file_node["metrics"]["audit_findings_count"] == 0
 
 
+def _write_facts(root: Path, rel_path: str, facts_data: dict) -> Path:
+    facts_dir = root / ".osoji" / "facts"
+    facts_file = facts_dir / (rel_path + ".facts.json")
+    facts_file.parent.mkdir(parents=True, exist_ok=True)
+    facts_file.write_text(json.dumps(facts_data), encoding="utf-8")
+    return facts_file
+
+
+def _write_doc_analysis(root: Path, doc_rel_path: str, analysis: dict) -> Path:
+    analysis_file = root / ".osoji" / "analysis" / "docs" / (doc_rel_path + ".analysis.json")
+    analysis_file.parent.mkdir(parents=True, exist_ok=True)
+    analysis_file.write_text(json.dumps(analysis), encoding="utf-8")
+    return analysis_file
+
+
+def test_bundle_includes_import_graph_from_facts(temp_dir):
+    _write_source(temp_dir, "src/a.py", "from .b import Foo\n")
+    _write_source(temp_dir, "src/b.py", "class Foo: pass\n")
+    _write_facts(temp_dir, "src/a.py", {
+        "source": "src/a.py",
+        "source_hash": "abc",
+        "imports": [{"source": ".b", "names": ["Foo"]}],
+        "exports": [],
+        "calls": [],
+        "member_writes": [],
+        "string_literals": [],
+    })
+    _write_facts(temp_dir, "src/b.py", {
+        "source": "src/b.py",
+        "source_hash": "def",
+        "imports": [],
+        "exports": [{"name": "Foo", "kind": "class", "line": 1}],
+        "calls": [],
+        "member_writes": [],
+        "string_literals": [],
+    })
+
+    bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
+
+    assert "import_graph" in bundle
+    edges = bundle["import_graph"]
+    assert len(edges) == 1
+    assert edges[0]["source"] == "src/a.py"
+    assert edges[0]["target"] == "src/b.py"
+    assert "Foo" in edges[0]["names"]
+
+
+def test_bundle_import_graph_empty_when_no_facts(temp_dir):
+    _write_source(temp_dir, "main.py", "print('hi')\n")
+
+    bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
+
+    assert bundle["import_graph"] == []
+
+
+def test_bundle_file_nodes_include_facts_summary(temp_dir):
+    _write_source(temp_dir, "src/mod.py", "from .util import helper\nhelper()\n")
+    _write_source(temp_dir, "src/util.py", "def helper(): pass\n")
+    _write_facts(temp_dir, "src/mod.py", {
+        "source": "src/mod.py",
+        "source_hash": "abc",
+        "imports": [{"source": ".util", "names": ["helper"]}],
+        "exports": [],
+        "calls": [{"from_symbol": "top_level", "to": "helper", "line": 2}],
+        "member_writes": [],
+        "string_literals": [],
+    })
+    _write_facts(temp_dir, "src/util.py", {
+        "source": "src/util.py",
+        "source_hash": "def",
+        "imports": [],
+        "exports": [{"name": "helper", "kind": "function", "line": 1}],
+        "calls": [],
+        "member_writes": [],
+        "string_literals": [],
+    })
+
+    bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
+
+    mod_node = _find_file_node(bundle["tree"], "src", "mod.py")
+    assert mod_node["facts_summary"] is not None
+    assert len(mod_node["facts_summary"]["imports"]) == 1
+    assert mod_node["facts_summary"]["imports"][0]["names"] == ["helper"]
+    assert len(mod_node["facts_summary"]["calls"]) == 1
+    assert mod_node["facts_summary"]["calls"][0]["to"] == "helper"
+
+    util_node = _find_file_node(bundle["tree"], "src", "util.py")
+    assert util_node["facts_summary"] is not None
+    assert len(util_node["facts_summary"]["exports"]) == 1
+    assert util_node["facts_summary"]["exports"][0]["name"] == "helper"
+
+
+def test_bundle_facts_summary_none_when_no_facts(temp_dir):
+    _write_source(temp_dir, "main.py", "print('hi')\n")
+
+    bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
+
+    file_node = _find_file_node(bundle["tree"], "main.py")
+    assert file_node["facts_summary"] is None
+
+
+def test_bundle_includes_doc_analysis(temp_dir):
+    _write_source(temp_dir, "main.py", "print('hi')\n")
+    _write_doc_analysis(temp_dir, "README.md", {
+        "classification": "reference",
+        "confidence": 0.95,
+        "purpose": "Overview of project",
+        "topics": ["CLI", "setup"],
+        "matched_sources": ["main.py"],
+        "accuracy_error_count": 1,
+    })
+
+    bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
+
+    assert "doc_analysis" in bundle
+    assert "README.md" in bundle["doc_analysis"]
+    analysis = bundle["doc_analysis"]["README.md"]
+    assert analysis["classification"] == "reference"
+    assert analysis["confidence"] == 0.95
+    assert analysis["purpose"] == "Overview of project"
+    assert analysis["accuracy_error_count"] == 1
+
+
+def test_bundle_doc_analysis_empty_when_no_docs(temp_dir):
+    _write_source(temp_dir, "main.py", "print('hi')\n")
+
+    bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
+
+    assert bundle["doc_analysis"] == {}
+
+
+def test_bundle_schema_version_is_1_1_0(temp_dir):
+    _write_source(temp_dir, "main.py", "x = 1\n")
+
+    bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
+
+    assert bundle["schema_version"] == "1.1.0"
+
+
 def test_export_command_writes_bundle_file(temp_dir):
     _write_source(temp_dir, "main.py", "print('hi')\n")
     output_path = temp_dir / "bundle.json"

@@ -16,11 +16,12 @@ from .hasher import (
     extract_source_hash,
     is_findings_current,
 )
+from .facts import FactsDB
 from .scorecard import merge_ranges
 from .walker import discover_directories, discover_files
 
 OBSERVATORY_SCHEMA_NAME = "osoji-observatory"
-OBSERVATORY_SCHEMA_VERSION = "1.0.0"
+OBSERVATORY_SCHEMA_VERSION = "1.1.0"
 _DEFAULT_OUTPUT_NAME = "observatory.json"
 _SEVERITY_ORDER = {"error": 0, "warning": 1, "info": 2}
 
@@ -146,11 +147,94 @@ def _load_audit_findings_by_path(config: Config) -> tuple[str, dict[str, list[di
     return "present", by_path
 
 
+def _build_import_graph_edges(facts_db: FactsDB) -> list[dict[str, Any]]:
+    """Build an edge list of file-to-file import relationships."""
+    # Aggregate by (source, target) pair
+    edge_map: dict[tuple[str, str], dict[str, Any]] = {}
+    for file_path in facts_db.all_files():
+        file_facts = facts_db.get_file(file_path)
+        if file_facts is None or file_facts.classification is not None:
+            continue  # skip doc files
+        for imp in file_facts.imports:
+            resolved = facts_db.resolve_import_source(file_path, imp.get("source", ""))
+            if resolved is None:
+                continue
+            key = (file_path, resolved)
+            if key not in edge_map:
+                edge_map[key] = {
+                    "source": file_path,
+                    "target": resolved,
+                    "names": [],
+                    "is_reexport": False,
+                }
+            names = imp.get("names", [])
+            edge_map[key]["names"].extend(n for n in names if n not in edge_map[key]["names"])
+            if imp.get("is_reexport", False):
+                edge_map[key]["is_reexport"] = True
+    return list(edge_map.values())
+
+
+def _build_doc_analysis(config: Config) -> dict[str, dict[str, Any]]:
+    """Load doc analysis summaries from analysis/docs/*.analysis.json."""
+    docs_dir = config.analysis_root / "docs"
+    if not docs_dir.exists():
+        return {}
+    result: dict[str, dict[str, Any]] = {}
+    for analysis_file in sorted(docs_dir.rglob("*.analysis.json")):
+        data = _safe_read_json(analysis_file)
+        if not data:
+            continue
+        rel = str(analysis_file.relative_to(docs_dir))
+        suffix = ".analysis.json"
+        if not rel.endswith(suffix):
+            continue
+        doc_path = rel[: -len(suffix)].replace("\\", "/")
+        result[doc_path] = {
+            "classification": data.get("classification"),
+            "confidence": data.get("confidence"),
+            "purpose": data.get("purpose"),
+            "topics": data.get("topics", []),
+            "matched_sources": data.get("matched_sources", []),
+            "accuracy_error_count": data.get("accuracy_error_count", 0),
+        }
+    return result
+
+
+def _build_facts_summary(
+    rel_path: str, facts_db: FactsDB | None,
+) -> dict[str, Any] | None:
+    """Build a facts summary for a single file node."""
+    if facts_db is None:
+        return None
+    file_facts = facts_db.get_file(rel_path)
+    if file_facts is None:
+        return None
+    resolved_imports = []
+    for imp in file_facts.imports:
+        resolved_target = facts_db.resolve_import_source(rel_path, imp.get("source", ""))
+        resolved_imports.append({
+            "resolved_target": resolved_target,
+            "names": imp.get("names", []),
+        })
+    return {
+        "imports": resolved_imports,
+        "exports": [
+            {"name": e.get("name", ""), "kind": e.get("kind", ""), "line": e.get("line")}
+            for e in file_facts.exports
+        ],
+        "calls": [
+            {"from_symbol": c.get("from_symbol", ""), "to": c.get("to", ""), "line": c.get("line")}
+            for c in file_facts.calls
+        ],
+    }
+
+
 def _build_file_node(
     config: Config,
     file_path: Path,
     token_cache: dict[str, dict[str, Any]],
     audit_findings_by_path: dict[str, list[dict[str, Any]]],
+    facts_db: FactsDB | None = None,
 ) -> dict[str, Any]:
     """Build a stable observatory node for a single file."""
     rel_path = _normalize_path(file_path.relative_to(config.root_path))
@@ -261,6 +345,8 @@ def _build_file_node(
     }
     metrics["health_score"] = _compute_file_health(metrics, shadow_exists, is_stale)
 
+    facts_summary = _build_facts_summary(rel_path, facts_db)
+
     return {
         "node_type": "file",
         "name": file_path.name,
@@ -280,6 +366,7 @@ def _build_file_node(
         "tokens": tokens,
         "metrics": metrics,
         "audit_findings": audit_findings,
+        "facts_summary": facts_summary,
     }
 
 
@@ -352,9 +439,15 @@ def _build_bundle_for_config(config: Config) -> dict[str, Any]:
     token_cache = _safe_read_json(config.token_cache_path) or {}
     audit_status, audit_findings_by_path = _load_audit_findings_by_path(config)
 
+    # Instantiate FactsDB once for import graph and per-file facts_summary
+    facts_dir = config.root_path / ".osoji" / "facts"
+    facts_db: FactsDB | None = None
+    if facts_dir.exists():
+        facts_db = FactsDB(config)
+
     file_nodes: dict[str, dict[str, Any]] = {}
     for file_path in files:
-        node = _build_file_node(config, file_path, token_cache, audit_findings_by_path)
+        node = _build_file_node(config, file_path, token_cache, audit_findings_by_path, facts_db)
         file_nodes[node["path"]] = node
 
     dir_nodes = _build_directory_nodes(config, dirs)
@@ -385,6 +478,12 @@ def _build_bundle_for_config(config: Config) -> dict[str, Any]:
         if audit_result and isinstance(audit_result.get("scorecard"), dict):
             scorecard = audit_result["scorecard"]
 
+    # Build import graph edges
+    import_graph = _build_import_graph_edges(facts_db) if facts_db else []
+
+    # Build doc analysis summaries
+    doc_analysis = _build_doc_analysis(config)
+
     return {
         "schema_name": OBSERVATORY_SCHEMA_NAME,
         "schema_version": OBSERVATORY_SCHEMA_VERSION,
@@ -410,6 +509,8 @@ def _build_bundle_for_config(config: Config) -> dict[str, Any]:
             "shadow_tokens": total_shadow_tokens,
         },
         "scorecard": scorecard,
+        "import_graph": import_graph,
+        "doc_analysis": doc_analysis,
         "tree": tree,
     }
 
