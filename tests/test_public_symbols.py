@@ -1,9 +1,6 @@
 """Tests for symbols extraction, persistence, and loading."""
 
 import json
-from pathlib import Path
-
-import pytest
 
 from osoji.config import Config
 from osoji.symbols import load_all_symbols

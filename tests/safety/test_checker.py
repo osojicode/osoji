@@ -2,8 +2,6 @@
 
 from pathlib import Path
 
-import pytest
-
 from osoji.safety.checker import (
     check_file,
     check_files,

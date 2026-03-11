@@ -397,7 +397,7 @@ async def detect_orphaned_files_async(
     provider: LLMProvider,
     config: Config,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
-) -> list[OrphanVerification]:
+) -> tuple[list[OrphanVerification], int]:
     """Detect orphaned source files using a purpose graph.
 
     Pipeline:
@@ -415,7 +415,7 @@ async def detect_orphaned_files_async(
 
     if not all_symbols:
         print("  [skip] No symbols data found.", flush=True)
-        return []
+        return [], 0
 
     sig_by_path = {s["path"]: s for s in signatures}
 
@@ -425,7 +425,7 @@ async def detect_orphaned_files_async(
     print(f"  Built import graph: {len(all_files)} files, {sum(len(v) for v in adjacency.values()) // 2} edges", flush=True)
 
     if not all_files:
-        return []
+        return [], 0
 
     # Build signatures for all files (for Haiku calls)
     all_sigs: list[dict] = []
@@ -452,14 +452,14 @@ async def detect_orphaned_files_async(
 
     if not entry_points:
         print("  [warn] No entry points identified, skipping orphan detection.", flush=True)
-        return []
+        return [], 0
 
     # Phase 3: First BFS
     orphan_candidates_1 = find_orphans(adjacency, entry_points)
     print(f"  After import-edge BFS: {len(orphan_candidates_1)} disconnected file(s)", flush=True)
 
     if not orphan_candidates_1:
-        return []
+        return [], 0
 
     # Phase 4: Semantic relationships for disconnected files (Haiku)
     disconnected_sigs = [s for s in all_sigs if s["path"] in set(orphan_candidates_1)]
@@ -486,7 +486,7 @@ async def detect_orphaned_files_async(
         orphan_candidates_2 = orphan_candidates_1
 
     if not orphan_candidates_2:
-        return []
+        return [], 0
 
     # Build OrphanCandidate objects
     orphans: list[OrphanCandidate] = []
@@ -543,10 +543,11 @@ async def detect_orphaned_files_async(
             print(f"  [error] orphan verification: {e}", flush=True)
             return []
 
+    total = len(orphans)
     batches = [orphans[i:i + 10] for i in range(0, len(orphans), 10)]
     await gather_with_buffer([lambda batch=batch: process_batch(batch) for batch in batches])
 
-    return results
+    return results, total
 
 
 class OrphanedFilesAnalyzer(JunkAnalyzer):
@@ -583,7 +584,7 @@ class OrphanedFilesAnalyzer(JunkAnalyzer):
         return asyncio.run(_run())
 
     async def analyze_async(self, provider, config, on_progress=None):
-        results = await detect_orphaned_files_async(provider, config, on_progress)
+        results, total = await detect_orphaned_files_async(provider, config, on_progress)
         findings = [
             JunkFinding(
                 source_path=v.source_path,
@@ -601,6 +602,6 @@ class OrphanedFilesAnalyzer(JunkAnalyzer):
         ]
         return JunkAnalysisResult(
             findings=findings,
-            total_candidates=len(results),
+            total_candidates=total,
             analyzer_name=self.name,
         )

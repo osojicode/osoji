@@ -214,11 +214,8 @@ class TestDeadPlumbingAnalyzer:
         _write_shadow(temp_dir, "src/runner.ts", "# Runner\nReads config")
 
         mock_provider = AsyncMock()
-        call_count = 0
 
         async def mock_complete(messages, system, options):
-            nonlocal call_count
-            call_count += 1
             if "extract_obligations" in (options.tool_choice or {}).get("name", ""):
                 return CompletionResult(
                     content=None,

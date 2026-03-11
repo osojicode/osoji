@@ -388,6 +388,7 @@ class TestOrphanedFilesAnalyzer:
     async def test_skips_without_symbols(self, temp_dir):
         config = Config(root_path=temp_dir, respect_gitignore=False)
         mock_provider = AsyncMock()
-        results = await detect_orphaned_files_async(mock_provider, config)
+        results, total = await detect_orphaned_files_async(mock_provider, config)
         assert results == []
+        assert total == 0
         mock_provider.complete.assert_not_called()

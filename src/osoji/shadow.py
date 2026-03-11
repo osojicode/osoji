@@ -406,17 +406,13 @@ ALSO: Populate the imports, exports, calls, member_writes, and string_literals a
   in equality checks elsewhere in the file.
   Set usage to "produced" if emitted/returned/appended (including dict values, collection
   literal elements, default parameter values), "checked" if used in membership test/equality
-  against a project-internal value, "defined" if assigned to a constant, "external_input" if
-  the string enters from outside the project boundary at runtime (environment variable names
-  read from process.env/os.environ, CLI flags/arguments from process.argv/sys.argv, HTTP
-  request properties like method/url/headers, DOM/browser event values like keyboard keys,
-  wire protocol method names like JSON-RPC/MCP/gRPC methods, OS signal names) — not hardcoded
-  literals, or "unknown" if unclear from local context.
-  ALWAYS SKIP these well-known external convention strings — do not extract them at all:
-  programming language names (python, javascript, rust, go), testing framework conventions
-  (test_, _test, spec_), standard file extensions (.py, .env, .json, .yaml), standard directory
-  names (node_modules, __pycache__), serialized-data keys, filename/path sentinels, wire/API
-  protocol literals, and similar ecosystem-standard patterns.
+  against a project-internal value, "defined" if assigned to a constant, "external_input" if the string enters from outside the project boundary at runtime
+  (environment variables, CLI arguments, HTTP request properties, wire protocol method names,
+  OS signals, browser/DOM events) — not hardcoded project literals,
+  or "unknown" if unclear from local context.
+  SKIP well-known ecosystem convention strings that could not form project-specific contracts
+  — standard language/framework/tooling vocabulary that any developer would recognise as
+  external. Focus extraction on strings specific to THIS project's domain and internal APIs.
   For strings with usage "checked", also set comparison_source to the variable or expression
   the string is compared against (e.g., "tool_call.name", "schema.get(key)", "category",
   "os.environ"). This is the other side of the ==, in, not in, or .get() expression."""

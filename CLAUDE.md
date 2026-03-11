@@ -48,7 +48,7 @@ export analysis, and string contract checking.
 - `src/osoji/shadow.py` — Core shadow doc generation engine
 - `src/osoji/audit.py` — Multi-phase audit orchestration
 - `src/osoji/llm/` — LLM provider abstraction (Anthropic), validation, token counting
-- `src/osoji/rate_limiter.py` — Async leaky-bucket rate limiter (RPM + input/output TPM)
+- `src/osoji/rate_limiter.py` — Reservation-based async rate limiter (RPM + input/output TPM)
 - `src/osoji/facts.py` — Structured facts database and queries
 - `src/osoji/symbols.py` — Symbol extraction and loading from `.osoji/symbols/`
 - `src/osoji/obligations.py` — String contract / obligation checking
@@ -59,7 +59,7 @@ export analysis, and string contract checking.
 - `src/osoji/plumbing.py` — Dead plumbing detection (unactuated config obligations)
 - `src/osoji/junk.py` — Junk code analysis (with `junk_cicd.py`, `junk_deps.py`, `junk_orphan.py`)
 - `src/osoji/scorecard.py` — Audit scorecard generation
-- `src/osoji/safety/` — Pre-commit safety checks (personal path detection, filters)
+- `src/osoji/safety/` — Pre-commit safety checks (personal path and secret scanning, filters)
 - `src/osoji/walker.py` — Repository file discovery (git ls-files / fallback walk)
 - `src/osoji/hasher.py` — SHA-256 hashing and Merkle staleness detection
 - `src/osoji/diff.py` — Git diff documentation impact analysis

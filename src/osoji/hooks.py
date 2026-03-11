@@ -15,8 +15,8 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 
 # Load environment variables from .env files (for API keys, etc.)
 # Priority: repo .env > user config > global config
-[ -f "$HOME/.config/osoji/env" ] && export $(grep -v '^#' "$HOME/.config/osoji/env" | xargs)
-[ -f "$REPO_ROOT/.env" ] && export $(grep -v '^#' "$REPO_ROOT/.env" | xargs)
+[ -f "$HOME/.config/osoji/env" ] && set -a && . "$HOME/.config/osoji/env" && set +a
+[ -f "$REPO_ROOT/.env" ] && set -a && . "$REPO_ROOT/.env" && set +a
 
 # Find osoji - check PATH first, then common locations
 OSOJI=""

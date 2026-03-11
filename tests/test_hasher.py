@@ -1,7 +1,6 @@
 """Tests for hasher utilities — impl hash auto-discovery and findings validation."""
 
 from pathlib import Path
-import pytest
 
 from osoji.hasher import (
     _IMPL_HASH_EXCLUDES,

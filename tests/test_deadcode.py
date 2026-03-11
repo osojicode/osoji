@@ -9,7 +9,6 @@ import pytest
 from osoji.config import Config
 from osoji.deadcode import (
     DeadCodeCandidate,
-    DeadCodeVerification,
     GrepHit,
     _extract_context,
     _verify_batch_async,
