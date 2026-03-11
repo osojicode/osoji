@@ -14,7 +14,6 @@ from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_con
 from .llm.base import LLMProvider
 from .llm.runtime import create_runtime
 from .llm.types import Message, MessageRole, CompletionOptions
-from .rate_limiter import RateLimiter
 from .symbols import load_all_symbols, load_file_roles
 from .tools import (
     get_identify_entry_points_tool_definitions,
@@ -116,7 +115,6 @@ Use the file_role hint but make your own judgment. Provide a verdict for EVERY f
 
 async def _identify_entry_points_async(
     provider: LLMProvider,
-    rate_limiter: RateLimiter,
     signatures: list[dict],
     config: Config,
 ) -> set[str]:
@@ -205,7 +203,6 @@ disconnected files without a match (they may genuinely be orphaned)."""
 
 async def _identify_relationships_async(
     provider: LLMProvider,
-    rate_limiter: RateLimiter,
     disconnected: list[dict],
     connected: list[dict],
     config: Config,
@@ -298,7 +295,6 @@ Provide a verdict for EVERY file listed."""
 
 async def _verify_orphans_batch_async(
     provider: LLMProvider,
-    rate_limiter: RateLimiter,
     config: Config,
     orphans: list[OrphanCandidate],
     shadow_contents: dict[str, str],
@@ -399,7 +395,6 @@ def _load_signatures(config: Config) -> list[dict]:
 
 async def detect_orphaned_files_async(
     provider: LLMProvider,
-    rate_limiter: RateLimiter,
     config: Config,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
 ) -> list[OrphanVerification]:
@@ -447,7 +442,7 @@ async def detect_orphaned_files_async(
     # Phase 2: Identify entry points (Haiku with heuristic fallback)
     try:
         entry_points = await _identify_entry_points_async(
-            provider, rate_limiter, all_sigs, config,
+            provider, all_sigs, config,
         )
         print(f"  Haiku identified {len(entry_points)} entry point(s)", flush=True)
     except Exception as e:
@@ -472,7 +467,7 @@ async def detect_orphaned_files_async(
 
     try:
         relationships = await _identify_relationships_async(
-            provider, rate_limiter, disconnected_sigs, connected_sigs, config,
+            provider, disconnected_sigs, connected_sigs, config,
         )
         # Add semantic edges to adjacency
         for src, tgt in relationships:
@@ -521,7 +516,7 @@ async def detect_orphaned_files_async(
 
         try:
             verifications, _in_tok, _out_tok = await _verify_orphans_batch_async(
-                provider, rate_limiter, config, batch, shadow_contents,
+                provider, config, batch, shadow_contents,
             )
 
             async with lock:
@@ -580,15 +575,15 @@ class OrphanedFilesAnalyzer(JunkAnalyzer):
             logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
             try:
                 return await self.analyze_async(
-                    logging_provider, rl, config, on_progress
+                    logging_provider, config, on_progress
                 )
             finally:
                 await logging_provider.close()
 
         return asyncio.run(_run())
 
-    async def analyze_async(self, provider, rate_limiter, config, on_progress=None):
-        results = await detect_orphaned_files_async(provider, rate_limiter, config, on_progress)
+    async def analyze_async(self, provider, config, on_progress=None):
+        results = await detect_orphaned_files_async(provider, config, on_progress)
         findings = [
             JunkFinding(
                 source_path=v.source_path,

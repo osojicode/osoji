@@ -1,8 +1,6 @@
 """Tests for hasher utilities — impl hash auto-discovery and findings validation."""
 
 from pathlib import Path
-from unittest.mock import patch
-
 import pytest
 
 from osoji.hasher import (

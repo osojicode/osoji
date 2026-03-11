@@ -17,7 +17,6 @@ from osoji.plumbing import (
     extract_obligations_async,
     verify_actuation_async,
 )
-from osoji.rate_limiter import RateLimiter, RateLimiterConfig
 from osoji.symbols import load_file_roles, load_files_by_role
 
 
@@ -437,14 +436,8 @@ class TestDetectDeadPlumbing:
 
         mock_provider.complete = mock_complete
 
-        rate_limiter = RateLimiter(RateLimiterConfig(
-            requests_per_minute=1000,
-            input_tokens_per_minute=1_000_000,
-            output_tokens_per_minute=1_000_000,
-        ))
-
         result = await detect_dead_plumbing_async(
-            mock_provider, rate_limiter, config,
+            mock_provider, config,
         )
 
         assert isinstance(result, PlumbingResult)
@@ -462,10 +455,9 @@ class TestDetectDeadPlumbing:
         _write_symbols(temp_dir, "src/utils.ts", [], file_role="utility")
 
         mock_provider = AsyncMock()
-        rate_limiter = RateLimiter(RateLimiterConfig())
 
         result = await detect_dead_plumbing_async(
-            mock_provider, rate_limiter, config,
+            mock_provider, config,
         )
         assert isinstance(result, PlumbingResult)
         assert result.verifications == []
@@ -479,10 +471,9 @@ class TestDetectDeadPlumbing:
         _write_symbols(temp_dir, "docs/debugAdapterProtocol.json", [], file_role="schema")
 
         mock_provider = AsyncMock()
-        rate_limiter = RateLimiter(RateLimiterConfig())
 
         result = await detect_dead_plumbing_async(
-            mock_provider, rate_limiter, config,
+            mock_provider, config,
         )
 
         assert result.verifications == []

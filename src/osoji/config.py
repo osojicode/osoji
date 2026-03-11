@@ -159,12 +159,6 @@ BUILTIN_PROVIDER_MODELS: dict[str, dict[str, str]] = {
     },
 }
 
-# Backward-compatible aliases retained for callers/tests that still import them.
-MODEL_SMALL = ANTHROPIC_MODEL_SMALL
-MODEL_MEDIUM = ANTHROPIC_MODEL_MEDIUM
-MODEL_LARGE = ANTHROPIC_MODEL_LARGE
-DEFAULT_MODEL = MODEL_MEDIUM
-
 ModelTier = Literal["small", "medium", "large"]
 ResolutionSource = Literal["cli", "env", "project", "global", "builtin"]
 RESOLUTION_ORDER: tuple[ResolutionSource, ...] = (

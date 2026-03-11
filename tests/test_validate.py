@@ -3,7 +3,7 @@
 import pytest
 
 from osoji.llm.validate import validate_tool_input
-from osoji.llm.types import CompletionOptions, CompletionResult, ToolCall, ToolDefinition
+from osoji.llm.types import CompletionOptions, ToolCall
 from osoji.tools import SUBMIT_SHADOW_DOC_TOOL, SUBMIT_DIRECTORY_SHADOW_DOC_TOOL
 
 

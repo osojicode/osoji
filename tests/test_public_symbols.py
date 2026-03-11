@@ -36,7 +36,7 @@ class TestExtractSymbols:
             "findings": [],
             "symbols": [
                 {"name": "Config", "kind": "class", "line_start": 10, "line_end": 50, "visibility": "public"},
-                {"name": "DEFAULT_MODEL", "kind": "constant", "line_start": 5, "visibility": "public"},
+                {"name": "MY_CONSTANT", "kind": "constant", "line_start": 5, "visibility": "public"},
                 {"name": "_helper", "kind": "function", "line_start": 60, "line_end": 80, "visibility": "internal"},
             ],
         }
@@ -45,7 +45,7 @@ class TestExtractSymbols:
         assert symbols[0]["name"] == "Config"
         assert symbols[0]["kind"] == "class"
         assert symbols[0]["visibility"] == "public"
-        assert symbols[1]["name"] == "DEFAULT_MODEL"
+        assert symbols[1]["name"] == "MY_CONSTANT"
         assert symbols[1]["kind"] == "constant"
         assert symbols[2]["name"] == "_helper"
         assert symbols[2]["visibility"] == "internal"

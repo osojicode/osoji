@@ -18,7 +18,6 @@ from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_con
 from .llm.base import LLMProvider
 from .llm.budgets import input_budget_for_config
 from .llm.types import Message, MessageRole, CompletionOptions
-from .rate_limiter import RateLimiter
 from .symbols import load_files_by_role
 from .tools import get_extract_obligations_tool_definitions, get_verify_actuation_tool_definitions
 from .walker import list_repo_files, _matches_ignore
@@ -439,7 +438,6 @@ def _load_shadow_content(config: Config, relative_path: str) -> str:
 
 async def detect_dead_plumbing_async(
     provider: LLMProvider,
-    rate_limiter: RateLimiter,
     config: Config,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
 ) -> PlumbingResult:
@@ -584,8 +582,8 @@ class DeadPlumbingAnalyzer(JunkAnalyzer):
     def cli_flag(self) -> str:
         return "dead-plumbing"
 
-    async def analyze_async(self, provider, rate_limiter, config, on_progress=None):
-        result = await detect_dead_plumbing_async(provider, rate_limiter, config, on_progress)
+    async def analyze_async(self, provider, config, on_progress=None):
+        result = await detect_dead_plumbing_async(provider, config, on_progress)
         findings = [
             JunkFinding(
                 source_path=v.source_path,

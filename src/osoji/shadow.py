@@ -543,7 +543,6 @@ async def process_file_async(
     provider: LLMProvider,
     config: Config,
     file_path: Path,
-    rate_limiter: RateLimiter | None = None,
 ) -> ShadowResult:
     """Process a single file and generate/retrieve its shadow doc asynchronously.
 
@@ -551,7 +550,6 @@ async def process_file_async(
         provider: LLM provider to use
         config: Configuration
         file_path: Path to file to process
-        rate_limiter: Optional rate limiter for chunked file processing
 
     Returns ShadowResult with path, body, cached status, and any error.
     """
@@ -906,7 +904,6 @@ def _emit(config: Config, message: str = "", *, end: str = "\n") -> None:
 
 async def generate_shadows_parallel(
     provider: LLMProvider,
-    rate_limiter: RateLimiter,
     config: Config,
     files: list[Path],
     on_progress: Callable[[int, int, Path, str], None] | None = None,
@@ -915,7 +912,6 @@ async def generate_shadows_parallel(
 
     Args:
         provider: LLM provider to use
-        rate_limiter: Shared rate limiter backing the wrapped provider
         config: Configuration
         files: List of files to process
         on_progress: Optional callback for progress updates
@@ -938,7 +934,7 @@ async def generate_shadows_parallel(
             result = ShadowResult(path=file_path, body=body, cached=True)
         else:
             result = await process_file_async(
-                provider, config, file_path, rate_limiter=rate_limiter
+                provider, config, file_path
             )
 
         async with lock:
@@ -970,7 +966,6 @@ async def generate_shadows_parallel(
 
 async def generate_directory_shadows(
     provider: LLMProvider,
-    rate_limiter: RateLimiter,
     config: Config,
     file_results: list[ShadowResult],
     all_files: list[Path],
@@ -984,7 +979,6 @@ async def generate_directory_shadows(
 
     Args:
         provider: LLM provider to use
-        rate_limiter: Rate limiter for API calls
         config: Configuration
         file_results: Results from file processing
         all_files: List of all discovered files
@@ -1243,7 +1237,7 @@ async def generate_shadow_docs_async(
             progress_callback = verbose_progress
 
         results = await generate_shadows_parallel(
-            logging_provider, rate_limiter, config, files, progress_callback
+            logging_provider, config, files, progress_callback
         )
 
         file_elapsed = time_module.monotonic() - file_start
@@ -1276,7 +1270,7 @@ async def generate_shadow_docs_async(
             dir_progress_callback = verbose_dir_progress
 
         dir_bodies, _dir_hashes, dir_errors = await generate_directory_shadows(
-            logging_provider, rate_limiter, config, results, files, dirs, dir_progress_callback
+            logging_provider, config, results, files, dirs, dir_progress_callback
         )
         dir_elapsed = time_module.monotonic() - dir_start
         _emit(config, f"[Directories completed in {dir_elapsed:.1f}s]")

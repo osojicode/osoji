@@ -17,7 +17,6 @@ from osoji.deadcode import (
     scan_references,
 )
 from osoji.llm.types import CompletionResult, ToolCall
-from osoji.rate_limiter import RateLimiter, RateLimiterConfig
 
 
 def _write_symbols(temp_dir, source, symbols):
@@ -547,14 +546,8 @@ class TestDetectDeadCodeAsync:
             model="test", stop_reason="tool_use",
         )
 
-        rate_limiter = RateLimiter(RateLimiterConfig(
-            requests_per_minute=1000,
-            input_tokens_per_minute=1_000_000,
-            output_tokens_per_minute=1_000_000,
-        ))
-
         results = await detect_dead_code_async(
-            mock_provider, rate_limiter, config,
+            mock_provider, config,
         )
 
         # Both should be in results (both dead via LLM)
@@ -597,14 +590,8 @@ class TestDetectDeadCodeAsync:
             model="test", stop_reason="tool_use",
         )
 
-        rate_limiter = RateLimiter(RateLimiterConfig(
-            requests_per_minute=1000,
-            input_tokens_per_minute=1_000_000,
-            output_tokens_per_minute=1_000_000,
-        ))
-
         results = await detect_dead_code_async(
-            mock_provider, rate_limiter, config,
+            mock_provider, config,
         )
 
         # index should NOT appear in dead results
@@ -618,10 +605,9 @@ class TestDetectDeadCodeAsync:
         # No .osoji/symbols/ at all
 
         mock_provider = AsyncMock()
-        rate_limiter = RateLimiter(RateLimiterConfig())
 
         results = await detect_dead_code_async(
-            mock_provider, rate_limiter, config,
+            mock_provider, config,
         )
         assert results == []
 
@@ -678,13 +664,7 @@ class TestDetectDeadCodeAsync:
 
         mock_provider.complete = mock_complete
 
-        rate_limiter = RateLimiter(RateLimiterConfig(
-            requests_per_minute=1000,
-            input_tokens_per_minute=1_000_000,
-            output_tokens_per_minute=1_000_000,
-        ))
-
-        await detect_dead_code_async(mock_provider, rate_limiter, config)
+        await detect_dead_code_async(mock_provider, config)
 
         # Should have 2 batches: one for src/a.py (2 symbols), one for src/b.py (1 symbol)
         assert len(call_batches) == 2

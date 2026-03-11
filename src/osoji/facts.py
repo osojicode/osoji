@@ -112,9 +112,9 @@ class FactsDB:
                 candidate_base = f"{base_str}/{remainder}" if base_str else remainder
             else:
                 # JS-style path relative import: ./foo, ../bar
-                resolved = (Path(importing_dir) / source_specifier).resolve()
+                resolved = (self._config.root_path / importing_dir / source_specifier).resolve()
                 try:
-                    candidate_base = str(resolved.relative_to(Path.cwd())).replace("\\", "/")
+                    candidate_base = str(resolved.relative_to(self._config.root_path)).replace("\\", "/")
                 except ValueError:
                     # Fall back to simple string joining
                     candidate_base = str(Path(importing_dir) / source_specifier).replace("\\", "/")

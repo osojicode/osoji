@@ -302,44 +302,6 @@ class TestNonForcedSkipsValidation:
         assert provider._client.messages.create.call_count == 1
 
 
-class LegacyOnlyRetriesOnce:
-    """Even if the second attempt has errors, we return it as-is."""
-
-    def test_second_bad_response_returned(self, provider):
-        bad_input = {"value": "wrong"}
-        first_response = _make_response(
-            [_tool_use_block("tc1", "test_tool", bad_input)],
-            input_tokens=100,
-            output_tokens=50,
-        )
-        # Second response is also bad
-        still_bad_input = {"value": 42}
-        second_response = _make_response(
-            [_tool_use_block("tc2", "test_tool", still_bad_input)],
-            input_tokens=120,
-            output_tokens=60,
-        )
-        provider._client.messages.create = AsyncMock(
-            side_effect=[first_response, second_response]
-        )
-
-        options = CompletionOptions(
-            model="claude-test",
-            tools=[TOOL_DEF],
-            tool_choice=FORCED_CHOICE,
-        )
-        messages = [Message(role=MessageRole.USER, content="test")]
-
-        result = asyncio.run(provider.complete(messages, None, options))
-
-        # Only two calls — no third attempt
-        assert provider._client.messages.create.call_count == 2
-        # Returns the second (still bad) result
-        assert result.tool_calls[0].input == still_bad_input
-        assert result.input_tokens == 220
-        assert result.output_tokens == 110
-
-
 class TestRetryExhaustion:
     """Forced tool retries should use up to three attempts, then raise."""
 

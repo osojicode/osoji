@@ -16,7 +16,6 @@ from osoji.junk import (
 from osoji.deadcode import DeadCodeAnalyzer
 from osoji.plumbing import DeadPlumbingAnalyzer
 from osoji.llm.types import CompletionResult, ToolCall
-from osoji.rate_limiter import RateLimiter, RateLimiterConfig
 
 
 # --- Helpers ---
@@ -181,14 +180,8 @@ class TestDeadCodeAnalyzer:
             model="test", stop_reason="tool_use",
         )
 
-        rate_limiter = RateLimiter(RateLimiterConfig(
-            requests_per_minute=1000,
-            input_tokens_per_minute=1_000_000,
-            output_tokens_per_minute=1_000_000,
-        ))
-
         analyzer = DeadCodeAnalyzer()
-        result = await analyzer.analyze_async(mock_provider, rate_limiter, config)
+        result = await analyzer.analyze_async(mock_provider, config)
 
         assert isinstance(result, JunkAnalysisResult)
         assert result.analyzer_name == "dead_code"
@@ -263,14 +256,8 @@ class TestDeadPlumbingAnalyzer:
 
         mock_provider.complete = mock_complete
 
-        rate_limiter = RateLimiter(RateLimiterConfig(
-            requests_per_minute=1000,
-            input_tokens_per_minute=1_000_000,
-            output_tokens_per_minute=1_000_000,
-        ))
-
         analyzer = DeadPlumbingAnalyzer()
-        result = await analyzer.analyze_async(mock_provider, rate_limiter, config)
+        result = await analyzer.analyze_async(mock_provider, config)
 
         assert isinstance(result, JunkAnalysisResult)
         assert result.analyzer_name == "dead_plumbing"

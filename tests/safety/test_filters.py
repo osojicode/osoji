@@ -2,8 +2,6 @@
 
 from pathlib import Path
 
-import pytest
-
 from osoji.safety.filters import (
     BINARY_EXTENSIONS,
     CHECKABLE_EXTENSIONS,

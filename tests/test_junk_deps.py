@@ -28,7 +28,6 @@ from osoji.junk_deps import (
     scan_imports,
 )
 from osoji.llm.types import CompletionResult, ToolCall
-from osoji.rate_limiter import RateLimiter, RateLimiterConfig
 
 
 # --- Helpers ---
@@ -38,14 +37,6 @@ def _write_source(temp_dir, path, content):
     full = temp_dir / path
     full.parent.mkdir(parents=True, exist_ok=True)
     full.write_text(content)
-
-
-def _make_rate_limiter():
-    return RateLimiter(RateLimiterConfig(
-        requests_per_minute=1000,
-        input_tokens_per_minute=1_000_000,
-        output_tokens_per_minute=1_000_000,
-    ))
 
 
 # --- TestDiscoverManifests ---
@@ -620,8 +611,7 @@ class TestDetectDeadDepsAsync:
         mock_provider = AsyncMock()
         mock_provider.complete.side_effect = mock_complete
 
-        rate_limiter = _make_rate_limiter()
-        results = await detect_dead_deps_async(mock_provider, rate_limiter, config)
+        results = await detect_dead_deps_async(mock_provider, config)
         assert len(results) == 1
         assert results[0].package_name == "old-unused"
         assert results[0].is_dead is True
@@ -631,8 +621,7 @@ class TestDetectDeadDepsAsync:
         config = Config(root_path=temp_dir, respect_gitignore=False)
         # No manifest files at all
         mock_provider = AsyncMock()
-        rate_limiter = _make_rate_limiter()
-        results = await detect_dead_deps_async(mock_provider, rate_limiter, config)
+        results = await detect_dead_deps_async(mock_provider, config)
         assert results == []
 
     @pytest.mark.asyncio
@@ -642,8 +631,7 @@ class TestDetectDeadDepsAsync:
         _write_source(temp_dir, "src/app.py", "import requests\n")
 
         mock_provider = AsyncMock()
-        rate_limiter = _make_rate_limiter()
-        results = await detect_dead_deps_async(mock_provider, rate_limiter, config)
+        results = await detect_dead_deps_async(mock_provider, config)
         assert results == []
 
 
@@ -706,9 +694,8 @@ class TestDeadDepsAnalyzer:
         mock_provider = AsyncMock()
         mock_provider.complete.side_effect = mock_complete
 
-        rate_limiter = _make_rate_limiter()
         analyzer = DeadDepsAnalyzer()
-        result = await analyzer.analyze_async(mock_provider, rate_limiter, config)
+        result = await analyzer.analyze_async(mock_provider, config)
 
         assert isinstance(result, JunkAnalysisResult)
         assert result.analyzer_name == "dead_deps"

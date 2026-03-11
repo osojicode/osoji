@@ -12,7 +12,6 @@ from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult
 from .llm.base import LLMProvider
 from .llm.runtime import create_runtime
 from .llm.types import Message, MessageRole, CompletionOptions
-from .rate_limiter import RateLimiter
 from .tools import get_dead_cicd_tool_definitions, get_extract_cicd_elements_tool_definitions
 from .walker import list_repo_files
 
@@ -679,7 +678,6 @@ _CICD_PARSERS: dict[str, Callable] = {
 
 async def detect_dead_cicd_async(
     provider: LLMProvider,
-    rate_limiter: RateLimiter,
     config: Config,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
 ) -> list[CICDVerification]:
@@ -821,15 +819,15 @@ class DeadCICDAnalyzer(JunkAnalyzer):
             logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
             try:
                 return await self.analyze_async(
-                    logging_provider, rl, config, on_progress
+                    logging_provider, config, on_progress
                 )
             finally:
                 await logging_provider.close()
 
         return asyncio.run(_run())
 
-    async def analyze_async(self, provider, rate_limiter, config, on_progress=None):
-        results = await detect_dead_cicd_async(provider, rate_limiter, config, on_progress)
+    async def analyze_async(self, provider, config, on_progress=None):
+        results = await detect_dead_cicd_async(provider, config, on_progress)
         findings = [
             JunkFinding(
                 source_path=v.cicd_file,

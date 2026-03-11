@@ -694,7 +694,6 @@ _SHADOW_CHAR_CAP = 300_000
 
 async def analyze_docs_async(
     provider: LLMProvider,
-    rate_limiter: RateLimiter,
     config: Config,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
 ) -> list[DocAnalysisResult]:
@@ -842,7 +841,7 @@ def analyze_docs(
         logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
         try:
             return await analyze_docs_async(
-                logging_provider, rl, config, on_progress
+                logging_provider, config, on_progress
             )
         finally:
             await logging_provider.close()

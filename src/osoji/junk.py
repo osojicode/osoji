@@ -79,7 +79,6 @@ class JunkAnalyzer(ABC):
     async def analyze_async(
         self,
         provider: LLMProvider,
-        rate_limiter: RateLimiter,
         config: Config,
         on_progress: Callable | None = None,
     ) -> JunkAnalysisResult:
@@ -87,7 +86,6 @@ class JunkAnalyzer(ABC):
 
         Args:
             provider: LLM provider for API calls
-            rate_limiter: Rate limiter for API throttling
             config: Osoji configuration
             on_progress: Optional callback (completed, total, path, status)
 
@@ -116,7 +114,7 @@ class JunkAnalyzer(ABC):
             logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
             try:
                 return await self.analyze_async(
-                    logging_provider, rl, config, on_progress
+                    logging_provider, config, on_progress
                 )
             finally:
                 await logging_provider.close()

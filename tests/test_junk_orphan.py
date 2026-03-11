@@ -22,7 +22,6 @@ from osoji.junk_orphan import (
     find_orphans,
 )
 from osoji.llm.types import CompletionResult, ToolCall
-from osoji.rate_limiter import RateLimiter, RateLimiterConfig
 
 
 # --- Helpers ---
@@ -43,14 +42,6 @@ def _write_signature(temp_dir, source_path, purpose="", topics=None):
         "purpose": purpose,
         "topics": topics or [],
     }))
-
-
-def _make_rate_limiter():
-    return RateLimiter(RateLimiterConfig(
-        requests_per_minute=1000,
-        input_tokens_per_minute=1_000_000,
-        output_tokens_per_minute=1_000_000,
-    ))
 
 
 # --- TestBuildImportEdges ---
@@ -218,13 +209,12 @@ class TestHaikuEntryPoints:
             model="test", stop_reason="tool_use",
         )
 
-        rate_limiter = _make_rate_limiter()
         config = Config(root_path=Path("."), respect_gitignore=False)
         sigs = [
             {"path": "src/main.py", "file_role": "entry", "purpose": "CLI"},
             {"path": "src/lib.py", "file_role": "utility", "purpose": "Helpers"},
         ]
-        result = await _identify_entry_points_async(mock_provider, rate_limiter, sigs, config)
+        result = await _identify_entry_points_async(mock_provider, sigs, config)
         assert "src/main.py" in result
         assert "src/lib.py" not in result
 
@@ -250,22 +240,20 @@ class TestHaikuRelationships:
             model="test", stop_reason="tool_use",
         )
 
-        rate_limiter = _make_rate_limiter()
         config = Config(root_path=Path("."), respect_gitignore=False)
         disconnected = [{"path": "src/plugin.py", "purpose": "Plugin", "topics": ["plugin"]}]
         connected = [{"path": "src/app.py", "purpose": "Main app", "topics": ["app"]}]
         result = await _identify_relationships_async(
-            mock_provider, rate_limiter, disconnected, connected, config,
+            mock_provider, disconnected, connected, config,
         )
         assert ("src/plugin.py", "src/app.py") in result
 
     @pytest.mark.asyncio
     async def test_empty_disconnected(self):
         mock_provider = AsyncMock()
-        rate_limiter = _make_rate_limiter()
         config = Config(root_path=Path("."), respect_gitignore=False)
         result = await _identify_relationships_async(
-            mock_provider, rate_limiter, [], [{"path": "a.py"}], config,
+            mock_provider, [], [{"path": "a.py"}], config,
         )
         assert result == []
         mock_provider.complete.assert_not_called()
@@ -294,14 +282,13 @@ class TestVerifyOrphans:
             model="test", stop_reason="tool_use",
         )
 
-        rate_limiter = _make_rate_limiter()
         config = Config(root_path=Path("."), respect_gitignore=False)
         orphans = [OrphanCandidate(
             source_path="src/old.py", purpose="Old utility", topics=["legacy"],
             file_role="utility",
         )]
         results, in_tok, out_tok = await _verify_orphans_batch_async(
-            mock_provider, rate_limiter, config, orphans, {},
+            mock_provider, config, orphans, {},
         )
         assert len(results) == 1
         assert results[0].is_orphaned is True
@@ -327,14 +314,13 @@ class TestVerifyOrphans:
             model="test", stop_reason="tool_use",
         )
 
-        rate_limiter = _make_rate_limiter()
         config = Config(root_path=Path("."), respect_gitignore=False)
         orphans = [OrphanCandidate(
             source_path="src/plugin.py", purpose="Pytest plugin", topics=["testing"],
             file_role="utility",
         )]
         results, _, _ = await _verify_orphans_batch_async(
-            mock_provider, rate_limiter, config, orphans, {},
+            mock_provider, config, orphans, {},
         )
         assert len(results) == 1
         assert results[0].is_orphaned is False
@@ -349,7 +335,6 @@ class TestVerifyOrphans:
             model="test", stop_reason="end_turn",
         )
 
-        rate_limiter = _make_rate_limiter()
         config = Config(root_path=Path("."), respect_gitignore=False)
         orphans = [OrphanCandidate(
             source_path="src/old.py", purpose="Old", topics=[],
@@ -357,7 +342,7 @@ class TestVerifyOrphans:
         )]
         with pytest.raises(RuntimeError, match="did not return verdicts"):
             await _verify_orphans_batch_async(
-                mock_provider, rate_limiter, config, orphans, {},
+                mock_provider, config, orphans, {},
             )
 
 
@@ -403,7 +388,6 @@ class TestOrphanedFilesAnalyzer:
     async def test_skips_without_symbols(self, temp_dir):
         config = Config(root_path=temp_dir, respect_gitignore=False)
         mock_provider = AsyncMock()
-        rate_limiter = _make_rate_limiter()
-        results = await detect_orphaned_files_async(mock_provider, rate_limiter, config)
+        results = await detect_orphaned_files_async(mock_provider, config)
         assert results == []
         mock_provider.complete.assert_not_called()

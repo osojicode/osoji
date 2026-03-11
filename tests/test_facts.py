@@ -136,6 +136,31 @@ class TestImportGraph:
         assert graph["src/c.py"] == set()
 
 
+class TestJsRelativeImportResolution:
+    """JS-style relative imports resolve against project root, not CWD."""
+
+    def test_resolves_against_root_not_cwd(self, tmp_path):
+        """When CWD != project root, ./foo imports should still resolve correctly."""
+        # Project root is tmp_path, but CWD may be anything
+        _write_facts(tmp_path, "src/components/button.js", {
+            "imports": [{"source": "./utils", "names": ["helper"], "is_reexport": False}],
+            "exports": [],
+            "calls": [],
+            "string_literals": [],
+        })
+        _write_facts(tmp_path, "src/components/utils.js", {
+            "imports": [],
+            "exports": [{"name": "helper", "kind": "function", "line": 1}],
+            "calls": [],
+            "string_literals": [],
+        })
+
+        config = Config(root_path=tmp_path)
+        db = FactsDB(config)
+        imports = db.imports_of("src/components/button.js")
+        assert imports == ["src/components/utils.js"]
+
+
 class TestExports:
     def test_exported_names(self, tmp_path):
         _write_facts(tmp_path, "src/a.py", {

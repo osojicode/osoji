@@ -566,7 +566,7 @@ class TestAnalyzerClass:
         with patch("osoji.deadparam.detect_dead_params_async", side_effect=mock_detect):
             import asyncio
             result = asyncio.run(analyzer.analyze_async(
-                MagicMock(), MagicMock(), MagicMock(), None
+                MagicMock(), MagicMock(), None
             ))
 
         assert len(result.findings) == 1

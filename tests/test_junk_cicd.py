@@ -25,7 +25,6 @@ from osoji.junk_cicd import (
     discover_cicd_files,
 )
 from osoji.llm.types import CompletionResult, ToolCall
-from osoji.rate_limiter import RateLimiter, RateLimiterConfig
 
 
 # --- Helpers ---
@@ -35,14 +34,6 @@ def _write_source(temp_dir, path, content):
     full = temp_dir / path
     full.parent.mkdir(parents=True, exist_ok=True)
     full.write_text(content)
-
-
-def _make_rate_limiter():
-    return RateLimiter(RateLimiterConfig(
-        requests_per_minute=1000,
-        input_tokens_per_minute=1_000_000,
-        output_tokens_per_minute=1_000_000,
-    ))
 
 
 # --- TestDiscoverCICDFiles ---
@@ -425,8 +416,7 @@ class TestDetectDeadCICDAsync:
             model="test", stop_reason="tool_use",
         )
 
-        rate_limiter = _make_rate_limiter()
-        results = await detect_dead_cicd_async(mock_provider, rate_limiter, config)
+        results = await detect_dead_cicd_async(mock_provider, config)
         # May or may not have results depending on whether "tests/removed_dir/" is
         # detected as a missing path (it contains / and . patterns)
         # The key thing is the pipeline runs without error
@@ -438,8 +428,7 @@ class TestDetectDeadCICDAsync:
         _write_source(temp_dir, "src/app.py", "print('hello')\n")
 
         mock_provider = AsyncMock()
-        rate_limiter = _make_rate_limiter()
-        results = await detect_dead_cicd_async(mock_provider, rate_limiter, config)
+        results = await detect_dead_cicd_async(mock_provider, config)
         assert results == []
         mock_provider.complete.assert_not_called()
 
@@ -450,8 +439,7 @@ class TestDetectDeadCICDAsync:
         _write_source(temp_dir, "Makefile", "test:\n\tpython src/app.py\n")
 
         mock_provider = AsyncMock()
-        rate_limiter = _make_rate_limiter()
-        results = await detect_dead_cicd_async(mock_provider, rate_limiter, config)
+        results = await detect_dead_cicd_async(mock_provider, config)
         # src/app.py exists, so no missing paths, so no LLM call
         assert results == []
         mock_provider.complete.assert_not_called()
@@ -484,9 +472,8 @@ class TestDeadCICDAnalyzer:
             model="test", stop_reason="tool_use",
         )
 
-        rate_limiter = _make_rate_limiter()
         analyzer = DeadCICDAnalyzer()
-        result = await analyzer.analyze_async(mock_provider, rate_limiter, config)
+        result = await analyzer.analyze_async(mock_provider, config)
 
         assert isinstance(result, JunkAnalysisResult)
         assert result.analyzer_name == "dead_cicd"

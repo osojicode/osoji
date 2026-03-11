@@ -23,7 +23,6 @@ from .llm.base import LLMProvider
 from .llm.budgets import input_budget_for_config
 from .llm.tokens import estimate_completion_input_tokens_offline
 from .llm.types import Message, MessageRole, CompletionOptions
-from .rate_limiter import RateLimiter
 from .symbols import load_all_symbols
 from .tools import get_dead_parameter_tool_definitions
 from .walker import list_repo_files, _matches_ignore
@@ -589,7 +588,6 @@ async def _verify_batch_async(
 
 async def detect_dead_params_async(
     provider: LLMProvider,
-    rate_limiter: RateLimiter,
     config: Config,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
 ) -> list[DeadParamVerification]:
@@ -690,8 +688,8 @@ class DeadParameterAnalyzer(JunkAnalyzer):
     def cli_flag(self) -> str:
         return "dead-params"
 
-    async def analyze_async(self, provider, rate_limiter, config, on_progress=None):
-        results = await detect_dead_params_async(provider, rate_limiter, config, on_progress)
+    async def analyze_async(self, provider, config, on_progress=None):
+        results = await detect_dead_params_async(provider, config, on_progress)
         findings = []
         for v in results:
             if not v.is_dead:

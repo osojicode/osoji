@@ -3,8 +3,6 @@
 import json
 from pathlib import Path
 
-import pytest
-
 from osoji.config import Config
 from osoji.facts import FactsDB
 from osoji.obligations import (

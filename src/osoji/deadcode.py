@@ -13,7 +13,6 @@ from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_con
 from .llm.base import LLMProvider
 from .llm.budgets import input_budget_for_config
 from .llm.types import Message, MessageRole, CompletionOptions
-from .rate_limiter import RateLimiter
 from .symbols import load_all_symbols
 from .tools import get_dead_code_tool_definitions
 from .walker import list_repo_files, _matches_ignore
@@ -497,7 +496,6 @@ def _load_shadow_content(config: Config, relative_path: str) -> str:
 
 async def detect_dead_code_async(
     provider: LLMProvider,
-    rate_limiter: RateLimiter,
     config: Config,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
 ) -> list[DeadCodeVerification]:
@@ -505,7 +503,6 @@ async def detect_dead_code_async(
 
     Args:
         provider: LLM provider for API calls
-        rate_limiter: Rate limiter for API throttling
         config: Osoji configuration
         on_progress: Optional callback (completed, total, path, status)
 
@@ -651,8 +648,8 @@ class DeadCodeAnalyzer(JunkAnalyzer):
     def cli_flag(self) -> str:
         return "dead-code"
 
-    async def analyze_async(self, provider, rate_limiter, config, on_progress=None):
-        results = await detect_dead_code_async(provider, rate_limiter, config, on_progress)
+    async def analyze_async(self, provider, config, on_progress=None):
+        results = await detect_dead_code_async(provider, config, on_progress)
         findings = [
             JunkFinding(
                 source_path=v.source_path,
