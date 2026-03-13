@@ -545,7 +545,7 @@ class TestDetectDeadCodeAsync:
             model="test", stop_reason="tool_use",
         )
 
-        results = await detect_dead_code_async(
+        results, _ast_keys = await detect_dead_code_async(
             mock_provider, config,
         )
 
@@ -589,7 +589,7 @@ class TestDetectDeadCodeAsync:
             model="test", stop_reason="tool_use",
         )
 
-        results = await detect_dead_code_async(
+        results, _ast_keys = await detect_dead_code_async(
             mock_provider, config,
         )
 
@@ -605,7 +605,7 @@ class TestDetectDeadCodeAsync:
 
         mock_provider = AsyncMock()
 
-        results = await detect_dead_code_async(
+        results, _ast_keys = await detect_dead_code_async(
             mock_provider, config,
         )
         assert results == []

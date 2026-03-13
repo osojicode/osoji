@@ -539,6 +539,7 @@ async def process_file_async(
     provider: LLMProvider,
     config: Config,
     file_path: Path,
+    plugin_facts: dict[str, dict] | None = None,
 ) -> ShadowResult:
     """Process a single file and generate/retrieve its shadow doc asynchronously.
 
@@ -546,6 +547,7 @@ async def process_file_async(
         provider: LLM provider to use
         config: Configuration
         file_path: Path to file to process
+        plugin_facts: Optional pre-extracted AST facts keyed by relative path
 
     Returns ShadowResult with path, body, cached status, and any error.
     """
@@ -587,6 +589,22 @@ async def process_file_async(
                 )
             )
 
+        # Merge plugin-extracted AST facts with LLM facts
+        relative_str = str(file_path.relative_to(config.root_path)).replace("\\", "/")
+        if plugin_facts and relative_str in plugin_facts:
+            pf = plugin_facts[relative_str]
+            facts = {
+                "imports": pf.get("imports", []),
+                "exports": pf.get("exports", []),
+                "calls": pf.get("calls", []),
+                "member_writes": pf.get("member_writes", []),
+                "string_literals": facts.get("string_literals", []) if facts else [],
+                "extraction_method": "ast",
+            }
+        else:
+            if facts:
+                facts["extraction_method"] = "llm"
+
         full_doc = assemble_shadow_doc(
             file_path.relative_to(config.root_path), source_hash, body
         )
@@ -600,7 +618,7 @@ async def process_file_async(
         findings_path.parent.mkdir(parents=True, exist_ok=True)
         timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         findings_json = {
-            "source": str(file_path.relative_to(config.root_path)),
+            "source": relative_str,
             "source_hash": source_hash,
             "impl_hash": compute_impl_hash(),
             "generated": timestamp,
@@ -624,7 +642,7 @@ async def process_file_async(
             symbols_path = config.symbols_path_for(file_path)
             symbols_path.parent.mkdir(parents=True, exist_ok=True)
             symbols_json = {
-                "source": str(file_path.relative_to(config.root_path)),
+                "source": relative_str,
                 "source_hash": source_hash,
                 "generated": timestamp,
                 "file_role": file_role,
@@ -636,7 +654,6 @@ async def process_file_async(
         if topic_signature:
             sig_path = config.signatures_path_for(file_path)
             sig_path.parent.mkdir(parents=True, exist_ok=True)
-            relative_str = str(file_path.relative_to(config.root_path)).replace("\\", "/")
             sig_json = {
                 "path": relative_str,
                 "kind": "source",
@@ -651,7 +668,7 @@ async def process_file_async(
             facts_path = config.facts_path_for(file_path)
             facts_path.parent.mkdir(parents=True, exist_ok=True)
             facts_json = {
-                "source": str(file_path.relative_to(config.root_path)),
+                "source": relative_str,
                 "source_hash": source_hash,
                 "generated": timestamp,
                 **facts,
@@ -898,11 +915,34 @@ def _emit(config: Config, message: str = "", *, end: str = "\n") -> None:
     print(message, end=end, flush=True)
 
 
+def _run_plugin_extraction(config: Config, files: list[Path]) -> dict[str, dict]:
+    """Run project-level AST extraction. Returns facts dicts keyed by rel path."""
+    from .plugins import get_all_plugins, PluginUnavailableError, FactsExtractionError
+    plugin_facts: dict[str, dict] = {}
+    project_root = config.root_path
+    for plugin in get_all_plugins():
+        try:
+            plugin.check_available(project_root)
+        except PluginUnavailableError as e:
+            logger.info(f"[{plugin.name}] unavailable: {e.install_hint}")
+            continue
+        try:
+            extracted = plugin.extract_project_facts(project_root, files)
+            for rel_path, facts in extracted.items():
+                source_hash = compute_file_hash(project_root / rel_path)
+                plugin_facts[rel_path] = facts.to_file_facts_dict(rel_path, source_hash)
+            logger.info(f"[{plugin.name}] extracted {len(extracted)} files")
+        except FactsExtractionError as e:
+            logger.warning(f"[{plugin.name}] failed: {e}")
+    return plugin_facts
+
+
 async def generate_shadows_parallel(
     provider: LLMProvider,
     config: Config,
     files: list[Path],
     on_progress: Callable[[int, int, Path, str], None] | None = None,
+    plugin_facts: dict[str, dict] | None = None,
 ) -> list[ShadowResult]:
     """Generate shadow docs in parallel.
 
@@ -911,6 +951,7 @@ async def generate_shadows_parallel(
         config: Configuration
         files: List of files to process
         on_progress: Optional callback for progress updates
+        plugin_facts: Optional pre-extracted AST facts keyed by relative path
 
     Returns:
         List of ShadowResult objects
@@ -930,7 +971,7 @@ async def generate_shadows_parallel(
             result = ShadowResult(path=file_path, body=body, cached=True)
         else:
             result = await process_file_async(
-                provider, config, file_path
+                provider, config, file_path, plugin_facts=plugin_facts
             )
 
         async with lock:
@@ -1204,6 +1245,11 @@ async def generate_shadow_docs_async(
 
     _emit(config, f"Found {len(files)} source files in {len(dirs)} directories")
 
+    # Run plugin AST extraction before LLM calls
+    plugin_facts = _run_plugin_extraction(config, files)
+    if plugin_facts:
+        _emit(config, f"  AST-extracted facts for {len(plugin_facts)} files")
+
     # Create provider with logging wrapper
     # Create rate limiter if not provided externally
     logging_provider, rate_limiter = create_runtime(
@@ -1233,7 +1279,8 @@ async def generate_shadow_docs_async(
             progress_callback = verbose_progress
 
         results = await generate_shadows_parallel(
-            logging_provider, config, files, progress_callback
+            logging_provider, config, files, progress_callback,
+            plugin_facts=plugin_facts,
         )
 
         file_elapsed = time_module.monotonic() - file_start

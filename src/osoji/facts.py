@@ -25,6 +25,7 @@ class FileFacts:
     calls: list[dict] = field(default_factory=list)
     member_writes: list[dict] = field(default_factory=list)
     string_literals: list[dict] = field(default_factory=list)
+    extraction_method: str | None = None  # "ast" | "llm" | None (legacy = llm)
     # Doc-specific fields (None for source files):
     classification: str | None = None
     topics: list[str] | None = None
@@ -66,6 +67,7 @@ class FactsDB:
                     calls=_only_dicts(data.get("calls", [])),
                     member_writes=_only_dicts(data.get("member_writes", [])),
                     string_literals=_only_dicts(data.get("string_literals", [])),
+                    extraction_method=data.get("extraction_method"),
                     classification=data.get("classification"),
                     topics=data.get("topics"),
                 )

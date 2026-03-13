@@ -9,11 +9,12 @@ from typing import Callable
 
 from .async_utils import gather_with_buffer
 from .config import Config, SHADOW_DIR
+from .facts import FactsDB
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content, validate_line_ranges
 from .llm.base import LLMProvider
 from .llm.budgets import input_budget_for_config
 from .llm.types import Message, MessageRole, CompletionOptions
-from .symbols import load_all_symbols
+from .symbols import load_all_symbols, load_file_roles
 from .tools import get_dead_code_tool_definitions
 from .walker import list_repo_files, _matches_ignore
 
@@ -80,10 +81,73 @@ def _extract_context(lines: list[str], line_number: int, radius: int = 5) -> str
     return "\n".join(context_lines)
 
 
+def _compute_transitive_liveness(
+    symbols: list[tuple[str, int, int | None]],
+    file_lines: list[str],
+    has_external_refs: Callable[[str], bool],
+) -> set[str]:
+    """BFS within-file liveness propagation.
+
+    Given a list of (name, line_start, line_end) symbols and the file's lines,
+    build a within-file reference graph and propagate liveness from symbols
+    where has_external_refs(name) is True.
+
+    Returns set of symbol names that are transitively alive (have zero external
+    refs themselves but are referenced by a symbol that does).
+    """
+    if len(symbols) < 2:
+        return set()
+
+    sym_names = {s[0] for s in symbols}
+    sorted_names = sorted(sym_names, key=len, reverse=True)
+    file_pattern = re.compile(
+        r"\b(" + "|".join(re.escape(n) for n in sorted_names) + r")\b"
+    )
+
+    # Build within-file reference graph
+    uses: dict[str, set[str]] = {s[0]: set() for s in symbols}
+    for sym_name, line_start, line_end in symbols:
+        start_idx = line_start - 1
+        end_idx = line_end if line_end else line_start
+        for line_idx in range(start_idx, min(end_idx, len(file_lines))):
+            for m in file_pattern.finditer(file_lines[line_idx]):
+                referenced = m.group(1)
+                if referenced != sym_name:
+                    uses[sym_name].add(referenced)
+
+    # Seeds: symbols with external refs
+    alive: set[str] = set()
+    for sym_name, _, _ in symbols:
+        if has_external_refs(sym_name):
+            alive.add(sym_name)
+
+    # BFS propagation
+    queue = list(alive)
+    while queue:
+        current = queue.pop()
+        for referenced in uses.get(current, set()):
+            if referenced not in alive:
+                alive.add(referenced)
+                queue.append(referenced)
+
+    # Return only zero-ref symbols that became alive through transitivity
+    return {name for name in alive if not has_external_refs(name)}
+
+
 def scan_references(
     config: Config,
+    exclude_files: set[str] | None = None,
+    file_roles: dict[str, str] | None = None,
+    facts_db: FactsDB | None = None,
 ) -> tuple[list[DeadCodeCandidate], list[DeadCodeCandidate]]:
     """Scan for symbols with zero or low external references.
+
+    Args:
+        config: Osoji configuration
+        exclude_files: Optional set of source file paths whose symbols should
+            be excluded from candidates (already handled by AST fast path).
+        file_roles: Optional mapping of source path -> role (e.g. "test").
+        facts_db: Optional FactsDB for exclude_from_dead_analysis lookups.
 
     Returns (zero_ref_candidates, low_ref_candidates).
     Pure Python, no LLM calls.
@@ -195,74 +259,34 @@ def scan_references(
 
     # --- Transitive liveness: filter out zero-ref symbols that are used
     #     within the same file by symbols with external refs > 0 ---
-    # A symbol is transitively alive if it is referenced within its own file
-    # by another symbol that has external refs > 0 (or is itself transitively alive).
-
-    # Build per-file symbol data
     file_sym_data: dict[str, list[tuple[str, int, int | None]]] = {}
     for source_norm, sym in sym_entries:
         file_sym_data.setdefault(source_norm, []).append(
             (sym["name"], sym["line_start"], sym.get("line_end"))
         )
 
-    # Only process files that have at least one zero-ref candidate
     zero_ref_files = {
         sn
         for (sn, _name), count in sym_ref_counts.items()
         if count == 0
     }
 
-    transitively_alive: set[tuple[str, str]] = set()  # (file, name)
+    transitively_alive: set[tuple[str, str]] = set()
 
     for fpath in zero_ref_files:
         symbols_in_file = file_sym_data.get(fpath)
         if not symbols_in_file or len(symbols_in_file) < 2:
             continue
-
         cached_lines = file_lines_cache.get(fpath)
         if not cached_lines:
             continue
-
-        # Build regex for just this file's symbols
-        sym_names_in_file = {s[0] for s in symbols_in_file}
-        sorted_file_names = sorted(sym_names_in_file, key=len, reverse=True)
-        file_pattern = re.compile(
-            r"\b(" + "|".join(re.escape(n) for n in sorted_file_names) + r")\b"
+        alive = _compute_transitive_liveness(
+            symbols_in_file,
+            cached_lines,
+            has_external_refs=lambda name, fp=fpath: sym_ref_counts.get((fp, name), 0) > 0,
         )
-
-        # Build within-file reference graph: uses[A] = {B, C} means A's body
-        # contains references to symbols B and C
-        uses: dict[str, set[str]] = {s[0]: set() for s in symbols_in_file}
-
-        for sym_name, line_start, line_end in symbols_in_file:
-            start_idx = line_start - 1  # 0-indexed
-            end_idx = line_end if line_end else line_start  # 1-indexed inclusive
-
-            for line_idx in range(start_idx, min(end_idx, len(cached_lines))):
-                for m in file_pattern.finditer(cached_lines[line_idx]):
-                    referenced = m.group(1)
-                    if referenced != sym_name:
-                        uses[sym_name].add(referenced)
-
-        # Seeds: symbols with external refs > 0
-        alive: set[str] = set()
-        for sym_name, _, _ in symbols_in_file:
-            if sym_ref_counts.get((fpath, sym_name), 0) > 0:
-                alive.add(sym_name)
-
-        # BFS propagation: if alive symbol uses another, that symbol is alive too
-        queue = list(alive)
-        while queue:
-            current = queue.pop()
-            for referenced in uses.get(current, set()):
-                if referenced not in alive:
-                    alive.add(referenced)
-                    queue.append(referenced)
-
-        # Record zero-ref symbols that are transitively alive
         for sym_name in alive:
-            if sym_ref_counts.get((fpath, sym_name), 0) == 0:
-                transitively_alive.add((fpath, sym_name))
+            transitively_alive.add((fpath, sym_name))
 
     # Compute 10th percentile of non-zero reference counts
     non_zero_counts = [c for c in sym_ref_counts.values() if c > 0]
@@ -274,10 +298,30 @@ def scan_references(
     else:
         threshold = 0
 
+    # Build per-file exclusion set from facts DB (exclude_from_dead_analysis)
+    excluded_by_file: dict[str, set[str]] = {}
+    if facts_db:
+        for source_path in all_symbols:
+            src_norm = source_path.replace("\\", "/")
+            ff = facts_db.get_file(src_norm)
+            if ff:
+                excl = {e["name"] for e in ff.exports if e.get("exclude_from_dead_analysis")}
+                if excl:
+                    excluded_by_file[src_norm] = excl
+
     for source_norm, sym in sym_entries:
         name = sym["name"]
         # Internal symbols are not dead code candidates
         if sym.get("visibility") == "internal":
+            continue
+        # Skip symbols from files handled by AST fast path
+        if exclude_files and source_norm in exclude_files:
+            continue
+        # Skip test file symbols
+        if file_roles and file_roles.get(source_norm) == "test":
+            continue
+        # Skip symbols excluded from dead analysis (framework-registered, etc.)
+        if source_norm in excluded_by_file and name in excluded_by_file[source_norm]:
             continue
         ext_count = sym_ref_counts[(source_norm, name)]
 
@@ -494,11 +538,31 @@ def _load_shadow_content(config: Config, relative_path: str) -> str:
     return load_shadow_content(config, relative_path)
 
 
+def _all_importers_ast_extracted(symbol_path: str, facts_db: FactsDB) -> bool:
+    """Check if the defining file AND all importers have AST-extracted facts."""
+    for importer_path in facts_db.importers_of(symbol_path):
+        importer_facts = facts_db.get_file(importer_path)
+        if not importer_facts or importer_facts.extraction_method != "ast":
+            return False
+    return True
+
+
+def _group_symbols_by_file(
+    all_symbols: dict[str, list[dict]],
+) -> dict[str, list[dict]]:
+    """Group symbols by their source file path (normalized)."""
+    result: dict[str, list[dict]] = {}
+    for source_path, symbols in all_symbols.items():
+        source_norm = source_path.replace("\\", "/")
+        result.setdefault(source_norm, []).extend(symbols)
+    return result
+
+
 async def detect_dead_code_async(
     provider: LLMProvider,
     config: Config,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
-) -> list[DeadCodeVerification]:
+) -> tuple[list[DeadCodeVerification], set[tuple[str, str]]]:
     """Detect dead code across the project with parallel LLM verification.
 
     Args:
@@ -507,9 +571,96 @@ async def detect_dead_code_async(
         on_progress: Optional callback (completed, total, path, status)
 
     Returns:
-        List of verified dead code items (both tiers).
+        Tuple of (list of verified dead code items, set of AST-proven keys).
     """
-    zero_refs, low_refs = scan_references(config)
+    # --- AST fast path: resolve symbols in fully-AST-extracted graphs ---
+    facts_db = FactsDB(config)
+    all_symbols = load_all_symbols(config)
+    file_roles = load_file_roles(config)
+
+    ast_proven: list[DeadCodeVerification] = []
+    ast_proven_keys: set[tuple[str, str]] = set()
+    ast_resolved_files: set[str] = set()
+
+    for source_path, symbols in _group_symbols_by_file(all_symbols).items():
+        file_facts = facts_db.get_file(source_path)
+        if not (file_facts and file_facts.extraction_method == "ast"):
+            continue
+        if not _all_importers_ast_extracted(source_path, facts_db):
+            continue
+        ast_resolved_files.add(source_path)
+
+        # Skip test files — add to ast_resolved_files (so grep path skips them)
+        # but don't process their symbols as dead code candidates
+        if file_roles.get(source_path) == "test":
+            continue
+
+        # Build exclusion sets for this file (AST-extracted facts are authoritative)
+        excluded_names = {
+            e["name"] for e in file_facts.exports
+            if e.get("exclude_from_dead_analysis")
+        }
+        exported_names = {e["name"] for e in file_facts.exports}
+
+        for sym in symbols:
+            if sym.get("visibility") == "internal":
+                continue
+            if sym["name"] in excluded_names:
+                continue
+            # Only consider symbols present in AST export list
+            if sym["name"] not in exported_names:
+                continue
+            refs = facts_db.cross_file_references(sym["name"], source_path)
+            if not refs:
+                ast_proven.append(DeadCodeVerification(
+                    source_path=source_path,
+                    name=sym["name"],
+                    kind=sym["kind"],
+                    line_start=sym["line_start"],
+                    line_end=sym.get("line_end"),
+                    is_dead=True,
+                    confidence=1.0,
+                    reason="No cross-file references found (AST-proven)",
+                    remediation=f"Remove {sym['kind']} `{sym['name']}`",
+                ))
+                ast_proven_keys.add((source_path, sym["name"]))
+
+        # --- Transitive liveness for this file ---
+        zero_ref_in_file = {v.name for v in ast_proven if v.source_path == source_path}
+        if zero_ref_in_file and len(symbols) >= 2:
+            src_path = config.root_path / source_path
+            try:
+                file_lines = src_path.read_text(errors="ignore").splitlines()
+            except OSError:
+                file_lines = []
+            if file_lines:
+                sym_tuples = [
+                    (s["name"], s["line_start"], s.get("line_end"))
+                    for s in symbols
+                    if s.get("visibility") != "internal"
+                    and s["name"] not in excluded_names
+                ]
+                alive = _compute_transitive_liveness(
+                    sym_tuples, file_lines,
+                    has_external_refs=lambda name: name not in zero_ref_in_file,
+                )
+                # Remove transitively-alive from ast_proven
+                ast_proven = [v for v in ast_proven
+                              if not (v.source_path == source_path and v.name in alive)]
+                ast_proven_keys -= {(source_path, n) for n in alive}
+
+    if ast_proven:
+        print(
+            f"  AST-proven dead: {len(ast_proven)} symbol(s) "
+            f"({len(ast_resolved_files)} file(s) skipped from grep)",
+            flush=True,
+        )
+
+    # --- Grep path: only for symbols NOT in fully-AST-resolved files ---
+    zero_refs, low_refs = scan_references(
+        config, exclude_files=ast_resolved_files,
+        file_roles=file_roles, facts_db=facts_db,
+    )
 
     all_candidates = zero_refs + low_refs
 
@@ -521,7 +672,7 @@ async def detect_dead_code_async(
     )
 
     if not all_candidates:
-        return []
+        return ast_proven, ast_proven_keys
 
     results: list[DeadCodeVerification] = []
 
@@ -630,7 +781,9 @@ async def detect_dead_code_async(
 
     await gather_with_buffer([lambda batch=batch: process_batch(batch) for batch in batches])
 
-    return results
+    # Combine AST-proven and LLM-verified results
+    all_results = ast_proven + results
+    return all_results, ast_proven_keys
 
 
 class DeadCodeAnalyzer(JunkAnalyzer):
@@ -649,7 +802,7 @@ class DeadCodeAnalyzer(JunkAnalyzer):
         return "dead-code"
 
     async def analyze_async(self, provider, config, on_progress=None):
-        results = await detect_dead_code_async(provider, config, on_progress)
+        results, ast_proven_keys = await detect_dead_code_async(provider, config, on_progress)
         findings = [
             JunkFinding(
                 source_path=v.source_path,
@@ -662,6 +815,7 @@ class DeadCodeAnalyzer(JunkAnalyzer):
                 reason=v.reason,
                 remediation=v.remediation,
                 original_purpose=f"{v.kind} `{v.name}`",
+                confidence_source="ast_proven" if (v.source_path, v.name) in ast_proven_keys else "llm_inferred",
             )
             for v in results if v.is_dead
         ]
