@@ -50,7 +50,7 @@ class OrphanVerification:
 def _build_import_edges(all_symbols: dict[str, list[dict]], config: Config) -> dict[str, set[str]]:
     """Build adjacency from symbol cross-references.
 
-    For each public symbol defined in file A, if file B references that symbol name,
+    For each symbol defined in file A, if file B references that symbol name,
     add a bidirectional edge A↔B. Returns {file: {connected_files}}.
     """
     adjacency: dict[str, set[str]] = {}
@@ -573,7 +573,7 @@ class OrphanedFilesAnalyzer(JunkAnalyzer):
             return JunkAnalysisResult(findings=[], total_candidates=0, analyzer_name=self.name)
 
         async def _run() -> JunkAnalysisResult:
-            logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
+            logging_provider, _ = create_runtime(config, rate_limiter=rate_limiter)
             try:
                 return await self.analyze_async(
                     logging_provider, config, on_progress

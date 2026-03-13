@@ -437,7 +437,7 @@ class TestMalformedEntries:
         _write_facts(tmp_path, "src/a.py", {
             "imports": ["bad_import", {"source": ".b", "names": ["x"], "is_reexport": False}],
             "exports": [99, {"name": "foo", "kind": "function", "line": 1}],
-            "calls": [None, {"target": "print", "line": 5}],
+            "calls": [None, {"to": "print", "line": 5}],
             "member_writes": [False, {"container": "state", "member": "flag", "line": 6}],
             "string_literals": [],
         })
@@ -450,6 +450,6 @@ class TestMalformedEntries:
         assert len(facts.exports) == 1
         assert facts.exports[0]["name"] == "foo"
         assert len(facts.calls) == 1
-        assert facts.calls[0]["target"] == "print"
+        assert facts.calls[0]["to"] == "print"
         assert len(facts.member_writes) == 1
         assert facts.member_writes[0]["member"] == "flag"

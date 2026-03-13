@@ -1,7 +1,6 @@
 """Tests for dead dependency detection."""
 
 import json
-from pathlib import Path
 from unittest.mock import AsyncMock
 
 import pytest
@@ -11,7 +10,6 @@ from osoji.junk import JunkAnalysisResult
 from osoji.junk_deps import (
     DeadDepsAnalyzer,
     DependencyCandidate,
-    DepVerification,
     _BUILD_TOOLS_CACHE,
     _IMPORT_NAME_CACHE,
     _classify_deps_batch_async,

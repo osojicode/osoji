@@ -7,10 +7,8 @@ from unittest.mock import AsyncMock
 import pytest
 
 from osoji.config import Config
-from osoji.junk import JunkAnalysisResult
 from osoji.junk_orphan import (
     OrphanCandidate,
-    OrphanVerification,
     OrphanedFilesAnalyzer,
     _build_import_edges,
     _identify_entry_points_heuristic,

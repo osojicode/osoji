@@ -8,11 +8,9 @@ import pytest
 
 from osoji.llm.types import (
     CompletionOptions,
-    CompletionResult,
     Message,
     MessageRole,
     PromptTooLargeError,
-    ToolCall,
     ToolDefinition,
     ToolSchemaValidationError,
 )

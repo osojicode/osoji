@@ -19,7 +19,7 @@ class DiffFileChange:
     """A file changed between base and HEAD."""
 
     path: Path  # Relative to repo root
-    change_type: str  # "modified", "added", "deleted", "renamed"
+    change_type: str  # "modified", "added", "deleted", "renamed", "copied", "type_changed"
     is_source: bool
     is_doc: bool
 
@@ -258,6 +258,7 @@ def _find_doc_references_via_grep(
 
         for line_num, line in enumerate(content.splitlines(), start=1):
             for change, patterns in source_patterns:
+                matched = False
                 for pattern in patterns:
                     if pattern in line:
                         references.append(DocReference(
@@ -267,7 +268,10 @@ def _find_doc_references_via_grep(
                             line_content=line.strip(),
                             source_deleted=(change.change_type == "deleted"),
                         ))
+                        matched = True
                         break
+                if matched:
+                    break
 
     return references
 

@@ -494,14 +494,20 @@ async def _verify_chunk_async(
         ),
     )
 
-    candidate_by_param = {candidate.param_name: candidate for candidate in candidates}
+    candidate_by_key = {
+        (candidate.function_name, candidate.param_name): candidate
+        for candidate in candidates
+    }
     verifications: list[DeadParamVerification] = []
     for tool_call in result.tool_calls:
         if tool_call.name != "verify_dead_parameters":
             continue
         for verdict in tool_call.input.get("verdicts", []):
-            param_name = verdict.get("parameter_name", "")
-            candidate = candidate_by_param.get(param_name)
+            key = (
+                verdict.get("function_name", ""),
+                verdict.get("parameter_name", ""),
+            )
+            candidate = candidate_by_key.get(key)
             if candidate is None:
                 continue
             gated = [
@@ -593,7 +599,7 @@ async def detect_dead_params_async(
 ) -> list[DeadParamVerification]:
     """Detect dead parameters across the project with parallel LLM verification.
 
-    Returns list of verified dead parameter items.
+    Returns all verdicts (dead and alive); caller filters to is_dead=True.
     """
     candidates = scan_dead_param_candidates(config)
 
@@ -712,6 +718,7 @@ class DeadParameterAnalyzer(JunkAnalyzer):
                 reason=v.reason,
                 remediation=v.remediation,
                 original_purpose=f"parameter `{v.param_name}` of `{v.function_name}`",
+                confidence_source="llm_inferred",
                 metadata={
                     "function_name": v.function_name,
                     "gated_lines": [list(r) for r in v.gated_line_ranges],

@@ -4,8 +4,6 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
-
 from osoji.config import Config
 from osoji.shadow import extract_doc_references
 

@@ -531,7 +531,7 @@ _PARSERS: dict[str, Callable] = {
 }
 
 
-def parse_manifest(content: str, path: str, ecosystem: str) -> list[DependencyCandidate]:
+def parse_manifest(content: str, path: str) -> list[DependencyCandidate]:
     """Parse a manifest file and return dependency candidates."""
     # Find parser by filename
     filename = Path(path).name
@@ -797,7 +797,7 @@ async def detect_dead_deps_async(
         except OSError:
             continue
         manifest_contents[manifest_path] = content
-        parsed = parse_manifest(content, manifest_path, ecosystem)
+        parsed = parse_manifest(content, manifest_path)
         all_candidates.extend(parsed)
 
     if not all_candidates:

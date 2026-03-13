@@ -179,7 +179,7 @@ def should_check_file(file_path: Path) -> bool:
         return True
 
     # Check if it's in a skipped directory
-    # Note: We only check parent directories, not the file itself
+    # Check if any parent directory matches a skip pattern
     for part in file_path.parts[:-1] if len(file_path.parts) > 1 else []:
         if part in SKIP_DIRECTORIES:
             return False

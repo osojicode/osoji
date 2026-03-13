@@ -10,6 +10,8 @@ T = TypeVar("T")
 
 MAX_PENDING_TASKS = 256
 
+_SENTINEL = object()
+
 
 async def gather_with_buffer(
     factories: Sequence[Callable[[], Awaitable[T]]],
@@ -22,7 +24,7 @@ async def gather_with_buffer(
     if max_pending <= 0:
         raise ValueError("max_pending must be positive")
 
-    results: list[T | Exception | None] = [None] * len(factories)
+    results: list[T | Exception | object] = [_SENTINEL] * len(factories)
     pending: dict[asyncio.Task[T], int] = {}
     next_index = 0
 
@@ -52,4 +54,4 @@ async def gather_with_buffer(
                     raise
                 results[index] = exc
 
-    return [result for result in results if result is not None]
+    return [result for result in results if result is not _SENTINEL]

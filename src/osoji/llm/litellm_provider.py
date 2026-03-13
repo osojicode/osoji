@@ -258,18 +258,6 @@ class LiteLLMProvider(LLMProvider):
             return choice_type
         return tool_choice
 
-    def _should_validate_tool_calls(
-        self,
-        options: CompletionOptions,
-        tool_calls: list[ToolCall],
-    ) -> bool:
-        return bool(
-            options.tool_choice
-            and options.tool_choice.get("type") == "tool"
-            and tool_calls
-            and options.tools
-        )
-
     def _required_tool_name(self, options: CompletionOptions) -> str | None:
         if not options.tool_choice:
             return None

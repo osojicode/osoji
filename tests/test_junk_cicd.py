@@ -11,7 +11,6 @@ from osoji.junk import JunkAnalysisResult
 from osoji.junk_cicd import (
     CICDCandidate,
     CICDElement,
-    CICDVerification,
     DeadCICDAnalyzer,
     _build_candidates,
     _check_path_references,
@@ -416,7 +415,7 @@ class TestDetectDeadCICDAsync:
             model="test", stop_reason="tool_use",
         )
 
-        results = await detect_dead_cicd_async(mock_provider, config)
+        results, total = await detect_dead_cicd_async(mock_provider, config)
         # May or may not have results depending on whether "tests/removed_dir/" is
         # detected as a missing path (it contains / and . patterns)
         # The key thing is the pipeline runs without error
@@ -428,8 +427,9 @@ class TestDetectDeadCICDAsync:
         _write_source(temp_dir, "src/app.py", "print('hello')\n")
 
         mock_provider = AsyncMock()
-        results = await detect_dead_cicd_async(mock_provider, config)
+        results, total = await detect_dead_cicd_async(mock_provider, config)
         assert results == []
+        assert total == 0
         mock_provider.complete.assert_not_called()
 
     @pytest.mark.asyncio
@@ -439,9 +439,10 @@ class TestDetectDeadCICDAsync:
         _write_source(temp_dir, "Makefile", "test:\n\tpython src/app.py\n")
 
         mock_provider = AsyncMock()
-        results = await detect_dead_cicd_async(mock_provider, config)
+        results, total = await detect_dead_cicd_async(mock_provider, config)
         # src/app.py exists, so no missing paths, so no LLM call
         assert results == []
+        assert total == 0
         mock_provider.complete.assert_not_called()
 
 

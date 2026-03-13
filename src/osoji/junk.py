@@ -31,6 +31,7 @@ class JunkFinding:
     reason: str
     remediation: str
     original_purpose: str     # what the item was for
+    confidence_source: str = "llm_inferred"  # "ast_proven" | "llm_inferred" | "heuristic"
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
@@ -111,7 +112,7 @@ class JunkAnalyzer(ABC):
             return JunkAnalysisResult(findings=[], total_candidates=0, analyzer_name=self.name)
 
         async def _run() -> JunkAnalysisResult:
-            logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
+            logging_provider, _ = create_runtime(config, rate_limiter=rate_limiter)
             try:
                 return await self.analyze_async(
                     logging_provider, config, on_progress

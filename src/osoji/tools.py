@@ -215,6 +215,11 @@ to work with this code effectively.""",
                             "description": "Target identifier: module.function, ClassName.method, or package.function",
                         },
                         "line": {"type": "integer", "minimum": 1},
+                        "call_sites": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "Number of distinct call sites across the project; omit if unknown.",
+                        },
                     },
                     "required": ["from_symbol", "to", "line"],
                 },
@@ -983,6 +988,10 @@ Provide a verdict for EVERY element listed.""",
                         "element_name": {
                             "type": "string",
                             "description": "Name of the CI/CD element being judged",
+                        },
+                        "line_start": {
+                            "type": "integer",
+                            "description": "Line number where the element starts (echo back from input)",
                         },
                         "is_dead": {
                             "type": "boolean",

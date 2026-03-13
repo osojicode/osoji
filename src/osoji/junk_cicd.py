@@ -594,13 +594,17 @@ async def _verify_batch_async(
     )
 
     verifications: list[CICDVerification] = []
-    cand_by_name = {c.element_name: c for c in candidates}
+    cand_by_key = {(c.element_name, c.line_start): c for c in candidates}
 
     for tool_call in result.tool_calls:
         if tool_call.name == "verify_dead_cicd":
             for verdict in tool_call.input.get("verdicts", []):
                 elem_name = verdict.get("element_name", "")
-                cand = cand_by_name.get(elem_name)
+                line_start = verdict.get("line_start")
+                cand = cand_by_key.get((elem_name, line_start))
+                if cand is None:
+                    # Fallback: match by name only (LLM may omit line_start)
+                    cand = next((c for c in candidates if c.element_name == elem_name), None)
                 if cand:
                     verifications.append(CICDVerification(
                         cicd_file=cand.cicd_file,
@@ -680,15 +684,15 @@ async def detect_dead_cicd_async(
     provider: LLMProvider,
     config: Config,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
-) -> list[CICDVerification]:
+) -> tuple[list[CICDVerification], int]:
     """Detect stale CI/CD pipeline elements.
 
-    Returns list of verified dead CI/CD elements.
+    Returns (list of verified dead CI/CD elements, total candidate count).
     """
     cicd_files = discover_cicd_files(config)
     if not cicd_files:
         print("  [skip] No CI/CD configuration files found.", flush=True)
-        return []
+        return [], 0
 
     print(f"  Found {len(cicd_files)} CI/CD file(s)", flush=True)
 
@@ -723,7 +727,7 @@ async def detect_dead_cicd_async(
 
     if not all_elements:
         print("  No CI/CD elements found to analyze.", flush=True)
-        return []
+        return [], 0
 
     print(f"  Found {len(all_elements)} CI/CD element(s)", flush=True)
 
@@ -739,8 +743,10 @@ async def detect_dead_cicd_async(
         flush=True,
     )
 
+    total_candidates = len(candidates)
+
     if not candidates:
-        return []
+        return [], 0
 
     # Build repo file summary for LLM context
     repo_summary = _build_repo_file_summary(config)
@@ -794,7 +800,7 @@ async def detect_dead_cicd_async(
         [lambda cicd_file=cf, cands=cands: process_file(cicd_file, cands) for cf, cands in by_file.items()]
     )
 
-    return results
+    return results, total_candidates
 
 
 class DeadCICDAnalyzer(JunkAnalyzer):
@@ -827,7 +833,7 @@ class DeadCICDAnalyzer(JunkAnalyzer):
         return asyncio.run(_run())
 
     async def analyze_async(self, provider, config, on_progress=None):
-        results = await detect_dead_cicd_async(provider, config, on_progress)
+        results, total_candidates = await detect_dead_cicd_async(provider, config, on_progress)
         findings = [
             JunkFinding(
                 source_path=v.cicd_file,
@@ -845,6 +851,6 @@ class DeadCICDAnalyzer(JunkAnalyzer):
         ]
         return JunkAnalysisResult(
             findings=findings,
-            total_candidates=len(results),
+            total_candidates=total_candidates,
             analyzer_name=self.name,
         )
