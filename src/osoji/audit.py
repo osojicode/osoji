@@ -247,7 +247,7 @@ async def _verify_debris_findings_async(
     debris_findings: list[dict],
     rate_limiter: RateLimiter,
 ) -> set[int]:
-    """Verify dead_code debris findings against cross-file evidence.
+    """Verify dead_code, latent_bug, and stale_comment debris findings against cross-file evidence.
 
     Returns a set of indices (into debris_findings) that should be suppressed (false positives).
     """
@@ -717,11 +717,12 @@ def run_audit(
             _emit(config, f"  [{elapsed:.1f}s]")
 
         for item in result.findings:
+            prefix = "[AST] " if item.confidence_source == "ast_proven" else ""
             issues.append(AuditIssue(
                 path=Path(item.source_path),
                 severity="warning",
                 category=item.category,
-                message=f"L{item.line_start}: {item.kind} `{item.name}` — {item.reason}",
+                message=f"{prefix}L{item.line_start}: {item.kind} `{item.name}` — {item.reason}",
                 remediation=item.remediation,
                 line_start=item.line_start,
                 line_end=item.line_end,
@@ -908,10 +909,29 @@ def _format_scorecard_section(scorecard: Scorecard) -> list[str]:
     if scorecard.junk_by_category:
         lines.append("### Junk code by category\n")
         junk_rows = []
+        # Count AST vs LLM per category from scorecard entries
+        cat_ast_counts: dict[str, int] = {}
+        cat_llm_counts: dict[str, int] = {}
+        for entry in scorecard.junk_entries:
+            for it in entry.items:
+                cat = it["category"]
+                cs = it.get("confidence_source", "llm_inferred")
+                if cs == "ast_proven":
+                    cat_ast_counts[cat] = cat_ast_counts.get(cat, 0) + 1
+                else:
+                    cat_llm_counts[cat] = cat_llm_counts.get(cat, 0) + 1
         for cat in sorted(scorecard.junk_by_category.keys()):
             items = scorecard.junk_by_category[cat]
             cat_lines = scorecard.junk_by_category_lines.get(cat, 0)
-            junk_rows.append([cat, str(items), str(cat_lines)])
+            ast_n = cat_ast_counts.get(cat, 0)
+            llm_n = cat_llm_counts.get(cat, 0)
+            if ast_n and llm_n:
+                breakdown = f" ({ast_n} AST, {llm_n} LLM)"
+            elif ast_n:
+                breakdown = f" ({ast_n} AST)"
+            else:
+                breakdown = ""
+            junk_rows.append([f"{cat}{breakdown}", str(items), str(cat_lines)])
         lines.append(_table(["Category", "Items", "Lines"], junk_rows))
         lines.append("")
 
@@ -947,6 +967,30 @@ def _format_scorecard_section(scorecard: Scorecard) -> list[str]:
         lines.append(f"*Phases not run: {', '.join(missing)}. Re-run with those flags for a complete scorecard.*\n")
 
     return lines
+
+
+def _is_test_path(path: str) -> bool:
+    """Heuristic: path contains a test directory or test filename."""
+    parts = path.replace("\\", "/").split("/")
+    return any(p.startswith("test") or p == "tests" for p in parts)
+
+
+_IMPLICIT_CONTRACT_PREAMBLE = """\
+These findings identify string literals shared between source and test files.
+They represent coupling that is often unintentional: the test is logically
+asserting that an event occurred or an error was raised, but is mechanically
+coupled to the exact wording of a message. If the message changes for any
+reason — clarity, internationalisation, refactoring — the test will fail
+without any behavioral regression occurring.
+
+These are informational only. No action is required. If you choose to act:
+- Prefer asserting on error types, status codes, or structured fields rather
+  than message strings
+- Where string assertions are intentional (e.g. testing exact CLI output),
+  consider extracting the string to a shared constant so source and test stay
+  in sync automatically
+
+Findings below are observations, not verdicts."""
 
 
 def format_audit_report(result: AuditResult, verbose: bool = False) -> str:
@@ -987,10 +1031,24 @@ def format_audit_report(result: AuditResult, verbose: bool = False) -> str:
 
     infos = [i for i in result.issues if i.severity == "info"]
     if infos:
-        lines.append("## Info (advisory)\n")
-        for issue in infos:
-            lines.append(f"- `{issue.path}`: {issue.message}")
-        lines.append("")
+        implicit_contracts = [i for i in infos if i.category == "obligation_implicit_contract"]
+        other_infos = [i for i in infos if i.category != "obligation_implicit_contract"]
+
+        if other_infos:
+            lines.append("## Info (advisory)\n")
+            for issue in other_infos:
+                lines.append(f"- `{issue.path}`: {issue.message}")
+            lines.append("")
+
+        if implicit_contracts:
+            has_test_pairs = any(_is_test_path(str(ic.path)) for ic in implicit_contracts)
+            lines.append("## Implicit String Contracts\n")
+            if has_test_pairs:
+                lines.append(_IMPLICIT_CONTRACT_PREAMBLE)
+                lines.append("")
+            for issue in implicit_contracts:
+                lines.append(f"- `{issue.path}`: {issue.message}")
+            lines.append("")
 
     lines.append("---")
     lines.append(f"**Result**: {len(errors)} error(s), {len(warnings)} warning(s), {len(infos)} info(s)")
@@ -1559,21 +1617,46 @@ def _html_info_section(result: "AuditResult") -> str:
     if not infos:
         return ""
 
+    implicit_contracts = [i for i in infos if i.category == "obligation_implicit_contract"]
+    other_infos = [i for i in infos if i.category != "obligation_implicit_contract"]
+
     parts: list[str] = []
-    parts.append('<div class="section" id="section-info">')
-    parts.append('<div class="section-head">Info</div>')
-    parts.append('<div class="section-body">')
-    parts.append(f'<p>{len(infos)} advisory finding(s)</p>')
-    collapse = len(infos) > 20
-    if collapse:
-        parts.append(f'<details><summary>All findings ({len(infos)})</summary>')
-    parts.append('<ul class="file-list">')
-    for issue in infos:
-        parts.append(f'<li>{_h(str(issue.path))}{_issue_loc(issue)}: {_h(issue.message)}</li>')
-    parts.append('</ul>')
-    if collapse:
-        parts.append('</details>')
-    parts.append('</div></div>')
+
+    if other_infos:
+        parts.append('<div class="section" id="section-info">')
+        parts.append('<div class="section-head">Info</div>')
+        parts.append('<div class="section-body">')
+        parts.append(f'<p>{len(other_infos)} advisory finding(s)</p>')
+        collapse = len(other_infos) > 20
+        if collapse:
+            parts.append(f'<details><summary>All findings ({len(other_infos)})</summary>')
+        parts.append('<ul class="file-list">')
+        for issue in other_infos:
+            parts.append(f'<li>{_h(str(issue.path))}{_issue_loc(issue)}: {_h(issue.message)}</li>')
+        parts.append('</ul>')
+        if collapse:
+            parts.append('</details>')
+        parts.append('</div></div>')
+
+    if implicit_contracts:
+        has_test_pairs = any(_is_test_path(str(ic.path)) for ic in implicit_contracts)
+        parts.append('<div class="section" id="section-implicit-contracts">')
+        parts.append('<div class="section-head">Implicit String Contracts</div>')
+        parts.append('<div class="section-body">')
+        if has_test_pairs:
+            parts.append(f'<p>{_h(_IMPLICIT_CONTRACT_PREAMBLE)}</p>')
+        parts.append(f'<p>{len(implicit_contracts)} finding(s)</p>')
+        collapse = len(implicit_contracts) > 20
+        if collapse:
+            parts.append(f'<details><summary>All findings ({len(implicit_contracts)})</summary>')
+        parts.append('<ul class="file-list">')
+        for issue in implicit_contracts:
+            parts.append(f'<li>{_h(str(issue.path))}{_issue_loc(issue)}: {_h(issue.message)}</li>')
+        parts.append('</ul>')
+        if collapse:
+            parts.append('</details>')
+        parts.append('</div></div>')
+
     return "\n".join(parts)
 
 
