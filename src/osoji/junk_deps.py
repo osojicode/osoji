@@ -572,7 +572,7 @@ def scan_imports(
         return candidates
 
     escaped = [re.escape(name) for name in all_import_names]
-    pattern = re.compile(r"\b(" + "|".join(escaped) + r")\b")
+    pattern = re.compile(r"(?<!\w)(" + "|".join(escaped) + r")(?!\w)")
 
     # Scan all repo files
     all_paths, _ = list_repo_files(config)

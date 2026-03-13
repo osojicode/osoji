@@ -278,6 +278,23 @@ class TestScanImports:
         # Actually \b between _ and r: _r has no boundary. So this should NOT match.
         assert candidates[0].import_hits == 0
 
+    def test_scoped_npm_package(self, temp_dir):
+        """Scoped @org/pkg names must be detected despite @ being a non-word char."""
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        _write_source(
+            temp_dir, "src/server.ts",
+            "import { Server } from '@modelcontextprotocol/sdk/server/index.js'\n",
+        )
+        _write_source(temp_dir, "package.json", '{"dependencies":{"@modelcontextprotocol/sdk":"^1.0"}}\n')
+
+        candidates = [DependencyCandidate(
+            manifest_path="package.json", package_name="@modelcontextprotocol/sdk",
+            import_names=["@modelcontextprotocol/sdk"], ecosystem="node", line_number=1,
+        )]
+        scan_imports(config, candidates)
+        assert candidates[0].import_hits > 0
+        assert "src/server.ts" in candidates[0].hit_files
+
     def test_multiple_import_names(self, temp_dir):
         config = Config(root_path=temp_dir, respect_gitignore=False)
         _write_source(temp_dir, "src/app.py", "from PIL import Image\n")
