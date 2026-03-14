@@ -139,6 +139,8 @@ def _load_audit_findings_by_path(config: Config) -> tuple[str, dict[str, list[di
             "line_start": issue.get("line_start"),
             "line_end": issue.get("line_end"),
         }
+        if "origin" in issue:
+            finding["origin"] = issue["origin"]
         by_path.setdefault(rel_path, []).append(finding)
 
     for rel_path, findings in by_path.items():

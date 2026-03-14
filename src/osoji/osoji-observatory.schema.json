@@ -1,0 +1,538 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://osojicode.ai/schemas/osoji-observatory.schema.json",
+  "title": "Osoji Observatory Bundle",
+  "description": "Schema for the osoji observatory export bundle produced by `osoji export`. This is the authoritative contract for the osoji-teams ingest API and dashboard.",
+  "type": "object",
+  "required": [
+    "schema_name",
+    "schema_version",
+    "osoji_version",
+    "generated_at",
+    "audit_status",
+    "project",
+    "metrics",
+    "tokens",
+    "scorecard",
+    "import_graph",
+    "doc_analysis",
+    "tree"
+  ],
+  "properties": {
+    "schema_name": {
+      "type": "string",
+      "const": "osoji-observatory"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "osoji_version": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "audit_status": {
+      "type": "string",
+      "enum": ["present", "missing"]
+    },
+    "project": {
+      "$ref": "#/$defs/Project"
+    },
+    "metrics": {
+      "$ref": "#/$defs/BundleMetrics"
+    },
+    "tokens": {
+      "$ref": "#/$defs/BundleTokens"
+    },
+    "scorecard": {
+      "anyOf": [
+        { "$ref": "#/$defs/Scorecard" },
+        { "type": "null" }
+      ]
+    },
+    "import_graph": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ImportEdge" }
+    },
+    "doc_analysis": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/DocAnalysisEntry" }
+    },
+    "tree": {
+      "$ref": "#/$defs/TreeNode"
+    }
+  },
+  "$defs": {
+    "Project": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" }
+      }
+    },
+    "BundleMetrics": {
+      "type": "object",
+      "required": [
+        "aggregate_health",
+        "file_count",
+        "dir_count",
+        "compression_ratio",
+        "compression_savings_ratio"
+      ],
+      "properties": {
+        "aggregate_health": {
+          "type": ["number", "null"]
+        },
+        "file_count": {
+          "type": "integer"
+        },
+        "dir_count": {
+          "type": "integer"
+        },
+        "compression_ratio": {
+          "type": ["number", "null"]
+        },
+        "compression_savings_ratio": {
+          "type": ["number", "null"]
+        }
+      }
+    },
+    "BundleTokens": {
+      "type": "object",
+      "required": ["source_tokens", "shadow_tokens"],
+      "properties": {
+        "source_tokens": { "type": "integer" },
+        "shadow_tokens": { "type": "integer" }
+      }
+    },
+    "ImportEdge": {
+      "type": "object",
+      "required": ["source", "target", "names", "is_reexport"],
+      "properties": {
+        "source": { "type": "string" },
+        "target": { "type": "string" },
+        "names": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "is_reexport": { "type": "boolean" }
+      }
+    },
+    "DocAnalysisEntry": {
+      "type": "object",
+      "required": [
+        "classification",
+        "confidence",
+        "purpose",
+        "topics",
+        "matched_sources",
+        "accuracy_error_count"
+      ],
+      "properties": {
+        "classification": { "type": ["string", "null"] },
+        "confidence": { "type": ["number", "null"] },
+        "purpose": { "type": ["string", "null"] },
+        "topics": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "matched_sources": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "accuracy_error_count": { "type": "integer" }
+      }
+    },
+    "Origin": {
+      "description": "Provenance metadata for an audit finding. Absent origin is treated as {\"source\": \"llm\"} for backward compatibility.",
+      "type": "object",
+      "required": ["source"],
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": ["llm", "static", "hybrid"]
+        },
+        "plugin": { "type": "string" },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "AuditFinding": {
+      "type": "object",
+      "required": [
+        "severity",
+        "category",
+        "message",
+        "remediation",
+        "line_start",
+        "line_end"
+      ],
+      "properties": {
+        "severity": { "type": "string" },
+        "category": { "type": "string" },
+        "message": { "type": "string" },
+        "remediation": { "type": ["string", "null"] },
+        "line_start": { "type": ["integer", "null"] },
+        "line_end": { "type": ["integer", "null"] },
+        "origin": { "$ref": "#/$defs/Origin" }
+      }
+    },
+    "FileShadow": {
+      "type": "object",
+      "required": ["exists", "is_stale", "content"],
+      "properties": {
+        "exists": { "type": "boolean" },
+        "is_stale": { "type": "boolean" },
+        "content": { "type": ["string", "null"] }
+      }
+    },
+    "DirectoryShadow": {
+      "type": "object",
+      "required": ["exists", "content"],
+      "properties": {
+        "exists": { "type": "boolean" },
+        "content": { "type": ["string", "null"] }
+      }
+    },
+    "Signature": {
+      "type": "object",
+      "required": ["purpose", "topics", "public_surface"],
+      "properties": {
+        "purpose": { "type": ["string", "null"] },
+        "topics": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "public_surface": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "Symbols": {
+      "type": "object",
+      "required": ["count", "public_count", "file_role"],
+      "properties": {
+        "count": { "type": "integer" },
+        "public_count": { "type": "integer" },
+        "file_role": { "type": ["string", "null"] }
+      }
+    },
+    "FileTokens": {
+      "type": "object",
+      "required": ["source_tokens", "shadow_tokens"],
+      "properties": {
+        "source_tokens": { "type": ["integer", "null"] },
+        "shadow_tokens": { "type": ["integer", "null"] }
+      }
+    },
+    "FileMetrics": {
+      "type": "object",
+      "required": [
+        "health_score",
+        "junk_fraction",
+        "error_count",
+        "warning_count",
+        "findings_count",
+        "audit_findings_count"
+      ],
+      "properties": {
+        "health_score": { "type": ["number", "null"] },
+        "junk_fraction": { "type": "number" },
+        "error_count": { "type": "integer" },
+        "warning_count": { "type": "integer" },
+        "findings_count": { "type": "integer" },
+        "audit_findings_count": { "type": "integer" }
+      }
+    },
+    "ResolvedImport": {
+      "type": "object",
+      "required": ["resolved_target", "names"],
+      "properties": {
+        "resolved_target": { "type": ["string", "null"] },
+        "names": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "ExportEntry": {
+      "type": "object",
+      "required": ["name", "kind", "line"],
+      "properties": {
+        "name": { "type": "string" },
+        "kind": { "type": "string" },
+        "line": { "type": ["integer", "null"] }
+      }
+    },
+    "CallEntry": {
+      "type": "object",
+      "required": ["from_symbol", "to", "line"],
+      "properties": {
+        "from_symbol": { "type": "string" },
+        "to": { "type": "string" },
+        "line": { "type": ["integer", "null"] }
+      }
+    },
+    "FactsSummary": {
+      "type": "object",
+      "required": ["imports", "exports", "calls"],
+      "properties": {
+        "imports": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ResolvedImport" }
+        },
+        "exports": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ExportEntry" }
+        },
+        "calls": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CallEntry" }
+        }
+      }
+    },
+    "FileNode": {
+      "type": "object",
+      "required": [
+        "node_type",
+        "name",
+        "path",
+        "lines",
+        "shadow",
+        "signature",
+        "symbols",
+        "tokens",
+        "metrics",
+        "audit_findings",
+        "facts_summary"
+      ],
+      "properties": {
+        "node_type": { "type": "string", "const": "file" },
+        "name": { "type": "string" },
+        "path": { "type": "string" },
+        "lines": { "type": "integer" },
+        "shadow": { "$ref": "#/$defs/FileShadow" },
+        "signature": { "$ref": "#/$defs/Signature" },
+        "symbols": { "$ref": "#/$defs/Symbols" },
+        "tokens": { "$ref": "#/$defs/FileTokens" },
+        "metrics": { "$ref": "#/$defs/FileMetrics" },
+        "audit_findings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/AuditFinding" }
+        },
+        "facts_summary": {
+          "anyOf": [
+            { "$ref": "#/$defs/FactsSummary" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "DirectoryNode": {
+      "type": "object",
+      "required": [
+        "node_type",
+        "name",
+        "path",
+        "shadow",
+        "children"
+      ],
+      "properties": {
+        "node_type": { "type": "string", "const": "directory" },
+        "name": { "type": "string" },
+        "path": { "type": "string" },
+        "shadow": { "$ref": "#/$defs/DirectoryShadow" },
+        "children": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TreeNode" }
+        }
+      }
+    },
+    "TreeNode": {
+      "anyOf": [
+        { "$ref": "#/$defs/FileNode" },
+        { "$ref": "#/$defs/DirectoryNode" }
+      ]
+    },
+    "CoveringDoc": {
+      "type": "object",
+      "required": ["path", "classification"],
+      "properties": {
+        "path": { "type": "string" },
+        "classification": { "type": "string" }
+      }
+    },
+    "CoverageEntry": {
+      "type": "object",
+      "required": ["source_path", "topic_signature", "covering_docs"],
+      "properties": {
+        "source_path": { "type": "string" },
+        "topic_signature": {
+          "anyOf": [
+            { "type": "object" },
+            { "type": "null" }
+          ]
+        },
+        "covering_docs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CoveringDoc" }
+        }
+      }
+    },
+    "JunkItem": {
+      "type": "object",
+      "required": ["category", "line_start", "line_end"],
+      "properties": {
+        "category": { "type": "string" },
+        "line_start": { "type": "integer" },
+        "line_end": { "type": "integer" },
+        "source": { "type": "string" },
+        "confidence_source": { "type": "string" }
+      }
+    },
+    "JunkCodeEntry": {
+      "type": "object",
+      "required": [
+        "source_path",
+        "total_lines",
+        "junk_lines",
+        "junk_fraction",
+        "items"
+      ],
+      "properties": {
+        "source_path": { "type": "string" },
+        "total_lines": { "type": "integer" },
+        "junk_lines": { "type": "integer" },
+        "junk_fraction": { "type": "number" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/JunkItem" }
+        }
+      }
+    },
+    "EnforcementSchemaEntry": {
+      "type": "object",
+      "required": ["unactuated", "fields"],
+      "properties": {
+        "unactuated": { "type": "integer" },
+        "fields": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "Scorecard": {
+      "type": "object",
+      "required": [
+        "coverage_entries",
+        "coverage_pct",
+        "covered_count",
+        "total_source_count",
+        "coverage_by_type",
+        "type_covered_counts",
+        "type_total_counts",
+        "dead_docs",
+        "total_accuracy_errors",
+        "live_doc_count",
+        "accuracy_errors_per_doc",
+        "accuracy_by_category",
+        "junk_total_lines",
+        "junk_total_source_lines",
+        "junk_fraction",
+        "junk_item_count",
+        "junk_file_count",
+        "junk_by_category",
+        "junk_by_category_lines",
+        "junk_entries",
+        "junk_sources",
+        "enforcement_total_obligations",
+        "enforcement_unactuated",
+        "enforcement_pct_unactuated",
+        "enforcement_by_schema"
+      ],
+      "properties": {
+        "coverage_entries": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CoverageEntry" }
+        },
+        "coverage_pct": { "type": "number" },
+        "covered_count": { "type": "integer" },
+        "total_source_count": { "type": "integer" },
+        "coverage_by_type": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        },
+        "type_covered_counts": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        },
+        "type_total_counts": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        },
+        "dead_docs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "total_accuracy_errors": { "type": "integer" },
+        "live_doc_count": { "type": "integer" },
+        "accuracy_errors_per_doc": { "type": "number" },
+        "accuracy_by_category": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        },
+        "junk_total_lines": { "type": "integer" },
+        "junk_total_source_lines": { "type": "integer" },
+        "junk_fraction": { "type": "number" },
+        "junk_item_count": { "type": "integer" },
+        "junk_file_count": { "type": "integer" },
+        "junk_by_category": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        },
+        "junk_by_category_lines": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        },
+        "junk_entries": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/JunkCodeEntry" }
+        },
+        "junk_sources": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "enforcement_total_obligations": {
+          "type": ["integer", "null"]
+        },
+        "enforcement_unactuated": {
+          "type": ["integer", "null"]
+        },
+        "enforcement_pct_unactuated": {
+          "type": ["number", "null"]
+        },
+        "enforcement_by_schema": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": { "$ref": "#/$defs/EnforcementSchemaEntry" }
+            },
+            { "type": "null" }
+          ]
+        },
+        "obligation_violations": {
+          "type": ["integer", "null"]
+        },
+        "obligation_implicit_contracts": {
+          "type": ["integer", "null"]
+        }
+      }
+    }
+  }
+}

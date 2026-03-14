@@ -202,6 +202,16 @@ class LiteLLMProvider(LLMProvider):
 
     async def close(self) -> None:
         await self._client.close()
+        # Drain litellm's internal async logging worker so pending
+        # async_success_handler coroutines are awaited before the event
+        # loop tears down (prevents RuntimeWarning).
+        try:
+            from litellm.litellm_core_utils.logging_worker import GLOBAL_LOGGING_WORKER
+
+            await GLOBAL_LOGGING_WORKER.flush()
+            await GLOBAL_LOGGING_WORKER.stop()
+        except Exception:
+            pass  # Best-effort: don't break on litellm internal API changes
 
     def _build_request_kwargs(
         self,

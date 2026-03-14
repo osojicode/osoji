@@ -13,6 +13,7 @@ from .shadow import generate_shadow_docs_async, generate_shadow_docs, check_shad
 from .stats import gather_stats, format_stats_report
 from .observatory import write_observatory_bundle
 from .hooks import install_hooks, uninstall_hooks
+from .push import run_push
 from .llm import provider_names
 from .safety import check_staged_files, check_files as safety_check_files
 from .safety.checker import format_check_result
@@ -371,6 +372,33 @@ def report(ctx: click.Context, path: Path, output_format: str) -> None:
 
     if not result.passed:
         raise SystemExit(1)
+
+
+@main.command()
+@click.option("--project", help="Project slug (default: from config or git remote)")
+@click.option("--org", help="Organization slug (default: from config or git remote)")
+@click.option("--token", help="API token (default: OSOJI_TOKEN env var)")
+@click.option("--endpoint", help="API endpoint URL (default: OSOJI_ENDPOINT env var)")
+@click.pass_context
+def push(ctx: click.Context, project: str | None, org: str | None, token: str | None, endpoint: str | None) -> None:
+    """Push observatory bundle to osoji-teams."""
+    state = _cli_state(ctx)
+
+    result = run_push(
+        endpoint=endpoint,
+        token=token,
+        project=project,
+        org=org,
+        root_path=Path(".").resolve(),
+        quiet=state.quiet,
+    )
+
+    if result.duplicate:
+        click.echo(f"Bundle already pushed (duplicate). run_id: {result.run_id}")
+    else:
+        click.echo(f"Pushed successfully. run_id: {result.run_id}")
+        if result.dashboard_url:
+            click.echo(f"Dashboard: {result.dashboard_url}")
 
 
 @main.command(name="export")

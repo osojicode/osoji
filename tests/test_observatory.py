@@ -3,8 +3,11 @@
 import json
 from pathlib import Path
 
+import jsonschema
+import pytest
 from click.testing import CliRunner
 
+import osoji
 from osoji.cli import main
 from osoji.hasher import compute_hash, compute_impl_hash
 from osoji.observatory import (
@@ -12,6 +15,12 @@ from osoji.observatory import (
     OBSERVATORY_SCHEMA_VERSION,
     build_observatory_bundle,
 )
+
+_SCHEMA_PATH = Path(osoji.__file__).parent / "osoji-observatory.schema.json"
+
+
+def _load_schema() -> dict:
+    return json.loads(_SCHEMA_PATH.read_text(encoding="utf-8"))
 
 
 def _write_source(root: Path, rel_path: str, content: str = "x = 1\n") -> Path:
@@ -390,3 +399,175 @@ def test_export_command_writes_bundle_file(temp_dir):
     payload = json.loads(output_path.read_text(encoding="utf-8"))
     assert payload["schema_name"] == OBSERVATORY_SCHEMA_NAME
     assert payload["schema_version"] == OBSERVATORY_SCHEMA_VERSION
+
+
+# --- Schema validation tests ---
+
+
+def test_schema_file_is_valid_json():
+    schema = _load_schema()
+    assert "$schema" in schema
+    assert "$defs" in schema
+    assert "properties" in schema
+    jsonschema.Draft202012Validator.check_schema(schema)
+
+
+def test_minimal_bundle_validates_against_schema(temp_dir):
+    _write_source(temp_dir, "main.py", "x = 1\n")
+
+    bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
+    schema = _load_schema()
+    jsonschema.validate(instance=bundle, schema=schema)
+
+
+def test_full_bundle_validates_against_schema(temp_dir):
+    content = "def run():\n    return 1\n"
+    _write_source(temp_dir, "src/mod.py", content)
+    _write_shadow(
+        temp_dir,
+        "src/mod.py",
+        source_hash=compute_hash(content),
+        impl_hash=compute_impl_hash(),
+    )
+    _write_findings(
+        temp_dir,
+        "src/mod.py",
+        [
+            {
+                "category": "dead_code",
+                "severity": "warning",
+                "line_start": 1,
+                "line_end": 1,
+                "description": "Old helper",
+            }
+        ],
+    )
+    _write_symbols(
+        temp_dir,
+        "src/mod.py",
+        [{"name": "run", "kind": "function", "line_start": 1, "line_end": 2, "visibility": "public"}],
+    )
+    _write_signature(temp_dir, "src/mod.py", "Runs flow", ["execution"])
+    _write_token_cache(temp_dir, {"src/mod.py": {"source_tokens": 100, "shadow_tokens": 40}})
+    _write_facts(temp_dir, "src/mod.py", {
+        "source": "src/mod.py",
+        "source_hash": "abc",
+        "imports": [],
+        "exports": [{"name": "run", "kind": "function", "line": 1}],
+        "calls": [],
+        "member_writes": [],
+        "string_literals": [],
+    })
+    _write_doc_analysis(temp_dir, "README.md", {
+        "classification": "reference",
+        "confidence": 0.95,
+        "purpose": "Overview",
+        "topics": ["CLI"],
+        "matched_sources": ["src/mod.py"],
+        "accuracy_error_count": 0,
+    })
+    scorecard = {
+        "coverage_entries": [],
+        "coverage_pct": 100.0,
+        "covered_count": 1,
+        "total_source_count": 1,
+        "coverage_by_type": {},
+        "type_covered_counts": {},
+        "type_total_counts": {},
+        "dead_docs": [],
+        "total_accuracy_errors": 0,
+        "live_doc_count": 1,
+        "accuracy_errors_per_doc": 0.0,
+        "accuracy_by_category": {},
+        "junk_total_lines": 0,
+        "junk_total_source_lines": 100,
+        "junk_fraction": 0.0,
+        "junk_item_count": 0,
+        "junk_file_count": 0,
+        "junk_by_category": {},
+        "junk_by_category_lines": {},
+        "junk_entries": [],
+        "junk_sources": [],
+        "enforcement_total_obligations": None,
+        "enforcement_unactuated": None,
+        "enforcement_pct_unactuated": None,
+        "enforcement_by_schema": None,
+        "obligation_violations": None,
+        "obligation_implicit_contracts": None,
+    }
+    _write_audit_result(
+        temp_dir,
+        [
+            {
+                "path": "src/mod.py",
+                "severity": "warning",
+                "category": "dead_code",
+                "message": "Unused helper",
+                "remediation": "Remove it",
+                "line_start": 1,
+                "line_end": 1,
+            }
+        ],
+        scorecard=scorecard,
+    )
+
+    bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
+    schema = _load_schema()
+    jsonschema.validate(instance=bundle, schema=schema)
+
+
+def test_audit_finding_with_origin_passes_through(temp_dir):
+    _write_source(temp_dir, "main.py", "x = 1\n")
+    _write_audit_result(temp_dir, [
+        {
+            "path": "main.py",
+            "severity": "warning",
+            "category": "dead_code",
+            "message": "Unused var",
+            "remediation": "Remove it",
+            "line_start": 1,
+            "line_end": 1,
+            "origin": {"source": "static", "plugin": "eslint", "confidence": 0.9},
+        }
+    ])
+
+    bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
+    file_node = _find_file_node(bundle["tree"], "main.py")
+    assert len(file_node["audit_findings"]) == 1
+    finding = file_node["audit_findings"][0]
+    assert finding["origin"] == {"source": "static", "plugin": "eslint", "confidence": 0.9}
+
+    schema = _load_schema()
+    jsonschema.validate(instance=bundle, schema=schema)
+
+
+def test_invalid_bundle_fails_schema_validation():
+    schema = _load_schema()
+    invalid_bundle = {
+        "schema_name": "osoji-observatory",
+        "schema_version": "1.1.0",
+        "osoji_version": "0.2.0",
+        "generated_at": "2026-03-13T00:00:00+00:00",
+        "audit_status": 123,
+        "project": {"name": "test"},
+        "metrics": {
+            "aggregate_health": None,
+            "file_count": 0,
+            "dir_count": 1,
+            "compression_ratio": None,
+            "compression_savings_ratio": None,
+        },
+        "tokens": {"source_tokens": 0, "shadow_tokens": 0},
+        "scorecard": None,
+        "import_graph": [],
+        "doc_analysis": {},
+        "tree": {
+            "node_type": "directory",
+            "name": "test",
+            "path": "",
+            "shadow": {"exists": False, "content": None},
+            "children": [],
+        },
+    }
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(instance=invalid_bundle, schema=schema)

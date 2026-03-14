@@ -43,7 +43,7 @@ export analysis, and string contract checking.
 
 ## Key architecture
 
-- `src/osoji/cli.py` — Click CLI with subcommands: `shadow`, `check` (`--dry-run`), `diff`, `stats`, `audit`, `report`, `hooks`, `safety`
+- `src/osoji/cli.py` — Click CLI with subcommands: `shadow`, `check` (`--dry-run`), `diff`, `stats`, `audit`, `report`, `push`, `hooks`, `safety`
 - `src/osoji/config.py` — Configuration, path helpers, model tier constants
 - `src/osoji/shadow.py` — Core shadow doc generation engine
 - `src/osoji/audit.py` — Multi-phase audit orchestration
@@ -64,7 +64,30 @@ export analysis, and string contract checking.
 - `src/osoji/hasher.py` — SHA-256 hashing and Merkle staleness detection
 - `src/osoji/diff.py` — Git diff documentation impact analysis
 - `src/osoji/stats.py` — Token counting statistics
+- `src/osoji/push.py` — Push observatory bundle to osoji-teams ingest API
 - `src/osoji/hooks.py` — Git hook installation and management
+- `src/osoji/osoji-observatory.schema.json` — JSON Schema (Draft 2020-12) for the observatory bundle
+
+## Observatory bundle schema
+
+`src/osoji/osoji-observatory.schema.json` is the authoritative contract for
+the bundle shape produced by `osoji export`. It uses JSON Schema Draft 2020-12.
+
+- **Updating**: when `observatory.py` adds or changes bundle fields, mirror
+  the change in the schema file and add a schema validation test.
+- **osoji-teams**: the ingest API and dashboard consume this schema. Coordinate
+  schema changes with the osoji-teams repo.
+- **Validation**: schema validation lives exclusively in `tests/test_observatory.py`
+  using `jsonschema`. There is no runtime validation in `observatory.py`.
+
+## Push configuration
+
+The `osoji push` command reads `[push]` config from three files (later overrides earlier):
+- `~/.config/osoji/config.toml` — global defaults
+- `.osoji.toml` — committed project config (org, project, endpoint)
+- `.osoji.local.toml` — gitignored local overrides (token, custom endpoint)
+
+CLI flags and environment variables (`OSOJI_ENDPOINT`, `OSOJI_TOKEN`) take highest precedence.
 
 ## LLM parameters
 

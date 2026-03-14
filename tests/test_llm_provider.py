@@ -2,7 +2,7 @@
 
 import asyncio
 import json
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -421,3 +421,33 @@ def test_default_options_omit_temperature(openai_provider):
     kwargs = openai_provider._client.messages.create.call_args.kwargs
     assert "temperature" not in kwargs
     assert result.content == "ok"
+
+
+def test_close_flushes_litellm_logging_worker(openai_provider):
+    """close() drains litellm's GLOBAL_LOGGING_WORKER to prevent RuntimeWarning."""
+    mock_worker = MagicMock()
+    mock_worker.flush = AsyncMock()
+    mock_worker.stop = AsyncMock()
+
+    with patch(
+        "osoji.llm.litellm_provider.GLOBAL_LOGGING_WORKER",
+        mock_worker,
+        create=True,
+    ), patch.dict(
+        "sys.modules",
+        {"litellm.litellm_core_utils.logging_worker": MagicMock(GLOBAL_LOGGING_WORKER=mock_worker)},
+    ):
+        asyncio.run(openai_provider.close())
+
+    mock_worker.flush.assert_awaited_once()
+    mock_worker.stop.assert_awaited_once()
+
+
+def test_close_swallows_logging_worker_errors(openai_provider):
+    """close() must not raise if litellm internals change or fail."""
+    with patch.dict(
+        "sys.modules",
+        {"litellm.litellm_core_utils.logging_worker": None},
+    ):
+        # Should not raise — the ImportError is swallowed
+        asyncio.run(openai_provider.close())
