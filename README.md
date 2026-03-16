@@ -187,16 +187,6 @@ Keep CLAUDE_CODE_PROMPT.md as historical reference.
 Files in docs/internal/ are team documentation, not debris.
 ```
 
-### Interactive Codebase Visualization
-
-Launch an interactive browser-based visualization of your codebase health:
-
-```bash
-osoji viz /path/to/project
-```
-
-Opens a local web page showing codebase structure, documentation coverage, and health metrics as an interactive graph.
-
 ### Observatory Export
 
 Export a stable, versioned observatory bundle for downstream consumers such as `osoji-teams`:

@@ -30,14 +30,11 @@ class TestComputeImplHash:
         assert len(included) > 8
 
     def test_excludes_are_respected(self):
-        """Excluded files should not appear in the impl hash inputs."""
+        """Excluded file entries in _IMPL_HASH_EXCLUDES point to real files (guards against stale excludes)."""
         pkg_dir = Path(__file__).resolve().parent.parent / "src" / "osoji"
         for excluded in _IMPL_HASH_EXCLUDES:
             excluded_path = pkg_dir / excluded
-            # The excluded file should exist (otherwise the exclude is stale)
-            # but it's okay if it doesn't (e.g. during refactoring)
             if excluded_path.exists():
-                # Just verify it's a real file
                 assert excluded_path.is_file()
 
     def test_deterministic(self):

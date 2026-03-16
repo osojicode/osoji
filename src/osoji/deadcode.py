@@ -637,8 +637,7 @@ async def detect_dead_code_async(
                 sym_tuples = [
                     (s["name"], s["line_start"], s.get("line_end"))
                     for s in symbols
-                    if s.get("visibility") != "internal"
-                    and s["name"] not in excluded_names
+                    if s["name"] not in excluded_names
                 ]
                 alive = _compute_transitive_liveness(
                     sym_tuples, file_lines,

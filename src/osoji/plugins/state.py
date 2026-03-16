@@ -29,7 +29,7 @@ def _state_path(project_root: Path) -> Path:
     return project_root / SHADOW_DIR / "plugin_state.json"
 
 
-def _compute_project_hash(project_root: Path, files: list[Path]) -> str:
+def _compute_project_hash(files: list[Path]) -> str:
     """Compute a hash over all applicable file hashes (sorted for determinism)."""
     hashes = sorted(compute_file_hash(f) for f in files)
     combined = hashlib.sha256("\n".join(hashes).encode("utf-8")).hexdigest()[:16]
@@ -76,7 +76,7 @@ def is_plugin_stale(
     if not state:
         return True
 
-    current_hash = _compute_project_hash(project_root, applicable_files)
+    current_hash = _compute_project_hash(applicable_files)
     return current_hash != state.project_hash
 
 
@@ -91,6 +91,6 @@ def record_plugin_extraction(
         plugin_name=plugin_name,
         extracted_at=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         file_count=len(applicable_files),
-        project_hash=_compute_project_hash(project_root, applicable_files),
+        project_hash=_compute_project_hash(applicable_files),
     )
     save_plugin_state(project_root, states)

@@ -356,7 +356,7 @@ def _build_deadparam_prompt(
     return "\n".join(user_parts)
 
 
-def _estimate_deadparam_prompt_tokens(config: Config, user_prompt: str) -> int:
+def _estimate_deadparam_prompt_tokens(user_prompt: str) -> int:
     return estimate_completion_input_tokens_offline(
         [Message(role=MessageRole.USER, content=user_prompt)],
         system=_DEAD_PARAM_SYSTEM_PROMPT,
@@ -393,7 +393,7 @@ def _build_call_site_chunks(
             proposed_chunk,
             total_call_sites=len(all_call_sites),
         )
-        if current_chunk and _estimate_deadparam_prompt_tokens(config, prompt) > max_input_tokens:
+        if current_chunk and _estimate_deadparam_prompt_tokens(prompt) > max_input_tokens:
             chunks.append(current_chunk)
             current_chunk = list(group)
             continue

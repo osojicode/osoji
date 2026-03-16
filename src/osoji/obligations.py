@@ -398,6 +398,21 @@ class StringContractChecker(ContractChecker):
             return True
         if self._looks_like_external_protocol_occurrence(occ):
             return True
+        if self._looks_like_duck_typing_or_config_access(occ):
+            return True
+        return False
+
+    def _looks_like_duck_typing_or_config_access(self, occ: StringOccurrence) -> bool:
+        """Heuristic filter for duck-typing checks (getattr) and config/dict key access (.get())."""
+        cs = occ.comparison_source
+        if not cs:
+            return False
+        # getattr(obj, "method") — duck-typing, not a project contract
+        if "getattr(" in cs:
+            return True
+        # obj.get("key") — dict/config access pattern
+        if ".get(" in cs:
+            return True
         return False
 
     def _should_ignore_produced_occurrence(self, occ: StringOccurrence) -> bool:

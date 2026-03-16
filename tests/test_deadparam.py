@@ -1,7 +1,6 @@
 """Tests for dead parameter detection (no LLM calls — mocked)."""
 
 import json
-from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -514,7 +513,7 @@ class TestVerification:
 
         with patch(
             "osoji.deadparam._estimate_deadparam_prompt_tokens",
-            side_effect=lambda _config, prompt: 999999 if prompt.count("### Call site") > 5 else 1,
+            side_effect=lambda prompt: 999999 if prompt.count("### Call site") > 5 else 1,
         ):
             import asyncio
 

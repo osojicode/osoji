@@ -172,12 +172,15 @@ class _FileExtractor(ast.NodeVisitor):
                 and not local.startswith("_")
                 and (self.all_set is None or local in self.all_set)
             )
-            self.imports.append({
+            imp: dict = {
                 "source": alias.name,
                 "names": [local],
                 "line": node.lineno,
                 "is_reexport": is_reexport,
-            })
+            }
+            if alias.asname:
+                imp["name_map"] = {local: alias.name}
+            self.imports.append(imp)
         self.generic_visit(node)
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
@@ -187,9 +190,12 @@ class _FileExtractor(ast.NodeVisitor):
         source = f"{dots}{module}" if dots else module
 
         names = []
+        name_map: dict[str, str] = {}
         for alias in (node.names or []):
             local = alias.asname or alias.name
             names.append(local)
+            if alias.asname:
+                name_map[local] = alias.name
 
         is_reexport = False
         if self.is_init:
@@ -201,12 +207,15 @@ class _FileExtractor(ast.NodeVisitor):
             if public_names:
                 is_reexport = True
 
-        self.imports.append({
+        imp: dict = {
             "source": source,
             "names": names,
             "line": node.lineno,
             "is_reexport": is_reexport,
-        })
+        }
+        if name_map:
+            imp["name_map"] = name_map
+        self.imports.append(imp)
         self.generic_visit(node)
 
     # --- Exports (top-level definitions) ---
@@ -452,10 +461,12 @@ class PythonPlugin(LanguagePlugin):
                 )
                 if not resolved:
                     continue
+                alias_map = imp.get("name_map", {})
                 for name in imp.get("names", []):
                     if name == "*":
                         continue
-                    imap[name] = (resolved, name)
+                    original = alias_map.get(name, name)
+                    imap[name] = (resolved, original)
             import_maps[rel] = imap
 
         # Count call sites per (defining_file, symbol_name)

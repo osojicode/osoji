@@ -76,11 +76,7 @@ class TestBuildEnvelope:
 
 
 def _env_without_osoji(**extra):
-    """Return env patch that removes OSOJI_* vars but keeps system vars like HOME."""
-    remove = {"OSOJI_ENDPOINT": "", "OSOJI_TOKEN": ""}
-    remove.update(extra)
-    # Use empty strings; resolve_push_config reads os.environ.get() which returns ""
-    # but we filter below. Actually, let's just delete them.
+    """Return env dict that removes OSOJI_* vars but keeps system vars like HOME."""
     import os
     clean = {k: v for k, v in os.environ.items() if not k.startswith("OSOJI_")}
     clean.update(extra)
@@ -210,17 +206,12 @@ class TestRunPush:
 
     @patch("osoji.push._post_envelope")
     @patch("osoji.push._get_commits_since", return_value=[])
-    @patch("osoji.push._fetch_last_commit", side_effect=Exception("network error"))
+    @patch("osoji.push._fetch_last_commit", return_value=None)
     @patch("osoji.push.gather_git_context")
-    def test_push_last_commit_fetch_failure_is_nonfatal(self, mock_git_ctx, mock_last, mock_commits, mock_post, git_repo):
+    def test_push_last_commit_missing_is_nonfatal(self, mock_git_ctx, mock_last, mock_commits, mock_post, git_repo):
+        """When _fetch_last_commit returns None, push proceeds with all commits."""
         mock_git_ctx.return_value = _mock_git_context()
         mock_post.return_value = PushResult(success=True, status_code=201, run_id="run_abc")
-
-        # _fetch_last_commit raising should be caught - but we mock it to raise,
-        # so we need the real function's try/except. Let's test differently:
-        # Use the real _fetch_last_commit via a URL error mock instead.
-        mock_last.side_effect = None
-        mock_last.return_value = None  # Simulates failure returning None
 
         result = run_push(
             endpoint="https://api.example.com",

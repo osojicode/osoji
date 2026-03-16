@@ -129,7 +129,7 @@ def find_git_root(start_path: Path) -> Optional[Path]:
     current = start_path.resolve()
     while current != current.parent:
         git_dir = current / ".git"
-        if git_dir.is_dir():
+        if git_dir.exists():
             return current
         current = current.parent
     return None

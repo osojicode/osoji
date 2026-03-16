@@ -290,7 +290,9 @@ class FactsDB:
             # Check imports: does this file import the symbol by name?
             for imp in facts.imports:
                 names = imp.get("names", [])
-                if symbol_name in names:
+                name_map = imp.get("name_map", {})
+                # Match by local name or by original name (alias tracking)
+                if symbol_name in names or symbol_name in name_map.values():
                     resolved = self.resolve_import_source(file_path, imp.get("source", ""))
                     refs.append({
                         "file": file_path,

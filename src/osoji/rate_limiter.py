@@ -182,6 +182,11 @@ def get_config_with_overrides(provider: str) -> RateLimiterConfig:
                 output_tpm_env,
             )
 
+    # Clamp to minimum 1 to prevent division-by-zero in interval calculations
+    config.requests_per_minute = max(1, config.requests_per_minute)
+    config.input_tokens_per_minute = max(1, config.input_tokens_per_minute)
+    config.output_tokens_per_minute = max(1, config.output_tokens_per_minute)
+
     return config
 
 

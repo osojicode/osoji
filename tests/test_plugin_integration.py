@@ -6,7 +6,7 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
-from osoji.facts import FactsDB, FileFacts
+from osoji.facts import FactsDB
 from osoji.plugins.base import ExtractedFacts, PluginUnavailableError, FactsExtractionError
 
 

@@ -46,19 +46,30 @@ process.stdin.on("end", () => {
     for (const decl of sourceFile.getImportDeclarations()) {
       const moduleSpec = decl.getModuleSpecifierValue();
       const names = [];
+      const nameMap = {};
       const defaultImport = decl.getDefaultImport();
       if (defaultImport) names.push(defaultImport.getText());
       for (const named of decl.getNamedImports()) {
-        names.push(named.getAliasNode()?.getText() || named.getName());
+        const alias = named.getAliasNode()?.getText();
+        const original = named.getName();
+        const local = alias || original;
+        names.push(local);
+        if (alias) {
+          nameMap[local] = original;
+        }
       }
       const nsImport = decl.getNamespaceImport();
       if (nsImport) names.push(nsImport.getText());
-      imports.push({
+      const imp = {
         source: moduleSpec,
         names,
         line: decl.getStartLineNumber(),
         is_reexport: false,
-      });
+      };
+      if (Object.keys(nameMap).length > 0) {
+        imp.name_map = nameMap;
+      }
+      imports.push(imp);
     }
 
     // --- Exports ---

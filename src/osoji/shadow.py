@@ -831,13 +831,10 @@ async def _process_large_file_async(
     chunk_shadows: list[str] = []
     total_input_tokens = 0
     total_output_tokens = 0
-    all_findings: list[Finding] = []
-    all_symbols: list[dict] = []
-
     for i, (chunk_text, start_line, end_line) in enumerate(chunks):
         prefixed_chunk = f"[Part {i + 1} of {total_chunks}, lines {start_line}-{end_line}]\n\n{chunk_text}"
 
-        body, in_tok, out_tok, findings, symbols, _file_role, _topic_sig, _chunk_facts = (
+        body, in_tok, out_tok, _findings, _symbols, _file_role, _topic_sig, _chunk_facts = (
             await generate_file_shadow_doc_async(
                 provider, config, file_path, prefixed_chunk
             )
@@ -846,8 +843,6 @@ async def _process_large_file_async(
         chunk_shadows.append(body)
         total_input_tokens += in_tok
         total_output_tokens += out_tok
-        all_findings.extend(findings)
-        all_symbols.extend(symbols)
 
     # Rollup: combine chunk shadows into a single shadow doc
     rollup_body, rollup_in, rollup_out, rollup_findings, rollup_symbols, file_role, topic_signature, rollup_facts = (

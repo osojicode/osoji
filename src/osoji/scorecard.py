@@ -222,7 +222,7 @@ def build_scorecard(
                     "category": item.category,
                     "line_start": item.line_start,
                     "line_end": item.line_end or item.line_start,
-                    "source": item.category,
+                    "source": analyzer_name,
                     "confidence_source": item.confidence_source,
                 })
 

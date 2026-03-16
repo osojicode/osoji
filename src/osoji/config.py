@@ -444,6 +444,9 @@ def _resolve_model_policy(
     *,
     cli_provider: str | None,
     cli_model: str | None,
+    cli_small: str | None = None,
+    cli_medium: str | None = None,
+    cli_large: str | None = None,
     env_provider: str | None,
     env_model: str | None,
     env_small: str | None,
@@ -489,6 +492,16 @@ def _resolve_model_policy(
     resolved_provider = _resolve_setting(provider_candidates)
     provider = resolved_provider.value
 
+    cli_tier_values: dict[str, str | None] = {
+        "small": cli_small,
+        "medium": cli_medium,
+        "large": cli_large,
+    }
+    cli_tier_keys = {
+        "small": "--model-small",
+        "medium": "--model-medium",
+        "large": "--model-large",
+    }
     env_tier_values = {
         "small": env_small,
         "medium": env_medium,
@@ -502,10 +515,17 @@ def _resolve_model_policy(
 
     models: dict[ModelTier, ResolvedSetting] = {}
     for tier in ("small", "medium", "large"):
+        cli_tier_value = cli_tier_values[tier]
         env_value = env_tier_values[tier]
         env_key = env_tier_keys[tier] if env_value else (ENV_MODEL if env_model else None)
         env_resolved_value = env_value or env_model
         candidates = [
+            _Candidate(
+                source="cli",
+                value=cli_tier_value,
+                key=cli_tier_keys[tier] if cli_tier_value else None,
+                path=None,
+            ),
             _Candidate(
                 source="cli",
                 value=cli_model,
@@ -605,11 +625,14 @@ class Config:
         self._resolved_policy = _resolve_model_policy(
             cli_provider=self.provider,
             cli_model=self.model,
+            cli_small=self.model_small,
+            cli_medium=self.model_medium,
+            cli_large=self.model_large,
             env_provider=_read_env(ENV_PROVIDER),
             env_model=_read_env(ENV_MODEL),
-            env_small=self.model_small or _read_env(ENV_MODEL_SMALL),
-            env_medium=self.model_medium or _read_env(ENV_MODEL_MEDIUM),
-            env_large=self.model_large or _read_env(ENV_MODEL_LARGE),
+            env_small=_read_env(ENV_MODEL_SMALL),
+            env_medium=_read_env(ENV_MODEL_MEDIUM),
+            env_large=_read_env(ENV_MODEL_LARGE),
             project_policy=self._project_policy,
             global_policy=self._global_policy,
         )
