@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import os
@@ -11,6 +12,11 @@ from pathlib import Path
 from typing import Any, Awaitable, Callable
 
 import litellm
+
+# Suppress litellm's noisy "Give Feedback / Get Help" print statements that
+# fire on every exception mapping (including retried rate limits).  This is
+# the same flag litellm's own Router sets (router.py:383).
+litellm.suppress_debug_info = True
 
 from .base import LLMProvider
 from .registry import get_provider_spec, qualify_model_name
@@ -205,13 +211,14 @@ class LiteLLMProvider(LLMProvider):
         # Drain litellm's internal async logging worker so pending
         # async_success_handler coroutines are awaited before the event
         # loop tears down (prevents RuntimeWarning).
+        # Do NOT call stop() — it corrupts global worker state that
+        # persists across the multiple asyncio.run() calls in audit.
         try:
             from litellm.litellm_core_utils.logging_worker import GLOBAL_LOGGING_WORKER
 
-            await GLOBAL_LOGGING_WORKER.flush()
-            await GLOBAL_LOGGING_WORKER.stop()
+            await asyncio.wait_for(GLOBAL_LOGGING_WORKER.flush(), timeout=2.0)
         except Exception:
-            pass  # Best-effort: don't break on litellm internal API changes
+            pass  # Best-effort: timeout or litellm internal API changes
 
     def _build_request_kwargs(
         self,

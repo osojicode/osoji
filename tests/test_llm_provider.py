@@ -427,20 +427,14 @@ def test_close_flushes_litellm_logging_worker(openai_provider):
     """close() drains litellm's GLOBAL_LOGGING_WORKER to prevent RuntimeWarning."""
     mock_worker = MagicMock()
     mock_worker.flush = AsyncMock()
-    mock_worker.stop = AsyncMock()
 
-    with patch(
-        "osoji.llm.litellm_provider.GLOBAL_LOGGING_WORKER",
-        mock_worker,
-        create=True,
-    ), patch.dict(
+    with patch.dict(
         "sys.modules",
         {"litellm.litellm_core_utils.logging_worker": MagicMock(GLOBAL_LOGGING_WORKER=mock_worker)},
     ):
         asyncio.run(openai_provider.close())
 
     mock_worker.flush.assert_awaited_once()
-    mock_worker.stop.assert_awaited_once()
 
 
 def test_close_swallows_logging_worker_errors(openai_provider):
@@ -451,3 +445,13 @@ def test_close_swallows_logging_worker_errors(openai_provider):
     ):
         # Should not raise — the ImportError is swallowed
         asyncio.run(openai_provider.close())
+
+
+def test_litellm_suppress_debug_info():
+    """Importing litellm_provider sets suppress_debug_info to suppress noisy prints."""
+    import litellm
+
+    # Module-level side effect: importing the provider module sets this flag
+    import osoji.llm.litellm_provider  # noqa: F401
+
+    assert litellm.suppress_debug_info is True

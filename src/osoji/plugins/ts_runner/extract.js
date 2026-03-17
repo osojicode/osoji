@@ -2,18 +2,125 @@
 /**
  * ts-morph extraction runner for osoji TypeScript plugin.
  *
- * Usage: echo '["src/foo.ts","src/bar.ts"]' | node extract.js <tsconfig_path>
+ * Usage:
+ *   echo '["src/foo.ts","src/bar.ts"]' | node extract.js <tsconfig_path> [tsconfig_path...]
+ *   echo '{"files":["src/foo.ts"],"workspacePackages":{}}' | node extract.js <tsconfig_path>
  *
- * Reads a JSON array of relative file paths from stdin.
- * Outputs a JSON object mapping each file path to its extracted facts:
- *   { "src/foo.ts": { imports: [...], exports: [...], calls: [...], member_writes: [...] } }
+ * Reads either a JSON array (backward compat) or a JSON object with "files" and
+ * "workspacePackages" from stdin.  Outputs a JSON object mapping each file path
+ * to its extracted facts:
+ *   { "src/foo.ts": { imports, exports, calls, member_writes } }
  */
 
-const { Project, SyntaxKind } = require("ts-morph");
+const path = require("path");
+const { createRequire } = require("module");
 
-const tsconfigPath = process.argv[2];
-if (!tsconfigPath) {
-  process.stderr.write("Usage: node extract.js <tsconfig_path>\n");
+// Resolve ts-morph from the CWD (the target project), not from this script's
+// directory.  ts-morph is a devDependency of the project being analysed.
+const cwdRequire = createRequire(path.join(process.cwd(), "package.json"));
+const { Project, SyntaxKind } = cwdRequire("ts-morph");
+
+// ---------------------------------------------------------------------------
+// Framework decorator detection
+// ---------------------------------------------------------------------------
+
+const FRAMEWORK_DECORATORS = new Set([
+  "Controller", "Injectable", "Get", "Post", "Put", "Delete", "Patch",
+  "Module", "Component", "Directive", "Pipe", "Entity", "Column",
+  "Guard", "Interceptor", "Resolver", "EventPattern", "MessagePattern",
+  "Cron", "Interval", "Timeout",
+]);
+
+const FRAMEWORK_SUFFIXES = [
+  ".Get", ".Post", ".Put", ".Delete", ".Patch", ".Route",
+  ".Handler", ".Listener", ".Subscribe", ".Command",
+];
+
+function hasFrameworkDecorator(decoratorNames) {
+  for (const name of decoratorNames) {
+    if (FRAMEWORK_DECORATORS.has(name)) return true;
+    for (const suffix of FRAMEWORK_SUFFIXES) {
+      if (name.endsWith(suffix)) return true;
+    }
+  }
+  return false;
+}
+
+// ---------------------------------------------------------------------------
+// Parameter extraction
+// ---------------------------------------------------------------------------
+
+function extractParameters(fn) {
+  try {
+    return fn.getParameters().map((p) => {
+      let typeText;
+      try {
+        typeText = p.getType().getText();
+      } catch (_) {
+        typeText = "unknown";
+      }
+      return {
+        name: p.getName(),
+        optional: p.isOptional(),
+        type: typeText.length > 200 ? typeText.substring(0, 200) : typeText,
+      };
+    });
+  } catch (_) {
+    return [];
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Scope-qualified from_symbol helper
+// ---------------------------------------------------------------------------
+
+function resolveFromSymbol(node) {
+  let fromSymbol = "<module>";
+  let parent = node.getParent();
+  while (parent) {
+    const kind = parent.getKind();
+    if (kind === SyntaxKind.MethodDeclaration) {
+      const methodName = parent.getName?.();
+      const classParent = parent.getParent();
+      if (
+        classParent?.getKind() === SyntaxKind.ClassDeclaration
+      ) {
+        const className = classParent.getName?.();
+        if (className && methodName) {
+          fromSymbol = `${className}.${methodName}`;
+          break;
+        }
+      }
+      if (methodName) {
+        fromSymbol = methodName;
+        break;
+      }
+    }
+    if (
+      kind === SyntaxKind.FunctionDeclaration ||
+      kind === SyntaxKind.ArrowFunction ||
+      kind === SyntaxKind.FunctionExpression
+    ) {
+      const name = parent.getName?.();
+      if (name) {
+        fromSymbol = name;
+        break;
+      }
+    }
+    parent = parent.getParent();
+  }
+  return fromSymbol;
+}
+
+// ---------------------------------------------------------------------------
+// CLI entry
+// ---------------------------------------------------------------------------
+
+const tsconfigPaths = process.argv.slice(2);
+if (tsconfigPaths.length === 0) {
+  process.stderr.write(
+    "Usage: node extract.js <tsconfig_path> [tsconfig_path...]\n"
+  );
   process.exit(1);
 }
 
@@ -23,14 +130,51 @@ process.stdin.setEncoding("utf8");
 process.stdin.on("data", (chunk) => (input += chunk));
 process.stdin.on("end", () => {
   let filePaths;
+  // eslint-disable-next-line no-unused-vars
+  let workspacePackages = {};
   try {
-    filePaths = JSON.parse(input);
+    const parsed = JSON.parse(input);
+    if (Array.isArray(parsed)) {
+      // Backward compat: plain array of file paths
+      filePaths = parsed;
+    } else if (parsed && typeof parsed === "object" && Array.isArray(parsed.files)) {
+      filePaths = parsed.files;
+      workspacePackages = parsed.workspacePackages || {};
+    } else {
+      process.stderr.write("Invalid stdin: expected JSON array or {files, workspacePackages}\n");
+      process.exit(1);
+    }
   } catch (e) {
     process.stderr.write(`Invalid JSON on stdin: ${e.message}\n`);
     process.exit(1);
   }
 
-  const project = new Project({ tsConfigFilePath: tsconfigPath });
+  // Create project from first tsconfig, add source files from others
+  const project = new Project({ tsConfigFilePath: tsconfigPaths[0] });
+  for (let i = 1; i < tsconfigPaths.length; i++) {
+    try {
+      project.addSourceFilesFromTsConfig(tsconfigPaths[i]);
+    } catch (e) {
+      process.stderr.write(
+        `Warning: could not load ${tsconfigPaths[i]}: ${e.message}\n`
+      );
+    }
+  }
+
+  // For files not already in the project (common in monorepos), add directly
+  for (const relPath of filePaths) {
+    if (!project.getSourceFile(relPath)) {
+      try {
+        project.addSourceFileAtPath(relPath);
+      } catch (_) {
+        /* skip — file may not exist or may have errors */
+      }
+    }
+  }
+
+  // =========================================================================
+  // Pass 1: Per-file extraction
+  // =========================================================================
   const result = {};
 
   for (const relPath of filePaths) {
@@ -69,34 +213,97 @@ process.stdin.on("end", () => {
       if (Object.keys(nameMap).length > 0) {
         imp.name_map = nameMap;
       }
+      // Import resolution
+      try {
+        const resolvedFile = decl.getModuleSpecifierSourceFile();
+        if (resolvedFile) {
+          const resolvedPath = path
+            .relative(process.cwd(), resolvedFile.getFilePath())
+            .replace(/\\/g, "/");
+          imp.resolved_path = resolvedPath;
+        }
+      } catch (_) {
+        /* resolution failed — skip */
+      }
       imports.push(imp);
     }
 
     // --- Exports ---
+
+    // Functions (top-level)
     for (const fn of sourceFile.getFunctions()) {
       if (fn.isExported()) {
-        exports.push({
+        const decorators = (fn.getDecorators?.() || []).map((d) => d.getName());
+        const params = extractParameters(fn);
+        const exp = {
           name: fn.getName() || "<anonymous>",
           kind: "function",
           line: fn.getStartLineNumber(),
-          decorators: [],
-          exclude_from_dead_analysis: false,
-        });
+          decorators,
+          exclude_from_dead_analysis: hasFrameworkDecorator(decorators),
+        };
+        if (params.length > 0) {
+          exp.parameters = params;
+        }
+        exports.push(exp);
       }
     }
+
+    // Classes + methods
     for (const cls of sourceFile.getClasses()) {
-      if (cls.isExported()) {
-        exports.push({
-          name: cls.getName() || "<anonymous>",
-          kind: "class",
-          line: cls.getStartLineNumber(),
-          decorators: cls
-            .getDecorators()
-            .map((d) => d.getName()),
-          exclude_from_dead_analysis: false,
-        });
+      if (!cls.isExported()) continue;
+
+      const className = cls.getName() || "<anonymous>";
+      const classDecorators = cls.getDecorators().map((d) => d.getName());
+      const classExclude = hasFrameworkDecorator(classDecorators);
+
+      // Collect implements
+      const implementsList = cls.getImplements().map((i) => i.getText());
+
+      // Class-level export
+      const classExport = {
+        name: className,
+        kind: "class",
+        line: cls.getStartLineNumber(),
+        decorators: classDecorators,
+        exclude_from_dead_analysis: classExclude,
+      };
+      if (implementsList.length > 0) {
+        classExport.implements = implementsList;
+      }
+      exports.push(classExport);
+
+      // Method-level exports
+      for (const method of cls.getMethods()) {
+        if (
+          method.hasModifier(SyntaxKind.PrivateKeyword) ||
+          method.hasModifier(SyntaxKind.ProtectedKeyword)
+        ) {
+          continue;
+        }
+
+        const methodName = method.getName();
+        const methodDecorators = method.getDecorators().map((d) => d.getName());
+        const methodExclude =
+          classExclude || hasFrameworkDecorator(methodDecorators);
+
+        const params = extractParameters(method);
+
+        const methodExport = {
+          name: `${className}.${methodName}`,
+          kind: "function",
+          line: method.getStartLineNumber(),
+          decorators: methodDecorators,
+          exclude_from_dead_analysis: methodExclude,
+        };
+        if (params.length > 0) {
+          methodExport.parameters = params;
+        }
+        exports.push(methodExport);
       }
     }
+
+    // Variables
     for (const varStmt of sourceFile.getVariableStatements()) {
       if (varStmt.isExported()) {
         for (const decl of varStmt.getDeclarations()) {
@@ -110,6 +317,8 @@ process.stdin.on("end", () => {
         }
       }
     }
+
+    // Interfaces
     for (const iface of sourceFile.getInterfaces()) {
       if (iface.isExported()) {
         exports.push({
@@ -121,6 +330,8 @@ process.stdin.on("end", () => {
         });
       }
     }
+
+    // Type aliases
     for (const typeAlias of sourceFile.getTypeAliases()) {
       if (typeAlias.isExported()) {
         exports.push({
@@ -132,6 +343,8 @@ process.stdin.on("end", () => {
         });
       }
     }
+
+    // Enums
     for (const enumDecl of sourceFile.getEnums()) {
       if (enumDecl.isExported()) {
         exports.push({
@@ -144,44 +357,73 @@ process.stdin.on("end", () => {
       }
     }
 
-    // Re-export detection
+    // --- Re-exports (named and star) ---
     for (const exportDecl of sourceFile.getExportDeclarations()) {
       const moduleSpec = exportDecl.getModuleSpecifierValue();
       if (moduleSpec) {
-        for (const named of exportDecl.getNamedExports()) {
-          imports.push({
+        const namedExports = exportDecl.getNamedExports();
+
+        // Resolve the target module
+        let resolvedPath = undefined;
+        try {
+          const resolvedFile = exportDecl.getModuleSpecifierSourceFile();
+          if (resolvedFile) {
+            resolvedPath = path
+              .relative(process.cwd(), resolvedFile.getFilePath())
+              .replace(/\\/g, "/");
+          }
+        } catch (_) {
+          /* skip */
+        }
+
+        if (namedExports.length > 0) {
+          // Named re-exports: export { x } from "./module"
+          for (const named of namedExports) {
+            const reexportImport = {
+              source: moduleSpec,
+              names: [named.getAliasNode()?.getText() || named.getName()],
+              line: exportDecl.getStartLineNumber(),
+              is_reexport: true,
+            };
+            if (resolvedPath !== undefined) {
+              reexportImport.resolved_path = resolvedPath;
+            }
+            imports.push(reexportImport);
+          }
+        } else {
+          // Star re-export: export * from "./module"
+          const reexportImport = {
             source: moduleSpec,
-            names: [named.getAliasNode()?.getText() || named.getName()],
+            names: ["*"],
             line: exportDecl.getStartLineNumber(),
             is_reexport: true,
-          });
+          };
+          if (resolvedPath !== undefined) {
+            reexportImport.resolved_path = resolvedPath;
+          }
+          imports.push(reexportImport);
         }
       }
     }
 
-    // --- Calls ---
+    // --- Calls (including new expressions) ---
     sourceFile.forEachDescendant((node) => {
       if (node.getKind() === SyntaxKind.CallExpression) {
         const expr = node.getExpression();
         const callee = expr.getText();
-        // Find enclosing function/method
-        let fromSymbol = "<module>";
-        let parent = node.getParent();
-        while (parent) {
-          if (
-            parent.getKind() === SyntaxKind.FunctionDeclaration ||
-            parent.getKind() === SyntaxKind.MethodDeclaration ||
-            parent.getKind() === SyntaxKind.ArrowFunction ||
-            parent.getKind() === SyntaxKind.FunctionExpression
-          ) {
-            const name = parent.getName?.();
-            if (name) {
-              fromSymbol = name;
-              break;
-            }
-          }
-          parent = parent.getParent();
-        }
+        const fromSymbol = resolveFromSymbol(node);
+        calls.push({
+          from_symbol: fromSymbol,
+          to: callee.length > 100 ? callee.substring(0, 100) : callee,
+          line: node.getStartLineNumber(),
+        });
+      }
+
+      // Constructor calls: new ClassName()
+      if (node.getKind() === SyntaxKind.NewExpression) {
+        const expr = node.getExpression();
+        const callee = expr.getText();
+        const fromSymbol = resolveFromSymbol(node);
         calls.push({
           from_symbol: fromSymbol,
           to: callee.length > 100 ? callee.substring(0, 100) : callee,
@@ -206,22 +448,73 @@ process.stdin.on("end", () => {
       }
     });
 
-    // Per-file reference counts for calls
-    const callSiteCounts = {};
-    for (const call of calls) {
-      const key = call.to;
-      callSiteCounts[key] = (callSiteCounts[key] || 0) + 1;
-    }
-    for (const call of calls) {
-      call.call_sites = callSiteCounts[call.to] || 0;
-    }
-
     result[relPath] = {
       imports,
       exports,
       calls,
       member_writes: memberWrites,
     };
+  }
+
+  // =========================================================================
+  // Pass 2: Cross-file call resolution
+  // =========================================================================
+
+  // Build import maps: file -> { localName: { resolvedPath, originalName } }
+  const importMaps = {};
+  for (const [relPath, data] of Object.entries(result)) {
+    const imap = {};
+    for (const imp of data.imports) {
+      if (!imp.resolved_path) continue;
+      const aliasMap = imp.name_map || {};
+      for (const name of imp.names) {
+        if (name === "*") continue;
+        const original = aliasMap[name] || name;
+        imap[name] = { resolvedPath: imp.resolved_path, originalName: original };
+      }
+    }
+    importMaps[relPath] = imap;
+  }
+
+  // Count cross-file call sites
+  const crossCallCounts = {}; // "defFile::symbolName" -> count
+  for (const [relPath, data] of Object.entries(result)) {
+    const imap = importMaps[relPath] || {};
+    for (const call of data.calls) {
+      const callee = call.to;
+      const root = callee.split(".")[0];
+      let key;
+      if (imap[root]) {
+        const { resolvedPath, originalName } = imap[root];
+        const resolvedName = callee.includes(".")
+          ? originalName + callee.substring(root.length)
+          : originalName;
+        key = `${resolvedPath}::${resolvedName}`;
+      } else {
+        key = `${relPath}::${callee}`;
+      }
+      crossCallCounts[key] = (crossCallCounts[key] || 0) + 1;
+    }
+  }
+
+  // Write back call_sites on each call record
+  for (const [relPath, data] of Object.entries(result)) {
+    const imap = importMaps[relPath] || {};
+    for (const call of data.calls) {
+      const callee = call.to;
+      const root = callee.split(".")[0];
+      let key;
+      if (imap[root]) {
+        const { resolvedPath, originalName } = imap[root];
+        const resolvedName = callee.includes(".")
+          ? originalName + callee.substring(root.length)
+          : originalName;
+        key = `${resolvedPath}::${resolvedName}`;
+      } else {
+        key = `${relPath}::${callee}`;
+      }
+      call.call_sites = crossCallCounts[key] || 0;
+    }
   }
 
   process.stdout.write(JSON.stringify(result));

@@ -3,15 +3,25 @@
 from unittest.mock import patch, MagicMock
 from pathlib import Path
 
+import json
 import pytest
 
 from osoji.plugins.base import PluginUnavailableError, FactsExtractionError
-from osoji.plugins.typescript_plugin import TypeScriptPlugin
+from osoji.plugins.typescript_plugin import (
+    TypeScriptPlugin,
+    _find_all_tsconfigs,
+    _detect_workspace_packages,
+)
 
 
 @pytest.fixture
 def plugin():
     return TypeScriptPlugin()
+
+
+# ---------------------------------------------------------------------------
+# Existing tests (preserved)
+# ---------------------------------------------------------------------------
 
 
 def test_check_available_no_node(plugin, tmp_path):
@@ -53,10 +63,8 @@ def test_no_tsconfig_raises(plugin, tmp_path):
 
 def test_extract_calls_node(plugin, tmp_path):
     """Successful extraction parses JSON from node subprocess."""
-    import json
-    import subprocess as sp
 
-    # Create tsconfig so _find_tsconfig succeeds
+    # Create tsconfig so _find_all_tsconfigs succeeds
     (tmp_path / "tsconfig.json").write_text("{}", encoding="utf-8")
     ts_file = tmp_path / "app.ts"
     ts_file.write_text("export const x = 1;", encoding="utf-8")
@@ -152,3 +160,452 @@ def test_find_tsconfig_none_when_missing(plugin, tmp_path):
     """_find_tsconfig returns None when no tsconfig exists."""
     result = TypeScriptPlugin._find_tsconfig(tmp_path)
     assert result is None
+
+
+# ---------------------------------------------------------------------------
+# New tests: class method exports
+# ---------------------------------------------------------------------------
+
+
+def test_class_method_exports(plugin, tmp_path):
+    """Mock returns ClassName.methodName exports — plugin surfaces them."""
+    (tmp_path / "tsconfig.json").write_text("{}", encoding="utf-8")
+    ts_file = tmp_path / "service.ts"
+    ts_file.write_text("export class UserService { findAll() {} }", encoding="utf-8")
+
+    mock_output = json.dumps({
+        "service.ts": {
+            "imports": [],
+            "exports": [
+                {"name": "UserService", "kind": "class", "line": 1,
+                 "decorators": [], "exclude_from_dead_analysis": False},
+                {"name": "UserService.findAll", "kind": "function", "line": 1,
+                 "decorators": [], "exclude_from_dead_analysis": False},
+            ],
+            "calls": [],
+            "member_writes": [],
+        }
+    })
+    mock_proc = MagicMock(returncode=0, stdout=mock_output, stderr="")
+
+    with patch.object(plugin, "check_available"):
+        with patch("osoji.plugins.typescript_plugin.subprocess.run", return_value=mock_proc):
+            result = plugin.extract_project_facts(tmp_path, [ts_file])
+
+    export_names = [e["name"] for e in result["service.ts"].exports]
+    assert "UserService" in export_names
+    assert "UserService.findAll" in export_names
+
+
+# ---------------------------------------------------------------------------
+# New tests: parameter extraction
+# ---------------------------------------------------------------------------
+
+
+def test_parameter_extraction(plugin, tmp_path):
+    """Exports include parameters array for functions."""
+    (tmp_path / "tsconfig.json").write_text("{}", encoding="utf-8")
+    ts_file = tmp_path / "config.ts"
+    ts_file.write_text("export function load(path: string) {}", encoding="utf-8")
+
+    mock_output = json.dumps({
+        "config.ts": {
+            "imports": [],
+            "exports": [
+                {
+                    "name": "load",
+                    "kind": "function",
+                    "line": 1,
+                    "decorators": [],
+                    "exclude_from_dead_analysis": False,
+                    "parameters": [
+                        {"name": "path", "optional": False, "type": "string"},
+                    ],
+                },
+            ],
+            "calls": [],
+            "member_writes": [],
+        }
+    })
+    mock_proc = MagicMock(returncode=0, stdout=mock_output, stderr="")
+
+    with patch.object(plugin, "check_available"):
+        with patch("osoji.plugins.typescript_plugin.subprocess.run", return_value=mock_proc):
+            result = plugin.extract_project_facts(tmp_path, [ts_file])
+
+    exp = result["config.ts"].exports[0]
+    assert "parameters" in exp
+    assert exp["parameters"][0]["name"] == "path"
+    assert exp["parameters"][0]["type"] == "string"
+    assert exp["parameters"][0]["optional"] is False
+
+
+# ---------------------------------------------------------------------------
+# New tests: framework decorator detection
+# ---------------------------------------------------------------------------
+
+
+def test_framework_decorator_detection(plugin, tmp_path):
+    """Decorators set exclude_from_dead_analysis: true."""
+    (tmp_path / "tsconfig.json").write_text("{}", encoding="utf-8")
+    ts_file = tmp_path / "controller.ts"
+    ts_file.write_text("@Controller() export class AppController {}", encoding="utf-8")
+
+    mock_output = json.dumps({
+        "controller.ts": {
+            "imports": [],
+            "exports": [
+                {
+                    "name": "AppController",
+                    "kind": "class",
+                    "line": 1,
+                    "decorators": ["Controller"],
+                    "exclude_from_dead_analysis": True,
+                },
+            ],
+            "calls": [],
+            "member_writes": [],
+        }
+    })
+    mock_proc = MagicMock(returncode=0, stdout=mock_output, stderr="")
+
+    with patch.object(plugin, "check_available"):
+        with patch("osoji.plugins.typescript_plugin.subprocess.run", return_value=mock_proc):
+            result = plugin.extract_project_facts(tmp_path, [ts_file])
+
+    exp = result["controller.ts"].exports[0]
+    assert exp["exclude_from_dead_analysis"] is True
+    assert "Controller" in exp["decorators"]
+
+
+# ---------------------------------------------------------------------------
+# New tests: cross-file call sites
+# ---------------------------------------------------------------------------
+
+
+def test_cross_file_call_sites(plugin, tmp_path):
+    """call_sites reflects project-wide count from extract.js output."""
+    (tmp_path / "tsconfig.json").write_text("{}", encoding="utf-8")
+    ts_file_a = tmp_path / "a.ts"
+    ts_file_b = tmp_path / "b.ts"
+    ts_file_a.write_text("export function greet() {}", encoding="utf-8")
+    ts_file_b.write_text("import {greet} from './a'; greet();", encoding="utf-8")
+
+    mock_output = json.dumps({
+        "a.ts": {
+            "imports": [],
+            "exports": [{"name": "greet", "kind": "function", "line": 1,
+                          "decorators": [], "exclude_from_dead_analysis": False}],
+            "calls": [],
+            "member_writes": [],
+        },
+        "b.ts": {
+            "imports": [{"source": "./a", "names": ["greet"], "line": 1,
+                          "is_reexport": False, "resolved_path": "a.ts"}],
+            "exports": [],
+            "calls": [{"from_symbol": "<module>", "to": "greet", "line": 1, "call_sites": 1}],
+            "member_writes": [],
+        },
+    })
+    mock_proc = MagicMock(returncode=0, stdout=mock_output, stderr="")
+
+    with patch.object(plugin, "check_available"):
+        with patch("osoji.plugins.typescript_plugin.subprocess.run", return_value=mock_proc):
+            result = plugin.extract_project_facts(tmp_path, [ts_file_a, ts_file_b])
+
+    assert result["b.ts"].calls[0]["call_sites"] == 1
+
+
+# ---------------------------------------------------------------------------
+# New tests: import resolved_path
+# ---------------------------------------------------------------------------
+
+
+def test_import_resolved_path(plugin, tmp_path):
+    """Imports include resolved_path when target is a project file."""
+    (tmp_path / "tsconfig.json").write_text("{}", encoding="utf-8")
+    ts_file = tmp_path / "main.ts"
+    ts_file.write_text("import { helper } from './utils';", encoding="utf-8")
+
+    mock_output = json.dumps({
+        "main.ts": {
+            "imports": [
+                {
+                    "source": "./utils",
+                    "names": ["helper"],
+                    "line": 1,
+                    "is_reexport": False,
+                    "resolved_path": "utils.ts",
+                },
+            ],
+            "exports": [],
+            "calls": [],
+            "member_writes": [],
+        }
+    })
+    mock_proc = MagicMock(returncode=0, stdout=mock_output, stderr="")
+
+    with patch.object(plugin, "check_available"):
+        with patch("osoji.plugins.typescript_plugin.subprocess.run", return_value=mock_proc):
+            result = plugin.extract_project_facts(tmp_path, [ts_file])
+
+    imp = result["main.ts"].imports[0]
+    assert imp["resolved_path"] == "utils.ts"
+
+
+# ---------------------------------------------------------------------------
+# New tests: interface implementation
+# ---------------------------------------------------------------------------
+
+
+def test_interface_implementation(plugin, tmp_path):
+    """Class exports include implements list."""
+    (tmp_path / "tsconfig.json").write_text("{}", encoding="utf-8")
+    ts_file = tmp_path / "repo.ts"
+    ts_file.write_text("export class UserRepo implements Repository {}", encoding="utf-8")
+
+    mock_output = json.dumps({
+        "repo.ts": {
+            "imports": [],
+            "exports": [
+                {
+                    "name": "UserRepo",
+                    "kind": "class",
+                    "line": 1,
+                    "decorators": [],
+                    "exclude_from_dead_analysis": False,
+                    "implements": ["Repository"],
+                },
+            ],
+            "calls": [],
+            "member_writes": [],
+        }
+    })
+    mock_proc = MagicMock(returncode=0, stdout=mock_output, stderr="")
+
+    with patch.object(plugin, "check_available"):
+        with patch("osoji.plugins.typescript_plugin.subprocess.run", return_value=mock_proc):
+            result = plugin.extract_project_facts(tmp_path, [ts_file])
+
+    exp = result["repo.ts"].exports[0]
+    assert exp["implements"] == ["Repository"]
+
+
+# ---------------------------------------------------------------------------
+# New tests: star re-export
+# ---------------------------------------------------------------------------
+
+
+def test_star_reexport(plugin, tmp_path):
+    """export * from creates reexport import record with names=['*']."""
+    (tmp_path / "tsconfig.json").write_text("{}", encoding="utf-8")
+    ts_file = tmp_path / "index.ts"
+    ts_file.write_text("export * from './module';", encoding="utf-8")
+
+    mock_output = json.dumps({
+        "index.ts": {
+            "imports": [
+                {
+                    "source": "./module",
+                    "names": ["*"],
+                    "line": 1,
+                    "is_reexport": True,
+                    "resolved_path": "module.ts",
+                },
+            ],
+            "exports": [],
+            "calls": [],
+            "member_writes": [],
+        }
+    })
+    mock_proc = MagicMock(returncode=0, stdout=mock_output, stderr="")
+
+    with patch.object(plugin, "check_available"):
+        with patch("osoji.plugins.typescript_plugin.subprocess.run", return_value=mock_proc):
+            result = plugin.extract_project_facts(tmp_path, [ts_file])
+
+    imp = result["index.ts"].imports[0]
+    assert imp["names"] == ["*"]
+    assert imp["is_reexport"] is True
+
+
+# ---------------------------------------------------------------------------
+# New tests: constructor calls
+# ---------------------------------------------------------------------------
+
+
+def test_constructor_calls(plugin, tmp_path):
+    """new X() appears in calls."""
+    (tmp_path / "tsconfig.json").write_text("{}", encoding="utf-8")
+    ts_file = tmp_path / "app.ts"
+    ts_file.write_text("const x = new Map();", encoding="utf-8")
+
+    mock_output = json.dumps({
+        "app.ts": {
+            "imports": [],
+            "exports": [],
+            "calls": [
+                {"from_symbol": "<module>", "to": "Map", "line": 1, "call_sites": 1},
+            ],
+            "member_writes": [],
+        }
+    })
+    mock_proc = MagicMock(returncode=0, stdout=mock_output, stderr="")
+
+    with patch.object(plugin, "check_available"):
+        with patch("osoji.plugins.typescript_plugin.subprocess.run", return_value=mock_proc):
+            result = plugin.extract_project_facts(tmp_path, [ts_file])
+
+    assert any(c["to"] == "Map" for c in result["app.ts"].calls)
+
+
+# ---------------------------------------------------------------------------
+# New tests: scope-qualified from_symbol
+# ---------------------------------------------------------------------------
+
+
+def test_scope_qualified_from_symbol(plugin, tmp_path):
+    """Calls inside class methods have ClassName.methodName in from_symbol."""
+    (tmp_path / "tsconfig.json").write_text("{}", encoding="utf-8")
+    ts_file = tmp_path / "svc.ts"
+    ts_file.write_text("export class Svc { run() { doWork(); } }", encoding="utf-8")
+
+    mock_output = json.dumps({
+        "svc.ts": {
+            "imports": [],
+            "exports": [
+                {"name": "Svc", "kind": "class", "line": 1,
+                 "decorators": [], "exclude_from_dead_analysis": False},
+                {"name": "Svc.run", "kind": "function", "line": 1,
+                 "decorators": [], "exclude_from_dead_analysis": False},
+            ],
+            "calls": [
+                {"from_symbol": "Svc.run", "to": "doWork", "line": 1, "call_sites": 1},
+            ],
+            "member_writes": [],
+        }
+    })
+    mock_proc = MagicMock(returncode=0, stdout=mock_output, stderr="")
+
+    with patch.object(plugin, "check_available"):
+        with patch("osoji.plugins.typescript_plugin.subprocess.run", return_value=mock_proc):
+            result = plugin.extract_project_facts(tmp_path, [ts_file])
+
+    call = result["svc.ts"].calls[0]
+    assert call["from_symbol"] == "Svc.run"
+
+
+# ---------------------------------------------------------------------------
+# New tests: monorepo tsconfig discovery
+# ---------------------------------------------------------------------------
+
+
+def test_monorepo_tsconfig_discovery(tmp_path):
+    """_find_all_tsconfigs finds multiple tsconfigs across the tree."""
+    # Root tsconfig
+    (tmp_path / "tsconfig.json").write_text("{}", encoding="utf-8")
+
+    # Package tsconfigs
+    pkg_a = tmp_path / "packages" / "a"
+    pkg_a.mkdir(parents=True)
+    (pkg_a / "tsconfig.json").write_text("{}", encoding="utf-8")
+
+    pkg_b = tmp_path / "packages" / "b"
+    pkg_b.mkdir(parents=True)
+    (pkg_b / "tsconfig.json").write_text("{}", encoding="utf-8")
+
+    # Excluded: node_modules
+    nm = tmp_path / "node_modules" / "foo"
+    nm.mkdir(parents=True)
+    (nm / "tsconfig.json").write_text("{}", encoding="utf-8")
+
+    found = _find_all_tsconfigs(tmp_path)
+    found_strs = {str(p.relative_to(tmp_path)).replace("\\", "/") for p in found}
+
+    assert "tsconfig.json" in found_strs
+    assert "packages/a/tsconfig.json" in found_strs
+    assert "packages/b/tsconfig.json" in found_strs
+    # node_modules should be excluded
+    assert not any("node_modules" in s for s in found_strs)
+
+
+# ---------------------------------------------------------------------------
+# New tests: workspace package detection — pnpm
+# ---------------------------------------------------------------------------
+
+
+def test_workspace_package_detection_pnpm(tmp_path):
+    """Reads pnpm-workspace.yaml and detects package names."""
+    # pnpm-workspace.yaml
+    (tmp_path / "pnpm-workspace.yaml").write_text(
+        "packages:\n  - 'packages/*'\n", encoding="utf-8"
+    )
+
+    # Package dirs
+    pkg = tmp_path / "packages" / "core"
+    pkg.mkdir(parents=True)
+    (pkg / "package.json").write_text(
+        json.dumps({"name": "@myorg/core"}), encoding="utf-8"
+    )
+
+    result = _detect_workspace_packages(tmp_path)
+    assert "@myorg/core" in result
+    # Value should be a relative path string
+    assert "packages/core" in result["@myorg/core"]
+
+
+# ---------------------------------------------------------------------------
+# New tests: workspace package detection — npm
+# ---------------------------------------------------------------------------
+
+
+def test_workspace_package_detection_npm(tmp_path):
+    """Reads package.json workspaces field and detects package names."""
+    (tmp_path / "package.json").write_text(
+        json.dumps({"workspaces": ["packages/*"]}), encoding="utf-8"
+    )
+
+    pkg = tmp_path / "packages" / "ui"
+    pkg.mkdir(parents=True)
+    (pkg / "package.json").write_text(
+        json.dumps({"name": "@myorg/ui"}), encoding="utf-8"
+    )
+
+    result = _detect_workspace_packages(tmp_path)
+    assert "@myorg/ui" in result
+
+
+# ---------------------------------------------------------------------------
+# New tests: backward compat array input
+# ---------------------------------------------------------------------------
+
+
+def test_backward_compat_array_input(plugin, tmp_path):
+    """Plugin sends new object format; extract.js also accepts old array format."""
+    (tmp_path / "tsconfig.json").write_text("{}", encoding="utf-8")
+    ts_file = tmp_path / "lib.ts"
+    ts_file.write_text("export const a = 1;", encoding="utf-8")
+
+    mock_output = json.dumps({
+        "lib.ts": {
+            "imports": [],
+            "exports": [{"name": "a", "kind": "variable", "line": 1,
+                          "decorators": [], "exclude_from_dead_analysis": False}],
+            "calls": [],
+            "member_writes": [],
+        }
+    })
+    mock_proc = MagicMock(returncode=0, stdout=mock_output, stderr="")
+
+    with patch.object(plugin, "check_available"):
+        with patch("osoji.plugins.typescript_plugin.subprocess.run", return_value=mock_proc) as mock_run:
+            result = plugin.extract_project_facts(tmp_path, [ts_file])
+
+    # Verify the new object format is sent
+    call_args = mock_run.call_args
+    stdin_data = json.loads(call_args.kwargs.get("input", call_args[1].get("input", "")))
+    assert "files" in stdin_data
+    assert "workspacePackages" in stdin_data
+    assert "lib.ts" in stdin_data["files"]
+
+    assert "lib.ts" in result
