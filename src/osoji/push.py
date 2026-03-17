@@ -308,6 +308,9 @@ def _post_envelope(endpoint: str, token: str, envelope: dict) -> PushResult:
             try:
                 error_data = json.loads(body_text)
                 error_detail = error_data.get("error", body_text)
+                details = error_data.get("details")
+                if details:
+                    error_detail += f"\n{json.dumps(details, indent=2)}"
             except (json.JSONDecodeError, ValueError):
                 error_detail = body_text
             return PushResult(

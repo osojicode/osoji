@@ -684,12 +684,15 @@ async def detect_dead_cicd_async(
     provider: LLMProvider,
     config: Config,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
+    *,
+    cicd_files: list[tuple[Path, str]] | None = None,
 ) -> tuple[list[CICDVerification], int]:
     """Detect stale CI/CD pipeline elements.
 
     Returns (list of verified dead CI/CD elements, total candidate count).
     """
-    cicd_files = discover_cicd_files(config)
+    if cicd_files is None:
+        cicd_files = discover_cicd_files(config)
     if not cicd_files:
         print("  [skip] No CI/CD configuration files found.", flush=True)
         return [], 0
@@ -820,20 +823,26 @@ class DeadCICDAnalyzer(JunkAnalyzer):
 
     def analyze(self, config, on_progress=None, rate_limiter=None):
         """Sync wrapper — skip symbols-dir check (CI/CD doesn't need symbols)."""
+        cicd_files = discover_cicd_files(config)
+        if not cicd_files:
+            print("  [skip] No CI/CD configuration files found.", flush=True)
+            return JunkAnalysisResult(findings=[], total_candidates=0, analyzer_name=self.name)
 
         async def _run() -> JunkAnalysisResult:
             logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
             try:
                 return await self.analyze_async(
-                    logging_provider, config, on_progress
+                    logging_provider, config, on_progress, cicd_files=cicd_files
                 )
             finally:
                 await logging_provider.close()
 
         return asyncio.run(_run())
 
-    async def analyze_async(self, provider, config, on_progress=None):
-        results, total_candidates = await detect_dead_cicd_async(provider, config, on_progress)
+    async def analyze_async(self, provider, config, on_progress=None, cicd_files=None):
+        results, total_candidates = await detect_dead_cicd_async(
+            provider, config, on_progress, cicd_files=cicd_files
+        )
         findings = [
             JunkFinding(
                 source_path=v.cicd_file,
