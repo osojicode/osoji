@@ -60,6 +60,18 @@
       "type": "object",
       "additionalProperties": { "$ref": "#/$defs/DocAnalysisEntry" }
     },
+    "doc_prompts": {
+      "anyOf": [
+        { "$ref": "#/$defs/DocPrompts" },
+        { "type": "null" }
+      ]
+    },
+    "config": {
+      "anyOf": [
+        { "type": "object" },
+        { "type": "null" }
+      ]
+    },
     "tree": {
       "$ref": "#/$defs/TreeNode"
     }
@@ -427,6 +439,92 @@
         }
       }
     },
+    "DocPromptsConcept": {
+      "type": "object",
+      "required": [
+        "concept_id", "concept_name", "concept_description",
+        "source_files", "concept_role", "appropriate_types",
+        "existing_coverage", "missing_types", "coverage_status",
+        "priority", "priority_signals", "cluster_id"
+      ],
+      "properties": {
+        "concept_id": { "type": "string" },
+        "concept_name": { "type": "string" },
+        "concept_description": { "type": "string" },
+        "source_files": { "type": "array", "items": { "type": "string" } },
+        "concept_role": { "type": "string" },
+        "appropriate_types": { "type": "array", "items": { "type": "string" } },
+        "existing_coverage": { "type": "array", "items": { "type": "object" } },
+        "missing_types": { "type": "array", "items": { "type": "string" } },
+        "coverage_status": { "type": "string", "enum": ["fully_documented", "partially_documented", "undocumented"] },
+        "priority": { "type": "string", "enum": ["high", "medium", "low"] },
+        "priority_signals": { "type": "array", "items": { "type": "string" } },
+        "cluster_id": { "type": ["string", "null"] }
+      }
+    },
+    "DocPromptsWritingPrompt": {
+      "type": "object",
+      "required": [
+        "prompt_id", "target_concepts", "diataxis_type",
+        "priority", "prompt_text", "scope_constraints",
+        "output_guidance"
+      ],
+      "properties": {
+        "prompt_id": { "type": "string" },
+        "target_concepts": { "type": "array", "items": { "type": "string" } },
+        "diataxis_type": { "type": "string" },
+        "priority": { "type": "string" },
+        "prompt_text": { "type": "string" },
+        "shadow_doc_excerpts": { "type": "array", "items": { "type": "object" } },
+        "related_docs": { "type": "array", "items": { "type": "string" } },
+        "scope_constraints": { "type": "string" },
+        "output_guidance": { "type": "object" },
+        "cluster_id": { "type": ["string", "null"] }
+      }
+    },
+    "DocPromptsCoverageSummary": {
+      "type": "object",
+      "required": [
+        "total_concepts", "fully_documented",
+        "partially_documented", "undocumented",
+        "coverage_by_type"
+      ],
+      "properties": {
+        "total_concepts": { "type": "integer" },
+        "fully_documented": { "type": "integer" },
+        "partially_documented": { "type": "integer" },
+        "undocumented": { "type": "integer" },
+        "coverage_by_type": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "needed": { "type": "integer" },
+              "covered": { "type": "integer" }
+            }
+          }
+        },
+        "total_gaps": { "type": "integer" },
+        "total_prompts": { "type": "integer" }
+      }
+    },
+    "DocPrompts": {
+      "type": "object",
+      "required": ["concept_inventory", "writing_prompts", "coverage_summary"],
+      "properties": {
+        "concept_inventory": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/DocPromptsConcept" }
+        },
+        "writing_prompts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/DocPromptsWritingPrompt" }
+        },
+        "coverage_summary": {
+          "$ref": "#/$defs/DocPromptsCoverageSummary"
+        }
+      }
+    },
     "Scorecard": {
       "type": "object",
       "required": [
@@ -531,6 +629,33 @@
         },
         "obligation_implicit_contracts": {
           "type": ["integer", "null"]
+        },
+        "concept_total": {
+          "type": ["integer", "null"]
+        },
+        "concept_fully_documented": {
+          "type": ["integer", "null"]
+        },
+        "concept_partially_documented": {
+          "type": ["integer", "null"]
+        },
+        "concept_undocumented": {
+          "type": ["integer", "null"]
+        },
+        "concept_coverage_by_type": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "needed": { "type": "integer" },
+                  "covered": { "type": "integer" }
+                }
+              }
+            },
+            { "type": "null" }
+          ]
         }
       }
     }

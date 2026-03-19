@@ -280,13 +280,14 @@ def stats(ctx: click.Context, path: Path, provider: str | None, model: str | Non
 @click.option("--orphaned-files", is_flag=True, help="Detect orphaned source files (LLM calls)")
 @click.option("--junk", is_flag=True, help="Run all junk code analysis phases")
 @click.option("--obligations", is_flag=True, help="Check cross-file string contracts (no LLM calls)")
+@click.option("--doc-prompts", is_flag=True, help="Generate concept-centric coverage + writing prompts (LLM calls)")
 @click.option("--provider", type=_LLM_PROVIDER_CHOICE, help="LLM provider to use")
 @click.option("--model", help="Model ID to use for LLM requests")
 @click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
 @click.option("--full", is_flag=True, help="Run all optional audit phases")
 @click.option("--force", "-f", is_flag=True, help="Regenerate all shadow docs and findings from scratch")
 @click.pass_context
-def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_code: bool, dead_params: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, provider: str | None, model: str | None, no_gitignore: bool, full: bool, force: bool) -> None:
+def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_code: bool, dead_params: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, doc_prompts: bool, provider: str | None, model: str | None, no_gitignore: bool, full: bool, force: bool) -> None:
     """Run documentation audit.
 
     Checks for:
@@ -308,6 +309,7 @@ def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_co
     if full:
         junk = True
         obligations = True
+        doc_prompts = True
     state = _cli_state(ctx)
     config = _build_llm_config(
         path,
@@ -321,14 +323,14 @@ def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_co
     _emit_config_banner(config)
 
     try:
-        result = run_audit(config, fix_shadow=fix, dead_code=dead_code, dead_params=dead_params, dead_plumbing=dead_plumbing, dead_deps=dead_deps, dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk, obligations=obligations, verbose=state.verbose)
+        result = run_audit(config, fix_shadow=fix, dead_code=dead_code, dead_params=dead_params, dead_plumbing=dead_plumbing, dead_deps=dead_deps, dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk, obligations=obligations, doc_prompts=doc_prompts, verbose=state.verbose)
     except RuntimeError as e:
         raise click.ClickException(str(e)) from e
 
     if output_format == "json":
         click.echo(format_audit_json(result))
     elif output_format == "html":
-        html_str = format_audit_html(result)
+        html_str = format_audit_html(result, config=config)
         out_path = config.analysis_root / "report.html"
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(html_str, encoding="utf-8")
@@ -361,7 +363,7 @@ def report(ctx: click.Context, path: Path, output_format: str) -> None:
     if output_format == "json":
         click.echo(format_audit_json(result))
     elif output_format == "html":
-        html_str = format_audit_html(result)
+        html_str = format_audit_html(result, config=config)
         out_path = config.analysis_root / "report.html"
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(html_str, encoding="utf-8")

@@ -75,6 +75,7 @@ class AuditResult:
     issues: list[AuditIssue] = field(default_factory=list)
     scorecard: Scorecard | None = None
     config_snapshot: dict[str, Any] | None = None
+    doc_prompts: Any | None = None  # DocPromptsResult when --doc-prompts used
 
     @property
     def has_errors(self) -> bool:
@@ -516,6 +517,7 @@ def run_audit(
     orphaned_files: bool = False,
     junk: bool = False,
     obligations: bool = False,
+    doc_prompts: bool = False,
     verbose: bool = False,
 ) -> AuditResult:
     """Run a complete documentation audit (sync entry point)."""
@@ -530,6 +532,7 @@ def run_audit(
         orphaned_files=orphaned_files,
         junk=junk,
         obligations=obligations,
+        doc_prompts=doc_prompts,
         verbose=verbose,
     ))
 
@@ -545,6 +548,7 @@ async def run_audit_async(
     orphaned_files: bool = False,
     junk: bool = False,
     obligations: bool = False,
+    doc_prompts: bool = False,
     verbose: bool = False,
 ) -> AuditResult:
     """Run a complete documentation audit.
@@ -560,6 +564,7 @@ async def run_audit_async(
         orphaned_files: If True, detect orphaned source files (LLM calls)
         junk: If True, run all junk analysis phases
         obligations: If True, check cross-file string contracts (no LLM calls)
+        doc_prompts: If True, run concept-centric coverage + writing prompt generation (LLM calls)
         verbose: If True, show detailed per-file progress and timing
     """
     issues: list[AuditIssue] = []
@@ -719,6 +724,29 @@ async def run_audit_async(
         )
     _serialize_json(config.scorecard_path, asdict(scorecard))
 
+    # ── Phase 5.5: doc prompts (optional, after scorecard) ──
+    doc_prompts_result = None
+    if doc_prompts:
+        _emit(config, "Osoji: Building concept inventory and writing prompts...")
+        phase_start = time_module.monotonic()
+        from .doc_prompts import build_doc_prompts_async
+        doc_prompts_result = await build_doc_prompts_async(
+            config, scorecard, rate_limiter=rate_limiter,
+        )
+        # Populate concept-centric scorecard fields
+        scorecard.concept_total = doc_prompts_result.total_concepts
+        scorecard.concept_fully_documented = doc_prompts_result.fully_documented
+        scorecard.concept_partially_documented = doc_prompts_result.partially_documented
+        scorecard.concept_undocumented = doc_prompts_result.undocumented
+        scorecard.concept_coverage_by_type = doc_prompts_result.coverage_by_type
+        # Re-serialize scorecard with concept coverage
+        _serialize_json(config.scorecard_path, asdict(scorecard))
+        if verbose:
+            elapsed = time_module.monotonic() - phase_start
+            _emit(config, f"  [phase 5.5 doc prompts: {elapsed:.1f}s] "
+                         f"{doc_prompts_result.total_concepts} concepts, "
+                         f"{doc_prompts_result.total_prompts} prompts")
+
     # Print token summary
     in_tok, out_tok = rate_limiter.get_cumulative_tokens()
     total_tok = in_tok + out_tok
@@ -729,6 +757,7 @@ async def run_audit_async(
         issues=issues,
         scorecard=scorecard,
         config_snapshot=config.config_snapshot,
+        doc_prompts=doc_prompts_result,
     )
     serialize_audit_result(config, result)
     return result
@@ -954,12 +983,22 @@ def load_audit_result(config: Config) -> AuditResult:
             enforcement_by_schema=sc.get("enforcement_by_schema"),
             obligation_violations=sc.get("obligation_violations"),
             obligation_implicit_contracts=sc.get("obligation_implicit_contracts"),
+            concept_total=sc.get("concept_total"),
+            concept_fully_documented=sc.get("concept_fully_documented"),
+            concept_partially_documented=sc.get("concept_partially_documented"),
+            concept_undocumented=sc.get("concept_undocumented"),
+            concept_coverage_by_type=sc.get("concept_coverage_by_type"),
         )
+
+    doc_prompts = None
+    if isinstance(data.get("doc_prompts"), dict):
+        doc_prompts = _deserialize_doc_prompts(data["doc_prompts"])
 
     return AuditResult(
         issues=issues,
         scorecard=scorecard,
         config_snapshot=data.get("config"),
+        doc_prompts=doc_prompts,
     )
 
 
@@ -984,6 +1023,10 @@ def _format_scorecard_section(scorecard: Scorecard) -> list[str]:
         summary_rows.append(["Unactuated config", f"{scorecard.enforcement_unactuated}/{scorecard.enforcement_total_obligations} ({scorecard.enforcement_pct_unactuated:.0f}%)"])
     else:
         summary_rows.append(["Unactuated config", "— (not scanned)"])
+    if scorecard.concept_total is not None:
+        summary_rows.append(["Concept coverage", f"{scorecard.concept_fully_documented}/{scorecard.concept_total} fully, "
+                             f"{scorecard.concept_partially_documented} partial, "
+                             f"{scorecard.concept_undocumented} undocumented"])
     lines.append(_table(["Metric", "Value"], summary_rows))
     lines.append("")
 
@@ -1131,6 +1174,24 @@ def format_audit_report(result: AuditResult, verbose: bool = False) -> str:
     if result.scorecard:
         lines.extend(_format_scorecard_section(result.scorecard))
 
+    # Doc prompts summary
+    if result.doc_prompts is not None:
+        dp = result.doc_prompts
+        lines.append("## Documentation Opportunities\n")
+        lines.append(f"{dp.total_concepts} concepts. "
+                     f"{dp.fully_documented} fully documented, "
+                     f"{dp.partially_documented} partially, "
+                     f"{dp.undocumented} undocumented. "
+                     f"{dp.total_gaps} gap(s), {dp.total_prompts} prompt(s).\n")
+        underdoc = [c for c in dp.concepts if c.missing_types]
+        if underdoc:
+            priority_order = {"high": 0, "medium": 1, "low": 2}
+            underdoc.sort(key=lambda c: (priority_order.get(c.priority, 3), -c.priority_score))
+            for c in underdoc:
+                missing = ", ".join(c.missing_types)
+                lines.append(f"- [{c.priority.upper()}] **{c.concept_name}** — missing: {missing}")
+            lines.append("")
+
     errors = [i for i in result.issues if i.severity == "error"]
     warnings = [i for i in result.issues if i.severity == "warning"]
 
@@ -1204,6 +1265,8 @@ def format_audit_json(result: AuditResult) -> str:
         output["config"] = result.config_snapshot
     if result.scorecard:
         output["scorecard"] = asdict(result.scorecard)
+    if result.doc_prompts is not None:
+        output["doc_prompts"] = _serialize_doc_prompts(result.doc_prompts)
     return json.dumps(output, indent=2, default=str)
 
 
@@ -1521,7 +1584,196 @@ def _html_metric_card(label: str, value: str, detail: str, href: str, color: str
     )
 
 
-def _html_coverage_section(scorecard: "Scorecard") -> str:
+def _serialize_doc_prompts(dp: Any) -> dict:
+    """Serialize DocPromptsResult for JSON output."""
+    return {
+        "concept_inventory": [
+            {
+                "concept_id": c.concept_id,
+                "concept_name": c.concept_name,
+                "concept_description": c.concept_description,
+                "source_files": c.source_files,
+                "concept_role": c.concept_role,
+                "appropriate_types": c.appropriate_types,
+                "existing_coverage": c.existing_coverage,
+                "missing_types": c.missing_types,
+                "coverage_status": c.coverage_status,
+                "priority": c.priority,
+                "priority_signals": c.priority_signals,
+                "cluster_id": c.cluster_id,
+            }
+            for c in dp.concepts
+        ],
+        "writing_prompts": [
+            {
+                "prompt_id": p.prompt_id,
+                "target_concepts": p.target_concepts,
+                "diataxis_type": p.diataxis_type,
+                "priority": p.priority,
+                "prompt_text": p.prompt_text,
+                "shadow_doc_excerpts": p.shadow_doc_excerpts,
+                "related_docs": p.related_docs,
+                "scope_constraints": p.scope_constraints,
+                "output_guidance": p.output_guidance,
+                "cluster_id": p.cluster_id,
+            }
+            for p in dp.writing_prompts
+        ],
+        "coverage_summary": {
+            "total_concepts": dp.total_concepts,
+            "fully_documented": dp.fully_documented,
+            "partially_documented": dp.partially_documented,
+            "undocumented": dp.undocumented,
+            "coverage_by_type": dp.coverage_by_type,
+            "total_gaps": dp.total_gaps,
+            "total_prompts": dp.total_prompts,
+        },
+    }
+
+
+def _deserialize_doc_prompts(data: dict) -> Any:
+    """Reconstruct DocPromptsResult from a serialized dict."""
+    from .doc_prompts import Concept, WritingPrompt, DocPromptsResult, _compute_priority
+
+    concepts: list[Concept] = []
+    for c in data.get("concept_inventory", []):
+        concept = Concept(
+            concept_id=c.get("concept_id", ""),
+            concept_name=c.get("concept_name", ""),
+            concept_description=c.get("concept_description", ""),
+            source_files=c.get("source_files", []),
+            concept_role=c.get("concept_role", "internal_utility"),
+            appropriate_types=c.get("appropriate_types", []),
+            appropriateness_rationale="",
+            existing_coverage=c.get("existing_coverage", []),
+            missing_types=c.get("missing_types", []),
+            coverage_status=c.get("coverage_status", "undocumented"),
+            priority=c.get("priority", "low"),
+            priority_signals=c.get("priority_signals", []),
+            cluster_id=c.get("cluster_id"),
+        )
+        _compute_priority(concept)
+        concepts.append(concept)
+
+    prompts: list[WritingPrompt] = []
+    for p in data.get("writing_prompts", []):
+        prompts.append(WritingPrompt(
+            prompt_id=p.get("prompt_id", ""),
+            target_concepts=p.get("target_concepts", []),
+            diataxis_type=p.get("diataxis_type", ""),
+            priority=p.get("priority", "low"),
+            prompt_text=p.get("prompt_text", ""),
+            shadow_doc_excerpts=p.get("shadow_doc_excerpts", []),
+            related_docs=p.get("related_docs", []),
+            scope_constraints=p.get("scope_constraints", ""),
+            output_guidance=p.get("output_guidance", {}),
+            cluster_id=p.get("cluster_id"),
+        ))
+
+    summary = data.get("coverage_summary", {})
+    return DocPromptsResult(
+        concepts=concepts,
+        writing_prompts=prompts,
+        total_concepts=summary.get("total_concepts", len(concepts)),
+        fully_documented=summary.get("fully_documented", 0),
+        partially_documented=summary.get("partially_documented", 0),
+        undocumented=summary.get("undocumented", 0),
+        coverage_by_type=summary.get("coverage_by_type", {}),
+        total_gaps=summary.get("total_gaps", 0),
+        total_prompts=summary.get("total_prompts", len(prompts)),
+    )
+
+
+def _html_doc_prompts_section(result: "AuditResult") -> str:
+    """Build the Documentation Opportunities section HTML."""
+    dp = result.doc_prompts
+    if dp is None or not dp.concepts:
+        return ""
+
+    underdoc = [c for c in dp.concepts if c.missing_types]
+    if not underdoc:
+        return ""
+
+    parts: list[str] = []
+    parts.append('<div class="section" id="section-doc-prompts">')
+    parts.append('<div class="section-head">Documentation Opportunities</div>')
+    parts.append('<div class="section-body">')
+
+    parts.append(f'<p>{len(underdoc)} concept(s) underdocumented. '
+                 f'{dp.total_prompts} writing prompt(s) generated.</p>')
+
+    # Concept coverage summary table
+    if dp.coverage_by_type:
+        parts.append('<table><thead><tr><th>Type</th><th>Needed</th>'
+                     '<th>Covered</th><th>%</th></tr></thead><tbody>')
+        for t in sorted(dp.coverage_by_type.keys()):
+            info = dp.coverage_by_type[t]
+            needed = info.get("needed", 0)
+            covered = info.get("covered", 0)
+            pct = (covered / needed * 100) if needed > 0 else 0
+            parts.append(f'<tr><td>{_h(t)}</td><td>{needed}</td>'
+                         f'<td>{covered}</td><td>{pct:.0f}%</td></tr>')
+        parts.append('</tbody></table>')
+
+    # Build prompt lookup
+    prompts_by_concept: dict[str, list] = {}
+    for p in dp.writing_prompts:
+        for cid in p.target_concepts:
+            prompts_by_concept.setdefault(cid, []).append(p)
+
+    # Priority groups
+    priority_order = {"high": 0, "medium": 1, "low": 2}
+    sorted_concepts = sorted(underdoc, key=lambda c: (priority_order.get(c.priority, 3), -c.priority_score))
+
+    for concept in sorted_concepts:
+        badge_color = {"high": "var(--warning)", "medium": "var(--amber)", "low": "var(--text-3)"}.get(concept.priority, "var(--text-3)")
+        missing_str = ", ".join(concept.missing_types)
+        parts.append('<details>')
+        parts.append(f'<summary>'
+                     f'<span style="display:inline-block;padding:2px 8px;'
+                     f'font-size:0.65rem;font-weight:500;color:{badge_color};'
+                     f'border:1px solid {badge_color};margin-right:8px;'
+                     f'text-transform:uppercase;letter-spacing:0.1em">'
+                     f'{_h(concept.priority.upper())}</span>'
+                     f'{_h(concept.concept_name)} — missing: {_h(missing_str)}'
+                     f'</summary>')
+        parts.append('<div style="padding:8px 0 16px 24px">')
+        parts.append(f'<p>{_h(concept.concept_description)}</p>')
+
+        # Current coverage
+        if concept.existing_coverage:
+            existing = ", ".join(
+                f"{d['diataxis_type']} ({d['doc_path']})"
+                for d in concept.existing_coverage
+            )
+            parts.append(f'<p><strong>Current coverage:</strong> {_h(existing)}</p>')
+
+        # Why it matters
+        if concept.priority_signals:
+            parts.append(f'<p><strong>Why it matters:</strong> {_h(", ".join(concept.priority_signals))}</p>')
+
+        # Writing prompts
+        concept_prompts = prompts_by_concept.get(concept.concept_id, [])
+        for p in concept_prompts:
+            parts.append('<details style="margin-top:8px">')
+            parts.append(f'<summary>Writing prompt: {_h(p.diataxis_type)}</summary>')
+            parts.append(f'<pre style="white-space:pre-wrap;font-size:0.75rem;'
+                         f'padding:12px;background:var(--surface-3);'
+                         f'border:1px solid var(--border-default);margin-top:8px;'
+                         f'max-height:400px;overflow:auto">{_h(p.prompt_text)}</pre>')
+            parts.append(f'<button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)" '
+                         f'style="margin-top:4px;padding:4px 12px;font-size:0.7rem;'
+                         f'cursor:pointer;background:var(--surface-2);border:1px solid var(--border-default);'
+                         f'color:var(--text-2)">Copy prompt</button>')
+            parts.append('</details>')
+
+        parts.append('</div></details>')
+
+    parts.append('</div></div>')
+    return "\n".join(parts)
+
+
+def _html_coverage_section(scorecard: "Scorecard", shadow_content: dict[str, str] | None = None) -> str:
     """Build the coverage section HTML."""
     parts: list[str] = []
     parts.append('<div class="section" id="section-coverage">')
@@ -1534,8 +1786,28 @@ def _html_coverage_section(scorecard: "Scorecard") -> str:
     parts.append(f'<div class="cov-bar-wrap"><div class="cov-bar-fill" style="width:{pct:.0f}%;background:{color}"></div></div>')
     parts.append(f'<p>{scorecard.covered_count}/{scorecard.total_source_count} source files covered ({pct:.0f}%)</p>')
 
-    # By-type table
+    # Concept-centric coverage (when available)
+    if scorecard.concept_total is not None:
+        parts.append(f'<p style="margin-top:16px;font-weight:400;color:var(--text-1)">Concept coverage</p>')
+        parts.append(f'<p>{scorecard.concept_total} concept(s). '
+                     f'{scorecard.concept_fully_documented} fully documented, '
+                     f'{scorecard.concept_partially_documented} partially, '
+                     f'{scorecard.concept_undocumented} undocumented.</p>')
+        if scorecard.concept_coverage_by_type:
+            parts.append('<table><thead><tr><th>Type</th><th>Needed</th>'
+                         '<th>Covered</th><th>%</th></tr></thead><tbody>')
+            for t in sorted(scorecard.concept_coverage_by_type.keys()):
+                info = scorecard.concept_coverage_by_type[t]
+                needed = info.get("needed", 0)
+                covered = info.get("covered", 0)
+                pct = (covered / needed * 100) if needed > 0 else 0
+                parts.append(f'<tr><td>{_h(t)}</td><td>{needed}</td>'
+                             f'<td>{covered}</td><td>{pct:.0f}%</td></tr>')
+            parts.append('</tbody></table>')
+
+    # By-type table (doc linkage)
     if scorecard.coverage_by_type:
+        parts.append(f'<p style="margin-top:16px;font-weight:400;color:var(--text-1)">Documentation linkage</p>')
         parts.append('<table><thead><tr><th>Type</th><th>Linked</th><th>Total</th><th>%</th></tr></thead><tbody>')
         for cls in sorted(scorecard.coverage_by_type.keys()):
             linked = scorecard.type_covered_counts.get(cls, 0)
@@ -1570,6 +1842,19 @@ def _html_coverage_section(scorecard: "Scorecard") -> str:
                     else:
                         parts.append('<td style="text-align:center"><span class="miss">&#10007;</span></td>')
                 parts.append('</tr>')
+                # Shadow doc preview row
+                if shadow_content and entry.source_path in shadow_content:
+                    preview = shadow_content[entry.source_path][:2000]
+                    col_span = 1 + len(diataxis_types)
+                    parts.append(
+                        f'<tr><td colspan="{col_span}" style="padding:0">'
+                        f'<details style="margin:0;padding:4px 8px">'
+                        f'<summary style="font-size:0.7rem;color:var(--text-3);cursor:pointer">Shadow doc preview</summary>'
+                        f'<pre style="white-space:pre-wrap;font-size:0.7rem;padding:8px;'
+                        f'background:var(--surface-3);border:1px solid var(--border-default);'
+                        f'max-height:300px;overflow:auto;margin:4px 0">{_h(preview)}</pre>'
+                        f'</details></td></tr>'
+                    )
             parts.append('</tbody></table>')
             if collapse:
                 parts.append('</details>')
@@ -1685,6 +1970,120 @@ def _html_junk_section(result: "AuditResult") -> str:
     if missing:
         parts.append(f'<p style="font-style:italic;color:var(--text-3);margin-top:12px">'
                      f'Phases not run: {_h(", ".join(missing))}. Re-run with those flags for a complete scorecard.</p>')
+
+    parts.append('</div></div>')
+    return "\n".join(parts)
+
+
+def _html_file_health_section(result: "AuditResult") -> str:
+    """Build the file health table section HTML."""
+    from .observatory import _compute_file_health
+
+    scorecard = result.scorecard
+    if scorecard is None:
+        return ""
+
+    # Build per-file data from scorecard
+    # shadow coverage: set of covered source paths
+    covered_paths = set()
+    for entry in scorecard.coverage_entries:
+        if entry.covering_docs:
+            covered_paths.add(entry.source_path)
+
+    # junk fraction per file
+    junk_map: dict[str, float] = {}
+    for je in scorecard.junk_entries:
+        junk_map[je.source_path] = je.junk_fraction
+
+    # issues per file
+    errors_map: dict[str, int] = {}
+    warnings_map: dict[str, int] = {}
+    for issue in result.issues:
+        p = str(issue.path).replace("\\", "/")
+        if issue.severity == "error":
+            errors_map[p] = errors_map.get(p, 0) + 1
+        elif issue.severity == "warning":
+            warnings_map[p] = warnings_map.get(p, 0) + 1
+
+    # Collect all files from coverage entries
+    rows: list[tuple[str, float | None, bool, float, int, int]] = []
+    for entry in scorecard.coverage_entries:
+        fp = entry.source_path
+        shadow_exists = fp in covered_paths
+        jf = junk_map.get(fp, 0.0)
+        ec = errors_map.get(fp, 0)
+        wc = warnings_map.get(fp, 0)
+        metrics = {"error_count": ec, "warning_count": wc, "junk_fraction": jf}
+        health = _compute_file_health(metrics, shadow_exists, False)
+        rows.append((fp, health, shadow_exists, jf, ec, wc))
+
+    # Only show files with some signal
+    rows = [r for r in rows if r[1] is not None]
+    if not rows:
+        return ""
+
+    # Sort by health ascending (worst first)
+    rows.sort(key=lambda r: (r[1] if r[1] is not None else 1.0))
+
+    parts: list[str] = []
+    parts.append('<div class="section" id="section-file-health">')
+    parts.append('<div class="section-head">File Health</div>')
+    parts.append('<div class="section-body">')
+
+    collapse = len(rows) > 50
+    if collapse:
+        parts.append(f'<details><summary>{len(rows)} files</summary>')
+
+    parts.append('<table><thead><tr>'
+                 '<th>File</th><th>Health</th><th>Shadow</th>'
+                 '<th>Junk %</th><th>Errors</th><th>Warnings</th>'
+                 '</tr></thead><tbody>')
+    for fp, health, shadow, jf, ec, wc in rows:
+        h_val = health if health is not None else 0.0
+        if h_val >= 0.8:
+            h_color = "var(--success)"
+        elif h_val >= 0.5:
+            h_color = "var(--amber)"
+        else:
+            h_color = "var(--warning)"
+        shadow_mark = '<span class="ok">&#10003;</span>' if shadow else '<span class="miss">&#10007;</span>'
+        parts.append(
+            f'<tr><td>{_h(fp)}</td>'
+            f'<td style="color:{h_color}">{h_val:.0%}</td>'
+            f'<td style="text-align:center">{shadow_mark}</td>'
+            f'<td>{jf:.0%}</td>'
+            f'<td>{ec}</td><td>{wc}</td></tr>'
+        )
+    parts.append('</tbody></table>')
+    if collapse:
+        parts.append('</details>')
+
+    parts.append('</div></div>')
+    return "\n".join(parts)
+
+
+def _html_config_section(result: "AuditResult") -> str:
+    """Build the config/audit context panel HTML."""
+    config_snapshot = result.config_snapshot
+    if not config_snapshot:
+        return ""
+
+    parts: list[str] = []
+    parts.append('<div class="section" id="section-config">')
+    parts.append('<div class="section-head">Audit Context</div>')
+    parts.append('<div class="section-body">')
+
+    parts.append('<table>')
+    provider = config_snapshot.get("provider", "—")
+    model = config_snapshot.get("model", "—")
+    timestamp = config_snapshot.get("timestamp", "—")
+    phases = config_snapshot.get("phases_run", [])
+    parts.append(f'<tr><td><strong>Provider</strong></td><td>{_h(str(provider))}</td></tr>')
+    parts.append(f'<tr><td><strong>Model</strong></td><td>{_h(str(model))}</td></tr>')
+    if phases:
+        parts.append(f'<tr><td><strong>Phases</strong></td><td>{_h(", ".join(str(p) for p in phases))}</td></tr>')
+    parts.append(f'<tr><td><strong>Timestamp</strong></td><td>{_h(str(timestamp))}</td></tr>')
+    parts.append('</table>')
 
     parts.append('</div></div>')
     return "\n".join(parts)
@@ -1817,7 +2216,7 @@ _GUIDE_HTML = (
 )
 
 
-def format_audit_html(result: AuditResult) -> str:
+def format_audit_html(result: AuditResult, config: "Config | None" = None) -> str:
     """Format audit result as a self-contained HTML dashboard."""
     scorecard = result.scorecard
     errors = [i for i in result.issues if i.severity == "error"]
@@ -1884,18 +2283,39 @@ def format_audit_html(result: AuditResult) -> str:
                 f"{scorecard.obligation_implicit_contracts} implicit contracts",
                 "section-enforcement", obl_color))
 
+        # Doc Gaps metric card
+        if result.doc_prompts is not None:
+            gap_count = result.doc_prompts.total_gaps
+            gap_color = "green" if gap_count == 0 else ("amber" if gap_count < 10 else "coral")
+            parts.append(_html_metric_card(
+                "Doc Gaps", str(gap_count),
+                f"{result.doc_prompts.total_prompts} prompts",
+                "section-doc-prompts", gap_color))
+
         parts.append('</div>')
 
         # B7: Interpretive guide
         parts.append(_GUIDE_HTML)
 
+        # Load shadow content for coverage matrix previews
+        shadow_previews: dict[str, str] | None = None
+        if config is not None:
+            shadow_previews = {}
+            for entry in scorecard.coverage_entries:
+                content = load_shadow_content(config, entry.source_path)
+                if content:
+                    shadow_previews[entry.source_path] = content
+
         # Sections
-        parts.append(_html_coverage_section(scorecard))
+        parts.append(_html_coverage_section(scorecard, shadow_content=shadow_previews))
+        parts.append(_html_doc_prompts_section(result))
         parts.append(_html_accuracy_section(result))
         parts.append(_html_junk_section(result))
+        parts.append(_html_file_health_section(result))
         parts.append(_html_dead_docs_section(scorecard))
         parts.append(_html_enforcement_section(scorecard))
         parts.append(_html_info_section(result))
+        parts.append(_html_config_section(result))
 
     parts.append('</div>')  # container
 

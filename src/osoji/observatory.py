@@ -486,6 +486,16 @@ def _build_bundle_for_config(config: Config) -> dict[str, Any]:
     # Build doc analysis summaries
     doc_analysis = _build_doc_analysis(config)
 
+    # Load doc_prompts and config from audit result if present
+    doc_prompts_data = None
+    config_snapshot = None
+    audit_result = _safe_read_json(config.analysis_root / "audit-result.json")
+    if audit_result:
+        if isinstance(audit_result.get("doc_prompts"), dict):
+            doc_prompts_data = audit_result["doc_prompts"]
+        if isinstance(audit_result.get("config"), dict):
+            config_snapshot = audit_result["config"]
+
     return {
         "schema_name": OBSERVATORY_SCHEMA_NAME,
         "schema_version": OBSERVATORY_SCHEMA_VERSION,
@@ -513,6 +523,8 @@ def _build_bundle_for_config(config: Config) -> dict[str, Any]:
         "scorecard": scorecard,
         "import_graph": import_graph,
         "doc_analysis": doc_analysis,
+        "doc_prompts": doc_prompts_data,
+        "config": config_snapshot,
         "tree": tree,
     }
 
