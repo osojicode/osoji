@@ -349,6 +349,9 @@ ALSO: While analyzing the code, identify any "debris" that CURRENTLY misleads an
   * Calling a function/method with wrong argument count or types
   * Using dict-style API (.get(), bracket access) on a non-dict object, or vice versa
   * Unguarded dereference of a value that could be null/nil/None
+    Language-level non-null assertions (TypeScript `!`, Kotlin `!!`, Rust `.unwrap()`)
+    are intentional developer decisions, not "unguarded" dereferences. Do NOT flag these
+    as latent bugs — the developer is explicitly accepting the risk.
   * Do NOT flag an inner-loop break/continue by pattern alone; only flag loop-control bugs when
     the same file shows missed work, duplicate output, or an actually unreachable intended path
   Only flag where the mismatch is clearly visible from THIS file. If the type
@@ -356,6 +359,11 @@ ALSO: While analyzing the code, identify any "debris" that CURRENTLY misleads an
   Before flagging unguarded dict/list access as a latent bug, check whether the same file
   contains validation logic, schema enforcement, data construction, or loop iteration that
   guarantees the key/index exists at the point of access.
+  When code narrows a union/sum type via a discriminant check (e.g., `if (x.type === "a") return;`
+  or `match x.kind { ... }`), accesses in the remaining branch may safely use members
+  exclusive to the narrowed variant. Do NOT flag these as latent bugs. If you cannot
+  verify the union definition from this file, set cross_file_verification_needed=true
+  rather than flagging directly.
   Private helpers may rely on same-file caller preconditions. Do NOT flag a helper as a latent
   bug if the same file clearly validates or constrains the inputs before every call.
   In tests and mocks, judge against the local fixture contract unless the code explicitly says it
@@ -401,9 +409,15 @@ ALSO: Populate the imports, exports, calls, member_writes, and string_literals a
 - member_writes: Writes to object/class/dataclass fields that could demonstrate cross-file field usage
 - string_literals: String constants that participate in cross-file contracts (identifiers used as
   keys/names/categories, user-facing messages, config values). NOT every string.
-  IMPORTANT: Dict/mapping values, default parameter values, and collection literal elements
-  are PRODUCTION sites — classify these as "produced" even if the same string also appears
-  in equality checks elsewhere in the file.
+  Classify kind as "identifier" ONLY for strings whose meaning is defined by THIS project
+  (internal action names, route keys, discriminant tags, category labels).
+  Use "config" for values whose meaning is defined outside the project — database error codes
+  (e.g. SQLSTATE "23505"), HTTP status/method strings, MIME types, environment names,
+  third-party SDK constants, and protocol-level identifiers.
+  IMPORTANT: Dict/mapping values, default parameter values, collection literal elements,
+  and type union/literal type members (e.g. TypeScript `type: "a" | "b"`, Python
+  `Literal["x", "y"]`) are PRODUCTION sites — classify these as "produced" even if the
+  same string also appears in equality checks elsewhere in the file.
   Set usage to "produced" if emitted/returned/appended (including dict values, collection
   literal elements, default parameter values), "checked" if used in membership test/equality
   against a project-internal value, "defined" if assigned to a constant, "external_input" if the string enters from outside the project boundary at runtime
@@ -877,8 +891,10 @@ def format_progress_bar(completed: int, total: int, width: int = 30) -> str:
     return f"[{'#' * filled}{'.' * (width - filled)}]"
 
 
-def _make_shadow_progress(token_getter=None):
+def _make_shadow_progress(token_getter=None, retry_getter=None):
     """Create shadow progress callback with optional token display."""
+    import shutil
+
     def progress(completed: int, total: int, path: Path, status: str) -> None:
         pct = completed / total * 100 if total > 0 else 0
         bar = format_progress_bar(completed, total)
@@ -886,6 +902,8 @@ def _make_shadow_progress(token_getter=None):
             "cached": "[cached]",
             "generated": "[OK]",
             "error": "[ERROR]",
+            "timeout": "[TIMEOUT]",
+            "rate_limit": "[RATE_LIMIT]",
             "processing": "[...]",
             "empty": "[empty]",
         }
@@ -896,7 +914,15 @@ def _make_shadow_progress(token_getter=None):
             tok_str = _format_tokens_short(in_tok, out_tok)
             if tok_str:
                 tok_str = f" {tok_str}"
-        print(f"\r{bar} {pct:.0f}%{tok_str} [{completed}/{total}] {symbol} {path.name}\033[K", end="", flush=True)
+        retry_str = ""
+        if retry_getter:
+            retries = retry_getter()
+            if retries > 0:
+                retry_str = f" R:{retries}"
+        cols = shutil.get_terminal_size((80, 24)).columns
+        line = f"\r{bar} {pct:.0f}%{tok_str}{retry_str} [{completed}/{total}] {symbol} {path.name}"
+        line = line.ljust(cols)[:cols]
+        print(line, end="", flush=True)
         if completed == total:
             print()
     return progress
@@ -972,7 +998,18 @@ async def generate_shadows_parallel(
         async with lock:
             completed += 1
             if on_progress:
-                status = "cached" if result.cached else ("error" if result.error else "generated")
+                if result.cached:
+                    status = "cached"
+                elif result.error:
+                    err_lower = result.error.lower()
+                    if "timeout" in err_lower:
+                        status = "timeout"
+                    elif "rate" in err_lower or "429" in err_lower:
+                        status = "rate_limit"
+                    else:
+                        status = "error"
+                else:
+                    status = "generated"
                 on_progress(completed, total, file_path, status)
 
         return result
@@ -1259,7 +1296,8 @@ async def generate_shadow_docs_async(
         file_start = time_module.monotonic()
         _emit(config, "\nProcessing files:")
         token_getter = lambda: (logging_provider.stats.total_input_tokens, logging_provider.stats.total_output_tokens)
-        progress_callback = _make_shadow_progress(token_getter) if (not verbose and not config.quiet) else None
+        retry_getter = lambda: rate_limiter._rate_limit_retries
+        progress_callback = _make_shadow_progress(token_getter, retry_getter) if (not verbose and not config.quiet) else None
 
         if verbose and not config.quiet:
             # In verbose mode, print each file on its own line
@@ -1292,7 +1330,7 @@ async def generate_shadow_docs_async(
         # Directory roll-ups (dependency-based parallelism)
         dir_start = time_module.monotonic()
         _emit(config, "\nRolling up directories:")
-        dir_progress_callback = _make_shadow_progress(token_getter) if (not verbose and not config.quiet) else None
+        dir_progress_callback = _make_shadow_progress(token_getter, retry_getter) if (not verbose and not config.quiet) else None
 
         if verbose and not config.quiet:
             def verbose_dir_progress(completed: int, total: int, path: Path, status: str) -> None:

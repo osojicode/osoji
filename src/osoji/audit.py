@@ -20,8 +20,10 @@ from .junk_deps import DeadDepsAnalyzer
 from .junk_cicd import DeadCICDAnalyzer
 from .junk_orphan import OrphanedFilesAnalyzer
 from .rate_limiter import RateLimiter, get_config_with_overrides
-from .shadow import check_shadow_docs, generate_shadow_docs
-from .doc_analysis import analyze_docs
+from .shadow import check_shadow_docs, generate_shadow_docs, generate_shadow_docs_async
+from .doc_analysis import analyze_docs, analyze_docs_async
+from .junk_cicd import discover_cicd_files
+from .llm.runtime import create_runtime
 from .scorecard import CoverageEntry, JunkCodeEntry, Scorecard, build_scorecard
 from .walker import _matches_ignore
 try:
@@ -236,6 +238,10 @@ Guidelines:
 - For latent_bug findings: check whether cross-file evidence shows the type actually HAS
   the accessed attribute/method. If evidence confirms the attribute exists, DISMISS.
   If evidence is absent or ambiguous, CONFIRM.
+- For union/sum types (e.g., TypeScript `A | B`, Python `Union[A, B]`), check whether
+  the NARROWED variant (after a discriminant guard or early return) has the attribute —
+  not whether the full union type has it. If the code checks a discriminant field and
+  then accesses a member specific to the narrowed variant, DISMISS the finding.
 - When type/class definition source code is provided, use it as authoritative
   evidence of the type's fields, methods, and default values.
 
@@ -512,6 +518,35 @@ def run_audit(
     obligations: bool = False,
     verbose: bool = False,
 ) -> AuditResult:
+    """Run a complete documentation audit (sync entry point)."""
+    return asyncio.run(run_audit_async(
+        config,
+        fix_shadow=fix_shadow,
+        dead_code=dead_code,
+        dead_params=dead_params,
+        dead_plumbing=dead_plumbing,
+        dead_deps=dead_deps,
+        dead_cicd=dead_cicd,
+        orphaned_files=orphaned_files,
+        junk=junk,
+        obligations=obligations,
+        verbose=verbose,
+    ))
+
+
+async def run_audit_async(
+    config: Config,
+    fix_shadow: bool = True,
+    dead_code: bool = False,
+    dead_params: bool = False,
+    dead_plumbing: bool = False,
+    dead_deps: bool = False,
+    dead_cicd: bool = False,
+    orphaned_files: bool = False,
+    junk: bool = False,
+    obligations: bool = False,
+    verbose: bool = False,
+) -> AuditResult:
     """Run a complete documentation audit.
 
     Args:
@@ -539,14 +574,14 @@ def run_audit(
     if analysis_root.exists():
         shutil.rmtree(analysis_root)
 
-    # 1. Check shadow docs (auto-fix if enabled)
+    # ── Phase 1: shadow docs (sequential — all later phases depend on this) ──
     _emit(config, "Osoji: Checking shadow documentation...")
     shadow_issues = check_shadow_docs(config)
 
     if fix_shadow and shadow_issues:
         _emit(config, f"Osoji: Auto-updating {len(shadow_issues)} shadow doc(s)...")
         phase_start = time_module.monotonic()
-        generate_shadow_docs(config, verbose=verbose, rate_limiter=rate_limiter)
+        await generate_shadow_docs_async(config, verbose=verbose, rate_limiter=rate_limiter)
         shadow_issues = []  # Cleared by regeneration
         if verbose:
             elapsed = time_module.monotonic() - phase_start
@@ -561,14 +596,28 @@ def run_audit(
             remediation="Run 'osoji shadow .' to update",
         ))
 
-    # 2. Unified documentation analysis
-    _emit(config, "Osoji: Analyzing documentation...")
-    phase_start = time_module.monotonic()
-    analysis_results = analyze_docs(config, on_progress=progress_cb, rate_limiter=rate_limiter)
-    if verbose:
-        elapsed = time_module.monotonic() - phase_start
-        _emit(config, f"  [{elapsed:.1f}s]")
+    # ── Phases 2-4: run concurrently (no inter-phase data dependencies) ──
 
+    # Pre-compute sync inputs needed by parallel phases
+    raw_debris = _load_raw_debris(config, osojiignore)
+    enabled_flags = _resolve_enabled_flags(
+        dead_code=dead_code, dead_params=dead_params,
+        dead_plumbing=dead_plumbing, dead_deps=dead_deps,
+        dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk,
+    )
+
+    analysis_results, debris_result, obligation_findings, junk_results = (
+        await asyncio.gather(
+            _run_phase2_async(config, rate_limiter, progress_cb, verbose),
+            _run_phase3_async(config, raw_debris, rate_limiter, verbose),
+            _run_phase3_5_async(config, obligations, verbose),
+            _run_phase4_async(config, rate_limiter, enabled_flags, progress_cb, verbose),
+        )
+    )
+
+    suppressed_indices: set[int] = debris_result
+
+    # Collect issues from Phase 2 (doc analysis)
     for item in analysis_results:
         if item.is_debris:
             issues.append(AuditIssue(
@@ -614,53 +663,7 @@ def run_audit(
             "topic_signature": item.topic_signature,
         })
 
-    # 3. Surface code debris findings from shadow generation
-    _emit(config, "Osoji: Checking code debris findings...")
-    phase_start = time_module.monotonic()
-    # Collect all debris findings first, then verify dead_code ones
-    raw_debris: list[dict] = []  # [{source, category, severity, ...}, ...]
-    findings_dir = config.root_path / SHADOW_DIR / "findings"
-    if findings_dir.exists():
-        for findings_file in sorted(findings_dir.rglob("*.findings.json")):
-            try:
-                data = json.loads(findings_file.read_text(encoding="utf-8"))
-                source_path_str = data["source"]
-                source_path = Path(source_path_str)
-                if not is_findings_current(
-                    data.get("source_hash"), data.get("impl_hash"),
-                    config.root_path / source_path,
-                ):
-                    continue
-                if _matches_ignore(source_path, config.ignore_patterns):
-                    continue
-                if _matches_ignore(source_path, osojiignore):
-                    continue
-                for finding in data.get("findings", []):
-                    raw_debris.append({
-                        "source": source_path_str,
-                        "source_path": source_path,
-                        **finding,
-                    })
-            except (json.JSONDecodeError, KeyError):
-                continue
-
-    # Two-phase verification: verify findings against cross-file evidence
-    needs_verification = any(
-        f.get("category") in ("dead_code", "latent_bug")
-        or (f.get("category") == "stale_comment" and f.get("cross_file_verification_needed"))
-        for f in raw_debris
-    )
-    suppressed_indices: set[int] = set()
-    if needs_verification:
-        try:
-            suppressed_indices = asyncio.run(
-                _verify_debris_findings_async(config, raw_debris, rate_limiter)
-            )
-            if suppressed_indices and verbose:
-                _emit(config, f"  Dismissed {len(suppressed_indices)} false positive debris finding(s)")
-        except Exception:
-            pass  # Verification is best-effort; on failure, keep all findings
-
+    # Collect issues from Phase 3 (debris)
     for i, finding in enumerate(raw_debris):
         if i in suppressed_indices:
             continue
@@ -673,50 +676,20 @@ def run_audit(
             line_start=finding["line_start"],
             line_end=finding["line_end"],
         ))
-    if verbose:
-        elapsed = time_module.monotonic() - phase_start
-        _emit(config, f"  [{elapsed:.1f}s]")
 
-    # 3.5. Obligation checking (pure Python, no LLM)
-    obligation_findings = []
-    if obligations:
-        _emit(config, "Osoji: Checking cross-file obligations...")
-        phase_start = time_module.monotonic()
-        from .facts import FactsDB
-        from .obligations import run_all_contract_checks
-        facts_db = FactsDB(config)
-        obligation_findings = run_all_contract_checks(facts_db)
-        for f in obligation_findings:
-            issues.append(AuditIssue(
-                path=Path(f.consumer_file),
-                severity=f.severity,
-                category=f"obligation_{f.finding_type}",
-                message=f.description,
-                remediation=f.remediation,
-            ))
-        if verbose:
-            n_violations = sum(1 for f in obligation_findings if f.finding_type == "violation")
-            n_implicit = sum(1 for f in obligation_findings if f.finding_type == "implicit_contract")
-            elapsed = time_module.monotonic() - phase_start
-            _emit(config, f"  [{elapsed:.1f}s] {n_violations} violation(s), {n_implicit} implicit contract(s)")
+    # Collect issues from Phase 3.5 (obligations)
+    for f in obligation_findings:
+        issues.append(AuditIssue(
+            path=Path(f.consumer_file),
+            severity=f.severity,
+            category=f"obligation_{f.finding_type}",
+            message=f.description,
+            remediation=f.remediation,
+        ))
 
-    # 4. Unified junk analysis (opt-in per analyzer)
-    junk_results: dict[str, JunkAnalysisResult] = {}
-    enabled_flags = _resolve_enabled_flags(dead_code=dead_code, dead_params=dead_params, dead_plumbing=dead_plumbing, dead_deps=dead_deps, dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk)
-
-    for analyzer_cls in JUNK_ANALYZERS:
-        analyzer = analyzer_cls()
-        if analyzer.cli_flag not in enabled_flags:
-            continue
-        _emit(config, f"Osoji: Running {analyzer.description}...")
-        phase_start = time_module.monotonic()
-        result = analyzer.analyze(config, on_progress=progress_cb, rate_limiter=rate_limiter)
-        junk_results[analyzer.name] = result
-        if verbose:
-            elapsed = time_module.monotonic() - phase_start
-            _emit(config, f"  [{elapsed:.1f}s]")
-
-        for item in result.findings:
+    # Collect issues from Phase 4 (junk analyzers)
+    for analyzer_name, junk_result in junk_results.items():
+        for item in junk_result.findings:
             prefix = "[AST] " if item.confidence_source == "ast_proven" else ""
             issues.append(AuditIssue(
                 path=Path(item.source_path),
@@ -727,9 +700,9 @@ def run_audit(
                 line_start=item.line_start,
                 line_end=item.line_end,
             ))
-        _serialize_junk_results(config, analyzer.name, result)
+        _serialize_junk_results(config, analyzer_name, junk_result)
 
-    # 5. Scorecard (always runs)
+    # ── Phase 5: scorecard (sequential — needs all results) ──
     _emit(config, "Osoji: Building scorecard...")
     scorecard = build_scorecard(
         config,
@@ -759,6 +732,153 @@ def run_audit(
     )
     serialize_audit_result(config, result)
     return result
+
+
+def _load_raw_debris(
+    config: Config,
+    osojiignore: list[str],
+) -> list[dict]:
+    """Load and filter debris findings from .osoji/findings/ (sync I/O)."""
+    raw_debris: list[dict] = []
+    findings_dir = config.root_path / SHADOW_DIR / "findings"
+    if not findings_dir.exists():
+        return raw_debris
+    for findings_file in sorted(findings_dir.rglob("*.findings.json")):
+        try:
+            data = json.loads(findings_file.read_text(encoding="utf-8"))
+            source_path_str = data["source"]
+            source_path = Path(source_path_str)
+            if not is_findings_current(
+                data.get("source_hash"), data.get("impl_hash"),
+                config.root_path / source_path,
+            ):
+                continue
+            if _matches_ignore(source_path, config.ignore_patterns):
+                continue
+            if _matches_ignore(source_path, osojiignore):
+                continue
+            for finding in data.get("findings", []):
+                raw_debris.append({
+                    "source": source_path_str,
+                    "source_path": source_path,
+                    **finding,
+                })
+        except (json.JSONDecodeError, KeyError):
+            continue
+    return raw_debris
+
+
+async def _run_phase2_async(config, rate_limiter, progress_cb, verbose):
+    """Phase 2: Unified documentation analysis."""
+    _emit(config, "Osoji: Analyzing documentation...")
+    phase_start = time_module.monotonic()
+    logging_provider, _ = create_runtime(config, rate_limiter=rate_limiter)
+    try:
+        results = await analyze_docs_async(logging_provider, config, on_progress=progress_cb)
+    finally:
+        await logging_provider.close()
+    if verbose:
+        elapsed = time_module.monotonic() - phase_start
+        _emit(config, f"  [phase 2 doc analysis: {elapsed:.1f}s]")
+    return results
+
+
+async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
+    """Phase 3: Verify debris findings against cross-file evidence."""
+    _emit(config, "Osoji: Checking code debris findings...")
+    phase_start = time_module.monotonic()
+    needs_verification = any(
+        f.get("category") in ("dead_code", "latent_bug")
+        or (f.get("category") == "stale_comment" and f.get("cross_file_verification_needed"))
+        for f in raw_debris
+    )
+    suppressed_indices: set[int] = set()
+    if needs_verification:
+        try:
+            suppressed_indices = await _verify_debris_findings_async(
+                config, raw_debris, rate_limiter,
+            )
+            if suppressed_indices and verbose:
+                _emit(config, f"  Dismissed {len(suppressed_indices)} false positive debris finding(s)")
+        except Exception:
+            pass  # Verification is best-effort; on failure, keep all findings
+    if verbose:
+        elapsed = time_module.monotonic() - phase_start
+        _emit(config, f"  [phase 3 debris verification: {elapsed:.1f}s]")
+    return suppressed_indices
+
+
+async def _run_phase3_5_async(config, obligations_enabled, verbose):
+    """Phase 3.5: Obligation checking (pure Python, no LLM)."""
+    if not obligations_enabled:
+        return []
+    _emit(config, "Osoji: Checking cross-file obligations...")
+    phase_start = time_module.monotonic()
+    from .facts import FactsDB
+    from .obligations import run_all_contract_checks
+    facts_db = FactsDB(config)
+    obligation_findings = run_all_contract_checks(facts_db)
+    if verbose:
+        n_violations = sum(1 for f in obligation_findings if f.finding_type == "violation")
+        n_implicit = sum(1 for f in obligation_findings if f.finding_type == "implicit_contract")
+        elapsed = time_module.monotonic() - phase_start
+        _emit(config, f"  [phase 3.5 obligations: {elapsed:.1f}s] {n_violations} violation(s), {n_implicit} implicit contract(s)")
+    return obligation_findings
+
+
+async def _run_phase4_async(config, rate_limiter, enabled_flags, progress_cb, verbose):
+    """Phase 4: Run all enabled junk analyzers concurrently."""
+    if not enabled_flags:
+        return {}
+
+    symbols_dir = config.root_path / SHADOW_DIR / "symbols"
+
+    # Build list of (analyzer, extra_kwargs) for enabled analyzers
+    tasks: list[tuple[JunkAnalyzer, dict]] = []
+    for analyzer_cls in JUNK_ANALYZERS:
+        analyzer = analyzer_cls()
+        if analyzer.cli_flag not in enabled_flags:
+            continue
+
+        if isinstance(analyzer, DeadCICDAnalyzer):
+            # CI/CD doesn't need symbols, but needs cicd_files discovery
+            cicd_files = discover_cicd_files(config)
+            if not cicd_files:
+                if not config.quiet:
+                    print("  [skip] No CI/CD configuration files found.", flush=True)
+                continue
+            tasks.append((analyzer, {"cicd_files": cicd_files}))
+        else:
+            # Other analyzers require symbols data
+            if not symbols_dir.exists():
+                if not config.quiet:
+                    print(f"  [skip] No symbols data found. Run 'osoji shadow .' first.", flush=True)
+                continue
+            tasks.append((analyzer, {}))
+
+    if not tasks:
+        return {}
+
+    async def _run_single(analyzer: JunkAnalyzer, extra_kwargs: dict) -> tuple[str, JunkAnalysisResult]:
+        _emit(config, f"Osoji: Running {analyzer.description}...")
+        phase_start = time_module.monotonic()
+        logging_provider, _ = create_runtime(config, rate_limiter=rate_limiter)
+        try:
+            result = await analyzer.analyze_async(
+                logging_provider, config, progress_cb, **extra_kwargs,
+            )
+        finally:
+            await logging_provider.close()
+        if verbose:
+            elapsed = time_module.monotonic() - phase_start
+            _emit(config, f"  [phase 4 {analyzer.name}: {elapsed:.1f}s]")
+        return analyzer.name, result
+
+    results = await asyncio.gather(*[
+        _run_single(analyzer, kwargs)
+        for analyzer, kwargs in tasks
+    ])
+    return dict(results)
 
 
 def serialize_audit_result(config: Config, result: AuditResult) -> Path:

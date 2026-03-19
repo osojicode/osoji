@@ -258,13 +258,21 @@ to work with this code effectively.""",
                         "kind": {
                             "type": "string",
                             "enum": ["identifier", "message", "config", "pattern"],
+                            "description": "identifier = project-internal name, category, discriminant, "
+                                           "or action verb used in dispatch/routing within this project's own code; "
+                                           "message = user-facing or log text; "
+                                           "config = fixed external protocol value, database code, MIME type, "
+                                           "environment name, HTTP method/status, third-party SDK constant, "
+                                           "or any value whose meaning is defined OUTSIDE this project; "
+                                           "pattern = regex or glob pattern.",
                         },
                         "usage": {
                             "type": "string",
                             "enum": ["produced", "checked", "defined", "external_input", "unknown"],
                             "description": "produced = emitted/returned/appended, including dict/mapping values, "
-                                           "default parameter values, and collection literal elements "
-                                           "(dict values are production sites even if the same string is also checked); "
+                                           "default parameter values, collection literal elements, "
+                                           "and type union/literal type members (TypeScript union literals, Python Literal types) "
+                                           "(these are all production sites even if the same string is also checked); "
                                            "checked = membership test/equality against an internal project value; "
                                            "defined = assigned to constant; "
                                            "external_input = string enters from outside the project at runtime "
