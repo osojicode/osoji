@@ -4,15 +4,12 @@ from __future__ import annotations
 
 import glob as glob_mod
 import json
-import logging
 import os
 import shutil
 import subprocess
 from pathlib import Path
 
 from .base import ExtractedFacts, FactsExtractionError, LanguagePlugin, PluginUnavailableError
-
-logger = logging.getLogger(__name__)
 
 _TS_RUNNER = Path(__file__).parent / "ts_runner" / "extract.js"
 

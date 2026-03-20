@@ -130,8 +130,6 @@ process.stdin.setEncoding("utf8");
 process.stdin.on("data", (chunk) => (input += chunk));
 process.stdin.on("end", () => {
   let filePaths;
-  // eslint-disable-next-line no-unused-vars
-  let workspacePackages = {};
   try {
     const parsed = JSON.parse(input);
     if (Array.isArray(parsed)) {
@@ -139,7 +137,6 @@ process.stdin.on("end", () => {
       filePaths = parsed;
     } else if (parsed && typeof parsed === "object" && Array.isArray(parsed.files)) {
       filePaths = parsed.files;
-      workspacePackages = parsed.workspacePackages || {};
     } else {
       process.stderr.write("Invalid stdin: expected JSON array or {files, workspacePackages}\n");
       process.exit(1);
