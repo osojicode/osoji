@@ -162,3 +162,4 @@ class CompletionResult:
     model: str
     stop_reason: str | None
     rate_limit: RateLimitMetadata | None = None
+    response_headers: dict[str, str] | None = None

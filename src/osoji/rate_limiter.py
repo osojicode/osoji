@@ -239,10 +239,72 @@ class RateLimiter:
         self._inflight_reserved_input_tokens = 0
         self._inflight_reserved_output_tokens = 0
         self._profiles: dict[str, ReservationProfile] = {}
+        self._auto_tuned: bool = False
 
     @property
     def input_safety_multiplier(self) -> float:
         return _INPUT_SAFETY_MULTIPLIER
+
+    async def update_limits(
+        self,
+        *,
+        requests_per_minute: int | None = None,
+        input_tokens_per_minute: int | None = None,
+        output_tokens_per_minute: int | None = None,
+    ) -> bool:
+        """Update rate limits upward based on discovered provider capacity.
+
+        Only increases limits (never reduces below current config).
+        No-op after the first successful call (auto-tunes once per instance).
+        Returns True if any limit was changed.
+        """
+        async with self._lock:
+            if self._auto_tuned:
+                return False
+            changed = False
+
+            if requests_per_minute is not None and requests_per_minute > self._config.requests_per_minute:
+                logger.info(
+                    "[%s] Auto-tuning RPM: %d -> %d",
+                    self._config.name,
+                    self._config.requests_per_minute,
+                    requests_per_minute,
+                )
+                self._config.requests_per_minute = requests_per_minute
+                self._request_interval_ms = 60_000 / requests_per_minute
+                changed = True
+
+            if input_tokens_per_minute is not None and input_tokens_per_minute > self._config.input_tokens_per_minute:
+                logger.info(
+                    "[%s] Auto-tuning input TPM: %d -> %d",
+                    self._config.name,
+                    self._config.input_tokens_per_minute,
+                    input_tokens_per_minute,
+                )
+                self._config.input_tokens_per_minute = input_tokens_per_minute
+                self._input_token_refill_rate = input_tokens_per_minute / 60_000
+                self._input_token_allowance = min(
+                    self._input_token_allowance, float(input_tokens_per_minute),
+                )
+                changed = True
+
+            if output_tokens_per_minute is not None and output_tokens_per_minute > self._config.output_tokens_per_minute:
+                logger.info(
+                    "[%s] Auto-tuning output TPM: %d -> %d",
+                    self._config.name,
+                    self._config.output_tokens_per_minute,
+                    output_tokens_per_minute,
+                )
+                self._config.output_tokens_per_minute = output_tokens_per_minute
+                self._output_token_refill_rate = output_tokens_per_minute / 60_000
+                self._output_token_allowance = min(
+                    self._output_token_allowance, float(output_tokens_per_minute),
+                )
+                changed = True
+
+            if changed:
+                self._auto_tuned = True
+            return changed
 
     async def acquire(
         self,

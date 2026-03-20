@@ -8,14 +8,24 @@ from email.utils import parsedate_to_datetime
 from typing import Any
 
 import anthropic
-import litellm
-
 from ..rate_limiter import RateLimiter
 from .base import LLMProvider
 from .tokens import TokenCounter, estimate_tokens_offline
 from .types import CompletionOptions, CompletionResult, Message, RateLimitMetadata
 
 _MAX_RATE_LIMIT_RETRIES = 3
+
+
+def _parse_header_int(headers: dict[str, str], key: str) -> int | None:
+    """Parse an integer from a response header, returning None on failure."""
+    value = headers.get(key)
+    if value is None:
+        return None
+    try:
+        parsed = int(value)
+        return parsed if parsed > 0 else None
+    except (ValueError, TypeError):
+        return None
 
 
 class RateLimitedProvider(LLMProvider):
@@ -95,6 +105,8 @@ class RateLimitedProvider(LLMProvider):
                 input_headroom_pct=stats.input_headroom_pct,
                 output_headroom_pct=stats.output_headroom_pct,
             )
+            if not self._rate_limiter._auto_tuned and result.response_headers:
+                await self._auto_tune_from_headers(result.response_headers)
             return result
 
     async def close(self) -> None:
@@ -104,6 +116,25 @@ class RateLimitedProvider(LLMProvider):
 
     def get_rate_limit_summary(self) -> str:
         return self._rate_limiter.get_summary()
+
+    async def _auto_tune_from_headers(self, headers: dict[str, str]) -> None:
+        """Extract rate limit capacity from response headers and tune upward."""
+        rpm = _parse_header_int(headers, "anthropic-ratelimit-requests-limit")
+        if rpm is None:
+            rpm = _parse_header_int(headers, "x-ratelimit-limit-requests")
+
+        tpm = _parse_header_int(headers, "anthropic-ratelimit-tokens-limit")
+        if tpm is None:
+            tpm = _parse_header_int(headers, "x-ratelimit-limit-tokens")
+
+        if rpm is None and tpm is None:
+            return
+
+        await self._rate_limiter.update_limits(
+            requests_per_minute=rpm,
+            input_tokens_per_minute=tpm,
+            output_tokens_per_minute=tpm,
+        )
 
     async def _estimate_input_tokens(
         self,
@@ -149,6 +180,8 @@ class RateLimitedProvider(LLMProvider):
         return estimate_tokens_offline("\n".join(parts))
 
     def _is_retryable_error(self, exc: BaseException) -> bool:
+        import litellm
+
         rate_limit_error = getattr(litellm, "RateLimitError", None)
         api_connection_error = getattr(litellm, "APIConnectionError", None)
         api_error = getattr(litellm, "APIError", None)

@@ -431,3 +431,125 @@ class TestRateLimitedProvider:
         assert stats.inflight_requests == 0
         assert stats.input_token_allowance == pytest.approx(1000.0)
         assert stats.output_token_allowance == pytest.approx(1000.0)
+
+
+class TestUpdateLimits:
+    """Tests for dynamic rate limit auto-tuning via update_limits()."""
+
+    def test_upward_update_changes_limits(self) -> None:
+        clock = FakeClock()
+        rl = RateLimiter(
+            RateLimiterConfig(requests_per_minute=100, input_tokens_per_minute=50_000, output_tokens_per_minute=20_000, name="test"),
+            now_fn=clock.now, sleep_fn=clock.sleep,
+        )
+        changed = asyncio.run(rl.update_limits(requests_per_minute=200, input_tokens_per_minute=100_000, output_tokens_per_minute=40_000))
+        assert changed is True
+        assert rl._config.requests_per_minute == 200
+        assert rl._config.input_tokens_per_minute == 100_000
+        assert rl._config.output_tokens_per_minute == 40_000
+        assert rl._request_interval_ms == pytest.approx(60_000 / 200)
+        assert rl._input_token_refill_rate == pytest.approx(100_000 / 60_000)
+        assert rl._output_token_refill_rate == pytest.approx(40_000 / 60_000)
+
+    def test_downward_update_rejected(self) -> None:
+        clock = FakeClock()
+        rl = RateLimiter(
+            RateLimiterConfig(requests_per_minute=100, input_tokens_per_minute=50_000, output_tokens_per_minute=20_000, name="test"),
+            now_fn=clock.now, sleep_fn=clock.sleep,
+        )
+        changed = asyncio.run(rl.update_limits(requests_per_minute=50, input_tokens_per_minute=30_000))
+        assert changed is False
+        assert rl._config.requests_per_minute == 100
+        assert rl._config.input_tokens_per_minute == 50_000
+
+    def test_second_call_is_noop(self) -> None:
+        clock = FakeClock()
+        rl = RateLimiter(
+            RateLimiterConfig(requests_per_minute=100, input_tokens_per_minute=50_000, output_tokens_per_minute=20_000, name="test"),
+            now_fn=clock.now, sleep_fn=clock.sleep,
+        )
+        asyncio.run(rl.update_limits(requests_per_minute=200))
+        assert rl._auto_tuned is True
+        changed = asyncio.run(rl.update_limits(requests_per_minute=500))
+        assert changed is False
+        assert rl._config.requests_per_minute == 200
+
+    def test_mixed_update_partial(self) -> None:
+        """One limit goes up, one stays — should report changed."""
+        clock = FakeClock()
+        rl = RateLimiter(
+            RateLimiterConfig(requests_per_minute=100, input_tokens_per_minute=50_000, output_tokens_per_minute=20_000, name="test"),
+            now_fn=clock.now, sleep_fn=clock.sleep,
+        )
+        changed = asyncio.run(rl.update_limits(requests_per_minute=200, input_tokens_per_minute=30_000))
+        assert changed is True
+        assert rl._config.requests_per_minute == 200
+        assert rl._config.input_tokens_per_minute == 50_000  # stayed (was higher)
+
+    def test_none_values_ignored(self) -> None:
+        clock = FakeClock()
+        rl = RateLimiter(
+            RateLimiterConfig(requests_per_minute=100, input_tokens_per_minute=50_000, output_tokens_per_minute=20_000, name="test"),
+            now_fn=clock.now, sleep_fn=clock.sleep,
+        )
+        changed = asyncio.run(rl.update_limits(requests_per_minute=None, input_tokens_per_minute=None))
+        assert changed is False
+        assert rl._config.requests_per_minute == 100
+
+
+class TestAutoTuneFromHeaders:
+    """Tests for header-based auto-tuning in RateLimitedProvider."""
+
+    def test_anthropic_headers_trigger_update(self) -> None:
+        clock = FakeClock()
+        limiter = RateLimiter(
+            RateLimiterConfig(requests_per_minute=100, input_tokens_per_minute=50_000, output_tokens_per_minute=50_000, name="test"),
+            now_fn=clock.now, sleep_fn=clock.sleep,
+        )
+        result = CompletionResult(
+            content="ok", tool_calls=[], input_tokens=10, output_tokens=5,
+            model="test", stop_reason="end_turn",
+            response_headers={
+                "anthropic-ratelimit-requests-limit": "4000",
+                "anthropic-ratelimit-tokens-limit": "200000",
+            },
+        )
+        provider = SequenceProvider([result])
+        wrapped = RateLimitedProvider(provider, limiter)
+
+        async def run():
+            await wrapped.complete(
+                messages=[Message(role=MessageRole.USER, content="hi")],
+                system=None,
+                options=CompletionOptions(model="test", max_tokens=100),
+            )
+
+        asyncio.run(run())
+        assert limiter._config.requests_per_minute == 4000
+        assert limiter._config.input_tokens_per_minute == 200_000
+        assert limiter._auto_tuned is True
+
+    def test_no_headers_no_update(self) -> None:
+        clock = FakeClock()
+        limiter = RateLimiter(
+            RateLimiterConfig(requests_per_minute=100, input_tokens_per_minute=50_000, output_tokens_per_minute=50_000, name="test"),
+            now_fn=clock.now, sleep_fn=clock.sleep,
+        )
+        result = CompletionResult(
+            content="ok", tool_calls=[], input_tokens=10, output_tokens=5,
+            model="test", stop_reason="end_turn",
+            response_headers=None,
+        )
+        provider = SequenceProvider([result])
+        wrapped = RateLimitedProvider(provider, limiter)
+
+        async def run():
+            await wrapped.complete(
+                messages=[Message(role=MessageRole.USER, content="hi")],
+                system=None,
+                options=CompletionOptions(model="test", max_tokens=100),
+            )
+
+        asyncio.run(run())
+        assert limiter._config.requests_per_minute == 100
+        assert limiter._auto_tuned is False

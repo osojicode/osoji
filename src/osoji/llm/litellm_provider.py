@@ -11,13 +11,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
-import litellm
-
-# Suppress litellm's noisy "Give Feedback / Get Help" print statements that
-# fire on every exception mapping (including retried rate limits).  This is
-# the same flag litellm's own Router sets (router.py:383).
-litellm.suppress_debug_info = True
-
 from .base import LLMProvider
 from .registry import get_provider_spec, qualify_model_name
 from .tokens import estimate_completion_input_tokens_offline
@@ -35,6 +28,7 @@ from .types import (
 from .validate import validate_tool_input
 
 _MAX_TOOL_VALIDATION_ATTEMPTS = 3
+_DEFAULT_LLM_TIMEOUT = 300  # seconds; override with OSOJI_LLM_TIMEOUT env var
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +40,34 @@ class _ParsedResponse:
     result: CompletionResult
     assistant_message: dict[str, Any] | None
     response_format: str
+    response_headers: dict[str, str] | None = None
+
+
+def _disable_wmi_if_needed() -> None:
+    """Disable WMI on Windows to prevent Python 3.13 deadlocks.
+
+    Python 3.13 changed platform.system()/win32_ver() to use WMI COM queries
+    via the _wmi C extension.  When the WMI service is degraded (common after
+    long-running processes, AV interference, or Dropbox), these queries
+    deadlock indefinitely at the C level — unresponsive even to Ctrl+C.
+
+    Setting platform._wmi = None causes _wmi_query() to immediately raise
+    OSError, and every caller (uname, win32_ver, etc.) has a fallback path
+    that uses sys.getwindowsversion() and the registry instead.  The fallback
+    values are complete and accurate.
+    """
+    import sys
+    if sys.platform != "win32":
+        return
+
+    import platform
+    if not getattr(platform, "_wmi", None):
+        return  # Already disabled or not present (pre-3.13)
+
+    platform._wmi = None
+    logger.debug(
+        "Disabled platform._wmi to prevent WMI deadlock (Python 3.13+ on Windows)"
+    )
 
 
 class _LiteLLMMessagesProxy:
@@ -81,6 +103,10 @@ class LiteLLMProvider(LLMProvider):
                 f"{self._spec.api_key_env} environment variable is not set. "
                 f"Please set it to your {self._spec.display_name} API key."
         )
+        _disable_wmi_if_needed()
+        import litellm
+
+        litellm.suppress_debug_info = True
         self._acompletion = acompletion_fn or litellm.acompletion
         self._client = _LiteLLMClientProxy(self._create_completion)
         self._interaction_log_path: Path | None = None
@@ -178,6 +204,7 @@ class LiteLLMProvider(LLMProvider):
                     output_tokens=total_output_tokens,
                     model=parsed.result.model,
                     stop_reason=parsed.result.stop_reason,
+                    response_headers=parsed.result.response_headers,
                 )
 
             if parsed.assistant_message is None or attempts >= _MAX_TOOL_VALIDATION_ATTEMPTS:
@@ -236,6 +263,8 @@ class LiteLLMProvider(LLMProvider):
             kwargs["tools"] = self._convert_tools(options.tools)
         if options.tool_choice:
             kwargs["tool_choice"] = self._convert_tool_choice(options.tool_choice)
+        timeout = int(os.environ.get("OSOJI_LLM_TIMEOUT", _DEFAULT_LLM_TIMEOUT))
+        kwargs["timeout"] = timeout
         return kwargs
 
     def _convert_messages(
@@ -548,9 +577,30 @@ class LiteLLMProvider(LLMProvider):
             )
 
     def _parse_response(self, response: Any) -> _ParsedResponse:
+        headers = self._extract_response_headers(response)
         if self._looks_like_anthropic_response(response):
-            return self._parse_anthropic_response(response)
-        return self._parse_openai_response(response)
+            parsed = self._parse_anthropic_response(response)
+        else:
+            parsed = self._parse_openai_response(response)
+        parsed.response_headers = headers
+        parsed.result.response_headers = headers
+        return parsed
+
+    def _extract_response_headers(self, response: Any) -> dict[str, str] | None:
+        """Extract HTTP response headers from litellm's hidden params."""
+        hidden = getattr(response, "_hidden_params", None)
+        if not isinstance(hidden, dict):
+            return None
+        raw_headers = hidden.get("additional_headers")
+        if not raw_headers:
+            return None
+        if isinstance(raw_headers, dict):
+            return {str(k): str(v) for k, v in raw_headers.items()}
+        # httpx.Headers or similar mapping
+        try:
+            return {str(k): str(v) for k, v in raw_headers.items()}
+        except Exception:
+            return None
 
     def _looks_like_anthropic_response(self, response: Any) -> bool:
         content = self._field(response, "content")
