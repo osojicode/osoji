@@ -13,8 +13,12 @@ from urllib.request import Request, urlopen
 import click
 import tomllib
 
+from . import __version__
 from .config import LOCAL_CONFIG_FILENAME, PROJECT_CONFIG_FILENAME, get_global_config_path
 from .hooks import find_git_root
+from .observatory import write_observatory_bundle
+
+_USER_AGENT = f"osoji/{__version__}"
 
 
 @dataclass(frozen=True)
@@ -189,6 +193,7 @@ def _fetch_last_commit(endpoint: str, project_slug: str, token: str) -> str | No
     url = f"{endpoint}/api/v1/projects/{project_slug}/last-commit"
     req = Request(url, method="GET")
     req.add_header("Authorization", f"Bearer {token}")
+    req.add_header("User-Agent", _USER_AGENT)
 
     try:
         with urlopen(req, timeout=30) as resp:
@@ -269,6 +274,7 @@ def _post_envelope(endpoint: str, token: str, envelope: dict) -> PushResult:
     req = Request(url, data=body, method="POST")
     req.add_header("Authorization", f"Bearer {token}")
     req.add_header("Content-Type", "application/json")
+    req.add_header("User-Agent", _USER_AGENT)
 
     try:
         with urlopen(req, timeout=60) as resp:
@@ -365,9 +371,13 @@ def run_push(
 
     bundle_path = git_root / ".osoji" / "analysis" / "observatory.json"
     if not bundle_path.exists():
-        raise click.ClickException(
-            "No observatory bundle found at .osoji/analysis/observatory.json. Run 'osoji export' first."
-        )
+        if not quiet:
+            click.echo("Generating observatory bundle...", err=True)
+        write_observatory_bundle(git_root)
+        if not bundle_path.exists():
+            raise click.ClickException(
+                "Observatory bundle generation failed. Run 'osoji audit .' first."
+            )
 
     bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
     git_context = gather_git_context(git_root)

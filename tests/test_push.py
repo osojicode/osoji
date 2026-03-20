@@ -226,6 +226,42 @@ class TestRunPush:
         mock_commits.assert_called_once_with(git_repo, None)
 
 
+    @patch("osoji.push.write_observatory_bundle")
+    @patch("osoji.push._post_envelope")
+    @patch("osoji.push._get_commits_since", return_value=[])
+    @patch("osoji.push._fetch_last_commit", return_value=None)
+    @patch("osoji.push.gather_git_context")
+    def test_push_auto_exports_when_bundle_missing(
+        self, mock_git_ctx, mock_last, mock_commits, mock_post, mock_export, git_repo
+    ):
+        """When observatory.json is missing, push auto-generates it instead of raising."""
+        # Remove the bundle that git_repo fixture created
+        bundle_path = git_repo / ".osoji" / "analysis" / "observatory.json"
+        bundle_path.unlink()
+
+        mock_git_ctx.return_value = _mock_git_context()
+        mock_post.return_value = PushResult(success=True, status_code=201, run_id="run_abc")
+
+        # write_observatory_bundle should recreate the file
+        def _recreate_bundle(root, **kwargs):
+            bundle_path.parent.mkdir(parents=True, exist_ok=True)
+            bundle_path.write_text(json.dumps({"schema_version": "1", "files": []}))
+
+        mock_export.side_effect = _recreate_bundle
+
+        result = run_push(
+            endpoint="https://api.example.com",
+            token="tok",
+            project="osoji",
+            org="osojicode",
+            root_path=git_repo,
+            quiet=True,
+        )
+
+        assert result.success is True
+        mock_export.assert_called_once_with(git_repo)
+
+
 class TestLoadPushSection:
     def test_returns_push_table(self, tmp_path):
         toml_path = tmp_path / "config.toml"
