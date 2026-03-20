@@ -320,14 +320,14 @@ For each element (job, stage, target, step, pipeline), identify:
 Be thorough — extract ALL elements. For line numbers, count from line 1."""
 
 
-async def _parse_cicd_via_haiku(
+async def _parse_cicd_via_llm(
     provider: LLMProvider,
     content: str,
     path: str,
     cicd_type: str,
     config: Config | None = None,
 ) -> tuple[list[CICDElement], int, int]:
-    """Parse a CI/CD file using Haiku when no regex parser is available.
+    """Parse a CI/CD file using the small LLM model when no regex parser is available.
 
     Returns (elements, input_tokens, output_tokens).
     """
@@ -612,10 +612,10 @@ async def _verify_batch_async(
                         element_type=cand.element_type,
                         line_start=cand.line_start,
                         line_end=cand.line_end,
-                        is_dead=verdict["is_dead"],
-                        confidence=verdict["confidence"],
-                        reason=verdict["reason"],
-                        remediation=verdict["remediation"],
+                        is_dead=verdict.get("is_dead", False),
+                        confidence=verdict.get("confidence", 0.5),
+                        reason=verdict.get("reason", ""),
+                        remediation=verdict.get("remediation", ""),
                     ))
 
     if not verifications:
@@ -719,7 +719,7 @@ async def detect_dead_cicd_async(
         else:
             # Use Haiku for unsupported CI/CD systems
             try:
-                haiku_elements, _in_tok, _out_tok = await _parse_cicd_via_haiku(
+                haiku_elements, _in_tok, _out_tok = await _parse_cicd_via_llm(
                     provider, content, rel_path, cicd_type, config,
                 )
                 all_elements.extend(haiku_elements)

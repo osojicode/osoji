@@ -443,8 +443,8 @@ async def detect_dead_plumbing_async(
 ) -> PlumbingResult:
     """Detect unactuated config obligations across the project.
 
-    Phase A: Extract obligations from schema files (Haiku)
-    Phase B: Verify actuation for each obligation (Sonnet)
+    Phase A: Extract obligations from schema files (small model)
+    Phase B: Verify actuation for each obligation (medium model)
 
     Returns PlumbingResult with unactuated verifications and total obligation count.
     """

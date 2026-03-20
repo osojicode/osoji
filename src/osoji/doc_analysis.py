@@ -13,7 +13,6 @@ from .hasher import read_file_safe
 from .llm.base import LLMProvider
 from .llm.budgets import input_budget_for_config
 from .llm.runtime import create_runtime
-from .llm.tokens import estimate_tokens_offline
 from .llm.types import Message, MessageRole, CompletionOptions
 from .rate_limiter import RateLimiter
 from .tools import (
@@ -57,7 +56,7 @@ class DocAnalysisResult:
         return self.classification == "process_artifact"
 
 
-# --- Document discovery (unchanged) ---
+# --- Document discovery ---
 
 
 def find_doc_candidates(config: Config) -> list[Path]:
@@ -168,7 +167,7 @@ def _find_referenced_sources_regex(config: Config, doc_content: str) -> list[Pat
     return referenced
 
 
-# --- Tier 2: Topic matching via Haiku ---
+# --- Tier 2: Topic matching (small model) ---
 
 _MATCH_SYSTEM_PROMPT = """You are a documentation-to-code matcher. Given a documentation file and a list of source code directory summaries, identify which directories contain code relevant to this documentation.
 
@@ -292,7 +291,7 @@ Return the directory paths using the match_doc_topics tool."""
     return matched_files, result.input_tokens, result.output_tokens, topic_signature
 
 
-# --- Unified analysis (Opus) ---
+# --- Unified analysis (large model) ---
 
 _ANALYZE_SYSTEM_PROMPT = """You are a documentation analyst performing two tasks:
 
@@ -575,7 +574,7 @@ async def _verify_error_findings_async(
 ) -> tuple[list[DocFinding], int, int]:
     """Verify error-severity findings by searching for contradicting evidence.
 
-    One Sonnet LLM call per document with errors. Presents original findings + grep evidence.
+    One medium-tier LLM call per document with errors. Presents original findings + grep evidence.
     Returns (verified_findings, input_tokens, output_tokens).
     If no additional evidence is found for ANY finding, skips the LLM call entirely.
     """

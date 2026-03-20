@@ -1,4 +1,4 @@
-"""Git hook management for automatic shadow doc updates."""
+"""Git hook management for pre-commit safety and documentation checks."""
 
 import stat
 import subprocess

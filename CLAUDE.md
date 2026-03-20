@@ -25,7 +25,7 @@ the same structural understanding in a fraction of the tokens:
 - `<file>.shadow.md` — per-file summary with line references
 
 The pre-commit hook runs `osoji safety check` (blocks on failure) then
-`osoji check` which marks stale docs with warning lines and writes
+`osoji check .` which marks stale docs with warning lines and writes
 `.osoji/staleness.json`, but does not regenerate them (no LLM calls).
 Run `osoji shadow .` explicitly to regenerate.
 Use `osoji check --dry-run` for a read-only report without file modifications.
@@ -43,11 +43,11 @@ export analysis, and string contract checking.
 
 ## Key architecture
 
-- `src/osoji/cli.py` — Click CLI with subcommands: `shadow`, `check` (`--dry-run`), `diff`, `stats`, `audit`, `report`, `export`, `push`, `hooks`, `safety`
+- `src/osoji/cli.py` — Click CLI with subcommands: `shadow`, `check` (`--dry-run`), `diff`, `stats`, `audit`, `report`, `export`, `push`, `hooks`, `safety`, `config show`, `skills list|show`
 - `src/osoji/config.py` — Configuration, path helpers, model tier constants
 - `src/osoji/shadow.py` — Core shadow doc generation engine
 - `src/osoji/audit.py` — Multi-phase audit orchestration
-- `src/osoji/llm/` — LLM provider abstraction (Anthropic), validation, token counting
+- `src/osoji/llm/` — LLM provider abstraction (Anthropic, OpenAI, Google, OpenRouter via LiteLLM), validation, token counting
 - `src/osoji/rate_limiter.py` — Reservation-based async rate limiter (RPM + input/output TPM)
 - `src/osoji/facts.py` — Structured facts database and queries
 - `src/osoji/symbols.py` — Symbol extraction and loading from `.osoji/symbols/`
@@ -66,6 +66,10 @@ export analysis, and string contract checking.
 - `src/osoji/stats.py` — Token counting statistics
 - `src/osoji/push.py` — Push observatory bundle to osoji-teams ingest API
 - `src/osoji/hooks.py` — Git hook installation and management
+- `src/osoji/observatory.py` — Observatory bundle assembly for export
+- `src/osoji/async_utils.py` — Async runtime helpers
+- `src/osoji/doc_prompts.py` — Concept-centric documentation coverage and writing prompt generation
+- `src/osoji/plugins/` — Language-specific AST extraction plugins (Python, TypeScript)
 - `src/osoji/osoji-observatory.schema.json` — JSON Schema (Draft 2020-12) for the observatory bundle
 
 ## Observatory bundle schema

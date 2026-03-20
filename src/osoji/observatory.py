@@ -188,8 +188,6 @@ def _build_doc_analysis(config: Config) -> dict[str, dict[str, Any]]:
             continue
         rel = str(analysis_file.relative_to(docs_dir))
         suffix = ".analysis.json"
-        if not rel.endswith(suffix):
-            continue
         doc_path = rel[: -len(suffix)].replace("\\", "/")
         result[doc_path] = {
             "classification": data.get("classification"),

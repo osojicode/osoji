@@ -10,8 +10,6 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Callable
 
 from .config import Config, SHADOW_DIR
 from .facts import FactsDB
@@ -390,7 +388,6 @@ def _cluster_for_prompts(concepts: list[Concept]) -> list[list[Concept]]:
 
     # Build file-set for each concept
     file_sets = {c.concept_id: set(c.source_files) for c in underdoc}
-    concept_map = {c.concept_id: c for c in underdoc}
     clustered: set[str] = set()
     clusters: list[list[Concept]] = []
 
@@ -561,7 +558,7 @@ async def _generate_writing_prompts_async(
         system=_WRITING_PROMPTS_SYSTEM_PROMPT,
         options=CompletionOptions(
             model=config.model_for("medium"),
-            max_tokens=max(4096, len(gaps) * 500),
+            max_tokens=max(4096, len(gaps) * 2000),
             reservation_key="doc_prompts.writing_prompts",
             tools=get_writing_prompts_tool_definitions(),
             tool_choice={"type": "tool", "name": "generate_writing_prompts"},
@@ -576,12 +573,12 @@ async def _generate_writing_prompts_async(
             for p in tc.input.get("prompts", []):
                 target_ids = p.get("target_concept_ids", [])
                 # Look up priority from highest-priority target concept
+                _PRIORITY_RANK = {"high": 3, "medium": 2, "low": 1}
                 priority = "low"
                 for cid in target_ids:
                     c = concept_map.get(cid)
-                    if c and c.priority_score > 0:
-                        if c.priority in ("high",) or priority != "high":
-                            priority = c.priority
+                    if c and _PRIORITY_RANK.get(c.priority, 0) > _PRIORITY_RANK.get(priority, 0):
+                        priority = c.priority
 
                 # Find shadow doc excerpts for target concepts
                 excerpts: list[dict] = []

@@ -1,8 +1,6 @@
 """Tests for the doc_prompts module."""
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-from dataclasses import dataclass
 
 from osoji.doc_prompts import (
     Concept,

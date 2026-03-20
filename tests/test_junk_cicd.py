@@ -14,7 +14,7 @@ from osoji.junk_cicd import (
     DeadCICDAnalyzer,
     _check_path_references,
     _extract_paths_from_command,
-    _parse_cicd_via_haiku,
+    _parse_cicd_via_llm,
     _parse_github_workflow,
     _parse_gitlab_ci,
     _parse_makefile,
@@ -625,7 +625,7 @@ class TestHaikuCICDParsing:
               }
             }
         """)
-        elements, in_tok, out_tok = await _parse_cicd_via_haiku(
+        elements, in_tok, out_tok = await _parse_cicd_via_llm(
             mock_provider, content, "Jenkinsfile", "jenkinsfile",
         )
         assert len(elements) == 2
@@ -647,7 +647,7 @@ class TestHaikuCICDParsing:
             model="test", stop_reason="tool_use",
         )
 
-        elements, _, _ = await _parse_cicd_via_haiku(
+        elements, _, _ = await _parse_cicd_via_llm(
             mock_provider, "# empty", "Jenkinsfile", "jenkinsfile",
         )
         assert elements == []

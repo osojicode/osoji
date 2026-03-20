@@ -222,6 +222,11 @@ class LiteLLMProvider(LLMProvider):
             retry_messages = self._messages_from_api_payload(conversation_messages)
             self._enforce_input_token_budget(retry_messages, None, options)
 
+            current_max_tokens = self._maybe_expand_missing_tool_max_tokens(
+                current_max_tokens=current_max_tokens,
+                base_max_tokens=options.max_tokens,
+                stop_reason=parsed.result.stop_reason,
+            )
             retry_kwargs = dict(request_kwargs)
             retry_kwargs["messages"] = conversation_messages
             retry_kwargs["max_tokens"] = current_max_tokens

@@ -163,10 +163,16 @@ osoji audit /path/to/project --orphaned-files
 # Check cross-file string contracts (no LLM calls)
 osoji audit /path/to/project --obligations
 
+# Detect dead function parameters
+osoji audit /path/to/project --dead-params
+
 # Run all junk analysis phases
 osoji audit /path/to/project --junk
 
-# Run all optional phases (equivalent to --junk --obligations)
+# Generate concept-centric coverage + writing prompts
+osoji audit /path/to/project --doc-prompts
+
+# Run all optional phases (equivalent to --junk --obligations --doc-prompts)
 osoji audit /path/to/project --full
 ```
 
@@ -176,6 +182,7 @@ The audit checks for:
 - **Code debris**: Surfaces findings from shadow generation (stale comments, misleading docstrings, dead code) stored in `.osoji/findings/`
 - **Stale shadow docs**: Auto-fixed by default
 - **Cross-file dead code** (opt-in with `--dead-code`): Detects unused symbols across the codebase
+- **Dead parameters** (opt-in with `--dead-params`): Detects dead function parameters via call-site analysis and LLM verification
 - **Dead plumbing** (opt-in with `--dead-plumbing`): Detects unactuated config/schema obligations
 - **Dead dependencies** (opt-in with `--dead-deps`): Detects unused package dependencies via import scanning and LLM verification
 - **Dead CI/CD** (opt-in with `--dead-cicd`): Detects stale CI/CD pipeline elements (unused jobs, targets, stages)
@@ -223,6 +230,25 @@ osoji safety self-test          # Verify osoji package itself
 ```
 
 Install `detect-secrets` for secret detection: `pip install 'osoji[safety]'`
+
+### Re-render Audit Report
+
+Re-render the last cached audit result in a different format without re-analysis:
+
+```bash
+osoji report /path/to/project                 # Text (default)
+osoji report /path/to/project --format json   # JSON
+osoji report /path/to/project --format html   # HTML (written to .osoji/analysis/report.html)
+```
+
+### Push to Observatory
+
+Push the observatory bundle to the osoji-teams ingest API:
+
+```bash
+osoji push --org myorg --project myproject
+osoji push --token $OSOJI_TOKEN --endpoint https://custom.endpoint/api
+```
 
 ### Git Hooks for Automatic Updates
 

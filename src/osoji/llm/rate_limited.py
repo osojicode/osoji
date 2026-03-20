@@ -5,8 +5,6 @@ from __future__ import annotations
 import math
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
-from typing import Any
-
 import anthropic
 from ..rate_limiter import RateLimiter
 from .base import LLMProvider

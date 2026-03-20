@@ -32,11 +32,9 @@ CHECKABLE_EXTENSIONS: set[str] = {
     ".bash",
     ".zsh",
     # Environment (important for secrets!)
+    # Note: .env files are also caught by the startswith(".env") check in
+    # should_check_file(); these entries cover the plain ".env" suffix case.
     ".env",
-    ".env.example",
-    ".env.local",
-    ".env.development",
-    ".env.production",
     # Database
     ".sql",
     # Markup

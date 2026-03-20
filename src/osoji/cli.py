@@ -604,5 +604,41 @@ def config_show(ctx: click.Context, path: Path) -> None:
     click.echo(config.format_resolution_banner())
 
 
+@main.group()
+def skills() -> None:
+    """AI agent skill prompts bundled with osoji."""
+    pass
+
+
+@skills.command("list")
+def skills_list() -> None:
+    """List available skill prompts."""
+    from .skills import list_skills as _list_skills
+
+    entries = _list_skills()
+    if not entries:
+        click.echo("No bundled skills found.")
+        return
+    max_name = max(len(e["name"]) for e in entries)
+    for e in entries:
+        click.echo(f"  {e['name']:<{max_name}}  {e['description']}")
+
+
+@skills.command("show")
+@click.argument("name")
+def skills_show(name: str) -> None:
+    """Print the full content of a skill prompt."""
+    from .skills import get_skill
+
+    content = get_skill(name)
+    if content is None:
+        from .skills import list_skills as _list_skills
+        names = [e["name"] for e in _list_skills()]
+        raise click.ClickException(
+            f"Unknown skill '{name}'. Available: {', '.join(names)}"
+        )
+    click.echo(content)
+
+
 if __name__ == "__main__":
     main()

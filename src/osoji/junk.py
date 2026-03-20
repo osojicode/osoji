@@ -8,7 +8,6 @@ a two-phase pattern: cheap Python candidate filter -> LLM verification.
 import asyncio
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any, Callable
 
 from .config import Config, SHADOW_DIR

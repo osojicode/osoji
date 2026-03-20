@@ -22,7 +22,6 @@ from osoji.junk_deps import (
     _verify_batch_async,
     detect_dead_deps_async,
     discover_manifests,
-    parse_manifest,
     scan_imports,
 )
 from osoji.llm.types import CompletionResult, ToolCall

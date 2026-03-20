@@ -76,7 +76,7 @@ _IMPORT_NAME_CACHE: dict[str, list[str]] = {
     "pynacl": ["nacl"],
 }
 
-# --- Build tools cache (fast pre-filter before Haiku classification) ---
+# --- Build tools cache (fast pre-filter before LLM classification) ---
 
 _BUILD_TOOLS_CACHE: set[str] = {
     # Python build tools
@@ -130,7 +130,7 @@ def _resolve_import_names_heuristic(package_name: str, ecosystem: str) -> list[s
 
 
 
-# --- Haiku-backed import name resolution ---
+# --- LLM-backed import name resolution ---
 
 _RESOLVE_IMPORTS_SYSTEM_PROMPT = """You are a package name resolution expert. For each package, return the importable module name(s) that would appear in import statements.
 
@@ -150,7 +150,7 @@ async def _resolve_import_names_batch_async(
     packages: list[tuple[str, str]],  # (package_name, ecosystem)
     config: Config | None = None,
 ) -> tuple[dict[str, list[str]], int, int]:
-    """Batch Haiku call to resolve package names to import names.
+    """Batch small-model call to resolve package names to import names.
 
     Returns (package_name -> import_names, input_tokens, output_tokens).
     """
@@ -200,7 +200,7 @@ async def _resolve_import_names_batch_async(
     return resolved, result.input_tokens, result.output_tokens
 
 
-# --- Haiku-backed dependency classification ---
+# --- LLM-backed dependency classification ---
 
 _CLASSIFY_DEPS_SYSTEM_PROMPT = """You are a dependency usage classifier. For each zero-import dependency, determine HOW it is used based on its name and ecosystem context.
 
@@ -215,7 +215,7 @@ async def _classify_deps_batch_async(
     manifest_content: str,
     config: Config | None = None,
 ) -> tuple[list[DependencyCandidate], dict[str, str], int, int]:
-    """Batch Haiku call to classify zero-import dependencies.
+    """Batch small-model call to classify zero-import dependencies.
 
     Returns (genuine_candidates, classification_map, input_tokens, output_tokens).
     """
@@ -810,7 +810,7 @@ async def detect_dead_deps_async(
 
     print(f"  Found {len(all_candidates)} dependency(ies) across all manifests", flush=True)
 
-    # --- Haiku import name resolution ---
+    # --- LLM import name resolution ---
     # Collect packages not already in cache
     to_resolve: list[tuple[str, str]] = []
     for cand in all_candidates:
@@ -823,22 +823,22 @@ async def detect_dead_deps_async(
     if to_resolve:
         try:
             # Batch up to 80 per call
-            haiku_resolved: dict[str, list[str]] = {}
+            llm_resolved: dict[str, list[str]] = {}
             for i in range(0, len(to_resolve), 80):
                 batch = to_resolve[i:i + 80]
                 resolved, _in_tok, _out_tok = await _resolve_import_names_batch_async(
                     provider, batch, config,
                 )
-                haiku_resolved.update(resolved)
+                llm_resolved.update(resolved)
 
-            # Update candidate import names with Haiku results
+            # Update candidate import names with LLM results
             for cand in all_candidates:
-                if cand.package_name in haiku_resolved:
-                    cand.import_names = haiku_resolved[cand.package_name]
+                if cand.package_name in llm_resolved:
+                    cand.import_names = llm_resolved[cand.package_name]
 
-            print(f"  Haiku resolved import names for {len(haiku_resolved)}/{len(to_resolve)} package(s)", flush=True)
+            print(f"  LLM resolved import names for {len(llm_resolved)}/{len(to_resolve)} package(s)", flush=True)
         except Exception as e:
-            print(f"  [warn] Haiku import resolution failed, using heuristic: {e}", flush=True)
+            print(f"  [warn] LLM import resolution failed, using heuristic: {e}", flush=True)
 
     # Scan imports
     scan_imports(config, all_candidates)
@@ -865,7 +865,7 @@ async def detect_dead_deps_async(
     if not pre_filtered:
         return []
 
-    # --- Haiku dependency classification ---
+    # --- LLM dependency classification ---
     # Group by manifest for classification
     by_manifest_classify: dict[str, list[DependencyCandidate]] = {}
     for cand in pre_filtered:
@@ -882,19 +882,19 @@ async def detect_dead_deps_async(
                 )
                 genuine_candidates.extend(genuine)
         except Exception as e:
-            print(f"  [warn] Haiku classification failed for {manifest_path}, sending all to Sonnet: {e}", flush=True)
+            print(f"  [warn] Small-model classification failed for {manifest_path}, sending all to medium model: {e}", flush=True)
             genuine_candidates.extend(cands)
 
     print(
-        f"  {len(genuine_candidates)} genuine candidate(s) for Sonnet verification "
-        f"(Haiku filtered {len(pre_filtered) - len(genuine_candidates)})",
+        f"  {len(genuine_candidates)} genuine candidate(s) for medium-model verification "
+        f"(small model filtered {len(pre_filtered) - len(genuine_candidates)})",
         flush=True,
     )
 
     if not genuine_candidates:
         return []
 
-    # Group candidates by manifest for Sonnet verification
+    # Group candidates by manifest for medium-model verification
     by_manifest: dict[str, list[DependencyCandidate]] = {}
     for cand in genuine_candidates:
         by_manifest.setdefault(cand.manifest_path, []).append(cand)

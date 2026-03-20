@@ -154,11 +154,8 @@ class _FileExtractor(ast.NodeVisitor):
         """Decide whether a name should be in exports."""
         if self.all_set is not None:
             return name in self.all_set
-        # Exclude _private unless in __all__
+        # Exclude _private and dunders unless in __all__
         if name.startswith("_"):
-            return False
-        # Exclude dunders unless in __all__
-        if name.startswith("__") and name.endswith("__"):
             return False
         return True
 

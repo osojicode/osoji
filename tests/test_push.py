@@ -2,8 +2,7 @@
 
 import json
 import subprocess
-from pathlib import Path
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import patch
 
 import click
 import pytest
@@ -14,7 +13,6 @@ from osoji.push import (
     GitContext,
     _build_envelope,
     _load_push_section,
-    _merge_push_config,
     resolve_push_config,
     run_push,
 )
