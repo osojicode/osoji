@@ -1365,3 +1365,137 @@ def get_identify_relationships_tool_definitions() -> list[ToolDefinition]:
 def get_verify_orphan_files_tool_definitions() -> list[ToolDefinition]:
     """Return ToolDefinition objects for orphan file verification."""
     return [_dict_to_tool_definition(VERIFY_ORPHAN_FILES_TOOL)]
+
+
+# --- Phase 5.5: Documentation prompts tools ---
+
+BUILD_CONCEPT_INVENTORY_TOOL = {
+    "name": "build_concept_inventory",
+    "description": """Build a codebase concept inventory from file-level topic signatures.
+
+Each concept represents a coherent, documentable unit. Cluster related files into
+higher-level concepts, classify each concept's role, and determine which Diataxis
+documentation types are appropriate.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "concepts": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "concept_id": {
+                            "type": "string",
+                            "description": "URL-safe slug, e.g. 'breakpoint-lifecycle'",
+                        },
+                        "concept_name": {
+                            "type": "string",
+                            "description": "Human-readable name, e.g. 'Breakpoint Lifecycle'",
+                        },
+                        "concept_description": {
+                            "type": "string",
+                            "description": "1-2 sentence description of this concept",
+                        },
+                        "source_files": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Source file paths contributing to this concept",
+                        },
+                        "concept_role": {
+                            "type": "string",
+                            "enum": [
+                                "public_api", "cli_command", "configuration",
+                                "architectural_pattern", "internal_utility",
+                                "integration_point", "data_model",
+                                "error_handling", "testing_infrastructure",
+                            ],
+                        },
+                        "appropriate_doc_types": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": ["reference", "tutorial", "how-to", "explanatory"],
+                            },
+                        },
+                        "appropriateness_rationale": {
+                            "type": "string",
+                            "description": "Why these doc types are appropriate for this concept",
+                        },
+                    },
+                    "required": [
+                        "concept_id", "concept_name", "concept_description",
+                        "source_files", "concept_role", "appropriate_doc_types",
+                        "appropriateness_rationale",
+                    ],
+                },
+            },
+        },
+        "required": ["concepts"],
+    },
+}
+
+
+GENERATE_WRITING_PROMPTS_TOOL = {
+    "name": "generate_writing_prompts",
+    "description": """Generate self-contained writing prompts for documentation gaps.
+
+For each gap (concept × missing Diataxis type), produce a prompt that another agent
+can execute without re-auditing the codebase. Include task, audience, scope, quality
+criteria, and consistency guidance.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "prompts": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "prompt_id": {
+                            "type": "string",
+                            "description": "Unique ID, e.g. 'breakpoint-lifecycle-tutorial'",
+                        },
+                        "target_concept_ids": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "concept_ids covered by this prompt (usually 1, >1 for clusters)",
+                        },
+                        "diataxis_type": {
+                            "type": "string",
+                            "enum": ["reference", "tutorial", "how-to", "explanatory"],
+                        },
+                        "prompt_text": {
+                            "type": "string",
+                            "description": "Complete, self-contained writing prompt",
+                        },
+                        "scope_constraints": {
+                            "type": "string",
+                            "description": "What is in/out of scope for this doc",
+                        },
+                        "output_guidance": {
+                            "type": "object",
+                            "properties": {
+                                "suggested_filename": {"type": "string"},
+                                "suggested_directory": {"type": "string"},
+                            },
+                        },
+                    },
+                    "required": [
+                        "prompt_id", "target_concept_ids", "diataxis_type",
+                        "prompt_text", "scope_constraints", "output_guidance",
+                    ],
+                },
+            },
+        },
+        "required": ["prompts"],
+    },
+}
+
+
+def get_concept_inventory_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for concept inventory building."""
+    return [_dict_to_tool_definition(BUILD_CONCEPT_INVENTORY_TOOL)]
+
+
+def get_writing_prompts_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for writing prompt generation."""
+    return [_dict_to_tool_definition(GENERATE_WRITING_PROMPTS_TOOL)]

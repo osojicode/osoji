@@ -67,6 +67,13 @@ class Scorecard:
     obligation_violations: int | None = None
     obligation_implicit_contracts: int | None = None
 
+    # Concept-centric coverage (None if --doc-prompts not run)
+    concept_total: int | None = None
+    concept_fully_documented: int | None = None
+    concept_partially_documented: int | None = None
+    concept_undocumented: int | None = None
+    concept_coverage_by_type: dict[str, dict] | None = None
+
 
 def merge_ranges(ranges: list[tuple[int, int]]) -> list[tuple[int, int]]:
     """Merge overlapping integer ranges. Returns sorted, non-overlapping ranges."""
