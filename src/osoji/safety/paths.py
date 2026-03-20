@@ -5,7 +5,7 @@ to version control. Common examples include:
 - Windows user directories (C:\\Users\\jsmith\\)
 - Unix home directories (/home/jsmith/)
 - Cloud storage paths (/Dropbox/projects/)
-- Dated project folders (/260124 DOCSTAR/)
+- Dated project folders (/260124 MYPROJECT/)
 """
 
 import re
@@ -38,7 +38,7 @@ PATTERNS: dict[str, re.Pattern[str]] = {
         re.IGNORECASE,
     ),
     # Pattern 4: Dated Project Folders
-    # Catches: /251007 FIXTHEDOCS/, \260124 DOCSTAR\
+    # Catches: /251007 FIXTHEDOCS/, \260124 MYPROJECT\
     # Format: 6 digits + space + UPPERCASE
     "dated_folder": re.compile(r"[\\\/]\d{6}\s+[A-Z]+[\\\/]"),
     # Pattern 5: Common Personal Folders
@@ -59,7 +59,7 @@ PATTERN_DESCRIPTIONS: dict[str, str] = {
     "windows_user": "Windows user directory (C:\\Users\\username\\)",
     "unix_home": "Unix/Mac home directory (/home/username/ or /Users/username/)",
     "cloud_storage": "Cloud storage path (Dropbox, OneDrive, Google Drive, iCloud, Box, pCloud)",
-    "dated_folder": "Dated project folder (e.g., /260124 DOCSTAR/)",
+    "dated_folder": "Dated project folder (e.g., /260124 MYPROJECT/)",
     "personal_folder": "Personal folder (Documents, Desktop, Downloads, Pictures, Videos)",
     "my_folder": '"My X" folder pattern (My Projects, My Documents, etc.)',
 }

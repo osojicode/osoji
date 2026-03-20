@@ -1,0 +1,92 @@
+name: Pipeline Improvement
+description: Report a false positive or missed detection from osoji audit
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to report false positives or missed detections from
+        `osoji audit`. If you ran the `audite2e` skill, it files these automatically —
+        this form is for manual reports.
+
+        **Tip:** multiple findings with the same root cause should be filed as a
+        single issue with multiple code examples.
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      options:
+        - False positive (osoji flagged something that isn't a real issue)
+        - Missed detection (osoji should have caught something but didn't)
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: "Project name, commit hash, and remote URL where this was found."
+      placeholder: |
+        Project: my-project
+        Commit: abc1234
+        Remote: https://github.com/org/repo
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem
+      description: "For false positives: what was incorrectly flagged and why it's wrong. For missed detections: what osoji should have caught."
+    validations:
+      required: true
+  - type: textarea
+    id: code
+    attributes:
+      label: Code example
+      description: "5–15 lines of relevant code. Use a fenced code block with the language specified."
+      placeholder: |
+        ```python
+        # paste relevant code here
+        ```
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: finding
+    attributes:
+      label: Finding metadata
+      description: "For false positives: the finding osoji produced. For missed detections: the finding you expected."
+      placeholder: |
+        - Category: `dead_code`
+        - Severity: `medium`
+        - Message: ...
+    validations:
+      required: true
+  - type: textarea
+    id: root-cause
+    attributes:
+      label: Root cause / analysis
+      description: "Which pipeline stage is involved (e.g. deadcode.py, doc_analysis.py) and what went wrong (prompt issue, matching logic, missing context, facts extraction error, candidate filter too aggressive)."
+      placeholder: |
+        - Pipeline stage: `deadcode.py`
+        - Mechanism: prompt issue
+  - type: textarea
+    id: suggested-fix
+    attributes:
+      label: Suggested fix or detection approach
+      description: "Specific change — prompt refinement, algorithm adjustment, new heuristic, etc."
+  - type: textarea
+    id: risk
+    attributes:
+      label: Risk assessment
+      description: "Could this fix suppress real issues (for FP fixes) or produce false positives (for new detections)? Does it work for all languages or need an AST plugin?"
+      placeholder: |
+        - False negative / false positive risk: ...
+        - Language agnosticism: works for all languages / needs AST plugin for ...
+  - type: input
+    id: version
+    attributes:
+      label: Osoji version
+      description: "Output of `osoji --version`"
+      placeholder: "0.2.0"
+    validations:
+      required: true

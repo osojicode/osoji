@@ -314,6 +314,61 @@ def staleness_reason(config: Config, source_path: Path) -> str | None:
         return "stale"
 
 
+def _merge_string_literals(
+    ast_strings: list[dict] | None,
+    llm_strings: list[dict],
+) -> list[dict]:
+    """Merge AST-extracted structural string data with LLM semantic classification.
+
+    AST provides ground-truth for structural fields (usage, comparison_source).
+    LLM provides semantic classification (kind).
+    """
+    if ast_strings is None:
+        return llm_strings  # plugin doesn't support string extraction
+
+    # Build LLM lookup for kind matching
+    llm_by_key: dict[tuple[str, int], dict] = {}
+    llm_by_value: dict[str, dict] = {}
+    for sl in llm_strings:
+        if isinstance(sl, dict):
+            key = (sl.get("value", ""), sl.get("line", 0))
+            llm_by_key[key] = sl
+            val = sl.get("value", "")
+            if val not in llm_by_value:
+                llm_by_value[val] = sl
+
+    merged: list[dict] = []
+    ast_values_seen: set[str] = set()
+
+    for ast_entry in ast_strings:
+        value = ast_entry.get("value", "")
+        line = ast_entry.get("line", 0)
+        ast_values_seen.add(value)
+
+        # Find matching LLM entry for kind
+        llm_match = llm_by_key.get((value, line)) or llm_by_value.get(value)
+
+        entry: dict = {
+            "value": value,
+            "line": line,
+            "usage": ast_entry["usage"],
+            "context": ast_entry.get("context", ""),
+        }
+        if ast_entry.get("comparison_source"):
+            entry["comparison_source"] = ast_entry["comparison_source"]
+        if llm_match and "kind" in llm_match:
+            entry["kind"] = llm_match["kind"]
+
+        merged.append(entry)
+
+    # Preserve LLM-only entries (strings AST missed)
+    for sl in llm_strings:
+        if isinstance(sl, dict) and sl.get("value", "") not in ast_values_seen:
+            merged.append(sl)
+
+    return merged
+
+
 async def generate_file_shadow_doc_async(
     provider: LLMProvider,
     config: Config,
@@ -607,12 +662,14 @@ async def process_file_async(
         relative_str = str(file_path.relative_to(config.root_path)).replace("\\", "/")
         if plugin_facts and relative_str in plugin_facts:
             pf = plugin_facts[relative_str]
+            llm_strings = facts.get("string_literals", []) if facts else []
+            ast_strings = pf.get("string_literals")  # None if plugin doesn't extract strings
             facts = {
                 "imports": pf.get("imports", []),
                 "exports": pf.get("exports", []),
                 "calls": pf.get("calls", []),
                 "member_writes": pf.get("member_writes", []),
-                "string_literals": facts.get("string_literals", []) if facts else [],
+                "string_literals": _merge_string_literals(ast_strings, llm_strings),
                 "extraction_method": "ast",
             }
         else:

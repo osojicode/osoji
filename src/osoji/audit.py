@@ -66,6 +66,7 @@ class AuditIssue:
     remediation: str
     line_start: int | None = None
     line_end: int | None = None
+    origin: dict | None = None  # {"source": "llm"|"static"|"hybrid", "plugin": str}
 
 
 @dataclass
@@ -599,6 +600,7 @@ async def run_audit_async(
             category=f"{status}_shadow",
             message=f"Shadow documentation is {status}",
             remediation="Run 'osoji shadow .' to update",
+            origin={"source": "static", "plugin": "shadow_check"},
         ))
 
     # ── Phases 2-4: run concurrently (no inter-phase data dependencies) ──
@@ -631,6 +633,7 @@ async def run_audit_async(
                 category="debris",
                 message=f"Documentation debris: {item.classification_reason}",
                 remediation="Delete this file",
+                origin={"source": "llm", "plugin": "doc_analysis"},
             ))
         for finding in item.findings:
             evidence_tag = ""
@@ -642,6 +645,7 @@ async def run_audit_async(
                 category=f"doc_{finding.category}",
                 message=f"{finding.description}{evidence_tag}",
                 remediation=finding.remediation,
+                origin={"source": "llm", "plugin": "doc_analysis"},
             ))
 
     # Serialize Phase 2 results
@@ -680,6 +684,7 @@ async def run_audit_async(
             remediation=finding.get("suggestion", "Review and fix the identified issue"),
             line_start=finding["line_start"],
             line_end=finding["line_end"],
+            origin={"source": "llm", "plugin": "code_debris"},
         ))
 
     # Collect issues from Phase 3.5 (obligations)
@@ -690,12 +695,14 @@ async def run_audit_async(
             category=f"obligation_{f.finding_type}",
             message=f.description,
             remediation=f.remediation,
+            origin={"source": "hybrid", "plugin": "obligations"},
         ))
 
     # Collect issues from Phase 4 (junk analyzers)
     for analyzer_name, junk_result in junk_results.items():
         for item in junk_result.findings:
             prefix = "[AST] " if item.confidence_source == "ast_proven" else ""
+            origin_source = "static" if item.confidence_source == "ast_proven" else "llm"
             issues.append(AuditIssue(
                 path=Path(item.source_path),
                 severity="warning",
@@ -704,6 +711,7 @@ async def run_audit_async(
                 remediation=item.remediation,
                 line_start=item.line_start,
                 line_end=item.line_end,
+                origin={"source": origin_source, "plugin": analyzer_name},
             ))
         _serialize_junk_results(config, analyzer_name, junk_result)
 
@@ -932,6 +940,7 @@ def load_audit_result(config: Config) -> AuditResult:
             remediation=i["remediation"],
             line_start=i.get("line_start"),
             line_end=i.get("line_end"),
+            origin=i.get("origin"),
         )
         for i in data.get("issues", [])
     ]
@@ -1257,6 +1266,7 @@ def format_audit_json(result: AuditResult) -> str:
                 "remediation": issue.remediation,
                 "line_start": issue.line_start,
                 "line_end": issue.line_end,
+                **({"origin": issue.origin} if issue.origin else {}),
             }
             for issue in result.issues
         ],

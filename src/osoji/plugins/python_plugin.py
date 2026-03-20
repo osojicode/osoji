@@ -127,8 +127,25 @@ def _current_scope(scope_stack: list[str]) -> str:
     return scope_stack[-1] if scope_stack else "<module>"
 
 
+def _collect_docstring_lines(body: list[ast.stmt]) -> set[int]:
+    """Return line numbers of docstring nodes in a body."""
+    lines: set[int] = set()
+    if body and isinstance(body[0], ast.Expr):
+        val = body[0].value
+        if isinstance(val, ast.Constant) and isinstance(val.value, str):
+            lines.add(val.lineno)
+    return lines
+
+
+def _annotate_parents(tree: ast.AST) -> None:
+    """Add _parent attribute to every node in the tree."""
+    for node in ast.walk(tree):
+        for child in ast.iter_child_nodes(node):
+            child._parent = node  # type: ignore[attr-defined]
+
+
 class _FileExtractor(ast.NodeVisitor):
-    """Extract imports, exports, calls, and member_writes from a single file."""
+    """Extract imports, exports, calls, member_writes, and string_literals from a single file."""
 
     def __init__(
         self,
@@ -146,9 +163,11 @@ class _FileExtractor(ast.NodeVisitor):
         self.exports: list[dict[str, Any]] = []
         self.calls: list[dict[str, Any]] = []
         self.member_writes: list[dict[str, Any]] = []
+        self.string_literals: list[dict[str, Any]] = []
 
         self._scope_stack: list[str] = []
         self._depth = 0  # nesting depth for top-level detection
+        self._docstring_lines: set[int] = set()
 
     def _is_exported(self, name: str) -> bool:
         """Decide whether a name should be in exports."""
@@ -313,6 +332,131 @@ class _FileExtractor(ast.NodeVisitor):
             })
         self.generic_visit(node)
 
+    # --- String literals ---
+
+    def _add_string(
+        self,
+        value: str,
+        line: int,
+        usage: str,
+        context: str,
+        comparison_source: str | None = None,
+    ) -> None:
+        """Add a string literal if it passes basic filters."""
+        if len(value) <= 1:
+            return
+        if line in self._docstring_lines:
+            return
+        entry: dict[str, Any] = {
+            "value": value,
+            "line": line,
+            "usage": usage,
+            "context": context,
+        }
+        if comparison_source:
+            entry["comparison_source"] = comparison_source
+        self.string_literals.append(entry)
+
+    def visit_Constant(self, node: ast.Constant) -> None:
+        """Classify string constants by examining their parent node."""
+        if not isinstance(node.value, str):
+            self.generic_visit(node)
+            return
+
+        parent = getattr(node, "_parent", None)
+        if parent is None:
+            self.generic_visit(node)
+            return
+
+        value = node.value
+        line = node.lineno
+
+        # Dict value → produced
+        if isinstance(parent, ast.Dict):
+            if node in parent.values:
+                self._add_string(value, line, "produced", "dict value")
+            # Skip dict keys — they're structural, not contract strings
+            self.generic_visit(node)
+            return
+
+        # Equality / membership comparison → checked
+        if isinstance(parent, ast.Compare):
+            for op in parent.ops:
+                if isinstance(op, (ast.Eq, ast.NotEq, ast.In, ast.NotIn)):
+                    # Resolve comparison_source from the other side
+                    other = None
+                    if node is parent.left or node in (getattr(parent, "left", None),):
+                        # String is on the left, source is the first comparator
+                        if parent.comparators:
+                            other = _resolve_callee(parent.comparators[0])
+                    else:
+                        # String is a comparator, source is the left side
+                        other = _resolve_callee(parent.left)
+                    self._add_string(value, line, "checked", "equality comparison",
+                                     comparison_source=other or None)
+                    self.generic_visit(node)
+                    return
+            self.generic_visit(node)
+            return
+
+        # Constant assignment: NAME = "string" → defined
+        if isinstance(parent, (ast.Assign, ast.AnnAssign)):
+            targets = parent.targets if isinstance(parent, ast.Assign) else ([parent.target] if parent.target else [])
+            if len(targets) == 1 and isinstance(targets[0], ast.Name):
+                self._add_string(value, line, "defined", f"constant {targets[0].id}")
+                self.generic_visit(node)
+                return
+
+        # Return value → produced
+        if isinstance(parent, ast.Return):
+            self._add_string(value, line, "produced", "return value")
+            self.generic_visit(node)
+            return
+
+        # Function call argument → produced
+        if isinstance(parent, ast.Call):
+            callee = _resolve_callee(parent.func)
+            ctx = f"argument to {callee}" if callee else "function argument"
+            self._add_string(value, line, "produced", ctx)
+            self.generic_visit(node)
+            return
+
+        # Keyword argument value → produced
+        if isinstance(parent, ast.keyword):
+            grandparent = getattr(parent, "_parent", None)
+            callee = ""
+            if isinstance(grandparent, ast.Call):
+                callee = _resolve_callee(grandparent.func)
+            ctx = f"keyword argument to {callee}" if callee else "keyword argument"
+            self._add_string(value, line, "produced", ctx)
+            self.generic_visit(node)
+            return
+
+        # Collection literal element → produced
+        if isinstance(parent, (ast.List, ast.Tuple, ast.Set)):
+            self._add_string(value, line, "produced", "collection element")
+            self.generic_visit(node)
+            return
+
+        # Default parameter value → produced
+        if isinstance(parent, ast.arguments):
+            self._add_string(value, line, "produced", "default parameter")
+            self.generic_visit(node)
+            return
+
+        # Docstring (standalone Expr) — already filtered by _docstring_lines
+        if isinstance(parent, ast.Expr):
+            # Skip standalone string expressions (docstrings, etc.)
+            self.generic_visit(node)
+            return
+
+        # f-string parts — skip
+        if isinstance(parent, (ast.JoinedStr, ast.FormattedValue)):
+            self.generic_visit(node)
+            return
+
+        self.generic_visit(node)
+
 
 def _normalize_path(path: Path, root: Path) -> str:
     """Normalize a path to forward-slash relative string."""
@@ -439,11 +583,20 @@ class PythonPlugin(LanguagePlugin):
             all_members = _get_all_members(tree)
             is_init = file_path.name == "__init__.py"
 
+            # Annotate parents for string literal context classification
+            _annotate_parents(tree)
+
             extractor = _FileExtractor(
                 relative_path=rel,
                 is_init=is_init,
                 all_members=all_members,
             )
+            # Collect docstring lines before visiting
+            extractor._docstring_lines = _collect_docstring_lines(tree.body)
+            for node in ast.walk(tree):
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                    extractor._docstring_lines |= _collect_docstring_lines(node.body)
+
             extractor.visit(tree)
             per_file[rel] = extractor
 
@@ -513,6 +666,7 @@ class PythonPlugin(LanguagePlugin):
                 exports=ext.exports,
                 calls=ext.calls,
                 member_writes=ext.member_writes,
+                string_literals=ext.string_literals,
             )
 
         return result

@@ -74,9 +74,11 @@ def _emit_config_banner(config: Config) -> None:
 @click.option("--quiet", "-q", is_flag=True, help="Suppress nonessential diagnostic output")
 @click.pass_context
 def main(ctx: click.Context, verbose: bool, quiet: bool) -> None:
-    """Osoji - Shadow Documentation Engine.
+    """\b
+    Osoji -- The garbage collector for AI-assisted codebases.
 
-    Generate semantically dense documentation summaries optimized for AI agents.
+    Audit your project for dead code, stale documentation, and semantic
+    contradictions. Ships with agent skill files for automated triage and fixing.
     """
     if verbose and quiet:
         raise click.UsageError("Cannot use --verbose and --quiet together.")
@@ -92,7 +94,7 @@ def main(ctx: click.Context, verbose: bool, quiet: bool) -> None:
 @click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
 @click.pass_context
 def shadow(ctx: click.Context, path: Path, force: bool, dry_run: bool, provider: str | None, model: str | None, no_gitignore: bool) -> None:
-    """Generate shadow documentation for a codebase.
+    """Generate shadow documentation (used internally by audit).
 
     PATH is the root directory to process (defaults to current directory).
     """
@@ -288,21 +290,20 @@ def stats(ctx: click.Context, path: Path, provider: str | None, model: str | Non
 @click.option("--force", "-f", is_flag=True, help="Regenerate all shadow docs and findings from scratch")
 @click.pass_context
 def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_code: bool, dead_params: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, doc_prompts: bool, provider: str | None, model: str | None, no_gitignore: bool, full: bool, force: bool) -> None:
-    """Run documentation audit.
+    """Audit your codebase for dead code, stale docs, and semantic issues.
 
-    Checks for:
-    - Documentation classification and accuracy validation against shadow docs
-    - Code debris (stale comments, dead code, misleading docstrings)
-    - Stale or missing shadow documentation (auto-fixed by default)
-    - Cross-file dead code detection (opt-in with --dead-code)
-    - Unactuated config obligation detection (opt-in with --dead-plumbing)
-    - Unused package dependency detection (opt-in with --dead-deps)
-    - Stale CI/CD pipeline element detection (opt-in with --dead-cicd)
-    - Orphaned source file detection (opt-in with --orphaned-files)
-    - All junk analysis phases at once (opt-in with --junk)
+    \b
+    Core phases (always run):
+    - Documentation classification, accuracy validation, and code debris
+    - Stale shadow documentation (auto-fixed by default)
 
-    Each doc file is matched to relevant source code via explicit references
-    and semantic topic matching, then classified and validated in a single pass.
+    \b
+    Optional phases (opt-in):
+    - --dead-code, --dead-params, --dead-plumbing, --dead-deps,
+      --dead-cicd, --orphaned-files (or --junk for all)
+    - --obligations (cross-file string contracts, no LLM calls)
+    - --doc-prompts (concept-centric coverage + writing prompts)
+    - --full (equivalent to --junk --obligations --doc-prompts)
 
     Exit codes: 0 = passed, 1 = errors found
     """
@@ -348,7 +349,7 @@ def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_co
 @click.option("--format", "output_format", type=click.Choice(["text", "json", "html"]), default="text", help="Output format")
 @click.pass_context
 def report(ctx: click.Context, path: Path, output_format: str) -> None:
-    """Re-render the last audit result in a different format (no re-analysis).
+    """Re-render the last audit result in a different format.
 
     Loads the cached result from the most recent 'osoji audit' run and
     formats it as text, JSON, or HTML. No LLM calls are made.
@@ -606,7 +607,7 @@ def config_show(ctx: click.Context, path: Path) -> None:
 
 @main.group()
 def skills() -> None:
-    """AI agent skill prompts bundled with osoji."""
+    """List and display bundled AI agent skill files."""
     pass
 
 

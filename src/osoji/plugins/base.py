@@ -12,18 +12,21 @@ from typing import Any
 class ExtractedFacts:
     """AST-extracted facts for a single file.
 
-    string_literals is intentionally absent — the LLM always provides
-    semantic string classification; AST tools cannot replicate that.
+    string_literals is optional — ``None`` means the plugin does not extract
+    strings (LLM handles it alone); an empty list means the plugin found none.
+    The LLM still provides semantic ``kind`` classification; AST provides
+    structural fields (usage, comparison_source).
     """
 
     imports: list[dict[str, Any]] = field(default_factory=list)
     exports: list[dict[str, Any]] = field(default_factory=list)
     calls: list[dict[str, Any]] = field(default_factory=list)
     member_writes: list[dict[str, Any]] = field(default_factory=list)
+    string_literals: list[dict[str, Any]] | None = None
 
     def to_file_facts_dict(self, source: str, source_hash: str) -> dict:
         """Convert to a dict compatible with the facts JSON schema."""
-        return {
+        d: dict[str, Any] = {
             "source": source,
             "source_hash": source_hash,
             "imports": self.imports,
@@ -32,6 +35,9 @@ class ExtractedFacts:
             "member_writes": self.member_writes,
             "extraction_method": "ast",
         }
+        if self.string_literals is not None:
+            d["string_literals"] = self.string_literals
+        return d
 
 
 class PluginUnavailableError(Exception):

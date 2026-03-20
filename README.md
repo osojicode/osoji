@@ -326,3 +326,20 @@ export OPENROUTER_RPM=300
 export OPENROUTER_TPM=500000
 export OPENROUTER_OUTPUT_TPM=350000
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, testing, and
+contribution guidelines.
+
+## Security
+
+To report security vulnerabilities, see [SECURITY.md](SECURITY.md).
+
+## License
+
+Apache License 2.0. See [LICENSE](LICENSE) for the full text.
+
+## Code of Conduct
+
+This project follows the [Contributor Covenant](CODE_OF_CONDUCT.md).

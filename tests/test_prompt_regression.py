@@ -199,50 +199,6 @@ async def _run_trial_plumbing_001(provider, config, source_path, source_content)
 
 
 # ---------------------------------------------------------------------------
-# String extraction case 001: dict values and conventions
-# ---------------------------------------------------------------------------
-
-async def _run_trial_string_extraction_001(provider, config, file_path, numbered_content, expected) -> bool:
-    """Run one trial for string extraction case_001. Returns True if facts are correct."""
-    from osoji.shadow import generate_file_shadow_doc_async
-
-    _, _, _, _, _, _, _, facts = await generate_file_shadow_doc_async(
-        provider, config, file_path, numbered_content,
-    )
-
-    string_literals = facts.get("string_literals", [])
-
-    # Build lookup by value
-    by_value: dict[str, list[dict]] = {}
-    for sl in string_literals:
-        if isinstance(sl, dict):
-            val = sl.get("value", "")
-            by_value.setdefault(val, []).append(sl)
-
-    # Dict values like "python", "node" should NOT be classified as checked-only.
-    # They should either be "produced" (from the dict) or not extracted at all.
-    for val in expected.get("should_not_be_checked_only", []):
-        entries = by_value.get(val, [])
-        for entry in entries:
-            if entry.get("usage") == "checked" and not any(
-                e.get("usage") == "produced" for e in entries
-            ):
-                # String appears as checked-only — this is the FP pattern
-                return False
-
-    # Convention strings should ideally be skipped entirely
-    convention_extracted = 0
-    for val in expected.get("convention_strings_to_skip", []):
-        if val in by_value:
-            convention_extracted += 1
-    # Allow up to half to leak through — LLM is stochastic
-    if convention_extracted > len(expected.get("convention_strings_to_skip", [])) // 2:
-        return False
-
-    return True
-
-
-# ---------------------------------------------------------------------------
 # Parallel trial runner
 # ---------------------------------------------------------------------------
 
@@ -387,46 +343,6 @@ async def test_plumbing_001_tool_schema(tmp_path, establish_baseline):
         async def trial_fn():
             return await _run_trial_plumbing_001(
                 provider, config, "tools.py", source_content,
-            )
-
-        await _run_statistical_test(
-            trial_fn, expected, expected_path, establish_baseline,
-        )
-    finally:
-        await provider.close()
-
-
-@pytest.mark.prompt_regression
-@pytest.mark.asyncio
-async def test_string_extraction_001_dict_and_conventions(tmp_path, establish_baseline):
-    """Dict values should be 'produced', external conventions should be skipped.
-
-    Uses the actual junk_deps.py that caused FP findings: "python", "node",
-    "rust", "go" in _MANIFEST_FILES dict were classified as checked-only,
-    missing their production site in the dict values.
-    """
-    case_dir = FIXTURES_DIR / "string_extraction" / "case_001_dict_and_conventions"
-    expected_path = case_dir / "expected.json"
-    expected = json.loads(expected_path.read_text())
-
-    source_file = case_dir / "source" / "junk_deps.py"
-    source_content = source_file.read_text()
-    numbered_content = "\n".join(
-        f"{i + 1:4d}\t{line}"
-        for i, line in enumerate(source_content.splitlines())
-    )
-
-    # Copy source into tmp_path so config paths resolve
-    dest = tmp_path / "junk_deps.py"
-    dest.write_text(source_content)
-
-    config = Config(root_path=tmp_path, respect_gitignore=False)
-    provider = create_provider("anthropic")
-
-    try:
-        async def trial_fn():
-            return await _run_trial_string_extraction_001(
-                provider, config, dest, numbered_content, expected,
             )
 
         await _run_statistical_test(

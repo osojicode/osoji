@@ -328,3 +328,168 @@ def test_annotated_assignment(plugin, project):
     export_names = {e["name"] for e in result["mod.py"].exports}
     assert "count" in export_names
     assert "_internal" not in export_names
+
+
+# --- String literal extraction tests ---
+
+
+def _strings_by_usage(facts, usage):
+    """Helper: return set of string values with a given usage."""
+    return {s["value"] for s in facts.string_literals if s.get("usage") == usage}
+
+
+def test_dict_value_extracted_as_produced(plugin, project):
+    project.add("config.py", """\
+        _MANIFEST_FILES = {
+            "pyproject.toml": "python",
+            "package.json": "node",
+            "Cargo.toml": "rust",
+            "go.mod": "go",
+        }
+    """)
+    result = plugin.extract_project_facts(project.root, project.files)
+    produced = _strings_by_usage(result["config.py"], "produced")
+    assert {"python", "node", "rust", "go"} <= produced
+
+
+def test_equality_comparison_extracted_as_checked(plugin, project):
+    project.add("handler.py", """\
+        def handle(ecosystem):
+            if ecosystem == "python":
+                return True
+            if ecosystem == "node":
+                return True
+    """)
+    result = plugin.extract_project_facts(project.root, project.files)
+    facts = result["handler.py"]
+    checked = [s for s in facts.string_literals if s.get("usage") == "checked"]
+    checked_values = {s["value"] for s in checked}
+    assert "python" in checked_values
+    assert "node" in checked_values
+    # comparison_source should be resolved
+    for s in checked:
+        if s["value"] in ("python", "node"):
+            assert s.get("comparison_source") == "ecosystem"
+
+
+def test_constant_assignment_extracted_as_defined(plugin, project):
+    project.add("constants.py", """\
+        MODE = "production"
+        DEBUG_LEVEL = "verbose"
+    """)
+    result = plugin.extract_project_facts(project.root, project.files)
+    defined = _strings_by_usage(result["constants.py"], "defined")
+    assert "production" in defined
+    assert "verbose" in defined
+
+
+def test_return_value_extracted_as_produced(plugin, project):
+    project.add("util.py", """\
+        def status():
+            return "success"
+    """)
+    result = plugin.extract_project_facts(project.root, project.files)
+    produced = _strings_by_usage(result["util.py"], "produced")
+    assert "success" in produced
+
+
+def test_default_param_extracted_as_produced(plugin, project):
+    project.add("api.py", """\
+        def connect(mode="auto", host="localhost"):
+            pass
+    """)
+    result = plugin.extract_project_facts(project.root, project.files)
+    produced = _strings_by_usage(result["api.py"], "produced")
+    assert "auto" in produced
+    assert "localhost" in produced
+
+
+def test_collection_element_extracted_as_produced(plugin, project):
+    project.add("choices.py", """\
+        MODES = ["fast", "slow", "balanced"]
+    """)
+    result = plugin.extract_project_facts(project.root, project.files)
+    produced = _strings_by_usage(result["choices.py"], "produced")
+    assert {"fast", "slow", "balanced"} <= produced
+
+
+def test_docstring_skipped(plugin, project):
+    project.add("mod.py", """\
+        \"\"\"This is a module docstring.\"\"\"
+
+        def func():
+            \"\"\"This is a function docstring.\"\"\"
+            return "real_value"
+    """)
+    result = plugin.extract_project_facts(project.root, project.files)
+    all_values = {s["value"] for s in result["mod.py"].string_literals}
+    assert "This is a module docstring." not in all_values
+    assert "This is a function docstring." not in all_values
+    assert "real_value" in all_values
+
+
+def test_single_char_skipped(plugin, project):
+    project.add("mod.py", """\
+        x = "a"
+        y = "ab"
+    """)
+    result = plugin.extract_project_facts(project.root, project.files)
+    all_values = {s["value"] for s in result["mod.py"].string_literals}
+    assert "a" not in all_values
+    assert "ab" in all_values
+
+
+def test_in_operator_extracted_as_checked(plugin, project):
+    project.add("checker.py", """\
+        def check(data):
+            if "key_name" in data:
+                return True
+    """)
+    result = plugin.extract_project_facts(project.root, project.files)
+    checked = [s for s in result["checker.py"].string_literals if s.get("usage") == "checked"]
+    assert any(s["value"] == "key_name" for s in checked)
+    for s in checked:
+        if s["value"] == "key_name":
+            assert s.get("comparison_source") == "data"
+
+
+def test_dict_values_and_checks_both_extracted(plugin, project):
+    """The key test: same string as dict value AND equality check → both usages captured."""
+    project.add("junk_deps.py", """\
+        _MANIFEST_FILES = {
+            "pyproject.toml": "python",
+            "package.json": "node",
+        }
+
+        def resolve(ecosystem):
+            if ecosystem == "python":
+                return ["pip"]
+            if ecosystem == "node":
+                return ["npm"]
+    """)
+    result = plugin.extract_project_facts(project.root, project.files)
+    facts = result["junk_deps.py"]
+    produced = _strings_by_usage(facts, "produced")
+    checked = _strings_by_usage(facts, "checked")
+    # Both usages present for each string
+    assert "python" in produced
+    assert "python" in checked
+    assert "node" in produced
+    assert "node" in checked
+
+
+def test_to_file_facts_dict_includes_string_literals(plugin, project):
+    project.add("mod.py", """\
+        STATUS = "active"
+    """)
+    result = plugin.extract_project_facts(project.root, project.files)
+    d = result["mod.py"].to_file_facts_dict("mod.py", "hash123")
+    assert "string_literals" in d
+    assert any(s["value"] == "active" for s in d["string_literals"])
+
+
+def test_to_file_facts_dict_omits_none_string_literals():
+    from osoji.plugins.base import ExtractedFacts
+    ef = ExtractedFacts()
+    d = ef.to_file_facts_dict("x.ts", "hash")
+    assert "string_literals" not in d

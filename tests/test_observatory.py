@@ -353,10 +353,9 @@ def test_bundle_includes_doc_analysis(temp_dir):
     _write_doc_analysis(temp_dir, "README.md", {
         "classification": "reference",
         "confidence": 0.95,
-        "purpose": "Overview of project",
-        "topics": ["CLI", "setup"],
-        "matched_sources": ["main.py"],
-        "accuracy_error_count": 1,
+        "matched_shadows": ["main.py"],
+        "findings": [{"category": "stale_content", "severity": "warning", "description": "Outdated info"}],
+        "topic_signature": {"purpose": "Overview of project", "topics": ["CLI", "setup"]},
     })
 
     bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
@@ -367,7 +366,11 @@ def test_bundle_includes_doc_analysis(temp_dir):
     assert analysis["classification"] == "reference"
     assert analysis["confidence"] == 0.95
     assert analysis["purpose"] == "Overview of project"
+    assert analysis["topics"] == ["CLI", "setup"]
+    assert analysis["matched_sources"] == ["main.py"]
     assert analysis["accuracy_error_count"] == 1
+    assert len(analysis["findings"]) == 1
+    assert analysis["findings"][0]["description"] == "Outdated info"
 
 
 def test_bundle_doc_analysis_empty_when_no_docs(temp_dir):
@@ -378,12 +381,12 @@ def test_bundle_doc_analysis_empty_when_no_docs(temp_dir):
     assert bundle["doc_analysis"] == {}
 
 
-def test_bundle_schema_version_is_1_1_0(temp_dir):
+def test_bundle_schema_version_is_1_2_0(temp_dir):
     _write_source(temp_dir, "main.py", "x = 1\n")
 
     bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
 
-    assert bundle["schema_version"] == "1.1.0"
+    assert bundle["schema_version"] == "1.2.0"
 
 
 def test_export_command_writes_bundle_file(temp_dir):
@@ -461,10 +464,9 @@ def test_full_bundle_validates_against_schema(temp_dir):
     _write_doc_analysis(temp_dir, "README.md", {
         "classification": "reference",
         "confidence": 0.95,
-        "purpose": "Overview",
-        "topics": ["CLI"],
-        "matched_sources": ["src/mod.py"],
-        "accuracy_error_count": 0,
+        "matched_shadows": ["src/mod.py"],
+        "findings": [],
+        "topic_signature": {"purpose": "Overview", "topics": ["CLI"]},
     })
     scorecard = {
         "coverage_entries": [],
@@ -527,7 +529,7 @@ def test_audit_finding_with_origin_passes_through(temp_dir):
             "remediation": "Remove it",
             "line_start": 1,
             "line_end": 1,
-            "origin": {"source": "static", "plugin": "eslint", "confidence": 0.9},
+            "origin": {"source": "static", "plugin": "eslint"},
         }
     ])
 
@@ -535,7 +537,7 @@ def test_audit_finding_with_origin_passes_through(temp_dir):
     file_node = _find_file_node(bundle["tree"], "main.py")
     assert len(file_node["audit_findings"]) == 1
     finding = file_node["audit_findings"][0]
-    assert finding["origin"] == {"source": "static", "plugin": "eslint", "confidence": 0.9}
+    assert finding["origin"] == {"source": "static", "plugin": "eslint"}
 
     schema = _load_schema()
     jsonschema.validate(instance=bundle, schema=schema)
@@ -571,3 +573,181 @@ def test_invalid_bundle_fails_schema_validation():
     }
     with pytest.raises(jsonschema.ValidationError):
         jsonschema.validate(instance=invalid_bundle, schema=schema)
+
+
+def test_enriched_bundle_validates_with_all_fields(temp_dir):
+    """C1: Comprehensive test exercising A1 phantom-read fixes, B1 junk detail fields,
+    B2 doc analysis findings, and B3 origin fields."""
+    content = "def run():\n    return 1\ndef old():\n    pass\n"
+    _write_source(temp_dir, "src/app.py", content)
+    _write_shadow(
+        temp_dir,
+        "src/app.py",
+        source_hash=compute_hash(content),
+        impl_hash=compute_impl_hash(),
+    )
+    _write_findings(
+        temp_dir,
+        "src/app.py",
+        [
+            {
+                "category": "dead_code",
+                "severity": "warning",
+                "line_start": 3,
+                "line_end": 4,
+                "description": "Unused function old()",
+            }
+        ],
+    )
+    _write_symbols(
+        temp_dir,
+        "src/app.py",
+        [
+            {"name": "run", "kind": "function", "line_start": 1, "line_end": 2, "visibility": "public"},
+            {"name": "old", "kind": "function", "line_start": 3, "line_end": 4, "visibility": "public"},
+        ],
+    )
+    _write_signature(temp_dir, "src/app.py", "Application entry point", ["app", "main"])
+
+    # Doc analysis with real structure (tests A1 fix)
+    _write_doc_analysis(temp_dir, "README.md", {
+        "classification": "reference",
+        "confidence": 0.82,
+        "matched_shadows": ["src/app.py"],
+        "findings": [
+            {
+                "category": "stale_content",
+                "severity": "warning",
+                "description": "References outdated API",
+                "evidence": "mentions v1 endpoint",
+                "shadow_ref": "src/app.py",
+                "remediation": "Update API references",
+            },
+            {
+                "category": "missing_content",
+                "severity": "error",
+                "description": "Missing setup instructions",
+                "evidence": None,
+                "shadow_ref": None,
+                "remediation": "Add setup section",
+            },
+        ],
+        "topic_signature": {"purpose": "Project overview", "topics": ["CLI", "setup", "API"]},
+    })
+
+    # Scorecard with enriched junk items (tests B1)
+    scorecard = {
+        "coverage_entries": [],
+        "coverage_pct": 100.0,
+        "covered_count": 1,
+        "total_source_count": 1,
+        "coverage_by_type": {},
+        "type_covered_counts": {},
+        "type_total_counts": {},
+        "dead_docs": [],
+        "total_accuracy_errors": 0,
+        "live_doc_count": 1,
+        "accuracy_errors_per_doc": 0.0,
+        "accuracy_by_category": {},
+        "junk_total_lines": 2,
+        "junk_total_source_lines": 4,
+        "junk_fraction": 0.5,
+        "junk_item_count": 1,
+        "junk_file_count": 1,
+        "junk_by_category": {"dead_symbol": 1},
+        "junk_by_category_lines": {"dead_symbol": 2},
+        "junk_entries": [
+            {
+                "source_path": "src/app.py",
+                "total_lines": 4,
+                "junk_lines": 2,
+                "junk_fraction": 0.5,
+                "items": [
+                    {
+                        "category": "dead_symbol",
+                        "line_start": 3,
+                        "line_end": 4,
+                        "source": "dead_code",
+                        "confidence_source": "llm_inferred",
+                        "name": "old",
+                        "kind": "function",
+                        "reason": "Never called anywhere",
+                        "remediation": "Remove the function",
+                        "confidence": 0.85,
+                    }
+                ],
+            }
+        ],
+        "junk_sources": ["dead_code"],
+        "enforcement_total_obligations": None,
+        "enforcement_unactuated": None,
+        "enforcement_pct_unactuated": None,
+        "enforcement_by_schema": None,
+        "obligation_violations": None,
+        "obligation_implicit_contracts": None,
+    }
+
+    # Audit findings with origin (tests B3)
+    _write_audit_result(
+        temp_dir,
+        [
+            {
+                "path": "src/app.py",
+                "severity": "warning",
+                "category": "dead_code",
+                "message": "Unused function old()",
+                "remediation": "Remove it",
+                "line_start": 3,
+                "line_end": 4,
+                "origin": {"source": "llm", "plugin": "code_debris"},
+            },
+            {
+                "path": "src/app.py",
+                "severity": "warning",
+                "category": "stale_shadow",
+                "message": "Shadow documentation is stale",
+                "remediation": "Run 'osoji shadow .' to update",
+                "line_start": None,
+                "line_end": None,
+                "origin": {"source": "static", "plugin": "shadow_check"},
+            },
+        ],
+        scorecard=scorecard,
+    )
+
+    bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
+
+    # Validate against JSON Schema
+    schema = _load_schema()
+    jsonschema.validate(instance=bundle, schema=schema)
+
+    # A1: doc_analysis has non-null purpose and topics from topic_signature
+    analysis = bundle["doc_analysis"]["README.md"]
+    assert analysis["purpose"] == "Project overview"
+    assert analysis["topics"] == ["CLI", "setup", "API"]
+    assert analysis["matched_sources"] == ["src/app.py"]
+    assert analysis["accuracy_error_count"] == 2  # len(findings)
+
+    # B2: doc_analysis entries have findings array
+    assert len(analysis["findings"]) == 2
+    assert analysis["findings"][0]["description"] == "References outdated API"
+    assert analysis["findings"][0]["evidence"] == "mentions v1 endpoint"
+    assert analysis["findings"][1]["severity"] == "error"
+    assert analysis["findings"][1]["remediation"] == "Add setup section"
+
+    # B1: junk items have enriched fields
+    junk_entries = bundle["scorecard"]["junk_entries"]
+    assert len(junk_entries) == 1
+    junk_item = junk_entries[0]["items"][0]
+    assert junk_item["name"] == "old"
+    assert junk_item["kind"] == "function"
+    assert junk_item["reason"] == "Never called anywhere"
+    assert junk_item["remediation"] == "Remove the function"
+    assert junk_item["confidence"] == 0.85
+
+    # B3: audit findings have origin
+    file_node = _find_file_node(bundle["tree"], "src", "app.py")
+    origins = [f.get("origin") for f in file_node["audit_findings"] if f.get("origin")]
+    assert len(origins) >= 1
+    assert any(o["source"] == "llm" and o["plugin"] == "code_debris" for o in origins)
+    assert any(o["source"] == "static" and o["plugin"] == "shadow_check" for o in origins)

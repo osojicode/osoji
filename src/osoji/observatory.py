@@ -21,7 +21,7 @@ from .scorecard import merge_ranges
 from .walker import discover_directories, discover_files
 
 OBSERVATORY_SCHEMA_NAME = "osoji-observatory"
-OBSERVATORY_SCHEMA_VERSION = "1.1.0"
+OBSERVATORY_SCHEMA_VERSION = "1.2.0"
 _DEFAULT_OUTPUT_NAME = "observatory.json"
 _SEVERITY_ORDER = {"error": 0, "warning": 1, "info": 2}
 
@@ -192,10 +192,21 @@ def _build_doc_analysis(config: Config) -> dict[str, dict[str, Any]]:
         result[doc_path] = {
             "classification": data.get("classification"),
             "confidence": data.get("confidence"),
-            "purpose": data.get("purpose"),
-            "topics": data.get("topics", []),
-            "matched_sources": data.get("matched_sources", []),
-            "accuracy_error_count": data.get("accuracy_error_count", 0),
+            "purpose": data.get("topic_signature", {}).get("purpose"),
+            "topics": data.get("topic_signature", {}).get("topics", []),
+            "matched_sources": data.get("matched_shadows", []),
+            "accuracy_error_count": len(data.get("findings", [])),
+            "findings": [
+                {
+                    "description": f.get("description", ""),
+                    "severity": f.get("severity", "warning"),
+                    "evidence": f.get("evidence"),
+                    "shadow_ref": f.get("shadow_ref"),
+                    "remediation": f.get("remediation"),
+                }
+                for f in data.get("findings", [])
+                if isinstance(f, dict)
+            ],
         }
     return result
 

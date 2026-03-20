@@ -231,6 +231,11 @@ def build_scorecard(
                     "line_end": item.line_end or item.line_start,
                     "source": analyzer_name,
                     "confidence_source": item.confidence_source,
+                    "name": item.name,
+                    "kind": item.kind,
+                    "reason": item.reason,
+                    "remediation": item.remediation,
+                    "confidence": item.confidence,
                 })
 
     # Compute junk lines per file with merged ranges
