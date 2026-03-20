@@ -1,6 +1,6 @@
 ---
 name: reviewaudit
-description: Review osoji audit findings — bin as true/false positive, propose fixes and pipeline improvements
+description: Triage findings and produce a structured report (read-only, no fixes)
 arguments: Optional category or path filter
 ---
 

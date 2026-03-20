@@ -1,6 +1,6 @@
 ---
 name: audite2e
-description: End-to-end audit — run osoji audit, triage, fix all true positives, file GitHub issues for pipeline improvements
+description: End-to-end audit — triage every finding, fix problems, file GitHub issues for osoji improvements
 arguments: Optional flags like --skip-audit
 ---
 

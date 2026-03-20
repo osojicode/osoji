@@ -252,7 +252,7 @@ osoji push --token $OSOJI_TOKEN --endpoint https://custom.endpoint/api
 
 ### AI Agent Skills
 
-Osoji bundles skill prompts — agent-agnostic markdown workflows that any AI coding assistant can use to run audits, triage findings, and file pipeline improvements:
+Osoji bundles skill prompts — agent-agnostic markdown workflows that any AI coding assistant can use to run audits and act on the results:
 
 ```bash
 osoji skills list                  # List available skills
@@ -261,8 +261,8 @@ osoji skills show reviewaudit      # Read-only triage and review workflow
 ```
 
 **Available skills:**
-- **audite2e** — Run audit, triage every finding, fix all true positives, file GitHub issues for false positives and missed detections
-- **reviewaudit** — Review and classify findings without making changes, produce structured improvement report
+- **audite2e** — Run audit, triage every finding, fix problems, file GitHub issues for osoji improvements
+- **reviewaudit** — Triage findings and produce a structured report (read-only, no fixes)
 
 Copy the skill content into your AI assistant's prompt or command system. The skills are plain markdown with no tool-specific dependencies.
 
