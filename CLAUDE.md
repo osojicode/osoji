@@ -43,7 +43,7 @@ export analysis, and string contract checking.
 
 ## Key architecture
 
-- `src/osoji/cli.py` — Click CLI with subcommands: `shadow`, `check` (`--dry-run`), `diff`, `stats`, `audit`, `report`, `push`, `hooks`, `safety`
+- `src/osoji/cli.py` — Click CLI with subcommands: `shadow`, `check` (`--dry-run`), `diff`, `stats`, `audit`, `report`, `export`, `push`, `hooks`, `safety`
 - `src/osoji/config.py` — Configuration, path helpers, model tier constants
 - `src/osoji/shadow.py` — Core shadow doc generation engine
 - `src/osoji/audit.py` — Multi-phase audit orchestration

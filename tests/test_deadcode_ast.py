@@ -1,9 +1,7 @@
 """Tests for the AST fast path in dead code detection."""
 
 import json
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import MagicMock
 
 from osoji.config import Config, SHADOW_DIR
 from osoji.facts import FactsDB

@@ -136,8 +136,20 @@ def find_git_root(start_path: Path) -> Optional[Path]:
 
 
 def get_hooks_dir(repo_root: Path) -> Path:
-    """Get the git hooks directory."""
-    return repo_root / ".git" / "hooks"
+    """Get the git hooks directory.
+
+    Handles worktrees and submodules where .git is a file pointing to the
+    actual git directory.
+    """
+    git_path = repo_root / ".git"
+    if git_path.is_file():
+        content = git_path.read_text(encoding="utf-8").strip()
+        if content.startswith("gitdir: "):
+            git_dir = Path(content[8:])
+            if not git_dir.is_absolute():
+                git_dir = (repo_root / git_dir).resolve()
+            return git_dir / "hooks"
+    return git_path / "hooks"
 
 
 def install_hook(hooks_dir: Path, hook_name: str, content: str, force: bool = False) -> tuple[bool, str]:
@@ -204,7 +216,7 @@ def install_hooks(
     
     hooks_dir = get_hooks_dir(git_root)
     if not hooks_dir.exists():
-        hooks_dir.mkdir(parents=True)
+        hooks_dir.mkdir(parents=True, exist_ok=True)
     
     results: list[tuple[str, bool, str]] = []
     

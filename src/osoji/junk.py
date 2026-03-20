@@ -123,7 +123,7 @@ class JunkAnalyzer(ABC):
         return asyncio.run(_run())
 
 
-def validate_line_ranges(tool_name: str, tool_input: dict) -> list[str]:
+def validate_line_ranges(_tool_name: str, tool_input: dict) -> list[str]:
     """Tool input validator: ensure line_end >= line_start in findings/items arrays.
 
     Usable as a ``tool_input_validators`` entry on ``CompletionOptions``.

@@ -181,14 +181,15 @@ def should_check_file(file_path: Path) -> bool:
     # Check if it's in a skipped directory
     # Check if any parent directory matches a skip pattern
     for part in file_path.parts[:-1] if len(file_path.parts) > 1 else []:
-        if part in SKIP_DIRECTORIES:
+        part_lower = part.lower()
+        if part_lower in SKIP_DIRECTORIES:
             return False
         # Handle glob patterns like *.egg-info
         for pattern in SKIP_DIRECTORIES:
             if "*" in pattern:
                 import fnmatch
 
-                if fnmatch.fnmatch(part, pattern):
+                if fnmatch.fnmatch(part_lower, pattern):
                     return False
 
     # Check if extension is checkable

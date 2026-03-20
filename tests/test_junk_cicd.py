@@ -12,7 +12,6 @@ from osoji.junk_cicd import (
     CICDCandidate,
     CICDElement,
     DeadCICDAnalyzer,
-    _build_candidates,
     _check_path_references,
     _extract_paths_from_command,
     _parse_cicd_via_haiku,
