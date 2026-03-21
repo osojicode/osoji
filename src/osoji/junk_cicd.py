@@ -719,12 +719,12 @@ async def detect_dead_cicd_async(
         else:
             # Use small model for unsupported CI/CD systems
             try:
-                haiku_elements, _in_tok, _out_tok = await _parse_cicd_via_llm(
+                parsed_elements, _in_tok, _out_tok = await _parse_cicd_via_llm(
                     provider, content, rel_path, cicd_type, config,
                 )
-                all_elements.extend(haiku_elements)
-                if haiku_elements:
-                    print(f"  LLM parsed {len(haiku_elements)} element(s) from {rel_path}", flush=True)
+                all_elements.extend(parsed_elements)
+                if parsed_elements:
+                    print(f"  LLM parsed {len(parsed_elements)} element(s) from {rel_path}", flush=True)
             except Exception as e:
                 print(f"  [warn] LLM CI/CD parsing failed for {rel_path}: {e}", flush=True)
 

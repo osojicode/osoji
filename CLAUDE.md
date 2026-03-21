@@ -88,7 +88,7 @@ the bundle shape produced by `osoji export`. It uses JSON Schema Draft 2020-12.
 
 The `osoji push` command reads `[push]` config from three files (later overrides earlier):
 - `~/.config/osoji/config.toml` — global defaults
-- `.osoji.toml` — committed project config (org, project, endpoint)
+- `.osoji.toml` — committed project config (project, endpoint)
 - `.osoji.local.toml` — gitignored local overrides (token, custom endpoint)
 
 CLI flags and environment variables (`OSOJI_ENDPOINT`, `OSOJI_TOKEN`) take highest precedence.

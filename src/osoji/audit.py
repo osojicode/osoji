@@ -20,8 +20,8 @@ from .junk_deps import DeadDepsAnalyzer
 from .junk_cicd import DeadCICDAnalyzer
 from .junk_orphan import OrphanedFilesAnalyzer
 from .rate_limiter import RateLimiter, get_config_with_overrides
-from .shadow import check_shadow_docs, generate_shadow_docs, generate_shadow_docs_async
-from .doc_analysis import analyze_docs, analyze_docs_async
+from .shadow import check_shadow_docs, generate_shadow_docs_async
+from .doc_analysis import analyze_docs_async
 from .junk_cicd import discover_cicd_files
 from .llm.runtime import create_runtime
 from .scorecard import CoverageEntry, JunkCodeEntry, Scorecard, build_scorecard

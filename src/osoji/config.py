@@ -9,7 +9,7 @@ import tomllib
 from typing import Any, Literal
 
 
-# Shadow doc output directory name
+# Osoji project metadata directory name
 SHADOW_DIR = ".osoji"
 
 # Directories to ignore during traversal

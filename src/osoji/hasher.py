@@ -26,11 +26,10 @@ def compute_file_hash(path: Path) -> str:
 def read_file_safe(path: Path) -> tuple[str, bool]:
     """Read a file with robust encoding. Returns (content, is_binary).
 
-    Binary detection:
+    Binary detection (in order):
     1. Null bytes in first 8KB (catches most binary formats)
-    2. High ratio of non-text bytes (catches JPEG, images, etc. even without nulls)
-       - A JPEG starting with \\xff\\xd8\\xff has no null bytes but ~80%+ non-text bytes
-       - Source code/docs typically have <1% non-text bytes
+    2. UTF-8 validity — valid UTF-8 is treated as text (skips byte-ratio heuristic)
+    3. Non-text byte ratio for non-UTF-8 files (>10% non-text = binary)
     """
     raw = path.read_bytes()[:8192]
 

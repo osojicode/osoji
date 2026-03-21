@@ -132,7 +132,7 @@ class TestCheckResult:
         assert not result.passed
 
     def test_finding_count(self):
-        """finding_count should sum path and secret findings."""
+        """finding_count should count path findings."""
         result = CheckResult(
             path_findings=[
                 PathFinding(

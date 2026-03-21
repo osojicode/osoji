@@ -8,7 +8,7 @@ never used to enforce a timeout.
 
 import asyncio
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 

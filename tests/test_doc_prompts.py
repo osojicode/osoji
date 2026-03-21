@@ -268,9 +268,6 @@ class TestComputeCoverageSummary:
                 existing_coverage=[],
             ),
         ]
-        # Manually set coverage lists since _make_concept doesn't set existing_coverage in field
-        concepts[0].existing_coverage = [{"diataxis_type": "reference", "doc_path": "r.md"}]
-        concepts[1].existing_coverage = []
 
         result = _compute_coverage_summary(concepts)
         assert result["reference"]["needed"] == 2

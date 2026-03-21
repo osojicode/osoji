@@ -13,10 +13,11 @@ def _is_source_doc_candidate(config: Config, source: str) -> bool:
 
 
 def load_all_symbols(config: Config) -> dict[str, list[dict]]:
-    """Load all symbols across the project.
+    """Load symbols for non-doc-candidate files across the project.
 
-    Reads every *.symbols.json file under .osoji/symbols/ and returns
+    Reads *.symbols.json files under .osoji/symbols/ and returns
     a dict mapping relative source file paths to their symbol lists.
+    Files classified as doc candidates are excluded.
 
     Each symbol dict has keys: name, kind, line_start, and optionally line_end.
     """
@@ -39,10 +40,10 @@ def load_all_symbols(config: Config) -> dict[str, list[dict]]:
 
 
 def load_file_roles(config: Config) -> dict[str, str]:
-    """Load file_role for every file with a symbols JSON sidecar.
+    """Load file_role for non-doc-candidate files with a symbols JSON sidecar.
 
     Returns dict mapping relative source path -> role string.
-    Files without file_role key (old cache) are omitted.
+    Doc candidates and files without file_role key (old cache) are omitted.
     """
     symbols_dir = config.root_path / SHADOW_DIR / "symbols"
     if not symbols_dir.exists():

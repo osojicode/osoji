@@ -132,7 +132,9 @@ and WHAT could be changed to prevent it.
 
 1. Determine which osoji category it should fall under.
 2. Identify which pipeline stage *should* have caught it (e.g., `shadow.py`
-   debris extraction, `deadcode.py`, `doc_analysis.py`, `obligations.py`).
+   debris extraction, `deadcode.py`, `deadparam.py`, `doc_analysis.py`,
+   `obligations.py`, `plumbing.py`, `junk_cicd.py`, `junk_deps.py`,
+   `junk_orphan.py`).
 3. Determine why it was missed: prompt gap, missing heuristic, scope limitation,
    candidate filter too aggressive, etc.
 4. Draft a suggested detection approach.

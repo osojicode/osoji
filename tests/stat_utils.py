@@ -38,8 +38,8 @@ def compute_sample_size(p0: float) -> int:
 def assert_pass_rate(k: int, n: int, p0: float) -> None:
     """Assert observed k/n passes is consistent with p >= threshold.
 
-    Raises AssertionError with diagnostic message if we cannot reject
-    H0: p <= p0*(1-relative_drop) at the given alpha level.
+    Raises if the observed pass rate fails to demonstrate it exceeds
+    the regression threshold p0*(1-relative_drop) at the given alpha level.
     """
     relative_drop = 0.4
     alpha = 0.01

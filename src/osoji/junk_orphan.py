@@ -118,7 +118,7 @@ async def _identify_entry_points_async(
     signatures: list[dict],
     config: Config,
 ) -> set[str]:
-    """Haiku batch call to identify entry points from file signatures."""
+    """Small-model batch call to identify entry points from file signatures."""
     if not signatures:
         return set()
 
@@ -207,7 +207,7 @@ async def _identify_relationships_async(
     connected: list[dict],
     config: Config,
 ) -> list[tuple[str, str]]:
-    """Haiku identifies semantic relationships for disconnected files."""
+    """Small-model identifies semantic relationships for disconnected files."""
     if not disconnected or not connected:
         return []
 
@@ -299,7 +299,7 @@ async def _verify_orphans_batch_async(
     orphans: list[OrphanCandidate],
     shadow_contents: dict[str, str],
 ) -> tuple[list[OrphanVerification], int, int]:
-    """Sonnet verification of orphan candidates.
+    """Medium-model verification of orphan candidates.
 
     Returns (verifications, input_tokens, output_tokens).
     """
@@ -402,11 +402,11 @@ async def detect_orphaned_files_async(
 
     Pipeline:
     1. Build import edges (pure Python symbol cross-references)
-    2. Identify entry points (Haiku)
+    2. Identify entry points (small model)
     3. BFS from entry points → find disconnected files
-    4. Identify semantic relationships for disconnected files (Haiku)
+    4. Identify semantic relationships for disconnected files (small model)
     5. BFS again with semantic edges → find orphan candidates
-    6. Verify orphans (Sonnet)
+    6. Verify orphans (medium model)
     """
     # Load data sources
     all_symbols = load_all_symbols(config)

@@ -687,7 +687,7 @@ async def _verify_error_findings_async(
 
 # --- Orchestration ---
 
-# Cap total shadow doc content per document to ~300K chars (~100K tokens, half Sonnet context)
+# Cap total shadow doc content per document to ~300K chars (~75K tokens)
 _SHADOW_CHAR_CAP = 300_000
 
 

@@ -7,7 +7,7 @@ from .logging import LoggingProvider
 from .openai import OpenAIProvider
 from .openrouter import OpenRouterProvider
 from .rate_limited import RateLimitedProvider
-from .registry import normalize_provider_name, provider_names
+from .registry import normalize_provider_name
 from .tokens import TokenCounter
 from ..rate_limiter import RateLimiter
 
@@ -27,7 +27,7 @@ def create_provider(name: str = "anthropic") -> LLMProvider:
     if cls is not None:
         return cls()
 
-    valid = ", ".join(provider_names())
+    valid = ", ".join(sorted(_PROVIDERS))
     raise ValueError(
         f"Unknown provider: {normalized_name}. "
         f"Valid providers: {valid}"

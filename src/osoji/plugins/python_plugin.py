@@ -385,7 +385,7 @@ class _FileExtractor(ast.NodeVisitor):
                 if isinstance(op, (ast.Eq, ast.NotEq, ast.In, ast.NotIn)):
                     # Resolve comparison_source from the other side
                     other = None
-                    if node is parent.left or node in (getattr(parent, "left", None),):
+                    if node is parent.left:
                         # String is on the left, source is the first comparator
                         if parent.comparators:
                             other = _resolve_callee(parent.comparators[0])
