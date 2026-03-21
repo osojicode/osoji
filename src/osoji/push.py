@@ -28,7 +28,6 @@ class PushConfig:
     endpoint: str
     token: str
     project_slug: str
-    org_slug: str
 
 
 @dataclass(frozen=True)
@@ -80,8 +79,8 @@ def _merge_push_config(root: Path) -> dict[str, str]:
     return merged
 
 
-def _infer_from_git_remote(root: Path) -> tuple[str | None, str | None]:
-    """Infer org and project slugs from the git remote origin URL."""
+def _infer_project_from_git_remote(root: Path) -> str | None:
+    """Infer project slug from the git remote origin URL (repo name)."""
 
     try:
         result = subprocess.run(
@@ -93,23 +92,23 @@ def _infer_from_git_remote(root: Path) -> tuple[str | None, str | None]:
             timeout=30,
         )
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError):
-        return None, None
+        return None
 
     url = result.stdout.strip()
     if not url:
-        return None, None
+        return None
 
     # SSH: git@host:org/repo.git
     ssh_match = re.match(r"git@[^:]+:([^/]+)/([^/]+?)(?:\.git)?$", url)
     if ssh_match:
-        return ssh_match.group(1), ssh_match.group(2)
+        return ssh_match.group(2)
 
     # HTTPS: https://host/org/repo.git
     https_match = re.match(r"https?://[^/]+/([^/]+)/([^/]+?)(?:\.git)?$", url)
     if https_match:
-        return https_match.group(1), https_match.group(2)
+        return https_match.group(2)
 
-    return None, None
+    return None
 
 
 def resolve_push_config(
@@ -117,7 +116,6 @@ def resolve_push_config(
     endpoint: str | None,
     token: str | None,
     project: str | None,
-    org: str | None,
     root_path: Path,
 ) -> PushConfig:
     """Resolve push config: CLI arg -> env var -> TOML config -> git remote -> error."""
@@ -139,29 +137,22 @@ def resolve_push_config(
         )
 
     resolved_project = project or merged.get("project")
-    resolved_org = org or merged.get("org")
-
-    if not resolved_project or not resolved_org:
-        inferred_org, inferred_project = _infer_from_git_remote(root_path)
-        if not resolved_project:
-            resolved_project = inferred_project
-        if not resolved_org:
-            resolved_org = inferred_org
+    if not resolved_project:
+        resolved_project = _infer_project_from_git_remote(root_path)
 
     if not resolved_project:
         raise click.ClickException(
             "Project slug could not be determined. Pass --project or set [push].project in .osoji.toml."
         )
-    if not resolved_org:
-        raise click.ClickException(
-            "Org slug could not be determined. Pass --org or set [push].org in .osoji.toml."
-        )
+
+    resolved_endpoint = resolved_endpoint.rstrip("/")
+    if not resolved_endpoint.startswith(("http://", "https://")):
+        resolved_endpoint = f"https://{resolved_endpoint}"
 
     return PushConfig(
-        endpoint=resolved_endpoint.rstrip("/"),
+        endpoint=resolved_endpoint,
         token=resolved_token,
         project_slug=resolved_project,
-        org_slug=resolved_org,
     )
 
 
@@ -252,7 +243,6 @@ def _build_envelope(
 
     return {
         "envelope_version": "1",
-        "org_slug": push_config.org_slug,
         "project_slug": push_config.project_slug,
         "git": {
             "commit": git_context.commit,
@@ -351,7 +341,6 @@ def run_push(
     endpoint: str | None,
     token: str | None,
     project: str | None,
-    org: str | None,
     root_path: Path,
     quiet: bool = False,
 ) -> PushResult:
@@ -365,7 +354,6 @@ def run_push(
         endpoint=endpoint,
         token=token,
         project=project,
-        org=org,
         root_path=git_root,
     )
 
@@ -384,7 +372,7 @@ def run_push(
 
     if not quiet:
         click.echo(
-            f"Pushing {push_config.org_slug}/{push_config.project_slug} "
+            f"Pushing {push_config.project_slug} "
             f"@ {git_context.commit[:8]} to {push_config.endpoint}",
             err=True,
         )

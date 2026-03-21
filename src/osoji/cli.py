@@ -379,11 +379,10 @@ def report(ctx: click.Context, path: Path, output_format: str) -> None:
 
 @main.command()
 @click.option("--project", help="Project slug (default: from config or git remote)")
-@click.option("--org", help="Organization slug (default: from config or git remote)")
 @click.option("--token", help="API token (default: OSOJI_TOKEN env var)")
 @click.option("--endpoint", help="API endpoint URL (default: OSOJI_ENDPOINT env var)")
 @click.pass_context
-def push(ctx: click.Context, project: str | None, org: str | None, token: str | None, endpoint: str | None) -> None:
+def push(ctx: click.Context, project: str | None, token: str | None, endpoint: str | None) -> None:
     """Push observatory bundle to osoji-teams."""
     state = _cli_state(ctx)
 
@@ -391,7 +390,6 @@ def push(ctx: click.Context, project: str | None, org: str | None, token: str | 
         endpoint=endpoint,
         token=token,
         project=project,
-        org=org,
         root_path=Path(".").resolve(),
         quiet=state.quiet,
     )
