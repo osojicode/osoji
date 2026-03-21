@@ -156,7 +156,7 @@ def _build_import_graph_edges(facts_db: FactsDB) -> list[dict[str, Any]]:
     for file_path in facts_db.all_files():
         file_facts = facts_db.get_file(file_path)
         if file_facts is None or file_facts.classification is not None:
-            continue  # skip doc files
+            continue  # classification is set only for doc files; skip them
         for imp in file_facts.imports:
             resolved = facts_db.resolve_import_source(file_path, imp.get("source", ""))
             if resolved is None:

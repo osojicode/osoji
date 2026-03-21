@@ -337,7 +337,7 @@ def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_co
         out_path.write_text(html_str, encoding="utf-8")
         click.echo(f"Report written to {out_path}")
     else:
-        report = format_audit_report(result, verbose=state.verbose)
+        report = format_audit_report(result)
         click.echo(report)
 
     if not result.passed:
@@ -370,7 +370,7 @@ def report(ctx: click.Context, path: Path, output_format: str) -> None:
         out_path.write_text(html_str, encoding="utf-8")
         click.echo(f"Report written to {out_path}")
     else:
-        report_text = format_audit_report(result, verbose=state.verbose)
+        report_text = format_audit_report(result)
         click.echo(report_text)
 
     if not result.passed:

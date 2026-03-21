@@ -104,7 +104,7 @@ def test_no_plugin_facts_sets_llm_method():
     assert facts["extraction_method"] == "llm"
 
 
-def test_plugin_unavailable_triggers_fallback(caplog):
+def test_plugin_unavailable_triggers_fallback():
     """PluginUnavailableError should result in graceful fallback."""
     from osoji.plugins.base import LanguagePlugin
 

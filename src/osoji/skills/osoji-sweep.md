@@ -1,5 +1,5 @@
 ---
-name: audite2e
+name: osoji-sweep
 description: End-to-end audit — triage every finding, fix problems, file GitHub issues for osoji improvements
 arguments: Optional flags like --skip-audit
 ---

@@ -1,5 +1,5 @@
 ---
-name: reviewaudit
+name: osoji-triage
 description: Triage findings and produce a structured report (read-only, no fixes)
 arguments: Optional category or path filter
 ---

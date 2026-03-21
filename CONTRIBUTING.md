@@ -3,12 +3,12 @@
 Contributions are welcome — from humans and AI coding agents alike.
 
 The best way to contribute: run `osoji audit` on your own projects, use the
-bundled skill files (`audite2e`, `reviewaudit`) to triage findings, and let
+bundled skill files (`osoji-sweep`, `osoji-triage`) to triage findings, and let
 the skill workflow file issues for false positives and missed detections.
 
 ```bash
-osoji skills show audite2e      # Full end-to-end audit workflow
-osoji skills show reviewaudit   # Read-only triage and review
+osoji skills show osoji-sweep      # Full end-to-end audit workflow
+osoji skills show osoji-triage    # Read-only triage and review
 ```
 
 False-positive reports and missed-detection issues filed through the skill
@@ -70,7 +70,7 @@ If your PR modifies prompts:
    `tests/fixtures/prompt_regression/` for the fixture structure.
 
 If you've found a false-positive pattern but don't want to dig into prompts,
-the fastest path is to run the `audite2e` skill on your project — it will
+the fastest path is to run the `osoji-sweep` skill on your project — it will
 automatically file a structured GitHub issue with the evidence osoji needs
 to improve.
 

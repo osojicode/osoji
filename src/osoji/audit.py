@@ -1165,7 +1165,7 @@ These are informational only. No action is required. If you choose to act:
 Findings below are observations, not verdicts."""
 
 
-def format_audit_report(result: AuditResult, verbose: bool = False) -> str:
+def format_audit_report(result: AuditResult) -> str:
     """Format audit result as agent-ready markdown report."""
     if result.passed and not result.has_warnings and result.scorecard is None:
         return "# Osoji Audit Passed\n\nNo issues found."

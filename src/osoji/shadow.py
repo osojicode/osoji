@@ -940,8 +940,9 @@ def _format_tokens_short(input_tokens: int, output_tokens: int) -> str:
     return f"{_fmt(input_tokens)}^ {_fmt(output_tokens)}v"
 
 
-def format_progress_bar(completed: int, total: int, width: int = 30) -> str:
+def format_progress_bar(completed: int, total: int) -> str:
     """Format a visual progress bar like [####......]."""
+    width = 30
     if total <= 0:
         return f"[{'#' * width}]"
     filled = int(width * completed / total)
@@ -1735,7 +1736,6 @@ def dry_run_shadow(config: Config, verbose: bool = False) -> None:
 def generate_shadow_docs(
     config: Config,
     verbose: bool = False,
-    rate_limiter: RateLimiter | None = None,
 ) -> bool:
     """Generate shadow documentation for an entire codebase (sync wrapper).
 
@@ -1744,12 +1744,11 @@ def generate_shadow_docs(
     Args:
         config: Configuration for shadow generation
         verbose: If True, show detailed progress
-        rate_limiter: Optional shared rate limiter. If None, creates one internally.
 
     Returns:
         True if all files and directories were processed successfully, False if any had errors.
     """
-    return asyncio.run(generate_shadow_docs_async(config, verbose=verbose, rate_limiter=rate_limiter))
+    return asyncio.run(generate_shadow_docs_async(config, verbose=verbose))
 
 
 def check_shadow_docs(config: Config) -> list[tuple[Path, str]]:

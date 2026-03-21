@@ -54,7 +54,6 @@ class TestBuildEnvelope:
             endpoint="https://api.example.com",
             token="tok_123",
             project_slug="myproject",
-            org_slug="myorg",
         )
         git_ctx = _mock_git_context()
         bundle = {"schema_version": "1", "files": []}
@@ -63,7 +62,6 @@ class TestBuildEnvelope:
         envelope = _build_envelope(config, git_ctx, bundle, commits)
 
         assert envelope["envelope_version"] == "1"
-        assert envelope["org_slug"] == "myorg"
         assert envelope["project_slug"] == "myproject"
         assert envelope["git"]["commit"] == "abc123def456"
         assert envelope["git"]["branch"] == "main"
@@ -86,32 +84,31 @@ class TestResolveConfig:
         with patch.dict("os.environ", _env_without_osoji(), clear=True):
             with pytest.raises(click.ClickException, match="OSOJI_ENDPOINT is not set"):
                 resolve_push_config(
-                    endpoint=None, token="tok", project="p", org="o", root_path=tmp_path,
+                    endpoint=None, token="tok", project="p", root_path=tmp_path,
                 )
 
     def test_push_requires_token(self, tmp_path):
         with patch.dict("os.environ", _env_without_osoji(OSOJI_ENDPOINT="https://api.example.com"), clear=True):
             with pytest.raises(click.ClickException, match="OSOJI_TOKEN is not set"):
                 resolve_push_config(
-                    endpoint=None, token=None, project="p", org="o", root_path=tmp_path,
+                    endpoint=None, token=None, project="p", root_path=tmp_path,
                 )
 
     def test_push_reads_config_toml(self, tmp_path):
         (tmp_path / ".osoji.toml").write_text(
-            '[push]\norg = "cfgorg"\nproject = "cfgproj"\n'
+            '[push]\nproject = "cfgproj"\n'
             'endpoint = "https://cfg.example.com"\n'
         )
         with patch.dict("os.environ", _env_without_osoji(), clear=True):
             config = resolve_push_config(
-                endpoint=None, token="tok", project=None, org=None, root_path=tmp_path,
+                endpoint=None, token="tok", project=None, root_path=tmp_path,
             )
-        assert config.org_slug == "cfgorg"
         assert config.project_slug == "cfgproj"
         assert config.endpoint == "https://cfg.example.com"
 
     def test_push_local_toml_overrides_project_toml(self, tmp_path):
         (tmp_path / ".osoji.toml").write_text(
-            '[push]\norg = "base_org"\nproject = "base_proj"\n'
+            '[push]\nproject = "base_proj"\n'
             'endpoint = "https://base.example.com"\n'
         )
         (tmp_path / ".osoji.local.toml").write_text(
@@ -119,10 +116,9 @@ class TestResolveConfig:
         )
         with patch.dict("os.environ", _env_without_osoji(), clear=True):
             config = resolve_push_config(
-                endpoint=None, token="tok", project=None, org=None, root_path=tmp_path,
+                endpoint=None, token="tok", project=None, root_path=tmp_path,
             )
         assert config.project_slug == "local_proj"
-        assert config.org_slug == "base_org"  # not overridden
 
 
 class TestRunPush:
@@ -145,7 +141,6 @@ class TestRunPush:
             endpoint="https://api.example.com",
             token="tok",
             project="osoji",
-            org="osojicode",
             root_path=git_repo,
             quiet=True,
         )
@@ -172,7 +167,6 @@ class TestRunPush:
             endpoint="https://api.example.com",
             token="tok",
             project="osoji",
-            org="osojicode",
             root_path=git_repo,
             quiet=True,
         )
@@ -197,7 +191,6 @@ class TestRunPush:
                 endpoint="https://api.example.com",
                 token="tok",
                 project="osoji",
-                org="osojicode",
                 root_path=git_repo,
                 quiet=True,
             )
@@ -215,7 +208,6 @@ class TestRunPush:
             endpoint="https://api.example.com",
             token="tok",
             project="osoji",
-            org="osojicode",
             root_path=git_repo,
             quiet=True,
         )
@@ -251,7 +243,6 @@ class TestRunPush:
             endpoint="https://api.example.com",
             token="tok",
             project="osoji",
-            org="osojicode",
             root_path=git_repo,
             quiet=True,
         )

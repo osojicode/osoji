@@ -22,14 +22,12 @@ class TokenCounter:
         *,
         provider: str = DEFAULT_PROVIDER,
         default_model: str | None = None,
-        client: AsyncAnthropic | None = None,
-        litellm_token_counter: Callable[..., int] | None = None,
     ) -> None:
         self._provider = normalize_provider_name(provider)
         self._default_model = default_model
-        self._client = client
+        self._client: AsyncAnthropic | None = None
         self._cache: dict[str, int] = {}
-        self._litellm_token_counter = litellm_token_counter
+        self._litellm_token_counter: Callable[..., int] | None = None
 
     @property
     def label(self) -> str:
@@ -129,10 +127,8 @@ class TokenCounter:
     async def count_text_async(
         self,
         text: str,
-        *,
-        model: str | None = None,
     ) -> int:
-        resolved_model = self._resolved_model(model)
+        resolved_model = self._resolved_model(None)
         cache_key = f"{self.cache_key_prefix}:{resolved_model}:{hash(text)}"
         if cache_key in self._cache:
             return self._cache[cache_key]

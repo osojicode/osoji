@@ -50,7 +50,7 @@ export analysis, and string contract checking.
 - `src/osoji/llm/` — LLM provider abstraction (Anthropic, OpenAI, Google, OpenRouter via LiteLLM), validation, token counting
 - `src/osoji/rate_limiter.py` — Reservation-based async rate limiter (RPM + input/output TPM)
 - `src/osoji/facts.py` — Structured facts database and queries
-- `src/osoji/symbols.py` — Symbol extraction and loading from `.osoji/symbols/`
+- `src/osoji/symbols.py` — Symbol loading and querying from `.osoji/symbols/`
 - `src/osoji/obligations.py` — String contract / obligation checking
 - `src/osoji/tools.py` — Tool definitions (schemas) for LLM tool use
 - `src/osoji/doc_analysis.py` — Documentation accuracy analysis

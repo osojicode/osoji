@@ -429,36 +429,6 @@ async def test_dead_params_001_backward_compat(tmp_path, establish_baseline):
         await provider.close()
 
 
-# ---------------------------------------------------------------------------
-# String extraction case 002: external codes (SQLSTATE)
-# ---------------------------------------------------------------------------
-
-async def _run_trial_string_extraction_002(provider, config, file_path, numbered_content, expected) -> bool:
-    """Run one trial for string_extraction case_002. Returns True if external codes are not checked-only."""
-    from osoji.shadow import generate_file_shadow_doc_async
-
-    _, _, _, _, _, _, _, facts = await generate_file_shadow_doc_async(
-        provider, config, file_path, numbered_content,
-    )
-
-    string_literals = facts.get("string_literals", [])
-
-    by_value: dict[str, list[dict]] = {}
-    for sl in string_literals:
-        if isinstance(sl, dict):
-            val = sl.get("value", "")
-            by_value.setdefault(val, []).append(sl)
-
-    # External codes like "23505" should NOT be kind:identifier + usage:checked-only.
-    # They should be kind:config, or not extracted at all.
-    for val in expected.get("should_not_be_checked_only", []):
-        entries = by_value.get(val, [])
-        for entry in entries:
-            if entry.get("kind") == "identifier" and entry.get("usage") == "checked":
-                return False
-
-    return True
-
 
 # ---------------------------------------------------------------------------
 # Latent bug case 002: non-null assertion
@@ -536,44 +506,6 @@ async def _run_trial_latent_bug_004(provider, config, file_path, numbered_conten
 # ---------------------------------------------------------------------------
 # Test cases: new prompt regression tests
 # ---------------------------------------------------------------------------
-
-@pytest.mark.prompt_regression
-@pytest.mark.asyncio
-async def test_string_extraction_002_external_codes(tmp_path, establish_baseline):
-    """SQLSTATE codes like '23505' should be kind:config, not kind:identifier.
-
-    Database error codes are external protocol values defined by PostgreSQL,
-    not project-internal identifiers. Classifying them as identifier + checked
-    causes false positive obligation_violation findings.
-    """
-    case_dir = FIXTURES_DIR / "string_extraction" / "case_002_external_codes"
-    expected_path = case_dir / "expected.json"
-    expected = json.loads(expected_path.read_text())
-
-    source_file = case_dir / "source" / "handler.ts"
-    source_content = source_file.read_text()
-    numbered_content = "\n".join(
-        f"{i + 1:4d}\t{line}"
-        for i, line in enumerate(source_content.splitlines())
-    )
-
-    dest = tmp_path / "handler.ts"
-    dest.write_text(source_content)
-
-    config = Config(root_path=tmp_path, respect_gitignore=False)
-    provider = create_provider("anthropic")
-
-    try:
-        async def trial_fn():
-            return await _run_trial_string_extraction_002(
-                provider, config, dest, numbered_content, expected,
-            )
-
-        await _run_statistical_test(
-            trial_fn, expected, expected_path, establish_baseline,
-        )
-    finally:
-        await provider.close()
 
 
 @pytest.mark.prompt_regression

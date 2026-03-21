@@ -1,4 +1,4 @@
-"""Utilities for loading and querying public symbol data from shadow doc sidecars."""
+"""Utilities for loading and querying symbol data from shadow doc sidecars."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ def _is_source_doc_candidate(config: Config, source: str) -> bool:
 
 
 def load_all_symbols(config: Config) -> dict[str, list[dict]]:
-    """Load all public symbols across the project.
+    """Load all symbols across the project.
 
     Reads every *.symbols.json file under .osoji/symbols/ and returns
     a dict mapping relative source file paths to their symbol lists.

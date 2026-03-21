@@ -527,8 +527,8 @@ def _parse_go_mod(content: str, path: str) -> list[DependencyCandidate]:
 _PARSERS: dict[str, Callable] = {
     "requirements.txt": _parse_requirements_txt,
     "pyproject.toml": _parse_pyproject_toml,
-    "setup.cfg": _parse_requirements_txt,  # close enough for dependency lines
-    "Pipfile": _parse_requirements_txt,    # rough approximation
+    "setup.cfg": _parse_requirements_txt,  # best-effort: only matches bare pkg==ver lines, misses INI structure
+    "Pipfile": _parse_requirements_txt,    # best-effort: only matches bare pkg lines, misses TOML structure
     "package.json": _parse_package_json,
     "Cargo.toml": _parse_cargo_toml,
     "go.mod": _parse_go_mod,

@@ -27,8 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   post-commit)
 - `osoji safety check/self-test/patterns` — personal path and secret scanning
 - `osoji config show` — display resolved configuration
-- `osoji skills list/show` — bundled AI agent skill files (`audite2e`,
-  `reviewaudit`)
+- `osoji skills list/show` — bundled AI agent skill files (`osoji-sweep`,
+  `osoji-triage`)
 - Multi-provider LLM support: Anthropic, OpenAI, Google Gemini, OpenRouter
   (via LiteLLM)
 - Tiered model configuration (small / medium / large) via TOML config files

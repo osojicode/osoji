@@ -98,7 +98,7 @@ def _build_import_edges(all_symbols: dict[str, list[dict]], config: Config) -> d
     return adjacency
 
 
-# --- Phase 2: Entry point identification (Haiku) ---
+# --- Phase 2: Entry point identification (small model) ---
 
 _ENTRY_POINTS_SYSTEM_PROMPT = """You are identifying entry points in a software project.
 
@@ -188,7 +188,7 @@ def _identify_entry_points_heuristic(signatures: list[dict]) -> set[str]:
     return entry_points
 
 
-# --- Phase 3: Semantic relationship edges (Haiku) ---
+# --- Phase 3: Semantic relationship edges (small model) ---
 
 _RELATIONSHIPS_SYSTEM_PROMPT = """You are identifying semantic relationships between source files.
 
@@ -278,7 +278,7 @@ def find_orphans(adjacency: dict[str, set[str]], entry_points: set[str]) -> list
     return sorted(all_nodes - visited)
 
 
-# --- Phase 5: Sonnet orphan verification ---
+# --- Phase 5: Medium-model orphan verification ---
 
 _VERIFY_ORPHANS_SYSTEM_PROMPT = """You are verifying whether source files are truly orphaned (unreachable and unused).
 
@@ -505,7 +505,7 @@ async def detect_orphaned_files_async(
     for o in orphans:
         shadow_contents[o.source_path] = load_shadow_content(config, o.source_path)
 
-    # Phase 6: Sonnet verification (batch up to 10 per call)
+    # Phase 6: Medium-model verification (batch up to 10 per call)
     results: list[OrphanVerification] = []
     completed = 0
     total_batches = (len(orphans) + 9) // 10

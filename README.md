@@ -14,6 +14,46 @@ Or with pip:
 pip install -e .
 ```
 
+## Use with AI Coding Agents
+
+Osoji ships with bundled skill files that teach AI coding agents to run audits
+and act on findings end to end.
+
+### The workflow
+
+1. **Audit** — `osoji audit --full .` scans your codebase
+2. **Triage** — Your agent classifies each finding as true positive, false positive, or informational
+3. **Fix** — Your agent applies fixes for confirmed issues and runs tests
+4. **Report** — Your agent files GitHub issues on osoji for false positives and missed detections
+
+### Running the skills
+
+**Claude Code** (slash commands):
+
+```
+/osoji-sweep          # Full end-to-end: audit, triage, fix, file issues
+/osoji-triage         # Read-only triage: classify findings, produce report
+```
+
+**Other agents** — pipe skill content into your agent's prompt:
+
+```bash
+osoji skills show osoji-sweep | pbcopy    # macOS
+osoji skills show osoji-sweep | clip      # Windows
+osoji skills list                         # See all available skills
+```
+
+### Bundled skills
+
+- **osoji-sweep** — Audit, triage every finding, fix true positives, file GitHub issues for pipeline improvements
+- **osoji-triage** — Classify findings and produce a structured report without modifying any files
+
+### Improving detection
+
+When your agent finds a false positive or spots something osoji missed, the
+skill files help it file a structured GitHub issue automatically. Those issues
+improve osoji's detection for everyone — including you on your next audit.
+
 ## Usage
 
 Osoji defaults to `anthropic`, but `shadow`, `audit`, `stats`, and `diff --update` can all switch providers with `--provider` and `--model`.
@@ -249,22 +289,6 @@ Push the observatory bundle to the osoji-teams ingest API:
 osoji push --org myorg --project myproject
 osoji push --token $OSOJI_TOKEN --endpoint https://custom.endpoint/api
 ```
-
-### AI Agent Skills
-
-Osoji bundles skill prompts — agent-agnostic markdown workflows that any AI coding assistant can use to run audits and act on the results:
-
-```bash
-osoji skills list                  # List available skills
-osoji skills show audite2e         # Full end-to-end audit workflow
-osoji skills show reviewaudit      # Read-only triage and review workflow
-```
-
-**Available skills:**
-- **audite2e** — Run audit, triage every finding, fix problems, file GitHub issues for osoji improvements
-- **reviewaudit** — Triage findings and produce a structured report (read-only, no fixes)
-
-Copy the skill content into your AI assistant's prompt or command system. The skills are plain markdown with no tool-specific dependencies.
 
 ### Git Hooks for Automatic Updates
 

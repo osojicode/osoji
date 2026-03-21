@@ -226,7 +226,7 @@ async def _match_topics_async(
     doc_content: str,
     dir_summaries: dict[str, tuple[str, list[Path]]],
 ) -> tuple[list[Path], int, int, dict | None]:
-    """Use Haiku to match a doc to relevant source files via directory summaries.
+    """Use a small model to match a doc to relevant source files via directory summaries.
 
     Sends doc content + all directory summaries.
     Returns (matched_source_file_paths, input_tokens, output_tokens, topic_signature).
@@ -749,7 +749,7 @@ async def analyze_docs_async(
                 config, content, doc_path=doc_path, facts_db=facts_db,
             )
 
-            # Tier 2: Haiku topic matching (always runs)
+            # Tier 2: Small-model topic matching (always runs)
             haiku_matches, _haiku_in, _haiku_out, doc_topic_signature = await _match_topics_async(
                 provider, config, content, dir_summaries
             )
@@ -779,7 +779,7 @@ async def analyze_docs_async(
                 shadow_contexts.append((source_path, shadow_content))
                 total_chars += len(shadow_content)
 
-            # Opus analysis (classify + validate)
+            # Large-model analysis (classify + validate)
             analysis, _analyze_in, _analyze_out = await _analyze_document_async(
                 provider, config, doc_path, content, shadow_contexts, rules_text
             )
