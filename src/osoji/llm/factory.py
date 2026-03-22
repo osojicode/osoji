@@ -2,6 +2,7 @@
 
 from .anthropic import AnthropicProvider
 from .base import LLMProvider
+from .claude_code import ClaudeCodeProvider
 from .google import GoogleProvider
 from .logging import LoggingProvider
 from .openai import OpenAIProvider
@@ -13,6 +14,7 @@ from ..rate_limiter import RateLimiter
 
 _PROVIDERS: dict[str, type[LLMProvider]] = {
     "anthropic": AnthropicProvider,
+    "claude-code": ClaudeCodeProvider,
     "google": GoogleProvider,
     "openai": OpenAIProvider,
     "openrouter": OpenRouterProvider,

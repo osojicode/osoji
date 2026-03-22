@@ -52,6 +52,14 @@ _PROVIDER_SPECS: dict[str, ProviderSpec] = {
         rate_limit_name="openrouter",
         requires_explicit_model=True,
     ),
+    "claude-code": ProviderSpec(
+        name="claude-code",
+        display_name="Claude Code CLI",
+        litellm_prefix="",
+        api_key_env="",
+        rate_limit_name="claude-code",
+        requires_explicit_model=False,
+    ),
 }
 
 _KNOWN_MODEL_PREFIXES = {spec.litellm_prefix for spec in _PROVIDER_SPECS.values()} | set(

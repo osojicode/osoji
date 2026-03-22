@@ -112,8 +112,16 @@ OPENROUTER_DEFAULTS = RateLimiterConfig(
     name="openrouter",
 )
 
+CLAUDE_CODE_DEFAULTS = RateLimiterConfig(
+    requests_per_minute=30,
+    input_tokens_per_minute=400_000,
+    output_tokens_per_minute=100_000,
+    name="claude-code",
+)
+
 _PROVIDER_DEFAULTS = {
     "anthropic": ANTHROPIC_DEFAULTS,
+    "claude-code": CLAUDE_CODE_DEFAULTS,
     "openai": OPENAI_DEFAULTS,
     "google": GOOGLE_DEFAULTS,
     "openrouter": OPENROUTER_DEFAULTS,
@@ -142,7 +150,7 @@ def get_config_with_overrides(provider: str) -> RateLimiterConfig:
     """Get provider config with environment variable overrides."""
 
     config = get_default_config(provider)
-    prefix = provider.upper()
+    prefix = provider.upper().replace("-", "_")
 
     rpm_env = os.environ.get(f"{prefix}_RPM")
     if rpm_env is not None:

@@ -60,7 +60,7 @@ def _make_openai_response(*, content=None, tool_calls=None, input_tokens=100, ou
 
 
 def test_provider_names_include_all_supported_providers():
-    assert provider_names() == ("anthropic", "google", "openai", "openrouter")
+    assert provider_names() == ("anthropic", "claude-code", "google", "openai", "openrouter")
 
 
 def test_registry_normalizes_and_reports_metadata():

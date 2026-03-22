@@ -18,6 +18,7 @@ from .types import (
 )
 from .base import LLMProvider
 from .anthropic import AnthropicProvider
+from .claude_code import ClaudeCodeProvider, ClaudeCodeCLIError
 from .google import GoogleProvider
 from .logging import LoggingProvider, TokenStats
 from .openai import OpenAIProvider
@@ -44,6 +45,8 @@ __all__ = [
     # Providers
     "LLMProvider",
     "AnthropicProvider",
+    "ClaudeCodeProvider",
+    "ClaudeCodeCLIError",
     "OpenAIProvider",
     "GoogleProvider",
     "OpenRouterProvider",

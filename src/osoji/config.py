@@ -153,6 +153,11 @@ BUILTIN_PROVIDER_MODELS: dict[str, dict[str, str]] = {
         "medium": ANTHROPIC_MODEL_MEDIUM,
         "large": ANTHROPIC_MODEL_LARGE,
     },
+    "claude-code": {
+        "small": ANTHROPIC_MODEL_SMALL,
+        "medium": ANTHROPIC_MODEL_MEDIUM,
+        "large": ANTHROPIC_MODEL_LARGE,
+    },
     "openai": {
         "small": OPENAI_MODEL_SMALL,
         "medium": OPENAI_MODEL_MEDIUM,
