@@ -230,7 +230,7 @@ Files with these extensions are checked:
 
 **Binary files** -- images, PDFs, archives, executables, fonts, compiled files, and database files are skipped entirely (full list in `BINARY_EXTENSIONS`).
 
-**Skipped directories** -- files under these directories are excluded: `.git`, `__pycache__`, `node_modules`, `venv`, `.venv`, `build`, `dist`, `.osoji/shadow`, and other common generated/cache directories (full list in `SKIP_DIRECTORIES`).
+**Skipped directories** -- files under these directories are excluded: `.git`, `__pycache__`, `node_modules`, `venv`, `.venv`, `build`, `dist`, `.osoji`, and other common generated/cache directories (full list in `SKIP_DIRECTORIES`).
 
 **Safety module self-exclusions** -- the `paths.py` source file itself and test files in the safety directory are excluded to avoid circular detection (these files intentionally contain example personal paths).
 

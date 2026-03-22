@@ -88,7 +88,7 @@ Wraps a provider and accumulates `TokenStats` across all requests:
 
 ### `RateLimitedProvider` (`llm/rate_limited.py`)
 
-Wraps a provider with proactive reservation-based rate limiting. Before each request, it estimates input tokens, applies a safety multiplier, and acquires a `ReservationTicket` from the `RateLimiter`. After the request completes, it finalizes the reservation with actual usage. On rate-limit errors (HTTP 429, 500, 502, 503, 504, 529), it retries up to 3 times with exponential backoff capped at 30 seconds, or uses the server's `retry-after` header if present. It also auto-tunes rate limits from response headers on the first successful call.
+Wraps a provider with proactive reservation-based rate limiting. Before each request, it estimates input tokens, applies a safety multiplier, and acquires a `ReservationTicket` from the `RateLimiter`. After the request completes, it finalizes the reservation with actual usage. On retryable errors (LiteLLM `RateLimitError`, `APIConnectionError`, or API errors with HTTP status 500, 502, 503, 504, 529), it retries up to 3 times with exponential backoff capped at 30 seconds, or uses the server's `retry-after` header if present. It also auto-tunes rate limits from response headers on the first successful call.
 
 For details on the reservation algorithm, see the [rate limiting and token budgeting](rate-limiting-and-token-budgeting.md) document.
 

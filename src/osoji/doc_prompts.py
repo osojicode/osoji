@@ -1,6 +1,7 @@
 """Documentation prompts: concept-centric coverage and writing prompt generation.
 
-4-stage pipeline:
+5-stage pipeline:
+  Stage 0:   Metadata loading (topic signatures, file roles, fan-in)
   Stage 1+2: Concept inventory + appropriateness (single LLM call)
   Stage 3:   Coverage mapping (pure Python)
   Stage 4:   Gap analysis + writing prompt generation (LLM call)

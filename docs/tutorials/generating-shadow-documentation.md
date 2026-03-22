@@ -81,7 +81,7 @@ Estimated cost: ~$0.13
 | **Would generate** | Files that need generation -- either missing or stale shadow docs. |
 | **Already cached** | Files whose shadow docs are up to date (source hash and impl hash both match). |
 | **Directories** | Number of directories that will get roll-up summaries. |
-| **Estimated tokens/cost** | Rough estimates based on file sizes (1 token ~ 3.3 bytes). |
+| **Estimated tokens/cost** | Rough estimates based on file sizes (~4 characters/token). |
 
 ### File discovery
 

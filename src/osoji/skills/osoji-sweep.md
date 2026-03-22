@@ -177,8 +177,8 @@ Determine whether this is:
 
 - **Missed finding**: While reading the file for context, you noticed a real
   issue that osoji did NOT report. Note: file path, line range, what the issue
-  is, and what osoji category it should fall under (e.g. `dead_code`,
-  `latent_bug`, `stale_comment`, `obligation_violation`). These feed into
+  is, and what osoji category it should fall under (e.g. `dead_symbol`,
+  `dead_parameter`, `latent_bug`, `stale_comment`). These feed into
   Phase 6 as missed-detection improvement ideas.
 
 ### Step 3: For false positives — trace through osoji pipeline
@@ -210,7 +210,7 @@ For each issue you noticed that osoji missed:
 ### Parallelization for large finding counts
 
 If there are many findings, use sub-agents to parallelize triage across
-finding categories. For example, launch one agent for `dead_code` findings,
+finding categories. For example, launch one agent for `dead_symbol` findings,
 another for `doc_*` findings, another for `obligation_*` findings. Each agent
 must still review every finding in its category — parallelization is for speed,
 not for skipping.
@@ -247,8 +247,8 @@ Present the plan as a numbered list before executing. Example format:
 ## Fix Plan (N true positives)
 
 ### src/foo/bar.py (3 fixes)
-1. [dead_code] Delete lines 85-102 — unused helper `_old_calc()`
-2. [dead_param] Remove `verbose` param from `run()` (line 45), update call sites in main.py:12, cli.py:88
+1. [dead_symbol] Delete lines 85-102 — unused helper `_old_calc()`
+2. [dead_parameter] Remove `verbose` param from `run()` (line 45), update call sites in main.py:12, cli.py:88
 3. [latent_bug] Fix off-by-one on line 30 — change `< len(items)` to `<= len(items)`
 
 ### docs/api.md (2 fixes)
@@ -256,8 +256,8 @@ Present the plan as a numbered list before executing. Example format:
 5. [stale_content] Lines 10-25 — rewrite installation section to reflect current pyproject.toml deps
 
 ### GitHub Issues to File (M pipeline improvements + K missed detections)
-6. [FP: dead_code] Dynamic dispatch patterns cause false positives
-7. [FP: obligation_violation] Cross-module re-exports misidentified as violations
+6. [FP: dead_symbol] Dynamic dispatch patterns cause false positives
+7. [FP: obligation_implicit_contract] Cross-module re-exports misidentified as violations
 8. [MISSED: latent_bug] Unchecked dict access on LLM output not detected
 ```
 

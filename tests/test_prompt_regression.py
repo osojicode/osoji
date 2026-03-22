@@ -434,7 +434,7 @@ async def test_dead_params_001_backward_compat(tmp_path, establish_baseline):
 # Latent bug case 002: non-null assertion
 # ---------------------------------------------------------------------------
 
-async def _run_trial_latent_bug_002(provider, config, file_path, numbered_content, expected) -> bool:
+async def _run_trial_latent_bug_002(provider, config, file_path, numbered_content) -> bool:
     """Run one trial for latent_bug case_002. Returns True if no latent_bug findings on non-null assertion."""
     from osoji.shadow import generate_file_shadow_doc_async
 
@@ -454,7 +454,7 @@ async def _run_trial_latent_bug_002(provider, config, file_path, numbered_conten
 # Latent bug case 003: discriminated union narrowing
 # ---------------------------------------------------------------------------
 
-async def _run_trial_latent_bug_003(provider, config, file_path, numbered_content, expected) -> bool:
+async def _run_trial_latent_bug_003(provider, config, file_path, numbered_content) -> bool:
     """Run one trial for latent_bug case_003. Returns True if no latent_bug findings on narrowed union."""
     from osoji.shadow import generate_file_shadow_doc_async
 
@@ -536,7 +536,7 @@ async def test_latent_bug_002_nonnull_assertion(tmp_path, establish_baseline):
     try:
         async def trial_fn():
             return await _run_trial_latent_bug_002(
-                provider, config, dest, numbered_content, expected,
+                provider, config, dest, numbered_content,
             )
 
         await _run_statistical_test(
@@ -574,7 +574,7 @@ async def test_latent_bug_003_discriminated_union(tmp_path, establish_baseline):
     try:
         async def trial_fn():
             return await _run_trial_latent_bug_003(
-                provider, config, dest, numbered_content, expected,
+                provider, config, dest, numbered_content,
             )
 
         await _run_statistical_test(

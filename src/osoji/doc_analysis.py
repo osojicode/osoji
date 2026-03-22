@@ -13,7 +13,6 @@ from .hasher import read_file_safe
 from .llm.base import LLMProvider
 from .llm.budgets import input_budget_for_config
 from .llm.types import Message, MessageRole, CompletionOptions
-from .rate_limiter import RateLimiter
 from .tools import (
     get_match_doc_topics_tool_definitions,
     get_analyze_document_tool_definitions,

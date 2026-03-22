@@ -122,7 +122,7 @@ When actual output exceeds the reservation, `conservative_remaining` is reset to
    - `TokenCounter.count_tokens_async()` for provider-specific accurate counting (Anthropic API counting for Anthropic, LiteLLM tokenizer for others)
    - `estimate_tokens_offline()` as a fallback heuristic (character count / 4)
 
-2. **Applies a safety multiplier** (1.15x, defined as `_INPUT_SAFETY_MULTIPLIER`) to the input estimate to account for tokenizer inaccuracies.
+2. **Applies a safety multiplier** (1.15x, `_INPUT_SAFETY_MULTIPLIER` in `rate_limiter.py`, accessed via `RateLimiter.input_safety_multiplier`) to the input estimate to account for tokenizer inaccuracies.
 
 3. **Acquires a reservation** from the shared `RateLimiter`.
 

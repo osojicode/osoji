@@ -36,7 +36,14 @@ The main orchestration lives in `generate_shadow_docs_async()` in `src/osoji/sha
 5. Directory roll-ups  generate_directory_shadows() dependency-based parallelism
         |
         v
-6. Orphan cleanup      remove shadow docs for deleted source files
+6. Doc reference        extract_doc_references() links docs to source files
+   extraction
+        |
+        v
+7. Orphan cleanup      remove shadow docs for deleted source files
+        |
+        v
+8. Summary reporting   print generation statistics
 ```
 
 ### Stage 1: File discovery
@@ -47,7 +54,7 @@ The main orchestration lives in `generate_shadow_docs_async()` in `src/osoji/sha
 - Falls back to recursive glob when git is unavailable
 - Filters by configured extensions, ignore patterns, and `.osojiignore`
 - Skips the `.osoji/` directory (Osoji's own output)
-- Skips documentation candidates (files under `docs/`)
+- Skips documentation candidates (identified by extension, filename, or parent directory)
 - Sorts results by depth, deepest first, for bottom-up processing
 
 `discover_directories()` then identifies all directories containing processed files, also sorted deepest first.
@@ -99,9 +106,17 @@ After all files are processed, `generate_directory_shadows()` uses dependency-ba
 
 This bottom-up ordering ensures that when a directory is processed, all its children (including subdirectories) already have current shadow docs. The Merkle-style children hash means a change in any file propagates staleness up through all ancestor directories.
 
-### Stage 6: Orphan cleanup
+### Stage 6: Doc reference extraction
+
+`extract_doc_references()` scans documentation files (markdown, RST, etc.) and links them back to the source files they reference. This builds a bidirectional map between docs and code, enabling downstream tools to know which documentation covers which source files.
+
+### Stage 7: Orphan cleanup
 
 After generation completes, shadow docs whose corresponding source files no longer exist are removed. This prevents stale documentation from accumulating as files are deleted or renamed.
+
+### Stage 8: Summary reporting
+
+The pipeline prints generation statistics: files processed, files skipped (cached), token counts, and timing information.
 
 ## The hybrid approach: LLM + AST
 

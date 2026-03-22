@@ -11,7 +11,6 @@ from osoji.llm.types import CompletionResult, ToolCall
 from osoji.plumbing import (
     ConfigObligation,
     PlumbingResult,
-    PlumbingVerification,
     _find_field_references,
     detect_dead_plumbing_async,
     extract_obligations_async,

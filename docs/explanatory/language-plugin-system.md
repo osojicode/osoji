@@ -62,7 +62,7 @@ The `string_literals` field uses a `None` vs empty list distinction that carries
 
 This distinction controls whether the LLM performs redundant string extraction. A plugin that returns `None` for `string_literals` tells the system "I didn't do this work; the LLM should." A plugin that returns `[]` says "I did the work and found nothing."
 
-The `to_file_facts_dict` method serializes `ExtractedFacts` into the JSON format consumed by `FactsDB`, adding `extraction_method: "ast"` to distinguish plugin-extracted facts from LLM-extracted facts. This tag is critical for the dead code detection AST fast path, which only trusts AST-extracted data.
+The `to_file_facts_dict(source, source_hash)` method serializes `ExtractedFacts` into the JSON format consumed by `FactsDB`, adding `source`, `source_hash`, and `extraction_method: "ast"` fields. The `extraction_method` tag is critical for the dead code detection AST fast path, which only trusts AST-extracted data.
 
 ## `PluginUnavailableError`
 
