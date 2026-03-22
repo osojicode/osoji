@@ -47,7 +47,7 @@ export analysis, and string contract checking.
 - `src/osoji/config.py` — Configuration, path helpers, model tier constants
 - `src/osoji/shadow.py` — Core shadow doc generation engine
 - `src/osoji/audit.py` — Multi-phase audit orchestration
-- `src/osoji/llm/` — LLM provider abstraction (Anthropic, OpenAI, Google, OpenRouter via LiteLLM), validation, token counting
+- `src/osoji/llm/` — LLM provider abstraction (Anthropic, OpenAI, Google, OpenRouter — all via LiteLLM), validation, token counting
 - `src/osoji/rate_limiter.py` — Reservation-based async rate limiter (RPM + input/output TPM)
 - `src/osoji/facts.py` — Structured facts database and queries
 - `src/osoji/symbols.py` — Symbol loading and querying from `.osoji/symbols/`
@@ -70,6 +70,7 @@ export analysis, and string contract checking.
 - `src/osoji/async_utils.py` — Async runtime helpers
 - `src/osoji/doc_prompts.py` — Concept-centric documentation coverage and writing prompt generation
 - `src/osoji/plugins/` — Language-specific AST extraction plugins (Python, TypeScript)
+- `src/osoji/skills/` — Bundled AI agent skill prompts (markdown files with YAML frontmatter)
 - `src/osoji/osoji-observatory.schema.json` — JSON Schema (Draft 2020-12) for the observatory bundle
 
 ## Observatory bundle schema
@@ -145,6 +146,6 @@ CLI flags and environment variables (`OSOJI_ENDPOINT`, `OSOJI_TOKEN`) take highe
 ## Style
 
 - Python 3.11+, type hints throughout
-- Tests use pytest with `tmp_path` fixtures and `unittest.mock`
+- Tests use pytest with `tmp_path` and custom `temp_dir` fixtures and `unittest.mock`
 - Async where needed (LLM calls), sync otherwise
 - Commit messages: imperative mood, concise

@@ -333,7 +333,7 @@ osoji safety check src/*.py docs/*.md
 
 Osoji automatically skips certain files and directories:
 
-**Checked extensions**: `.py`, `.js`, `.ts`, `.jsx`, `.tsx`, `.json`, `.yaml`,
+**Checked extensions**: `.py`, `.pyi`, `.js`, `.ts`, `.jsx`, `.tsx`, `.json`, `.yaml`,
 `.yml`, `.toml`, `.ini`, `.cfg`, `.md`, `.txt`, `.rst`, `.sh`, `.bash`,
 `.zsh`, `.env`, `.sql`, `.xml`, `.html`, `.htm`
 

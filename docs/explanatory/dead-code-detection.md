@@ -112,11 +112,11 @@ LLM verification of grep-path candidates is organized into batches grouped by de
 
 Batching by file serves an important purpose: all candidates in a batch share the same defining file, so the LLM receives the full file content once and can reason about all symbols in context. This is more efficient than one call per symbol and produces better results because the LLM can see relationships between symbols (e.g., one wraps another).
 
-Batches are processed in parallel using `gather_with_buffer` from `async_utils.py`, which manages concurrent LLM calls within rate limits.
+Batches are processed in parallel using `gather_with_buffer` from `async_utils.py`, which bounds the number of concurrent in-flight tasks to avoid resource exhaustion. Rate limiting is handled separately by the RateLimitedProvider wrapper.
 
 ## Integration with the junk code framework
 
-`DeadCodeAnalyzer` is a concrete implementation of the `JunkAnalyzer` abstract base class defined in `src/osoji/junk.py`. The ABC requires four properties and one async method:
+`DeadCodeAnalyzer` is a concrete implementation of the `JunkAnalyzer` abstract base class defined in `src/osoji/junk.py`. The ABC requires three properties and one async method:
 
 | Property     | Value                                          |
 | ------------ | ---------------------------------------------- |

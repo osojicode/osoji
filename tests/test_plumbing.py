@@ -177,7 +177,7 @@ class TestExtractObligations:
 
     @pytest.mark.asyncio
     async def test_extracts_obligations(self, mock_provider, config):
-        """Haiku extracts obligation-bearing fields from a schema."""
+        """LLM extracts obligation-bearing fields from a schema."""
         mock_provider.complete.return_value = CompletionResult(
             content=None,
             tool_calls=[ToolCall(

@@ -111,7 +111,7 @@ Output tokens are the hardest dimension to manage. The system cannot know how ma
 2. **Conservative mode:** During warmup (fewer than 5 observations) or after rate limit hits or under-reservations, reserve `max_output_tokens` -- the safe maximum.
 3. **Adaptive mode:** After warmup, compute the P90 of recent output history, multiply by 1.20. Also compute the mean and multiply by 1.35. Take the larger of these two values, floored at 128 tokens. This balances between wasting budget (over-reservation) and triggering rate limits (under-reservation).
 
-When actual output exceeds the reservation, `conservative_remaining` is reset to force at least 2 more conservative reservations before returning to adaptive mode.
+When actual output exceeds the reservation, `conservative_remaining` is reset to force conservative reservations before returning to adaptive mode. The reset value depends on the cause: after a rate limit hit (HTTP 429), it resets to 5 conservative reservations (a longer recovery period), whereas a simple under-reservation resets to 2.
 
 ## The `RateLimitedProvider` decorator
 
@@ -170,6 +170,8 @@ After the first successful LLM response, `RateLimitedProvider._auto_tune_from_he
 - Standard headers: `x-ratelimit-limit-requests`, `x-ratelimit-limit-tokens`
 
 If the discovered limits are higher than the configured defaults, `RateLimiter.update_limits()` increases the limits upward. This auto-tune happens at most once per `RateLimiter` instance (guarded by the `_auto_tuned` flag) to avoid oscillation.
+
+Note: auto-tuning applies the same TPM value to both input and output token limits, since most provider headers report a single combined token limit rather than separate input/output values.
 
 This matters because different API tiers have different limits. A user on Anthropic's high-volume tier might have 4x the default RPM. Auto-tuning discovers the actual capacity without requiring manual configuration.
 

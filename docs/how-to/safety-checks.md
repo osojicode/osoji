@@ -41,7 +41,7 @@ Replace personal paths with generic alternatives:
 To bypass in emergencies: git commit --no-verify
 
 ---
-Total: 2 issue(s) in 3 file(s)
+Total: 2 issue(s) in 1 file(s)
 ```
 
 ### Check specific files
@@ -62,7 +62,7 @@ The self-test verifies that the Osoji package itself does not contain accidental
 osoji safety self-test
 ```
 
-This scans all Python files in the installed `osoji` package (excluding the paths module's own test fixtures, which intentionally contain example paths). The command exits with code 0 if clean, code 1 if personal paths are found.
+This scans all Python files in the installed `osoji` package (excluding `paths.py` itself, which has its own specialized self-test that filters out matches in comments, docstrings, and documentation examples). The command exits with code 0 if clean, code 1 if personal paths are found.
 
 Run this:
 - After modifying safety detection patterns
@@ -86,31 +86,35 @@ osoji safety patterns
 **Output:**
 
 ```
-Active path detection patterns:
+Personal Path Patterns
+==================================================
 
-  windows_user
-    Windows user directory (C:\Users\username\)
-    [Cc]:[\\\/]Users[\\\/](?!test[\\\/]|user[\\\/]|example[\\\/]|runner[\\\/])[a-zA-Z0-9._-]+[\\\/]
+[windows_user]
+  Description: Windows user directory (C:\Users\username\)
+  Regex: [Cc]:[\\\/]Users[\\\/](?!test[\\\/]|user[\\\/]|example[\\\/]|runner[\\\/])[a-zA-Z0-9._-]+[\\\/]
 
-  unix_home
-    Unix/Mac home directory (/home/username/ or /Users/username/)
-    /(?:Users|home)/(?!test/|user/|example/|runner/|ubuntu/)[a-zA-Z0-9._-]+/
+[unix_home]
+  Description: Unix/Mac home directory (/home/username/ or /Users/username/)
+  Regex: /(?:Users|home)/(?!test/|user/|example/|runner/|ubuntu/)[a-zA-Z0-9._-]+/
 
-  cloud_storage
-    Cloud storage path (Dropbox, OneDrive, Google Drive, iCloud, Box, pCloud)
-    [\\\/](?:Dropbox|OneDrive|Google\s*Drive|iCloud|Box|pCloud)[\\\/][^\\\/]+[\\\/]
+[cloud_storage]
+  Description: Cloud storage path (Dropbox, OneDrive, Google Drive, iCloud, Box, pCloud)
+  Regex: [\\\/](?:Dropbox|OneDrive|Google\s*Drive|iCloud|Box|pCloud)[\\\/][^\\\/]+[\\\/]
 
-  dated_folder
-    Dated project folder (e.g., /260124 MYPROJECT/)
-    [\\\/]\d{6}\s+[A-Z]+[\\\/]
+[dated_folder]
+  Description: Dated project folder (e.g., /260124 MYPROJECT/)
+  Regex: [\\\/]\d{6}\s+[A-Z]+[\\\/]
 
-  personal_folder
-    Personal folder (Documents, Desktop, Downloads, Pictures, Videos)
-    [\\\/](?:Documents|Desktop|Downloads|Pictures|Videos)[\\\/][^\\\/]+[\\\/]
+[personal_folder]
+  Description: Personal folder (Documents, Desktop, Downloads, Pictures, Videos)
+  Regex: [\\\/](?:Documents|Desktop|Downloads|Pictures|Videos)[\\\/][^\\\/]+[\\\/]
 
-  my_folder
-    "My X" folder pattern (My Projects, My Documents, etc.)
-    [\\\/]My\s+[A-Za-z0-9]+[\\\/]
+[my_folder]
+  Description: "My X" folder pattern (My Projects, My Documents, etc.)
+  Regex: [\\\/]My\s+[A-Za-z0-9]+[\\\/]
+
+--------------------------------------------------
+Total: 6 patterns
 
 detect-secrets: not installed
   Install with: pip install 'osoji[safety]'
@@ -188,7 +192,7 @@ Add a safety check step to your CI pipeline. The command exits with code 1 on fa
 - name: Safety check
   run: |
     pip install osojicode
-    osoji safety check --files $(git diff --name-only HEAD~1)
+    osoji safety check $(git diff --name-only HEAD~1)
 ```
 
 ### Check specific files changed in a PR
@@ -335,7 +339,6 @@ print(result.summary())
 
 ```python
 from osoji.safety import check_files, format_check_result
-from osoji.safety.checker import format_check_result
 
 result = check_files(file_list)
 report = format_check_result(result, verbose=True)

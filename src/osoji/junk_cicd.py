@@ -657,9 +657,11 @@ def _build_repo_file_summary(config: Config) -> str:
         top = f.split("/")[0] if "/" in f else f
         top_dirs[top] = top_dirs.get(top, 0) + 1
 
-    summary_lines = ["Top-level directories:"]
+    summary_lines = ["Top-level entries:"]
     for d in sorted(top_dirs.keys()):
-        summary_lines.append(f"  {d}/ ({top_dirs[d]} files)")
+        is_dir = any(f.startswith(d + "/") for f in files)
+        label = f"{d}/" if is_dir else d
+        summary_lines.append(f"  {label} ({top_dirs[d]} files)")
 
     # Include first ~200 file paths
     summary_lines.append("\nFiles:")

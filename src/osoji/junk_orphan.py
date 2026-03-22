@@ -427,7 +427,7 @@ async def detect_orphaned_files_async(
     if not all_files:
         return [], 0
 
-    # Build signatures for all files (for Haiku calls)
+    # Build signatures for all files (for small-model calls)
     all_sigs: list[dict] = []
     for fpath in sorted(all_files):
         sig = sig_by_path.get(fpath, {})
@@ -439,14 +439,14 @@ async def detect_orphaned_files_async(
             "public_surface": sig.get("public_surface", []),
         })
 
-    # Phase 2: Identify entry points (Haiku with heuristic fallback)
+    # Phase 2: Identify entry points (small model with heuristic fallback)
     try:
         entry_points = await _identify_entry_points_async(
             provider, all_sigs, config,
         )
-        print(f"  Haiku identified {len(entry_points)} entry point(s)", flush=True)
+        print(f"  Small model identified {len(entry_points)} entry point(s)", flush=True)
     except Exception as e:
-        print(f"  [warn] Haiku entry point identification failed, using heuristics: {e}", flush=True)
+        print(f"  [warn] Small model entry point identification failed, using heuristics: {e}", flush=True)
         entry_points = _identify_entry_points_heuristic(all_sigs)
         print(f"  Heuristic identified {len(entry_points)} entry point(s)", flush=True)
 
@@ -461,7 +461,7 @@ async def detect_orphaned_files_async(
     if not orphan_candidates_1:
         return [], 0
 
-    # Phase 4: Semantic relationships for disconnected files (Haiku)
+    # Phase 4: Semantic relationships for disconnected files (small model)
     disconnected_sigs = [s for s in all_sigs if s["path"] in set(orphan_candidates_1)]
     connected_sigs = [s for s in all_sigs if s["path"] not in set(orphan_candidates_1)]
 
@@ -473,9 +473,9 @@ async def detect_orphaned_files_async(
         for src, tgt in relationships:
             adjacency.setdefault(src, set()).add(tgt)
             adjacency.setdefault(tgt, set()).add(src)
-        print(f"  Haiku identified {len(relationships)} semantic relationship(s)", flush=True)
+        print(f"  Small model identified {len(relationships)} semantic relationship(s)", flush=True)
     except Exception as e:
-        print(f"  [warn] Haiku relationship identification failed: {e}", flush=True)
+        print(f"  [warn] Small model relationship identification failed: {e}", flush=True)
         relationships = []
 
     # Phase 5: Second BFS with semantic edges

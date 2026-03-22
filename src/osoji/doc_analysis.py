@@ -12,7 +12,6 @@ from .facts import FactsDB
 from .hasher import read_file_safe
 from .llm.base import LLMProvider
 from .llm.budgets import input_budget_for_config
-from .llm.runtime import create_runtime
 from .llm.types import Message, MessageRole, CompletionOptions
 from .rate_limiter import RateLimiter
 from .tools import (
@@ -244,7 +243,7 @@ async def _match_topics_async(
 
     listing = "\n".join(listing_parts)
 
-    # Truncate doc for Haiku (keep it lean)
+    # Truncate doc for small model (keep it lean)
     doc_preview = doc_content[:10000]
     if len(doc_content) > 10000:
         doc_preview += "\n\n[... content truncated ...]"
@@ -823,26 +822,3 @@ async def analyze_docs_async(
     return results
 
 
-def analyze_docs(
-    config: Config,
-    on_progress: Callable[[int, int, Path, str], None] | None = None,
-    rate_limiter: RateLimiter | None = None,
-) -> list[DocAnalysisResult]:
-    """Unified documentation analysis (sync wrapper).
-
-    Creates provider and rate limiter internally (unless provided), runs async analysis.
-    """
-    candidates = find_doc_candidates(config)
-    if not candidates:
-        return []
-
-    async def _run() -> list[DocAnalysisResult]:
-        logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
-        try:
-            return await analyze_docs_async(
-                logging_provider, config, on_progress
-            )
-        finally:
-            await logging_provider.close()
-
-    return asyncio.run(_run())

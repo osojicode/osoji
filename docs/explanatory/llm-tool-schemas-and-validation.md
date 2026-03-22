@@ -34,15 +34,19 @@ Tool definitions are organized as module-level dict constants in `src/osoji/tool
 
 The directory-level equivalent, `SUBMIT_DIRECTORY_SHADOW_DOC_TOOL`, captures a `content` string and `topic_signature` for roll-up summaries.
 
-### Phase 2 -- Audit Tools
-
-Several schemas support the audit pipeline's multi-phase analysis:
+### Phase 2 -- Doc Analysis
 
 - Doc analysis tools -- schemas for evaluating documentation accuracy against code
+
+### Phase 3 -- Debris Verification
+
 - Debris verification tools -- schemas for confirming or rejecting code quality findings with cross-file evidence
+
+### Phase 3.5 -- Obligations
+
 - Obligation extraction and verification tools -- schemas for identifying and validating implicit string contracts between files
 
-### Phase 3 -- Junk Detection Tools
+### Phase 4 -- Junk Detection Tools
 
 Each junk analyzer has corresponding tool schemas:
 
@@ -53,7 +57,7 @@ Each junk analyzer has corresponding tool schemas:
 - Dead dependency verification -- `get_dead_deps_tool_definitions()` for unused package dependency confirmation
 - Orphan file verification -- schemas for confirming files with no reachable purpose
 
-### Phase 4 -- Doc Prompts
+### Phase 5.5 -- Doc Prompts
 
 - Concept inventory building -- schemas for structured topic extraction
 - Writing prompt generation -- schemas for documentation gap analysis

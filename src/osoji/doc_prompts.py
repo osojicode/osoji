@@ -225,7 +225,7 @@ async def _build_concept_inventory_async(
     config: Config,
     metadata: list[_FileMetadata],
 ) -> list[Concept]:
-    """Single Sonnet call to build concept inventory with appropriateness."""
+    """Single LLM call to build concept inventory with appropriateness."""
     if not metadata:
         return []
 

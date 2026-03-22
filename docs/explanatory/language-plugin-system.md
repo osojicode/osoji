@@ -113,9 +113,10 @@ The imports are inside the function body (lazy imports) to avoid circular depend
 
 ### Third-party plugins (entry point discovery)
 
-After first-party registration, `_discover_entry_point_plugins()` scans for plugins installed as Python packages with the `osoji.plugins` entry point group:
+After first-party registration, `_discover_entry_point_plugins()` scans for plugins installed as Python packages with the `osoji.plugins` entry point group. Note: this function is defined in `registry.py` and imported/called in `__init__.py`:
 
 ```python
+# In registry.py:
 def _discover_entry_point_plugins() -> None:
     eps = importlib.metadata.entry_points(group="osoji.plugins")
     for ep in eps:

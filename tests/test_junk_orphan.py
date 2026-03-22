@@ -186,9 +186,9 @@ class TestIdentifyEntryPointsHeuristic:
         assert "src/service.py" not in result
 
 
-# --- TestHaikuEntryPoints ---
+# --- TestIdentifyEntryPointsAsync ---
 
-class TestHaikuEntryPoints:
+class TestIdentifyEntryPointsAsync:
     @pytest.mark.asyncio
     async def test_identifies_entry_points(self):
         mock_provider = AsyncMock()
@@ -217,9 +217,9 @@ class TestHaikuEntryPoints:
         assert "src/lib.py" not in result
 
 
-# --- TestHaikuRelationships ---
+# --- TestIdentifyRelationshipsAsync ---
 
-class TestHaikuRelationships:
+class TestIdentifyRelationshipsAsync:
     @pytest.mark.asyncio
     async def test_identifies_relationships(self):
         mock_provider = AsyncMock()

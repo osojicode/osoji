@@ -496,36 +496,6 @@ class RateLimiter:
 
         return "\n".join(lines)
 
-    def reset(self) -> None:
-        """Reset all limiter state."""
-
-        now = self._now()
-        self._last_request_time = 0.0
-        self._last_refill_time = now
-        self._window_start = now
-        self._cooldown_until = 0.0
-        self._input_token_allowance = float(self._config.input_tokens_per_minute)
-        self._output_token_allowance = float(self._config.output_tokens_per_minute)
-        self._request_count = 0
-        self._input_token_count = 0
-        self._output_token_count = 0
-        self._queue_size = 0
-        self._cumulative_input_tokens = 0
-        self._cumulative_output_tokens = 0
-        self._cumulative_request_count = 0
-        self._cumulative_reserved_input_tokens = 0
-        self._cumulative_reserved_output_tokens = 0
-        self._peak_rpm_utilization_pct = 0.0
-        self._peak_input_utilization_pct = 0.0
-        self._peak_output_utilization_pct = 0.0
-        self._rate_limit_retries = 0
-        self._under_reserved_count = 0
-        self._next_ticket_id = 1
-        self._inflight.clear()
-        self._inflight_reserved_input_tokens = 0
-        self._inflight_reserved_output_tokens = 0
-        self._profiles.clear()
-
     def _calculate_wait_time(
         self,
         *,

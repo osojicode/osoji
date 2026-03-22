@@ -69,7 +69,7 @@ The `FileFacts` dataclass in `facts.py` represents the in-memory parsed facts fo
 | Field              | Type                        | Purpose                                    |
 | ------------------ | --------------------------- | ------------------------------------------ |
 | `source`           | `str`                       | Forward-slash-normalized relative path      |
-| `source_hash`      | `str`                       | SHA-256 hash of the source file at extraction time |
+| `source_hash`      | `str`                       | SHA-256 hash (truncated to 16 hex characters) of the source file at extraction time |
 | `imports`          | `list[dict]`                | Import declarations                         |
 | `exports`          | `list[dict]`                | Exported symbols (functions, classes, constants) |
 | `calls`            | `list[dict]`                | Function/method call sites                  |

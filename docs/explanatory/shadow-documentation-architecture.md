@@ -28,16 +28,15 @@ The main orchestration lives in `generate_shadow_docs_async()` in `src/osoji/sha
         |
         v
 4. Concurrent LLM      generate_shadows_parallel() with gather_with_buffer()
-   generation           (cached files skip LLM calls)
+   generation +         (cached files skip LLM calls; sidecar writes for
+   sidecar writes       findings.json, symbols.json, facts.json, signatures.json
+                        happen as part of per-file processing)
         |
         v
-5. Sidecar writes      findings.json, symbols.json, facts.json, signatures.json
+5. Directory roll-ups  generate_directory_shadows() dependency-based parallelism
         |
         v
-6. Directory roll-ups  generate_directory_shadows() bottom-up
-        |
-        v
-7. Orphan cleanup      remove shadow docs for deleted source files
+6. Orphan cleanup      remove shadow docs for deleted source files
 ```
 
 ### Stage 1: File discovery
@@ -68,7 +67,7 @@ This extraction is fast (pure AST parsing, no LLM) and produces facts that are s
 
 If both match, the file is current and skipped. The `force` flag in config overrides this check.
 
-### Stage 4: Concurrent LLM generation
+### Stage 4: Concurrent LLM generation and sidecar writes
 
 `generate_shadows_parallel()` processes all non-cached files concurrently using `gather_with_buffer()`, which bounds the number of in-flight async tasks. For each file:
 
@@ -80,19 +79,17 @@ If both match, the file is current and skipped. The `force` flag in config overr
 6. Merge AST-extracted facts with LLM-extracted facts
 7. Write the shadow doc, findings, symbols, topic signature, and facts sidecars
 
-### Stage 5: Sidecar writes
-
 Each processed file produces up to five output files under `.osoji/`:
 
 - `.osoji/shadow/<path>.shadow.md` -- the prose shadow doc with header
 - `.osoji/findings/<path>.findings.json` -- code quality findings
 - `.osoji/symbols/<path>.symbols.json` -- symbol definitions with roles
-- `.osoji/signatures/<path>.sig.json` -- topic signature for coverage analysis
+- `.osoji/signatures/<path>.signature.json` -- topic signature for coverage analysis
 - `.osoji/facts/<path>.facts.json` -- structured import/export/call/string facts
 
-### Stage 6: Directory roll-ups
+### Stage 5: Directory roll-ups
 
-After all files are processed, `generate_directory_shadows()` works bottom-up through the directory tree. For each directory, it:
+After all files are processed, `generate_directory_shadows()` uses dependency-based parallelism -- leaf directories are processed first, and parent directories are processed once all their children complete. For each directory, it:
 
 1. Collects the shadow doc bodies of direct child files and subdirectories
 2. Computes a `children_hash` (Merkle-style hash of child content hashes)
@@ -102,7 +99,7 @@ After all files are processed, `generate_directory_shadows()` works bottom-up th
 
 This bottom-up ordering ensures that when a directory is processed, all its children (including subdirectories) already have current shadow docs. The Merkle-style children hash means a change in any file propagates staleness up through all ancestor directories.
 
-### Stage 7: Orphan cleanup
+### Stage 6: Orphan cleanup
 
 After generation completes, shadow docs whose corresponding source files no longer exist are removed. This prevents stale documentation from accumulating as files are deleted or renamed.
 
@@ -138,7 +135,7 @@ Each shadow doc header contains:
 ```
 
 - **`@source-hash`** is the hash of the source file content at generation time. If the source file changes, this hash will not match `compute_file_hash()`, and the shadow doc is stale.
-- **`@impl-hash`** is a composite hash over all Python files in `src/osoji/` that could affect shadow output (excluding CLI, hooks, observatory, and safety modules). If the generation prompts, tool schemas, or pipeline logic change, this hash changes, and all shadow docs become stale.
+- **`@impl-hash`** is a composite hash over all Python files in `src/osoji/` that could affect shadow output (excluding CLI, hooks, observatory, stats, and safety modules). If the generation prompts, tool schemas, or pipeline logic change, this hash changes, and all shadow docs become stale.
 
 This two-hash scheme means shadow docs are regenerated when either the code changes or the analysis tool changes, but not when unrelated project files change.
 

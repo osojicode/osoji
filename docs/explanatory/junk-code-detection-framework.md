@@ -53,7 +53,7 @@ Every confirmed junk finding shares the same structure:
 - `name` -- identifier of the junk item (function name, parameter name, dependency name)
 - `kind` -- what type of thing it is: `function`, `class`, `config_field`, `parameter`, `dependency`, `cicd_job`, etc.
 - `category` -- the classification: `dead_symbol`, `unactuated_config`, `dead_parameter`, `dead_dependency`, `dead_cicd`, `orphaned_file`
-- `line_start`, `line_end` -- source location (with validation that `line_end >= line_start`)
+- `line_start`, `line_end` (nullable) -- source location (with validation that `line_end >= line_start` when `line_end` is present)
 - `confidence` -- float between 0.0 and 1.0
 - `confidence_source` -- how the confidence was determined: `"ast_proven"`, `"llm_inferred"`, or `"heuristic"`
 - `reason` -- human-readable explanation of why this is junk
@@ -85,7 +85,7 @@ JunkAnalyzer (ABC)
   +-- analyze()               -> JunkAnalysisResult  (sync wrapper)
 ```
 
-The `analyze()` method is a sync wrapper that creates an LLM provider and rate limiter via `create_runtime()`, runs `analyze_async()`, and cleans up. This allows analyzers to be invoked both from the async audit pipeline and from standalone CLI commands.
+The `analyze()` method is a sync wrapper that creates an LLM provider via `create_runtime()` (the rate limiter return value is discarded), runs `analyze_async()`, and cleans up. This allows analyzers to be invoked both from the async audit pipeline and from standalone CLI commands.
 
 Before running, `analyze()` checks for the presence of `.osoji/symbols/` -- if no symbols data exists, the analyzer skips with a message directing the user to run `osoji shadow .` first.
 
@@ -129,7 +129,7 @@ Detects unused package dependencies listed in manifest files.
 
 ### `DeadCICDAnalyzer` (`junk_cicd.py`)
 
-Detects stale CI/CD pipeline elements.
+Detects stale CI/CD pipeline elements. Note: `DeadCICDAnalyzer` overrides the base `analyze()` method and skips the symbols directory check, since CI/CD analysis does not depend on symbol data.
 
 **Phase 1:** Discovers CI/CD files (GitHub Actions workflows, Makefiles, GitLab CI, Dockerfiles) and extracts their elements (workflow jobs, makefile targets). Checks whether referenced paths and scripts exist in the repository.
 
@@ -139,7 +139,7 @@ Detects stale CI/CD pipeline elements.
 
 Detects source files that have no reachable purpose -- nothing imports them, and no entry point leads to them.
 
-**Phase 1:** Builds a purpose graph from symbol cross-references and import edges. Identifies entry points (CLI files, test files, main modules). Performs BFS from entry points to find reachable files. Files not reached by any entry point become candidates.
+**Phase 1:** Uses a 6-phase pipeline: (1) builds import edges deterministically from the facts database, (2) identifies entry points using a small LLM call, (3) performs a first BFS from entry points over import edges to find reachable files, (4) discovers semantic relationships (non-import connections like plugin registration, convention-based loading) using a small LLM call, (5) performs a second BFS incorporating the semantic edges to reach additional files, and (6) verifies remaining orphan candidates using a medium LLM call. Files not reached by either BFS pass and not cleared by verification become candidates.
 
 **Phase 2:** LLM verification evaluates each candidate with its shadow doc and purpose summary, distinguishing genuinely orphaned files from those registered through framework conventions or dynamic loading.
 
@@ -182,7 +182,7 @@ The audit orchestrator iterates this list, instantiates each analyzer, checks it
 To add a new junk analyzer:
 
 1. Create a new module (e.g., `junk_widgets.py`) with a class that subclasses `JunkAnalyzer`
-2. Implement the four abstract properties (`name`, `description`, `cli_flag`) and `analyze_async()`
+2. Implement the three abstract properties (`name`, `description`, `cli_flag`) and `analyze_async()`
 3. Follow the two-phase pattern: Phase 1 finds candidates cheaply, Phase 2 verifies with the LLM
 4. Define tool schemas in `tools.py` for the LLM verification output
 5. Add the analyzer class to `JUNK_ANALYZERS` in `audit.py`

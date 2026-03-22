@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from typing import Any
 
-# JSON Schema type → Python types.  Order matters: bool before int
-# because ``isinstance(True, int)`` is True in Python.
+# JSON Schema type → Python types.  Note: bool is a subclass of int;
+# see explicit handling in _validate.
 _TYPE_MAP: dict[str, tuple[type, ...]] = {
     "string": (str,),
     "boolean": (bool,),

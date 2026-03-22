@@ -37,7 +37,7 @@ which divides documentation into four types:
 | **Reference** | Information-oriented, precise API docs | Function signatures, config options |
 | **Explanatory** | Understanding-oriented, conceptual discussion | "Why we chose event sourcing" |
 
-Files that don't fit any Diataxis category are flagged as **debris** -- errors
+Files that don't fit any Diataxis category are flagged as **process_artifact** -- errors
 that should be deleted or reclassified.
 
 ---
@@ -101,7 +101,7 @@ respected.
 | Phase | Name | Type | What it does |
 |-------|------|------|-------------|
 | 2 | Doc analysis | LLM | Classifies each doc file by Diataxis type, matches it to relevant source files via shadow docs, validates accuracy with evidence quotes. |
-| 3 | Debris verification | LLM | Loads code debris findings from `.osoji/findings/`, verifies `dead_code` and `latent_bug` findings against cross-file evidence from the facts database. False positives are suppressed. |
+| 3 | Debris verification | LLM | Loads code debris findings from `.osoji/findings/`, verifies `dead_code`, `latent_bug`, and `stale_comment` findings against cross-file evidence from the facts database. False positives are suppressed. |
 | 3.5 | Obligation checking | Pure Python | Checks for implicit string contracts across files (no LLM calls). Only runs when `--obligations` is passed. |
 | 4 | Junk analysis | LLM + AST | Runs opt-in junk analyzers (dead code, dead params, dead plumbing, dead deps, dead CI/CD, orphaned files). Only runs when specific flags are passed. |
 
@@ -227,12 +227,12 @@ for a complete scorecard.*
 ## Errors (blocking)
 
 ### `docs/meeting-notes.md`
-**Category**: debris
+**Category**: process_artifact
 **Issue**: Documentation debris: Process artifact (meeting notes)
 **Remediation**: Delete this file
 
 ### `docs/migration-plan-2025.md`
-**Category**: debris
+**Category**: process_artifact
 **Issue**: Documentation debris: Completed migration plan
 **Remediation**: Delete this file
 
@@ -408,7 +408,7 @@ The JSON structure:
     {
       "path": "docs/meeting-notes.md",
       "severity": "error",
-      "category": "debris",
+      "category": "process_artifact",
       "message": "Documentation debris: Process artifact (meeting notes)",
       "remediation": "Delete this file",
       "line_start": null,
@@ -717,7 +717,7 @@ Key fields:
 
 | Field | Description |
 |-------|-------------|
-| `classification` | Diataxis type: `tutorial`, `how-to`, `reference`, `explanatory`, or `debris`. |
+| `classification` | Diataxis type: `tutorial`, `how-to`, `reference`, `explanatory`, or `process_artifact`. |
 | `confidence` | LLM's confidence in the classification (0.0-1.0). |
 | `matched_shadows` | Source files that this doc references or covers. |
 | `findings` | Accuracy errors with evidence trails back to shadow docs. |
