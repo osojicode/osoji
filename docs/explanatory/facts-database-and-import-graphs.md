@@ -126,7 +126,7 @@ The `resolve_import_source` method handles multiple import styles:
 
 - **Relative imports** (Python `..foo.bar`, JS `./foo`): resolved relative to the importing file's directory, walking up directories for each dot level
 - **Absolute imports** (Python `osoji.facts`, JS `@scope/package`): checked against known project files, trying both direct matches and `src/` prefixed paths
-- **File matching**: candidates are tested with common extensions (`.py`, `.ts`, `.tsx`, `.js`, `.jsx`, `.go`, `.rs`) and index files (`__init__.py`, `index.ts`, `index.js`, `mod.rs`)
+- **File matching**: candidates are tested with common extensions (`.py`, `.ts`, `.tsx`, `.js`, `.jsx`, `.go`, `.rs`) and index files (`__init__.py`, `index.ts`, `index.js`, `index.tsx`, `mod.rs`)
 
 Returns `None` for external packages (imports that resolve to no project file), which is the key signal for the string contract checker's `_is_external_package` method.
 

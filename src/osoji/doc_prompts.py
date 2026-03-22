@@ -624,8 +624,9 @@ async def build_doc_prompts_async(
     scorecard: Scorecard,
     rate_limiter: RateLimiter | None = None,
 ) -> DocPromptsResult:
-    """Run the full 4-stage doc-prompts pipeline.
+    """Run the full 5-stage doc-prompts pipeline.
 
+    Stage 0:   Metadata loading
     Stage 1+2: Concept inventory (LLM)
     Stage 3:   Coverage mapping (pure Python)
     Stage 4:   Gap analysis + prompts (LLM)

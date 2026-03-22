@@ -107,7 +107,7 @@ Symbols proven dead by AST analysis (zero references and no dynamic usage patter
 
 Detects function parameters that no caller ever passes.
 
-**Phase 1:** For each exported function with optional parameters, scans all call sites in the project. If a parameter has a default value and no call site passes it, it becomes a candidate.
+**Phase 1:** For each exported function with optional parameters, checks whether the function has importers via FactsDB. If it does, scans call sites in the defining file and all importer files. If a parameter has a default value and no call site passes it, it becomes a candidate.
 
 **Phase 2:** Sends candidates to the LLM with the function definition and all call site contexts. The LLM verifies whether the parameter is truly dead or is used via keyword arguments, spread operators, or other patterns that grep-based scanning might miss. It also identifies "gated branches" -- code paths inside the function that are unreachable because the parameter is never passed with a non-default value.
 
@@ -115,7 +115,7 @@ Detects function parameters that no caller ever passes.
 
 Detects unactuated configuration obligations -- schema fields or config options that are defined but never read at runtime.
 
-**Phase 1:** Scans for configuration schemas (Pydantic models, dataclass definitions, JSON schemas) and cross-references their fields against runtime usage in the codebase.
+**Phase 1:** Identifies schema files via `load_files_by_role(config, "schema")`, then uses an LLM call to extract obligation-bearing fields -- fields whose names and context promise the system will enforce a runtime behavior (e.g., timeouts, rate limits, max retries, size limits, TTLs). These fields are then cross-referenced against runtime usage in the codebase.
 
 **Phase 2:** LLM verification confirms whether each unactuated field is genuinely unused or is accessed through dynamic patterns (serialization, `**kwargs` unpacking, reflection).
 
@@ -139,7 +139,7 @@ Detects stale CI/CD pipeline elements. Note: `DeadCICDAnalyzer` overrides the ba
 
 Detects source files that have no reachable purpose -- nothing imports them, and no entry point leads to them.
 
-**Phase 1:** Uses a 6-phase pipeline: (1) builds import edges deterministically from the facts database, (2) identifies entry points using a small LLM call, (3) performs a first BFS from entry points over import edges to find reachable files, (4) discovers semantic relationships (non-import connections like plugin registration, convention-based loading) using a small LLM call, (5) performs a second BFS incorporating the semantic edges to reach additional files, and (6) verifies remaining orphan candidates using a medium LLM call. Files not reached by either BFS pass and not cleared by verification become candidates.
+**Phase 1:** Uses a 6-phase pipeline: (1) builds import edges deterministically from the symbols database via `load_all_symbols()`, (2) identifies entry points using a small LLM call, (3) performs a first BFS from entry points over import edges to find reachable files, (4) discovers semantic relationships (non-import connections like plugin registration, convention-based loading) using a small LLM call, (5) performs a second BFS incorporating the semantic edges to reach additional files, and (6) verifies remaining orphan candidates using a medium LLM call. Files not reached by either BFS pass and not cleared by verification become candidates.
 
 **Phase 2:** LLM verification evaluates each candidate with its shadow doc and purpose summary, distinguishing genuinely orphaned files from those registered through framework conventions or dynamic loading.
 

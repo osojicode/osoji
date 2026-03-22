@@ -44,7 +44,7 @@ The directory-level equivalent, `SUBMIT_DIRECTORY_SHADOW_DOC_TOOL`, captures a `
 
 ### Phase 3.5 -- Obligations
 
-- Obligation extraction and verification tools -- schemas for identifying and validating implicit string contracts between files
+- Obligation checking is pure Python (no LLM calls, no tool schemas). It uses the FactsDB to detect implicit string contracts across files.
 
 ### Phase 4 -- Junk Detection Tools
 
@@ -129,7 +129,7 @@ Schema validation errors - please re-call the tool with corrected values:
 
 Because the error messages use plain language and dot-path notation, the LLM can understand exactly which fields failed and how to fix them. This is why `_err()` produces prose-like strings (`"expected integer, got string"`) rather than machine-structured error objects -- the LLM is the consumer.
 
-The retry logic in `LiteLLMProvider._build_tool_feedback()` also handles the case where the LLM fails to call the required tool at all. If `tool_choice` forces a specific tool but the response lacks that tool call, the provider sends a reminder message and optionally doubles `max_tokens` if the stop reason was `"length"` (the LLM may have run out of output space before emitting the tool call).
+The retry loop in `LiteLLMProvider.complete()` also handles the case where the LLM fails to call the required tool at all. If `tool_choice` forces a specific tool but the response lacks that tool call, the provider sends a reminder message and optionally doubles `max_tokens` if the stop reason was `"length"` (the LLM may have run out of output space before emitting the tool call). The `_build_tool_feedback()` helper constructs the validation error messages for tool calls that were made but contained schema violations.
 
 ### Custom validators beyond schema
 

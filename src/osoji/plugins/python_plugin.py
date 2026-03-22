@@ -466,7 +466,6 @@ def _normalize_path(path: Path, root: Path) -> str:
 def _resolve_python_import(
     source: str,
     importing_file: str,
-    project_root: Path,
     file_set: set[str],
 ) -> str | None:
     """Resolve a Python import source specifier to a project-relative path.
@@ -607,7 +606,7 @@ class PythonPlugin(LanguagePlugin):
             imap: dict[str, tuple[str, str]] = {}
             for imp in ext.imports:
                 resolved = _resolve_python_import(
-                    imp["source"], rel, project_root, file_set
+                    imp["source"], rel, file_set
                 )
                 if not resolved:
                     continue

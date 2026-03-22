@@ -128,7 +128,7 @@ The patterns intentionally exclude common generic/CI usernames (`test`, `user`, 
 
 ### Install hooks
 
-To install Osoji's pre-commit and pre-push hooks:
+To install Osoji's git hooks:
 
 ```bash
 osoji hooks install
@@ -138,6 +138,8 @@ This installs two hooks by default:
 
 - **pre-commit**: Runs `osoji safety check` (blocks commit on failure) then `osoji check .` (marks stale shadow docs, stages updates)
 - **pre-push**: Runs `osoji check .` and warns about stale shadow docs (does not block push)
+
+A **post-commit** hook is also available but disabled by default. Enable it programmatically via `install_hooks(repo_path, post_commit=True)`.
 
 **Output:**
 
@@ -172,7 +174,7 @@ To remove all Osoji-installed hooks:
 osoji hooks uninstall
 ```
 
-This only removes hooks that contain the `osoji` marker -- non-Osoji hooks are left untouched. The command checks each hook file for the word "osoji" before removing it.
+This only removes hooks that contain the `osoji` marker -- non-Osoji hooks are left untouched. The command checks each hook file for the word "osoji" (case-insensitive) before removing it.
 
 **Output:**
 

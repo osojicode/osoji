@@ -202,8 +202,8 @@ tutorial      1       1      100%
 
 Category                Count
 ----------------------  -----
-outdated_reference      2
-wrong_parameter_name    1
+obsolete_reference      2
+incorrect_content       1
 
 ### Junk code by category
 
@@ -237,7 +237,7 @@ for a complete scorecard.*
 **Remediation**: Delete this file
 
 ### `docs/api-reference.md`
-**Category**: doc_outdated_reference
+**Category**: doc_obsolete_reference
 **Issue**: References `UserManager.create()` which was renamed to
 `UserManager.register()` [evidence: src/models/user.py.shadow.md --
 "create_user was renamed to register_user in commit abc123"]
@@ -290,10 +290,10 @@ completed migration plans, and abandoned drafts.
 
 Breaks down documentation errors by type. Common categories:
 
-- `outdated_reference` -- Doc references a renamed/removed function or class.
-- `wrong_parameter_name` -- Doc lists a parameter that no longer exists.
-- `contradicts_implementation` -- Doc describes behavior that differs from code.
-- `missing_parameter` -- Doc omits a parameter that exists in the code.
+- `stale_content` -- Doc contains information that was once accurate but is now outdated.
+- `incorrect_content` -- Doc makes factual claims that are wrong.
+- `obsolete_reference` -- Doc references a renamed or removed function, class, or API.
+- `misleading_claim` -- Doc describes behavior that differs from the implementation.
 
 #### Junk code by category
 
@@ -301,7 +301,7 @@ Breaks down code debris by type:
 
 - `dead_code` -- Unused functions, unreachable branches.
 - `stale_comment` -- Comments that contradict the current code.
-- `commented_out` -- Commented-out code blocks (3+ lines).
+- `commented_out_code` -- Commented-out code blocks (3+ lines).
 - `misleading_docstring` -- Docstrings that don't match the implementation.
 
 #### Worst files by junk fraction
@@ -433,8 +433,13 @@ The JSON structure:
     }
   ],
   "config": {
-    "provider": "anthropic",
-    "model_medium": "claude-sonnet-4-20250514"
+    "resolution_order": ["env_vars", "cli_flags", "local_file", "project_file", "global_file", "built_in"],
+    "provider": {"value": "anthropic", "source": "built_in"},
+    "models": {
+      "small": {"value": "claude-haiku-4-5-20251001", "source": "built_in"},
+      "medium": {"value": "claude-sonnet-4-20250514", "source": "built_in"},
+      "large": {"value": "claude-sonnet-4-20250514", "source": "built_in"}
+    }
   },
   "scorecard": {
     "coverage_pct": 66.7,

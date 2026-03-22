@@ -748,7 +748,7 @@ async def analyze_docs_async(
             )
 
             # Tier 2: Small-model topic matching (always runs)
-            haiku_matches, _haiku_in, _haiku_out, doc_topic_signature = await _match_topics_async(
+            topic_matches, _topic_in, _topic_out, doc_topic_signature = await _match_topics_async(
                 provider, config, content, dir_summaries
             )
 
@@ -756,7 +756,7 @@ async def analyze_docs_async(
             all_sources: dict[str, Path] = {}
             for p in explicit_refs:
                 all_sources[str(p).replace("\\", "/")] = p
-            for p in haiku_matches:
+            for p in topic_matches:
                 key = str(p).replace("\\", "/")
                 if key not in all_sources:
                     all_sources[key] = p
@@ -791,7 +791,7 @@ async def analyze_docs_async(
                 non_errors = [f for f in analysis.findings if f.severity != "error"]
                 analysis.findings = non_errors + verified
 
-            # Attach topic signature from Haiku matching
+            # Attach topic signature from small-model matching
             analysis.topic_signature = doc_topic_signature
 
             async with lock:
