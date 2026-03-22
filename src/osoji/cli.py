@@ -206,8 +206,6 @@ def diff(ctx: click.Context, base_ref: str, update: bool, output_format: str, pr
         verbose=state.verbose,
         quiet=state.quiet,
     )
-    _emit_config_banner(config)
-
     try:
         report = run_diff(config, base_ref)
     except RuntimeError as e:
@@ -218,6 +216,7 @@ def diff(ctx: click.Context, base_ref: str, update: bool, output_format: str, pr
         return
 
     if update and report.stale_shadows:
+        _emit_config_banner(config)
         click.echo("Osoji: Regenerating stale shadow documentation...")
         try:
             success = generate_shadow_docs(config, verbose=state.verbose)

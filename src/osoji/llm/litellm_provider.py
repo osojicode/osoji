@@ -28,7 +28,7 @@ from .types import (
 from .validate import validate_tool_input
 
 _MAX_TOOL_VALIDATION_ATTEMPTS = 3
-_DEFAULT_LLM_TIMEOUT = 300  # seconds; override with OSOJI_LLM_TIMEOUT env var
+_DEFAULT_LLM_TIMEOUT = 600  # seconds; override with OSOJI_LLM_TIMEOUT env var
 
 logger = logging.getLogger(__name__)
 
