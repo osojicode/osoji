@@ -260,7 +260,9 @@ class ClaudeCodeProvider(LLMProvider):
             "-p",
             "--output-format", "json",
             "--no-session-persistence",
-            "--bare",
+            "--strict-mcp-config",
+            "--disable-slash-commands",
+            "--settings", json.dumps({"claudeMdExcludes": ["**/*"]}),
             "--tools", "",
         ]
 

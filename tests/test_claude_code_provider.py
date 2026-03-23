@@ -569,12 +569,13 @@ async def test_close_is_noop():
 
 
 # ------------------------------------------------------------------
-# --bare is NOT used (it disables OAuth subscription auth)
+# Context isolation: no --bare (kills OAuth), instead use granular
+# flags to block MCP, skills, and CLAUDE.md while keeping OAuth.
 # ------------------------------------------------------------------
 
 
 @pytest.mark.asyncio
-async def test_bare_flag_not_used():
+async def test_context_isolation_flags():
     p = _provider()
     response = _cli_response(result="ok")
     proc = _make_process(json.dumps(response).encode())
@@ -589,6 +590,13 @@ async def test_bare_flag_not_used():
     call_args = mock_exec.call_args[0]
     assert "--bare" not in call_args
     assert "--no-session-persistence" in call_args
+    assert "--strict-mcp-config" in call_args
+    assert "--disable-slash-commands" in call_args
+    assert "--settings" in call_args
+    # The settings arg should contain claudeMdExcludes
+    settings_idx = call_args.index("--settings")
+    settings_val = call_args[settings_idx + 1]
+    assert "claudeMdExcludes" in settings_val
 
 
 # ------------------------------------------------------------------
