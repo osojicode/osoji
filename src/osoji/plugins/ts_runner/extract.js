@@ -15,10 +15,16 @@
 const path = require("path");
 const { createRequire } = require("module");
 
-// Resolve ts-morph from the CWD (the target project), not from this script's
-// directory.  ts-morph is a devDependency of the project being analysed.
-const cwdRequire = createRequire(path.join(process.cwd(), "package.json"));
-const { Project, SyntaxKind } = cwdRequire("ts-morph");
+// Try to resolve ts-morph from this script's own node_modules first (installed
+// by osoji), then fall back to the target project's node_modules.
+let Project, SyntaxKind;
+const scriptRequire = createRequire(path.join(__dirname, "package.json"));
+try {
+  ({ Project, SyntaxKind } = scriptRequire("ts-morph"));
+} catch (_) {
+  const cwdRequire = createRequire(path.join(process.cwd(), "package.json"));
+  ({ Project, SyntaxKind } = cwdRequire("ts-morph"));
+}
 
 // ---------------------------------------------------------------------------
 // Framework decorator detection

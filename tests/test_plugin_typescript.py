@@ -31,26 +31,26 @@ def test_check_available_no_node(plugin, tmp_path):
 
 
 def test_check_available_no_ts_morph(plugin, tmp_path):
-    import subprocess as sp
+    """When ts-morph check fails and npm install also fails, raise."""
+    failed = MagicMock(returncode=1)
     with patch("osoji.plugins.typescript_plugin.shutil.which", return_value="/usr/bin/node"):
         with patch(
             "osoji.plugins.typescript_plugin.subprocess.run",
-            side_effect=sp.CalledProcessError(1, "node"),
+            return_value=failed,
         ):
-            with pytest.raises(PluginUnavailableError, match="ts-morph not found"):
+            with pytest.raises(PluginUnavailableError, match="Failed to install"):
                 plugin.check_available(tmp_path)
 
 
 def test_check_available_ts_morph_not_found(plugin, tmp_path):
-    """subprocess.CalledProcessError when require('ts-morph') fails."""
-    import subprocess as sp
-
-    with patch("osoji.plugins.typescript_plugin.shutil.which", return_value="/usr/bin/node"):
+    """When ts-morph check fails and npm not available, raise."""
+    failed = MagicMock(returncode=1)
+    with patch("osoji.plugins.typescript_plugin.shutil.which", side_effect=lambda x: "/usr/bin/node" if x == "node" else None):
         with patch(
             "osoji.plugins.typescript_plugin.subprocess.run",
-            side_effect=sp.CalledProcessError(1, "node"),
+            return_value=failed,
         ):
-            with pytest.raises(PluginUnavailableError):
+            with pytest.raises(PluginUnavailableError, match="npm not available"):
                 plugin.check_available(tmp_path)
 
 

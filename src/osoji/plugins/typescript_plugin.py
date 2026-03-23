@@ -133,18 +133,40 @@ class TypeScriptPlugin(LanguagePlugin):
                 "Node.js not found",
                 "Install Node.js: https://nodejs.org",
             )
-        try:
-            subprocess.run(
-                ["node", "-e", "require('ts-morph')"],
-                cwd=str(project_root),
-                capture_output=True,
-                timeout=10,
-                check=True,
-            )
-        except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+
+        ts_runner_dir = Path(__file__).parent / "ts_runner"
+
+        # Check if ts-morph is available from the runner's own node_modules
+        # or from the target project.
+        check = subprocess.run(
+            ["node", "-e",
+             "try { require(require('path').join("
+             f"'{ts_runner_dir.as_posix()}', 'node_modules', 'ts-morph')) }}"
+             " catch(_) { require('ts-morph') }"],
+            cwd=str(project_root),
+            capture_output=True,
+            timeout=10,
+        )
+        if check.returncode == 0:
+            return
+
+        # Auto-install ts-morph in the runner directory
+        npm = shutil.which("npm")
+        if not npm:
             raise PluginUnavailableError(
-                "ts-morph not found",
-                "Run: npm install --save-dev ts-morph",
+                "ts-morph not found and npm not available to install it",
+                "Install Node.js (includes npm): https://nodejs.org",
+            )
+        install = subprocess.run(
+            [npm, "install", "--no-audit", "--no-fund"],
+            cwd=str(ts_runner_dir),
+            capture_output=True,
+            timeout=120,
+        )
+        if install.returncode != 0:
+            raise PluginUnavailableError(
+                "Failed to install ts-morph",
+                f"Run manually: cd {ts_runner_dir} && npm install",
             )
 
     def extract_project_facts(
