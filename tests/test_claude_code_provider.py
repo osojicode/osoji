@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import os
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -419,6 +420,30 @@ async def test_invalid_json_raises():
 
 
 # ------------------------------------------------------------------
+# Environment variable filtering
+# ------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_anthropic_api_key_stripped_from_subprocess_env():
+    """ANTHROPIC_API_KEY must not leak to CLI subprocess (would use API credits)."""
+    p = _provider()
+    response = _cli_response(result="ok")
+    proc = _make_process(json.dumps(response).encode())
+
+    with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "sk-test-key"}):
+        with patch("asyncio.create_subprocess_exec", return_value=proc) as mock_exec:
+            await p.complete(
+                [Message(role=MessageRole.USER, content="Hi")],
+                system=None,
+                options=CompletionOptions(model="sonnet"),
+            )
+
+    env = mock_exec.call_args[1]["env"]
+    assert "ANTHROPIC_API_KEY" not in env
+
+
+# ------------------------------------------------------------------
 # Prompts always piped via stdin
 # ------------------------------------------------------------------
 
@@ -544,12 +569,12 @@ async def test_close_is_noop():
 
 
 # ------------------------------------------------------------------
-# --bare flag always present
+# --bare is NOT used (it disables OAuth subscription auth)
 # ------------------------------------------------------------------
 
 
 @pytest.mark.asyncio
-async def test_bare_flag_always_present():
+async def test_bare_flag_not_used():
     p = _provider()
     response = _cli_response(result="ok")
     proc = _make_process(json.dumps(response).encode())
@@ -562,7 +587,7 @@ async def test_bare_flag_always_present():
         )
 
     call_args = mock_exec.call_args[0]
-    assert "--bare" in call_args
+    assert "--bare" not in call_args
     assert "--no-session-persistence" in call_args
 
 

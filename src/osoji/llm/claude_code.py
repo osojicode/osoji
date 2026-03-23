@@ -260,7 +260,6 @@ class ClaudeCodeProvider(LLMProvider):
             "-p",
             "--output-format", "json",
             "--no-session-persistence",
-            "--bare",
             "--tools", "",
         ]
 
@@ -295,11 +294,15 @@ class ClaudeCodeProvider(LLMProvider):
     ) -> dict[str, Any]:
         timeout = int(os.environ.get("OSOJI_LLM_TIMEOUT", _DEFAULT_LLM_TIMEOUT))
 
+        # Strip ANTHROPIC_API_KEY so the CLI uses OAuth subscription auth
+        # instead of burning API credits.
+        env = {k: v for k, v in os.environ.items() if k != "ANTHROPIC_API_KEY"}
         proc = await asyncio.create_subprocess_exec(
             *args,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            env=env,
         )
         try:
             stdout, stderr = await asyncio.wait_for(
