@@ -959,7 +959,7 @@ def _make_shadow_progress(token_getter=None, retry_getter=None):
         symbols = {
             "cached": "[cached]",
             "generated": "[OK]",
-            "error": "[ERROR]",
+            "error": "[FAIL]",
             "timeout": "[TIMEOUT]",
             "rate_limit": "[RATE_LIMIT]",
             "processing": "[...]",
@@ -1069,6 +1069,9 @@ async def generate_shadows_parallel(
                 else:
                     status = "generated"
                 on_progress(completed, total, file_path, status)
+            if result.error and not config.quiet:
+                relative = file_path.relative_to(config.root_path)
+                print(f"\n  [error] {relative}: {result.error}", flush=True)
 
         return result
 
@@ -1361,7 +1364,7 @@ async def generate_shadow_docs_async(
             # In verbose mode, print each file on its own line
             def verbose_progress(completed: int, total: int, path: Path, status: str) -> None:
                 relative = path.relative_to(config.root_path)
-                symbols = {"cached": "[cached]", "generated": "[OK]", "error": "[ERROR]"}
+                symbols = {"cached": "[cached]", "generated": "[OK]", "error": "[FAIL]"}
                 in_tok, out_tok = token_getter()
                 tok_str = _format_tokens_short(in_tok, out_tok)
                 tok_suffix = f" {tok_str}" if tok_str else ""
@@ -1383,7 +1386,7 @@ async def generate_shadow_docs_async(
             _emit(config, f"\n{len(errors)} file(s) had errors:")
             for r in errors:
                 relative = r.path.relative_to(config.root_path)
-                _emit(config, f"  [ERROR] {relative}: {r.error}")
+                _emit(config, f"  [FAIL] {relative}: {r.error}")
 
         # Directory roll-ups (dependency-based parallelism)
         dir_start = time_module.monotonic()
@@ -1395,7 +1398,7 @@ async def generate_shadow_docs_async(
                 relative = path.relative_to(config.root_path)
                 if relative == Path("."):
                     relative = Path("(root)")
-                symbols = {"cached": "[cached]", "generated": "[OK]", "error": "[ERROR]", "empty": "[empty]", "processing": "[...]"}
+                symbols = {"cached": "[cached]", "generated": "[OK]", "error": "[FAIL]", "empty": "[empty]", "processing": "[...]"}
                 in_tok, out_tok = token_getter()
                 tok_str = _format_tokens_short(in_tok, out_tok)
                 tok_suffix = f" {tok_str}" if tok_str else ""
@@ -1417,7 +1420,7 @@ async def generate_shadow_docs_async(
                     relative = dir_path.relative_to(config.root_path)
                 except ValueError:
                     relative = dir_path
-                _emit(config, f"  [ERROR] {relative}/: {err_msg}")
+                _emit(config, f"  [FAIL] {relative}/: {err_msg}")
 
         # Extract doc-to-source references (no LLM calls)
         _emit(config, "\nExtracting doc references...")

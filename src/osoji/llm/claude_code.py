@@ -314,15 +314,24 @@ class ClaudeCodeProvider(LLMProvider):
             )
 
         stderr_text = stderr.decode("utf-8", errors="replace") if stderr else ""
+        stdout_text = stdout.decode("utf-8", errors="replace") if stdout else ""
 
         if proc.returncode != 0:
+            # Claude Code with --output-format json may put error info in
+            # stdout rather than stderr.  Extract it so callers see the real
+            # error message instead of an empty string.
+            error_detail = stderr_text
+            if not error_detail.strip() and stdout_text.strip():
+                try:
+                    data = json.loads(stdout_text)
+                    error_detail = data.get("result", stdout_text[:500])
+                except json.JSONDecodeError:
+                    error_detail = stdout_text[:500]
             raise ClaudeCodeCLIError(
                 exit_code=proc.returncode or 1,
-                stderr=stderr_text,
+                stderr=error_detail,
                 command=args,
             )
-
-        stdout_text = stdout.decode("utf-8", errors="replace") if stdout else ""
         try:
             data = json.loads(stdout_text)
         except json.JSONDecodeError as exc:

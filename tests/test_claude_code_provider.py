@@ -357,6 +357,39 @@ async def test_cli_error_raises_exception():
 
 
 @pytest.mark.asyncio
+async def test_cli_error_extracts_stdout_when_stderr_empty():
+    """When CLI exits non-zero with empty stderr, extract error from stdout."""
+    p = _provider()
+    error_response = json.dumps(
+        {"result": "Rate limit exceeded", "is_error": True}
+    ).encode()
+    proc = _make_process(error_response, returncode=1, stderr_data=b"")
+
+    with patch("asyncio.create_subprocess_exec", return_value=proc):
+        with pytest.raises(ClaudeCodeCLIError, match="Rate limit exceeded"):
+            await p.complete(
+                [Message(role=MessageRole.USER, content="Hi")],
+                system=None,
+                options=CompletionOptions(model="sonnet"),
+            )
+
+
+@pytest.mark.asyncio
+async def test_cli_error_extracts_raw_stdout_when_not_json():
+    """When CLI exits non-zero with empty stderr and non-JSON stdout, use raw text."""
+    p = _provider()
+    proc = _make_process(b"some raw error text", returncode=1, stderr_data=b"")
+
+    with patch("asyncio.create_subprocess_exec", return_value=proc):
+        with pytest.raises(ClaudeCodeCLIError, match="some raw error text"):
+            await p.complete(
+                [Message(role=MessageRole.USER, content="Hi")],
+                system=None,
+                options=CompletionOptions(model="sonnet"),
+            )
+
+
+@pytest.mark.asyncio
 async def test_is_error_response_raises():
     p = _provider()
     response = _cli_response(result="Something went wrong", is_error=True)

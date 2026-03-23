@@ -127,7 +127,7 @@ def _make_progress_default(config: Config, rate_limiter=None):
         symbols = {
             "ok": "[ok]",
             "debris": "[DEBRIS]",
-            "error": "[ERROR]",
+            "error": "[FAIL]",
             "skipped": "[skip]",
         }
         symbol = symbols.get(status, f"[{status}]")
@@ -152,7 +152,7 @@ def _make_progress_verbose(config: Config, rate_limiter=None):
         symbols = {
             "ok": "[ok]",
             "debris": "[DEBRIS]",
-            "error": "[ERROR]",
+            "error": "[FAIL]",
             "skipped": "[skip]",
         }
         symbol = symbols.get(status, f"[{status}]")
