@@ -101,6 +101,7 @@ def test_config_show_reports_project_override(monkeypatch, tmp_path):
     runner = CliRunner()
     home_dir = tmp_path / "home"
     monkeypatch.setenv("HOME", str(home_dir))
+    monkeypatch.setenv("USERPROFILE", str(home_dir))
 
     global_config = home_dir / ".config" / "osoji" / "config.toml"
     global_config.parent.mkdir(parents=True, exist_ok=True)

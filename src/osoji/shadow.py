@@ -351,7 +351,7 @@ def _merge_string_literals(
         entry: dict = {
             "value": value,
             "line": line,
-            "usage": ast_entry["usage"],
+            "usage": ast_entry.get("usage", ""),
             "context": ast_entry.get("context", ""),
         }
         if ast_entry.get("comparison_source"):

@@ -208,7 +208,7 @@ def _get_commits_since(root: Path, since_sha: str | None) -> list[dict[str, str]
 
     try:
         result = subprocess.run(
-            ["git", "log", f"{since_sha}..HEAD", "--pretty=%H|%s|%an|%cI"],
+            ["git", "log", f"{since_sha}..HEAD", "--pretty=%H%x00%s%x00%an%x00%cI"],
             cwd=root,
             capture_output=True,
             text=True,
@@ -222,7 +222,7 @@ def _get_commits_since(root: Path, since_sha: str | None) -> list[dict[str, str]
     for line in result.stdout.strip().splitlines():
         if not line:
             continue
-        parts = line.split("|", 3)
+        parts = line.split("\x00", 3)
         if len(parts) == 4:
             commits.append({
                 "sha": parts[0],

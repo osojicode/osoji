@@ -6,6 +6,9 @@ stochastic LLM-based tests with controlled false-positive rates.
 
 from scipy.stats import binom, binomtest
 
+_RELATIVE_DROP = 0.4
+_ALPHA = 0.01
+
 
 def compute_sample_size(p0: float) -> int:
     """Compute minimum N for one-sided binomial test.
@@ -16,8 +19,8 @@ def compute_sample_size(p0: float) -> int:
     Tuning: 1% false failure rate (alpha), 1% miss rate (power),
     detects 40% regression. N typically 10-68 trials.
     """
-    relative_drop = 0.4
-    alpha = 0.01
+    relative_drop = _RELATIVE_DROP
+    alpha = _ALPHA
     power = 0.99
     max_n = 70
     threshold = p0 * (1 - relative_drop)
@@ -41,8 +44,8 @@ def assert_pass_rate(k: int, n: int, p0: float) -> None:
     Raises if the observed pass rate fails to demonstrate it exceeds
     the regression threshold p0*(1-relative_drop) at the given alpha level.
     """
-    relative_drop = 0.4
-    alpha = 0.01
+    relative_drop = _RELATIVE_DROP
+    alpha = _ALPHA
     threshold = p0 * (1 - relative_drop)
     result = binomtest(k, n, threshold, alternative="greater")
     if result.pvalue >= alpha:

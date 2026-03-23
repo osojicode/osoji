@@ -130,7 +130,7 @@ class FactsDB:
         # Try direct path match (e.g., "osoji.facts" -> "src/osoji/facts.py")
         for known_file in self._files:
             # Check if the import maps to a known file
-            known_parts = known_file.replace("/", ".").replace(".py", "").replace(".ts", "").replace(".js", "")
+            known_parts = known_file.replace("/", ".").replace(".py", "").replace(".tsx", "").replace(".ts", "").replace(".jsx", "").replace(".js", "")
             if known_parts.endswith(source_specifier.replace("/", ".")):
                 return known_file
 

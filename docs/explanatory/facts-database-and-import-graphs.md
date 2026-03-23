@@ -157,7 +157,9 @@ The companion module `src/osoji/symbols.py` provides utilities for loading symbo
 
 **String contract checking** (`obligations.py`): Uses `string_entries_by_usage("checked", kind="identifier")` to build per-file checked string sets. Uses `imports_of` for the `_files_are_linked` check in fragility detection -- determining whether producer and consumer are connected through the import graph. Uses `resolve_import_source` to distinguish external packages from internal imports. See [string contract obligations](string-contract-obligations.md).
 
-**Documentation coverage analysis** (`doc_analysis.py`): Uses `docs_referencing` to map documentation files to the source files they cover. Uses import relationships to assess whether docs accurately reflect their referenced sources.
+**Documentation coverage analysis** (`doc_analysis.py`): Uses `get_file()` to look up doc-reference entries (populated by `osoji shadow .`) and extract the source files each doc covers from its `imports` field. Falls back to regex matching against shadow doc filenames when FactsDB lacks doc entries. Uses import relationships to assess whether docs accurately reflect their referenced sources.
+
+**Documentation diff** (`diff.py`): Uses `docs_referencing` to find documentation files that reference changed source files, enabling targeted documentation impact analysis.
 
 **Observatory bundle** (`observatory.py`): Uses `build_import_graph` via `_build_import_graph_edges` to emit the `import_graph` edge list in the export bundle. Uses `_build_facts_summary` to include per-file import/export/call data in file nodes.
 

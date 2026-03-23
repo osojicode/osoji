@@ -75,8 +75,8 @@ def _is_test_like_path(path: str) -> bool:
         or path_lower.startswith("tests/")
         or ".test." in path_lower
         or ".spec." in path_lower
-        or path_lower.endswith("_test.py")
-        or path_lower.endswith("_spec.rb")
+        or "_test." in path_lower
+        or "_spec." in path_lower
     )
 
 
@@ -146,7 +146,7 @@ def _select_shadow_excerpts(
         )
         if excerpt:
             selected.append((label, excerpt))
-    return selected, max(0, len(ordered) - len(selected))
+    return selected, max(0, len(ordered) - limit)
 
 
 # --- Phase A: Obligation Extraction ---

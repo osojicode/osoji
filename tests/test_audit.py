@@ -1,4 +1,4 @@
-"""Tests for audit report formatting: console tables, HTML report, and uncovered files."""
+"""Tests for audit result formatting, serialization, and scorecard construction."""
 
 from pathlib import Path
 
@@ -8,7 +8,6 @@ from osoji.audit import (
     AuditIssue,
     AuditResult,
     _extract_all_symbols_from_debris,
-    _extract_symbol_from_debris,
     _format_scorecard_section,
     _infer_variable_type,
     _lookup_type_definitions,
@@ -595,21 +594,24 @@ class TestAuditResultRoundTrip:
 
 class TestExtractSymbolFromDebris:
     def test_backtick_quoted(self):
-        assert _extract_symbol_from_debris("`obligation_violations` field defined but never set") == "obligation_violations"
+        result = _extract_all_symbols_from_debris("`obligation_violations` field defined but never set")
+        assert result and result[0] == "obligation_violations"
 
     def test_backtick_quoted_first(self):
-        assert _extract_symbol_from_debris("The `build_scorecard` function is unused") == "build_scorecard"
+        result = _extract_all_symbols_from_debris("The `build_scorecard` function is unused")
+        assert result and result[0] == "build_scorecard"
 
     def test_bare_identifier(self):
-        assert _extract_symbol_from_debris("obligation_violations field defined but never set") == "obligation_violations"
+        result = _extract_all_symbols_from_debris("obligation_violations field defined but never set")
+        assert result and result[0] == "obligation_violations"
 
     def test_no_symbol(self):
         # All filler words — nothing symbol-like
-        assert _extract_symbol_from_debris("the code was not used and has been dead") is None
+        assert _extract_all_symbols_from_debris("the code was not used and has been dead") == []
 
     def test_short_words_skipped(self):
         # "id" is too short (2 chars), "the" and "was" are stopwords
-        assert _extract_symbol_from_debris("the id was set") is None
+        assert _extract_all_symbols_from_debris("the id was set") == []
 
 
 # --- PF-3: stale_comment cross-file verification ---
@@ -804,10 +806,11 @@ class TestExtractAllSymbolsFromDebris:
         # SHADOW_DIR should only come through fallback, not PascalCase
         assert "SHADOW_DIR" in symbols
 
-    def test_backward_compat_wrapper(self):
-        """_extract_symbol_from_debris returns first symbol."""
-        assert _extract_symbol_from_debris("`foo` and `bar`") == "foo"
-        assert _extract_symbol_from_debris("the code was dead") is None
+    def test_extract_first_symbol(self):
+        """_extract_all_symbols_from_debris returns list with first symbol."""
+        result = _extract_all_symbols_from_debris("`foo` and `bar`")
+        assert result and result[0] == "foo"
+        assert _extract_all_symbols_from_debris("the code was dead") == []
 
 
 # --- Type definition lookup ---

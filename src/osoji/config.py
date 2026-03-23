@@ -645,7 +645,7 @@ class Config:
 
     @property
     def project_config_path(self) -> Path:
-        """Return the local override policy path (.osoji.local.toml)."""
+        """Return the project-level local config path (.osoji.local.toml)."""
 
         return self.root_path / LOCAL_CONFIG_FILENAME
 

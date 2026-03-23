@@ -688,7 +688,7 @@ This directory is cleaned and recreated on every run.
 ### Per-doc analysis files
 
 Each documentation file analyzed in Phase 2 gets a JSON result at
-`.osoji/analysis/docs/<doc-path>.json`:
+`.osoji/analysis/docs/<doc-path>.analysis.json`:
 
 ```json
 {
@@ -702,7 +702,7 @@ Each documentation file analyzed in Phase 2 gets a JSON result at
   ],
   "findings": [
     {
-      "category": "outdated_reference",
+      "category": "obsolete_reference",
       "severity": "error",
       "description": "References UserManager.create() which was renamed to register()",
       "shadow_ref": "src/models/user.py.shadow.md",
@@ -731,7 +731,7 @@ Key fields:
 ### Per-analyzer junk files
 
 Each junk analyzer writes results grouped by source file at
-`.osoji/analysis/junk/<analyzer>/<source-path>.json`.
+`.osoji/analysis/junk/<analyzer>/<source-path>.<analyzer>.json`.
 
 ### Scorecard file
 

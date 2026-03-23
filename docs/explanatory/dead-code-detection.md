@@ -70,7 +70,7 @@ Files without complete AST coverage fall through to the grep path, implemented i
 
 4. **Classify candidates.** Symbols with zero external references become `zero_ref` candidates. Symbols with references below a dynamic threshold (10th percentile of non-zero counts, capped at 10) become `low_ref` candidates. Low-ref candidates include `GrepHit` objects with surrounding context lines for LLM review.
 
-5. **LLM verification.** Candidates are batched by defining file and sent to the LLM with the `verify_dead_code` tool. The LLM receives the full source file, its shadow documentation, and grep hit contexts. It returns a verdict for each symbol with a confidence score and reasoning.
+5. **LLM verification.** Candidates are batched by defining file and sent to the LLM with the `verify_dead_code` tool. The LLM receives the defining file content (truncated to 100,000 characters for very large files), its shadow documentation, and grep hit contexts. It returns a verdict for each symbol with a confidence score and reasoning.
 
 The grep path is necessary because AST facts are not always available -- for example, a Go or Rust file has no plugin yet, or a JavaScript file is in a project without `ts-morph` installed.
 
@@ -110,7 +110,7 @@ LLM verification of grep-path candidates is organized into batches grouped by de
 - **`MAX_SYMBOLS_PER_BATCH = 10`**: No batch contains more than 10 symbols.
 - **`MAX_EXTERNAL_FILES_PER_BATCH = 10`**: The total number of distinct external files referenced by grep hits in a batch is capped at 10.
 
-Batching by file serves an important purpose: all candidates in a batch share the same defining file, so the LLM receives the full file content once and can reason about all symbols in context. This is more efficient than one call per symbol and produces better results because the LLM can see relationships between symbols (e.g., one wraps another).
+Batching by file serves an important purpose: all candidates in a batch share the same defining file, so the LLM receives the file content once (truncated to 100,000 characters for very large files) and can reason about all symbols in context. This is more efficient than one call per symbol and produces better results because the LLM can see relationships between symbols (e.g., one wraps another).
 
 Batches are processed in parallel using `gather_with_buffer` from `async_utils.py`, which bounds the number of concurrent in-flight tasks to avoid resource exhaustion. Rate limiting is handled separately by the RateLimitedProvider wrapper.
 

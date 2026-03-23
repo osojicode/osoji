@@ -150,7 +150,7 @@ Each shadow doc header contains:
 ```
 
 - **`@source-hash`** is the hash of the source file content at generation time. If the source file changes, this hash will not match `compute_file_hash()`, and the shadow doc is stale.
-- **`@impl-hash`** is a composite hash over all Python files in `src/osoji/` that could affect shadow output (excluding CLI, hooks, observatory, stats, and safety modules). If the generation prompts, tool schemas, or pipeline logic change, this hash changes, and all shadow docs become stale.
+- **`@impl-hash`** is a composite hash over all Python files in `src/osoji/` that could affect shadow output (excluding `__init__.py`, CLI, hooks, observatory, stats, and safety modules). If the generation prompts, tool schemas, or pipeline logic change, this hash changes, and all shadow docs become stale.
 
 This two-hash scheme means shadow docs are regenerated when either the code changes or the analysis tool changes, but not when unrelated project files change.
 

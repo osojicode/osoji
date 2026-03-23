@@ -264,11 +264,16 @@ def build_scorecard(
         junk_total_lines += file_junk_lines
         junk_item_count += len(items)
 
+        file_cat_ranges: dict[str, list[tuple[int, int]]] = {}
         for it in items:
             cat = it["category"]
             junk_by_category[cat] = junk_by_category.get(cat, 0) + 1
-            item_lines = it["line_end"] - it["line_start"] + 1
-            junk_by_category_lines[cat] = junk_by_category_lines.get(cat, 0) + item_lines
+            file_cat_ranges.setdefault(cat, []).append((it["line_start"], it["line_end"]))
+        for cat, cat_ranges in file_cat_ranges.items():
+            merged_cat = merge_ranges(cat_ranges)
+            junk_by_category_lines[cat] = junk_by_category_lines.get(cat, 0) + sum(
+                end - start + 1 for start, end in merged_cat
+            )
 
         fraction = (file_junk_lines / file_lines) if file_lines > 0 else 0.0
         junk_entries.append(JunkCodeEntry(

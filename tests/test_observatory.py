@@ -576,8 +576,7 @@ def test_invalid_bundle_fails_schema_validation():
 
 
 def test_enriched_bundle_validates_with_all_fields(temp_dir):
-    """C1: Comprehensive test exercising A1 phantom-read fixes, B1 junk detail fields,
-    B2 doc analysis findings, and B3 origin fields."""
+    """Comprehensive test exercising junk detail fields, doc analysis findings, and origin fields."""
     content = "def run():\n    return 1\ndef old():\n    pass\n"
     _write_source(temp_dir, "src/app.py", content)
     _write_shadow(

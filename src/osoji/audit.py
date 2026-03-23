@@ -425,14 +425,6 @@ def _extract_all_symbols_from_debris(description: str) -> list[str]:
     return names
 
 
-def _extract_symbol_from_debris(description: str) -> str | None:
-    """Extract a plausible symbol name from a debris finding description.
-
-    Thin wrapper around _extract_all_symbols_from_debris for backward compat.
-    """
-    names = _extract_all_symbols_from_debris(description)
-    return names[0] if names else None
-
 
 def _lookup_type_definitions(
     config: Config,
@@ -1792,7 +1784,7 @@ def _html_coverage_section(scorecard: "Scorecard", shadow_content: dict[str, str
 
     # Coverage bar
     pct = scorecard.coverage_pct
-    color = f"var(--{_color_for_pct(pct).replace('green','success')})"
+    color = f"var(--{_color_for_pct(pct).replace('green','success').replace('coral','warning')})"
     parts.append(f'<div class="cov-bar-wrap"><div class="cov-bar-fill" style="width:{pct:.0f}%;background:{color}"></div></div>')
     parts.append(f'<p>{scorecard.covered_count}/{scorecard.total_source_count} source files covered ({pct:.0f}%)</p>')
 

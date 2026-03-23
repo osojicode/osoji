@@ -371,14 +371,16 @@ def _parse_pyproject_toml(content: str, path: str) -> list[DependencyCandidate]:
             ))
 
     # project.optional-dependencies
-    for group_deps in data.get("project", {}).get("optional-dependencies", {}).values():
+    _dev_group_names = {"dev", "develop", "development", "test", "testing", "lint", "docs"}
+    for group_name, group_deps in data.get("project", {}).get("optional-dependencies", {}).items():
+        is_dev = group_name.lower() in _dev_group_names
         for spec in group_deps:
             pkg = _extract_pkg_name(spec)
             if pkg:
                 candidates.append(DependencyCandidate(
                     manifest_path=path, package_name=pkg,
                     import_names=_resolve_import_names_heuristic(pkg, "python"),
-                    ecosystem="python", line_number=_find_line(pkg), is_dev=True,
+                    ecosystem="python", line_number=_find_line(pkg), is_dev=is_dev,
                 ))
 
     # tool.poetry.dependencies / tool.poetry.group.*.dependencies

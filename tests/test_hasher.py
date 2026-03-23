@@ -26,7 +26,7 @@ class TestComputeImplHash:
             f for f in all_py
             if f.relative_to(pkg_dir).as_posix() not in _IMPL_HASH_EXCLUDES
         ]
-        # Old whitelist had 8 files; auto-discovery should find many more
+        # Should find many more than 8 source files in the package
         assert len(included) > 8
 
     def test_excludes_are_respected(self):

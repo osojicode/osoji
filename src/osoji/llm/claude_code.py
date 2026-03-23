@@ -311,6 +311,7 @@ class ClaudeCodeProvider(LLMProvider):
             )
         except (asyncio.TimeoutError, TimeoutError):
             proc.kill()
+            await proc.wait()
             raise TimeoutError(
                 f"Claude Code CLI timed out after {timeout}s. "
                 f"Set OSOJI_LLM_TIMEOUT to a higher value (e.g. 1800)."

@@ -636,7 +636,7 @@ class PythonPlugin(LanguagePlugin):
                         resolved_name = orig_name
                     call_site_counts[(def_file, resolved_name)] += 1
                 else:
-                    # Self-file call
+                    # Unresolved call — assume same-file or external/builtin
                     call_site_counts[(rel, callee)] += 1
 
         # Populate call_sites on calls records

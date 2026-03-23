@@ -304,7 +304,7 @@ The hashing is performed by the `hasher` module:
   characters.
 - `compute_file_hash()` handles binary detection and encoding before hashing.
 - `compute_impl_hash()` hashes all implementation files, excluding those that
-  don't affect output (like `cli.py`, `hooks.py`, `observatory.py`, `stats.py`, and the `safety/` subpackage).
+  don't affect output (like `__init__.py`, `cli.py`, `hooks.py`, `observatory.py`, `stats.py`, and the `safety/` subpackage).
 
 ### Body sections
 

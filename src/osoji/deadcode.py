@@ -539,7 +539,7 @@ def _load_shadow_content(config: Config, relative_path: str) -> str:
 
 
 def _all_importers_ast_extracted(symbol_path: str, facts_db: FactsDB) -> bool:
-    """Check if the defining file AND all importers have AST-extracted facts."""
+    """Check if all importers of a symbol have AST-extracted facts."""
     for importer_path in facts_db.importers_of(symbol_path):
         importer_facts = facts_db.get_file(importer_path)
         if not importer_facts or importer_facts.extraction_method != "ast":

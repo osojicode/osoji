@@ -39,7 +39,7 @@ The key design decisions in this interface:
 
 - **`extract_project_facts` operates on the whole project, not individual files.** This allows plugins to perform cross-file analysis (like Python's import resolution) in a single pass rather than needing multiple iterations.
 
-- **`check_available` has a default no-op implementation.** Plugins with no external dependencies (like the Python plugin, which uses stdlib `ast`) inherit this default. Plugins with external requirements (like the TypeScript plugin, which needs Node.js) override it to raise `PluginUnavailableError` with an installation hint.
+- **`check_available` has a default no-op implementation.** Plugins with no external dependencies (like the Python plugin, which uses stdlib `ast`) inherit this default. Plugins with external requirements (like the TypeScript plugin, which needs Node.js) override it to check availability and auto-install dependencies when possible, raising `PluginUnavailableError` only when auto-installation fails.
 
 - **Input is a pre-filtered file list.** The `files` parameter contains paths already filtered by Osoji's walker (respecting `.gitignore`, `.osojiignore`, etc.). The plugin further filters to its own extensions.
 
@@ -75,7 +75,7 @@ class PluginUnavailableError(Exception):
         self.install_hint = install_hint
 ```
 
-This enables graceful degradation. When the TypeScript plugin cannot find Node.js or `ts-morph`, it raises `PluginUnavailableError("ts-morph not found", "Run: npm install --save-dev ts-morph")`. The caller can catch this, log the hint, and fall back to LLM-only extraction for those files. The system continues working -- just without the AST fast path for that language.
+This enables graceful degradation. When a plugin's dependencies cannot be satisfied, it raises `PluginUnavailableError` with a human-readable message and an installation hint. The caller can catch this, log the hint, and fall back to LLM-only extraction for those files. The system continues working -- just without the AST fast path for that language.
 
 ## The registry (`plugins/registry.py`)
 
@@ -184,7 +184,7 @@ Parse JSON -> dict[str, ExtractedFacts]
 
 **Key details:**
 
-- **`check_available`** verifies both `node` (via `shutil.which`) and `ts-morph` (via `node -e "require('ts-morph')"`) are installed. Missing either raises `PluginUnavailableError`.
+- **`check_available`** verifies `node` is available (via `shutil.which`), then checks whether `ts-morph` is installed either in the bundled runner's `node_modules` or in the target project. If `ts-morph` is missing, it auto-installs it in the runner directory via `npm install`. `PluginUnavailableError` is raised only if Node.js is not found or if npm is unavailable and auto-installation fails.
 
 - **Monorepo support.** `_find_all_tsconfigs` discovers `tsconfig.json` files scoped to directories containing actual source files (not gitignored data directories). `_detect_workspace_packages` reads `pnpm-workspace.yaml` or `package.json` workspaces to resolve internal package names to relative source directories.
 

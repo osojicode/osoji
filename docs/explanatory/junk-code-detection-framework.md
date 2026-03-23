@@ -17,7 +17,7 @@ Detecting these problems requires whole-project analysis, not single-file lintin
 
 ## The two-phase pattern
 
-Most junk analyzers in Osoji follow the same architectural pattern. DeadPlumbingAnalyzer and OrphanedFilesAnalyzer are exceptions: DeadPlumbingAnalyzer uses an LLM call in Phase 1 to extract obligation-bearing fields from schema files, and OrphanedFilesAnalyzer uses multiple LLM calls in Phase 1 (for entry point identification, semantic relationship discovery, and candidate verification). For the remaining analyzers, Phase 1 is purely static:
+Most junk analyzers in Osoji follow the same architectural pattern. DeadPlumbingAnalyzer, DeadDepsAnalyzer, and OrphanedFilesAnalyzer are exceptions: DeadPlumbingAnalyzer uses an LLM call in Phase 1 to extract obligation-bearing fields from schema files, DeadDepsAnalyzer uses small-model LLM calls in Phase 1 to resolve package names to import names and to classify zero-import dependencies before medium-model verification, and OrphanedFilesAnalyzer uses multiple LLM calls in Phase 1 (for entry point identification, semantic relationship discovery, and candidate verification). For the remaining analyzers, Phase 1 is purely static:
 
 ```
 Phase 1: Cheap candidate scanning          Phase 2: LLM verification
@@ -123,13 +123,13 @@ Detects unactuated configuration obligations -- schema fields or config options 
 
 Detects unused package dependencies listed in manifest files.
 
-**Phase 1:** Parses dependency manifests (`pyproject.toml`, `package.json`, `requirements.txt`, etc.), resolves package names to import names using a cache of known mismatches (e.g., `pillow` -> `PIL`, `pyyaml` -> `yaml`), and scans source files for imports matching each dependency.
+**Phase 1:** Parses dependency manifests (`pyproject.toml`, `package.json`, `requirements.txt`, etc.) and resolves package names to import names using a heuristic cache of known mismatches (e.g., `pillow` -> `PIL`, `pyyaml` -> `yaml`), falling back to a small-model LLM call for packages not in the cache. Scans source files for imports matching each dependency. Zero-import candidates are then pre-filtered against a build-tools cache and classified via a small-model LLM call to separate genuine candidates from build tools, type stubs, and other non-runtime dependencies.
 
-**Phase 2:** LLM verification distinguishes between truly unused dependencies and those used through indirect mechanisms (build tools, runtime plugins, type stubs, peer dependencies).
+**Phase 2:** Medium-model LLM verification distinguishes between truly unused dependencies and those used through indirect mechanisms (build tools, runtime plugins, type stubs, peer dependencies).
 
 ### `DeadCICDAnalyzer` (`junk_cicd.py`)
 
-Detects stale CI/CD pipeline elements. Note: `DeadCICDAnalyzer` overrides the base `analyze()` method and skips the symbols directory check, since CI/CD analysis does not depend on symbol data.
+Detects stale CI/CD pipeline elements. Note: `DeadCICDAnalyzer` overrides the base `analyze()` method and skips the symbols directory check, since CI/CD analysis does not depend on symbol data. `DeadDepsAnalyzer` similarly overrides `analyze()` and skips the symbols directory check.
 
 **Phase 1:** Discovers CI/CD files (GitHub Actions workflows, Makefiles, GitLab CI, Jenkinsfiles, CircleCI, Azure Pipelines, Travis CI) and extracts their elements (workflow jobs, makefile targets). Checks whether referenced paths and scripts exist in the repository.
 
