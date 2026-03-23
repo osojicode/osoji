@@ -197,6 +197,13 @@ class TypeScriptPlugin(LanguagePlugin):
         except FileNotFoundError:
             raise FactsExtractionError("node executable not found")
 
+        # Surface ts-morph diagnostics (warnings, file counts) from stderr
+        if proc.stderr:
+            import logging
+            logger = logging.getLogger(__name__)
+            for line in proc.stderr.strip().splitlines():
+                logger.info("[typescript] %s", line)
+
         if proc.returncode != 0:
             raise FactsExtractionError(
                 f"ts-morph extraction failed (exit {proc.returncode}): {proc.stderr[:500]}"

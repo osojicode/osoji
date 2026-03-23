@@ -146,37 +146,50 @@ process.stdin.on("end", () => {
     process.exit(1);
   }
 
-  // Create project from first tsconfig, add source files from others
-  const project = new Project({ tsConfigFilePath: tsconfigPaths[0] });
-  for (let i = 1; i < tsconfigPaths.length; i++) {
+  // Use first tsconfig for compiler options only — skip its file list so that
+  // monorepo roots with "files": [] don't start the project empty.
+  const project = new Project({
+    tsConfigFilePath: tsconfigPaths[0],
+    skipAddingFilesFromTsConfig: true,
+  });
+
+  // Load source files from ALL tsconfigs (including the first one)
+  for (const tc of tsconfigPaths) {
     try {
-      project.addSourceFilesFromTsConfig(tsconfigPaths[i]);
+      project.addSourceFilesFromTsConfig(tc);
     } catch (e) {
       process.stderr.write(
-        `Warning: could not load ${tsconfigPaths[i]}: ${e.message}\n`
+        `Warning: could not load ${tc}: ${e.message}\n`
       );
     }
   }
 
-  // For files not already in the project (common in monorepos), add directly
+  // Add remaining files not covered by any tsconfig
+  let addSkipped = 0;
   for (const relPath of filePaths) {
     if (!project.getSourceFile(relPath)) {
       try {
         project.addSourceFileAtPath(relPath);
       } catch (_) {
-        /* skip — file may not exist or may have errors */
+        addSkipped++;
       }
     }
+  }
+  if (addSkipped > 0) {
+    process.stderr.write(
+      `Note: ${addSkipped} file(s) could not be loaded by ts-morph\n`
+    );
   }
 
   // =========================================================================
   // Pass 1: Per-file extraction
   // =========================================================================
   const result = {};
+  let extractSkipped = 0;
 
   for (const relPath of filePaths) {
     const sourceFile = project.getSourceFile(relPath);
-    if (!sourceFile) continue;
+    if (!sourceFile) { extractSkipped++; continue; }
 
     const imports = [];
     const exports = [];
@@ -513,6 +526,13 @@ process.stdin.on("end", () => {
       call.call_sites = crossCallCounts[key] || 0;
     }
   }
+
+  const extracted = Object.keys(result).length;
+  process.stderr.write(
+    `ts-morph: extracted ${extracted}/${filePaths.length} files` +
+    (extractSkipped > 0 ? ` (${extractSkipped} not loadable)` : "") +
+    "\n"
+  );
 
   process.stdout.write(JSON.stringify(result));
 });
