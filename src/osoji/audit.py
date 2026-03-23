@@ -2119,7 +2119,7 @@ def _html_dead_docs_section(scorecard: "Scorecard") -> str:
 
 def _html_enforcement_section(scorecard: "Scorecard") -> str:
     """Build the enforcement section HTML."""
-    if scorecard.enforcement_by_schema is None:
+    if scorecard.enforcement_total_obligations is None:
         return ""
 
     parts: list[str] = []

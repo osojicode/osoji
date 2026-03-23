@@ -189,7 +189,7 @@ def scan_dead_param_candidates(
 
             # Check if function has optional parameters (from symbols data)
             parameters = sym.get("parameters", [])
-            opt_params = [(p["name"], line_start, True) for p in parameters if p.get("optional")]
+            opt_params = [(p["name"], line_start, p.get("has_default", True)) for p in parameters if p.get("optional")]
             if not opt_params:
                 continue
 

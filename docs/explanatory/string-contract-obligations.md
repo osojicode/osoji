@@ -36,11 +36,15 @@ The violation detection algorithm in `_check_violations` uses a ratio-based appr
 
 1. **Collect checked identifier strings.** For each file, gather all string literals with `usage == "checked"` and `kind == "identifier"`, filtering out occurrences that match heuristic exclusion patterns (external origins, file path checks, serialized key reads, external protocol literals, duck-typing patterns).
 
-2. **Remove noise.** Tool names (from Osoji's own LLM tool definitions), tool schema keys, common strings (like `"id"`, `"name"`, `"type"`), and strings shorter than 3 characters are excluded.
+2. **Remove tool names.** Tool names (from Osoji's own LLM tool definitions) are removed from the checked values set before the match/unmatch split.
 
-3. **Compute the match ratio.** The set of checked values is intersected with the global set of produced/defined values (from all files). The match ratio is: `len(matched) / len(checked_values)`.
+3. **Split matched vs unmatched.** The set of checked values is intersected with the global set of produced/defined values (from all files). Values present in the global set become `matched`; the rest become `unmatched`.
 
-4. **Apply the ratio logic:**
+4. **Post-filter unmatched only.** Noise filtering -- tool schema keys, common strings (like `"id"`, `"name"`, `"type"`), and strings shorter than 3 characters -- is applied only to the `unmatched` set, not to `matched`. This means matched values are preserved regardless of length or commonality.
+
+5. **Compute the match ratio.** The ratio uses the original `checked_values` length (after tool-name removal but before noise filtering) as the denominator: `len(matched) / len(checked_values)`. Because noise filtering only removes from `unmatched`, short or common strings that happen to match producers still count toward the numerator.
+
+6. **Apply the ratio logic:**
    - If *some* checked strings match producers/definers but others do not, the unmatched strings are violations. The confidence equals the match ratio.
    - If *zero* checked strings match any producer (ratio = 0), the entire set is treated as external references and skipped entirely.
 

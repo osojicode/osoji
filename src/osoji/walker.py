@@ -128,7 +128,7 @@ def discover_files(config: Config) -> list[Path]:
         relative = path.relative_to(config.root_path)
 
         # Skip .osoji directory early (our own output)
-        if str(relative).startswith(SHADOW_DIR):
+        if str(relative).startswith(SHADOW_DIR + "/") or str(relative) == SHADOW_DIR:
             continue
 
         # Check extension before expensive is_file() stat call

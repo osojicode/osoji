@@ -420,13 +420,13 @@ When `osoji check .` runs (without `--dry-run`), it does two things:
 1. **Injects a warning line** into stale shadow docs:
 
    ```
-   > WARNING STALE -- source content has changed since this doc was generated
+   > ⚠ STALE — source content has changed since this doc was generated
    ```
 
    or for impl staleness:
 
    ```
-   > WARNING STALE -- generation toolchain has changed since this doc was generated
+   > ⚠ STALE — generation toolchain has changed since this doc was generated
    ```
 
 2. **Writes a staleness manifest** to `.osoji/staleness.json`:

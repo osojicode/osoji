@@ -62,9 +62,9 @@ _PROVIDER_SPECS: dict[str, ProviderSpec] = {
     ),
 }
 
-_KNOWN_MODEL_PREFIXES = {spec.litellm_prefix for spec in _PROVIDER_SPECS.values()} | set(
-    _PROVIDER_SPECS
-)
+_KNOWN_MODEL_PREFIXES = {
+    spec.litellm_prefix for spec in _PROVIDER_SPECS.values() if spec.litellm_prefix
+} | set(_PROVIDER_SPECS)
 
 
 def provider_names() -> tuple[str, ...]:
@@ -98,6 +98,8 @@ def qualify_model_name(provider: str, model: str) -> str:
         prefix = stripped.split("/", 1)[0].lower()
         if prefix in _KNOWN_MODEL_PREFIXES:
             return stripped
+    if not spec.litellm_prefix:
+        return stripped
     return f"{spec.litellm_prefix}/{stripped}"
 
 

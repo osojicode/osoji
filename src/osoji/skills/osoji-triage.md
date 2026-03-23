@@ -140,10 +140,12 @@ and WHAT could be changed to prevent it.
 4. Draft a suggested detection approach.
 5. Assess false positive risk: could adding this detection produce false positives?
 
-**Important context**: Osoji's structured facts (`.osoji/facts/`) come from LLM
-extraction and may contain errors. When a finding seems wrong, consider whether the
-underlying facts extraction was the real culprit rather than the analysis phase that
-consumed those facts.
+**Important context**: Osoji's structured facts (`.osoji/facts/`) come from either
+deterministic AST plugin extraction or LLM extraction — the `extraction_method` field
+on each fact entry indicates which (`"ast"` for deterministic, `"llm"` for
+LLM-extracted). AST-extracted facts are reliable; LLM-extracted facts may contain
+errors. When a finding seems wrong, consider whether the underlying facts extraction
+was the real culprit rather than the analysis phase that consumed those facts.
 
 ## Phase D: Produce Structured Output
 

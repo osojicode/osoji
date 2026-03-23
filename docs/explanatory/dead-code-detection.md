@@ -50,7 +50,7 @@ When a file has been processed by a language plugin (such as the Python or TypeS
 
 1. **Load AST facts.** The `FactsDB` is instantiated from `.osoji/facts/` sidecar files. Each file's `extraction_method` field indicates whether facts came from AST parsing (`"ast"`) or LLM extraction (`"llm"`).
 
-2. **Check completeness.** The helper `_all_importers_ast_extracted` verifies that the defining file and every file that imports from it have `extraction_method == "ast"`. If any importer lacks AST facts, the file falls through to the grep path.
+2. **Check completeness.** First, the defining file itself is checked for `extraction_method == "ast"` (lines 586-588 of `deadcode.py`). Then the helper `_all_importers_ast_extracted` verifies that every file that imports from it also has `extraction_method == "ast"`. If either the defining file or any importer lacks AST facts, the file falls through to the grep path.
 
 3. **Query cross-file references.** For each exported symbol, `facts_db.cross_file_references(symbol_name, source_path)` searches all other files for imports, calls, member writes, and re-exports of that symbol name.
 

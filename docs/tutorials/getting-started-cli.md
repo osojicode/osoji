@@ -609,7 +609,7 @@ osoji hooks install
 
 # Selective installation
 osoji hooks install --no-pre-push            # pre-commit only
-osoji hooks install --no-pre-commit --post-commit  # post-commit only
+osoji hooks install --no-pre-commit --no-pre-push --post-commit  # post-commit only
 
 # Remove all Osoji hooks
 osoji hooks uninstall

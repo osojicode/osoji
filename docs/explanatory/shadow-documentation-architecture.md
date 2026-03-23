@@ -24,7 +24,7 @@ The main orchestration lives in `generate_shadow_docs_async()` in `src/osoji/sha
    extraction
         |
         v
-3. Staleness check     is_stale() per file via hasher.py
+3. Staleness check     is_stale() per file (shadow.py, using hasher.py)
         |
         v
 4. Concurrent LLM      generate_shadows_parallel() with gather_with_buffer()

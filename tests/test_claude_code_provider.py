@@ -184,9 +184,10 @@ async def test_tool_description_in_prompt():
             ),
         )
 
-    # The prompt (last positional arg or stdin) should contain the tool description
-    call_args = mock_exec.call_args[0]
-    prompt = call_args[-1]  # last arg is the prompt when not using stdin
+    # The prompt (piped via stdin) should contain the tool description
+    comm_kwargs = proc.communicate.call_args
+    stdin_data = comm_kwargs[1].get("input", b"") or (comm_kwargs[0][0] if comm_kwargs[0] else b"")
+    prompt = stdin_data.decode("utf-8")
     assert "submit_result" in prompt
     assert "Submit the analysis result" in prompt
 
@@ -385,34 +386,34 @@ async def test_invalid_json_raises():
 
 
 # ------------------------------------------------------------------
-# Stdin piping for long prompts
+# Prompts always piped via stdin
 # ------------------------------------------------------------------
 
 
 @pytest.mark.asyncio
-async def test_stdin_piping_for_long_prompts():
+async def test_prompt_piped_via_stdin():
     p = _provider()
-    long_prompt = "x" * 40_000
     response = _cli_response(result="ok")
     proc = _make_process(json.dumps(response).encode())
 
     with patch("asyncio.create_subprocess_exec", return_value=proc) as mock_exec:
         await p.complete(
-            [Message(role=MessageRole.USER, content=long_prompt)],
+            [Message(role=MessageRole.USER, content="short prompt")],
             system=None,
             options=CompletionOptions(model="sonnet"),
         )
 
-    # When using stdin, the prompt is NOT in the args
+    # Prompt is NOT in the CLI args (piped via stdin instead)
     call_args = mock_exec.call_args[0]
-    assert long_prompt not in call_args
-    # stdin was used
+    assert "short prompt" not in call_args
+    # stdin pipe was opened
     call_kwargs = mock_exec.call_args[1]
     assert call_kwargs.get("stdin") is not None
-    # prompt was passed via communicate
+    # prompt was passed via communicate(input=...)
     proc.communicate.assert_awaited_once()
     comm_kwargs = proc.communicate.call_args
-    assert len(comm_kwargs[1].get("input", b"")) > 30_000 or len(comm_kwargs[0][0]) > 30_000
+    stdin_data = comm_kwargs[1].get("input", b"") or (comm_kwargs[0][0] if comm_kwargs[0] else b"")
+    assert b"short prompt" in stdin_data
 
 
 # ------------------------------------------------------------------

@@ -816,7 +816,7 @@ class DeadCodeAnalyzer(JunkAnalyzer):
                 original_purpose=f"{v.kind} `{v.name}`",
                 confidence_source="ast_proven" if (v.source_path, v.name) in ast_proven_keys else "llm_inferred",
             )
-            for v in results if v.is_dead
+            for v in results
         ]
         return JunkAnalysisResult(
             findings=findings,

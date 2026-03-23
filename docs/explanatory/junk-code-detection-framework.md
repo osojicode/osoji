@@ -17,11 +17,11 @@ Detecting these problems requires whole-project analysis, not single-file lintin
 
 ## The two-phase pattern
 
-Every junk analyzer in Osoji follows the same architectural pattern:
+Most junk analyzers in Osoji follow the same architectural pattern. DeadPlumbingAnalyzer and OrphanedFilesAnalyzer are exceptions: DeadPlumbingAnalyzer uses an LLM call in Phase 1 to extract obligation-bearing fields from schema files, and OrphanedFilesAnalyzer uses multiple LLM calls in Phase 1 (for entry point identification, semantic relationship discovery, and candidate verification). For the remaining analyzers, Phase 1 is purely static:
 
 ```
 Phase 1: Cheap candidate scanning          Phase 2: LLM verification
-(Python, no LLM, high recall)             (LLM, high precision)
+(typically Python-only, high recall)       (LLM, high precision)
 
 Source code + symbols + facts              Candidates + full context
         |                                          |
@@ -131,7 +131,7 @@ Detects unused package dependencies listed in manifest files.
 
 Detects stale CI/CD pipeline elements. Note: `DeadCICDAnalyzer` overrides the base `analyze()` method and skips the symbols directory check, since CI/CD analysis does not depend on symbol data.
 
-**Phase 1:** Discovers CI/CD files (GitHub Actions workflows, Makefiles, GitLab CI, Dockerfiles) and extracts their elements (workflow jobs, makefile targets). Checks whether referenced paths and scripts exist in the repository.
+**Phase 1:** Discovers CI/CD files (GitHub Actions workflows, Makefiles, GitLab CI, Jenkinsfiles, CircleCI, Azure Pipelines, Travis CI) and extracts their elements (workflow jobs, makefile targets). Checks whether referenced paths and scripts exist in the repository.
 
 **Phase 2:** LLM verification evaluates each element with missing references to determine if it is genuinely stale or if the references are dynamically generated, external, or use glob patterns.
 

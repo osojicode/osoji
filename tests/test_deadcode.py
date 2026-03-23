@@ -172,13 +172,13 @@ class TestGrepHitContext:
         zero, low = scan_references(config)
         # With only one non-zero ref count, threshold should include it
         low_by_name = {c.name: c for c in low}
-        if "rare_func" in low_by_name:
-            candidate = low_by_name["rare_func"]
-            assert len(candidate.grep_hits) > 0
-            hit = candidate.grep_hits[0]
-            assert hit.file_path == "src/caller.py"
-            assert hit.line_number == 6
-            assert "rare_func()" in hit.context
+        assert "rare_func" in low_by_name
+        candidate = low_by_name["rare_func"]
+        assert len(candidate.grep_hits) > 0
+        hit = candidate.grep_hits[0]
+        assert hit.file_path == "src/caller.py"
+        assert hit.line_number == 6
+        assert "rare_func()" in hit.context
 
     def test_context_near_file_start(self, temp_dir):
         """Context extraction works near start of file."""

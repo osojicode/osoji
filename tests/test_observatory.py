@@ -52,7 +52,7 @@ def _write_shadow(
 
 
 def _write_findings(root: Path, rel_path: str, findings: list[dict]) -> Path:
-    from osoji.hasher import compute_file_hash, compute_impl_hash
+    from osoji.hasher import compute_file_hash
     findings_dir = root / ".osoji" / "findings"
     findings_file = findings_dir / (rel_path + ".findings.json")
     findings_file.parent.mkdir(parents=True, exist_ok=True)

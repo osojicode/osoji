@@ -47,7 +47,7 @@ export analysis, and string contract checking.
 - `src/osoji/config.py` — Configuration, path helpers, model tier constants
 - `src/osoji/shadow.py` — Core shadow doc generation engine
 - `src/osoji/audit.py` — Multi-phase audit orchestration
-- `src/osoji/llm/` — LLM provider abstraction (Anthropic, OpenAI, Google, OpenRouter — all via LiteLLM), validation, token counting
+- `src/osoji/llm/` — LLM provider abstraction (Anthropic, OpenAI, Google, OpenRouter via LiteLLM; Claude Code via CLI), validation, token counting
 - `src/osoji/rate_limiter.py` — Reservation-based async rate limiter (RPM + input/output TPM)
 - `src/osoji/facts.py` — Structured facts database and queries
 - `src/osoji/symbols.py` — Symbol loading and querying from `.osoji/symbols/`

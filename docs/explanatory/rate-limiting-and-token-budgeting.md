@@ -42,6 +42,7 @@ Configuration for rate limits with separate input/output token budgets. Each pro
 | OpenAI      | 500   | 500,000     | 500,000     |
 | Google      | 300   | 5,000,000   | 5,000,000   |
 | OpenRouter  | 300   | 500,000     | 500,000     |
+| Claude Code | 30    | 400,000     | 100,000     |
 
 These defaults can be overridden via environment variables (`ANTHROPIC_RPM`, `ANTHROPIC_TPM`, `ANTHROPIC_INPUT_TPM`, `ANTHROPIC_OUTPUT_TPM`, and equivalents for other providers). The `get_config_with_overrides()` function applies these overrides and clamps all values to a minimum of 1 to prevent division-by-zero in interval calculations.
 
@@ -147,7 +148,7 @@ When actual output exceeds the reservation, `conservative_remaining` is reset to
 
 The `input_budget_for_config()` function returns a conservative per-request input token budget based on the provider:
 
-- Anthropic: 150,000 tokens
+- Anthropic and Claude Code: 150,000 tokens
 - All others: 100,000 tokens
 
 This budget is used by `LiteLLMProvider._enforce_input_token_budget()` to raise `PromptTooLargeError` before sending a request that would exceed the model's practical context window. The estimate uses `estimate_completion_input_tokens_offline()` from `llm/tokens.py`, which serializes the full request payload (messages, system prompt, tools, tool_choice) to JSON and divides character count by 4.

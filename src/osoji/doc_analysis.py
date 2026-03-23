@@ -498,8 +498,6 @@ def _gather_project_evidence(
 
     # Build a combined regex for all search terms
     escaped = [re.escape(term) for term in finding.search_terms]
-    if not escaped:
-        return []
     pattern = re.compile("|".join(escaped), re.IGNORECASE)
 
     for path in all_paths:

@@ -33,7 +33,7 @@ def load_all_symbols(config: Config) -> dict[str, list[dict]]:
             symbols = data.get("symbols", [])
             if source and symbols and not _is_source_doc_candidate(config, source):
                 result[source] = symbols
-        except (json.JSONDecodeError, KeyError, OSError):
+        except (json.JSONDecodeError, OSError):
             continue
 
     return result
@@ -57,7 +57,7 @@ def load_file_roles(config: Config) -> dict[str, str]:
             role = data.get("file_role")
             if source and role and not _is_source_doc_candidate(config, source):
                 result[source] = role
-        except (json.JSONDecodeError, KeyError, OSError):
+        except (json.JSONDecodeError, OSError):
             continue
 
     return result

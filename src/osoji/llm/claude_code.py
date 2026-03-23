@@ -24,8 +24,7 @@ from .types import (
 from .validate import validate_tool_input
 
 _MAX_TOOL_VALIDATION_ATTEMPTS = 3
-_STDIN_THRESHOLD = 32_000  # pipe via stdin when prompt exceeds this many bytes
-_DEFAULT_LLM_TIMEOUT = 600
+_DEFAULT_LLM_TIMEOUT = 1200
 
 logger = logging.getLogger(__name__)
 
@@ -255,8 +254,6 @@ class ClaudeCodeProvider(LLMProvider):
         system: str | None,
         options: CompletionOptions,
         forced_tool: ToolDefinition | None,
-        *,
-        use_stdin: bool,
     ) -> list[str]:
         args = [
             self._claude_path,
@@ -295,41 +292,26 @@ class ClaudeCodeProvider(LLMProvider):
         self,
         args: list[str],
         prompt: str,
-        *,
-        use_stdin: bool,
     ) -> dict[str, Any]:
         timeout = int(os.environ.get("OSOJI_LLM_TIMEOUT", _DEFAULT_LLM_TIMEOUT))
 
-        if use_stdin:
-            proc = await asyncio.create_subprocess_exec(
-                *args,
-                stdin=asyncio.subprocess.PIPE,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
+        proc = await asyncio.create_subprocess_exec(
+            *args,
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        try:
+            stdout, stderr = await asyncio.wait_for(
+                proc.communicate(input=prompt.encode("utf-8")),
+                timeout=timeout,
             )
-            try:
-                stdout, stderr = await asyncio.wait_for(
-                    proc.communicate(input=prompt.encode("utf-8")),
-                    timeout=timeout,
-                )
-            except asyncio.TimeoutError:
-                proc.kill()
-                raise
-        else:
-            full_args = [*args, prompt]
-            proc = await asyncio.create_subprocess_exec(
-                *full_args,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
+        except (asyncio.TimeoutError, TimeoutError):
+            proc.kill()
+            raise TimeoutError(
+                f"Claude Code CLI timed out after {timeout}s. "
+                f"Set OSOJI_LLM_TIMEOUT to a higher value (e.g. 1800)."
             )
-            try:
-                stdout, stderr = await asyncio.wait_for(
-                    proc.communicate(),
-                    timeout=timeout,
-                )
-            except asyncio.TimeoutError:
-                proc.kill()
-                raise
 
         stderr_text = stderr.decode("utf-8", errors="replace") if stderr else ""
 
@@ -365,9 +347,8 @@ class ClaudeCodeProvider(LLMProvider):
         options: CompletionOptions,
         forced_tool: ToolDefinition | None,
     ) -> CompletionResult:
-        use_stdin = len(prompt.encode("utf-8")) > _STDIN_THRESHOLD
-        args = self._build_cli_args(system, options, forced_tool, use_stdin=use_stdin)
-        data = await self._execute_cli(args, prompt, use_stdin=use_stdin)
+        args = self._build_cli_args(system, options, forced_tool)
+        data = await self._execute_cli(args, prompt)
         return self._parse_response(data, forced_tool)
 
     # ------------------------------------------------------------------

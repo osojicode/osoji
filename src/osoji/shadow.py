@@ -1709,7 +1709,7 @@ def dry_run_shadow(config: Config, verbose: bool = False) -> None:
     total_input = est_input_tokens
     total_output = est_output_tokens + est_dir_output
 
-    # Sonnet pricing: $3/MTok input, $15/MTok output
+    # Rough cost estimate (based on Sonnet-class pricing: $3/MTok input, $15/MTok output)
     est_cost = (total_input / 1_000_000 * 3.0) + (total_output / 1_000_000 * 15.0)
 
     _emit(config, f"\nEstimated tokens (for {len(stale_files)} file(s) to generate):")

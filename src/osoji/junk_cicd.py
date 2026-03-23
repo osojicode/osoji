@@ -271,7 +271,7 @@ def _parse_gitlab_ci(content: str, path: str) -> list[CICDElement]:
         m = job_re.match(line)
         if m:
             key = m.group(1)
-            if key.startswith(".") or key in reserved_keys:
+            if key in reserved_keys:
                 continue
             jobs.append((key, i))
 
@@ -831,7 +831,7 @@ class DeadCICDAnalyzer(JunkAnalyzer):
             return JunkAnalysisResult(findings=[], total_candidates=0, analyzer_name=self.name)
 
         async def _run() -> JunkAnalysisResult:
-            logging_provider, rl = create_runtime(config, rate_limiter=rate_limiter)
+            logging_provider, _ = create_runtime(config, rate_limiter=rate_limiter)
             try:
                 return await self.analyze_async(
                     logging_provider, config, on_progress, cicd_files=cicd_files

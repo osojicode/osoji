@@ -69,7 +69,7 @@ exit 0
 
 
 POST_COMMIT_HOOK = '''#!/bin/sh
-# Osoji post-commit hook: Update shadow docs after commit
+# Osoji post-commit hook: Warn about stale shadow docs after commit
 # Installed by: osoji hooks install
 
 # Get the root of the git repository

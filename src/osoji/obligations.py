@@ -382,7 +382,7 @@ class StringContractChecker(ContractChecker):
                         "producer_context": None,
                         "checker_context": checker_context,
                     },
-                    remediation=f"Check string contract with (no producer found)",
+                    remediation="Check string contract with (no producer found)",
                 ))
 
         findings.sort(key=lambda f: (-f.confidence, f.consumer_file))

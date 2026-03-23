@@ -1,6 +1,6 @@
 # Understanding the LLM Provider Abstraction
 
-Osoji needs to call multiple LLM providers -- Anthropic, OpenAI, Google Gemini, and OpenRouter -- through a single interface. This document explains the architecture that makes that possible, why each design decision was made, and how the pieces assemble at runtime.
+Osoji needs to call multiple LLM providers -- Anthropic, OpenAI, Google Gemini, OpenRouter, and Claude Code CLI -- through a single interface. This document explains the architecture that makes that possible, why each design decision was made, and how the pieces assemble at runtime.
 
 ## Why an abstraction layer?
 
@@ -60,7 +60,7 @@ The real implementation work lives in `LiteLLMProvider` (`llm/litellm_provider.p
 
 ### Named provider wrappers
 
-Each supported provider has a thin wrapper class that subclasses `LiteLLMProvider`:
+Each supported provider has a thin wrapper class. Four subclass `LiteLLMProvider`:
 
 - `AnthropicProvider` (`llm/anthropic.py`) -- `LiteLLMProvider("anthropic")`
 - `OpenAIProvider` (`llm/openai.py`) -- `LiteLLMProvider("openai")`
@@ -68,6 +68,10 @@ Each supported provider has a thin wrapper class that subclasses `LiteLLMProvide
 - `OpenRouterProvider` (`llm/openrouter.py`) -- `LiteLLMProvider("openrouter")`
 
 These wrappers exist so the factory and registry can instantiate providers by name without the caller needing to know the LiteLLM constructor argument. They are each about five lines of code.
+
+The fifth provider subclasses `LLMProvider` directly rather than `LiteLLMProvider`:
+
+- `ClaudeCodeProvider` (`llm/claude_code.py`) -- routes requests through the Claude Code CLI instead of LiteLLM, enabling use of Claude Code's own authentication and model routing
 
 ### The trade-off: native SDK vs. universal adapter
 
@@ -165,7 +169,7 @@ CompletionResult returned to caller
 
 ## Design trade-offs
 
-**Why both named providers AND a universal LiteLLM adapter?** The named provider classes (`AnthropicProvider`, `OpenAIProvider`, etc.) exist for two reasons: they validate the correct API key at construction time, and they give the factory a clean name-to-class mapping. Under the hood, they all delegate to `LiteLLMProvider`. This is a deliberate choice -- maintaining four separate SDK integrations would mean four times the parsing, error handling, and response normalization code, with no benefit to the user.
+**Why both named providers AND a universal LiteLLM adapter?** The named provider classes (`AnthropicProvider`, `OpenAIProvider`, etc.) exist for two reasons: they validate the correct API key at construction time, and they give the factory a clean name-to-class mapping. Under the hood, four of the five delegate to `LiteLLMProvider`. The exception is `ClaudeCodeProvider`, which subclasses `LLMProvider` directly and routes through the Claude Code CLI. This is a deliberate choice -- maintaining five separate SDK integrations would mean five times the parsing, error handling, and response normalization code, with no benefit to the user.
 
 **Why async throughout?** Shadow documentation generation processes hundreds of files. Sequential LLM calls would be far too slow. The async design allows dozens of requests to be in flight simultaneously, bounded by the rate limiter. Even single-file operations like junk verification use async because they share the same `LLMProvider` interface, and forcing a sync variant would require duplicating the entire type system.
 

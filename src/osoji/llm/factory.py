@@ -43,7 +43,7 @@ def create_logging_provider(
     verbose: bool = False,
     default_model: str | None = None,
 ) -> LoggingProvider:
-    """Create a provider wrapped with rate limiting and logging."""
+    """Create a provider wrapped with logging, and optionally rate limiting."""
 
     normalized_name = normalize_provider_name(name)
     provider: LLMProvider = create_provider(normalized_name)

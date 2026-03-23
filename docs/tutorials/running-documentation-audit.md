@@ -433,12 +433,12 @@ The JSON structure:
     }
   ],
   "config": {
-    "resolution_order": ["env_vars", "cli_flags", "local_file", "project_file", "global_file", "built_in"],
-    "provider": {"value": "anthropic", "source": "built_in"},
+    "resolution_order": ["cli", "env", "project", "global", "builtin"],
+    "provider": {"value": "anthropic", "source": "builtin"},
     "models": {
-      "small": {"value": "claude-haiku-4-5-20251001", "source": "built_in"},
-      "medium": {"value": "claude-sonnet-4-20250514", "source": "built_in"},
-      "large": {"value": "claude-sonnet-4-20250514", "source": "built_in"}
+      "small": {"value": "claude-haiku-4-5-20251001", "source": "builtin"},
+      "medium": {"value": "claude-sonnet-4-20250514", "source": "builtin"},
+      "large": {"value": "claude-sonnet-4-20250514", "source": "builtin"}
     }
   },
   "scorecard": {

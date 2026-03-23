@@ -30,7 +30,7 @@ class TestComputeImplHash:
         assert len(included) > 8
 
     def test_excludes_are_respected(self):
-        """Excluded file entries in _IMPL_HASH_EXCLUDES point to real files (guards against stale excludes)."""
+        """Existing excluded file entries in _IMPL_HASH_EXCLUDES point to files, not directories."""
         pkg_dir = Path(__file__).resolve().parent.parent / "src" / "osoji"
         for excluded in _IMPL_HASH_EXCLUDES:
             excluded_path = pkg_dir / excluded
