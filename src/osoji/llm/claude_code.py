@@ -260,6 +260,7 @@ class ClaudeCodeProvider(LLMProvider):
             "-p",
             "--output-format", "json",
             "--no-session-persistence",
+            "--bare",
             "--tools", "",
         ]
 
