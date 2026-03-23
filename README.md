@@ -1,30 +1,34 @@
-# Osoji - Shadow Documentation Engine
+# osoji
 
-Generates "shadow documentation" - semantically dense summaries of codebases optimized for AI agent consumption.
+**The garbage collector for your codebase**
 
-## Installation
+[![PyPI version](https://img.shields.io/pypi/v/osojicode)](https://pypi.org/project/osojicode/)
+[![Python 3.11+](https://img.shields.io/pypi/pyversions/osojicode)](https://pypi.org/project/osojicode/)
+[![License](https://img.shields.io/github/license/osojicode/osoji)](https://github.com/osojicode/osoji/blob/main/LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/osojicode/osoji/ci.yml)](https://github.com/osojicode/osoji/actions/workflows/ci.yml)
 
-Using pipx (recommended for CLI tools):
+## What it does
+
+osoji audits your codebase for dead code, stale documentation, misleading comments, and semantic contradictions. It produces structured, actionable findings — and ships with agent skill files that automate the entire triage-fix-feedback loop. Stop wasting time working around the garbage accumulating in your project.
+
+## Quick start
+
 ```bash
-pipx install -e .
+pip install osojicode
+export ANTHROPIC_API_KEY=your-key-here
+osoji audit .
 ```
 
-Or with pip:
-```bash
-pip install -e .
-```
+BYOK — you pay your LLM provider directly. No data leaves your machine except API calls.
 
-## Use with AI Coding Agents
+## Agent workflow
 
-Osoji ships with bundled skill files that teach AI coding agents to run audits
-and act on findings end to end.
+osoji ships with bundled skill files that teach AI coding agents how to work with audit findings end-to-end:
 
-### The workflow
-
-1. **Audit** — `osoji audit --full .` scans your codebase
-2. **Triage** — Your agent classifies each finding as true positive, false positive, or informational
-3. **Fix** — Your agent applies fixes for confirmed issues and runs tests
-4. **Report** — Your agent files GitHub issues on osoji for false positives and missed detections
+1. **Audit** — `osoji audit .` scans your codebase
+2. **Triage** — your agent classifies each finding as true positive, false positive, or informational
+3. **Fix** — your agent applies fixes for confirmed issues and runs tests
+4. **Improve** — your agent files GitHub issues on osoji for false positives and missed detections, improving detection for everyone
 
 ### Running the skills
 
@@ -50,306 +54,97 @@ osoji skills list                         # See all available skills
 
 ### Improving detection
 
-When your agent finds a false positive or spots something osoji missed, the
-skill files help it file a structured GitHub issue automatically. Those issues
-improve osoji's detection for everyone — including you on your next audit.
+osoji gets smarter the more people use it. When your agent finds a false positive or spots something osoji missed, the skill files help it file a structured issue automatically. Those issues improve detection for everyone — including you on your next audit.
 
-## Usage
+## What it finds
 
-Osoji defaults to `anthropic`, but `shadow`, `audit`, `stats`, and `diff --update` can all switch providers with `--provider` and `--model`.
+- **Dead symbols** — unused exports, unreachable code
+- **Dead parameters** — function args never passed by any caller
+- **Stale documentation** — docs that drifted from the code they describe
+- **Misleading comments** — outdated comments, inaccurate docstrings
+- **Latent bugs** — unchecked returns, type confusion patterns
+- **Obligation violations** — implicit string contracts broken across files
+- **Unactuated config** — config fields declared but never enforced
+- **Unused dependencies** — packages listed but never imported
+- **Dead CI/CD** — stale pipeline jobs, unused Makefile targets
+- **Orphaned files** — source files unreachable from any entry point
 
-Configure Anthropic as the default provider:
+## How it works
+
+osoji generates shadow documentation to build a semantic model of your codebase, then compares that model against existing documentation and code structure. It uses tiered LLM analysis — cheap models for filtering, expensive models for deep verification — and produces structured JSON findings that agents and humans can act on. Analysis is semantic, not purely AST-based, so it works on any language. AST plugins can augment detection for supported languages (Python, TypeScript).
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `osoji audit .` | Scan for dead code, stale docs, and semantic issues |
+| `osoji shadow .` | Generate shadow documentation |
+| `osoji check .` | Check for stale or missing shadow docs |
+| `osoji diff` | Show documentation impact of source changes |
+| `osoji stats .` | Token statistics for source vs shadow docs |
+| `osoji report .` | Re-render last audit in a different format |
+| `osoji export .` | Export observatory bundle |
+| `osoji push` | Push bundle to osoji-teams |
+| `osoji skills list` | List bundled agent skill files |
+| `osoji config show` | Inspect resolved configuration |
+| `osoji hooks install` | Manage git hooks |
+| `osoji safety check` | Pre-commit safety checks |
+
+Use `osoji <command> --help` for full options.
+
+## Configuration
+
+osoji is BYOK — bring your own key. It defaults to Anthropic but supports OpenAI, Google, and OpenRouter.
+
+Set your API key and go:
 
 ```bash
-export ANTHROPIC_API_KEY=your-api-key
-osoji shadow /path/to/project
+export ANTHROPIC_API_KEY=your-key-here
 ```
 
 Switch providers per command:
 
 ```bash
-osoji shadow /path/to/project --provider openai --model gpt-5.2
-osoji audit /path/to/project --provider google --model gemini-2.0-flash
-osoji stats /path/to/project --provider openrouter --model openai/gpt-5-mini
+osoji audit . --provider openai --model gpt-5.2
+osoji audit . --provider google --model gemini-2.0-flash
 ```
 
-For lower-friction defaults, configure model policy in TOML:
+Or configure defaults in TOML:
 
-```bash
-mkdir -p ~/.config/osoji
-cat > ~/.config/osoji/config.toml <<'EOF'
+```toml
+# ~/.config/osoji/config.toml (global)
+# .osoji.local.toml (per-project, gitignored)
+
 default_provider = "openai"
 
 [providers.openai]
 small = "gpt-5-mini"
 medium = "gpt-5.2"
 large = "gpt-5.4"
-EOF
 ```
 
-Optional per-project personal override (recommended to gitignore):
+Supported provider credentials: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY`
 
-```bash
-cat > /path/to/project/.osoji.local.toml <<'EOF'
-default_provider = "openai"
+Config precedence (highest to lowest):
 
-[providers.openai]
-medium = "gpt-5.4"
-EOF
-```
-
-Environment variables still override TOML when needed:
-
-```bash
-export OPENAI_API_KEY=your-api-key
-export OSOJI_PROVIDER=openai
-export OSOJI_MODEL_MEDIUM=gpt-5.4
-```
-
-Supported provider credentials:
-- `ANTHROPIC_API_KEY`
-- `OPENAI_API_KEY`
-- `GEMINI_API_KEY`
-- `OPENROUTER_API_KEY`
-
-Config precedence for provider/model resolution:
-
-1. CLI flags
-2. Environment variables
-3. `<project>/.osoji.local.toml`
-4. `~/.config/osoji/config.toml`
+1. CLI flags (`--provider`, `--model`)
+2. Environment variables (`OSOJI_PROVIDER`, `OSOJI_MODEL`)
+3. `.osoji.local.toml` (per-project)
+4. `~/.config/osoji/config.toml` (global)
 5. Built-in defaults
 
-LLM-backed commands print the resolved config trace to `stderr` by default so it is obvious when a project-local config overrides global defaults. Use `osoji config show` to inspect the effective policy directly.
+Run `osoji config show` to inspect the effective policy.
 
-### Generate Shadow Documentation
+## Requirements
 
-```bash
-osoji shadow /path/to/project
-```
+- Python 3.11+
+- An LLM API key (Anthropic recommended, OpenAI and Google also supported)
 
-Force regeneration of all files (ignore cached hashes):
+## Links
 
-```bash
-osoji shadow /path/to/project --force
-```
-
-### Check for Stale Documentation
-
-```bash
-osoji check /path/to/project
-```
-
-### View Token Statistics
-
-See how much compression shadow docs provide:
-
-```bash
-osoji stats /path/to/project
-
-# With per-file breakdown
-osoji --verbose stats /path/to/project
-
-# Count tokens with a specific provider/model
-osoji stats /path/to/project --provider openai --model gpt-5.2
-```
-
-Sample output:
-```
-============================================================
-OSOJI TOKEN STATISTICS
-============================================================
-
-Files analyzed:      7
-Files with shadows:  7
-
-Source tokens:       1,842
-Shadow tokens:         743
-
-Compression ratio:   40.34%
-Token savings:       59.7%
-
-============================================================
-```
-
-### Documentation Audit
-
-Run a documentation audit to classify docs and validate their accuracy against source code:
-
-```bash
-osoji audit /path/to/project
-
-# Skip auto-fixing shadow docs
-osoji audit /path/to/project --no-fix
-
-# Run against a non-default provider/model
-osoji audit /path/to/project --provider google --model gemini-2.0-flash
-
-# Also detect cross-file dead code
-osoji audit /path/to/project --dead-code
-
-# Detect unactuated config/schema obligations
-osoji audit /path/to/project --dead-plumbing
-
-# Detect unused package dependencies
-osoji audit /path/to/project --dead-deps
-
-# Detect stale CI/CD pipeline elements
-osoji audit /path/to/project --dead-cicd
-
-# Detect orphaned source files
-osoji audit /path/to/project --orphaned-files
-
-# Check cross-file string contracts (no LLM calls)
-osoji audit /path/to/project --obligations
-
-# Detect dead function parameters
-osoji audit /path/to/project --dead-params
-
-# Run all junk analysis phases
-osoji audit /path/to/project --junk
-
-# Generate concept-centric coverage + writing prompts
-osoji audit /path/to/project --doc-prompts
-
-# Run all optional phases (equivalent to --junk --obligations --doc-prompts)
-osoji audit /path/to/project --full
-```
-
-The audit checks for:
-- **Documentation classification**: Categorizes each doc via the Diataxis framework, flagging process artifacts (debris) as errors
-- **Accuracy validation**: Matches docs to relevant source code (via explicit references and semantic topic matching), then validates accuracy against shadow docs with evidence quotes
-- **Code debris**: Surfaces findings from shadow generation (stale comments, misleading docstrings, dead code) stored in `.osoji/findings/`
-- **Stale shadow docs**: Auto-fixed by default
-- **Cross-file dead code** (opt-in with `--dead-code`): Detects unused symbols across the codebase
-- **Dead parameters** (opt-in with `--dead-params`): Detects dead function parameters via call-site analysis and LLM verification
-- **Dead plumbing** (opt-in with `--dead-plumbing`): Detects unactuated config/schema obligations
-- **Dead dependencies** (opt-in with `--dead-deps`): Detects unused package dependencies via import scanning and LLM verification
-- **Dead CI/CD** (opt-in with `--dead-cicd`): Detects stale CI/CD pipeline elements (unused jobs, targets, stages)
-- **Orphaned files** (opt-in with `--orphaned-files`): Detects source files unreachable from entry points via purpose graph analysis
-
-Override findings with project-specific rules in `.osoji/rules`:
-```
-Keep CLAUDE_CODE_PROMPT.md as historical reference.
-Files in docs/internal/ are team documentation, not debris.
-```
-
-### Observatory Export
-
-Export a stable, versioned observatory bundle for downstream consumers such as `osoji-teams`:
-
-```bash
-osoji export /path/to/project
-osoji export /path/to/project --output observatory.json
-```
-
-By default this writes `.osoji/analysis/observatory.json`. External tools should consume this bundle instead of reading raw `.osoji/` sidecars directly.
-
-### Documentation Diff
-
-Show documentation impact of source changes against a git ref:
-
-```bash
-osoji diff                    # Compare against main
-osoji diff develop            # Compare against develop
-osoji diff HEAD~5             # Compare against 5 commits ago
-osoji diff main --update      # Also regenerate stale shadows
-osoji diff main --update --provider openai --model gpt-5.2
-osoji diff main --format json # Machine-readable output
-```
-
-### Safety Checks
-
-Scan files for personal paths and secrets before committing:
-
-```bash
-osoji safety check              # Check staged files
-osoji safety check src/*.py     # Check specific files
-osoji safety patterns           # Show detection patterns
-osoji safety self-test          # Verify osoji package itself
-```
-
-Install `detect-secrets` for secret detection: `pip install 'osoji[safety]'`
-
-### Re-render Audit Report
-
-Re-render the last cached audit result in a different format without re-analysis:
-
-```bash
-osoji report /path/to/project                 # Text (default)
-osoji report /path/to/project --format json   # JSON
-osoji report /path/to/project --format html   # HTML (written to .osoji/analysis/report.html)
-```
-
-### Push to Observatory
-
-Push the observatory bundle to the osoji-teams ingest API:
-
-```bash
-osoji push --org myorg --project myproject
-osoji push --token $OSOJI_TOKEN --endpoint https://custom.endpoint/api
-```
-
-### Git Hooks for Automatic Updates
-
-Install git hooks to enforce documentation quality:
-
-```bash
-# Install hooks (pre-commit + pre-push by default)
-osoji hooks install
-
-# Selective hook installation
-osoji hooks install --no-pre-push            # pre-commit only
-osoji hooks install --no-pre-commit --no-pre-push --post-commit  # post-commit only
-
-# Remove hooks
-osoji hooks uninstall
-```
-
-**Installed hooks:**
-- `pre-commit` (default: on): Runs safety check (blocks on failure) and shadow doc staleness check (non-blocking)
-- `pre-push` (default: on): Warns about stale shadow docs before push
-- `post-commit` (default: off): Reminds to update after commit
-
-## Output
-
-Shadow documentation is written to `.osoji/shadow/` in the target directory, mirroring the source structure with `.shadow.md` extensions.
-
-Each shadow doc contains:
-- Source file path and hash for staleness detection
-- Generation timestamp
-- Semantically dense summary of the file's purpose, structure, and key details
-
-## How It Works
-
-1. **Bottom-up traversal**: Processes deepest files first, then rolls up to directories
-2. **Tool-forced output**: LLM must call structured tools - no text parsing required
-3. **Incremental updates**: Skips unchanged files by comparing source hashes
-4. **Line number preprocessing**: Provides line context to the LLM for precise references
-5. **Tiered provider runtime**: Shadow generation uses the configured medium model. Audit uses the configured small, medium, and large tiers through a shared provider runtime that supports Anthropic, OpenAI, Google Gemini, and OpenRouter.
-6. **Git integration**: Hooks keep docs synchronized with code changes
-
-## Rate Limits
-
-Osoji applies provider-specific defaults and supports environment overrides for every provider. Use `{PROVIDER}_RPM`, `{PROVIDER}_INPUT_TPM`, `{PROVIDER}_OUTPUT_TPM`, or `{PROVIDER}_TPM` (legacy combined override).
-
-```bash
-export ANTHROPIC_RPM=4000
-export ANTHROPIC_INPUT_TPM=2000000
-export ANTHROPIC_OUTPUT_TPM=400000
-
-export OPENAI_RPM=500
-export OPENAI_INPUT_TPM=500000
-export OPENAI_OUTPUT_TPM=500000
-
-export GOOGLE_RPM=300
-export GOOGLE_INPUT_TPM=5000000
-export GOOGLE_OUTPUT_TPM=5000000
-
-export OPENROUTER_RPM=300
-export OPENROUTER_TPM=500000
-export OPENROUTER_OUTPUT_TPM=350000
-```
+- Website: [osojicode.ai](https://osojicode.ai)
+- PyPI: [pypi.org/project/osojicode](https://pypi.org/project/osojicode/)
+- Issues: [github.com/osojicode/osoji/issues](https://github.com/osojicode/osoji/issues)
 
 ## Contributing
 
