@@ -4,7 +4,7 @@ This module wraps the detect-secrets library to scan files for potential
 secrets like API keys, passwords, and private keys. If detect-secrets
 is not installed, all functions gracefully degrade to no-ops.
 
-Install with: pip install 'osoji[safety]'
+Install with: pip install 'osojicode[safety]'
 """
 
 import logging
@@ -51,7 +51,7 @@ def check_file_for_secrets(file_path: Path) -> list[SecretFinding]:
         if not _warned_not_installed:
             logger.debug(
                 "detect-secrets not installed, skipping secret detection. "
-                "Install with: pip install 'osoji[safety]'"
+                "Install with: pip install 'osojicode[safety]'"
             )
             _warned_not_installed = True
         return []

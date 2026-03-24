@@ -131,7 +131,6 @@ class RateLimitedProvider(LLMProvider):
         await self._rate_limiter.update_limits(
             requests_per_minute=rpm,
             input_tokens_per_minute=tpm,
-            output_tokens_per_minute=tpm,
         )
 
     async def _estimate_input_tokens(

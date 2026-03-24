@@ -466,7 +466,7 @@ def _check_path_references(
         element.missing_paths = []
         for ref_path in element.referenced_paths:
             # Normalize
-            normalized = ref_path.strip("./").replace("\\", "/")
+            normalized = ref_path.removeprefix("./").replace("\\", "/")
             if not normalized:
                 continue
             # Check if path or any parent dir exists

@@ -649,7 +649,7 @@ async def _verify_error_findings_async(
     )
 
     # Process verdicts
-    verified: list[DocFinding] = list(error_findings)  # start with originals
+    verified: list[DocFinding | None] = list(error_findings)  # start with originals
     for tool_call in result.tool_calls:
         if tool_call.name == "verify_doc_finding":
             for verdict in tool_call.input.get("verdicts", []):
@@ -659,7 +659,7 @@ async def _verify_error_findings_async(
                     continue
 
                 if action == "retracted":
-                    verified[idx] = None  # type: ignore[assignment]
+                    verified[idx] = None
                 elif action == "downgraded":
                     original = error_findings[idx]
                     verified[idx] = DocFinding(

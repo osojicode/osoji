@@ -75,7 +75,7 @@ class TestCheckFiles:
     def test_checks_multiple_files(self, temp_dir):
         """Should check multiple files."""
         (temp_dir / "a.py").write_text("x = 1")
-        (temp_dir / "b.py").write_text('y = "/home/user/data"')  # excluded user
+        (temp_dir / "b.py").write_text('y = "/home/user/data"')  # home dir path
 
         result = check_files([temp_dir / "a.py", temp_dir / "b.py"])
 
