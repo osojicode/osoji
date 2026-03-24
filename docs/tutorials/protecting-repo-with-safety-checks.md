@@ -112,7 +112,7 @@ Personal Path Patterns
 Total: 6 patterns
 
 detect-secrets: not installed
-  Install with: pip install 'osoji[safety]'
+  Install with: pip install 'osojicode[safety]'
 ```
 
 ### Pattern details

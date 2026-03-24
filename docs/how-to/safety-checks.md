@@ -117,7 +117,7 @@ Personal Path Patterns
 Total: 6 patterns
 
 detect-secrets: not installed
-  Install with: pip install 'osoji[safety]'
+  Install with: pip install 'osojicode[safety]'
 ```
 
 The patterns are defined as compiled regex objects in `src/osoji/safety/paths.py` in the `PATTERNS` dictionary. Each pattern has a corresponding human-readable description in `PATTERN_DESCRIPTIONS`.
@@ -286,7 +286,7 @@ or:
 
 ```
 detect-secrets: not installed
-  Install with: pip install 'osoji[safety]'
+  Install with: pip install 'osojicode[safety]'
 ```
 
 ### How detection works

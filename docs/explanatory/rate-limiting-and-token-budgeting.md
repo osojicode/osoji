@@ -74,7 +74,7 @@ An immutable record created by `acquire()`:
 
 1. Increments `_queue_size` to track pending requests
 2. In a loop, under a lock:
-   - Refreshes the 60-second sliding window
+   - Refreshes the 60-second tumbling window
    - Refills token buckets based on elapsed time
    - Selects output reservation (adaptive or explicit)
    - Calculates wait time considering RPM interval, cooldown, input budget, and output budget

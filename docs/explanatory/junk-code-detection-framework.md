@@ -157,7 +157,7 @@ The `confidence_source` field allows downstream consumers (scorecard generation,
 
 The `junk.py` module provides utilities used by all analyzers:
 
-- `validate_line_ranges()` -- a `tool_input_validators` callback that checks `line_end >= line_start` across findings arrays in tool call outputs. This semantic constraint cannot be expressed in JSON Schema and is enforced through the self-correction loop.
+- `validate_line_ranges()` -- a `tool_input_validators` callback that checks `line_end >= line_start` across `findings`, `items`, and `obligations` arrays in tool call outputs. This semantic constraint cannot be expressed in JSON Schema and is enforced through the self-correction loop.
 - `load_shadow_content()` -- loads the shadow doc for a source file, used by analyzers to provide context to the LLM during Phase 2 verification.
 
 ## Integration with the audit pipeline
