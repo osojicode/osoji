@@ -49,8 +49,10 @@ osoji repo to orient yourself before diving into source files.
 
 $ARGUMENTS
 
-If arguments contain `--skip-audit`, skip Phase 1 and reuse the cached audit result.
-All other arguments are ignored.
+- `--skip-audit` — skip Phase 1 and reuse the cached audit result.
+- `--push` — upload the observatory bundle to osoji-teams after the audit
+  completes but before fixes begin (Phase 1.5). Without this flag the upload
+  is skipped entirely.
 
 ## Data Hygiene
 
@@ -108,6 +110,37 @@ print(f'\n--- {len(lines)} total lines of output ---')
   regardless.
 - `--full` enables all optional analyses: junk, obligations, and doc-prompts.
   This may take several minutes.
+
+---
+
+## Phase 1.5: Upload Observatory Bundle (opt-in)
+
+**Skip this phase unless `$ARGUMENTS` contains `--push`.**
+
+Upload the audit results **now**, before any files are modified by fixes. This
+ensures the bundle reflects the codebase as-audited, not post-fix (where
+staleness detection would flag every changed file). This is NOT a git push —
+it uploads audit data to the osoji-teams observatory API.
+
+Before running the command, print a clear message so the user knows what is
+about to happen:
+
+> Uploading audit results to your configured osoji-teams endpoint at ENDPOINT_URL…
+
+To resolve the endpoint for the message, read it from (in priority order):
+`OSOJI_ENDPOINT` env var, `.osoji.toml` `[push].endpoint`, or
+`~/.config/osoji/config.toml` `[push].endpoint`.
+
+Then run:
+
+```bash
+osoji push 2>&1
+```
+
+- If the push succeeds, note it for the Phase 7 summary.
+- If it fails (missing endpoint, token, or project config), report the error
+  and continue — do NOT prompt the user for credentials or attempt to
+  configure push.
 
 ---
 
@@ -477,6 +510,9 @@ After all work is complete, produce a final report:
 - **Project**: NAME at commit `HASH`
 - **Findings**: N errors, M warnings, K infos
 - **Triage**: X true positives, Y false positives, Z downgraded to info, W missed detections
+
+### Observatory Upload
+- UPLOADED to ENDPOINT at commit `HASH` / SKIPPED (--push not specified) / FAILED (reason)
 
 ### Fixes Applied (X true positives)
 For each fix:
