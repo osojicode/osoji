@@ -663,7 +663,7 @@ class TestStaleCommentCrossFileVerification:
             mock_provider.complete = AsyncMock(return_value=mock_result)
             mock_provider.close = AsyncMock()
             mock_create.return_value = (mock_provider, MagicMock())
-            suppressed = asyncio.run(
+            suppressed, phase_tokens = asyncio.run(
                 _verify_debris_findings_async(config, findings, MagicMock())
             )
 
@@ -694,12 +694,13 @@ class TestStaleCommentCrossFileVerification:
 
         with patch("osoji.facts.FactsDB", return_value=mock_facts_db), \
              patch("osoji.symbols.load_all_symbols", return_value={}):
-            suppressed = asyncio.run(
+            suppressed, phase_tokens = asyncio.run(
                 _verify_debris_findings_async(config, findings, MagicMock())
             )
 
         # No candidates → empty set returned, no LLM call
         assert suppressed == set()
+        assert phase_tokens == (0, 0)
         mock_facts_db.cross_file_references.assert_not_called()
 
 
@@ -749,7 +750,7 @@ class TestLatentBugCrossFileVerification:
             mock_provider.complete = AsyncMock(return_value=mock_result)
             mock_provider.close = AsyncMock()
             mock_create.return_value = (mock_provider, MagicMock())
-            suppressed = asyncio.run(
+            suppressed, phase_tokens = asyncio.run(
                 _verify_debris_findings_async(config, findings, MagicMock())
             )
 

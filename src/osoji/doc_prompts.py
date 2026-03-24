@@ -623,13 +623,17 @@ async def build_doc_prompts_async(
     config: Config,
     scorecard: Scorecard,
     rate_limiter: RateLimiter | None = None,
-) -> DocPromptsResult:
+    on_stage_complete: "Callable[[str, int, int], None] | None" = None,
+) -> tuple["DocPromptsResult", tuple[int, int]]:
     """Run the full 5-stage doc-prompts pipeline.
 
     Stage 0:   Metadata loading
     Stage 1+2: Concept inventory (LLM)
     Stage 3:   Coverage mapping (pure Python)
     Stage 4:   Gap analysis + prompts (LLM)
+
+    Returns:
+        (DocPromptsResult, (input_tokens, output_tokens))
     """
     logging_provider, _ = create_runtime(config, rate_limiter=rate_limiter)
 
@@ -637,47 +641,63 @@ async def build_doc_prompts_async(
         # Stage 0: Load metadata
         metadata = _load_file_metadata(config)
         if not metadata:
-            return DocPromptsResult(concepts=[], writing_prompts=[])
+            dp_result = DocPromptsResult(concepts=[], writing_prompts=[])
+        else:
+            # Stage 1+2: Concept inventory
+            concepts = await _build_concept_inventory_async(
+                logging_provider, config, metadata,
+            )
+            if on_stage_complete:
+                on_stage_complete(
+                    "concept inventory",
+                    logging_provider.stats.total_input_tokens,
+                    logging_provider.stats.total_output_tokens,
+                )
 
-        # Stage 1+2: Concept inventory
-        concepts = await _build_concept_inventory_async(
-            logging_provider, config, metadata,
-        )
-        if not concepts:
-            return DocPromptsResult(concepts=[], writing_prompts=[])
+            if not concepts:
+                dp_result = DocPromptsResult(concepts=[], writing_prompts=[])
+            else:
+                # Stage 3: Coverage mapping
+                _map_coverage(concepts, scorecard)
 
-        # Stage 3: Coverage mapping
-        _map_coverage(concepts, scorecard)
+                # Stage 4a: Priority scoring
+                for concept in concepts:
+                    _compute_priority(concept)
 
-        # Stage 4a: Priority scoring
-        for concept in concepts:
-            _compute_priority(concept)
+                # Stage 4b: Clustering
+                clusters = _cluster_for_prompts(concepts)
 
-        # Stage 4b: Clustering
-        clusters = _cluster_for_prompts(concepts)
+                # Stage 4c: Writing prompt generation
+                prompts = await _generate_writing_prompts_async(
+                    logging_provider, concepts, config, clusters,
+                )
+                if on_stage_complete:
+                    on_stage_complete(
+                        "writing prompts",
+                        logging_provider.stats.total_input_tokens,
+                        logging_provider.stats.total_output_tokens,
+                    )
 
-        # Stage 4c: Writing prompt generation
-        prompts = await _generate_writing_prompts_async(
-            logging_provider, concepts, config, clusters,
-        )
+                # Build summary
+                coverage_by_type = _compute_coverage_summary(concepts)
+                fully_documented = sum(1 for c in concepts if c.coverage_status == "fully_documented")
+                partially_documented = sum(1 for c in concepts if c.coverage_status == "partially_documented")
+                undocumented = sum(1 for c in concepts if c.coverage_status == "undocumented")
+                total_gaps = sum(len(c.missing_types) for c in concepts)
+
+                dp_result = DocPromptsResult(
+                    concepts=concepts,
+                    writing_prompts=prompts,
+                    total_concepts=len(concepts),
+                    fully_documented=fully_documented,
+                    partially_documented=partially_documented,
+                    undocumented=undocumented,
+                    coverage_by_type=coverage_by_type,
+                    total_gaps=total_gaps,
+                    total_prompts=len(prompts),
+                )
     finally:
+        phase_tokens = (logging_provider.stats.total_input_tokens, logging_provider.stats.total_output_tokens)
         await logging_provider.close()
 
-    # Build summary
-    coverage_by_type = _compute_coverage_summary(concepts)
-    fully_documented = sum(1 for c in concepts if c.coverage_status == "fully_documented")
-    partially_documented = sum(1 for c in concepts if c.coverage_status == "partially_documented")
-    undocumented = sum(1 for c in concepts if c.coverage_status == "undocumented")
-    total_gaps = sum(len(c.missing_types) for c in concepts)
-
-    return DocPromptsResult(
-        concepts=concepts,
-        writing_prompts=prompts,
-        total_concepts=len(concepts),
-        fully_documented=fully_documented,
-        partially_documented=partially_documented,
-        undocumented=undocumented,
-        coverage_by_type=coverage_by_type,
-        total_gaps=total_gaps,
-        total_prompts=len(prompts),
-    )
+    return dp_result, phase_tokens

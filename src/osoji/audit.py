@@ -54,6 +54,14 @@ JUNK_ANALYZERS: list[type[JunkAnalyzer]] = [
     OrphanedFilesAnalyzer,
 ]
 
+# Valid phase identifiers for --exclude (discoverable via --help).
+EXCLUDABLE_PHASES: list[str] = [
+    "shadow", "doc-analysis", "debris", "obligations", "doc-prompts",
+] + [cls().cli_flag for cls in JUNK_ANALYZERS]
+
+# Map junk analyzer .name → .cli_flag for exclude_key tagging.
+_JUNK_NAME_TO_CLI_FLAG: dict[str, str] = {cls().name: cls().cli_flag for cls in JUNK_ANALYZERS}
+
 
 @dataclass
 class AuditIssue:
@@ -67,6 +75,7 @@ class AuditIssue:
     line_start: int | None = None
     line_end: int | None = None
     origin: dict | None = None  # {"source": "llm"|"static"|"hybrid", "plugin": str}
+    exclude_key: str | None = None  # matches --exclude identifier for this phase
 
 
 @dataclass
@@ -311,7 +320,7 @@ async def _verify_debris_findings_async(
             candidates.append((i, finding, best_refs, type_defs))
 
     if not candidates:
-        return set()
+        return set(), (0, 0)
 
     # Build LLM prompt with all candidates
     user_parts: list[str] = []
@@ -374,6 +383,7 @@ async def _verify_debris_findings_async(
             ),
         )
     finally:
+        phase_tokens = (logging_provider.stats.total_input_tokens, logging_provider.stats.total_output_tokens)
         await logging_provider.close()
 
     # Collect dismissed finding indices (mapped back to original indices)
@@ -386,7 +396,7 @@ async def _verify_debris_findings_async(
                     # Map back to original index
                     if 0 <= finding_idx < len(candidates):
                         suppressed.add(candidates[finding_idx][0])
-    return suppressed
+    return suppressed, phase_tokens
 
 
 _SYMBOL_FILLER = {
@@ -512,6 +522,7 @@ def run_audit(
     obligations: bool = False,
     doc_prompts: bool = False,
     verbose: bool = False,
+    exclude: set[str] | None = None,
 ) -> AuditResult:
     """Run a complete documentation audit (sync entry point)."""
     return asyncio.run(run_audit_async(
@@ -527,6 +538,7 @@ def run_audit(
         obligations=obligations,
         doc_prompts=doc_prompts,
         verbose=verbose,
+        exclude=exclude,
     ))
 
 
@@ -543,6 +555,7 @@ async def run_audit_async(
     obligations: bool = False,
     doc_prompts: bool = False,
     verbose: bool = False,
+    exclude: set[str] | None = None,
 ) -> AuditResult:
     """Run a complete documentation audit.
 
@@ -559,9 +572,11 @@ async def run_audit_async(
         obligations: If True, check cross-file string contracts (no LLM calls)
         doc_prompts: If True, run concept-centric coverage + writing prompt generation (LLM calls)
         verbose: If True, show detailed per-file progress and timing
+        exclude: Set of phase identifiers to skip (e.g. {"shadow", "dead-code"})
     """
     issues: list[AuditIssue] = []
     osojiignore = config.load_osojiignore()
+    _exclude = exclude or set()
 
     # Shared rate limiter across all phases so token budgets are tracked globally
     rate_limiter = RateLimiter(get_config_with_overrides(config.provider or "anthropic"))
@@ -576,14 +591,21 @@ async def run_audit_async(
     _emit(config, "Osoji: Checking shadow documentation...")
     shadow_issues = check_shadow_docs(config)
 
-    if fix_shadow and shadow_issues:
+    pre_shadow = rate_limiter.get_cumulative_tokens()
+    if "shadow" in _exclude:
+        if shadow_issues:
+            _emit(config, f"  Note: shadow auto-fix excluded — {len(shadow_issues)} stale doc(s) will not be updated")
+    elif fix_shadow and shadow_issues:
         _emit(config, f"Osoji: Auto-updating {len(shadow_issues)} shadow doc(s)...")
         phase_start = time_module.monotonic()
         await generate_shadow_docs_async(config, verbose=verbose, rate_limiter=rate_limiter)
         shadow_issues = []  # Cleared by regeneration
-        if verbose:
-            elapsed = time_module.monotonic() - phase_start
-            _emit(config, f"  [{elapsed:.1f}s]")
+        elapsed = time_module.monotonic() - phase_start
+        post_shadow = rate_limiter.get_cumulative_tokens()
+        shadow_tok_str = _format_tokens_short(post_shadow[0] - pre_shadow[0], post_shadow[1] - pre_shadow[1])
+        _emit(config, f"  [phase 1 shadow: {elapsed:.1f}s] {shadow_tok_str}")
+    post_shadow = rate_limiter.get_cumulative_tokens()
+    shadow_tokens = (post_shadow[0] - pre_shadow[0], post_shadow[1] - pre_shadow[1])
 
     for path, status in shadow_issues:
         issues.append(AuditIssue(
@@ -593,26 +615,46 @@ async def run_audit_async(
             message=f"Shadow documentation is {status}",
             remediation="Run 'osoji shadow .' to update",
             origin={"source": "static", "plugin": "shadow_check"},
+            exclude_key="shadow",
         ))
 
     # ── Phases 2-4: run concurrently (no inter-phase data dependencies) ──
 
     # Pre-compute sync inputs needed by parallel phases
-    raw_debris = _load_raw_debris(config, osojiignore)
+    raw_debris = _load_raw_debris(config, osojiignore) if "debris" not in _exclude else []
     enabled_flags = _resolve_enabled_flags(
         dead_code=dead_code, dead_params=dead_params,
         dead_plumbing=dead_plumbing, dead_deps=dead_deps,
         dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk,
     )
+    # Remove excluded junk analyzers from enabled_flags
+    enabled_flags -= _exclude
 
-    analysis_results, debris_result, obligation_findings, junk_results = (
-        await asyncio.gather(
-            _run_phase2_async(config, rate_limiter, progress_cb, verbose),
-            _run_phase3_async(config, raw_debris, rate_limiter, verbose),
-            _run_phase3_5_async(config, obligations, verbose),
-            _run_phase4_async(config, rate_limiter, enabled_flags, progress_cb, verbose),
-        )
+    # Apply exclusions: skip excluded phases, use no-op coroutines for gather
+    async def _noop_phase2():
+        return [], (0, 0)
+
+    async def _noop_phase3():
+        return set(), (0, 0)
+
+    async def _noop_phase4():
+        return {}, {}
+
+    skip_doc_analysis = "doc-analysis" in _exclude
+    skip_debris = "debris" in _exclude
+    skip_obligations = "obligations" in _exclude
+
+    phase2_coro = _noop_phase2() if skip_doc_analysis else _run_phase2_async(config, rate_limiter, progress_cb, verbose)
+    phase3_coro = _noop_phase3() if skip_debris else _run_phase3_async(config, raw_debris, rate_limiter, verbose)
+    phase3_5_coro = _run_phase3_5_async(config, obligations and not skip_obligations, verbose)
+    phase4_coro = _noop_phase4() if not enabled_flags else _run_phase4_async(config, rate_limiter, enabled_flags, progress_cb, verbose)
+
+    phase2_raw, phase3_raw, obligation_findings, phase4_raw = (
+        await asyncio.gather(phase2_coro, phase3_coro, phase3_5_coro, phase4_coro)
     )
+    analysis_results, phase2_tokens = phase2_raw
+    debris_result, phase3_tokens = phase3_raw
+    junk_results, phase4_tokens = phase4_raw
 
     suppressed_indices: set[int] = debris_result
 
@@ -626,6 +668,7 @@ async def run_audit_async(
                 message=f"Documentation debris: {item.classification_reason}",
                 remediation="Delete this file",
                 origin={"source": "llm", "plugin": "doc_analysis"},
+                exclude_key="doc-analysis",
             ))
         for finding in item.findings:
             evidence_tag = ""
@@ -638,6 +681,7 @@ async def run_audit_async(
                 message=f"{finding.description}{evidence_tag}",
                 remediation=finding.remediation,
                 origin={"source": "llm", "plugin": "doc_analysis"},
+                exclude_key="doc-analysis",
             ))
 
     # Serialize Phase 2 results
@@ -677,6 +721,7 @@ async def run_audit_async(
             line_start=finding["line_start"],
             line_end=finding["line_end"],
             origin={"source": "llm", "plugin": "code_debris"},
+            exclude_key="debris",
         ))
 
     # Collect issues from Phase 3.5 (obligations)
@@ -688,10 +733,12 @@ async def run_audit_async(
             message=f.description,
             remediation=f.remediation,
             origin={"source": "hybrid", "plugin": "obligations"},
+            exclude_key="obligations",
         ))
 
     # Collect issues from Phase 4 (junk analyzers)
     for analyzer_name, junk_result in junk_results.items():
+        junk_exclude_key = _JUNK_NAME_TO_CLI_FLAG.get(analyzer_name, analyzer_name)
         for item in junk_result.findings:
             prefix = "[AST] " if item.confidence_source == "ast_proven" else ""
             origin_source = "static" if item.confidence_source == "ast_proven" else "llm"
@@ -704,6 +751,7 @@ async def run_audit_async(
                 line_start=item.line_start,
                 line_end=item.line_end,
                 origin={"source": origin_source, "plugin": analyzer_name},
+                exclude_key=junk_exclude_key,
             ))
         _serialize_junk_results(config, analyzer_name, junk_result)
 
@@ -726,12 +774,21 @@ async def run_audit_async(
 
     # ── Phase 5.5: doc prompts (optional, after scorecard) ──
     doc_prompts_result = None
-    if doc_prompts:
+    phase55_tokens = (0, 0)
+    if doc_prompts and "doc-prompts" not in _exclude:
         _emit(config, "Osoji: Building concept inventory and writing prompts...")
         phase_start = time_module.monotonic()
         from .doc_prompts import build_doc_prompts_async
-        doc_prompts_result = await build_doc_prompts_async(
+
+        def _doc_prompts_progress(stage: str, in_tok: int, out_tok: int) -> None:
+            tok_str = _format_tokens_short(in_tok, out_tok)
+            cum_in, cum_out = rate_limiter.get_cumulative_tokens()
+            cum_str = _format_tokens_short(cum_in, cum_out)
+            _emit(config, f"  [doc prompts: {stage}] {tok_str} (cumulative: {cum_str})")
+
+        doc_prompts_result, phase55_tokens = await build_doc_prompts_async(
             config, scorecard, rate_limiter=rate_limiter,
+            on_stage_complete=_doc_prompts_progress,
         )
         # Populate concept-centric scorecard fields
         scorecard.concept_total = doc_prompts_result.total_concepts
@@ -741,17 +798,40 @@ async def run_audit_async(
         scorecard.concept_coverage_by_type = doc_prompts_result.coverage_by_type
         # Re-serialize scorecard with concept coverage
         _serialize_json(config.scorecard_path, asdict(scorecard))
-        if verbose:
-            elapsed = time_module.monotonic() - phase_start
-            _emit(config, f"  [phase 5.5 doc prompts: {elapsed:.1f}s] "
-                         f"{doc_prompts_result.total_concepts} concepts, "
-                         f"{doc_prompts_result.total_prompts} prompts")
+        elapsed = time_module.monotonic() - phase_start
+        tok_str = _format_tokens_short(phase55_tokens[0], phase55_tokens[1])
+        _emit(config, f"  [phase 5.5 doc prompts: {elapsed:.1f}s] {tok_str} "
+                     f"{doc_prompts_result.total_concepts} concepts, "
+                     f"{doc_prompts_result.total_prompts} prompts")
 
-    # Print token summary
+    # ── Token summary ──
+    # Collect per-phase token counts
+    phase_tokens: dict[str, tuple[int, int]] = {}
+    if shadow_tokens[0] + shadow_tokens[1] > 0:
+        phase_tokens["Shadow docs"] = shadow_tokens
+    if phase2_tokens[0] + phase2_tokens[1] > 0:
+        phase_tokens["Doc analysis"] = phase2_tokens
+    if phase3_tokens[0] + phase3_tokens[1] > 0:
+        phase_tokens["Debris"] = phase3_tokens
+    for name, toks in phase4_tokens.items():
+        display_name = _JUNK_NAME_TO_CLI_FLAG.get(name, name)
+        if toks[0] + toks[1] > 0:
+            phase_tokens[display_name] = toks
+    if phase55_tokens[0] + phase55_tokens[1] > 0:
+        phase_tokens["Doc prompts"] = phase55_tokens
+
     in_tok, out_tok = rate_limiter.get_cumulative_tokens()
     total_tok = in_tok + out_tok
     if total_tok > 0:
         _emit(config, f"API tokens: {in_tok:,}^ {out_tok:,}v ({total_tok:,} total)")
+    if len(phase_tokens) > 1:
+        _emit(config, "Token consumption by phase:")
+        max_name_len = max(len(n) for n in phase_tokens)
+        for name, (pt_in, pt_out) in phase_tokens.items():
+            pt_total = pt_in + pt_out
+            _emit(config, f"  {name:<{max_name_len}}  {pt_in:>10,}^ {pt_out:>8,}v  ({pt_total:,})")
+        _emit(config, f"  {'-' * (max_name_len + 35)}")
+        _emit(config, f"  {'Total':<{max_name_len}}  {in_tok:>10,}^ {out_tok:>8,}v  ({total_tok:,})")
 
     result = AuditResult(
         issues=issues,
@@ -805,11 +885,12 @@ async def _run_phase2_async(config, rate_limiter, progress_cb, verbose):
     try:
         results = await analyze_docs_async(logging_provider, config, on_progress=progress_cb)
     finally:
+        phase_tokens = (logging_provider.stats.total_input_tokens, logging_provider.stats.total_output_tokens)
         await logging_provider.close()
-    if verbose:
-        elapsed = time_module.monotonic() - phase_start
-        _emit(config, f"  [phase 2 doc analysis: {elapsed:.1f}s]")
-    return results
+    elapsed = time_module.monotonic() - phase_start
+    tok_str = _format_tokens_short(phase_tokens[0], phase_tokens[1])
+    _emit(config, f"  [phase 2 doc analysis: {elapsed:.1f}s] {tok_str}")
+    return results, phase_tokens
 
 
 async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
@@ -822,19 +903,23 @@ async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
         for f in raw_debris
     )
     suppressed_indices: set[int] = set()
+    phase_tokens = (0, 0)
     if needs_verification:
         try:
-            suppressed_indices = await _verify_debris_findings_async(
+            suppressed_indices, phase_tokens = await _verify_debris_findings_async(
                 config, raw_debris, rate_limiter,
             )
             if suppressed_indices and verbose:
                 _emit(config, f"  Dismissed {len(suppressed_indices)} false positive debris finding(s)")
         except Exception:
             pass  # Verification is best-effort; on failure, keep all findings
-    if verbose:
-        elapsed = time_module.monotonic() - phase_start
+    elapsed = time_module.monotonic() - phase_start
+    tok_str = _format_tokens_short(phase_tokens[0], phase_tokens[1])
+    if tok_str:
+        _emit(config, f"  [phase 3 debris verification: {elapsed:.1f}s] {tok_str}")
+    elif verbose:
         _emit(config, f"  [phase 3 debris verification: {elapsed:.1f}s]")
-    return suppressed_indices
+    return suppressed_indices, phase_tokens
 
 
 async def _run_phase3_5_async(config, obligations_enabled, verbose):
@@ -858,7 +943,7 @@ async def _run_phase3_5_async(config, obligations_enabled, verbose):
 async def _run_phase4_async(config, rate_limiter, enabled_flags, progress_cb, verbose):
     """Phase 4: Run all enabled junk analyzers concurrently."""
     if not enabled_flags:
-        return {}
+        return {}, {}
 
     symbols_dir = config.root_path / SHADOW_DIR / "symbols"
 
@@ -886,9 +971,9 @@ async def _run_phase4_async(config, rate_limiter, enabled_flags, progress_cb, ve
             tasks.append((analyzer, {}))
 
     if not tasks:
-        return {}
+        return {}, {}
 
-    async def _run_single(analyzer: JunkAnalyzer, extra_kwargs: dict) -> tuple[str, JunkAnalysisResult]:
+    async def _run_single(analyzer: JunkAnalyzer, extra_kwargs: dict) -> tuple[str, JunkAnalysisResult, tuple[int, int]]:
         _emit(config, f"Osoji: Running {analyzer.description}...")
         phase_start = time_module.monotonic()
         logging_provider, _ = create_runtime(config, rate_limiter=rate_limiter)
@@ -897,17 +982,20 @@ async def _run_phase4_async(config, rate_limiter, enabled_flags, progress_cb, ve
                 logging_provider, config, progress_cb, **extra_kwargs,
             )
         finally:
+            analyzer_tokens = (logging_provider.stats.total_input_tokens, logging_provider.stats.total_output_tokens)
             await logging_provider.close()
-        if verbose:
-            elapsed = time_module.monotonic() - phase_start
-            _emit(config, f"  [phase 4 {analyzer.name}: {elapsed:.1f}s]")
-        return analyzer.name, result
+        elapsed = time_module.monotonic() - phase_start
+        tok_str = _format_tokens_short(analyzer_tokens[0], analyzer_tokens[1])
+        _emit(config, f"  [phase 4 {analyzer.name}: {elapsed:.1f}s] {tok_str}")
+        return analyzer.name, result, analyzer_tokens
 
-    results = await asyncio.gather(*[
+    raw_results = await asyncio.gather(*[
         _run_single(analyzer, kwargs)
         for analyzer, kwargs in tasks
     ])
-    return dict(results)
+    results_dict = {name: result for name, result, _ in raw_results}
+    tokens_dict = {name: tokens for name, _, tokens in raw_results}
+    return results_dict, tokens_dict
 
 
 def serialize_audit_result(config: Config, result: AuditResult) -> Path:
@@ -1199,7 +1287,8 @@ def format_audit_report(result: AuditResult) -> str:
     if errors:
         lines.append("## Errors (blocking)\n")
         for issue in errors:
-            lines.append(f"### `{issue.path}`")
+            phase_tag = f" [phase: {issue.exclude_key}]" if issue.exclude_key else ""
+            lines.append(f"### `{issue.path}`{phase_tag}")
             lines.append(f"**Category**: {issue.category}")
             lines.append(f"**Issue**: {issue.message}")
             lines.append(f"**Remediation**: {issue.remediation}")
@@ -1208,7 +1297,8 @@ def format_audit_report(result: AuditResult) -> str:
     if warnings:
         lines.append("## Warnings (non-blocking)\n")
         for issue in warnings:
-            lines.append(f"- `{issue.path}`: {issue.message}")
+            phase_tag = f" [phase: {issue.exclude_key}]" if issue.exclude_key else ""
+            lines.append(f"- `{issue.path}`: {issue.message}{phase_tag}")
         lines.append("")
 
     infos = [i for i in result.issues if i.severity == "info"]
@@ -1219,7 +1309,8 @@ def format_audit_report(result: AuditResult) -> str:
         if other_infos:
             lines.append("## Info (advisory)\n")
             for issue in other_infos:
-                lines.append(f"- `{issue.path}`: {issue.message}")
+                phase_tag = f" [phase: {issue.exclude_key}]" if issue.exclude_key else ""
+                lines.append(f"- `{issue.path}`: {issue.message}{phase_tag}")
             lines.append("")
 
         if implicit_contracts:
@@ -1229,7 +1320,8 @@ def format_audit_report(result: AuditResult) -> str:
                 lines.append(_IMPLICIT_CONTRACT_PREAMBLE)
                 lines.append("")
             for issue in implicit_contracts:
-                lines.append(f"- `{issue.path}`: {issue.message}")
+                phase_tag = f" [phase: {issue.exclude_key}]" if issue.exclude_key else ""
+                lines.append(f"- `{issue.path}`: {issue.message}{phase_tag}")
             lines.append("")
 
     lines.append("---")
@@ -1259,6 +1351,7 @@ def format_audit_json(result: AuditResult) -> str:
                 "line_start": issue.line_start,
                 "line_end": issue.line_end,
                 **({"origin": issue.origin} if issue.origin else {}),
+                **({"exclude_key": issue.exclude_key} if issue.exclude_key else {}),
             }
             for issue in result.issues
         ],
@@ -1395,6 +1488,7 @@ a:hover { text-decoration: underline; }
 }
 .badge-pass { background: var(--badge-pass-bg); color: var(--success); border: 1px solid var(--badge-pass-border); }
 .badge-fail { background: var(--badge-fail-bg); color: var(--warning); border: 1px solid var(--badge-fail-border); }
+.phase-tag { font-size: 0.75em; opacity: 0.6; font-family: var(--font-mono); }
 
 .theme-toggle {
   background: none; border: 1px solid var(--border-default);
@@ -1559,11 +1653,15 @@ def _h(s: str) -> str:
 
 def _issue_loc(issue: "AuditIssue") -> str:
     """Return a line-number suffix like ':L10' or ':L10-L15' for an issue."""
-    if not issue.line_start:
-        return ""
-    if issue.line_end and issue.line_end != issue.line_start:
-        return f":L{issue.line_start}-L{issue.line_end}"
-    return f":L{issue.line_start}"
+    loc = ""
+    if issue.line_start:
+        if issue.line_end and issue.line_end != issue.line_start:
+            loc = f":L{issue.line_start}-L{issue.line_end}"
+        else:
+            loc = f":L{issue.line_start}"
+    if issue.exclude_key:
+        loc += f' <span class="phase-tag">[{_h(issue.exclude_key)}]</span>'
+    return loc
 
 
 def _color_for_pct(pct: float) -> str:
