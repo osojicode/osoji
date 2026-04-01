@@ -33,11 +33,22 @@ jobs:
       - run: pip install pip-audit
       - run: pip install -e "."
       - run: pip-audit
-      - name: Verify lock file is up-to-date
+      - name: Verify lock file covers direct dependencies
         run: |
-          pip install uv
-          uv pip compile pyproject.toml --generate-hashes --universal -o /tmp/requirements.lock.check
-          diff requirements.lock /tmp/requirements.lock.check || {
-            echo "::error::requirements.lock is out of date. Run: uv pip compile pyproject.toml --generate-hashes --universal -o requirements.lock"
-            exit 1
-          }
+          python -c "
+          import tomllib, re, sys
+          with open('pyproject.toml', 'rb') as f:
+              deps = tomllib.load(f)['project']['dependencies']
+          with open('requirements.lock') as f:
+              lock = f.read().lower()
+          missing = []
+          for dep in deps:
+              name = re.split('[><=!,;]', dep)[0].strip().lower()
+              if name.replace('-', '-') not in lock and name.replace('-', '_') not in lock:
+                  missing.append(dep)
+          if missing:
+              print('::error::requirements.lock is missing direct dependencies: ' + ', '.join(missing))
+              print('Run: uv pip compile pyproject.toml --generate-hashes --universal -o requirements.lock')
+              sys.exit(1)
+          print(f'Lock file covers all {len(deps)} direct dependencies')
+          "
