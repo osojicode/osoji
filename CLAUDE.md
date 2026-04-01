@@ -11,6 +11,32 @@ pytest                     # full suite
 pytest tests/test_facts.py -v  # single module
 ```
 
+## Workflow: all changes through PRs
+
+Branch protection on `main` requires passing CI status checks. Direct pushes
+are blocked — even for the repo owner.
+
+```bash
+git checkout -b <branch-name>
+# ... make changes, run tests locally ...
+git add <files>
+git commit -m "imperative mood description"
+git push -u origin <branch-name>
+gh pr create --fill
+```
+
+Do NOT auto-merge. The project owner reviews PR summaries and merges manually
+(`gh pr merge <number> --squash` or via the GitHub UI). Releases are also
+manual — the owner creates a GitHub Release, which triggers the publish
+workflow.
+
+When updating dependencies:
+1. Edit `pyproject.toml`
+2. Regenerate lock file: `uv pip compile pyproject.toml --generate-hashes -o requirements.lock`
+3. Commit both files in the same PR
+
+See `SUPPLY-CHAIN-SECURITY.md` for the full governance model and threat model.
+
 ## Shadow docs (.osoji/shadow/)
 
 Every source file has a corresponding `.shadow.md` in `.osoji/shadow/` that

@@ -79,12 +79,18 @@ default in `pytest` and CI.
 
 ## Submitting pull requests
 
-1. Fork the repo and create a feature branch.
+All changes to `main` go through pull requests — there are no direct pushes.
+Branch protection requires CI status checks to pass before merging. There is
+no human code reviewer; the CI pipeline is the merge gate.
+
+1. Fork the repo (or create a feature branch if you have push access).
 2. Make your changes. Keep PRs focused — one logical change per PR.
 3. Add tests for new functionality.
 4. Run `pytest` and make sure tests pass.
 5. If prompts were changed, include passing `pytest -m prompt_regression` results.
-6. Submit a pull request.
+6. If dependencies were changed, regenerate the lock file:
+   `uv pip compile pyproject.toml --generate-hashes -o requirements.lock`
+7. Submit a pull request. CI will run automatically.
 
 ## Reporting bugs
 

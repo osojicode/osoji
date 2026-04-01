@@ -1,0 +1,91 @@
+name: PR Review
+
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+
+jobs:
+  instruction-integrity:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+        with:
+          fetch-depth: 0
+      - name: Check for control-plane file changes
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CHANGED=$(gh pr diff ${{ github.event.pull_request.number }} --name-only | grep -E '^(CLAUDE\.md|\.claude/|\.github/workflows/|\.github/dependabot\.yml)' || true)
+          if [ -n "$CHANGED" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "files<<EOF" >> "$GITHUB_OUTPUT"
+            echo "$CHANGED" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Label and comment
+        if: steps.check.outputs.changed == 'true'
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7
+        with:
+          script: |
+            const files = `${{ steps.check.outputs.files }}`;
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              labels: ['instruction-files-changed']
+            });
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `## Instruction files changed\n\nThis PR modifies control-plane files that affect agent behavior or CI enforcement:\n\n\`\`\`\n${files}\n\`\`\`\n\nThese changes deserve elevated scrutiny — they alter the security controls or agent instructions for this repository.`
+            });
+
+  adversarial-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: anthropics/claude-code-action@88c168b39e7e64da0286d812b6e9fbebb6708185  # v1
+        with:
+          # This prompt is intentionally defined here, NOT read from CLAUDE.md.
+          # It runs via pull_request_target so the workflow version from main
+          # is always used, even if the PR modifies this file.
+          prompt: |
+            You are a security-focused code reviewer. Review this pull request
+            diff for the following concerns. Be concise — only flag genuine issues,
+            not style preferences.
+
+            SECURITY (highest priority):
+            - Data exfiltration: network calls to unexpected URLs, credential harvesting
+            - Hardcoded secrets: API keys, tokens, passwords in source code
+            - Weakened security controls: changes that disable checks, loosen validation,
+              or remove safety mechanisms
+            - Suspicious patterns: obfuscated code, encoded payloads, dynamic code execution
+
+            INSTRUCTION INTEGRITY (high priority):
+            - Changes to CLAUDE.md, .claude/, or .github/workflows/ are control-plane
+              modifications. Flag what changed and assess whether it weakens security posture.
+            - Changes to .github/workflows/pr-review.yml (this file) deserve the highest
+              scrutiny — they could disable this very review.
+
+            SUPPLY CHAIN (medium priority):
+            - Dependency additions or changes without corresponding requirements.lock update
+            - New network dependencies or external service calls
+            - Changes to build or publish configuration
+
+            Post your findings as a PR review comment. If nothing concerning is found,
+            post a brief "Security review: no issues found" comment.
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
