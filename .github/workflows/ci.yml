@@ -36,8 +36,8 @@ jobs:
       - name: Verify lock file is up-to-date
         run: |
           pip install uv
-          uv pip compile pyproject.toml --generate-hashes -o /tmp/requirements.lock.check
+          uv pip compile pyproject.toml --generate-hashes --universal -o /tmp/requirements.lock.check
           diff requirements.lock /tmp/requirements.lock.check || {
-            echo "::error::requirements.lock is out of date. Run: uv pip compile pyproject.toml --generate-hashes -o requirements.lock"
+            echo "::error::requirements.lock is out of date. Run: uv pip compile pyproject.toml --generate-hashes --universal -o requirements.lock"
             exit 1
           }

@@ -32,7 +32,7 @@ workflow.
 
 When updating dependencies:
 1. Edit `pyproject.toml`
-2. Regenerate lock file: `uv pip compile pyproject.toml --generate-hashes -o requirements.lock`
+2. Regenerate lock file: `uv pip compile pyproject.toml --generate-hashes --universal -o requirements.lock`
 3. Commit both files in the same PR
 
 See `SUPPLY-CHAIN-SECURITY.md` for the full governance model and threat model.
