@@ -55,8 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
+          persist-credentials: false
       - uses: anthropics/claude-code-action@88c168b39e7e64da0286d812b6e9fbebb6708185  # v1
         with:
           # This prompt is intentionally defined here, NOT read from CLAUDE.md.
