@@ -7,6 +7,7 @@
 [![License](https://img.shields.io/github/license/osojicode/osoji)](https://github.com/osojicode/osoji/blob/main/LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/osojicode/osoji/ci.yml)](https://github.com/osojicode/osoji/actions/workflows/ci.yml)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/osojicode/osoji/badge)](https://scorecard.dev/viewer/?uri=github.com/osojicode/osoji)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/12362/badge)](https://www.bestpractices.dev/projects/12362)
 
 ## What it does
 
