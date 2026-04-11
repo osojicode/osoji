@@ -1,15 +1,58 @@
 """Tests for osoji init module."""
 
+import tomllib
 from pathlib import Path
 from unittest.mock import patch, call
 
 from osoji.init import (
+    _serialize_toml,
     merge_dotenv,
     merge_gitignore,
     merge_project_toml,
     merge_provider_toml,
     run_init,
 )
+
+
+class TestSerializeToml:
+    def test_empty_dict(self):
+        assert _serialize_toml({}) == ""
+
+    def test_top_level_only(self):
+        result = _serialize_toml({"default_provider": "anthropic"})
+        parsed = tomllib.loads(result)
+        assert parsed == {"default_provider": "anthropic"}
+
+    def test_with_section(self):
+        data = {"default_provider": "anthropic", "push": {"project": "osoji"}}
+        result = _serialize_toml(data)
+        parsed = tomllib.loads(result)
+        assert parsed == data
+        # default_provider must appear before [push]
+        assert result.index("default_provider") < result.index("[push]")
+
+    def test_with_nested_section(self):
+        data = {"providers": {"openai": {"small": "gpt-5-mini", "large": "gpt-5.4"}}}
+        result = _serialize_toml(data)
+        parsed = tomllib.loads(result)
+        assert parsed == data
+        assert "[providers.openai]" in result
+
+    def test_full_roundtrip(self):
+        data = {
+            "default_provider": "openai",
+            "push": {"endpoint": "https://api.osojicode.ai", "project": "osoji"},
+            "providers": {"openai": {"small": "gpt-5-mini", "large": "gpt-5.4"}},
+        }
+        result = _serialize_toml(data)
+        parsed = tomllib.loads(result)
+        assert parsed == data
+
+    def test_string_escaping(self):
+        data = {"key": 'value with "quotes" and \\backslash'}
+        result = _serialize_toml(data)
+        parsed = tomllib.loads(result)
+        assert parsed == data
 
 
 class TestMergeGitignore:
@@ -132,6 +175,17 @@ class TestMergeProjectToml:
         assert not (tmp_path / ".osoji.toml").exists()
         assert actions[0]["action"] == "skipped"
 
+    def test_project_with_preexisting_push_section(self, tmp_path):
+        """Adding project to existing [push] must not create duplicate section."""
+        (tmp_path / ".osoji.toml").write_text('[push]\nendpoint = "https://api.osojicode.ai"\n')
+        actions = merge_project_toml(tmp_path, project_slug="osoji")
+        content = (tmp_path / ".osoji.toml").read_text()
+        parsed = tomllib.loads(content)  # must not raise
+        assert parsed["push"]["project"] == "osoji"
+        assert parsed["push"]["endpoint"] == "https://api.osojicode.ai"
+        assert content.count("[push]") == 1
+        assert actions[0]["action"] == "added"
+
 
 class TestMergeProviderToml:
     def test_writes_provider_to_project_toml(self, tmp_path):
@@ -170,13 +224,37 @@ class TestMergeProviderToml:
         assert 'default_provider = "google"' in content
         assert "[providers." not in content
 
-    def test_appends_to_existing_toml(self, tmp_path):
+    def test_merges_into_existing_toml(self, tmp_path):
         (tmp_path / ".osoji.toml").write_text('[push]\nproject = "myproject"\n')
         actions = merge_provider_toml(tmp_path, provider="openai")
         content = (tmp_path / ".osoji.toml").read_text()
         assert '[push]' in content
         assert 'project = "myproject"' in content
         assert 'default_provider = "openai"' in content
+
+    def test_provider_with_preexisting_push_section(self, tmp_path):
+        """default_provider must be top-level, not inside [push]."""
+        (tmp_path / ".osoji.toml").write_text('[push]\nendpoint = "https://api.osojicode.ai"\n')
+        merge_provider_toml(tmp_path, provider="anthropic")
+        content = (tmp_path / ".osoji.toml").read_text()
+        parsed = tomllib.loads(content)
+        # default_provider must be top-level, NOT inside push
+        assert parsed.get("default_provider") == "anthropic"
+        assert "default_provider" not in parsed.get("push", {})
+        # endpoint must be preserved
+        assert parsed["push"]["endpoint"] == "https://api.osojicode.ai"
+
+    def test_provider_then_project_no_corruption(self, tmp_path):
+        """Calling both merge functions in sequence produces valid TOML."""
+        (tmp_path / ".osoji.toml").write_text('[push]\nendpoint = "https://api.osojicode.ai"\n')
+        merge_provider_toml(tmp_path, provider="anthropic")
+        merge_project_toml(tmp_path, project_slug="osoji")
+        content = (tmp_path / ".osoji.toml").read_text()
+        parsed = tomllib.loads(content)  # must not raise
+        assert parsed["default_provider"] == "anthropic"
+        assert parsed["push"]["endpoint"] == "https://api.osojicode.ai"
+        assert parsed["push"]["project"] == "osoji"
+        assert content.count("[push]") == 1
 
 
 class TestRunInit:
@@ -327,13 +405,32 @@ class TestRunInit:
         toml_content = (tmp_path / ".osoji.toml").read_text()
         assert 'default_provider = "claude-code"' in toml_content
 
-    def test_non_interactive_idempotent(self, tmp_path):
+    @patch("osoji.init._infer_project_from_git_remote", return_value="myproject")
+    def test_non_interactive_idempotent(self, _mock_infer, tmp_path):
         """Running init twice is idempotent — skips existing entries."""
         run_init(root=tmp_path, interactive=False, provider="anthropic")
         run_init(root=tmp_path, interactive=False, provider="anthropic")
         env_content = (tmp_path / ".env").read_text()
         assert env_content.count("ANTHROPIC_API_KEY") == 1
         assert env_content.count("OSOJI_TOKEN") == 1
+        # TOML must be valid with no duplicate sections
+        toml_content = (tmp_path / ".osoji.toml").read_text()
+        parsed = tomllib.loads(toml_content)
+        assert parsed.get("default_provider") == "anthropic"
+        assert parsed["push"]["project"] == "myproject"
+        assert toml_content.count("[push]") == 1
+
+    @patch("osoji.init._infer_project_from_git_remote", return_value="osoji")
+    def test_non_interactive_with_preexisting_push(self, _mock_infer, tmp_path):
+        """Init on a repo with existing [push] endpoint preserves it and produces valid TOML."""
+        (tmp_path / ".osoji.toml").write_text('[push]\nendpoint = "https://api.osojicode.ai"\n')
+        run_init(root=tmp_path, interactive=False, provider="anthropic")
+        toml_content = (tmp_path / ".osoji.toml").read_text()
+        parsed = tomllib.loads(toml_content)
+        assert parsed["default_provider"] == "anthropic"
+        assert parsed["push"]["endpoint"] == "https://api.osojicode.ai"
+        assert parsed["push"]["project"] == "osoji"
+        assert toml_content.count("[push]") == 1
 
 
 class TestInitCLI:

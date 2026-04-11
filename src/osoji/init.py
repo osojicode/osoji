@@ -128,6 +128,72 @@ def merge_dotenv(root: Path, values: dict[str, str]) -> list[dict[str, str]]:
     return actions
 
 
+def _escape_toml_string(value: str) -> str:
+    """Escape a string for TOML double-quoted representation."""
+
+    return value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
+
+
+def _serialize_toml(data: dict) -> str:
+    """Serialize a dict to TOML text.
+
+    Handles the flat structure used by .osoji.toml and .osoji.local.toml:
+    top-level string keys, one-level table sections, and two-level dotted
+    table sections.  All leaf values must be strings.
+    """
+
+    if not data:
+        return ""
+
+    parts: list[str] = []
+
+    # 1. Top-level scalar keys
+    for key, value in data.items():
+        if isinstance(value, str):
+            parts.append(f'{key} = "{_escape_toml_string(value)}"')
+
+    # 2. One-level table sections (values are dicts of strings)
+    for key, value in data.items():
+        if isinstance(value, dict) and all(isinstance(v, str) for v in value.values()):
+            if parts:
+                parts.append("")
+            parts.append(f"[{key}]")
+            for k, v in value.items():
+                parts.append(f'{k} = "{_escape_toml_string(v)}"')
+
+    # 3. Two-level dotted sections (values are dicts of dicts of strings)
+    for key, value in data.items():
+        if isinstance(value, dict) and any(isinstance(v, dict) for v in value.values()):
+            for subkey, subvalue in value.items():
+                if isinstance(subvalue, dict):
+                    if parts:
+                        parts.append("")
+                    parts.append(f"[{key}.{subkey}]")
+                    for k, v in subvalue.items():
+                        parts.append(f'{k} = "{_escape_toml_string(v)}"')
+
+    parts.append("")
+    return "\n".join(parts)
+
+
+def _read_toml(toml_path: Path) -> dict:
+    """Read and parse a TOML file, returning {} on missing or corrupt files."""
+
+    if not toml_path.exists():
+        return {}
+    try:
+        return tomllib.loads(toml_path.read_text(encoding="utf-8"))
+    except tomllib.TOMLDecodeError:
+        return {}
+
+
+def _write_toml(toml_path: Path, data: dict) -> None:
+    """Serialize *data* and write it to *toml_path*."""
+
+    with open(toml_path, "w", encoding="utf-8") as f:
+        f.write(_serialize_toml(data))
+
+
 def merge_project_toml(root: Path, *, project_slug: str | None) -> list[dict[str, str]]:
     """Ensure .osoji.toml has a [push] project entry."""
 
@@ -135,30 +201,15 @@ def merge_project_toml(root: Path, *, project_slug: str | None) -> list[dict[str
         return [{"key": "push.project", "action": "skipped", "reason": "no project slug provided"}]
 
     toml_path = root / PROJECT_CONFIG_FILENAME
-    existing: dict = {}
+    data = _read_toml(toml_path)
 
-    if toml_path.exists():
-        try:
-            existing = tomllib.loads(toml_path.read_text(encoding="utf-8"))
-        except tomllib.TOMLDecodeError:
-            existing = {}
-
-    push = existing.get("push")
+    push = data.get("push")
     if isinstance(push, dict) and "project" in push:
         return [{"key": "push.project", "action": "skipped",
                  "reason": f"already set in {PROJECT_CONFIG_FILENAME}"}]
 
-    original = toml_path.read_text(encoding="utf-8") if toml_path.exists() else ""
-    parts: list[str] = []
-    if original and not original.endswith("\n"):
-        parts.append("")
-    parts.append("")
-    parts.append("[push]")
-    parts.append(f'project = "{project_slug}"')
-    parts.append("")
-
-    with open(toml_path, "a", encoding="utf-8") as f:
-        f.write("\n".join(parts))
+    data.setdefault("push", {})["project"] = project_slug
+    _write_toml(toml_path, data)
 
     return [{"key": "push.project", "action": "added"}]
 
@@ -184,18 +235,12 @@ def merge_provider_toml(
 
     filename = ".osoji.local.toml" if use_local else PROJECT_CONFIG_FILENAME
     toml_path = root / filename
-    existing: dict = {}
-
-    if toml_path.exists():
-        try:
-            existing = tomllib.loads(toml_path.read_text(encoding="utf-8"))
-        except tomllib.TOMLDecodeError:
-            existing = {}
+    data = _read_toml(toml_path)
 
     actions: list[dict[str, str]] = []
 
     # --- default_provider ---
-    if existing.get("default_provider") == provider:
+    if data.get("default_provider") == provider:
         actions.append({
             "key": "default_provider",
             "action": "skipped",
@@ -206,7 +251,7 @@ def merge_provider_toml(
 
     # --- model overrides ---
     if models:
-        existing_provider = existing.get("providers", {}).get(provider, {})
+        existing_provider = data.get("providers", {}).get(provider, {})
         for tier, model in models.items():
             if existing_provider.get(tier) == model:
                 actions.append({
@@ -220,40 +265,22 @@ def merge_provider_toml(
                     "action": "added",
                 })
 
-    # Build the TOML content to append
-    lines_to_write: list[str] = []
-
     # Only write if there's something new
     added = [a for a in actions if a["action"] == "added"]
     if not added:
         return actions
 
-    original = toml_path.read_text(encoding="utf-8") if toml_path.exists() else ""
-    if original and not original.endswith("\n"):
-        lines_to_write.append("")
-
-    # Write default_provider if it's new
+    # Merge into dict
     if any(a["key"] == "default_provider" and a["action"] == "added" for a in actions):
-        lines_to_write.append(f'default_provider = "{provider}"')
+        data["default_provider"] = provider
 
-    # Write model overrides if any
     if models:
-        model_actions_added = [
-            a for a in actions
-            if a["action"] == "added" and a["key"].startswith("providers.")
-        ]
-        if model_actions_added:
-            lines_to_write.append("")
-            lines_to_write.append(f"[providers.{provider}]")
-            for tier, model in models.items():
-                key = f"providers.{provider}.{tier}"
-                if any(a["key"] == key and a["action"] == "added" for a in actions):
-                    lines_to_write.append(f'{tier} = "{model}"')
+        for tier, model in models.items():
+            key = f"providers.{provider}.{tier}"
+            if any(a["key"] == key and a["action"] == "added" for a in actions):
+                data.setdefault("providers", {}).setdefault(provider, {})[tier] = model
 
-    lines_to_write.append("")
-
-    with open(toml_path, "a", encoding="utf-8") as f:
-        f.write("\n".join(lines_to_write))
+    _write_toml(toml_path, data)
 
     return actions
 
