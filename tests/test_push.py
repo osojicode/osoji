@@ -54,6 +54,7 @@ class TestBuildEnvelope:
             endpoint="https://api.example.com",
             token="tok_123",
             project_slug="myproject",
+            token_source="--token flag",
         )
         git_ctx = _mock_git_context()
         bundle = {"schema_version": "1", "files": []}
@@ -119,6 +120,48 @@ class TestResolveConfig:
                 endpoint=None, token="tok", project=None, root_path=tmp_path,
             )
         assert config.project_slug == "local_proj"
+
+    def test_token_source_from_cli_flag(self, tmp_path):
+        with patch.dict("os.environ", _env_without_osoji(OSOJI_ENDPOINT="https://api.example.com"), clear=True):
+            config = resolve_push_config(
+                endpoint=None, token="tok", project="p", root_path=tmp_path,
+            )
+        assert config.token_source == "--token flag"
+
+    def test_token_source_from_env_var(self, tmp_path):
+        with patch.dict(
+            "os.environ",
+            _env_without_osoji(OSOJI_ENDPOINT="https://api.example.com", OSOJI_TOKEN="tok"),
+            clear=True,
+        ):
+            with patch("osoji.push.dotenv_values", return_value={}):
+                config = resolve_push_config(
+                    endpoint=None, token=None, project="p", root_path=tmp_path,
+                )
+        assert config.token_source == "OSOJI_TOKEN env var"
+
+    def test_token_source_from_dotenv(self, tmp_path):
+        with patch.dict(
+            "os.environ",
+            _env_without_osoji(OSOJI_ENDPOINT="https://api.example.com", OSOJI_TOKEN="tok"),
+            clear=True,
+        ):
+            with patch("osoji.push.dotenv_values", return_value={"OSOJI_TOKEN": "tok"}):
+                config = resolve_push_config(
+                    endpoint=None, token=None, project="p", root_path=tmp_path,
+                )
+        assert config.token_source == ".env file"
+
+    def test_token_source_from_toml(self, tmp_path):
+        (tmp_path / ".osoji.toml").write_text(
+            '[push]\ntoken = "toml_tok"\n'
+            'endpoint = "https://cfg.example.com"\n'
+        )
+        with patch.dict("os.environ", _env_without_osoji(), clear=True):
+            config = resolve_push_config(
+                endpoint=None, token=None, project="p", root_path=tmp_path,
+            )
+        assert config.token_source == ".osoji.toml"
 
 
 class TestRunPush:
@@ -249,6 +292,28 @@ class TestRunPush:
 
         assert result.success is True
         mock_export.assert_called_once_with(git_repo)
+
+
+    @patch("osoji.push._post_envelope")
+    @patch("osoji.push._get_commits_since", return_value=[])
+    @patch("osoji.push._fetch_last_commit", return_value=None)
+    @patch("osoji.push.gather_git_context")
+    def test_push_401_shows_token_source(self, mock_git_ctx, mock_last, mock_commits, mock_post, git_repo):
+        mock_git_ctx.return_value = _mock_git_context()
+        mock_post.return_value = PushResult(
+            success=False,
+            status_code=401,
+            error_message="Authentication failed.",
+        )
+
+        with pytest.raises(click.ClickException, match="loaded from --token flag"):
+            run_push(
+                endpoint="https://api.example.com",
+                token="bad_tok",
+                project="osoji",
+                root_path=git_repo,
+                quiet=True,
+            )
 
 
 class TestLoadPushSection:

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 from dataclasses import dataclass
@@ -12,6 +13,7 @@ from urllib.request import Request, urlopen
 
 import click
 import tomllib
+from dotenv import dotenv_values
 
 from . import __version__
 from .config import LOCAL_CONFIG_FILENAME, PROJECT_CONFIG_FILENAME, get_global_config_path
@@ -28,6 +30,7 @@ class PushConfig:
     endpoint: str
     token: str
     project_slug: str
+    token_source: str = ""  # provenance label for diagnostics
 
 
 @dataclass(frozen=True)
@@ -69,14 +72,21 @@ def _load_push_section(path: Path) -> dict[str, str]:
     return {k: str(v) for k, v in push.items() if isinstance(v, str)}
 
 
-def _merge_push_config(root: Path) -> dict[str, str]:
-    """Merge [push] config from global -> .osoji.toml -> .osoji.local.toml."""
+def _merge_push_config(root: Path) -> tuple[dict[str, str], dict[str, str]]:
+    """Merge [push] config and track which file each key came from."""
 
     merged: dict[str, str] = {}
-    merged.update(_load_push_section(get_global_config_path()))
-    merged.update(_load_push_section(root / PROJECT_CONFIG_FILENAME))
-    merged.update(_load_push_section(root / LOCAL_CONFIG_FILENAME))
-    return merged
+    sources: dict[str, str] = {}
+    for path, label in [
+        (get_global_config_path(), "global config"),
+        (root / PROJECT_CONFIG_FILENAME, ".osoji.toml"),
+        (root / LOCAL_CONFIG_FILENAME, ".osoji.local.toml"),
+    ]:
+        section = _load_push_section(path)
+        for k, v in section.items():
+            merged[k] = v
+            sources[k] = label
+    return merged, sources
 
 
 def _infer_project_from_git_remote(root: Path) -> str | None:
@@ -111,6 +121,16 @@ def _infer_project_from_git_remote(root: Path) -> str | None:
     return None
 
 
+def _classify_env_source(var_name: str) -> str:
+    """Return '.env file' if the env var value matches the .env file, else 'env var'."""
+
+    env_file = dotenv_values()
+    env_val = os.environ.get(var_name)
+    if env_val and var_name in env_file and env_file[var_name] == env_val:
+        return ".env file"
+    return f"{var_name} env var"
+
+
 def resolve_push_config(
     *,
     endpoint: str | None,
@@ -120,22 +140,38 @@ def resolve_push_config(
 ) -> PushConfig:
     """Resolve push config: CLI arg -> env var -> TOML config -> git remote -> error."""
 
-    import os
+    merged, toml_sources = _merge_push_config(root_path)
 
-    merged = _merge_push_config(root_path)
-
-    resolved_endpoint = endpoint or os.environ.get("OSOJI_ENDPOINT") or merged.get("endpoint")
-    if not resolved_endpoint:
+    # --- endpoint ---
+    if endpoint:
+        resolved_endpoint = endpoint
+    elif os.environ.get("OSOJI_ENDPOINT"):
+        resolved_endpoint = os.environ["OSOJI_ENDPOINT"]
+    elif merged.get("endpoint"):
+        resolved_endpoint = merged["endpoint"]
+    else:
         raise click.ClickException(
-            "OSOJI_ENDPOINT is not set. Pass --endpoint or set the OSOJI_ENDPOINT environment variable."
+            "OSOJI_ENDPOINT is not set. Set [push] endpoint in .osoji.toml, "
+            "pass --endpoint, or set the OSOJI_ENDPOINT environment variable."
         )
 
-    resolved_token = token or os.environ.get("OSOJI_TOKEN") or merged.get("token")
-    if not resolved_token:
+    # --- token ---
+    if token:
+        resolved_token = token
+        token_source = "--token flag"
+    elif os.environ.get("OSOJI_TOKEN"):
+        resolved_token = os.environ["OSOJI_TOKEN"]
+        token_source = _classify_env_source("OSOJI_TOKEN")
+    elif merged.get("token"):
+        resolved_token = merged["token"]
+        token_source = toml_sources["token"]
+    else:
         raise click.ClickException(
-            "OSOJI_TOKEN is not set. Pass --token or set the OSOJI_TOKEN environment variable."
+            "OSOJI_TOKEN is not set. Add OSOJI_TOKEN=<your-token> to .env, "
+            "or pass --token, or set the OSOJI_TOKEN environment variable."
         )
 
+    # --- project ---
     resolved_project = project or merged.get("project")
     if not resolved_project:
         resolved_project = _infer_project_from_git_remote(root_path)
@@ -153,6 +189,7 @@ def resolve_push_config(
         endpoint=resolved_endpoint,
         token=resolved_token,
         project_slug=resolved_project,
+        token_source=token_source,
     )
 
 
@@ -371,6 +408,7 @@ def run_push(
     git_context = gather_git_context(git_root)
 
     if not quiet:
+        click.echo(f"Token loaded from {push_config.token_source}", err=True)
         click.echo(
             f"Pushing {push_config.project_slug} "
             f"@ {git_context.commit[:8]} to {push_config.endpoint}",
@@ -384,6 +422,11 @@ def run_push(
     result = _post_envelope(push_config.endpoint, push_config.token, envelope)
 
     if not result.success:
+        if result.status_code == 401:
+            raise click.ClickException(
+                f"Authentication failed. Check the OSOJI_TOKEN value "
+                f"(loaded from {push_config.token_source})."
+            )
         raise click.ClickException(result.error_message or "Push failed.")
 
     return result
