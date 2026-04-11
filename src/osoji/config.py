@@ -147,6 +147,14 @@ OPENAI_MODEL_SMALL = "gpt-5-mini"
 OPENAI_MODEL_MEDIUM = "gpt-5.2"
 OPENAI_MODEL_LARGE = "gpt-5.4"
 
+GOOGLE_MODEL_SMALL = "gemini-3.1-flash-lite-preview"
+GOOGLE_MODEL_MEDIUM = "gemini-3-flash-preview"
+GOOGLE_MODEL_LARGE = "gemini-3.1-pro-preview"
+
+OPENROUTER_MODEL_SMALL = "anthropic/claude-haiku-4.5"
+OPENROUTER_MODEL_MEDIUM = "anthropic/claude-sonnet-4.6"
+OPENROUTER_MODEL_LARGE = "anthropic/claude-opus-4.6"
+
 BUILTIN_PROVIDER_MODELS: dict[str, dict[str, str]] = {
     "anthropic": {
         "small": ANTHROPIC_MODEL_SMALL,
@@ -158,10 +166,20 @@ BUILTIN_PROVIDER_MODELS: dict[str, dict[str, str]] = {
         "medium": ANTHROPIC_MODEL_MEDIUM,
         "large": ANTHROPIC_MODEL_LARGE,
     },
+    "google": {
+        "small": GOOGLE_MODEL_SMALL,
+        "medium": GOOGLE_MODEL_MEDIUM,
+        "large": GOOGLE_MODEL_LARGE,
+    },
     "openai": {
         "small": OPENAI_MODEL_SMALL,
         "medium": OPENAI_MODEL_MEDIUM,
         "large": OPENAI_MODEL_LARGE,
+    },
+    "openrouter": {
+        "small": OPENROUTER_MODEL_SMALL,
+        "medium": OPENROUTER_MODEL_MEDIUM,
+        "large": OPENROUTER_MODEL_LARGE,
     },
 }
 

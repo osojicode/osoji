@@ -157,8 +157,41 @@ At this point you should be able to:
 2. Run `osoji --help` and see the subcommand list above.
 3. Have your LLM API key exported in the current shell.
 
-If all three check out, you are ready to generate your first shadow
-documentation.
+If all three check out, you are ready to set up your project.
+
+---
+
+## Step 2b: Initialize your project (recommended)
+
+Run `osoji init` to set up configuration for your project:
+
+```bash
+osoji init
+```
+
+This walks you through:
+- Adding osoji entries to `.gitignore` (`.osoji/`, `.osoji.local.toml`, `.env`)
+- Setting your LLM API key in `.env`
+- Configuring a project slug in `.osoji.toml` for `osoji push`
+
+Each step prompts for confirmation with sensible defaults -- press Enter to
+accept them all.
+
+For scripted or CI environments, use `--non-interactive` to write template
+files with commented-out placeholders:
+
+```bash
+osoji init --non-interactive
+```
+
+If you use a provider other than Anthropic:
+
+```bash
+osoji init --provider openai
+```
+
+If you already have a `.env` or `.osoji.toml`, `osoji init` will merge missing
+keys without overwriting existing values.
 
 ---
 
@@ -695,6 +728,9 @@ osoji push --token $OSOJI_TOKEN --endpoint https://custom.endpoint/api
 Push configuration is read from `~/.config/osoji/config.toml`,
 `.osoji.toml`, and `.osoji.local.toml`, with CLI flags and environment
 variables (`OSOJI_ENDPOINT`, `OSOJI_TOKEN`) taking highest precedence.
+Secrets (`OSOJI_TOKEN`, API keys) go in `.env` -- loaded automatically,
+never committed. In non-quiet mode, `osoji push` prints which source each
+config value was resolved from.
 
 ---
 
