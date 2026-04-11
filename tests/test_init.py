@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from osoji.init import merge_gitignore
+from osoji.init import merge_dotenv, merge_gitignore, merge_project_toml
 
 
 class TestMergeGitignore:
@@ -35,3 +35,49 @@ class TestMergeGitignore:
         actions = merge_gitignore(tmp_path)
         content = (tmp_path / ".gitignore").read_text()
         assert "\n# Osoji\n" in content
+
+
+class TestMergeDotenv:
+    def test_creates_env_when_missing(self, tmp_path):
+        values = {"ANTHROPIC_API_KEY": "sk-test", "OSOJI_TOKEN": ""}
+        actions = merge_dotenv(tmp_path, values)
+        content = (tmp_path / ".env").read_text()
+        assert "ANTHROPIC_API_KEY=sk-test" in content
+        assert "# OSOJI_TOKEN=" in content
+        added = [a for a in actions if a["action"] == "added"]
+        assert len(added) == 2
+
+    def test_skips_existing_keys(self, tmp_path):
+        (tmp_path / ".env").write_text("ANTHROPIC_API_KEY=sk-existing\n")
+        values = {"ANTHROPIC_API_KEY": "sk-new", "OSOJI_TOKEN": "tok123"}
+        actions = merge_dotenv(tmp_path, values)
+        content = (tmp_path / ".env").read_text()
+        assert "sk-existing" in content
+        assert "sk-new" not in content
+        assert "OSOJI_TOKEN=tok123" in content
+        skipped = [a for a in actions if a["action"] == "skipped"]
+        assert len(skipped) == 1
+        assert skipped[0]["key"] == "ANTHROPIC_API_KEY"
+
+    def test_empty_value_written_as_comment(self, tmp_path):
+        values = {"OSOJI_TOKEN": ""}
+        actions = merge_dotenv(tmp_path, values)
+        content = (tmp_path / ".env").read_text()
+        assert "# OSOJI_TOKEN=" in content
+
+    def test_non_empty_value_written_bare(self, tmp_path):
+        values = {"OSOJI_TOKEN": "tok123"}
+        actions = merge_dotenv(tmp_path, values)
+        content = (tmp_path / ".env").read_text()
+        assert "OSOJI_TOKEN=tok123" in content
+        assert "# OSOJI_TOKEN" not in content
+
+    def test_handles_commented_existing_key(self, tmp_path):
+        """A commented-out key (# OSOJI_TOKEN=) should NOT count as 'existing'."""
+        (tmp_path / ".env").write_text("# OSOJI_TOKEN=\n")
+        values = {"OSOJI_TOKEN": "tok123"}
+        actions = merge_dotenv(tmp_path, values)
+        content = (tmp_path / ".env").read_text()
+        assert "OSOJI_TOKEN=tok123" in content
+        added = [a for a in actions if a["action"] == "added"]
+        assert len(added) == 1
