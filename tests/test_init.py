@@ -83,6 +83,17 @@ class TestMergeDotenv:
         added = [a for a in actions if a["action"] == "added"]
         assert len(added) == 1
 
+    def test_skips_commented_placeholder_when_empty(self, tmp_path):
+        """Writing an empty value when a commented-out placeholder exists should skip."""
+        (tmp_path / ".env").write_text("# OSOJI_TOKEN=\n")
+        values = {"OSOJI_TOKEN": ""}
+        actions = merge_dotenv(tmp_path, values)
+        content = (tmp_path / ".env").read_text()
+        # Should NOT add a second placeholder
+        assert content.count("OSOJI_TOKEN") == 1
+        skipped = [a for a in actions if a["action"] == "skipped"]
+        assert len(skipped) == 1
+
 
 class TestMergeProjectToml:
     def test_creates_toml_when_missing(self, tmp_path):

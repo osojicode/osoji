@@ -85,9 +85,20 @@ def merge_dotenv(root: Path, values: dict[str, str]) -> list[dict[str, str]]:
     actions: list[dict[str, str]] = []
     lines_to_add: list[str] = []
 
+    # Also track commented-out placeholders to avoid duplicating them
+    commented_keys: set[str] = set()
+    if original:
+        for line in original.splitlines():
+            stripped = line.strip()
+            cm = re.match(r"#\s*([A-Za-z_][A-Za-z0-9_]*)=", stripped)
+            if cm:
+                commented_keys.add(cm.group(1))
+
     for key, value in values.items():
         if key in existing_keys:
             actions.append({"key": key, "action": "skipped", "reason": "already set in .env"})
+        elif not value and key in commented_keys:
+            actions.append({"key": key, "action": "skipped", "reason": "placeholder already in .env"})
         else:
             if value:
                 lines_to_add.append(f"{key}={value}")
@@ -195,12 +206,12 @@ def run_init(
             with open(gitignore_path, "a", encoding="utf-8") as f:
                 f.write("\n".join(parts))
             for pattern, _ in entries_to_add:
-                click.echo(f"   {click.style('✓', fg='green')} Added {pattern}")
+                click.echo(f"   {click.style('ok', fg='green')} Added {pattern}")
     else:
         actions = merge_gitignore(root)
         for a in actions:
             if a["action"] == "added":
-                click.echo(f"   {click.style('✓', fg='green')} Added {a['entry']}")
+                click.echo(f"   {click.style('ok', fg='green')} Added {a['entry']}")
             else:
                 click.echo(f"   Already in .gitignore: {a['entry']}")
 
@@ -238,7 +249,7 @@ def run_init(
             env_actions = merge_dotenv(root, env_values)
             for a in env_actions:
                 if a["action"] == "added":
-                    click.echo(f"   {click.style('✓', fg='green')} Added {a['key']} to .env")
+                    click.echo(f"   {click.style('ok', fg='green')} Added {a['key']} to .env")
                 else:
                     click.echo(f"   Skipping {a['key']} in .env ({a['reason']})")
         elif not existing_keys:
@@ -250,7 +261,7 @@ def run_init(
         actions = merge_dotenv(root, env_values)
         for a in actions:
             if a["action"] == "added":
-                click.echo(f"   {click.style('✓', fg='green')} Added {a['key']} to .env (placeholder)")
+                click.echo(f"   {click.style('ok', fg='green')} Added {a['key']} to .env (placeholder)")
             else:
                 click.echo(f"   Skipping {a['key']} in .env ({a['reason']})")
 
@@ -273,7 +284,7 @@ def run_init(
     toml_actions = merge_project_toml(root, project_slug=project_slug)
     for a in toml_actions:
         if a["action"] == "added":
-            click.echo(f"   {click.style('✓', fg='green')} Set [push] project = \"{project_slug}\" in .osoji.toml")
+            click.echo(f"   {click.style('ok', fg='green')} Set [push] project = \"{project_slug}\" in .osoji.toml")
         else:
             click.echo(f"   Skipping {a['key']} ({a['reason']})")
 
