@@ -6,7 +6,11 @@ import re
 import tomllib
 from pathlib import Path
 
+import click
+
 from .config import PROJECT_CONFIG_FILENAME
+from .llm.registry import get_provider_spec
+from .push import _infer_project_from_git_remote
 
 _GITIGNORE_ENTRIES: list[tuple[str, str]] = [
     (".osoji/", "intermediate results and derived data"),
@@ -137,3 +141,146 @@ def merge_project_toml(root: Path, *, project_slug: str | None) -> list[dict[str
         f.write("\n".join(parts))
 
     return [{"key": "push.project", "action": "added"}]
+
+
+def run_init(
+    *,
+    root: Path,
+    interactive: bool = True,
+    provider: str = "anthropic",
+) -> None:
+    """Orchestrate osoji project setup."""
+
+    click.echo()
+    click.echo("Osoji project setup")
+    click.echo("=" * 40)
+
+    # --- 1. Git hygiene ---
+    click.echo()
+    click.echo(click.style("1. Git hygiene", bold=True))
+
+    if interactive:
+        entries_to_add: list[tuple[str, str]] = []
+
+        for pattern, description in _GITIGNORE_ENTRIES:
+            gitignore_path = root / ".gitignore"
+            existing_lines: set[str] = set()
+            if gitignore_path.exists():
+                existing_lines = {
+                    line.strip()
+                    for line in gitignore_path.read_text(encoding="utf-8").splitlines()
+                }
+
+            if pattern in existing_lines:
+                click.echo(f"   Already in .gitignore: {pattern}")
+                continue
+
+            if click.confirm(
+                f"   Add {pattern} to .gitignore? ({description})",
+                default=True,
+            ):
+                entries_to_add.append((pattern, description))
+
+        if entries_to_add:
+            gitignore_path = root / ".gitignore"
+            original = gitignore_path.read_text(encoding="utf-8") if gitignore_path.exists() else ""
+            parts: list[str] = []
+            if original and not original.endswith("\n"):
+                parts.append("")
+            parts.append("")
+            parts.append("# Osoji")
+            for pattern, _ in entries_to_add:
+                parts.append(pattern)
+            parts.append("")
+            with open(gitignore_path, "a", encoding="utf-8") as f:
+                f.write("\n".join(parts))
+            for pattern, _ in entries_to_add:
+                click.echo(f"   {click.style('✓', fg='green')} Added {pattern}")
+    else:
+        actions = merge_gitignore(root)
+        for a in actions:
+            if a["action"] == "added":
+                click.echo(f"   {click.style('✓', fg='green')} Added {a['entry']}")
+            else:
+                click.echo(f"   Already in .gitignore: {a['entry']}")
+
+    # --- 2. Secrets (.env) ---
+    click.echo()
+    click.echo(click.style("2. Secrets (.env)", bold=True))
+
+    spec = get_provider_spec(provider)
+    api_key_env = spec.api_key_env
+
+    env_values: dict[str, str] = {}
+
+    if interactive:
+        env_path = root / ".env"
+        existing_keys: set[str] = set()
+        if env_path.exists():
+            existing_keys = _parse_env_keys(env_path.read_text(encoding="utf-8"))
+
+        click.echo(f"   LLM provider: {provider}")
+
+        if api_key_env:
+            if api_key_env in existing_keys:
+                click.echo(f"   Skipping {api_key_env} in .env (already set)")
+            elif click.confirm(f"   Set {api_key_env}?", default=True):
+                value = click.prompt(f"   {api_key_env}", default="", hide_input=True)
+                env_values[api_key_env] = value
+
+        if "OSOJI_TOKEN" in existing_keys:
+            click.echo(f"   Skipping OSOJI_TOKEN in .env (already set)")
+        elif click.confirm(f"   Set OSOJI_TOKEN? (needed for `osoji push`)", default=True):
+            value = click.prompt(f"   OSOJI_TOKEN", default="", hide_input=True)
+            env_values["OSOJI_TOKEN"] = value
+
+        if env_values:
+            env_actions = merge_dotenv(root, env_values)
+            for a in env_actions:
+                if a["action"] == "added":
+                    click.echo(f"   {click.style('✓', fg='green')} Added {a['key']} to .env")
+                else:
+                    click.echo(f"   Skipping {a['key']} in .env ({a['reason']})")
+        elif not existing_keys:
+            click.echo("   No secrets configured.")
+    else:
+        if api_key_env:
+            env_values[api_key_env] = ""
+        env_values["OSOJI_TOKEN"] = ""
+        actions = merge_dotenv(root, env_values)
+        for a in actions:
+            if a["action"] == "added":
+                click.echo(f"   {click.style('✓', fg='green')} Added {a['key']} to .env (placeholder)")
+            else:
+                click.echo(f"   Skipping {a['key']} in .env ({a['reason']})")
+
+    # --- 3. Project config (.osoji.toml) ---
+    click.echo()
+    click.echo(click.style("3. Project config (.osoji.toml)", bold=True))
+
+    inferred_slug = _infer_project_from_git_remote(root)
+
+    if interactive:
+        default_slug = inferred_slug or ""
+        project_slug = click.prompt(
+            "   Project slug (for `osoji push`)",
+            default=default_slug,
+        )
+        project_slug = project_slug.strip() or None
+    else:
+        project_slug = inferred_slug
+
+    toml_actions = merge_project_toml(root, project_slug=project_slug)
+    for a in toml_actions:
+        if a["action"] == "added":
+            click.echo(f"   {click.style('✓', fg='green')} Set [push] project = \"{project_slug}\" in .osoji.toml")
+        else:
+            click.echo(f"   Skipping {a['key']} ({a['reason']})")
+
+    # --- Done ---
+    click.echo()
+    click.echo(click.style("Done!", bold=True) + " Next steps:")
+    click.echo("  osoji audit . --dry-run    Preview what osoji will analyze")
+    click.echo("  osoji audit .              Run a full audit")
+    click.echo("  osoji config show          See resolved configuration")
+    click.echo()

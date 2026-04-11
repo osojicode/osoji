@@ -1,8 +1,9 @@
 """Tests for osoji init module."""
 
 from pathlib import Path
+from unittest.mock import patch, call
 
-from osoji.init import merge_dotenv, merge_gitignore, merge_project_toml
+from osoji.init import merge_dotenv, merge_gitignore, merge_project_toml, run_init
 
 
 class TestMergeGitignore:
@@ -113,3 +114,42 @@ class TestMergeProjectToml:
         actions = merge_project_toml(tmp_path, project_slug=None)
         assert not (tmp_path / ".osoji.toml").exists()
         assert actions[0]["action"] == "skipped"
+
+
+class TestRunInit:
+    def test_non_interactive_creates_all_files(self, tmp_path):
+        """Non-interactive mode creates files with commented-out placeholders."""
+        run_init(root=tmp_path, interactive=False, provider="anthropic")
+        assert (tmp_path / ".gitignore").exists()
+        assert (tmp_path / ".env").exists()
+        env_content = (tmp_path / ".env").read_text()
+        assert "# ANTHROPIC_API_KEY=" in env_content
+
+    def test_non_interactive_respects_existing_env(self, tmp_path):
+        (tmp_path / ".env").write_text("ANTHROPIC_API_KEY=sk-existing\n")
+        run_init(root=tmp_path, interactive=False, provider="anthropic")
+        env_content = (tmp_path / ".env").read_text()
+        assert "sk-existing" in env_content
+
+    @patch("click.confirm", return_value=True)
+    @patch("click.prompt", side_effect=["sk-test-key", "", "myproject"])
+    def test_interactive_prompts_for_values(self, mock_prompt, mock_confirm, tmp_path):
+        run_init(root=tmp_path, interactive=True, provider="anthropic")
+        env_content = (tmp_path / ".env").read_text()
+        assert "ANTHROPIC_API_KEY=sk-test-key" in env_content
+        toml_content = (tmp_path / ".osoji.toml").read_text()
+        assert 'project = "myproject"' in toml_content
+
+    @patch("click.prompt", return_value="")
+    @patch("click.confirm", return_value=False)
+    def test_interactive_skips_when_declined(self, mock_confirm, mock_prompt, tmp_path):
+        """When user declines all prompts, no files are created."""
+        run_init(root=tmp_path, interactive=True, provider="anthropic")
+        assert not (tmp_path / ".gitignore").exists()
+        assert not (tmp_path / ".env").exists()
+
+    def test_non_interactive_openai_provider(self, tmp_path):
+        run_init(root=tmp_path, interactive=False, provider="openai")
+        env_content = (tmp_path / ".env").read_text()
+        assert "# OPENAI_API_KEY=" in env_content
+        assert "ANTHROPIC_API_KEY" not in env_content
