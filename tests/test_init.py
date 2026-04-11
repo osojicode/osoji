@@ -81,3 +81,35 @@ class TestMergeDotenv:
         assert "OSOJI_TOKEN=tok123" in content
         added = [a for a in actions if a["action"] == "added"]
         assert len(added) == 1
+
+
+class TestMergeProjectToml:
+    def test_creates_toml_when_missing(self, tmp_path):
+        actions = merge_project_toml(tmp_path, project_slug="myproject")
+        content = (tmp_path / ".osoji.toml").read_text()
+        assert '[push]' in content
+        assert 'project = "myproject"' in content
+        assert len(actions) == 1
+        assert actions[0]["action"] == "added"
+
+    def test_skips_when_project_already_set(self, tmp_path):
+        (tmp_path / ".osoji.toml").write_text('[push]\nproject = "existing"\n')
+        actions = merge_project_toml(tmp_path, project_slug="newproject")
+        content = (tmp_path / ".osoji.toml").read_text()
+        assert 'project = "existing"' in content
+        assert "newproject" not in content
+        assert actions[0]["action"] == "skipped"
+
+    def test_adds_push_section_to_existing_toml(self, tmp_path):
+        (tmp_path / ".osoji.toml").write_text('default_provider = "openai"\n')
+        actions = merge_project_toml(tmp_path, project_slug="myproject")
+        content = (tmp_path / ".osoji.toml").read_text()
+        assert 'default_provider = "openai"' in content
+        assert '[push]' in content
+        assert 'project = "myproject"' in content
+        assert actions[0]["action"] == "added"
+
+    def test_no_project_slug_skips(self, tmp_path):
+        actions = merge_project_toml(tmp_path, project_slug=None)
+        assert not (tmp_path / ".osoji.toml").exists()
+        assert actions[0]["action"] == "skipped"
