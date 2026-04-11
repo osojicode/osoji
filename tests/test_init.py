@@ -3,7 +3,13 @@
 from pathlib import Path
 from unittest.mock import patch, call
 
-from osoji.init import merge_dotenv, merge_gitignore, merge_project_toml, run_init
+from osoji.init import (
+    merge_dotenv,
+    merge_gitignore,
+    merge_project_toml,
+    merge_provider_toml,
+    run_init,
+)
 
 
 class TestMergeGitignore:
@@ -127,6 +133,52 @@ class TestMergeProjectToml:
         assert actions[0]["action"] == "skipped"
 
 
+class TestMergeProviderToml:
+    def test_writes_provider_to_project_toml(self, tmp_path):
+        actions = merge_provider_toml(tmp_path, provider="anthropic")
+        content = (tmp_path / ".osoji.toml").read_text()
+        assert 'default_provider = "anthropic"' in content
+        added = [a for a in actions if a["action"] == "added"]
+        assert len(added) == 1
+        assert added[0]["key"] == "default_provider"
+
+    def test_writes_provider_to_local_toml(self, tmp_path):
+        actions = merge_provider_toml(tmp_path, provider="openai", use_local=True)
+        content = (tmp_path / ".osoji.local.toml").read_text()
+        assert 'default_provider = "openai"' in content
+        assert not (tmp_path / ".osoji.toml").exists()
+
+    def test_writes_model_overrides(self, tmp_path):
+        models = {"small": "custom-small", "large": "custom-large"}
+        actions = merge_provider_toml(tmp_path, provider="openai", models=models)
+        content = (tmp_path / ".osoji.toml").read_text()
+        assert 'default_provider = "openai"' in content
+        assert "[providers.openai]" in content
+        assert 'small = "custom-small"' in content
+        assert 'large = "custom-large"' in content
+
+    def test_skips_existing_provider(self, tmp_path):
+        (tmp_path / ".osoji.toml").write_text('default_provider = "anthropic"\n')
+        actions = merge_provider_toml(tmp_path, provider="anthropic")
+        skipped = [a for a in actions if a["action"] == "skipped"]
+        assert len(skipped) == 1
+        assert skipped[0]["key"] == "default_provider"
+
+    def test_no_models_means_no_providers_section(self, tmp_path):
+        actions = merge_provider_toml(tmp_path, provider="google")
+        content = (tmp_path / ".osoji.toml").read_text()
+        assert 'default_provider = "google"' in content
+        assert "[providers." not in content
+
+    def test_appends_to_existing_toml(self, tmp_path):
+        (tmp_path / ".osoji.toml").write_text('[push]\nproject = "myproject"\n')
+        actions = merge_provider_toml(tmp_path, provider="openai")
+        content = (tmp_path / ".osoji.toml").read_text()
+        assert '[push]' in content
+        assert 'project = "myproject"' in content
+        assert 'default_provider = "openai"' in content
+
+
 class TestRunInit:
     def test_non_interactive_creates_all_files(self, tmp_path):
         """Non-interactive mode creates files with commented-out placeholders."""
@@ -135,6 +187,9 @@ class TestRunInit:
         assert (tmp_path / ".env").exists()
         env_content = (tmp_path / ".env").read_text()
         assert "# ANTHROPIC_API_KEY=" in env_content
+        # Provider config is written to .osoji.toml
+        toml_content = (tmp_path / ".osoji.toml").read_text()
+        assert 'default_provider = "anthropic"' in toml_content
 
     def test_non_interactive_respects_existing_env(self, tmp_path):
         (tmp_path / ".env").write_text("ANTHROPIC_API_KEY=sk-existing\n")
@@ -143,8 +198,11 @@ class TestRunInit:
         assert "sk-existing" in env_content
 
     @patch("click.confirm", return_value=True)
-    @patch("click.prompt", side_effect=["sk-test-key", "", "myproject"])
+    @patch("click.prompt")
     def test_interactive_prompts_for_values(self, mock_prompt, mock_confirm, tmp_path):
+        # Prompts: provider selection (1), model accept (Y from confirm),
+        # config target (1), API key, OSOJI_TOKEN, project slug
+        mock_prompt.side_effect = [1, 1, "sk-test-key", "", "myproject"]
         run_init(root=tmp_path, interactive=True, provider="anthropic")
         env_content = (tmp_path / ".env").read_text()
         assert "ANTHROPIC_API_KEY=sk-test-key" in env_content
@@ -154,16 +212,128 @@ class TestRunInit:
     @patch("click.prompt", return_value="")
     @patch("click.confirm", return_value=False)
     def test_interactive_skips_when_declined(self, mock_confirm, mock_prompt, tmp_path):
-        """When user declines all prompts, no files are created."""
+        """When user declines all prompts, minimal files are created."""
+        # confirm returns False for everything: gitignore (3x), model accept, API key, OSOJI_TOKEN
+        # prompt calls: provider (1), small/medium/large models (defaults), config target (1), project slug
+        from osoji.config import BUILTIN_PROVIDER_MODELS
+        defaults = BUILTIN_PROVIDER_MODELS["anthropic"]
+        mock_prompt.side_effect = [
+            1,                    # provider selection
+            defaults["small"],    # small model (confirm=False → override prompts)
+            defaults["medium"],   # medium model
+            defaults["large"],    # large model
+            1,                    # config target
+            "",                   # project slug
+        ]
         run_init(root=tmp_path, interactive=True, provider="anthropic")
         assert not (tmp_path / ".gitignore").exists()
-        assert not (tmp_path / ".env").exists()
 
     def test_non_interactive_openai_provider(self, tmp_path):
         run_init(root=tmp_path, interactive=False, provider="openai")
         env_content = (tmp_path / ".env").read_text()
         assert "# OPENAI_API_KEY=" in env_content
         assert "ANTHROPIC_API_KEY" not in env_content
+        toml_content = (tmp_path / ".osoji.toml").read_text()
+        assert 'default_provider = "openai"' in toml_content
+
+    def test_non_interactive_claude_code_no_api_key(self, tmp_path):
+        """claude-code provider has no API key env var — only OSOJI_TOKEN placeholder."""
+        run_init(root=tmp_path, interactive=False, provider="claude-code")
+        env_content = (tmp_path / ".env").read_text()
+        assert "ANTHROPIC_API_KEY" not in env_content
+        assert "# OSOJI_TOKEN=" in env_content
+        toml_content = (tmp_path / ".osoji.toml").read_text()
+        assert 'default_provider = "claude-code"' in toml_content
+
+    def test_non_interactive_google_provider(self, tmp_path):
+        run_init(root=tmp_path, interactive=False, provider="google")
+        env_content = (tmp_path / ".env").read_text()
+        assert "# GEMINI_API_KEY=" in env_content
+        toml_content = (tmp_path / ".osoji.toml").read_text()
+        assert 'default_provider = "google"' in toml_content
+
+    def test_non_interactive_openrouter_provider(self, tmp_path):
+        run_init(root=tmp_path, interactive=False, provider="openrouter")
+        env_content = (tmp_path / ".env").read_text()
+        assert "# OPENROUTER_API_KEY=" in env_content
+        toml_content = (tmp_path / ".osoji.toml").read_text()
+        assert 'default_provider = "openrouter"' in toml_content
+
+    @patch("click.confirm", return_value=True)
+    @patch("click.prompt")
+    def test_interactive_provider_flag_skips_selection(self, mock_prompt, mock_confirm, tmp_path):
+        """When --provider is explicitly set (not default), skip selection prompt."""
+        # With provider="openai" (non-default), prompts are: model accept (confirm),
+        # config target, API key, OSOJI_TOKEN, project slug
+        mock_prompt.side_effect = [1, "sk-openai", "", "myproject"]
+        run_init(root=tmp_path, interactive=True, provider="openai")
+        env_content = (tmp_path / ".env").read_text()
+        assert "OPENAI_API_KEY=sk-openai" in env_content
+        toml_content = (tmp_path / ".osoji.toml").read_text()
+        assert 'default_provider = "openai"' in toml_content
+
+    @patch("click.confirm")
+    @patch("click.prompt")
+    def test_interactive_model_override(self, mock_prompt, mock_confirm, tmp_path):
+        """User can override individual model tiers."""
+        # Sequence: provider (1=anthropic), model accept (N from confirm),
+        # small model, medium model, large model, config target (1),
+        # set API key? (Y), API key value, set OSOJI_TOKEN? (Y), token, project slug
+        mock_confirm.side_effect = [
+            True, True, True,  # gitignore entries
+            False,             # decline model defaults
+            True,              # set API key
+            True,              # set OSOJI_TOKEN
+        ]
+        mock_prompt.side_effect = [
+            1,                               # provider selection
+            "my-small", "my-medium", "my-large",  # model overrides
+            1,                               # config target
+            "sk-key",                        # API key
+            "",                              # OSOJI_TOKEN
+            "myproject",                     # project slug
+        ]
+        run_init(root=tmp_path, interactive=True, provider="anthropic")
+        toml_content = (tmp_path / ".osoji.toml").read_text()
+        assert 'default_provider = "anthropic"' in toml_content
+        assert "[providers.anthropic]" in toml_content
+        assert 'small = "my-small"' in toml_content
+        assert 'medium = "my-medium"' in toml_content
+        assert 'large = "my-large"' in toml_content
+
+    @patch("click.confirm", return_value=True)
+    @patch("click.prompt")
+    def test_interactive_local_config_target(self, mock_prompt, mock_confirm, tmp_path):
+        """User can save provider config to .osoji.local.toml."""
+        # provider (1), config target (2=local), API key, OSOJI_TOKEN, project slug
+        mock_prompt.side_effect = [1, 2, "sk-key", "", "myproject"]
+        run_init(root=tmp_path, interactive=True, provider="anthropic")
+        assert (tmp_path / ".osoji.local.toml").exists()
+        local_content = (tmp_path / ".osoji.local.toml").read_text()
+        assert 'default_provider = "anthropic"' in local_content
+
+    @patch("click.confirm", return_value=True)
+    @patch("click.prompt")
+    def test_interactive_claude_code_skips_api_key(self, mock_prompt, mock_confirm, tmp_path):
+        """claude-code provider skips API key prompt and model defaults."""
+        # provider (5=claude-code), config target (1), OSOJI_TOKEN, project slug
+        mock_prompt.side_effect = [5, 1, "", "myproject"]
+        run_init(root=tmp_path, interactive=True, provider="anthropic")
+        # No API key in .env (only OSOJI_TOKEN placeholder if declined)
+        if (tmp_path / ".env").exists():
+            env_content = (tmp_path / ".env").read_text()
+            assert "ANTHROPIC_API_KEY" not in env_content
+            assert "OPENAI_API_KEY" not in env_content
+        toml_content = (tmp_path / ".osoji.toml").read_text()
+        assert 'default_provider = "claude-code"' in toml_content
+
+    def test_non_interactive_idempotent(self, tmp_path):
+        """Running init twice is idempotent — skips existing entries."""
+        run_init(root=tmp_path, interactive=False, provider="anthropic")
+        run_init(root=tmp_path, interactive=False, provider="anthropic")
+        env_content = (tmp_path / ".env").read_text()
+        assert env_content.count("ANTHROPIC_API_KEY") == 1
+        assert env_content.count("OSOJI_TOKEN") == 1
 
 
 class TestInitCLI:
@@ -175,8 +345,20 @@ class TestInitCLI:
         result = runner.invoke(main, ["init", str(tmp_path), "--non-interactive"])
         assert result.exit_code == 0
         assert "Osoji project setup" in result.output
+        assert "Provider setup" in result.output
         assert (tmp_path / ".gitignore").exists()
         assert (tmp_path / ".env").exists()
+
+    def test_init_non_interactive_with_provider(self, tmp_path):
+        from click.testing import CliRunner
+        from osoji.cli import main
+
+        runner = CliRunner()
+        result = runner.invoke(main, ["init", str(tmp_path), "--non-interactive", "--provider", "google"])
+        assert result.exit_code == 0
+        assert "Google Gemini" in result.output
+        env_content = (tmp_path / ".env").read_text()
+        assert "GEMINI_API_KEY" in env_content
 
     def test_init_help(self):
         from click.testing import CliRunner

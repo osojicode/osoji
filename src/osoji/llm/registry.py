@@ -42,7 +42,7 @@ _PROVIDER_SPECS: dict[str, ProviderSpec] = {
         litellm_prefix="gemini",
         api_key_env="GEMINI_API_KEY",
         rate_limit_name="google",
-        requires_explicit_model=True,
+        requires_explicit_model=False,
     ),
     "openrouter": ProviderSpec(
         name="openrouter",
@@ -50,7 +50,7 @@ _PROVIDER_SPECS: dict[str, ProviderSpec] = {
         litellm_prefix="openrouter",
         api_key_env="OPENROUTER_API_KEY",
         rate_limit_name="openrouter",
-        requires_explicit_model=True,
+        requires_explicit_model=False,
     ),
     "claude-code": ProviderSpec(
         name="claude-code",

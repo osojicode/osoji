@@ -8,14 +8,23 @@ from pathlib import Path
 
 import click
 
-from .config import PROJECT_CONFIG_FILENAME
-from .llm.registry import get_provider_spec
+from .config import BUILTIN_PROVIDER_MODELS, PROJECT_CONFIG_FILENAME
+from .llm.registry import get_provider_spec, provider_names
 from .push import _infer_project_from_git_remote
 
 _GITIGNORE_ENTRIES: list[tuple[str, str]] = [
     (".osoji/", "intermediate results and derived data"),
     (".osoji.local.toml", "local config overrides"),
     (".env", "secrets file"),
+]
+
+# Display order and one-liner descriptions for provider selection.
+_PROVIDER_MENU: list[tuple[str, str]] = [
+    ("anthropic", "Claude models, built-in defaults"),
+    ("openai", "GPT models, built-in defaults"),
+    ("google", "Gemini models, built-in defaults"),
+    ("openrouter", "Multi-provider gateway, built-in defaults"),
+    ("claude-code", "Uses your Claude Code subscription (no API key needed)"),
 ]
 
 
@@ -154,6 +163,169 @@ def merge_project_toml(root: Path, *, project_slug: str | None) -> list[dict[str
     return [{"key": "push.project", "action": "added"}]
 
 
+def merge_provider_toml(
+    root: Path,
+    *,
+    provider: str,
+    models: dict[str, str] | None = None,
+    use_local: bool = False,
+) -> list[dict[str, str]]:
+    """Write provider config to a toml file.
+
+    Writes ``default_provider`` and optionally ``[providers.<name>]`` model
+    overrides.  *models* should only contain values that differ from the
+    built-in defaults (callers should filter before calling).
+
+    Parameters
+    ----------
+    use_local:
+        If True, write to ``.osoji.local.toml`` instead of ``.osoji.toml``.
+    """
+
+    filename = ".osoji.local.toml" if use_local else PROJECT_CONFIG_FILENAME
+    toml_path = root / filename
+    existing: dict = {}
+
+    if toml_path.exists():
+        try:
+            existing = tomllib.loads(toml_path.read_text(encoding="utf-8"))
+        except tomllib.TOMLDecodeError:
+            existing = {}
+
+    actions: list[dict[str, str]] = []
+
+    # --- default_provider ---
+    if existing.get("default_provider") == provider:
+        actions.append({
+            "key": "default_provider",
+            "action": "skipped",
+            "reason": f"already set in {filename}",
+        })
+    else:
+        actions.append({"key": "default_provider", "action": "added"})
+
+    # --- model overrides ---
+    if models:
+        existing_provider = existing.get("providers", {}).get(provider, {})
+        for tier, model in models.items():
+            if existing_provider.get(tier) == model:
+                actions.append({
+                    "key": f"providers.{provider}.{tier}",
+                    "action": "skipped",
+                    "reason": f"already set in {filename}",
+                })
+            else:
+                actions.append({
+                    "key": f"providers.{provider}.{tier}",
+                    "action": "added",
+                })
+
+    # Build the TOML content to append
+    lines_to_write: list[str] = []
+
+    # Only write if there's something new
+    added = [a for a in actions if a["action"] == "added"]
+    if not added:
+        return actions
+
+    original = toml_path.read_text(encoding="utf-8") if toml_path.exists() else ""
+    if original and not original.endswith("\n"):
+        lines_to_write.append("")
+
+    # Write default_provider if it's new
+    if any(a["key"] == "default_provider" and a["action"] == "added" for a in actions):
+        lines_to_write.append(f'default_provider = "{provider}"')
+
+    # Write model overrides if any
+    if models:
+        model_actions_added = [
+            a for a in actions
+            if a["action"] == "added" and a["key"].startswith("providers.")
+        ]
+        if model_actions_added:
+            lines_to_write.append("")
+            lines_to_write.append(f"[providers.{provider}]")
+            for tier, model in models.items():
+                key = f"providers.{provider}.{tier}"
+                if any(a["key"] == key and a["action"] == "added" for a in actions):
+                    lines_to_write.append(f'{tier} = "{model}"')
+
+    lines_to_write.append("")
+
+    with open(toml_path, "a", encoding="utf-8") as f:
+        f.write("\n".join(lines_to_write))
+
+    return actions
+
+
+def _prompt_provider_selection() -> str:
+    """Show numbered provider list and return the chosen provider name."""
+
+    click.echo("   Choose your LLM provider:")
+    click.echo()
+    for i, (name, description) in enumerate(_PROVIDER_MENU, 1):
+        spec = get_provider_spec(name)
+        click.echo(f"     {i}. {spec.display_name:<18} {description}")
+    click.echo()
+
+    choice = click.prompt(
+        "   Provider",
+        type=click.IntRange(1, len(_PROVIDER_MENU)),
+        default=1,
+    )
+    return _PROVIDER_MENU[choice - 1][0]
+
+
+def _prompt_model_defaults(provider: str) -> dict[str, str] | None:
+    """Show model defaults and let the user accept or override.
+
+    Returns a dict of overridden tiers (only values that differ from
+    built-in defaults), or None if defaults were accepted.
+    """
+
+    defaults = BUILTIN_PROVIDER_MODELS.get(provider)
+    if not defaults:
+        return None
+
+    click.echo()
+    spec = get_provider_spec(provider)
+    click.echo(f"   Model defaults for {spec.display_name}:")
+    click.echo(f"     small:  {defaults['small']}")
+    click.echo(f"     medium: {defaults['medium']}")
+    click.echo(f"     large:  {defaults['large']}")
+
+    if click.confirm("   Accept defaults?", default=True):
+        return None
+
+    overrides: dict[str, str] = {}
+    for tier in ("small", "medium", "large"):
+        value = click.prompt(f"   {tier} model", default=defaults[tier])
+        value = value.strip()
+        if value != defaults[tier]:
+            overrides[tier] = value
+
+    return overrides or None
+
+
+def _prompt_config_target() -> bool:
+    """Ask whether to save to shared or personal config.
+
+    Returns True for .osoji.local.toml, False for .osoji.toml.
+    """
+
+    click.echo()
+    click.echo("   Save provider config to:")
+    click.echo("     1. .osoji.toml        Shared with team, committed to git (Recommended)")
+    click.echo("     2. .osoji.local.toml  Personal, gitignored")
+    click.echo()
+    choice = click.prompt(
+        "   Config target",
+        type=click.IntRange(1, 2),
+        default=1,
+    )
+    return choice == 2
+
+
 def run_init(
     *,
     root: Path,
@@ -215,13 +387,62 @@ def run_init(
             else:
                 click.echo(f"   Already in .gitignore: {a['entry']}")
 
-    # --- 2. Secrets (.env) ---
+    # --- 2. Provider setup ---
     click.echo()
-    click.echo(click.style("2. Secrets (.env)", bold=True))
+    click.echo(click.style("2. Provider setup", bold=True))
 
-    spec = get_provider_spec(provider)
+    model_overrides: dict[str, str] | None = None
+    use_local_config = False
+
+    if interactive:
+        # Provider selection (--provider flag pre-selects)
+        provider_from_flag = provider != "anthropic"
+        if provider_from_flag:
+            spec = get_provider_spec(provider)
+            click.echo(f"   Provider: {spec.display_name} (from --provider flag)")
+        else:
+            provider = _prompt_provider_selection()
+            spec = get_provider_spec(provider)
+            click.echo(f"   Selected: {spec.display_name}")
+
+        # Model defaults (skip for claude-code — it manages models internally)
+        if provider != "claude-code":
+            model_overrides = _prompt_model_defaults(provider)
+        else:
+            click.echo("   Claude Code manages model selection internally.")
+
+        # Config target
+        use_local_config = _prompt_config_target()
+    else:
+        spec = get_provider_spec(provider)
+        click.echo(f"   Provider: {spec.display_name} (built-in defaults)")
+
+    # Write provider config
+    provider_actions = merge_provider_toml(
+        root,
+        provider=provider,
+        models=model_overrides,
+        use_local=use_local_config,
+    )
+    target_file = ".osoji.local.toml" if use_local_config else PROJECT_CONFIG_FILENAME
+    for a in provider_actions:
+        if a["action"] == "added":
+            click.echo(f"   {click.style('ok', fg='green')} Set {a['key']} in {target_file}")
+        else:
+            click.echo(f"   Skipping {a['key']} ({a['reason']})")
+
+    # Guidance
+    click.echo()
+    click.echo("   Tip: To switch providers later, set default_provider in your config file:")
+    click.echo(f'     default_provider = "{provider}"')
+    click.echo("   Or set OSOJI_PROVIDER and OSOJI_MODEL environment variables.")
+    click.echo("   Run `osoji config show` to see your current configuration.")
+
+    # --- 3. Secrets (.env) ---
+    click.echo()
+    click.echo(click.style("3. Secrets (.env)", bold=True))
+
     api_key_env = spec.api_key_env
-
     env_values: dict[str, str] = {}
 
     if interactive:
@@ -230,19 +451,23 @@ def run_init(
         if env_path.exists():
             existing_keys = _parse_env_keys(env_path.read_text(encoding="utf-8"))
 
-        click.echo(f"   LLM provider: {provider}")
-
-        if api_key_env:
+        if provider == "claude-code":
+            click.echo("   Claude Code uses your existing subscription. No API key needed.")
+        elif api_key_env:
             if api_key_env in existing_keys:
                 click.echo(f"   Skipping {api_key_env} in .env (already set)")
             elif click.confirm(f"   Set {api_key_env}?", default=True):
                 value = click.prompt(f"   {api_key_env}", default="", hide_input=True)
                 env_values[api_key_env] = value
+            else:
+                click.echo(f"   Skipped. Add your API key later in .env:")
+                click.echo(f"     {api_key_env}=<your-key>")
+                click.echo(f"   Or set it as an environment variable.")
 
         if "OSOJI_TOKEN" in existing_keys:
             click.echo(f"   Skipping OSOJI_TOKEN in .env (already set)")
-        elif click.confirm(f"   Set OSOJI_TOKEN? (needed for `osoji push`)", default=True):
-            value = click.prompt(f"   OSOJI_TOKEN", default="", hide_input=True)
+        elif click.confirm("   Set OSOJI_TOKEN? (needed for `osoji push`)", default=True):
+            value = click.prompt("   OSOJI_TOKEN", default="", hide_input=True)
             env_values["OSOJI_TOKEN"] = value
 
         if env_values:
@@ -252,7 +477,7 @@ def run_init(
                     click.echo(f"   {click.style('ok', fg='green')} Added {a['key']} to .env")
                 else:
                     click.echo(f"   Skipping {a['key']} in .env ({a['reason']})")
-        elif not existing_keys:
+        elif not existing_keys and provider != "claude-code":
             click.echo("   No secrets configured.")
     else:
         if api_key_env:
@@ -265,9 +490,9 @@ def run_init(
             else:
                 click.echo(f"   Skipping {a['key']} in .env ({a['reason']})")
 
-    # --- 3. Project config (.osoji.toml) ---
+    # --- 4. Project config (.osoji.toml) ---
     click.echo()
-    click.echo(click.style("3. Project config (.osoji.toml)", bold=True))
+    click.echo(click.style("4. Project config (.osoji.toml)", bold=True))
 
     inferred_slug = _infer_project_from_git_remote(root)
 

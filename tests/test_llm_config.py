@@ -155,8 +155,9 @@ def test_env_overrides_project_policy(monkeypatch, tmp_path):
     assert config.config_snapshot["models"]["medium"]["source"] == "env"
 
 
-def test_non_anthropic_provider_requires_explicit_model(monkeypatch, tmp_path):
+def test_non_anthropic_provider_uses_builtin_defaults(monkeypatch, tmp_path):
     _clear_llm_env(monkeypatch)
 
-    with pytest.raises(RuntimeError, match="Set --model, OSOJI_MODEL, or OSOJI_MODEL_SMALL"):
-        Config(root_path=tmp_path, provider="openrouter")
+    config = Config(root_path=tmp_path, provider="openrouter")
+    assert config.provider == "openrouter"
+    assert config.config_snapshot["models"]["small"]["source"] == "builtin"
