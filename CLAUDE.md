@@ -69,7 +69,8 @@ export analysis, and string contract checking.
 
 ## Key architecture
 
-- `src/osoji/cli.py` — Click CLI with subcommands: `shadow`, `check` (`--dry-run`), `diff`, `stats`, `audit`, `report`, `export`, `push`, `hooks`, `safety`, `config show`, `skills list|show`
+- `src/osoji/cli.py` — Click CLI with subcommands: `init`, `shadow`, `check` (`--dry-run`), `diff`, `stats`, `audit`, `report`, `export`, `push`, `hooks`, `safety`, `config show`, `skills list|show`
+- `src/osoji/init.py` — Interactive project setup (gitignore, .env, .osoji.toml merge)
 - `src/osoji/config.py` — Configuration, path helpers, model tier constants
 - `src/osoji/shadow.py` — Core shadow doc generation engine
 - `src/osoji/audit.py` — Multi-phase audit orchestration
@@ -116,9 +117,11 @@ the bundle shape produced by `osoji export`. It uses JSON Schema Draft 2020-12.
 The `osoji push` command reads `[push]` config from three files (later overrides earlier):
 - `~/.config/osoji/config.toml` — global defaults
 - `.osoji.toml` — committed project config (project, endpoint)
-- `.osoji.local.toml` — gitignored local overrides (token, custom endpoint)
+- `.osoji.local.toml` — gitignored local overrides (endpoint, project)
 
 CLI flags and environment variables (`OSOJI_ENDPOINT`, `OSOJI_TOKEN`) take highest precedence.
+Secrets (`OSOJI_TOKEN`, API keys) go in `.env` — loaded automatically, never committed.
+In non-quiet mode, `osoji push` prints which source each config value was resolved from.
 
 ## LLM parameters
 
