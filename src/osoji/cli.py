@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import click
+from dotenv import load_dotenv
 
 from .audit import run_audit, format_audit_report, format_audit_json, format_audit_html, load_audit_result
 from .config import Config
@@ -14,6 +15,7 @@ from .stats import gather_stats, format_stats_report
 from .observatory import write_observatory_bundle
 from .hooks import install_hooks, uninstall_hooks
 from .push import run_push
+from .init import run_init
 from .llm import provider_names
 from .safety import check_staged_files, check_files as safety_check_files
 from .safety.checker import format_check_result
@@ -80,9 +82,34 @@ def main(ctx: click.Context, verbose: bool, quiet: bool) -> None:
     Audit your project for dead code, stale documentation, and semantic
     contradictions. Ships with agent skill files for automated triage and fixing.
     """
+    load_dotenv()  # Load .env before any subcommand (does not override existing env vars)
     if verbose and quiet:
         raise click.UsageError("Cannot use --verbose and --quiet together.")
     ctx.obj = CLIState(verbose=verbose, quiet=quiet)
+
+
+@main.command()
+@click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
+@click.option("--non-interactive", is_flag=True, help="Skip prompts, write templates with placeholders")
+@click.option("--provider", type=_LLM_PROVIDER_CHOICE, default="anthropic", help="LLM provider (determines which API key to configure)")
+def init(path: Path, non_interactive: bool, provider: str) -> None:
+    """Set up osoji for this project.
+
+    Creates or updates .gitignore, .env, and .osoji.toml with sensible
+    defaults. Prompts for API keys and project config interactively.
+
+    \b
+    Examples:
+        osoji init                          # Interactive setup
+        osoji init --non-interactive        # Write templates without prompting
+        osoji init --provider openai        # Configure for OpenAI instead
+        osoji init /path/to/project         # Init a specific directory
+    """
+    run_init(
+        root=path.resolve(),
+        interactive=not non_interactive,
+        provider=provider,
+    )
 
 
 @main.command()

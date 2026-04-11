@@ -153,3 +153,26 @@ class TestRunInit:
         env_content = (tmp_path / ".env").read_text()
         assert "# OPENAI_API_KEY=" in env_content
         assert "ANTHROPIC_API_KEY" not in env_content
+
+
+class TestInitCLI:
+    def test_init_non_interactive_creates_files(self, tmp_path):
+        from click.testing import CliRunner
+        from osoji.cli import main
+
+        runner = CliRunner()
+        result = runner.invoke(main, ["init", str(tmp_path), "--non-interactive"])
+        assert result.exit_code == 0
+        assert "Osoji project setup" in result.output
+        assert (tmp_path / ".gitignore").exists()
+        assert (tmp_path / ".env").exists()
+
+    def test_init_help(self):
+        from click.testing import CliRunner
+        from osoji.cli import main
+
+        runner = CliRunner()
+        result = runner.invoke(main, ["init", "--help"])
+        assert result.exit_code == 0
+        assert "--non-interactive" in result.output
+        assert "--provider" in result.output
