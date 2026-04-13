@@ -100,7 +100,7 @@ class TestAssembleDirectoryShadowDoc:
 
 @pytest.fixture
 def project(tmp_path):
-    """Create a minimal project with a source file and matching shadow doc."""
+    """Create a minimal project with a source file."""
     src = tmp_path / "hello.py"
     src.write_text("print('hello')", encoding="utf-8")
 

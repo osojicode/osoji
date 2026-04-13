@@ -493,3 +493,84 @@ def test_to_file_facts_dict_omits_none_string_literals():
     ef = ExtractedFacts()
     d = ef.to_file_facts_dict("x.ts", "hash")
     assert "string_literals" not in d
+
+
+# --- Base class extraction tests ---
+
+
+def test_class_bases_extracted(plugin, project):
+    """visit_ClassDef extracts base class names into 'bases' field."""
+    project.add("mod.py", """\
+        from abc import ABC
+
+        class Base(ABC):
+            pass
+
+        class Child(Base):
+            pass
+    """)
+    result = plugin.extract_project_facts(project.root, project.files)
+    exports = result["mod.py"].exports
+    base_export = next(e for e in exports if e["name"] == "Base")
+    child_export = next(e for e in exports if e["name"] == "Child")
+
+    assert base_export.get("bases") == ["ABC"]
+    assert child_export.get("bases") == ["Base"]
+
+
+def test_class_dotted_base_extracted(plugin, project):
+    """Dotted base class names (module.Class) are extracted."""
+    project.add("mod.py", """\
+        import abc
+
+        class MyABC(abc.ABC):
+            pass
+    """)
+    result = plugin.extract_project_facts(project.root, project.files)
+    exports = result["mod.py"].exports
+    cls_export = next(e for e in exports if e["name"] == "MyABC")
+
+    assert cls_export.get("bases") == ["abc.ABC"]
+
+
+def test_class_no_bases_omits_field(plugin, project):
+    """Classes without bases don't have a 'bases' field."""
+    project.add("mod.py", """\
+        class Plain:
+            pass
+    """)
+    result = plugin.extract_project_facts(project.root, project.files)
+    exports = result["mod.py"].exports
+    cls_export = next(e for e in exports if e["name"] == "Plain")
+
+    assert "bases" not in cls_export
+
+
+def test_nested_function_not_exported(plugin, project):
+    """Nested functions inside top-level functions are NOT exported."""
+    project.add("mod.py", """\
+        def outer():
+            def inner():
+                pass
+            return inner()
+    """)
+    result = plugin.extract_project_facts(project.root, project.files)
+    export_names = {e["name"] for e in result["mod.py"].exports}
+
+    assert "outer" in export_names
+    assert "inner" not in export_names
+    assert "outer.inner" not in export_names
+
+
+def test_class_method_still_exported(plugin, project):
+    """Methods inside classes are still exported (regression check)."""
+    project.add("mod.py", """\
+        class MyClass:
+            def method(self):
+                pass
+    """)
+    result = plugin.extract_project_facts(project.root, project.files)
+    export_names = {e["name"] for e in result["mod.py"].exports}
+
+    assert "MyClass" in export_names
+    assert "MyClass.method" in export_names

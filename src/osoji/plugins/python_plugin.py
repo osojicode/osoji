@@ -167,6 +167,7 @@ class _FileExtractor(ast.NodeVisitor):
 
         self._scope_stack: list[str] = []
         self._depth = 0  # nesting depth for top-level detection
+        self._class_scope_depth = 0  # tracks whether we're inside a class body
         self._docstring_lines: set[int] = set()
 
     def _is_exported(self, name: str) -> bool:
@@ -243,7 +244,7 @@ class _FileExtractor(ast.NodeVisitor):
         self._handle_funcdef(node)
 
     def _handle_funcdef(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
-        if self._depth == 0 or (self._depth == 1 and self._scope_stack):
+        if self._depth == 0 or (self._depth == 1 and self._class_scope_depth > 0):
             name = node.name
             if self._scope_stack:
                 name = f"{self._scope_stack[-1]}.{node.name}"
@@ -267,18 +268,24 @@ class _FileExtractor(ast.NodeVisitor):
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
         if self._depth == 0 and self._is_exported(node.name):
-            self.exports.append({
+            export: dict[str, Any] = {
                 "name": node.name,
                 "kind": "class",
                 "line": node.lineno,
                 "decorators": _decorator_names(node.decorator_list),
                 "exclude_from_dead_analysis": _has_framework_decorator(node.decorator_list),
-            })
+            }
+            bases = [n for b in node.bases if (n := _decorator_name(b))]
+            if bases:
+                export["bases"] = bases
+            self.exports.append(export)
 
         self._scope_stack.append(node.name)
+        self._class_scope_depth += 1
         self._depth += 1
         self.generic_visit(node)
         self._depth -= 1
+        self._class_scope_depth -= 1
         self._scope_stack.pop()
 
     def visit_Assign(self, node: ast.Assign) -> None:

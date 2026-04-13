@@ -73,14 +73,15 @@ osoji audit . --doc-prompts
 ### What happens during the pipeline
 
 The doc-prompts pipeline runs as Phase 5.5, after the scorecard is built in
-Phase 5. It has four stages:
+Phase 5. It has five stages:
 
 | Stage | Name | Type | Description |
 |-------|------|------|-------------|
 | 0 | Metadata loading | Pure Python | Loads file-level topic signatures, file roles, fan-in counts, and public symbol counts from `.osoji/signatures/`, `.osoji/symbols/`, and `.osoji/facts/`. |
 | 1+2 | Concept inventory | LLM | Clusters file-level topics into 15-25 codebase-level concepts. For each concept, assigns a role and determines which Diataxis types are appropriate. Combined into a single LLM call. |
 | 3 | Coverage mapping | Pure Python | Cross-references concepts against existing documentation (from the scorecard's `CoverageEntry` data) to find covered, partially covered, and undocumented concepts. |
-| 4 | Gap analysis + prompt generation | LLM | Computes priority scores, clusters related concepts, and generates self-contained writing prompts for each documentation gap. |
+| 4a | Priority + clustering | Pure Python | Computes priority scores and clusters related concepts. |
+| 4b | Writing prompt generation | LLM | Generates self-contained writing prompts for each documentation gap. |
 
 During a verbose audit, you see timing and counts:
 

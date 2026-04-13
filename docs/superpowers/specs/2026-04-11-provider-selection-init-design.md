@@ -43,8 +43,13 @@ The init flow goes from 3 phases to 4:
    Provider [1]:
 ```
 
-When `--provider` is passed on CLI, skip the selection prompt and use it
-directly — print `Provider: {display_name} (from --provider flag)`.
+When `--provider` is passed on CLI with a non-default value, skip the selection
+prompt and use it directly — print `Provider: {display_name} (from --provider flag)`.
+
+> **Note:** The current implementation uses `provider != "anthropic"` to detect
+> an explicit `--provider` flag. Since the CLI default is also `"anthropic"`,
+> passing `--provider anthropic` explicitly will NOT skip the prompt. Use
+> Click's `Context.get_parameter_source()` to fix this if needed.
 
 **Model defaults display** — show the built-in tier defaults for the chosen
 provider and let the user accept or override:

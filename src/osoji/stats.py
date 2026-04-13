@@ -186,13 +186,11 @@ def _gather_file_stats_offline(config: Config, files: list[Path]) -> list[FileSt
     return file_stats
 
 
-async def gather_stats_async(config: Config, use_api: bool = True) -> ProjectStats:
+async def gather_stats_async(config: Config) -> ProjectStats:
     """Gather token statistics for all files in the project asynchronously.
 
     Args:
         config: Project configuration
-        use_api: If True, use provider-aware token counting.
-                 If False, use offline estimation.
 
     Returns:
         ProjectStats with token counts for all files
@@ -201,7 +199,8 @@ async def gather_stats_async(config: Config, use_api: bool = True) -> ProjectSta
     file_stats: list[FileStats] = []
     counter_label = _OFFLINE_COUNTER_LABEL
 
-    if use_api:
+    # Try provider-aware token counting, fall back to offline estimation on error.
+    if config.provider:
         default_model = config.model_for("medium")
         token_cache = _load_token_cache(config)
         counter = TokenCounter(provider=config.provider or "anthropic", default_model=default_model)
@@ -247,7 +246,7 @@ def gather_stats(config: Config) -> ProjectStats:
     """Gather token statistics for all files in the project (sync wrapper).
     """
 
-    return asyncio.run(gather_stats_async(config, use_api=True))
+    return asyncio.run(gather_stats_async(config))
 
 
 def format_stats_report(stats: ProjectStats, verbose: bool = False) -> str:

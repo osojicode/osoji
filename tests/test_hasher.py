@@ -19,14 +19,14 @@ class TestComputeImplHash:
         int(h, 16)
 
     def test_auto_discovers_py_files(self):
-        """impl hash should include more files than the old 8-file whitelist."""
+        """impl hash should discover a substantial number of source files."""
         pkg_dir = Path(__file__).resolve().parent.parent / "src" / "osoji"
         all_py = sorted(pkg_dir.rglob("*.py"))
         included = [
             f for f in all_py
             if f.relative_to(pkg_dir).as_posix() not in _IMPL_HASH_EXCLUDES
         ]
-        # Should find many more than 8 source files in the package
+        # Should find a substantial number of source files in the package
         assert len(included) > 8
 
     def test_excludes_are_respected(self):

@@ -823,7 +823,7 @@ class DeadCICDAnalyzer(JunkAnalyzer):
     def cli_flag(self) -> str:
         return "dead-cicd"
 
-    def analyze(self, config, on_progress=None, rate_limiter=None):
+    def analyze(self, config):
         """Sync wrapper — skip symbols-dir check (CI/CD doesn't need symbols)."""
         cicd_files = discover_cicd_files(config)
         if not cicd_files:
@@ -831,10 +831,10 @@ class DeadCICDAnalyzer(JunkAnalyzer):
             return JunkAnalysisResult(findings=[], total_candidates=0, analyzer_name=self.name)
 
         async def _run() -> JunkAnalysisResult:
-            logging_provider, _ = create_runtime(config, rate_limiter=rate_limiter)
+            logging_provider, _ = create_runtime(config)
             try:
                 return await self.analyze_async(
-                    logging_provider, config, on_progress, cicd_files=cicd_files
+                    logging_provider, config, None, cicd_files=cicd_files
                 )
             finally:
                 await logging_provider.close()

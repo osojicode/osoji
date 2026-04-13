@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `osoji skills list/show` — bundled AI agent skill files (`osoji-sweep`,
   `osoji-triage`)
 - Multi-provider LLM support: Anthropic, OpenAI, Google Gemini, OpenRouter
-  (via LiteLLM), Claude Code (via CLI subprocess)
+  (all via LiteLLM), Claude Code (via CLI subprocess)
 - Tiered model configuration (small / medium / large) via TOML config files
 - Reservation-based async rate limiter with provider-specific defaults and
   environment variable overrides

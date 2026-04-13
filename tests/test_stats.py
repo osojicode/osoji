@@ -59,7 +59,7 @@ def test_gather_stats_falls_back_to_offline_when_counter_fails(monkeypatch, tmp_
     monkeypatch.setattr("osoji.stats.discover_files", lambda _config: [source_path])
     monkeypatch.setattr("osoji.stats.TokenCounter", lambda **kwargs: _FailingCounter())
 
-    project_stats = asyncio.run(gather_stats_async(config, use_api=True))
+    project_stats = asyncio.run(gather_stats_async(config))
 
     assert project_stats.used_api is False
     assert project_stats.counter_label == "offline estimation (~4 chars/token)"

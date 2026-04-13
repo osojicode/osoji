@@ -580,8 +580,8 @@ def test_workspace_package_detection_npm(tmp_path):
 # ---------------------------------------------------------------------------
 
 
-def test_backward_compat_array_input(plugin, tmp_path):
-    """Plugin sends new object format; extract.js also accepts old array format."""
+def test_object_format_input(plugin, tmp_path):
+    """Plugin sends new object format with files key."""
     (tmp_path / "tsconfig.json").write_text("{}", encoding="utf-8")
     ts_file = tmp_path / "lib.ts"
     ts_file.write_text("export const a = 1;", encoding="utf-8")

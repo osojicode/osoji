@@ -598,7 +598,7 @@ class OrphanedFilesAnalyzer(JunkAnalyzer):
                 remediation=v.remediation,
                 original_purpose=f"file `{v.source_path}`",
             )
-            for v in results if v.is_orphaned
+            for v in results
         ]
         return JunkAnalysisResult(
             findings=findings,

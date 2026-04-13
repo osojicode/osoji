@@ -59,7 +59,7 @@ EXCLUDABLE_PHASES: list[str] = [
     "shadow", "doc-analysis", "debris", "obligations", "doc-prompts",
 ] + [cls().cli_flag for cls in JUNK_ANALYZERS]
 
-# Map junk analyzer .name → .cli_flag for exclude_key tagging.
+# Map junk analyzer .name → .cli_flag for exclude_key tagging and display names.
 _JUNK_NAME_TO_CLI_FLAG: dict[str, str] = {cls().name: cls().cli_flag for cls in JUNK_ANALYZERS}
 
 
@@ -263,10 +263,10 @@ async def _verify_debris_findings_async(
     config: Config,
     debris_findings: list[dict],
     rate_limiter: RateLimiter,
-) -> set[int]:
+) -> tuple[set[int], tuple[int, int]]:
     """Verify dead_code, latent_bug, and stale_comment debris findings against cross-file evidence.
 
-    Returns a set of indices (into debris_findings) that should be suppressed (false positives).
+    Returns a 2-tuple of (set of indices to suppress, (input_tokens, output_tokens)).
     """
     from .facts import FactsDB
     from .llm import CompletionOptions, Message, MessageRole
@@ -2123,7 +2123,7 @@ def _html_file_health_section(result: "AuditResult") -> str:
         return ""
 
     # Sort by health ascending (worst first)
-    rows.sort(key=lambda r: (r[1] if r[1] is not None else 1.0))
+    rows.sort(key=lambda r: r[1])
 
     parts: list[str] = []
     parts.append('<div class="section" id="section-file-health">')

@@ -558,6 +558,118 @@ def _group_symbols_by_file(
     return result
 
 
+def _build_interface_alive_methods(facts_db: FactsDB) -> set[str]:
+    """Build set of 'ClassName.method' names alive via interface/class contracts.
+
+    A method is alive if any of these hold:
+    1. Its class has a base class whose same-named method has
+       exclude_from_dead_analysis=True (abstract/framework decorator).
+    2. It is ``__init__`` and its class has cross-file references
+       (constructor is called implicitly when the class is instantiated).
+    3. It is ``__post_init__`` and its class is a dataclass that is alive.
+
+    Handles multi-level inheritance via fixpoint iteration.
+    """
+    # Phase 1 — collect class metadata from all AST-extracted files.
+    class_bases: dict[str, list[str]] = {}        # ClassName -> [BaseName, ...]
+    class_file: dict[str, str] = {}               # ClassName -> source path
+    class_decorators: dict[str, list[str]] = {}   # ClassName -> decorator names
+    # method_name (unqualified) -> set of classes that mark it exclude_from_dead
+    interface_methods_by_name: dict[str, set[str]] = {}
+
+    for file_path in facts_db.all_files():
+        file_facts = facts_db.get_file(file_path)
+        if not file_facts or file_facts.extraction_method != "ast":
+            continue
+        for exp in file_facts.exports:
+            if exp.get("kind") != "class":
+                continue
+            cls_name = exp["name"]
+            class_file[cls_name] = file_path
+            class_decorators[cls_name] = exp.get("decorators", [])
+            bases = exp.get("bases") or exp.get("implements") or []
+            if bases:
+                class_bases[cls_name] = bases
+
+        # Index methods marked exclude_from_dead_analysis (abstract / framework).
+        for exp in file_facts.exports:
+            if exp.get("kind") != "function":
+                continue
+            if not exp.get("exclude_from_dead_analysis"):
+                continue
+            name = exp["name"]
+            if "." in name:
+                cls_part, method_part = name.rsplit(".", 1)
+                interface_methods_by_name.setdefault(method_part, set()).add(cls_part)
+
+    # Phase 2 — resolve base class names to their defining files.
+    #   base_name could be a simple name ("LLMProvider") or qualified
+    #   ("module.LLMProvider").  Try same-file first, then imports.
+    def _resolve_base(derived_file: str, base_name: str) -> str | None:
+        """Return the source file that defines *base_name*, or None."""
+        simple = base_name.rsplit(".", 1)[-1]
+        # Already indexed directly?
+        if simple in class_file:
+            return class_file[simple]
+        # Check imports of the derived file.
+        derived_facts = facts_db.get_file(derived_file)
+        if not derived_facts:
+            return None
+        for imp in derived_facts.imports:
+            names = imp.get("names", [])
+            name_map = imp.get("name_map", {})
+            if simple in names or simple in name_map.values():
+                resolved = facts_db.resolve_import_source(
+                    derived_file, imp.get("source", "")
+                )
+                if resolved:
+                    return resolved
+        return None
+
+    # Phase 3 — propagate interface methods down the class hierarchy.
+    alive: set[str] = set()  # qualified "DerivedClass.method" strings
+
+    # Fixpoint: keep propagating until no new methods are discovered.
+    changed = True
+    while changed:
+        changed = False
+        for cls_name, bases in class_bases.items():
+            derived_file = class_file.get(cls_name, "")
+            for base_name in bases:
+                simple_base = base_name.rsplit(".", 1)[-1]
+                base_file = _resolve_base(derived_file, base_name)
+                if not base_file:
+                    continue
+                base_facts = facts_db.get_file(base_file)
+                if not base_facts:
+                    continue
+                for exp in base_facts.exports:
+                    if exp.get("kind") != "function":
+                        continue
+                    full_name = exp["name"]
+                    if "." not in full_name:
+                        continue
+                    base_cls, method_name = full_name.rsplit(".", 1)
+                    if base_cls != simple_base:
+                        continue
+                    # If base method is abstract/framework OR already marked alive
+                    if exp.get("exclude_from_dead_analysis") or full_name in alive:
+                        qualified = f"{cls_name}.{method_name}"
+                        if qualified not in alive:
+                            alive.add(qualified)
+                            changed = True
+
+    # Phase 4 — __init__ and __post_init__ on instantiated classes.
+    for cls_name, file_path in class_file.items():
+        cls_refs = facts_db.cross_file_references(cls_name, file_path)
+        if cls_refs:
+            alive.add(f"{cls_name}.__init__")
+            if "dataclass" in class_decorators.get(cls_name, []):
+                alive.add(f"{cls_name}.__post_init__")
+
+    return alive
+
+
 async def detect_dead_code_async(
     provider: LLMProvider,
     config: Config,
@@ -577,6 +689,7 @@ async def detect_dead_code_async(
     facts_db = FactsDB(config)
     all_symbols = load_all_symbols(config)
     file_roles = load_file_roles(config)
+    interface_alive = _build_interface_alive_methods(facts_db)
 
     ast_proven: list[DeadCodeVerification] = []
     ast_proven_keys: set[tuple[str, str]] = set()
@@ -612,6 +725,9 @@ async def detect_dead_code_async(
                 continue
             refs = facts_db.cross_file_references(sym["name"], source_path)
             if not refs:
+                # Skip symbols alive via interface contracts or constructor patterns
+                if sym["name"] in interface_alive:
+                    continue
                 ast_proven.append(DeadCodeVerification(
                     source_path=source_path,
                     name=sym["name"],
