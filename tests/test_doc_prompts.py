@@ -1,7 +1,5 @@
 """Tests for the doc_prompts module."""
 
-import pytest
-
 from osoji.doc_prompts import (
     Concept,
     DocPromptsResult,

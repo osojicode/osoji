@@ -9,7 +9,7 @@ from pathlib import Path
 import click
 
 from .config import BUILTIN_PROVIDER_MODELS, PROJECT_CONFIG_FILENAME
-from .llm.registry import get_provider_spec, provider_names
+from .llm.registry import get_provider_spec
 from .push import _infer_project_from_git_remote
 
 _GITIGNORE_ENTRIES: list[tuple[str, str]] = [

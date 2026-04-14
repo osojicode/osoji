@@ -153,7 +153,7 @@ The companion module `src/osoji/symbols.py` provides utilities for loading symbo
           detection  contracts analysis  bundle
 ```
 
-**Dead code detection** (`deadcode.py`): Uses `cross_file_references` for the AST fast path -- symbols with zero cross-file references are proven dead. Uses `importers_of` to check whether all importers have AST-extracted facts (the completeness check for the fast path). Uses `get_file` to read `exclude_from_dead_analysis` flags on exports. See [dead code detection](dead-code-detection.md).
+**Dead code detection** (`deadcode.py`): Uses `cross_file_references` for the AST fast path -- symbols with zero cross-file references are candidates for dead code, subject to rescue by transitive liveness analysis (within-file BFS from externally-referenced symbols), interface-aware resolution (methods implementing abstract base class contracts via the `bases` export field), and constructor patterns (`__init__` on instantiated classes, `__post_init__` on dataclasses). Uses `importers_of` to check whether all importers have AST-extracted facts (the completeness check for the fast path). Uses `get_file` to read `exclude_from_dead_analysis` flags and `bases` on exports. See [dead code detection](dead-code-detection.md).
 
 **String contract checking** (`obligations.py`): Uses `string_entries_by_usage("checked", kind="identifier")` to build per-file checked string sets. Uses `imports_of` for the `_files_are_linked` check in fragility detection -- determining whether producer and consumer are connected through the import graph. Uses `resolve_import_source` to distinguish external packages from internal imports. See [string contract obligations](string-contract-obligations.md).
 

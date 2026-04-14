@@ -55,8 +55,8 @@ class ClaudeCodeProvider(LLMProvider):
     quota instead of paying per-token API charges.
     """
 
-    def __init__(self, *, claude_path: str | None = None) -> None:
-        resolved = claude_path or os.environ.get("OSOJI_CLAUDE_PATH")
+    def __init__(self) -> None:
+        resolved = os.environ.get("OSOJI_CLAUDE_PATH")
         if not resolved:
             resolved = shutil.which("claude")
         if not resolved:

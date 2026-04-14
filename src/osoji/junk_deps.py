@@ -760,7 +760,7 @@ def _find_config_snippets(
             continue
         name = child.name
         match = any(
-            re.match(p.replace("*", ".*"), name) for p in config_patterns
+            re.match(re.escape(p).replace(r"\*", ".*"), name) for p in config_patterns
         )
         if not match:
             continue
@@ -967,14 +967,14 @@ class DeadDepsAnalyzer(JunkAnalyzer):
     def cli_flag(self) -> str:
         return "dead-deps"
 
-    def analyze(self, config, on_progress=None, rate_limiter=None):
+    def analyze(self, config):
         """Sync wrapper — skip symbols-dir check (deps don't need symbols)."""
 
         async def _run() -> JunkAnalysisResult:
-            logging_provider, _ = create_runtime(config, rate_limiter=rate_limiter)
+            logging_provider, _ = create_runtime(config)
             try:
                 return await self.analyze_async(
-                    logging_provider, config, on_progress
+                    logging_provider, config, None
                 )
             finally:
                 await logging_provider.close()

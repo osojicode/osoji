@@ -40,7 +40,8 @@ The osoji codebase is available for studying false positives and missed detectio
 
 - **GitHub**: `https://github.com/osojicode/osoji`
 - **Key entry points**: `src/osoji/audit.py` (orchestration), `src/osoji/cli.py`
-  (CLI commands), `src/osoji/tools.py` (LLM tool schemas)
+  (CLI commands), `src/osoji/tools.py` (LLM tool schemas), system prompts in
+  the calling modules (`shadow.py`, `audit.py`, `doc_analysis.py`, etc.)
 
 If osoji is installed locally, read its shadow docs at `.osoji/shadow/` in the
 osoji repo to orient yourself before diving into source files.

@@ -4,10 +4,10 @@
  *
  * Usage:
  *   echo '["src/foo.ts","src/bar.ts"]' | node extract.js <tsconfig_path> [tsconfig_path...]
- *   echo '{"files":["src/foo.ts"],"workspacePackages":{}}' | node extract.js <tsconfig_path>
+ *   echo '{"files":["src/foo.ts"]}' | node extract.js <tsconfig_path>
  *
- * Reads either a JSON array (backward compat) or a JSON object with "files" and
- * "workspacePackages" from stdin.  Outputs a JSON object mapping each file path
+ * Reads either a JSON array (backward compat) or a JSON object with "files"
+ * from stdin.  Outputs a JSON object mapping each file path
  * to its extracted facts:
  *   { "src/foo.ts": { imports, exports, calls, member_writes } }
  */
@@ -273,7 +273,9 @@ process.stdin.on("end", () => {
       const classDecorators = cls.getDecorators().map((d) => d.getName());
       const classExclude = hasFrameworkDecorator(classDecorators);
 
-      // Collect implements
+      // Collect extends and implements
+      const baseClass = cls.getBaseClass();
+      const extendsName = baseClass ? baseClass.getName() : null;
       const implementsList = cls.getImplements().map((i) => i.getText());
 
       // Class-level export
@@ -284,6 +286,9 @@ process.stdin.on("end", () => {
         decorators: classDecorators,
         exclude_from_dead_analysis: classExclude,
       };
+      if (extendsName) {
+        classExport.bases = [extendsName];
+      }
       if (implementsList.length > 0) {
         classExport.implements = implementsList;
       }
@@ -492,23 +497,25 @@ process.stdin.on("end", () => {
     importMaps[relPath] = imap;
   }
 
+  // Resolve a call to its cross-file key ("defFile::symbolName").
+  function crossCallKey(relPath, callee, imap) {
+    const root = callee.split(".")[0];
+    if (imap[root]) {
+      const { resolvedPath, originalName } = imap[root];
+      const resolvedName = callee.includes(".")
+        ? originalName + callee.substring(root.length)
+        : originalName;
+      return `${resolvedPath}::${resolvedName}`;
+    }
+    return `${relPath}::${callee}`;
+  }
+
   // Count cross-file call sites
   const crossCallCounts = {}; // "defFile::symbolName" -> count
   for (const [relPath, data] of Object.entries(result)) {
     const imap = importMaps[relPath] || {};
     for (const call of data.calls) {
-      const callee = call.to;
-      const root = callee.split(".")[0];
-      let key;
-      if (imap[root]) {
-        const { resolvedPath, originalName } = imap[root];
-        const resolvedName = callee.includes(".")
-          ? originalName + callee.substring(root.length)
-          : originalName;
-        key = `${resolvedPath}::${resolvedName}`;
-      } else {
-        key = `${relPath}::${callee}`;
-      }
+      const key = crossCallKey(relPath, call.to, imap);
       crossCallCounts[key] = (crossCallCounts[key] || 0) + 1;
     }
   }
@@ -517,18 +524,7 @@ process.stdin.on("end", () => {
   for (const [relPath, data] of Object.entries(result)) {
     const imap = importMaps[relPath] || {};
     for (const call of data.calls) {
-      const callee = call.to;
-      const root = callee.split(".")[0];
-      let key;
-      if (imap[root]) {
-        const { resolvedPath, originalName } = imap[root];
-        const resolvedName = callee.includes(".")
-          ? originalName + callee.substring(root.length)
-          : originalName;
-        key = `${resolvedPath}::${resolvedName}`;
-      } else {
-        key = `${relPath}::${callee}`;
-      }
+      const key = crossCallKey(relPath, call.to, imap);
       call.call_sites = crossCallCounts[key] || 0;
     }
   }

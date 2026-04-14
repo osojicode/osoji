@@ -37,9 +37,6 @@ async def gather_with_buffer(
             pending[task] = next_index
             next_index += 1
 
-        if not pending:
-            break
-
         done, _ = await asyncio.wait(pending.keys(), return_when=asyncio.FIRST_COMPLETED)
         for task in done:
             index = pending.pop(task)

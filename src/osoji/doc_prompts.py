@@ -331,6 +331,9 @@ def _compute_coverage_summary(
 # Stage 4: Priority scoring + clustering + writing prompts
 # ---------------------------------------------------------------------------
 
+_PRIORITY_RANK: dict[str, int] = {"high": 3, "medium": 2, "low": 1}
+
+
 def _compute_priority(concept: Concept) -> None:
     """Compute priority score and label from concept signals."""
     score = 0.0
@@ -574,7 +577,6 @@ async def _generate_writing_prompts_async(
             for p in tc.input.get("prompts", []):
                 target_ids = p.get("target_concept_ids", [])
                 # Look up priority from highest-priority target concept
-                _PRIORITY_RANK = {"high": 3, "medium": 2, "low": 1}
                 priority = "low"
                 for cid in target_ids:
                     c = concept_map.get(cid)

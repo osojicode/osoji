@@ -93,8 +93,6 @@ class LiteLLMProvider(LLMProvider):
     def __init__(
         self,
         provider_name: str,
-        *,
-        acompletion_fn: Callable[..., Awaitable[Any]] | None = None,
     ) -> None:
         self._spec = get_provider_spec(provider_name)
         api_key = os.environ.get(self._spec.api_key_env)
@@ -107,7 +105,7 @@ class LiteLLMProvider(LLMProvider):
         import litellm
 
         litellm.suppress_debug_info = True
-        self._acompletion = acompletion_fn or litellm.acompletion
+        self._acompletion = litellm.acompletion
         self._client = _LiteLLMClientProxy(self._create_completion)
         self._interaction_log_path: Path | None = None
         self._interaction_log_sequence = 0

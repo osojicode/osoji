@@ -109,7 +109,7 @@ def _find_referenced_sources(
 ) -> list[Path]:
     """Extract source file references from a documentation file.
 
-    When *facts_db* has doc-reference entries (populated by ``osoji shadow .``),
+    When *facts_db* has doc-reference entries (populated by ``extract_doc_references()``),
     the lookup is a fast FactsDB query.  Otherwise falls back to regex matching
     against shadow doc filenames.
     """

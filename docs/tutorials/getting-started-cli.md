@@ -119,6 +119,7 @@ Commands:
   diff        Show documentation impact of source changes.
   export      Export a stable, versioned observatory bundle for downstream...
   hooks       Manage git hooks for automatic shadow doc updates.
+  init        Set up osoji for this project.
   push        Push observatory bundle to osoji-teams.
   report      Re-render the last audit result in a different format.
   safety      Pre-commit safety checks for personal paths and secrets.

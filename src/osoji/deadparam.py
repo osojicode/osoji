@@ -515,19 +515,22 @@ async def _verify_chunk_async(
                 for line_range in verdict.get("gated_line_ranges", [])
                 if isinstance(line_range, dict)
             ]
-            verifications.append(
-                DeadParamVerification(
-                    source_path=candidate.source_path,
-                    function_name=candidate.function_name,
-                    param_name=candidate.param_name,
-                    is_dead=verdict["is_dead"],
-                    confidence=verdict["confidence"],
-                    reason=verdict["reason"],
-                    remediation=verdict["remediation"],
-                    param_line=candidate.param_line,
-                    gated_line_ranges=gated,
+            try:
+                verifications.append(
+                    DeadParamVerification(
+                        source_path=candidate.source_path,
+                        function_name=candidate.function_name,
+                        param_name=candidate.param_name,
+                        is_dead=verdict.get("is_dead", False),
+                        confidence=verdict.get("confidence", 0.0),
+                        reason=verdict.get("reason", "LLM returned incomplete verdict"),
+                        remediation=verdict.get("remediation", "Review parameter usage manually"),
+                        param_line=candidate.param_line,
+                        gated_line_ranges=gated,
+                    )
                 )
-            )
+            except (KeyError, TypeError):
+                continue
 
     if not verifications:
         raise RuntimeError(

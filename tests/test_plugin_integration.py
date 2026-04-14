@@ -11,7 +11,7 @@ from osoji.plugins.base import ExtractedFacts, PluginUnavailableError, FactsExtr
 
 
 def test_plugin_facts_override_llm_structural_fields():
-    """AST facts should override LLM facts for imports/exports/calls/member_writes."""
+    """Verify expected AST-over-LLM merge behavior with inline logic."""
     llm_facts = {
         "imports": [{"source": "llm_import", "names": ["a"]}],
         "exports": [{"name": "llm_export", "kind": "function"}],
@@ -54,7 +54,7 @@ def test_plugin_facts_override_llm_structural_fields():
 
 
 def test_llm_string_literals_preserved_when_plugin_has_no_strings():
-    """LLM string_literals should be kept even when plugin has AST facts."""
+    """Verify LLM string_literals preserved in inline merge logic."""
     llm_facts = {
         "string_literals": [{"value": "my_key", "usage": "key"}],
     }

@@ -94,16 +94,10 @@ class JunkAnalyzer(ABC):
         """
         ...
 
-    def analyze(
-        self,
-        config: Config,
-        on_progress: Callable | None = None,
-        rate_limiter: RateLimiter | None = None,
-    ) -> JunkAnalysisResult:
+    def analyze(self, config: Config) -> JunkAnalysisResult:
         """Sync wrapper for analyze_async.
 
-        Creates provider and rate limiter internally (unless provided),
-        runs async analysis, then cleans up.
+        Creates provider internally, runs async analysis, then cleans up.
         """
         symbols_dir = config.root_path / SHADOW_DIR / "symbols"
         if not symbols_dir.exists():
@@ -111,10 +105,10 @@ class JunkAnalyzer(ABC):
             return JunkAnalysisResult(findings=[], total_candidates=0, analyzer_name=self.name)
 
         async def _run() -> JunkAnalysisResult:
-            logging_provider, _ = create_runtime(config, rate_limiter=rate_limiter)
+            logging_provider, _ = create_runtime(config)
             try:
                 return await self.analyze_async(
-                    logging_provider, config, on_progress
+                    logging_provider, config, None
                 )
             finally:
                 await logging_provider.close()

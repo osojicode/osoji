@@ -89,7 +89,7 @@ def _collect_tool_names() -> set[str]:
 
 
 def _collect_tool_schema_keys() -> set[str]:
-    """Collect property names and enum values from LLM tool schemas.
+    """Collect property names, enum values, and top-level tool definition keys from LLM tool schemas.
 
     These form an external contract with the LLM — code that does
     data.get("imports") on LLM-generated JSON has the tool schema as

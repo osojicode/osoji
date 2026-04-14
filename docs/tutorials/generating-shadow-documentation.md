@@ -40,9 +40,9 @@ They serve two main purposes:
    coverage.
 
 Shadow docs are ephemeral artifacts owned by Osoji. You can regenerate them at
-any time. They should be committed to your repository (they are not in
-`.gitignore`) so that AI agents and teammates can read them without re-running
-generation.
+any time. By default, `osoji init` adds `.osoji/` to `.gitignore` — shadow docs
+are treated as derived data. If you want teammates to access them without
+re-running generation, remove `.osoji/` from `.gitignore` and commit them.
 
 ---
 
@@ -541,24 +541,24 @@ extract ground-truth structural data (like imports and exports) directly from
 the syntax tree. These AST-extracted facts are merged with LLM-extracted
 semantic data.
 
-You can identify AST-extracted facts by the `extraction_method: "ast"` field
-in the facts file:
+You can identify AST-extracted facts by the top-level `extraction_method: "ast"`
+field in the facts file:
 
 ```json
 {
   "path": "src/models/user.py",
+  "extraction_method": "ast",
   "imports": [
     {
       "source": "dataclasses",
-      "names": ["dataclass", "field"],
-      "extraction_method": "ast"
+      "names": ["dataclass", "field"]
     }
   ],
   "exports": [
     {
       "name": "User",
       "kind": "class",
-      "extraction_method": "ast"
+      "line": 5
     }
   ],
   "string_literals": [

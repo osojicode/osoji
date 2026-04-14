@@ -557,6 +557,8 @@ class TestEnforcement:
 
 
 # --- Junk results (unified) ---
+# NOTE: Some coverage overlaps with TestJunkCode and TestEnforcement above.
+# Kept for its distinct test of the junk_results dict input path.
 
 class TestJunkResults:
     def test_junk_via_junk_results_dict(self, temp_dir):
