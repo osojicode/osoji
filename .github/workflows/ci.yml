@@ -34,12 +34,19 @@ jobs:
       # CI tooling (pip-audit, uv) installed with hash verification —
       # no unverified code runs in a context that has secret access.
       - run: pip install --require-hashes -r requirements-tools.lock
-      # Audit both project lock files directly. This is intentionally scoped
-      # to what we ship (runtime) plus what our CI executes (dev): we do NOT
-      # audit the runner's system pip or the CI tooling itself, because those
-      # are either outside our supply chain (runner image) or hash-pinned
-      # above (tools lock). No --ignore-vuln flags — real vulns fail CI.
-      - run: pip-audit -r requirements.lock -r requirements-dev.lock
+      # Audit both project lock files. Scoped to what we ship (runtime) and
+      # what our CI executes (dev); excludes the runner's system pip and CI
+      # tooling (hash-pinned above). No --ignore-vuln flags — real vulns
+      # fail CI.
+      #
+      # Two separate invocations because the runtime and dev locks pin
+      # different versions of shared transitive deps (dev extras change
+      # resolution), so combining them into one pip-audit env triggers a
+      # dependency conflict before any auditing happens.
+      - name: Audit runtime dependencies
+        run: pip-audit -r requirements.lock
+      - name: Audit dev dependencies
+        run: pip-audit -r requirements-dev.lock
       # Regenerate locks in place. `uv pip compile` uses the existing target
       # as a stability reference, so in-place regen is deterministic — any
       # change indicates the committed lock is out of sync with its source.
