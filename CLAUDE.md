@@ -32,8 +32,14 @@ workflow.
 
 When updating dependencies:
 1. Edit `pyproject.toml`
-2. Regenerate lock file: `uv pip compile pyproject.toml --generate-hashes --universal -o requirements.lock`
-3. Commit both files in the same PR
+2. Regenerate both lock files:
+   - `uv pip compile pyproject.toml --generate-hashes --universal -o requirements.lock`
+   - `uv pip compile pyproject.toml --extra dev --generate-hashes --universal -o requirements-dev.lock`
+3. Commit all three files in the same PR
+
+CI installs from the lock files (not from pyproject constraints) and fails if
+either lock is out of sync with `pyproject.toml`, so skipping the regenerate
+step blocks the PR.
 
 See `SUPPLY-CHAIN-SECURITY.md` for the full governance model and threat model.
 

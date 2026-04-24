@@ -48,11 +48,12 @@ every PR, every time, without fatigue or shortcuts.
 
 | Control | Purpose | Enforcement |
 |---------|---------|-------------|
-| `requirements.lock` with SHA-256 hashes | Reproducible builds, tamper detection | CI verifies freshness on every PR |
-| pip-audit in CI | Catches known-vulnerable dependencies | Required status check, blocks merge |
+| `requirements.lock` / `requirements-dev.lock` with SHA-256 hashes | Reproducible, tamper-evident installs | CI installs from these files with `pip install --require-hashes` |
+| Lock freshness check in CI | Prevents drift between `pyproject.toml` and lock files | Required status check: re-runs `uv pip compile` and diffs, blocks merge if different |
+| pip-audit in CI | Catches known-vulnerable dependencies in the locked install | Required status check, blocks merge |
 | Weekly scheduled pip-audit | Background monitoring between commits | Creates GitHub issue if vulnerabilities found |
 | Dependabot (pip + github-actions) | Automated update PRs for security patches | Weekly, creates PRs automatically |
-| `litellm>=1.63.0,<1.82.7` | Blocks known-compromised version range | Dependency resolver rejects affected versions |
+| `litellm` upper bound in `pyproject.toml` | Blocks known-compromised / unknown-future version ranges | Dependency resolver rejects affected versions |
 
 ### Build and publish integrity
 
