@@ -30,16 +30,21 @@ Do NOT auto-merge. The project owner reviews PR summaries and merges manually
 manual — the owner creates a GitHub Release, which triggers the publish
 workflow.
 
-When updating dependencies:
+When updating project dependencies:
 1. Edit `pyproject.toml`
-2. Regenerate both lock files:
+2. Regenerate both project lock files:
    - `uv pip compile pyproject.toml --generate-hashes --universal -o requirements.lock`
    - `uv pip compile pyproject.toml --extra dev --generate-hashes --universal -o requirements-dev.lock`
 3. Commit all three files in the same PR
 
-CI installs from the lock files (not from pyproject constraints) and fails if
-either lock is out of sync with `pyproject.toml`, so skipping the regenerate
-step blocks the PR.
+When updating CI tooling (pip-audit, uv, build):
+1. Edit `requirements-tools.in`
+2. Regenerate: `uv pip compile requirements-tools.in --generate-hashes --universal -o requirements-tools.lock`
+3. Commit both files in the same PR
+
+CI installs from all three lock files with `--require-hashes` and runs a
+freshness gate that fails if any committed lock is out of sync with its
+source. Skipping the regenerate step blocks the PR.
 
 See `SUPPLY-CHAIN-SECURITY.md` for the full governance model and threat model.
 

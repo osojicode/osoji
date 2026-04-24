@@ -31,17 +31,18 @@ jobs:
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: "3.13"
-      - run: pip install "pip-audit==2.10.0"
-      - run: pip install --require-hashes -r requirements.lock
-      - run: pip install -e "." --no-deps
-      # CVE-2026-3219 is against pip itself (the installer, not a project dep)
-      # and has no upstream fix published. Ignored here so pip-audit continues
-      # to catch vulnerabilities in our actual dependencies.
-      - run: pip-audit --ignore-vuln CVE-2026-3219
-      - run: pip install "uv==0.11.3"
+      # CI tooling (pip-audit, uv) installed with hash verification —
+      # no unverified code runs in a context that has secret access.
+      - run: pip install --require-hashes -r requirements-tools.lock
+      # Audit both project lock files directly. This is intentionally scoped
+      # to what we ship (runtime) plus what our CI executes (dev): we do NOT
+      # audit the runner's system pip or the CI tooling itself, because those
+      # are either outside our supply chain (runner image) or hash-pinned
+      # above (tools lock). No --ignore-vuln flags — real vulns fail CI.
+      - run: pip-audit -r requirements.lock -r requirements-dev.lock
       # Regenerate locks in place. `uv pip compile` uses the existing target
       # as a stability reference, so in-place regen is deterministic — any
-      # change indicates the committed lock is out of sync with pyproject.toml.
+      # change indicates the committed lock is out of sync with its source.
       - name: Verify requirements.lock is fresh (runtime deps)
         run: |
           uv pip compile pyproject.toml --generate-hashes --universal -o requirements.lock --quiet
@@ -58,5 +59,14 @@ jobs:
             echo "::error::requirements-dev.lock is out of sync with pyproject.toml"
             echo "Run: uv pip compile pyproject.toml --extra dev --generate-hashes --universal -o requirements-dev.lock"
             git diff requirements-dev.lock | head -50
+            exit 1
+          fi
+      - name: Verify requirements-tools.lock is fresh (CI tooling)
+        run: |
+          uv pip compile requirements-tools.in --generate-hashes --universal -o requirements-tools.lock --quiet
+          if ! git diff --quiet requirements-tools.lock; then
+            echo "::error::requirements-tools.lock is out of sync with requirements-tools.in"
+            echo "Run: uv pip compile requirements-tools.in --generate-hashes --universal -o requirements-tools.lock"
+            git diff requirements-tools.lock | head -50
             exit 1
           fi
