@@ -234,13 +234,13 @@ async def extract_obligations_async(
 
 # --- Phase B: Actuation Verification ---
 
-_VERIFY_ACTUATION_SYSTEM_PROMPT = """You are tracing a config field from its schema definition through the codebase to determine
+_VERIFY_ACTUATION_SYSTEM_PROMPT = f"""You are tracing a config field from its schema definition through the codebase to determine
 whether it is ever used to CAUSE its declared effect (actuation).
 
 You are given:
 1. The obligation: what the field promises to enforce
 2. The schema's shadow doc showing the field definition
-3. Shadow docs for ALL files that reference this field
+3. Shadow docs for up to {_MAX_REFERENCING_SHADOWS} files that reference this field
 4. Shadow docs for sibling fields from the same schema that ARE properly enforced (as positive counterexamples)
 
 Your job: trace the data flow from schema → config loading → handoff → enforcement.
@@ -251,7 +251,7 @@ Or is it only stored, passed, and restructured?"
 Actuation examples:
 - setTimeout(callback, field) — actuation via timer
 - if (turns >= field) break — actuation via loop guard
-- axios({timeout: field}) — actuation via library that enforces it
+- axios({{timeout: field}}) — actuation via library that enforces it
 - Passing as env var to a container whose shadow doc says it reads and enforces it — actuation
 
 NOT actuation:

@@ -102,6 +102,9 @@ def _get_all_members(node: ast.Module) -> list[str] | None:
             for target in stmt.targets:
                 if isinstance(target, ast.Name) and target.id == "__all__":
                     return _extract_string_list(stmt.value)
+        if isinstance(stmt, ast.AnnAssign):
+            if isinstance(stmt.target, ast.Name) and stmt.target.id == "__all__" and stmt.value is not None:
+                return _extract_string_list(stmt.value)
         if isinstance(stmt, ast.AugAssign):
             if isinstance(stmt.target, ast.Name) and stmt.target.id == "__all__":
                 # __all__ += [...] — can't reliably resolve

@@ -68,7 +68,7 @@ class AuditIssue:
     """A single audit finding."""
 
     path: Path
-    severity: str  # "error" or "warning"
+    severity: str  # "error", "warning", or "info"
     category: str  # "debris", "stale_shadow", "missing_shadow"
     message: str
     remediation: str
@@ -1021,6 +1021,7 @@ def load_audit_result(config: Config) -> AuditResult:
             line_start=i.get("line_start"),
             line_end=i.get("line_end"),
             origin=i.get("origin"),
+            exclude_key=i.get("exclude_key"),
         )
         for i in data.get("issues", [])
     ]

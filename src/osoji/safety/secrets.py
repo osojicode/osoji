@@ -64,7 +64,7 @@ def check_file_for_secrets(file_path: Path) -> list[SecretFinding]:
             secrets.scan_file(str(file_path))
 
         # Iterate over the secrets collection
-        # The data structure is: {filename: [PotentialSecret, ...]}
+        # The data structure is: {filename: {PotentialSecret, ...}}
         for _filename, secret_list in secrets.data.items():
             for secret in secret_list:
                 findings.append(

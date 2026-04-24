@@ -391,6 +391,11 @@ class ClaudeCodeProvider(LLMProvider):
 
         tool_calls: list[ToolCall] = []
         if forced_tool and structured_output is not None:
+            if not isinstance(structured_output, dict):
+                logger.warning(
+                    "Claude Code structured_output was %s, expected dict; using empty dict",
+                    type(structured_output).__name__,
+                )
             tool_input = structured_output if isinstance(structured_output, dict) else {}
             tool_calls.append(
                 ToolCall(

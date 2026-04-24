@@ -81,7 +81,7 @@ def list_repo_files(config: Config) -> tuple[Iterable[Path], bool]:
 
     Returns (paths, used_git) where used_git indicates whether
     git ls-files was used (True) or rglob fallback (False).
-    Results are cached per root_path so git ls-files only runs once.
+    Results are cached per (root_path, respect_gitignore) so git ls-files only runs once.
     """
     key = (config.root_path, config.respect_gitignore)
 

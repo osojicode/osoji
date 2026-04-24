@@ -415,9 +415,7 @@ class TestDetectDeadCICDAsync:
         )
 
         results, total = await detect_dead_cicd_async(mock_provider, config)
-        # May or may not have results depending on whether "tests/removed_dir/" is
-        # detected as a missing path (it contains / and . patterns)
-        # The key thing is the pipeline runs without error
+        # Smoke test: pipeline completes without error
         assert isinstance(results, list)
 
     @pytest.mark.asyncio

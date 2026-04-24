@@ -122,7 +122,7 @@ def _infer_project_from_git_remote(root: Path) -> str | None:
 
 
 def _classify_env_source(var_name: str) -> str:
-    """Return '.env file' if the env var value matches the .env file, else 'env var'."""
+    """Return '.env file' if the env var value matches the .env file, else f'{var_name} env var'."""
 
     env_file = dotenv_values()
     env_val = os.environ.get(var_name)

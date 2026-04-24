@@ -50,7 +50,7 @@ When a file has been processed by a language plugin (such as the Python or TypeS
 
 1. **Load AST facts.** The `FactsDB` is instantiated from `.osoji/facts/` sidecar files. Each file's `extraction_method` field indicates whether facts came from AST parsing (`"ast"`) or LLM extraction (`"llm"`).
 
-2. **Check completeness.** First, the defining file itself is checked for `extraction_method == "ast"` (lines 586-588 of `deadcode.py`). Then the helper `_all_importers_ast_extracted` verifies that every file that imports from it also has `extraction_method == "ast"`. If either the defining file or any importer lacks AST facts, the file falls through to the grep path.
+2. **Check completeness.** First, the defining file itself is checked for `extraction_method == "ast"`. Then the helper `_all_importers_ast_extracted` verifies that every file that imports from it also has `extraction_method == "ast"`. If either the defining file or any importer lacks AST facts, the file falls through to the grep path.
 
 3. **Query cross-file references.** For each exported symbol, `facts_db.cross_file_references(symbol_name, source_path)` searches all other files for imports, calls, member writes, and re-exports of that symbol name.
 
@@ -91,7 +91,7 @@ def _format_data():        # zero external references
     return {"status": "ok"}
 ```
 
-Both `_helper` and `_format_data` have zero cross-file references, but they are alive because `public_api` -- which is referenced externally -- calls them. The transitive liveness algorithm in `_compute_transitive_liveness` (lines 84-134 of `deadcode.py`) prevents these false positives:
+Both `_helper` and `_format_data` have zero cross-file references, but they are alive because `public_api` -- which is referenced externally -- calls them. The transitive liveness algorithm in `_compute_transitive_liveness` prevents these false positives:
 
 1. **Build a within-file reference graph.** For each symbol in the file, the algorithm scans the symbol's line range for references to other symbols in the same file. This produces a `uses` dict: `{symbol_name: {set of referenced symbols}}`.
 

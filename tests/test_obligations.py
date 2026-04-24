@@ -1,4 +1,4 @@
-"""Tests for StringContractChecker with ratio-based set algorithm."""
+"""Tests for the obligations module: StringContractChecker, contract framework, and remediation."""
 
 import json
 from pathlib import Path

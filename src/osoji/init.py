@@ -422,9 +422,9 @@ def run_init(
     use_local_config = False
 
     if interactive:
-        # Provider selection (--provider flag pre-selects)
-        provider_from_flag = provider != "anthropic"
-        if provider_from_flag:
+        # Non-default provider was explicitly selected via --provider flag
+        provider_is_non_default = provider != "anthropic"
+        if provider_is_non_default:
             spec = get_provider_spec(provider)
             click.echo(f"   Provider: {spec.display_name} (from --provider flag)")
         else:
