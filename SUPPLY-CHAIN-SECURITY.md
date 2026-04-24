@@ -86,24 +86,27 @@ Three lock files enforce hash-pinned reproducibility across the CI lifecycle:
 ### Instruction integrity
 
 AI agents follow instructions from files like CLAUDE.md and .claude/commands/.
-If these files are compromised, the agent follows malicious instructions. Two
-automated defenses address this:
+If these files are compromised, the agent follows malicious instructions. The
+automated defense is:
 
 **Instruction file flagging.** A CI job detects when a PR modifies control-plane
 files (CLAUDE.md, .claude/, .github/workflows/, .github/dependabot.yml) and
-adds an `instruction-files-changed` label. This ensures control-plane changes
-are visible even in a quick PR summary scan.
+adds an `instruction-files-changed` label. This is a regex-based check — no
+LLM, no tool execution — so it is not itself susceptible to prompt injection.
+Control-plane changes become visible even in a quick PR summary scan, which
+ensures elevated human scrutiny for the changes most capable of weakening
+security posture.
 
-**Adversarial review agent.** A separate AI agent runs in CI via
-`anthropics/claude-code-action`, reviewing every PR for security concerns. Its
-prompt is defined **inline in the workflow file** — it does not read CLAUDE.md
-or any repository instruction file. The workflow uses `pull_request_target`,
-which always runs the workflow version from main, not the PR branch. This means
-a PR cannot weaken the reviewer's prompt and add a backdoor simultaneously.
-
-To compromise the reviewer, an attacker would need to merge a modified workflow
-into main — which requires passing the current reviewer. This circular
-dependency is the core security property.
+An earlier version of this workflow also ran an "adversarial review agent"
+(an LLM reviewing every PR diff for security concerns) via
+`anthropics/claude-code-action`. That agent was removed: automatically feeding
+untrusted PR content to an LLM that has any write capability is, by
+construction, a prompt-injection target, and the available mitigations (tool
+lockdown, permission scoping) patch symptoms rather than the underlying shape.
+When a security-focused LLM review of a specific PR is wanted, a maintainer
+can invoke Claude on demand (`@claude` in a PR comment via
+`.github/workflows/claude.yml`, or locally via Claude Code) after deciding the
+PR is worth engaging with.
 
 ### Pre-commit safety
 
@@ -165,9 +168,10 @@ These controls make compromise **costly and visible**, not impossible.
 - **Admin override.** The repository admin can disable branch protection with
   a single API call. The GitHub audit log records this, but no automated
   system monitors the audit log.
-- **Prompt injection.** The adversarial review agent is an LLM and can
-  potentially be manipulated by carefully crafted PR content. This is an
-  arms race between prompt robustness and attacker creativity.
+- **Prompt injection (manual invocation).** When a maintainer invokes Claude
+  on demand (via `@claude` in a PR comment, or locally), the diff or comment
+  content can attempt prompt injection. Risk is bounded by the workflow's
+  declared permissions and whatever tools the invocation enables.
 - **Slow poisoning.** Many small, individually benign changes that combine
   into a vulnerability are not detectable by per-PR review.
 - **Advisory lag.** pip-audit and Dependabot only catch vulnerabilities after
