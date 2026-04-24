@@ -32,6 +32,10 @@ dependencies = [
     "click>=8.1.0",
     "litellm>=1.83.7,<1.84.0",
     "tabulate>=0.9.0",
+    # CVE floor on transitive deps pulled in via litellm. Pinned directly
+    # so the resolver cannot pick a vulnerable older version even when
+    # litellm's own constraint range allows one.
+    "aiohttp>=3.13.4",         # CVE-2026-22815, CVE-2026-34513..34520, 34525
 ]
 
 [project.optional-dependencies]
