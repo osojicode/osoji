@@ -5,7 +5,6 @@ from __future__ import annotations
 import math
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
-import anthropic
 from ..rate_limiter import RateLimiter
 from .base import LLMProvider
 from .tokens import TokenCounter, estimate_tokens_offline
@@ -177,37 +176,38 @@ class RateLimitedProvider(LLMProvider):
         return estimate_tokens_offline("\n".join(parts))
 
     def _is_retryable_error(self, exc: BaseException) -> bool:
-        import litellm
+        # Anthropic SDK errors
+        try:
+            import anthropic as _a
+            if isinstance(exc, (_a.RateLimitError, _a.APIConnectionError, _a.InternalServerError)):
+                return True
+            if isinstance(exc, _a.APIStatusError) and exc.status_code in {500, 502, 503, 504, 529}:
+                return True
+        except ImportError:
+            pass
 
-        rate_limit_error = getattr(litellm, "RateLimitError", None)
-        api_connection_error = getattr(litellm, "APIConnectionError", None)
-        api_error = getattr(litellm, "APIError", None)
-        internal_server_error = getattr(litellm, "InternalServerError", None)
+        # OpenAI SDK errors (also covers OpenRouter)
+        try:
+            import openai as _o
+            if isinstance(exc, (_o.RateLimitError, _o.APIConnectionError, _o.InternalServerError)):
+                return True
+            if isinstance(exc, _o.APIStatusError) and exc.status_code in {500, 502, 503, 504, 529}:
+                return True
+        except ImportError:
+            pass
 
-        if isinstance(rate_limit_error, type) and isinstance(exc, rate_limit_error):
-            return True
-        if isinstance(api_connection_error, type) and isinstance(exc, api_connection_error):
-            return True
-        retryable_api_errors = tuple(
-            error_type
-            for error_type in (api_error, internal_server_error)
-            if isinstance(error_type, type)
-        )
-        if retryable_api_errors and isinstance(exc, retryable_api_errors):
-            status_code = self._status_code(exc)
-            return status_code in {500, 502, 503, 504, 529}
-
-        if self.name == "anthropic":
-            names = (
-                "RateLimitError",
-                "ServiceUnavailableError",
-                "OverloadedError",
-                "InternalServerError",
-            )
-            for name in names:
-                error_type = getattr(anthropic, name, None)
-                if isinstance(error_type, type) and isinstance(exc, error_type):
-                    return True
+        # Google SDK errors
+        try:
+            from google.api_core import exceptions as _g
+            if isinstance(exc, (
+                _g.ResourceExhausted,
+                _g.ServiceUnavailable,
+                _g.InternalServerError,
+                _g.DeadlineExceeded,
+            )):
+                return True
+        except ImportError:
+            pass
 
         return False
 

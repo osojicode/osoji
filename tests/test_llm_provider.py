@@ -1,8 +1,8 @@
-"""Tests for provider registry, factory, and LiteLLM-backed adapters."""
+"""Tests for provider registry, factory, and direct-SDK provider adapters."""
 
 import asyncio
 import json
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -66,13 +66,13 @@ def test_provider_names_include_all_supported_providers():
 def test_registry_normalizes_and_reports_metadata():
     assert normalize_provider_name("OPENROUTER") == "openrouter"
     google = get_provider_spec("google")
-    assert google.litellm_prefix == "gemini"
     assert google.api_key_env == "GEMINI_API_KEY"
 
 
 def test_model_qualification_helpers_handle_cross_provider_prefixes():
-    assert qualify_model_name("openai", "gpt-4.1-mini") == "openai/gpt-4.1-mini"
-    assert qualify_model_name("openrouter", "openai/gpt-4.1-mini") == "openai/gpt-4.1-mini"
+    # Direct SDKs don't want provider prefixes — qualify_model_name now strips them.
+    assert qualify_model_name("openai", "gpt-4.1-mini") == "gpt-4.1-mini"
+    assert qualify_model_name("openrouter", "openai/gpt-4.1-mini") == "gpt-4.1-mini"
     assert strip_provider_prefix("google", "gemini/gemini-2.0-flash") == "gemini-2.0-flash"
 
 
@@ -183,7 +183,7 @@ def test_openai_provider_retries_invalid_tool_input(openai_provider):
         input_tokens=120,
         output_tokens=60,
     )
-    openai_provider._client.messages.create = AsyncMock(side_effect=[first_response, second_response])
+    openai_provider._client.chat.completions.create = AsyncMock(side_effect=[first_response, second_response])
 
     result = asyncio.run(
         openai_provider.complete(
@@ -197,12 +197,12 @@ def test_openai_provider_retries_invalid_tool_input(openai_provider):
         )
     )
 
-    assert openai_provider._client.messages.create.call_count == 2
-    first_call = openai_provider._client.messages.create.call_args_list[0]
-    assert first_call.kwargs["model"] == "openai/gpt-4.1-mini"
+    assert openai_provider._client.chat.completions.create.call_count == 2
+    first_call = openai_provider._client.chat.completions.create.call_args_list[0]
+    assert first_call.kwargs["model"] == "gpt-4.1-mini"
     assert first_call.kwargs["tool_choice"] == {"type": "function", "function": {"name": "test_tool"}}
 
-    retry_messages = openai_provider._client.messages.create.call_args_list[1].kwargs["messages"]
+    retry_messages = openai_provider._client.chat.completions.create.call_args_list[1].kwargs["messages"]
     assert retry_messages[-2]["role"] == "assistant"
     assert retry_messages[-1]["role"] == "tool"
     assert retry_messages[-1]["tool_call_id"] == "call_1"
@@ -231,7 +231,7 @@ def test_openai_provider_retries_missing_required_tool_call(openai_provider):
         input_tokens=120,
         output_tokens=60,
     )
-    openai_provider._client.messages.create = AsyncMock(
+    openai_provider._client.chat.completions.create = AsyncMock(
         side_effect=[first_response, second_response]
     )
 
@@ -248,9 +248,9 @@ def test_openai_provider_retries_missing_required_tool_call(openai_provider):
         )
     )
 
-    assert openai_provider._client.messages.create.call_count == 2
-    assert openai_provider._client.messages.create.call_args_list[1].kwargs["max_tokens"] == 256
-    retry_messages = openai_provider._client.messages.create.call_args_list[1].kwargs["messages"]
+    assert openai_provider._client.chat.completions.create.call_count == 2
+    assert openai_provider._client.chat.completions.create.call_args_list[1].kwargs["max_tokens"] == 256
+    retry_messages = openai_provider._client.chat.completions.create.call_args_list[1].kwargs["messages"]
     assert retry_messages[-1]["role"] == "user"
     assert "did not call the required tool `test_tool`" in retry_messages[-1]["content"]
     assert "output token limit" in retry_messages[-1]["content"]
@@ -265,7 +265,7 @@ def test_openai_provider_missing_required_tool_call_raises_after_three_attempts(
         tool_calls=None,
         finish_reason="length",
     )
-    openai_provider._client.messages.create = AsyncMock(
+    openai_provider._client.chat.completions.create = AsyncMock(
         side_effect=[no_tool_response, no_tool_response, no_tool_response]
     )
 
@@ -286,9 +286,9 @@ def test_openai_provider_missing_required_tool_call_raises_after_three_attempts(
             )
         )
 
-    assert openai_provider._client.messages.create.call_count == 3
-    assert openai_provider._client.messages.create.call_args_list[1].kwargs["max_tokens"] == 256
-    assert openai_provider._client.messages.create.call_args_list[2].kwargs["max_tokens"] == 256
+    assert openai_provider._client.chat.completions.create.call_count == 3
+    assert openai_provider._client.chat.completions.create.call_args_list[1].kwargs["max_tokens"] == 256
+    assert openai_provider._client.chat.completions.create.call_args_list[2].kwargs["max_tokens"] == 256
 
 
 def test_openai_provider_does_not_expand_retry_budget_without_length_stop(openai_provider):
@@ -308,7 +308,7 @@ def test_openai_provider_does_not_expand_retry_budget_without_length_stop(openai
         input_tokens=120,
         output_tokens=60,
     )
-    openai_provider._client.messages.create = AsyncMock(
+    openai_provider._client.chat.completions.create = AsyncMock(
         side_effect=[first_response, second_response]
     )
 
@@ -325,8 +325,8 @@ def test_openai_provider_does_not_expand_retry_budget_without_length_stop(openai
         )
     )
 
-    assert openai_provider._client.messages.create.call_count == 2
-    assert openai_provider._client.messages.create.call_args_list[1].kwargs["max_tokens"] == 128
+    assert openai_provider._client.chat.completions.create.call_count == 2
+    assert openai_provider._client.chat.completions.create.call_args_list[1].kwargs["max_tokens"] == 128
 
 
 def test_openai_provider_logs_each_attempt(tmp_path, openai_provider):
@@ -349,7 +349,7 @@ def test_openai_provider_logs_each_attempt(tmp_path, openai_provider):
         input_tokens=120,
         output_tokens=60,
     )
-    openai_provider._client.messages.create = AsyncMock(
+    openai_provider._client.chat.completions.create = AsyncMock(
         side_effect=[first_response, second_response]
     )
 
@@ -379,7 +379,7 @@ def test_openai_provider_logs_each_attempt(tmp_path, openai_provider):
 
 def test_openai_provider_forwards_explicit_temperature(openai_provider):
     response = _make_openai_response(content="ok", finish_reason="stop")
-    openai_provider._client.messages.create = AsyncMock(return_value=response)
+    openai_provider._client.chat.completions.create = AsyncMock(return_value=response)
 
     result = asyncio.run(
         openai_provider.complete(
@@ -393,7 +393,7 @@ def test_openai_provider_forwards_explicit_temperature(openai_provider):
         )
     )
 
-    assert openai_provider._client.messages.create.call_args.kwargs["temperature"] == 0.3
+    assert openai_provider._client.chat.completions.create.call_args.kwargs["temperature"] == 0.3
     assert result.content == "ok"
 
 
@@ -405,7 +405,7 @@ def test_default_options_omit_temperature(openai_provider):
     already constrains the response.
     """
     response = _make_openai_response(content="ok", finish_reason="stop")
-    openai_provider._client.messages.create = AsyncMock(return_value=response)
+    openai_provider._client.chat.completions.create = AsyncMock(return_value=response)
 
     result = asyncio.run(
         openai_provider.complete(
@@ -418,40 +418,11 @@ def test_default_options_omit_temperature(openai_provider):
         )
     )
 
-    kwargs = openai_provider._client.messages.create.call_args.kwargs
+    kwargs = openai_provider._client.chat.completions.create.call_args.kwargs
     assert "temperature" not in kwargs
     assert result.content == "ok"
 
 
-def test_close_flushes_litellm_logging_worker(openai_provider):
-    """close() drains litellm's GLOBAL_LOGGING_WORKER to prevent RuntimeWarning."""
-    mock_worker = MagicMock()
-    mock_worker.flush = AsyncMock()
-
-    with patch.dict(
-        "sys.modules",
-        {"litellm.litellm_core_utils.logging_worker": MagicMock(GLOBAL_LOGGING_WORKER=mock_worker)},
-    ):
-        asyncio.run(openai_provider.close())
-
-    mock_worker.flush.assert_awaited_once()
-
-
-def test_close_swallows_logging_worker_errors(openai_provider):
-    """close() must not raise if litellm internals change or fail."""
-    with patch.dict(
-        "sys.modules",
-        {"litellm.litellm_core_utils.logging_worker": None},
-    ):
-        # Should not raise — the ImportError is swallowed
-        asyncio.run(openai_provider.close())
-
-
-def test_litellm_suppress_debug_info():
-    """Importing litellm_provider sets suppress_debug_info to suppress noisy prints."""
-    import litellm
-
-    # Module-level side effect: importing the provider module sets this flag
-    import osoji.llm.litellm_provider  # noqa: F401
-
-    assert litellm.suppress_debug_info is True
+def test_close_does_not_raise(openai_provider):
+    """close() must not raise."""
+    asyncio.run(openai_provider.close())
