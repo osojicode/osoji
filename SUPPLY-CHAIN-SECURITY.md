@@ -156,9 +156,7 @@ Specific vulnerabilities we have analyzed and decided not to block on, with
 explicit rationale. These are targeted exceptions, not blanket suppressions,
 and each has a re-evaluation trigger.
 
-| CVE | Package | Severity | Why we accept | Re-evaluate when |
-|-----|---------|----------|---------------|------------------|
-| CVE-2026-28684 | `python-dotenv==1.0.1` | Medium (6.6) — symlink-following in `set_key()` allowing arbitrary file overwrite | Neither `osoji` nor `litellm` calls `set_key()` — verified by static search. Our attack surface is effectively zero. `litellm>=1.83.7` exact-pins `python-dotenv==1.0.1`, and earlier `litellm` versions have their own known CVEs or are the March 2026 compromise, so we cannot upgrade `python-dotenv` without regressing to a worse state. | `litellm` relaxes its `python-dotenv` pin or ships against `python-dotenv>=1.2.2`. Implemented in `.github/workflows/ci.yml` via `--ignore-vuln CVE-2026-28684` on the `pip-audit` calls. |
+*No current accepted risks.*
 
 ## Known limitations
 

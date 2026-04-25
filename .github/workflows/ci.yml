@@ -42,21 +42,10 @@ jobs:
       # different versions of shared transitive deps (dev extras change
       # resolution), so combining them into one pip-audit env triggers a
       # dependency conflict before any auditing happens.
-      #
-      # --ignore-vuln CVE-2026-28684 is a single, analyzed exception, NOT a
-      # blanket suppression. The vuln is in python-dotenv.set_key() (a write
-      # function for .env files). litellm 1.83.x exact-pins python-dotenv==1.0.1,
-      # so we cannot upgrade python-dotenv without pinning away from the
-      # safe litellm range (1.82.6 has 4 CVEs; 1.82.7/1.82.8 are compromised;
-      # 1.83.0-1.83.6 has GHSA-xqmj-j6mv-4862). Neither osoji nor litellm
-      # calls set_key() — verified by static search of both codebases — so
-      # our attack surface for this vuln is effectively zero. Re-evaluate
-      # when litellm relaxes the python-dotenv pin or publishes a version
-      # against python-dotenv>=1.2.2. Tracked in SUPPLY-CHAIN-SECURITY.md.
       - name: Audit runtime dependencies
-        run: pip-audit -r requirements.lock --ignore-vuln CVE-2026-28684
+        run: pip-audit -r requirements.lock
       - name: Audit dev dependencies
-        run: pip-audit -r requirements-dev.lock --ignore-vuln CVE-2026-28684
+        run: pip-audit -r requirements-dev.lock
       # Regenerate locks in place. `uv pip compile` uses the existing target
       # as a stability reference, so in-place regen is deterministic — any
       # change indicates the committed lock is out of sync with its source.
