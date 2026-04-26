@@ -2,20 +2,19 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from anthropic import AsyncAnthropic
 
 from ..config import ANTHROPIC_MODEL_MEDIUM, DEFAULT_PROVIDER
-from .registry import normalize_provider_name, qualify_model_name, strip_provider_prefix
+from .registry import normalize_provider_name, strip_provider_prefix
 from .types import Message, MessageRole, ToolDefinition
 
 
 class TokenCounter:
-    """Token counter with Anthropic exact counting and LiteLLM tokenizer fallback."""
+    """Token counter with Anthropic exact counting and offline fallback."""
 
     def __init__(
         self,
@@ -27,13 +26,12 @@ class TokenCounter:
         self._default_model = default_model
         self._client: AsyncAnthropic | None = None
         self._cache: dict[str, int] = {}
-        self._litellm_token_counter: Callable[..., int] | None = None
 
     @property
     def label(self) -> str:
         if self._provider == DEFAULT_PROVIDER:
             return "Anthropic API"
-        return "LiteLLM model-aware tokenizer"
+        return "offline estimator"
 
     @property
     def cache_key_prefix(self) -> str:
@@ -66,12 +64,7 @@ class TokenCounter:
         resolved_model = self._resolved_model(model)
         if self._provider == DEFAULT_PROVIDER:
             return await self._count_with_anthropic(messages, system, resolved_model)
-        return await asyncio.to_thread(
-            self._count_with_litellm,
-            messages,
-            system,
-            resolved_model,
-        )
+        return estimate_completion_input_tokens_offline(messages, system=system)
 
     async def _count_with_anthropic(
         self,
@@ -97,37 +90,7 @@ class TokenCounter:
         response = await client.messages.count_tokens(**kwargs)
         return int(response.input_tokens)
 
-    def _count_with_litellm(
-        self,
-        messages: list[Message],
-        system: str | None,
-        model: str,
-    ) -> int:
-        token_counter = self._litellm_token_counter
-        if token_counter is None:
-            from litellm import token_counter as litellm_token_counter
-
-            token_counter = litellm_token_counter
-            self._litellm_token_counter = token_counter
-
-        api_messages: list[dict[str, Any]] = []
-        if system:
-            api_messages.append({"role": "system", "content": system})
-        for msg in messages:
-            role = msg.role.value if isinstance(msg.role, MessageRole) else str(msg.role)
-            api_messages.append({"role": role, "content": msg.content})
-
-        return int(
-            token_counter(
-                model=qualify_model_name(self._provider, model),
-                messages=api_messages,
-            )
-        )
-
-    async def count_text_async(
-        self,
-        text: str,
-    ) -> int:
+    async def count_text_async(self, text: str) -> int:
         resolved_model = self._resolved_model(None)
         cache_key = f"{self.cache_key_prefix}:{resolved_model}:{hash(text)}"
         if cache_key in self._cache:
@@ -149,7 +112,6 @@ class TokenCounter:
 
 def estimate_tokens_offline(text: str) -> int:
     """Estimate tokens without provider-specific counting."""
-
     return len(text) // 4
 
 
@@ -161,7 +123,6 @@ def estimate_completion_input_tokens_offline(
     tool_choice: dict[str, str] | None = None,
 ) -> int:
     """Estimate completion input size using the request payload shape."""
-
     payload: dict[str, Any] = {
         "system": system,
         "messages": [

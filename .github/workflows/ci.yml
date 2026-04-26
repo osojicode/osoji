@@ -20,7 +20,8 @@ jobs:
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
+      - run: pip install --require-hashes -r requirements-dev.lock
+      - run: pip install -e "." --no-deps
       - run: pytest -m "not prompt_regression and not live_smoke"
 
   audit:
@@ -30,25 +31,48 @@ jobs:
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: "3.13"
-      - run: pip install "pip-audit==2.10.0"
-      - run: pip install -e "."
-      - run: pip-audit
-      - name: Verify lock file covers direct dependencies
+      # CI tooling (pip-audit, uv) installed with hash verification —
+      # no unverified code runs in a context that has secret access.
+      - run: pip install --require-hashes -r requirements-tools.lock
+      # Audit both project lock files. Scoped to what we ship (runtime) and
+      # what our CI executes (dev); excludes the runner's system pip and CI
+      # tooling (hash-pinned above).
+      #
+      # Two separate invocations because the runtime and dev locks pin
+      # different versions of shared transitive deps (dev extras change
+      # resolution), so combining them into one pip-audit env triggers a
+      # dependency conflict before any auditing happens.
+      - name: Audit runtime dependencies
+        run: pip-audit -r requirements.lock
+      - name: Audit dev dependencies
+        run: pip-audit -r requirements-dev.lock
+      # Regenerate locks in place. `uv pip compile` uses the existing target
+      # as a stability reference, so in-place regen is deterministic — any
+      # change indicates the committed lock is out of sync with its source.
+      - name: Verify requirements.lock is fresh (runtime deps)
         run: |
-          python -c "
-          import tomllib, re, sys
-          with open('pyproject.toml', 'rb') as f:
-              deps = tomllib.load(f)['project']['dependencies']
-          with open('requirements.lock') as f:
-              lock = f.read().lower()
-          missing = []
-          for dep in deps:
-              name = re.split('[><=!,;]', dep)[0].strip().lower()
-              if name.replace('-', '-') not in lock and name.replace('-', '_') not in lock:
-                  missing.append(dep)
-          if missing:
-              print('::error::requirements.lock is missing direct dependencies: ' + ', '.join(missing))
-              print('Run: uv pip compile pyproject.toml --generate-hashes --universal -o requirements.lock')
-              sys.exit(1)
-          print(f'Lock file covers all {len(deps)} direct dependencies')
-          "
+          uv pip compile pyproject.toml --generate-hashes --universal -o requirements.lock --quiet
+          if ! git diff --quiet requirements.lock; then
+            echo "::error::requirements.lock is out of sync with pyproject.toml"
+            echo "Run: uv pip compile pyproject.toml --generate-hashes --universal -o requirements.lock"
+            git diff requirements.lock | head -50
+            exit 1
+          fi
+      - name: Verify requirements-dev.lock is fresh (runtime + dev deps)
+        run: |
+          uv pip compile pyproject.toml --extra dev --generate-hashes --universal -o requirements-dev.lock --quiet
+          if ! git diff --quiet requirements-dev.lock; then
+            echo "::error::requirements-dev.lock is out of sync with pyproject.toml"
+            echo "Run: uv pip compile pyproject.toml --extra dev --generate-hashes --universal -o requirements-dev.lock"
+            git diff requirements-dev.lock | head -50
+            exit 1
+          fi
+      - name: Verify requirements-tools.lock is fresh (CI tooling)
+        run: |
+          uv pip compile requirements-tools.in --generate-hashes --universal -o requirements-tools.lock --quiet
+          if ! git diff --quiet requirements-tools.lock; then
+            echo "::error::requirements-tools.lock is out of sync with requirements-tools.in"
+            echo "Run: uv pip compile requirements-tools.in --generate-hashes --universal -o requirements-tools.lock"
+            git diff requirements-tools.lock | head -50
+            exit 1
+          fi

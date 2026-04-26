@@ -46,13 +46,22 @@ every PR, every time, without fatigue or shortcuts.
 
 ### Dependency integrity
 
+Three lock files enforce hash-pinned reproducibility across the CI lifecycle:
+
+| Lock file | Source | Used by | Audited? |
+|-----------|--------|---------|----------|
+| `requirements.lock` | `pyproject.toml` (runtime deps) | Downstream reproducers; referenced for parity | Yes |
+| `requirements-dev.lock` | `pyproject.toml` (runtime + dev extras) | CI test jobs (3.11/3.12/3.13) | Yes |
+| `requirements-tools.lock` | `requirements-tools.in` (CI tooling: pip-audit, uv, build) | CI audit and publish jobs | Not audited — these tools have legitimate PyPI metadata but are not part of our supply chain, so we pin for integrity without auditing for CVEs |
+
 | Control | Purpose | Enforcement |
 |---------|---------|-------------|
-| `requirements.lock` with SHA-256 hashes | Reproducible builds, tamper detection | CI verifies freshness on every PR |
-| pip-audit in CI | Catches known-vulnerable dependencies | Required status check, blocks merge |
+| SHA-256-hashed lock files | Reproducible, tamper-evident installs | CI installs every lock with `pip install --require-hashes`; registry tampering fails the install |
+| Lock freshness gate | Prevents drift between source (`pyproject.toml` or `requirements-tools.in`) and committed lock | Required status check: re-runs `uv pip compile` in place and fails if `git diff` shows any change |
+| pip-audit in CI | Catches known-vulnerable dependencies in what we ship and what CI executes | Required status check: `pip-audit -r requirements.lock -r requirements-dev.lock` — no suppression flags, real vulns fail CI |
 | Weekly scheduled pip-audit | Background monitoring between commits | Creates GitHub issue if vulnerabilities found |
 | Dependabot (pip + github-actions) | Automated update PRs for security patches | Weekly, creates PRs automatically |
-| `litellm>=1.63.0,<1.82.7` | Blocks known-compromised version range | Dependency resolver rejects affected versions |
+| `litellm` bound in `pyproject.toml` | Excludes compromised 1.82.7/1.82.8 range and pre-fix 1.83.0–1.83.6 | Dependency resolver rejects affected versions |
 
 ### Build and publish integrity
 
@@ -140,6 +149,14 @@ gh api repos/osojicode/osoji/branches/main/protection --method PUT --input ...
 
 This is an auditable action recorded in the GitHub audit log. It should be
 used only for genuine emergencies where the PR/CI workflow is itself broken.
+
+## Accepted risks
+
+Specific vulnerabilities we have analyzed and decided not to block on, with
+explicit rationale. These are targeted exceptions, not blanket suppressions,
+and each has a re-evaluation trigger.
+
+*No current accepted risks.*
 
 ## Known limitations
 
