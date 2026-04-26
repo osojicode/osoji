@@ -69,7 +69,7 @@ def _detect_workspace_packages(project_root: Path) -> dict[str, str]:
             # Fallback: simple line parsing
             for line in pnpm_ws.read_text(encoding="utf-8").splitlines():
                 stripped = line.strip().lstrip("- ").strip("'\"")
-                if stripped and not stripped.startswith("#") and not stripped.startswith("packages"):
+                if stripped and not stripped.startswith("#") and not stripped.endswith(":"):
                     workspace_dirs.append(stripped)
         except Exception:
             pass
