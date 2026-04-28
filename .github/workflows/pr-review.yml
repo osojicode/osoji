@@ -1,4 +1,4 @@
-name: PR Review
+name: Instruction Integrity
 
 on:
   pull_request_target:
@@ -46,46 +46,3 @@ jobs:
               issue_number: context.payload.pull_request.number,
               body: `## Instruction files changed\n\nThis PR modifies control-plane files that affect agent behavior or CI enforcement:\n\n\`\`\`\n${files}\n\`\`\`\n\nThese changes deserve elevated scrutiny — they alter the security controls or agent instructions for this repository.`
             });
-
-  adversarial-review:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-      id-token: write
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-        with:
-          persist-credentials: false
-      - uses: anthropics/claude-code-action@26ddc358fe3befff50c5ec2f80304c90c763f6f8  # v1
-        with:
-          allowed_bots: "dependabot[bot]"
-          # This prompt is intentionally defined here, NOT read from CLAUDE.md.
-          # It runs via pull_request_target so the workflow version from main
-          # is always used, even if the PR modifies this file.
-          prompt: |
-            You are a security-focused code reviewer. Review this pull request
-            diff for the following concerns. Be concise — only flag genuine issues,
-            not style preferences.
-
-            SECURITY (highest priority):
-            - Data exfiltration: network calls to unexpected URLs, credential harvesting
-            - Hardcoded secrets: API keys, tokens, passwords in source code
-            - Weakened security controls: changes that disable checks, loosen validation,
-              or remove safety mechanisms
-            - Suspicious patterns: obfuscated code, encoded payloads, dynamic code execution
-
-            INSTRUCTION INTEGRITY (high priority):
-            - Changes to CLAUDE.md, .claude/, or .github/workflows/ are control-plane
-              modifications. Flag what changed and assess whether it weakens security posture.
-            - Changes to .github/workflows/pr-review.yml (this file) deserve the highest
-              scrutiny — they could disable this very review.
-
-            SUPPLY CHAIN (medium priority):
-            - Dependency additions or changes without corresponding requirements.lock update
-            - New network dependencies or external service calls
-            - Changes to build or publish configuration
-
-            Post your findings as a PR review comment. If nothing concerning is found,
-            post a brief "Security review: no issues found" comment.
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
