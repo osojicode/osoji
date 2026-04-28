@@ -208,7 +208,7 @@ Result from `mark_stale_docs()`:
 
 The pipeline handles failures at multiple levels:
 
-- **LLM validation retries.** The self-correction loop in `LiteLLMProvider` (see [LLM tool schemas and validation](llm-tool-schemas-and-validation.md)) retries up to 3 times when the tool call output fails schema validation.
+- **LLM validation retries.** The self-correction loop in `LiteLLMProvider` (see [LLM tool schemas and validation](llm-tool-schemas-and-validation.md)) makes up to 3 attempts (1 initial + 2 retries) when the tool call output fails schema validation.
 - **Rate limit retries.** The `RateLimitedProvider` (see [rate limiting and token budgeting](rate-limiting-and-token-budgeting.md)) retries on HTTP 429 and server errors with exponential backoff.
 - **File write retries.** `_write_with_retry()` retries on transient OS errors (EINVAL, EIO) that occur on certain filesystems (e.g., DrvFs on WSL), with delays of 0.5s, 1.0s, and 2.0s.
 - **Per-file error containment.** If any file fails completely, `process_file_async()` catches the exception and returns a `ShadowResult` with an error message. The pipeline continues processing other files.

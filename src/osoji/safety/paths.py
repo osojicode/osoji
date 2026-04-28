@@ -76,7 +76,7 @@ def check_file_for_paths(file_path: Path) -> list[PathFinding]:
     """
     try:
         content = file_path.read_text(encoding="utf-8", errors="replace")
-    except (OSError, UnicodeDecodeError):
+    except OSError:
         # Skip files that can't be read
         return []
 

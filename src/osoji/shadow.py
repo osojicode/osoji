@@ -1640,7 +1640,14 @@ def cleanup_orphan_shadows(config: Config, files: list[Path], dirs: list[Path], 
         expected_facts: set[Path] = set()
         for f in files:
             expected_facts.add(config.facts_path_for(f))
-        for facts_file in list(facts_dir.rglob("*.facts.json")):
+        # Single pass: preserve doc-reference facts AND identify orphans
+        all_facts_files = list(facts_dir.rglob("*.facts.json"))
+        for facts_file in all_facts_files:
+            rel_facts = facts_file.relative_to(facts_dir)
+            source_name = str(rel_facts).removesuffix(".facts.json").replace("\\", "/")
+            if any(source_name.endswith(ext) for ext in config.doc_extensions):
+                expected_facts.add(facts_file)
+        for facts_file in all_facts_files:
             if facts_file not in expected_facts:
                 if verbose and not config.quiet:
                     relative = facts_file.relative_to(config.root_path)

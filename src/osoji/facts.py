@@ -312,6 +312,30 @@ class FactsDB:
                         "kind": "call",
                         "context": f"calls {target} at line {call.get('line', '?')}",
                     })
+            # Method dispatch: for qualified symbols (ClassName.method), match
+            # bare method calls when the calling file imports from the defining file.
+            if "." in symbol_name:
+                # Check if we already found a direct call match from this file
+                has_call_from_file = any(
+                    r["file"] == file_path and r["kind"] == "call" for r in refs
+                )
+                if not has_call_from_file:
+                    bare_method = symbol_name.rsplit(".", 1)[1]
+                    has_method_call = any(
+                        call.get("to", "").endswith(f".{bare_method}")
+                        for call in facts.calls
+                    )
+                    if has_method_call:
+                        file_imports_source = any(
+                            self.resolve_import_source(file_path, imp.get("source", "")) == source_norm
+                            for imp in facts.imports
+                        )
+                        if file_imports_source:
+                            refs.append({
+                                "file": file_path,
+                                "kind": "call",
+                                "context": f"calls *.{bare_method} (instance dispatch) and imports from {source_norm}",
+                            })
             # Check member writes: does this file write the symbol as a field/property?
             for write in facts.member_writes:
                 member = write.get("member", "")

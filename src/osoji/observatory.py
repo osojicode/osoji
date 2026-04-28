@@ -418,13 +418,15 @@ def _link_tree(
     """Attach directory and file nodes into a nested tree."""
     for rel_path, node in file_nodes.items():
         parent_path = _normalize_path(Path(rel_path).parent)
-        dir_nodes[parent_path]["children"].append(node)
+        if parent_path in dir_nodes:
+            dir_nodes[parent_path]["children"].append(node)
 
     for rel_path, node in dir_nodes.items():
         if rel_path == "":
             continue
         parent_path = _normalize_path(Path(rel_path).parent)
-        dir_nodes[parent_path]["children"].append(node)
+        if parent_path in dir_nodes:
+            dir_nodes[parent_path]["children"].append(node)
 
     for node in dir_nodes.values():
         node["children"].sort(
@@ -484,8 +486,8 @@ def _build_bundle_for_config(config: Config) -> dict[str, Any]:
         compression_savings_ratio = 1.0 - compression_ratio
 
     scorecard = _safe_read_json(config.scorecard_path)
+    audit_result = _safe_read_json(config.analysis_root / "audit-result.json")
     if scorecard is None:
-        audit_result = _safe_read_json(config.analysis_root / "audit-result.json")
         if audit_result and isinstance(audit_result.get("scorecard"), dict):
             scorecard = audit_result["scorecard"]
 
@@ -498,7 +500,6 @@ def _build_bundle_for_config(config: Config) -> dict[str, Any]:
     # Load doc_prompts and config from audit result if present
     doc_prompts_data = None
     config_snapshot = None
-    audit_result = _safe_read_json(config.analysis_root / "audit-result.json")
     if audit_result:
         if isinstance(audit_result.get("doc_prompts"), dict):
             doc_prompts_data = audit_result["doc_prompts"]

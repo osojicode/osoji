@@ -40,7 +40,7 @@ def test_plugin_facts_override_llm_structural_fields():
             "exports": pf.get("exports", []),
             "calls": pf.get("calls", []),
             "member_writes": pf.get("member_writes", []),
-            "string_literals": facts.get("string_literals", []) if facts else [],
+            "string_literals": facts.get("string_literals", []),
             "extraction_method": "ast",
         }
 
@@ -77,7 +77,7 @@ def test_llm_string_literals_preserved_when_plugin_has_no_strings():
             "exports": pf.get("exports", []),
             "calls": pf.get("calls", []),
             "member_writes": pf.get("member_writes", []),
-            "string_literals": facts.get("string_literals", []) if facts else [],
+            "string_literals": facts.get("string_literals", []),
             "extraction_method": "ast",
         }
 

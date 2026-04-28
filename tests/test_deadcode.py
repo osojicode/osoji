@@ -9,6 +9,7 @@ from osoji.config import Config
 from osoji.deadcode import (
     DeadCodeCandidate,
     GrepHit,
+    _compute_transitive_liveness,
     _extract_context,
     _verify_batch_async,
     detect_dead_code_async,
@@ -669,3 +670,35 @@ class TestDetectDeadCodeAsync:
         batch_sets = [frozenset(b) for b in call_batches]
         assert frozenset({"func_a1", "func_a2"}) in batch_sets
         assert frozenset({"func_b1"}) in batch_sets
+
+
+class TestTransitiveLiveness:
+    """Tests for _compute_transitive_liveness()."""
+
+    def test_transitive_liveness_includes_last_line(self):
+        """Constant used on the last line of a function should be found.
+
+        LLM-extracted line_end values are commonly 1 line short of the actual
+        function body.  The +1 padding on line_end in _compute_transitive_liveness
+        compensates for this, ensuring the real last line is scanned.
+        """
+        # Simulate LLM reporting line_end=4 when the function actually ends
+        # at line 5.  Without +1 padding, line 5 (where _HELPER is used)
+        # would not be scanned and _HELPER would appear dead.
+        symbols = [
+            ("_HELPER", 1, 1),       # line 1: _HELPER = "value"
+            ("get_things", 3, 4),    # LLM says lines 3-4, actual body is 3-5
+        ]
+        file_lines = [
+            '_HELPER = "value"',         # line 1
+            '',                          # line 2
+            'def get_things():',         # line 3
+            '    data = process()',       # line 4 (LLM thinks this is last line)
+            '    return _HELPER',        # line 5 (actual last line, uses _HELPER)
+            '',                          # line 6
+        ]
+        alive = _compute_transitive_liveness(
+            symbols, file_lines,
+            has_external_refs=lambda name: name == "get_things",
+        )
+        assert "_HELPER" in alive, "constant on last line should be transitively alive"

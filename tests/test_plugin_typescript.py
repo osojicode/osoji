@@ -576,7 +576,7 @@ def test_workspace_package_detection_npm(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# New tests: backward compat array input
+# New tests: object format input (new format with files key)
 # ---------------------------------------------------------------------------
 
 

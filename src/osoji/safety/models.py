@@ -37,7 +37,7 @@ class CheckResult:
     @property
     def passed(self) -> bool:
         """Return True if no findings of any kind."""
-        return not self.path_findings and not self.secret_findings
+        return not self.path_findings and not self.secret_findings and not self.errors
 
     @property
     def finding_count(self) -> int:

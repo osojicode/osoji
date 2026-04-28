@@ -153,7 +153,8 @@ def shadow(ctx: click.Context, path: Path, force: bool, dry_run: bool, provider:
 @click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
 @click.option("--dry-run", is_flag=True, help="Just print report, no file modifications")
 @click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
-def check(path: Path, dry_run: bool, no_gitignore: bool) -> None:
+@click.pass_context
+def check(ctx: click.Context, path: Path, dry_run: bool, no_gitignore: bool) -> None:
     """Check for stale or missing shadow documentation.
 
     By default, injects stale warnings into shadow docs and writes a
@@ -161,9 +162,12 @@ def check(path: Path, dry_run: bool, no_gitignore: bool) -> None:
 
     PATH is the root directory to check (defaults to current directory).
     """
+    state = _cli_state(ctx)
     config = _build_llm_config(
         path,
         no_gitignore=no_gitignore,
+        verbose=state.verbose,
+        quiet=state.quiet,
     )
 
     if dry_run:

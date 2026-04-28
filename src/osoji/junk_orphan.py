@@ -188,7 +188,7 @@ def _identify_entry_points_heuristic(signatures: list[dict]) -> set[str]:
     return entry_points
 
 
-# --- Phase 3: Semantic relationship edges (small model) ---
+# --- Phase 4: Semantic relationship edges (small model) ---
 
 _RELATIONSHIPS_SYSTEM_PROMPT = """You are identifying semantic relationships between source files.
 
@@ -253,7 +253,7 @@ async def _identify_relationships_async(
     return relationships
 
 
-# --- Phase 4: BFS orphan detection ---
+# --- Phase 3 / 5: BFS orphan detection ---
 
 def find_orphans(adjacency: dict[str, set[str]], entry_points: set[str]) -> list[str]:
     """BFS from entry points through adjacency. Unreachable nodes = orphan candidates."""
@@ -278,7 +278,7 @@ def find_orphans(adjacency: dict[str, set[str]], entry_points: set[str]) -> list
     return sorted(all_nodes - visited)
 
 
-# --- Phase 5: Medium-model orphan verification ---
+# --- Phase 6: Medium-model orphan verification ---
 
 _VERIFY_ORPHANS_SYSTEM_PROMPT = """You are verifying whether source files are truly orphaned (unreachable and unused).
 

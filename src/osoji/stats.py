@@ -203,7 +203,7 @@ async def gather_stats_async(config: Config) -> ProjectStats:
     if config.provider:
         default_model = config.model_for("medium")
         token_cache = _load_token_cache(config)
-        counter = TokenCounter(provider=config.provider or "anthropic", default_model=default_model)
+        counter = TokenCounter(provider=config.provider, default_model=default_model)
         counter_label = counter.label
         try:
             tasks = []

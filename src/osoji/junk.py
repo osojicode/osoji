@@ -13,7 +13,6 @@ from typing import Any, Callable
 from .config import Config, SHADOW_DIR
 from .llm.base import LLMProvider
 from .llm.runtime import create_runtime
-from .rate_limiter import RateLimiter
 
 
 @dataclass

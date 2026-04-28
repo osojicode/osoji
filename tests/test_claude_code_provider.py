@@ -13,7 +13,6 @@ from osoji.llm.types import (
     Message,
     MessageRole,
     RequiredToolCallError,
-    ToolCall,
     ToolDefinition,
     ToolSchemaValidationError,
 )

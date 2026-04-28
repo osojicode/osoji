@@ -109,9 +109,9 @@ def _find_referenced_sources(
 ) -> list[Path]:
     """Extract source file references from a documentation file.
 
-    When *facts_db* has doc-reference entries (populated by ``extract_doc_references()``),
-    the lookup is a fast FactsDB query.  Otherwise falls back to regex matching
-    against shadow doc filenames.
+    When *facts_db* has a classification for the document (populated by
+    ``extract_doc_references()``), the lookup is a fast FactsDB query.
+    Otherwise falls back to regex matching against shadow doc filenames.
     """
     # Fast path: query FactsDB if doc references are available
     if facts_db is not None and doc_path is not None:

@@ -108,7 +108,9 @@ def _compute_transitive_liveness(
     uses: dict[str, set[str]] = {s[0]: set() for s in symbols}
     for sym_name, line_start, line_end in symbols:
         start_idx = line_start - 1
-        end_idx = line_end if line_end else line_start
+        # +1 padding on line_end compensates for LLM-extracted line ranges
+        # that are commonly 1 line short of the actual function body end.
+        end_idx = (line_end + 1) if line_end else line_start
         for line_idx in range(start_idx, min(end_idx, len(file_lines))):
             for m in file_pattern.finditer(file_lines[line_idx]):
                 referenced = m.group(1)
@@ -574,8 +576,6 @@ def _build_interface_alive_methods(facts_db: FactsDB) -> set[str]:
     class_bases: dict[str, list[str]] = {}        # ClassName -> [BaseName, ...]
     class_file: dict[str, str] = {}               # ClassName -> source path
     class_decorators: dict[str, list[str]] = {}   # ClassName -> decorator names
-    # method_name (unqualified) -> set of classes that mark it exclude_from_dead
-    interface_methods_by_name: dict[str, set[str]] = {}
 
     for file_path in facts_db.all_files():
         file_facts = facts_db.get_file(file_path)
@@ -590,17 +590,6 @@ def _build_interface_alive_methods(facts_db: FactsDB) -> set[str]:
             bases = exp.get("bases") or exp.get("implements") or []
             if bases:
                 class_bases[cls_name] = bases
-
-        # Index methods marked exclude_from_dead_analysis (abstract / framework).
-        for exp in file_facts.exports:
-            if exp.get("kind") != "function":
-                continue
-            if not exp.get("exclude_from_dead_analysis"):
-                continue
-            name = exp["name"]
-            if "." in name:
-                cls_part, method_part = name.rsplit(".", 1)
-                interface_methods_by_name.setdefault(method_part, set()).add(cls_part)
 
     # Phase 2 — resolve base class names to their defining files.
     #   base_name could be a simple name ("LLMProvider") or qualified

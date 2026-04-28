@@ -144,7 +144,7 @@ process.stdin.on("end", () => {
     } else if (parsed && typeof parsed === "object" && Array.isArray(parsed.files)) {
       filePaths = parsed.files;
     } else {
-      process.stderr.write("Invalid stdin: expected JSON array or {files, workspacePackages}\n");
+      process.stderr.write("Invalid stdin: expected JSON array or {files}\n");
       process.exit(1);
     }
   } catch (e) {

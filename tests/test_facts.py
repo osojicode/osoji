@@ -393,6 +393,68 @@ class TestCrossFileReferences:
         refs = db.cross_file_references("orphan_func", "src/scorecard.py")
         assert refs == []
 
+    def test_instance_dispatch_match(self, tmp_path):
+        """Instance method call (self.obj.bar) matches ClassName.bar when file imports source."""
+        _write_facts(tmp_path, "src/rate_limiter.py", {
+            "imports": [],
+            "exports": [{"name": "RateLimiter", "kind": "class", "line": 1}],
+            "calls": [],
+            "string_literals": [],
+        })
+        _write_facts(tmp_path, "src/engine.py", {
+            "imports": [{"source": ".rate_limiter", "names": ["RateLimiter"], "is_reexport": False}],
+            "exports": [],
+            "calls": [{"to": "self._limiter.acquire", "line": 50}],
+            "string_literals": [],
+        })
+        db = FactsDB(_make_config(tmp_path))
+        refs = db.cross_file_references("RateLimiter.acquire", "src/rate_limiter.py")
+        call_refs = [r for r in refs if r["kind"] == "call"]
+        assert len(call_refs) == 1
+        assert call_refs[0]["file"] == "src/engine.py"
+        assert "instance dispatch" in call_refs[0]["context"]
+
+    def test_instance_dispatch_no_match_without_import(self, tmp_path):
+        """Instance method call does NOT match when calling file has no import from source."""
+        _write_facts(tmp_path, "src/rate_limiter.py", {
+            "imports": [],
+            "exports": [{"name": "RateLimiter", "kind": "class", "line": 1}],
+            "calls": [],
+            "string_literals": [],
+        })
+        _write_facts(tmp_path, "src/unrelated.py", {
+            "imports": [],
+            "exports": [],
+            "calls": [{"to": "obj.acquire", "line": 10}],
+            "string_literals": [],
+        })
+        db = FactsDB(_make_config(tmp_path))
+        refs = db.cross_file_references("RateLimiter.acquire", "src/rate_limiter.py")
+        call_refs = [r for r in refs if r["kind"] == "call"]
+        assert len(call_refs) == 0
+
+    def test_instance_dispatch_not_triggered_for_unqualified_symbol(self, tmp_path):
+        """Unqualified symbol (no dot) should not trigger method dispatch."""
+        _write_facts(tmp_path, "src/utils.py", {
+            "imports": [],
+            "exports": [{"name": "standalone_func", "kind": "function", "line": 1}],
+            "calls": [],
+            "string_literals": [],
+        })
+        _write_facts(tmp_path, "src/caller.py", {
+            "imports": [{"source": ".utils", "names": ["standalone_func"], "is_reexport": False}],
+            "exports": [],
+            "calls": [{"to": "obj.standalone_func", "line": 10}],
+            "string_literals": [],
+        })
+        db = FactsDB(_make_config(tmp_path))
+        refs = db.cross_file_references("standalone_func", "src/utils.py")
+        # The direct call match should work (target ends with .standalone_func)
+        call_refs = [r for r in refs if r["kind"] == "call"]
+        assert len(call_refs) == 1
+        # But it should be a direct match, not an instance dispatch match
+        assert "instance dispatch" not in call_refs[0]["context"]
+
 
 class TestMalformedEntries:
     """Ensure non-dict entries in list fields are silently filtered out."""
