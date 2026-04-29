@@ -56,15 +56,18 @@ lifecycle). The wiki is the canonical archive — non-trivial decisions and
 concepts belong there, not in commit messages or in this file.
 
 Tooling lives in the sibling [osoji-wiki](https://github.com/osojicode/osoji-wiki)
-repo: an MCP server with content-addressable read/write tools so concurrent
-agent edits don't clobber each other, plus two slash-command skills:
+repo, distributed as a Claude Code plugin (`/plugin marketplace add
+osojicode/osoji-wiki && /plugin install osoji-wiki@osojicode`). The plugin
+provides an MCP server with content-addressable read/write tools so concurrent
+agent edits don't clobber each other, plus two namespaced slash-command skills:
 
-- `/brief <topic>` — load relevant wiki pages into a session at start
-- `/debrief` — capture decisions, concepts, or detector notes back to the wiki
-  at session end
+- `/osoji-wiki:brief <topic>` — load relevant wiki pages into a session at start
+- `/osoji-wiki:debrief` — capture decisions, concepts, or detector notes back
+  to the wiki at session end
 
-Use `/brief` when starting non-trivial work; use `/debrief` when finishing a
-session that produced something worth preserving past the next compaction.
+Use `/osoji-wiki:brief` when starting non-trivial work; use `/osoji-wiki:debrief`
+when finishing a session that produced something worth preserving past the next
+compaction.
 
 ## Shadow docs (.osoji/shadow/)
 
@@ -126,7 +129,7 @@ export analysis, and string contract checking.
 - `src/osoji/async_utils.py` — Async runtime helpers
 - `src/osoji/doc_prompts.py` — Concept-centric documentation coverage and writing prompt generation
 - `src/osoji/plugins/` — Language-specific AST extraction plugins (Python, TypeScript)
-- `src/osoji/skills/` — Bundled AI agent skill prompts (markdown files with YAML frontmatter)
+- `src/osoji/skills/` — Bundled AI agent skill prompts (markdown files with YAML frontmatter); also mirrored at `.claude/skills/<name>/SKILL.md` for Claude Code agents working on this repo (parity enforced by `tests/test_skills_parity.py`)
 - `src/osoji/osoji-observatory.schema.json` — JSON Schema (Draft 2020-12) for the observatory bundle
 
 ## Observatory bundle schema
