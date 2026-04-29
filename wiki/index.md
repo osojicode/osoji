@@ -18,6 +18,7 @@ Tooling: [`osoji-wiki`](https://github.com/osojicode/osoji-wiki) — MCP server 
 ## Decisions
 
 - [0002 — Language choice: Python (with a sidecar door open)](decisions/0002-language-choice.md) — why osoji stays in Python for v1.
+- [0003 — Distribute osoji-wiki as a Claude Code plugin](decisions/0003-plugin-packaging.md) — supersedes the manual install workflow from spec 0002 with `/plugin install osoji-wiki@osojicode`.
 
 ## Detectors
 
