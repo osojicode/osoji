@@ -5,6 +5,11 @@ consume.  Use ``osoji skills list`` and ``osoji skills show <name>`` from
 the CLI, or import the helpers directly::
 
     from osoji.skills import list_skills, get_skill
+
+Each ``<name>.md`` here is also mirrored to ``.claude/skills/<name>/SKILL.md``
+at the repo root so Claude Code auto-discovers it when working on the osoji
+repo itself.  ``tests/test_skills_parity.py`` fails on drift between the two
+locations — update both whenever editing a skill.
 """
 
 from __future__ import annotations
