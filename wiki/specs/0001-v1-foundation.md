@@ -68,7 +68,7 @@ Triage continues to operate with global cross-file context as a safety net, but 
 
 Each detector declares its required propose-time context. Three classes:
 
-- **Per-file detectors** read one source file (and that file's shadow doc). Right window for description gaps. Examples: `stale_comment`, `misleading_claim`, `latent_bug` when the bug is local, doc-accuracy errors. Shadow generation continues to feed these — shadow docs are repositioned as *the input to per-file detectors*, not as the universal substrate from which all findings are extracted.
+- **Per-file detectors** read one source file plus the smallest shadow scope that brackets the claim and the candidate behavior — `<file>.shadow.md` for local drift, `_directory.shadow.md` for architectural drift, `_root.shadow.md` for project-level drift. See [description gap scope spectrum](../concepts/three-gap-theory.md#description-gap-scope-spectrum) for the three sub-cases. Right window for description gaps. Examples: `stale_comment`, `misleading_claim`, `latent_bug` when the bug is local, doc-accuracy errors. Shadow generation continues to feed these — shadow docs are repositioned as *the input to per-file detectors at the appropriate scope*, not as the universal substrate from which all findings are extracted.
 - **Project-graph detectors** read FactsDB plus a candidate symbol's source file. Right window for reachability gaps. Examples: `dead_code`, `dead_parameter`, `unactuated_config`, `orphaned_file`, `unused_dependency`. These detectors must propose with cross-file reference data already in hand; today their LLM proposal step often runs file-local and then hopes verification will catch the FPs, which is the wrong order.
 - **File-tuple detectors** read the N files sharing a contract (typically a pair). Right window for contract gaps. Examples: `obligation_violation`, cross-file string drift, schema/ABI mismatch. `obligations.py` already groups by file pair; this becomes the pattern for all contract-gap detectors.
 
@@ -119,18 +119,28 @@ Detectors emit Findings with empty `verdict`/`confidence`/`reasoning`. Triage fi
 
 ### The Triage stage (B)
 
-One LLM-driven stage replaces the six+ scattered verification gates. Inputs: a batch of Findings with their gathered Evidence, plus shadow doc / facts context. Outputs: each Finding with verdict, confidence, reasoning, and suggested fix.
+One LLM-driven stage replaces the six+ scattered verification gates. Inputs: a batch of [self-sufficient claims](../concepts/self-sufficient-claims.md) — Findings whose Evidence has been mechanically assembled to be sufficient for one-shot reasoning. Outputs: each Finding with verdict, confidence, reasoning, and suggested fix.
 
 The Triage prompt is the single largest optimization target in the system. It encodes the three-gap rubric and instructs the model to weigh evidence kinds against the three TP predicates (reality, significance, actionability). The reasoning trace is captured verbatim — this is the "rich trace" gepa-style optimization needs in v2.
 
-### Evidence gathering
+The rubric explicitly distinguishes hard-coded-literal classes per [string-contract taxonomy](../concepts/string-contract-taxonomy.md): named project obligations get confirmed (with a "use the existing constant" suggested fix); unnamed project obligations get confirmed (with an "extract a shared constant" suggested fix); ecosystem conventions (HTTP codes, file modes, RFC-defined strings) get dismissed with reasoning; ambiguous magic-constant duplications get examined case-by-case; coincidental duplications get dismissed as coincidence. This is the LLM filter the current `obligations.py` lacks; routing all literal-based findings through Triage is what makes the rubric enforceable.
 
-Evidence appears at two distinct points and the Finding schema records both:
+When a claim arrives with the `insufficient_evidence` flag set (the Claim Builder couldn't fill required Evidence kinds), Triage escalates to exploration mode for that single claim — the LLM gets read/grep tool access and decides with retrieval. Cost stays bounded because the escalation rate is itself a tracked metric.
 
-- **Propose-time evidence** is whatever the detector consulted to *generate* the hypothesis (e.g., a project-graph detector cites the cross-file reference list it inspected; a file-pair detector cites both file contents). This is required input to the detector by its context-window class. Recording it makes the LLM's proposal auditable — Triage can see what the proposer saw.
-- **Triage-time evidence** is gathered after proposal by a single evidence-gathering pass that uses FactsDB, shadow docs, symbols, and (in v2) OSS scanner output to attach additional supporting data. This is where current per-detector verification logic gets centralized. `_verify_debris_findings_async` (`src/osoji/audit.py:262-399`) and the five+ analyzer-specific verify methods all collapse into one gathering pass + one Triage call.
+### Claim Builder
 
-Detectors don't gather their own *triage* evidence; they produce hypotheses with their propose-time context attached, the gathering pass adds the rest, Triage decides.
+Between detector and Triage there is one mechanical pass — the [Claim Builder](../concepts/self-sufficient-claims.md) — that assembles each Finding into a self-sufficient claim: the hypothesis, mechanically-gathered case-FOR evidence, mechanically-gathered case-AGAINST evidence, positional context (without semantic interpretation), and the relevant compressed-code substrate (shadow docs at file / directory / root scope as the gap-type warrants). Triage receives a batch of these claims and decides each in one LLM call, no exploration needed by default.
+
+Two sources feed the Claim Builder:
+
+- **Propose-time evidence** — whatever the detector consulted to generate the hypothesis (a project-graph detector cites the cross-file reference list it inspected; a file-pair detector cites both file contents). Recording it makes the LLM's proposal auditable.
+- **Builder-time evidence** — added by the Claim Builder pass: cross-file references from FactsDB, shadow doc content at appropriate scope, AGAINST-direction patterns (base class hierarchy for reachability, surrounding-code positional context for string contracts), and (in v2) OSS scanner output. This is where the current per-detector verification logic gets centralized. `_verify_debris_findings_async` (`src/osoji/audit.py:262-399`) and the five+ analyzer-specific verify methods all collapse into the Claim Builder + one Triage call per batch.
+
+The Claim Builder's evidence schema is a **configuration object**, not a hardcoded class — a list of evidence-kind-builders to invoke per claim. This keeps the schema mutable so v2 can apply gepa-style ablation: a Claim Builder mutation that drops an Evidence kind shouldn't hurt verdict accuracy if the kind was non-load-bearing.
+
+The Claim Builder's evidence schema is **bootstrapped from observation**, not stipulated. Step 3a in the [order of operations](#order-of-operations) below runs Triage in exploration mode against a representative test set, mines the LLM's tool-call traces for the Evidence kinds it consults, then mechanizes those kinds. Validate by ablation: rerun in claim-only mode and confirm verdicts match. This is the answer to "what evidence is sufficient?" — we measure rather than guess.
+
+When the Claim Builder cannot fill a required Evidence kind, it sets the `insufficient_evidence` flag on the claim and Triage escalates that single claim to exploration mode (see [Triage stage above](#the-triage-stage-b)).
 
 ### Tree-sitter substrate (E in earlier discussion)
 
@@ -149,6 +159,26 @@ The sweep skill (`src/osoji/skills/osoji-sweep.md`) gains a final phase that, in
 The user (or Claude in a follow-up session) reviews the auto-generated fixture and either accepts it (committing to the corpus) or rejects it (adjusting the sweep classification first). This converts the sweep workflow's existing output into corpus growth.
 
 The prompt-regression harness gets a new mode: `--evaluate` runs all fixtures and reports per-detector and overall TP/FP rates. This is the metric.
+
+## Epistemological note
+
+The "solid foundation" this rebuild aims for is layered, and being honest about which layer is which is part of what makes it solid. Four layers, with different revisability and different evidence requirements:
+
+| Layer | Examples in this spec | Revisable how |
+|---|---|---|
+| **Stipulated** | The TP-predicate definition (reality + significance + actionability) | Definitional choice. Defensible because it operationalizes "matters." Not derived from anything. Revisable only by re-defining what counts as a finding. |
+| **Taxonomic** | Three-gap theory; string-contract five-class rubric; Finding's `gap_type` and Evidence `kind` enums | Falsifiable engineering claims. Each closed-set taxonomy carries an `other`/`uncategorized` outlet. Revisable when the metrics below show the taxonomy is failing. |
+| **Engineering** | Claim Builder over exploration-mode; per-file/project-graph/file-tuple dispatch; shadow docs as primary compressed-code substrate; gepa as v2 optimizer target | Design choices supported by current evidence. Reversible at the [Finding schema](#the-finding-schema-a) boundary. Not provably optimal. Revisable when a measurement disagrees. |
+| **Measured** | Per-detector TP/FP rates; CE-gap and ME-overlap rates per taxonomy; escalation rate from Claim Builder; verdict-disagreement between claim-mode and exploration-mode in bootstrap | What we actually know. Outputs of the regression evaluator and the sweep-fixture corpus. Drives revisions to the layers above. |
+
+Two falsifiability metrics per closed-set taxonomy, applied differently by use:
+
+- **CE-gap rate** (proportion of items classified `other`/`uncategorized`) for taxonomies in *generative* use (frame what we're looking for). Rising rate signals a missing category.
+- **ME-overlap rate** (proportion of items legitimately fitting multiple categories that route to non-overlapping analysis) for taxonomies in *analytical* use (route to different pipelines). Structural overlap signals the dispatch boundary is wrong.
+
+Three-gap theory serves both uses, so it carries both metrics. The string-contract taxonomy is descriptive only (Triage rubric vocabulary), so only CE-gap matters. Detector context windows is dispatch only, so only ME-overlap matters.
+
+This framing is itself revisable — but the discipline behind it (no closed-set taxonomy without an `other` outlet and a metric on its adequacy) is the meta-principle the v1 architecture should not silently abandon.
 
 ## Repository layout
 
@@ -193,11 +223,12 @@ Architecture-first. Tree-sitter migration is a port, not a redesign — it's saf
 
 1. **Bootstrap session.** Create `osoji-wiki` repo. Implement MCP server (read/edit/write/delete/move/list with CAS). Bootstrap `wiki/` in osoji repo. Ingest this plan, the three-gap theory, the language-choice analysis, and the v1-scope decision as the first wiki entries. Wire `/brief` and `/debrief` skills. **Status: completed; see [specs/0002-wiki-bootstrap.md](0002-wiki-bootstrap.md).**
 2. **Finding schema + evidence model + detector context taxonomy.** Implement `findings.py` and `evidence.py`. Classify every existing detector into per-file / project-graph / file-tuple. No behavior change yet — existing detectors still emit their old shapes; an adapter converts to Findings. Ship this as a single PR; CI green.
-3. **Unified Triage stage.** Implement `triage.py`. Migrate Phase 3 debris verification to use it. Verify behavior is preserved on existing `prompt_regression` fixtures. PR.
-4. **Migrate detectors to their declared context windows.** This is where the FP-class the user has been fighting actually gets fixed. Reachability detectors (`deadcode`, `deadparam`, `plumbing`, `junk_orphan`, `junk_deps`) start consuming FactsDB at *propose* time, not just at filter/verify time — meaning their LLM proposal step sees cross-file references upfront. Contract detectors (`obligations` and any cross-file `latent_bug` cases) propose against file-tuple input. Per-file detectors (most `doc_analysis` paths, `stale_comment`, in-file `latent_bug`) keep their per-file shadow input unchanged. Per-analyzer verify methods deleted; Triage takes over. PR per analyzer or grouped, owner's choice.
-5. **Tree-sitter migration.** Python first; query outputs cross-validated against existing plugin snapshots. Then TypeScript. Then Go as the third language to prove the abstraction. PR per language.
-6. **Sweep → fixture corpus.** Add fixture-emitting phase to sweep skill. Add `--evaluate` mode to prompt-regression. Run sweep on osoji itself to seed the corpus.
-7. **Three-gap docs in wiki, dogfood evaluation.** Final concept pages. Run `--evaluate` and publish baseline TP/FP rates per detector.
+3. **Unified Triage stage (with both modes).** Implement `triage.py` supporting both exploration mode (LLM has tool access; used for bootstrap and escalation) and claim mode (LLM receives self-sufficient claims; default path). Migrate Phase 3 debris verification to claim mode with an initial-guess Claim Builder schema. Verify behavior is preserved on existing `prompt_regression` fixtures. PR.
+4. **Exploration-mode bootstrap and Claim Builder ablation.** Run Triage in exploration mode against a curated test set (existing `prompt_regression` fixtures plus a representative sample from the audit-osoji-on-osoji corpus). Log every tool call. Mine successful traces for the Evidence kinds the LLM consults. Mechanize those kinds in the Claim Builder. Ablate by rerunning in claim mode and measuring verdict-disagreement against the exploration baseline. Iterate until disagreement is below threshold. The output is the v1 Claim Builder schema, empirically derived. PR.
+5. **Migrate detectors to their declared context windows.** This is where the FP-class the user has been fighting actually gets fixed. Reachability detectors (`deadcode`, `deadparam`, `plumbing`, `junk_orphan`, `junk_deps`) start consuming FactsDB at *propose* time, not just at filter/verify time — meaning their LLM proposal step sees cross-file references upfront. Contract detectors (`obligations` and any cross-file `latent_bug` cases) propose against file-tuple input. Per-file detectors (most `doc_analysis` paths, `stale_comment`, in-file `latent_bug`) keep their per-file shadow input unchanged. Per-analyzer verify methods deleted; the Claim Builder + Triage take over. PR per analyzer or grouped, owner's choice.
+6. **Tree-sitter migration.** Python first; query outputs cross-validated against existing plugin snapshots. Then TypeScript. Then Go as the third language to prove the abstraction. PR per language.
+7. **Sweep → fixture corpus.** Add fixture-emitting phase to sweep skill. Add `--evaluate` mode to prompt-regression. Add CE-gap and ME-overlap rate tracking per taxonomy. Add Claim Builder escalation-rate tracking. Run sweep on osoji itself to seed the corpus.
+8. **Three-gap docs in wiki, dogfood evaluation.** Final concept pages. Run `--evaluate` and publish baseline TP/FP rates per detector along with taxonomy adequacy and escalation rates.
 
 Each step ships as a PR through the existing branch-protection workflow. CI must stay green throughout.
 
@@ -225,11 +256,13 @@ A v1 release ships when all of the following hold:
 
 1. **Existing prompt-regression fixtures all pass** at their established baselines, run through the new architecture. (Behavior preservation.)
 2. **New `--evaluate` mode** reports per-detector TP/FP rates on the seeded corpus. Initial corpus comes from one full sweep of osoji on osoji.
-3. **`osoji audit --full .` on the osoji repo** runs end-to-end through the unified architecture, finishes within 10% of current wall-clock time, and produces Findings with verdicts/confidence/reasoning populated.
-4. **Tree-sitter Python and TypeScript queries** produce symbol/fact outputs that match the deprecated plugins on a snapshot test. One additional language (Go) onboarded as a smoke test of the abstraction.
-5. **Wiki coverage**: every concept and decision in this plan exists as a wiki page, with cross-references and an updated index.
-6. **CLAUDE.md updated** to point at the wiki and brief/debrief workflow.
-7. **Detector context audit**: every detector documents its declared context-window class (per-file / project-graph / file-tuple) and does not read beyond it at propose time. Recorded in `wiki/detectors/<name>.md` for each detector.
+3. **Falsifiability metrics tracked**: CE-gap rate per taxonomy in generative use (notably `gap_type=uncategorized` rate, `string-class=other` rate); ME-overlap rate per taxonomy in analytical use; Claim Builder escalation rate. Each baselined.
+4. **`osoji audit --full .` on the osoji repo** runs end-to-end through the unified architecture, finishes within 10% of current wall-clock time, and produces Findings with verdicts/confidence/reasoning populated. Audit cost grows roughly linearly with finding count (claim-mode dominant; escalation as a small surcharge).
+5. **Claim Builder bootstrap converged**: verdict-disagreement between claim-mode and exploration-mode below threshold (e.g., 5%) on the bootstrap test set. The empirically-derived Evidence schema is checked in.
+6. **Tree-sitter Python and TypeScript queries** produce symbol/fact outputs that match the deprecated plugins on a snapshot test. One additional language (Go) onboarded as a smoke test of the abstraction.
+7. **Wiki coverage**: every concept and decision in this plan exists as a wiki page, with cross-references and an updated index.
+8. **CLAUDE.md updated** to point at the wiki, the brief/debrief workflow, and the closed-set-taxonomy-must-have-`other`-outlet meta-principle.
+9. **Detector context audit**: every detector documents its declared context-window class (per-file / project-graph / file-tuple) and does not read beyond it at propose time. Recorded in `wiki/detectors/<name>.md` for each detector.
 
 ## Out of scope for v1 (becomes v2/v3)
 
@@ -241,6 +274,9 @@ A v1 release ships when all of the following hold:
 
 ## Open questions deferred to session-level decisions
 
-- Exact wire format between detectors and the evidence-gathering pass (in-process call vs. typed bus). Resolve in step 2.
-- Whether sweep's auto-generated fixtures land in a holding directory pending review, or directly in `tests/fixtures/`. Resolve when implementing step 6.
+- Exact wire format between detectors and the Claim Builder pass (in-process call vs. typed bus). Resolve in step 2.
+- Whether sweep's auto-generated fixtures land in a holding directory pending review, or directly in `tests/fixtures/`. Resolve when implementing step 7.
+- Bootstrap test set composition for step 4: osoji-on-osoji only, or include sweeps from diverse projects? Probably a mix; resolve when the first bootstrap runs.
+- Whether the Claim Builder schema is serialized as Python config (a list of evidence-kind callables) or as a separate config format (YAML/JSON). The latter is friendlier to gepa-style mutation in v2; the former is simpler in v1. Resolve in step 3.
+- Per-Evidence-kind weighting: keep the `weight_hint` field, or remove it and let the LLM weight implicitly? Defer until the bootstrap measures whether weights move verdicts.
 - ~~Whether the brief/debrief sub-agents use the MCP server's prompt resources or are reimplemented in skill markdown.~~ **Resolved in [specs/0002-wiki-bootstrap.md](0002-wiki-bootstrap.md): skills only, no MCP prompts in v1.**

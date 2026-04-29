@@ -11,7 +11,9 @@ Tooling: [`osoji-wiki`](https://github.com/osojicode/osoji-wiki) — MCP server 
 
 ## Concepts
 
-- [Three-gap theory](concepts/three-gap-theory.md) — the unifying frame for every osoji finding: reachability gaps, description gaps, contract gaps, with minimum-context invariants.
+- [Three-gap theory](concepts/three-gap-theory.md) — the unifying frame for every osoji finding: reachability gaps, description gaps, contract gaps, with minimum-context invariants and a falsifiability framing.
+- [String-contract taxonomy](concepts/string-contract-taxonomy.md) — the five-class Triage rubric for hard-coded literals: named obligation, unnamed obligation, ecosystem convention, magic-constant duplication, coincidence.
+- [Self-sufficient claims and the Claim Builder](concepts/self-sufficient-claims.md) — how claims are mechanically assembled to be Triage-decidable in one shot; bootstrap from exploration; positional vs semantic division of labor; shadow-doc-primary substrate.
 
 ## Decisions
 
@@ -19,7 +21,7 @@ Tooling: [`osoji-wiki`](https://github.com/osojicode/osoji-wiki) — MCP server 
 
 ## Detectors
 
-_(none yet — populated as detectors are migrated to the unified Finding/Triage architecture in v1 step 4)_
+_(none yet — populated as detectors are migrated to the unified Finding/Triage architecture in v1 step 5)_
 
 ## Sources
 

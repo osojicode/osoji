@@ -201,6 +201,25 @@ In non-quiet mode, `osoji push` prints which source each config value was resolv
   this distinction — the goal is to convert silent value-level mismatches into loud
   name-level errors, not merely to "extract constants."
 
+- **Closed-set taxonomies require an `other` outlet, and `other`-rate is itself
+  a metric.** Whenever the system introduces a closed-set classification (gap
+  types, string-contract classes, evidence kinds, severity scales), include
+  an explicit `other`/`uncategorized` value as a safety valve. The downstream
+  handler treats `other` as a request for review rather than silently shoehorning
+  into the closest fit. The proportion of items routed to `other` is then a
+  first-class metric on the taxonomy's adequacy: rising rate signals revision.
+  This is how taxonomies stay falsifiable engineering claims rather than
+  ossifying into asserted theorems. See `wiki/specs/0001-v1-foundation.md#epistemological-note`.
+
+- **Mechanical layers gather; LLM layers reason; both are answerable to the
+  regression evaluator.** Where to put the boundary between mechanical
+  (cheap, exhaustive, reliable) and LLM (judgment, world knowledge) is decided
+  per-task by measurement, not by rule. The Claim Builder is allowed to be
+  ignorant of stdlib semantics (the LLM has world knowledge in its weights);
+  the LLM is allowed to be ignorant of cross-file reference graphs (the
+  mechanical layer has the FactsDB). Both layers report to the regression
+  evaluator, which is what tells us whether a given division is working.
+
 ## Style
 
 - Python 3.11+, type hints throughout
