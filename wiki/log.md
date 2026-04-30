@@ -19,3 +19,6 @@ Append-only changelog of wiki edits. Format: `YYYY-MM-DD <op> <path> — <one-li
 2026-04-29 edit specs/0001-v1-foundation.md — Claim Builder replaces ad-hoc evidence gathering; new step 4 (exploration-mode bootstrap and ablation); add Epistemological Note section with four-layer foundation (stipulated/taxonomic/engineering/measured); Verification gains escalation-rate, falsifiability-metrics, and bootstrap-convergence criteria
 2026-04-29 edit index.md — add string-contract-taxonomy and self-sufficient-claims entries; update detector section reference (step 4 → 5)
 2026-04-29 edit ../CLAUDE.md — add closed-set-taxonomies-need-`other` and mechanical-vs-LLM-boundary-decided-by-measurement to pipeline engineering principles
+2026-04-29 write decisions/0003-plugin-packaging.md — record plugin packaging decision; supersedes manual install from spec 0002
+2026-04-29 edit specs/0002-wiki-bootstrap.md — note install workflow superseded by decision 0003
+2026-04-29 edit index.md — add decision 0003 entry
