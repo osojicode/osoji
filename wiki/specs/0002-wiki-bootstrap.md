@@ -5,8 +5,10 @@ type: spec
 status: accepted
 created: 2026-04-29
 updated: 2026-04-29
-related: [specs/0001-v1-foundation.md, decisions/0002-language-choice.md, concepts/three-gap-theory.md]
+related: [specs/0001-v1-foundation.md, decisions/0002-language-choice.md, decisions/0003-plugin-packaging.md, concepts/three-gap-theory.md]
 ---
+
+> **Update (2026-04-29):** the install workflow described below — `pip install -e`, `claude mcp add`, manual skill-file copy — has been replaced by Claude Code plugin distribution. See [decisions/0003-plugin-packaging.md](../decisions/0003-plugin-packaging.md). The seed content captured here is unchanged; only how the tooling reaches a developer's machine has moved on.
 
 ## Context
 
@@ -98,7 +100,7 @@ osoji/wiki/
 
 ## Out of scope (deferred)
 
-- Installing the brief/debrief skills into Claude Code's skill directory (`~/.claude/skills/`) or registering the MCP server in Claude Code settings — left to the user to do explicitly.
+- Installing the brief/debrief skills into Claude Code's skill directory or registering the MCP server in Claude Code settings — handled in a follow-up by [decisions/0003-plugin-packaging.md](../decisions/0003-plugin-packaging.md), not in this bootstrap session.
 - Multi-process / multi-host wiki MCP semantics; single-host single-process is sufficient for v1.
 - Auto-PR of the osoji `wiki/` bootstrap; the branch is pushed but the PR is opened by the user (or as a separate confirmed action).
 
@@ -107,4 +109,4 @@ osoji/wiki/
 1. **GitHub org for the new repo:** `osojicode` (matches `osojicode/osoji`). Repo: `git@github.com:osojicode/osoji-wiki.git`, private.
 2. **Scope of the bootstrap session:** Tooling **and** content seed — both the `osoji-wiki` repo and this `wiki/` bootstrap.
 3. **brief/debrief surface:** Skills only — markdown files in `osoji-wiki/skills/`, no MCP prompts.
-4. **MCP server registration in Claude Code settings:** Out of scope for this session.
+4. **MCP server registration in Claude Code settings:** Out of scope for this session; superseded by [decisions/0003-plugin-packaging.md](../decisions/0003-plugin-packaging.md).
