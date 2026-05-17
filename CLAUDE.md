@@ -48,27 +48,6 @@ source. Skipping the regenerate step blocks the PR.
 
 See `SUPPLY-CHAIN-SECURITY.md` for the full governance model and threat model.
 
-## Wiki and session workflow
-
-Design rationale, decisions, concepts, and detector notes that survive across
-agent sessions live in `wiki/` (see `wiki/SCHEMA.md` for page format and
-lifecycle). The wiki is the canonical archive — non-trivial decisions and
-concepts belong there, not in commit messages or in this file.
-
-Tooling lives in the sibling [osoji-wiki](https://github.com/osojicode/osoji-wiki)
-repo, distributed as a Claude Code plugin (`/plugin marketplace add
-osojicode/osoji-wiki && /plugin install osoji-wiki@osojicode`). The plugin
-provides an MCP server with content-addressable read/write tools so concurrent
-agent edits don't clobber each other, plus two namespaced slash-command skills:
-
-- `/osoji-wiki:brief <topic>` — load relevant wiki pages into a session at start
-- `/osoji-wiki:debrief` — capture decisions, concepts, or detector notes back
-  to the wiki at session end
-
-Use `/osoji-wiki:brief` when starting non-trivial work; use `/osoji-wiki:debrief`
-when finishing a session that produced something worth preserving past the next
-compaction.
-
 ## Shadow docs (.osoji/shadow/)
 
 Every source file has a corresponding `.shadow.md` in `.osoji/shadow/` that
