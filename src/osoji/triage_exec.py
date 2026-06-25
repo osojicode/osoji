@@ -177,7 +177,15 @@ class ExplorationExecutor:
     # -- helpers -----------------------------------------------------------
 
     def _iter_files(self, glob: str | None):
-        """Yield text files under root, skipping VCS/sidecar dirs and big blobs."""
+        """Yield text files under root, skipping VCS/sidecar dirs and big blobs.
+
+        V1-4 hardening (before exploration runs in production): unlike read_file
+        and list_dir, this filters yielded files by skip-dirs only, not by the
+        ``_resolve`` root-containment check, and the caller's ``pattern`` /
+        regex are LLM-supplied. Route the file set through ``_resolve`` and add a
+        length/again-ReDoS guard on the grep pattern before turning exploration on.
+        Dormant in V1-3, so not exposed yet.
+        """
 
         pattern = glob or "**/*"
         for file_path in self.root.glob(pattern):

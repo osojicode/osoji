@@ -158,12 +158,20 @@ def _extract_all_symbols_from_debris(description: str) -> list[str]:
         if name.lower() not in _SYMBOL_FILLER and name not in seen:
             names.append(name)
             seen.add(name)
-    # 2. PascalCase words anywhere (catches type names in plain text)
-    for m in re.finditer(r"\b([A-Z][a-z]\w*(?:[A-Z][a-z]\w*)+)\b", description):
-        name = m.group(1)
-        if name not in seen:
-            names.append(name)
-            seen.add(name)
+    # 2. PascalCase compounds (catches type names in plain text). Linear
+    #    tokenize + predicate instead of the prior nested quantifier
+    #    `[A-Z][a-z]\w*(?:[A-Z][a-z]\w*)+`, which backtracks catastrophically on
+    #    inputs like "AaAaAa…" (ReDoS — and ``description`` is LLM-generated).
+    #    Extracts the IDENTICAL set: a maximal word run that *starts* with
+    #    `[A-Z][a-z]` and contains >=2 such segments (the old anchored pattern
+    #    could only ever match a whole word, from a starting `[A-Z][a-z]`, with
+    #    a repeated `[A-Z][a-z]` segment — i.e. >=2 segments total).
+    for m in re.finditer(r"\w+", description):
+        word = m.group()
+        if re.match(r"[A-Z][a-z]", word) and len(re.findall(r"[A-Z][a-z]", word)) >= 2:
+            if word not in seen:
+                names.append(word)
+                seen.add(word)
     # 3. Fallback: bare identifier words (existing logic)
     if not names:
         for word in description.split():

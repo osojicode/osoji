@@ -8,10 +8,50 @@ rest pass through untouched. Eligible-but-unfillable findings are *counted*
 (would_escalate) for the V1-4 escalation-rate baseline but never escalated here.
 """
 
+import time
+
 import pytest
 
-from osoji.claim_builder import build_debris_claims
+from osoji.claim_builder import _extract_all_symbols_from_debris, build_debris_claims
 from osoji.config import Config
+
+
+# --- symbol extraction: ReDoS guard + behavior preservation ----------------
+
+
+def test_pascalcase_extraction_is_redos_safe():
+    # The PascalCase pass is fed LLM-generated text. A pathological "AaAa…A"
+    # input (the kind that made the old nested-quantifier pattern backtrack
+    # catastrophically) must resolve in linear time, not hang.
+    pathological = "Aa" * 5000 + "A"
+    start = time.monotonic()
+    result = _extract_all_symbols_from_debris(pathological)
+    assert time.monotonic() - start < 1.0
+    assert result == [pathological]  # one word: starts [A-Z][a-z], many segments
+
+
+@pytest.mark.parametrize(
+    "description, expected_present",
+    [
+        ("source_path attribute of JunkFinding is never read", "JunkFinding"),
+        ("`source_path` may not exist on JunkAnalysisResult", "JunkAnalysisResult"),
+        ("SHADOW_DIR constant is unused", "SHADOW_DIR"),  # via fallback, not PascalCase
+    ],
+)
+def test_pascalcase_extraction_preserves_behavior(description, expected_present):
+    assert expected_present in _extract_all_symbols_from_debris(description)
+
+
+def test_pascalcase_no_duplicates_preserved():
+    # Backtick + plain-text occurrences of the same compound collapse to one.
+    desc = "`CompletionOptions` type CompletionOptions has no field"
+    symbols = _extract_all_symbols_from_debris(desc)
+    assert symbols.count("CompletionOptions") == 1
+
+
+def test_all_caps_is_not_pascalcase():
+    # ALL_CAPS must not be picked up by the PascalCase predicate.
+    assert "ABCDEF" not in _extract_all_symbols_from_debris("token ABCDEF here Aa")
 
 
 @pytest.fixture
