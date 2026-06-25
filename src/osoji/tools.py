@@ -586,56 +586,6 @@ def get_dead_code_tool_definitions() -> list[ToolDefinition]:
     return [_dict_to_tool_definition(VERIFY_DEAD_CODE_TOOL)]
 
 
-# Tool definition for code debris verification (cross-file evidence)
-VERIFY_DEBRIS_TOOL = {
-    "name": "verify_debris_findings",
-    "description": """Verify whether code debris findings (flagged during single-file shadow analysis) are genuine issues or false positives.
-
-Each finding was generated from single-file context and may miss cross-file usage. You are given
-cross-file evidence from the facts database showing where the flagged symbol/field appears in other files.
-
-For each finding, determine:
-- CONFIRMED: The finding is genuine. Cross-file references do not represent real usage
-  (e.g. they are name collisions, comments, string literals, or unrelated symbols).
-- DISMISSED: The finding is a false positive. Cross-file references show genuine usage
-  (e.g. another file imports and sets the field, calls the function, etc.).
-
-Provide a verdict for EVERY finding listed.""",
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "verdicts": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "finding_index": {
-                            "type": "integer",
-                            "description": "Zero-based index of the finding being judged",
-                        },
-                        "confirmed": {
-                            "type": "boolean",
-                            "description": "True if the finding is genuine (not a false positive)",
-                        },
-                        "reason": {
-                            "type": "string",
-                            "description": "Brief explanation of why the finding is confirmed or dismissed",
-                        },
-                    },
-                    "required": ["finding_index", "confirmed", "reason"],
-                },
-            },
-        },
-        "required": ["verdicts"],
-    },
-}
-
-
-def get_debris_verification_tool_definitions() -> list[ToolDefinition]:
-    """Return ToolDefinition objects for debris finding verification."""
-    return [_dict_to_tool_definition(VERIFY_DEBRIS_TOOL)]
-
-
 # Tool definition for dead parameter verification
 VERIFY_DEAD_PARAMETERS_TOOL = {
     "name": "verify_dead_parameters",
@@ -1499,3 +1449,158 @@ def get_concept_inventory_tool_definitions() -> list[ToolDefinition]:
 def get_writing_prompts_tool_definitions() -> list[ToolDefinition]:
     """Return ToolDefinition objects for writing prompt generation."""
     return [_dict_to_tool_definition(GENERATE_WRITING_PROMPTS_TOOL)]
+
+
+# --- V1-3: Unified Triage stage tools ---
+#
+# The Triage stage verifies a batch of self-sufficient claims against the
+# three-gap TP predicates (reality / significance / actionability). Two output
+# tools: a batch tool for claim mode and a single-verdict terminal tool for
+# exploration mode. Plus three read-only retrieval tools for exploration mode,
+# executed by ``osoji.triage_exec.ExplorationExecutor``.
+
+# Shared verdict-field schema (a single claim's outcome). batch_index is added
+# only to the batch tool; exploration's terminal tool decides one claim and has
+# no index.
+_TRIAGE_VERDICT_FIELDS = {
+    "verdict": {
+        "type": "string",
+        "enum": ["confirmed", "dismissed", "uncertain"],
+        "description": "confirmed = the gap is real, significant, and actionable; "
+                       "dismissed = false positive; uncertain = evidence insufficient to decide.",
+    },
+    "confidence": {
+        "type": "number",
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "description": "Confidence in the verdict (1.0 = certain).",
+    },
+    "reasoning": {
+        "type": "string",
+        "description": "The reasoning trace for this verdict — captured verbatim onto the "
+                       "finding. Weigh the evidence against reality, significance, and actionability.",
+    },
+    "suggested_fix": {
+        "type": "string",
+        "description": "Concrete remediation if confirmed (e.g. 'remove the function', "
+                       "'use the existing MAX_RETRIES constant'). Omit or empty if dismissed.",
+    },
+    "severity": {
+        "type": "string",
+        "enum": ["error", "warning", "info"],
+        "description": "Severity of the confirmed finding. Omit if dismissed.",
+    },
+}
+
+
+# Claim mode: one call returns a verdict for every claim in the batch, keyed by
+# batch_index (the claim's 0-based position in the submitted batch). The index —
+# not finding.id — is the join key, because symbol-less debris findings can share
+# an id; the index is always unambiguous.
+SUBMIT_TRIAGE_VERDICTS_TOOL = {
+    "name": "submit_triage_verdicts",
+    "description": """Submit a triage verdict for EVERY claim in the batch.
+
+Each claim is a gap hypothesis (reachability / description / contract) with evidence
+assembled for you. Decide each against the three true-positive predicates:
+- Reality: does the gap actually exist in the code?
+- Significance: does closing it improve the codebase?
+- Actionability: is there a concrete fix?
+
+Return one verdict per claim, identified by its batch_index.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "verdicts": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "batch_index": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "0-based index of the claim being judged, as listed in the prompt.",
+                        },
+                        **_TRIAGE_VERDICT_FIELDS,
+                    },
+                    "required": ["batch_index", "verdict", "confidence", "reasoning"],
+                },
+            },
+        },
+        "required": ["verdicts"],
+    },
+}
+
+
+# Exploration mode terminal tool: decide the single claim under exploration.
+SUBMIT_TRIAGE_VERDICT_TOOL = {
+    "name": "submit_triage_verdict",
+    "description": """Submit the final verdict for the single claim under exploration.
+
+Call this once you have gathered enough evidence with read_file / grep / list_dir to
+decide the claim against the three predicates (reality / significance / actionability).""",
+    "input_schema": {
+        "type": "object",
+        "properties": dict(_TRIAGE_VERDICT_FIELDS),
+        "required": ["verdict", "confidence", "reasoning"],
+    },
+}
+
+
+# Exploration retrieval tools — read-only, executed against the repo root by
+# ExplorationExecutor. Schemas are intentionally minimal.
+READ_FILE_TOOL = {
+    "name": "read_file",
+    "description": "Read a file in the repository. Optionally restrict to a 1-based, "
+                   "inclusive line range with start/end.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "path": {"type": "string", "description": "Repository-relative file path."},
+            "start": {"type": "integer", "minimum": 1, "description": "First line (1-based, inclusive)."},
+            "end": {"type": "integer", "minimum": 1, "description": "Last line (1-based, inclusive)."},
+        },
+        "required": ["path"],
+    },
+}
+
+GREP_TOOL = {
+    "name": "grep",
+    "description": "Search file contents under the repository root for a regular expression. "
+                   "Returns path:line: text rows.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "pattern": {"type": "string", "description": "A regular expression."},
+            "glob": {"type": "string", "description": "Optional glob to restrict files, e.g. '**/*.py'."},
+        },
+        "required": ["pattern"],
+    },
+}
+
+LIST_DIR_TOOL = {
+    "name": "list_dir",
+    "description": "List the entries of a directory under the repository root.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "path": {"type": "string", "description": "Repository-relative directory path (default repo root)."},
+        },
+        "required": [],
+    },
+}
+
+
+def get_triage_claim_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for claim-mode batch triage."""
+    return [_dict_to_tool_definition(SUBMIT_TRIAGE_VERDICTS_TOOL)]
+
+
+def get_triage_exploration_tool_definitions() -> list[ToolDefinition]:
+    """Return ToolDefinition objects for exploration mode (retrieval + terminal verdict)."""
+    return [
+        _dict_to_tool_definition(READ_FILE_TOOL),
+        _dict_to_tool_definition(GREP_TOOL),
+        _dict_to_tool_definition(LIST_DIR_TOOL),
+        _dict_to_tool_definition(SUBMIT_TRIAGE_VERDICT_TOOL),
+    ]
