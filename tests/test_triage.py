@@ -1,0 +1,325 @@
+"""Tests for the unified Triage stage (V1-3).
+
+Covers claim mode (this file's first section), exploration mode, the verdict
+cache short-circuit, and insufficient-evidence escalation. All LLM calls use a
+mock provider — no network, deterministic.
+"""
+
+from dataclasses import replace
+
+import pytest
+
+from osoji.config import Config
+from osoji.evidence import Evidence
+from osoji.findings import Finding
+from osoji.llm.types import CompletionResult, ToolCall
+from osoji.triage import Claim, Triage, TriageBatchResult
+
+
+# --- helpers ---------------------------------------------------------------
+
+
+@pytest.fixture
+def config(temp_dir):
+    return Config(root_path=temp_dir, respect_gitignore=False)
+
+
+def make_finding(**overrides) -> Finding:
+    base = dict(
+        detector="debris:dead_code",
+        gap_type="reachability",
+        path="src/x.py",
+        line_start=10,
+        line_end=12,
+        symbol="old_helper",
+        contract_source="code",
+        contract_claim="old_helper is exported but unused",
+        observed_behavior="no references in any indexed file",
+    )
+    base.update(overrides)
+    return Finding(**base)
+
+
+class FakeProvider:
+    """Minimal async provider returning queued CompletionResults in order.
+
+    Records every ``complete`` call so tests can assert it was (or was not) hit.
+    """
+
+    def __init__(self, results):
+        self._results = list(results)
+        self.calls = []
+
+    async def complete(self, messages, system, options):
+        self.calls.append({"messages": messages, "system": system, "options": options})
+        return self._results.pop(0)
+
+    async def close(self):
+        pass
+
+
+def verdicts_result(verdicts, *, in_tok=100, out_tok=40) -> CompletionResult:
+    """A claim-mode batch result: one submit_triage_verdicts tool call."""
+    return CompletionResult(
+        content=None,
+        tool_calls=[ToolCall(id="tc1", name="submit_triage_verdicts", input={"verdicts": verdicts})],
+        input_tokens=in_tok,
+        output_tokens=out_tok,
+        model="test",
+        stop_reason="tool_use",
+    )
+
+
+# --- claim mode ------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_claim_mode_fills_all_verdict_fields(config):
+    claims = [Claim(make_finding(symbol="a")), Claim(make_finding(symbol="b"))]
+    provider = FakeProvider([
+        verdicts_result([
+            {"batch_index": 0, "verdict": "confirmed", "confidence": 0.9,
+             "reasoning": "no live path", "suggested_fix": "remove it", "severity": "warning"},
+            {"batch_index": 1, "verdict": "dismissed", "confidence": 0.8,
+             "reasoning": "used via dispatch"},
+        ])
+    ])
+    triage = Triage(config, provider=provider)
+
+    result = await triage.decide_batch(claims, mode="claim")
+
+    assert isinstance(result, TriageBatchResult)
+    a, b = result.findings
+    assert a.verdict == "confirmed"
+    assert a.confidence == 0.9
+    assert a.triage_reasoning == "no live path"
+    assert a.suggested_fix == "remove it"
+    assert a.severity == "warning"
+    assert b.verdict == "dismissed"
+    assert result.input_tokens == 100
+    assert result.output_tokens == 40
+    assert len(provider.calls) == 1
+
+
+@pytest.mark.asyncio
+async def test_claim_mode_maps_by_batch_index_not_finding_id(config):
+    # Two symbol-less debris findings that collide on finding.id: same detector,
+    # path, claim, lines, symbol=None. The batch index must disambiguate them.
+    f = make_finding(symbol=None, line_start=5, line_end=5, contract_claim="dup claim")
+    f2 = make_finding(symbol=None, line_start=5, line_end=5, contract_claim="dup claim")
+    assert f.id == f2.id  # precondition: they really do collide
+
+    claims = [Claim(f), Claim(f2)]
+    provider = FakeProvider([
+        verdicts_result([
+            {"batch_index": 0, "verdict": "dismissed", "confidence": 0.7, "reasoning": "first"},
+            {"batch_index": 1, "verdict": "confirmed", "confidence": 0.7, "reasoning": "second"},
+        ])
+    ])
+    triage = Triage(config, provider=provider)
+
+    result = await triage.decide_batch(claims, mode="claim")
+
+    assert result.findings[0].verdict == "dismissed"
+    assert result.findings[0].triage_reasoning == "first"
+    assert result.findings[1].verdict == "confirmed"
+    assert result.findings[1].triage_reasoning == "second"
+
+
+@pytest.mark.asyncio
+async def test_claim_mode_empty_batch_makes_no_call(config):
+    provider = FakeProvider([])
+    triage = Triage(config, provider=provider)
+    result = await triage.decide_batch([], mode="claim")
+    assert result.findings == []
+    assert provider.calls == []
+
+
+@pytest.mark.asyncio
+async def test_claim_mode_renders_evidence_into_prompt(config):
+    finding = make_finding(
+        evidence=[Evidence(
+            kind="cross_file_reference",
+            payload={"references": [{"file": "src/y.py", "kind": "import",
+                                     "context": "from x import old_helper", "resolves_to_source": True}]},
+        )],
+    )
+    provider = FakeProvider([
+        verdicts_result([{"batch_index": 0, "verdict": "dismissed", "confidence": 0.6, "reasoning": "ok"}])
+    ])
+    triage = Triage(config, provider=provider)
+
+    await triage.decide_batch([Claim(finding)], mode="claim")
+
+    user_msg = provider.calls[0]["messages"][0].content
+    assert "src/y.py" in user_msg
+    assert "old_helper" in user_msg
+
+
+@pytest.mark.asyncio
+async def test_claim_mode_uses_supplied_system_prompt(config):
+    provider = FakeProvider([
+        verdicts_result([{"batch_index": 0, "verdict": "confirmed", "confidence": 1.0, "reasoning": "x"}])
+    ])
+    triage = Triage(config, provider=provider)
+    await triage.decide_batch([Claim(make_finding())], mode="claim", system_prompt="CUSTOM-RUBRIC")
+    assert provider.calls[0]["system"] == "CUSTOM-RUBRIC"
+
+
+# --- exploration mode ------------------------------------------------------
+
+
+def tool_use_result(name, tool_input, *, call_id="t", in_tok=50, out_tok=20) -> CompletionResult:
+    return CompletionResult(
+        content=None,
+        tool_calls=[ToolCall(id=call_id, name=name, input=tool_input)],
+        input_tokens=in_tok,
+        output_tokens=out_tok,
+        model="test",
+        stop_reason="tool_use",
+    )
+
+
+@pytest.fixture
+def explore_repo(temp_dir):
+    root = temp_dir / "repo"
+    (root / "src").mkdir(parents=True)
+    (root / "src" / "x.py").write_text("def old_helper():\n    return 'DISTINCTIVE-MARKER'\n", encoding="utf-8")
+    return Config(root_path=root, respect_gitignore=False)
+
+
+@pytest.mark.asyncio
+async def test_exploration_runs_tools_then_applies_verdict(explore_repo):
+    provider = FakeProvider([
+        tool_use_result("read_file", {"path": "src/x.py"}, call_id="r1"),
+        tool_use_result(
+            "submit_triage_verdict",
+            {"verdict": "dismissed", "confidence": 0.8, "reasoning": "found a use"},
+            call_id="v1",
+        ),
+    ])
+    triage = Triage(explore_repo, provider=provider)
+
+    result = await triage.decide_batch([Claim(make_finding())], mode="exploration")
+
+    assert result.findings[0].verdict == "dismissed"
+    assert result.findings[0].triage_reasoning == "found a use"
+    # trace records both tool calls in order
+    names = [c["name"] for c in result.exploration_traces[0]["calls"]]
+    assert names == ["read_file", "submit_triage_verdict"]
+    # two provider turns, and the executor output was fed back as a tool_result
+    assert len(provider.calls) == 2
+    second_turn_msgs = provider.calls[1]["messages"]
+    fed_back = "".join(
+        block.get("content", "")
+        for m in second_turn_msgs
+        if isinstance(m.content, list)
+        for block in m.content
+        if block.get("type") == "tool_result"
+    )
+    assert "DISTINCTIVE-MARKER" in fed_back
+
+
+@pytest.mark.asyncio
+async def test_exploration_uses_auto_tool_choice(explore_repo):
+    provider = FakeProvider([
+        tool_use_result("submit_triage_verdict",
+                        {"verdict": "confirmed", "confidence": 1.0, "reasoning": "dead"}, call_id="v1"),
+    ])
+    triage = Triage(explore_repo, provider=provider)
+    await triage.decide_batch([Claim(make_finding())], mode="exploration")
+    assert provider.calls[0]["options"].tool_choice == {"type": "auto"}
+
+
+@pytest.mark.asyncio
+async def test_exploration_turn_limit_yields_uncertain(explore_repo):
+    # Model keeps reading, never submits a verdict → bounded to 'uncertain'.
+    provider = FakeProvider([
+        tool_use_result("read_file", {"path": "src/x.py"}, call_id=f"r{i}")
+        for i in range(20)
+    ])
+    triage = Triage(explore_repo, provider=provider)
+
+    result = await triage.decide_batch([Claim(make_finding())], mode="exploration")
+
+    assert result.findings[0].verdict == "uncertain"
+    assert len(provider.calls) == 8  # _MAX_EXPLORATION_TURNS
+
+
+# --- verdict cache (V1-9 hook) ---------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_cache_hit_short_circuits_llm(config):
+    finding = make_finding(evidence_fingerprint="fp-1")
+    cache = {
+        (finding.id, "fp-1"): {
+            "verdict": "dismissed", "confidence": 0.95,
+            "triage_reasoning": "cached: alive via dispatch",
+            "suggested_fix": "", "severity": "info",
+        }
+    }
+    provider = FakeProvider([])  # empty: any LLM call would IndexError
+    triage = Triage(config, provider=provider)
+
+    result = await triage.decide_batch([Claim(finding)], mode="claim", verdict_cache=cache)
+
+    assert provider.calls == []  # the LLM was never called
+    assert result.findings[0].verdict == "dismissed"
+    assert result.findings[0].triage_reasoning == "cached: alive via dispatch"
+    assert result.verdict_cache_hit_rate == 1.0
+
+
+@pytest.mark.asyncio
+async def test_none_fingerprint_is_cache_ineligible(config):
+    # Two findings collide on id; one cache entry keyed (id, None) must NOT be
+    # reused — None fingerprint is always triaged.
+    finding = make_finding(evidence_fingerprint=None)
+    cache = {(finding.id, None): {"verdict": "dismissed", "confidence": 1.0}}
+    provider = FakeProvider([
+        verdicts_result([{"batch_index": 0, "verdict": "confirmed", "confidence": 0.5, "reasoning": "fresh"}])
+    ])
+    triage = Triage(config, provider=provider)
+
+    result = await triage.decide_batch([Claim(finding)], mode="claim", verdict_cache=cache)
+
+    assert len(provider.calls) == 1  # triaged, not served from cache
+    assert result.findings[0].verdict == "confirmed"
+    assert result.verdict_cache_hit_rate == 0.0
+
+
+# --- escalation routing (dormant in production) ----------------------------
+
+
+@pytest.mark.asyncio
+async def test_insufficient_evidence_passes_through_by_default(config):
+    # decision 1: no-evidence claims stay kept-unverified; counted, not escalated.
+    provider = FakeProvider([])  # must not be called
+    triage = Triage(config, provider=provider)
+
+    result = await triage.decide_batch(
+        [Claim(make_finding(), insufficient_evidence=True)], mode="claim"
+    )
+
+    assert provider.calls == []
+    assert result.findings[0].verdict is None  # untouched / pass-through
+    assert result.would_escalate_count == 1
+
+
+@pytest.mark.asyncio
+async def test_insufficient_evidence_escalates_when_enabled(explore_repo):
+    provider = FakeProvider([
+        tool_use_result("submit_triage_verdict",
+                        {"verdict": "confirmed", "confidence": 0.9, "reasoning": "explored"}, call_id="v1"),
+    ])
+    triage = Triage(explore_repo, provider=provider)
+
+    result = await triage.decide_batch(
+        [Claim(make_finding(), insufficient_evidence=True)],
+        mode="claim",
+        escalate_insufficient=True,
+    )
+
+    assert result.findings[0].verdict == "confirmed"
+    assert result.would_escalate_count == 1
+    assert len(result.exploration_traces) == 1
