@@ -1,0 +1,136 @@
+{
+  "slug": "audit-obligation_implicit_contract-006",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "tests/test_plugin_python.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "Implicit contract: \"ast\" is produced in src/osoji/shadow.py and checked in tests/test_plugin_python.py with no shared definition",
+    "observed_behavior": "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [],
+    "id": "576f7953c9e0cb7f",
+    "verdict": "confirmed",
+    "confidence": 0.82,
+    "triage_reasoning": "The bare string literal `\"ast\"` (and its sibling `\"llm\"`) are used as the project-defined `extraction_method` tag across at least 10 sites with no shared constant:\n\n**Producer sites:**\n- `src/osoji/plugins/base.py:36` — `ExtractedFacts.to_file_facts_dict()` hard-codes `\"extraction_method\": \"ast\"`\n- `src/osoji/shadow.py:673` — shadow merge block sets `\"extraction_method\": \"ast\"` when plugin facts are present; line 677 sets `\"llm\"` for the LLM path\n\n**Consumer sites (production logic):**\n- `src/osoji/deadcode.py:547, 582, 689` — three places gate logic on `extraction_method != \"ast\"` or `== \"ast\"`\n\n**Consumer sites (tests):**\n- `tests/test_plugin_python.py:258` — `assert facts_dict[\"extraction_method\"] == \"ast\"`\n- `tests/test_plugin_integration.py:53, 193, 207` — same literal check\n- `tests/test_deadcode_ast.py` — passes `\"ast\"` as a string when constructing fixtures\n\n`src/osoji/facts.py:28` already acknowledges the three valid values in a comment (`# \"ast\" | \"llm\" | None (legacy = llm)`) but does not define importable constants. This is an **unnamed project obligation**: two or more sites share the same bare literal in clearly related roles, no constant has been extracted yet.\n\n**Attribution note:** The claim attributes production to `shadow.py`, but the specific pair tested by `test_plugin_python.py:258` flows through `plugins/base.py:to_file_facts_dict()`, not `shadow.py`. Both files hard-code the same literal, so the broader pattern is real regardless.\n\n**Reality ✓** — gap exists: no constant, only a comment.  \n**Significance ✓** — the string drives conditional logic in three `deadcode.py` guards; a rename propagates silently until tests happen to run; given osoji itself is a code-quality tool, this pattern is particularly ironic.  \n**Actionability ✓** — concrete fix is straightforward.",
+    "suggested_fix": "In `src/osoji/facts.py`, replace the comment with importable constants:\n\n```python\nEXTRACTION_METHOD_AST: str = \"ast\"\nEXTRACTION_METHOD_LLM: str = \"llm\"\n```\n\nThen import and use them everywhere the bare literals currently appear:\n- `src/osoji/plugins/base.py:36` → `\"extraction_method\": EXTRACTION_METHOD_AST`\n- `src/osoji/shadow.py:673,677` → same\n- `src/osoji/deadcode.py:547, 582, 689` → compare against the constant\n- All test files that assert or construct the string literal\n\nAlternatively, tighten the type by changing `extraction_method: str | None` to `Literal[\"ast\", \"llm\"] | None` in `FileFacts`, which gives mypy coverage with no extra constants needed.",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "576f7953c9e0cb7f",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "ast",
+          "glob": "src/osoji/shadow.py"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "ast",
+          "glob": "tests/test_plugin_python.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/shadow.py",
+          "start": 660,
+          "end": 680
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "tests/test_plugin_python.py",
+          "start": 250,
+          "end": 270
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "extraction_method",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/plugins/base.py",
+          "start": 25,
+          "end": 55
+        }
+      },
+      {
+        "turn": 6,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/facts.py",
+          "start": 1,
+          "end": 80
+        }
+      },
+      {
+        "turn": 7,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/plugins/base.py",
+          "start": 1,
+          "end": 50
+        }
+      },
+      {
+        "turn": 8,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/deadcode.py",
+          "start": 540,
+          "end": 560
+        }
+      },
+      {
+        "turn": 9,
+        "name": "grep",
+        "input": {
+          "pattern": "extraction_method.*llm|llm.*extraction_method|\\\"llm\\\"",
+          "glob": "src/osoji/**/*.py"
+        }
+      },
+      {
+        "turn": 10,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/shadow.py",
+          "start": 670,
+          "end": 682
+        }
+      },
+      {
+        "turn": 11,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.82,
+          "severity": "warning",
+          "reasoning": "The bare string literal `\"ast\"` (and its sibling `\"llm\"`) are used as the project-defined `extraction_method` tag across at least 10 sites with no shared constant:\n\n**Producer sites:**\n- `src/osoji/plugins/base.py:36` — `ExtractedFacts.to_file_facts_dict()` hard-codes `\"extraction_method\": \"ast\"`\n- `src/osoji/shadow.py:673` — shadow merge block sets `\"extraction_method\": \"ast\"` when plugin facts are present; line 677 sets `\"llm\"` for the LLM path\n\n**Consumer sites (production logic):**\n- `src/osoji/deadcode.py:547, 582, 689` — three places gate logic on `extraction_method != \"ast\"` or `== \"ast\"`\n\n**Consumer sites (tests):**\n- `tests/test_plugin_python.py:258` — `assert facts_dict[\"extraction_method\"] == \"ast\"`\n- `tests/test_plugin_integration.py:53, 193, 207` — same literal check\n- `tests/test_deadcode_ast.py` — passes `\"ast\"` as a string when constructing fixtures\n\n`src/osoji/facts.py:28` already acknowledges the three valid values in a comment (`# \"ast\" | \"llm\" | None (legacy = llm)`) but does not define importable constants. This is an **unnamed project obligation**: two or more sites share the same bare literal in clearly related roles, no constant has been extracted yet.\n\n**Attribution note:** The claim attributes production to `shadow.py`, but the specific pair tested by `test_plugin_python.py:258` flows through `plugins/base.py:to_file_facts_dict()`, not `shadow.py`. Both files hard-code the same literal, so the broader pattern is real regardless.\n\n**Reality ✓** — gap exists: no constant, only a comment.  \n**Significance ✓** — the string drives conditional logic in three `deadcode.py` guards; a rename propagates silently until tests happen to run; given osoji itself is a code-quality tool, this pattern is particularly ironic.  \n**Actionability ✓** — concrete fix is straightforward.",
+          "suggested_fix": "In `src/osoji/facts.py`, replace the comment with importable constants:\n\n```python\nEXTRACTION_METHOD_AST: str = \"ast\"\nEXTRACTION_METHOD_LLM: str = \"llm\"\n```\n\nThen import and use them everywhere the bare literals currently appear:\n- `src/osoji/plugins/base.py:36` → `\"extraction_method\": EXTRACTION_METHOD_AST`\n- `src/osoji/shadow.py:673,677` → same\n- `src/osoji/deadcode.py:547, 582, 689` → compare against the constant\n- All test files that assert or construct the string literal\n\nAlternatively, tighten the type by changing `extraction_method: str | None` to `Literal[\"ast\", \"llm\"] | None` in `FileFacts`, which gives mypy coverage with no extra constants needed."
+        }
+      }
+    ],
+    "cost_usd": 0.264861
+  }
+}

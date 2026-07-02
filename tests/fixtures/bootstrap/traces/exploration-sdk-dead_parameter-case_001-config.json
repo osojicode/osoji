@@ -1,0 +1,81 @@
+{
+  "slug": "dead_parameter-case_001-config",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "deadparam:dead_parameter",
+    "gap_type": "reachability",
+    "path": "src/osoji/scorecard.py",
+    "line_start": 107,
+    "line_end": 107,
+    "symbol": "config",
+    "contract_source": "function signature",
+    "contract_claim": "Parameter `config` is declared in the signature of build_scorecard(config, analysis_results, junk_results=None, dead_code_results=None, plumbing_result=None) (signature at lines 106-113) as an accepted input that callers may pass.",
+    "observed_behavior": "The caller run_audit in src/osoji/audit.py passes `config` on every invocation of build_scorecard.",
+    "evidence": [],
+    "id": "ac5ed579a7a38c1c",
+    "verdict": "dismissed",
+    "confidence": 1,
+    "triage_reasoning": "The claim asserts that `config` is a dead parameter in `build_scorecard`. The evidence directly refutes this.\n\n`config` is used extensively inside the function body:\n- `shadow_root = config.shadow_root` (line ~122) — drives the entire shadow-file enumeration loop\n- `_load_signature(config, source_path)` (line ~147) — passed to a helper that needs it to locate signature files\n- `findings_dir = config.root_path / SHADOW_DIR / \"findings\"` (line ~194) — path construction for junk findings\n- `full_path = config.root_path / source_path` and `full_path = config.root_path / source` (lines ~254, ~262) — used twice more in junk-entry processing\n\nThe parameter is reachable, actively read, and essential to the function's behavior. The caller in `audit.py` passing it on every invocation is consistent with that usage. There is no gap between declaration and use. Reality predicate fails — the dead-parameter gap does not exist.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "ac5ed579a7a38c1c",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/scorecard.py",
+          "start": 100,
+          "end": 150
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "build_scorecard",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/scorecard.py",
+          "start": 150,
+          "end": 220
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/audit.py"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/scorecard.py",
+          "start": 220,
+          "end": 300
+        }
+      },
+      {
+        "turn": 5,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 1,
+          "reasoning": "The claim asserts that `config` is a dead parameter in `build_scorecard`. The evidence directly refutes this.\n\n`config` is used extensively inside the function body:\n- `shadow_root = config.shadow_root` (line ~122) — drives the entire shadow-file enumeration loop\n- `_load_signature(config, source_path)` (line ~147) — passed to a helper that needs it to locate signature files\n- `findings_dir = config.root_path / SHADOW_DIR / \"findings\"` (line ~194) — path construction for junk findings\n- `full_path = config.root_path / source_path` and `full_path = config.root_path / source` (lines ~254, ~262) — used twice more in junk-entry processing\n\nThe parameter is reachable, actively read, and essential to the function's behavior. The caller in `audit.py` passing it on every invocation is consistent with that usage. There is no gap between declaration and use. Reality predicate fails — the dead-parameter gap does not exist."
+        }
+      }
+    ],
+    "cost_usd": 0.123295
+  }
+}

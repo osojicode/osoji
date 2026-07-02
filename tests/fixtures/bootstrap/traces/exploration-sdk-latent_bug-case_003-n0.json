@@ -1,0 +1,56 @@
+{
+  "slug": "latent_bug-case_003-n0",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "debris:latent_bug",
+    "gap_type": "uncategorized",
+    "path": "metrics.ts",
+    "line_start": 17,
+    "line_end": 21,
+    "symbol": null,
+    "contract_source": "code",
+    "contract_claim": "getNodeLabel accesses node.children (line 18) and node.size/node.extension (line 21) on a value typed FsNode = FileNode | DirectoryNode, and each property exists on only one union member — accessing the wrong variant would yield undefined at runtime.",
+    "observed_behavior": "Each access is guarded by a discriminant check on node.type (line 17): the `directory` branch reads .children and the post-guard fall-through is narrowed to FileNode before reading .size/.extension.",
+    "evidence": [],
+    "id": "44bfbe29552cff88",
+    "verdict": "dismissed",
+    "confidence": 1,
+    "triage_reasoning": "The code at lines 16–22 of metrics.ts implements a textbook discriminated-union dispatch:\n\n1. `FsNode` is `FileNode | DirectoryNode`, discriminated on the literal `type` field.\n2. Line 17: `if (node.type === \"directory\")` — before *any* access to `node.children`, the discriminant is checked. Inside the `if`-body TypeScript (and runtime) knows `node` is `DirectoryNode`, so `.children` is always present.\n3. Lines 20–21: after the `if`-block the discriminant check has already ruled out `DirectoryNode`, so TypeScript narrows `node` to `FileNode`. The accesses to `.size` and `.extension` are therefore safe; they can never be `undefined`.\n\nThe claim asserts a latent bug on the grounds that each property exists on only one union member, which is true in isolation but irrelevant here — the guard prevents access to the wrong member. Reality predicate fails: the gap does not exist. Dismissed as a false positive.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "44bfbe29552cff88",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "getNodeLabel",
+          "glob": "**/*.ts"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "metrics.ts",
+          "start": 1,
+          "end": 35
+        }
+      },
+      {
+        "turn": 2,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 1,
+          "reasoning": "The code at lines 16–22 of metrics.ts implements a textbook discriminated-union dispatch:\n\n1. `FsNode` is `FileNode | DirectoryNode`, discriminated on the literal `type` field.\n2. Line 17: `if (node.type === \"directory\")` — before *any* access to `node.children`, the discriminant is checked. Inside the `if`-body TypeScript (and runtime) knows `node` is `DirectoryNode`, so `.children` is always present.\n3. Lines 20–21: after the `if`-block the discriminant check has already ruled out `DirectoryNode`, so TypeScript narrows `node` to `FileNode`. The accesses to `.size` and `.extension` are therefore safe; they can never be `undefined`.\n\nThe claim asserts a latent bug on the grounds that each property exists on only one union member, which is true in isolation but irrelevant here — the guard prevents access to the wrong member. Reality predicate fails: the gap does not exist. Dismissed as a false positive."
+        }
+      }
+    ],
+    "cost_usd": 0.076553
+  }
+}

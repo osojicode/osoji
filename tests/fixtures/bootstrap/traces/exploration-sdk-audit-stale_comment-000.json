@@ -1,0 +1,93 @@
+{
+  "slug": "audit-stale_comment-000",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:stale_comment",
+    "gap_type": "description",
+    "path": "src/osoji/deadparam.py",
+    "line_start": 208,
+    "line_end": 211,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L208-211: Comment says 'For constructors nested inside a class, also grep for ClassName(' but the code adds the ClassName( grep pattern for ALL methods whose function name appears in class_for_method — not only __init__/constructors. For non-constructor methods this adds a spurious constructor-call grep pattern, potentially introducing false call sites.",
+    "observed_behavior": "Change comment to 'For methods inside a class, also grep for ClassName( to catch constructor calls and direct class invocations' or restrict the pattern addition to only __init__-style constructors if that was the original intent.",
+    "evidence": [],
+    "id": "72ee1fe94df9c71c",
+    "verdict": "confirmed",
+    "confidence": 0.92,
+    "triage_reasoning": "**Reality — the gap exists.**\n\n`class_for_method` is built at L161–168 by iterating over *all* `functions` and checking line-range containment inside a class — there is no filter for `__init__` or any other constructor-shaped name. So the dict maps every method (e.g. `MyClass.render`, `MyClass.validate`, …) to its enclosing class.\n\nAt L209–211 the code checks `class_for_method.get(func_name)` and, if the function belongs to any class, appends a grep pattern for `ClassName(`. The comment just above that block reads:\n\n> \"For constructors nested inside a class, also grep for ClassName(\"\n\nThe word \"constructors\" is wrong — the branch fires for every class method. That is a real description gap.\n\n**Significance — the mismatch harms the codebase in two ways.**\n\n1. *Comment mislead*: a reader or future maintainer expecting only `__init__` to get the `ClassName(` pattern will be surprised and may introduce or miss bugs when modifying this section.\n\n2. *Behavior impact*: For any non-constructor method (`MyClass.render(self, x=None)`), the detector now adds `MyClass(` as an extra grep pattern. Any line in candidate files that constructs the class (`obj = MyClass(a, b)`) is then treated as a *call site for `render`*. Those spurious call sites are collected and passed to the LLM in Phase 2. The LLM may (correctly) observe that `x` is not present in those calls, but it is inspecting the wrong call entirely. More importantly, if the LLM is trying to decide liveness, the sheer presence of extra call-site noise inflates the set and could suppress a true dead-parameter finding (false negative).\n\n**Actionability — two concrete fixes.**\n\nOption A (align comment to code, if broad behaviour is intentional):\nChange the comment to \"For methods inside a class, also grep for ClassName( to catch constructor calls that may transitively use the method\".\n\nOption B (align code to comment, if only constructors should receive the extra pattern):\nGuard the append with `if parent_class and grep_name == \"__init__\":` — this restricts the `ClassName(` pattern to actual Python constructors, where `MyClass(args)` genuinely is the call site for `__init__`.",
+    "suggested_fix": "Prefer Option B unless the broad behaviour is proven useful: change line 210 to `if parent_class and grep_name == \"__init__\":` so only `__init__` gets the `ClassName(` grep pattern (matching the comment's stated intent). If the broad behaviour is intentional, update the comment instead: \"For methods inside a class, also grep for ClassName( to capture constructor-site context\".",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "72ee1fe94df9c71c",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/deadparam.py",
+          "start": 190,
+          "end": 240
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "class_for_method",
+          "glob": "src/osoji/deadparam.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/deadparam.py",
+          "start": 155,
+          "end": 175
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/deadparam.py",
+          "start": 240,
+          "end": 320
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "__init__",
+          "glob": "src/osoji/deadparam.py"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/deadparam.py",
+          "start": 1,
+          "end": 30
+        }
+      },
+      {
+        "turn": 6,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.92,
+          "severity": "warning",
+          "reasoning": "**Reality — the gap exists.**\n\n`class_for_method` is built at L161–168 by iterating over *all* `functions` and checking line-range containment inside a class — there is no filter for `__init__` or any other constructor-shaped name. So the dict maps every method (e.g. `MyClass.render`, `MyClass.validate`, …) to its enclosing class.\n\nAt L209–211 the code checks `class_for_method.get(func_name)` and, if the function belongs to any class, appends a grep pattern for `ClassName(`. The comment just above that block reads:\n\n> \"For constructors nested inside a class, also grep for ClassName(\"\n\nThe word \"constructors\" is wrong — the branch fires for every class method. That is a real description gap.\n\n**Significance — the mismatch harms the codebase in two ways.**\n\n1. *Comment mislead*: a reader or future maintainer expecting only `__init__` to get the `ClassName(` pattern will be surprised and may introduce or miss bugs when modifying this section.\n\n2. *Behavior impact*: For any non-constructor method (`MyClass.render(self, x=None)`), the detector now adds `MyClass(` as an extra grep pattern. Any line in candidate files that constructs the class (`obj = MyClass(a, b)`) is then treated as a *call site for `render`*. Those spurious call sites are collected and passed to the LLM in Phase 2. The LLM may (correctly) observe that `x` is not present in those calls, but it is inspecting the wrong call entirely. More importantly, if the LLM is trying to decide liveness, the sheer presence of extra call-site noise inflates the set and could suppress a true dead-parameter finding (false negative).\n\n**Actionability — two concrete fixes.**\n\nOption A (align comment to code, if broad behaviour is intentional):\nChange the comment to \"For methods inside a class, also grep for ClassName( to catch constructor calls that may transitively use the method\".\n\nOption B (align code to comment, if only constructors should receive the extra pattern):\nGuard the append with `if parent_class and grep_name == \"__init__\":` — this restricts the `ClassName(` pattern to actual Python constructors, where `MyClass(args)` genuinely is the call site for `__init__`.",
+          "suggested_fix": "Prefer Option B unless the broad behaviour is proven useful: change line 210 to `if parent_class and grep_name == \"__init__\":` so only `__init__` gets the `ClassName(` grep pattern (matching the comment's stated intent). If the broad behaviour is intentional, update the comment instead: \"For methods inside a class, also grep for ClassName( to capture constructor-site context\"."
+        }
+      }
+    ],
+    "cost_usd": 0.190571
+  }
+}

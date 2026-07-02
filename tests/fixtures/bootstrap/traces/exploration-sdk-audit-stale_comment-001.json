@@ -1,0 +1,97 @@
+{
+  "slug": "audit-stale_comment-001",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:stale_comment",
+    "gap_type": "description",
+    "path": "src/osoji/findings_adapter.py",
+    "line_start": 6,
+    "line_end": 8,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' is a PR-submission artifact. Whether the adapter is now wired into audit.py's live path cannot be confirmed from this file alone.",
+    "observed_behavior": "Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has since been integrated.",
+    "evidence": [],
+    "id": "c52ba3b22081c92a",
+    "verdict": "confirmed",
+    "confidence": 0.98,
+    "triage_reasoning": "\nThe docstring at L6-8 of `findings_adapter.py` makes two claims that are both stale:\n\n1. **\"in this PR\"** — PR-relative language that has no meaning outside the original pull request context. This alone is a clear description gap.\n\n2. **\"It is not wired into `audit.py`'s live path\"** — This is now factually wrong. The call chain is:\n   - `audit.py` L32: `from .claim_builder import ... build_debris_claims` (live import used in production orchestration)\n   - `claim_builder.py` L30: `from .findings_adapter import finding_from_debris` (import)\n   - `claim_builder.py` L122: `finding_obj = finding_from_debris(finding, root=config.root_path)` (active call site inside `build_debris_claims`)\n\n   `findings_adapter` is therefore transitively wired into `audit.py`'s live path through `claim_builder`. The docstring's assertion to the contrary actively misleads any developer reading the module — they would conclude this is test-only code when it is actually invoked in production.\n\n**Reality**: The gap exists — the docstring's wiring claim is demonstrably false given the import chain, and \"in this PR\" is an orphaned PR artifact.  \n**Significance**: A developer reading `findings_adapter.py` would incorrectly believe it is only exercised by unit tests, potentially making wrong decisions about refactoring, deletion, or integration.  \n**Actionability**: Concrete fix: replace the stale sentence with accurate language describing its current role.\n",
+    "suggested_fix": "\nReplace the stale sentence in the module docstring (L6-8) with language that reflects the current wiring. For example:\n\n```python\n\"\"\"Bridge from legacy per-detector outputs to the unified :class:`Finding`.\n\nV1-2 introduces the ``Finding`` schema but does not change any detector. This\nmodule is the bridge: pure functions that convert each detector's current native\noutput shape into a ``Finding`` so downstream consumers (Triage in V1-3) can be\nmigrated incrementally. It is wired into ``audit.py``'s live path via\n``claim_builder.build_debris_claims``, which calls :func:`finding_from_debris`\nfor each eligible debris finding.\n```\n\nRemove \"in this PR\" and the \"exercised by unit tests only\" claim, which are both outdated.\n",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "c52ba3b22081c92a",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/findings_adapter.py",
+          "end": 30
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "findings_adapter",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "grep",
+        "input": {
+          "pattern": "findings_adapter|finding_from_debris",
+          "glob": "src/osoji/audit.py"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "grep",
+        "input": {
+          "pattern": "claim_builder",
+          "glob": "src/osoji/audit.py"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/audit.py",
+          "end": 60
+        }
+      },
+      {
+        "turn": 5,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/claim_builder.py",
+          "end": 60
+        }
+      },
+      {
+        "turn": 6,
+        "name": "grep",
+        "input": {
+          "pattern": "finding_from_debris",
+          "glob": "src/osoji/claim_builder.py"
+        }
+      },
+      {
+        "turn": 7,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.98,
+          "severity": "warning",
+          "reasoning": "\nThe docstring at L6-8 of `findings_adapter.py` makes two claims that are both stale:\n\n1. **\"in this PR\"** — PR-relative language that has no meaning outside the original pull request context. This alone is a clear description gap.\n\n2. **\"It is not wired into `audit.py`'s live path\"** — This is now factually wrong. The call chain is:\n   - `audit.py` L32: `from .claim_builder import ... build_debris_claims` (live import used in production orchestration)\n   - `claim_builder.py` L30: `from .findings_adapter import finding_from_debris` (import)\n   - `claim_builder.py` L122: `finding_obj = finding_from_debris(finding, root=config.root_path)` (active call site inside `build_debris_claims`)\n\n   `findings_adapter` is therefore transitively wired into `audit.py`'s live path through `claim_builder`. The docstring's assertion to the contrary actively misleads any developer reading the module — they would conclude this is test-only code when it is actually invoked in production.\n\n**Reality**: The gap exists — the docstring's wiring claim is demonstrably false given the import chain, and \"in this PR\" is an orphaned PR artifact.  \n**Significance**: A developer reading `findings_adapter.py` would incorrectly believe it is only exercised by unit tests, potentially making wrong decisions about refactoring, deletion, or integration.  \n**Actionability**: Concrete fix: replace the stale sentence with accurate language describing its current role.\n",
+          "suggested_fix": "\nReplace the stale sentence in the module docstring (L6-8) with language that reflects the current wiring. For example:\n\n```python\n\"\"\"Bridge from legacy per-detector outputs to the unified :class:`Finding`.\n\nV1-2 introduces the ``Finding`` schema but does not change any detector. This\nmodule is the bridge: pure functions that convert each detector's current native\noutput shape into a ``Finding`` so downstream consumers (Triage in V1-3) can be\nmigrated incrementally. It is wired into ``audit.py``'s live path via\n``claim_builder.build_debris_claims``, which calls :func:`finding_from_debris`\nfor each eligible debris finding.\n```\n\nRemove \"in this PR\" and the \"exercised by unit tests only\" claim, which are both outdated.\n"
+        }
+      }
+    ],
+    "cost_usd": 0.150398
+  }
+}

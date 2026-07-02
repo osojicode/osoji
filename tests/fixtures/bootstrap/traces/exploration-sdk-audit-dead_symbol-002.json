@@ -1,0 +1,87 @@
+{
+  "slug": "audit-dead_symbol-002",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:dead_symbol",
+    "gap_type": "reachability",
+    "path": "src/osoji/evidence.py",
+    "line_start": 98,
+    "line_end": 114,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "[AST] L98: class `EvidenceBuilder` — No cross-file references found (AST-proven)",
+    "observed_behavior": "Remove class `EvidenceBuilder`",
+    "evidence": [],
+    "id": "e657384e5c9c81df",
+    "verdict": "dismissed",
+    "confidence": 0.92,
+    "triage_reasoning": "**Reality:** The cross-file reachability gap is technically real — no file imports `EvidenceBuilder` or `BUILDERS`. The only live references are:\n1. An intra-file type annotation at `evidence.py:118`: `BUILDERS: dict[EvidenceKind, EvidenceBuilder] = {}`\n2. Comment/docstring-only mentions in `findings_adapter.py:19` and `claim_builder.py:4`\nNo code outside `evidence.py` imports or instantiates `EvidenceBuilder`.\n\n**Significance: FAILS.** This is explicitly labelled \"skeleton\" infrastructure reserved for a future milestone (V1-4). The module docstring (`evidence.py:10`) says \"the `EvidenceBuilder` ABC and `BUILDERS` … land in V1-4\". The class docstring repeats \"Concrete builders are added in V1-4\". `claim_builder.py:4` explicitly describes itself as \"the V1-3 stand-in for the mechanized Claim Builder that lands in V1-4 (`evidence.py` `BUILDERS`)\". `findings_adapter.py:19` explains why it hand-constructs `Evidence` instead: \"The concrete V1-4 `EvidenceBuilder` machinery is not used here.\" \n\nRemoving `EvidenceBuilder` and `BUILDERS` would destroy an intentionally reserved forward-declaration contract that at least two other modules explicitly document their relationship to. The gap is purposeful scaffolding, not accidental dead code — the ABC and empty registry exist to stabilise the interface boundary ahead of V1-4 implementation. Significance fails: closing the gap (removal) harms the codebase by eliminating a cross-file design contract; widening it has no downside.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "e657384e5c9c81df",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "EvidenceBuilder"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/evidence.py",
+          "start": 85,
+          "end": 130
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/findings_adapter.py",
+          "start": 1,
+          "end": 40
+        }
+      },
+      {
+        "turn": 3,
+        "name": "grep",
+        "input": {
+          "pattern": "BUILDERS"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/claim_builder.py",
+          "start": 1,
+          "end": 30
+        }
+      },
+      {
+        "turn": 5,
+        "name": "grep",
+        "input": {
+          "pattern": "from .evidence import|from osoji.evidence import|import evidence"
+        }
+      },
+      {
+        "turn": 6,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 0.92,
+          "reasoning": "**Reality:** The cross-file reachability gap is technically real — no file imports `EvidenceBuilder` or `BUILDERS`. The only live references are:\n1. An intra-file type annotation at `evidence.py:118`: `BUILDERS: dict[EvidenceKind, EvidenceBuilder] = {}`\n2. Comment/docstring-only mentions in `findings_adapter.py:19` and `claim_builder.py:4`\nNo code outside `evidence.py` imports or instantiates `EvidenceBuilder`.\n\n**Significance: FAILS.** This is explicitly labelled \"skeleton\" infrastructure reserved for a future milestone (V1-4). The module docstring (`evidence.py:10`) says \"the `EvidenceBuilder` ABC and `BUILDERS` … land in V1-4\". The class docstring repeats \"Concrete builders are added in V1-4\". `claim_builder.py:4` explicitly describes itself as \"the V1-3 stand-in for the mechanized Claim Builder that lands in V1-4 (`evidence.py` `BUILDERS`)\". `findings_adapter.py:19` explains why it hand-constructs `Evidence` instead: \"The concrete V1-4 `EvidenceBuilder` machinery is not used here.\" \n\nRemoving `EvidenceBuilder` and `BUILDERS` would destroy an intentionally reserved forward-declaration contract that at least two other modules explicitly document their relationship to. The gap is purposeful scaffolding, not accidental dead code — the ABC and empty registry exist to stabilise the interface boundary ahead of V1-4 implementation. Significance fails: closing the gap (removal) harms the codebase by eliminating a cross-file design contract; widening it has no downside."
+        }
+      }
+    ],
+    "cost_usd": 0.287327
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "slug": "audit-dead_code-001",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/audit.py",
+    "line_start": 1894,
+    "line_end": 1895,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L1894-1895: In `_html_file_health_section`, rows are filtered at L1874 to exclude `r[1] is not None`, guaranteeing all remaining rows have non-None health. The `h_val = health if health is not None else 0.0` guard at L1895 is therefore unreachable as written.",
+    "observed_behavior": "Simplify to `h_val = health` since None values are already filtered out at L1874. Or keep for defensive coding clarity.",
+    "evidence": [],
+    "id": "b75136cda2513d18",
+    "verdict": "confirmed",
+    "confidence": 0.97,
+    "triage_reasoning": "The code path is unambiguous. At L1874, `rows` is replaced with a list comprehension that retains only entries where `r[1] is not None` (i.e., health is not None). The early-return at L1875–1876 exits if nothing survives. The subsequent loop at L1894 destructures those same filtered rows into `(fp, health, shadow, jf, ec, wc)`. Since every surviving row has `health is not None` by construction, the `else 0.0` branch in `h_val = health if health is not None else 0.0` at L1895 can never execute. The gap is real (dead branch), significant (dead code misleads readers and future maintainers who might move the logic before the filter), and actionable (replace with `h_val = health`).",
+    "suggested_fix": "Replace `h_val = health if health is not None else 0.0` with `h_val = health` (or `h_val: float = health`). The None guard was made redundant by the filter at L1874 and should be removed to avoid misleading readers about the invariant at that point in the function.",
+    "severity": "info",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "b75136cda2513d18",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/audit.py",
+          "start": 1860,
+          "end": 1910
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/audit.py",
+          "start": 1870,
+          "end": 1900
+        }
+      },
+      {
+        "turn": 2,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.97,
+          "reasoning": "The code path is unambiguous. At L1874, `rows` is replaced with a list comprehension that retains only entries where `r[1] is not None` (i.e., health is not None). The early-return at L1875–1876 exits if nothing survives. The subsequent loop at L1894 destructures those same filtered rows into `(fp, health, shadow, jf, ec, wc)`. Since every surviving row has `health is not None` by construction, the `else 0.0` branch in `h_val = health if health is not None else 0.0` at L1895 can never execute. The gap is real (dead branch), significant (dead code misleads readers and future maintainers who might move the logic before the filter), and actionable (replace with `h_val = health`).",
+          "severity": "info",
+          "suggested_fix": "Replace `h_val = health if health is not None else 0.0` with `h_val = health` (or `h_val: float = health`). The None guard was made redundant by the filter at L1874 and should be removed to avoid misleading readers about the invariant at that point in the function."
+        }
+      }
+    ],
+    "cost_usd": 0.124249
+  }
+}

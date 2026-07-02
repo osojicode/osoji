@@ -1,0 +1,82 @@
+{
+  "slug": "audit-latent_bug-003",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:latent_bug",
+    "gap_type": "uncategorized",
+    "path": "src/osoji/init.py",
+    "line_start": 320,
+    "line_end": 323,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L320-323: _prompt_model_defaults accesses defaults['small'], defaults['medium'], and defaults['large'] by hard-coded key without guarding against missing tiers. If any BUILTIN_PROVIDER_MODELS entry omits a tier, this raises KeyError.",
+    "observed_behavior": "Use defaults.get('small', '') or verify BUILTIN_PROVIDER_MODELS schema guarantees all three tiers for every provider entry.",
+    "evidence": [],
+    "id": "0caebaf64c26394a",
+    "verdict": "dismissed",
+    "confidence": 0.88,
+    "triage_reasoning": "\n**Evidence gathered:**\n\n1. `_prompt_model_defaults` (init.py L305–338) accesses `defaults['small']`, `defaults['medium']`, and `defaults['large']` without `.get()` guards — twice: once in the echo block (L320–322) and once in the override loop (L329–330).\n\n2. `BUILTIN_PROVIDER_MODELS` is defined exactly once in `config.py` L158–183 as `dict[str, dict[str, str]]`. It currently contains **5** provider entries (anthropic, claude-code, google, openai, openrouter). Every single entry is populated with all three tier keys (`small`, `medium`, `large`), each backed by a named module-level constant — no bare literals, no missing entries.\n\n3. No other site mutates or extends `BUILTIN_PROVIDER_MODELS` (grep confirms only reads and one test reference).\n\n**Reality predicate — FAILS (for the current codebase):**\nThe bug is described as latent: \"if any entry omits a tier, this raises KeyError.\" That conditional has never been true for any line in the repo. All five entries are structurally complete. The `dict[str, dict[str, str]]` type annotation doesn't enumerate which string keys must be present, but the actual data satisfies the three-key invariant uniformly. There is no current gap to confirm.\n\n**Significance predicate — also weak:**\nThe proposed fix (`defaults.get('small', '')`) would silently substitute empty strings for model names when a tier is missing. That failure mode is *harder* to diagnose than the KeyError it replaces. A KeyError at this point in the init flow immediately identifies the incomplete provider entry; a silent empty string would propagate to a later API call with an opaque error. The defensive guard would make the code nominally safer against missing keys while actually worsening debuggability.\n\n**Actionability predicate — holds, but the suggested remedy is counterproductive:**\nThe concrete alternative would be to introduce a TypedDict or validate at import time (e.g., assert all three keys for every entry). That *would* be an improvement over unguarded access. But the claim only suggests `.get()` fallbacks, which as noted are a downgrade.\n\n**Conclusion:** Dismissed as a false positive. The gap doesn't currently exist (all entries are complete), the structural constraint is simple and easy to maintain when adding providers (the pattern is obvious), and the suggested remedy would introduce silent failures. If the team later extends `BUILTIN_PROVIDER_MODELS` frequently, a TypedDict-based inner type would be a genuine improvement, but that is a proactive hardening suggestion rather than a bug fix.\n",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "0caebaf64c26394a",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/init.py",
+          "start": 300,
+          "end": 350
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "BUILTIN_PROVIDER_MODELS",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/config.py",
+          "start": 158,
+          "end": 250
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/config.py",
+          "start": 140,
+          "end": 160
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "BUILTIN_PROVIDER_MODELS\\s*=|BUILTIN_PROVIDER_MODELS\\[|BUILTIN_PROVIDER_MODELS\\.update",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 0.88,
+          "reasoning": "\n**Evidence gathered:**\n\n1. `_prompt_model_defaults` (init.py L305–338) accesses `defaults['small']`, `defaults['medium']`, and `defaults['large']` without `.get()` guards — twice: once in the echo block (L320–322) and once in the override loop (L329–330).\n\n2. `BUILTIN_PROVIDER_MODELS` is defined exactly once in `config.py` L158–183 as `dict[str, dict[str, str]]`. It currently contains **5** provider entries (anthropic, claude-code, google, openai, openrouter). Every single entry is populated with all three tier keys (`small`, `medium`, `large`), each backed by a named module-level constant — no bare literals, no missing entries.\n\n3. No other site mutates or extends `BUILTIN_PROVIDER_MODELS` (grep confirms only reads and one test reference).\n\n**Reality predicate — FAILS (for the current codebase):**\nThe bug is described as latent: \"if any entry omits a tier, this raises KeyError.\" That conditional has never been true for any line in the repo. All five entries are structurally complete. The `dict[str, dict[str, str]]` type annotation doesn't enumerate which string keys must be present, but the actual data satisfies the three-key invariant uniformly. There is no current gap to confirm.\n\n**Significance predicate — also weak:**\nThe proposed fix (`defaults.get('small', '')`) would silently substitute empty strings for model names when a tier is missing. That failure mode is *harder* to diagnose than the KeyError it replaces. A KeyError at this point in the init flow immediately identifies the incomplete provider entry; a silent empty string would propagate to a later API call with an opaque error. The defensive guard would make the code nominally safer against missing keys while actually worsening debuggability.\n\n**Actionability predicate — holds, but the suggested remedy is counterproductive:**\nThe concrete alternative would be to introduce a TypedDict or validate at import time (e.g., assert all three keys for every entry). That *would* be an improvement over unguarded access. But the claim only suggests `.get()` fallbacks, which as noted are a downgrade.\n\n**Conclusion:** Dismissed as a false positive. The gap doesn't currently exist (all entries are complete), the structural constraint is simple and easy to maintain when adding providers (the pattern is obvious), and the suggested remedy would introduce silent failures. If the team later extends `BUILTIN_PROVIDER_MODELS` frequently, a TypedDict-based inner type would be a genuine improvement, but that is a proactive hardening suggestion rather than a bug fix.\n"
+        }
+      }
+    ],
+    "cost_usd": 0.18182
+  }
+}

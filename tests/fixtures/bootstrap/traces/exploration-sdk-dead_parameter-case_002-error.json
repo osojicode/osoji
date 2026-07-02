@@ -1,0 +1,102 @@
+{
+  "slug": "dead_parameter-case_002-error",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "deadparam:dead_parameter",
+    "gap_type": "reachability",
+    "path": "src/app/launcher.py",
+    "line_start": 1,
+    "line_end": 1,
+    "symbol": "error",
+    "contract_source": "function signature",
+    "contract_claim": "Parameter `error` is declared in the signature of log(message, error=False) (src/app/launcher.py line 1) as an accepted input that callers may pass.",
+    "observed_behavior": "The attributed call site, log(\"ok\") in src/app/cli.py, does not pass `error`, so the parameter appears to always take its default False. `log` is a common name with high fan-out: src/noise.py defines an unrelated log(message) that is called locally.",
+    "evidence": [],
+    "id": "fef97c9fea95cf5c",
+    "verdict": "confirmed",
+    "confidence": 0.97,
+    "triage_reasoning": "\nEvidence gathered:\n\n1. `src/app/launcher.py` defines `log(message, error=False)` and uses `error` in its body (`return f\"{message}:{error}\"`). The parameter is reachable inside the function, but the question is whether any caller ever supplies a non-default value.\n\n2. The entire codebase contains exactly one import of this `log`: `src/app/cli.py` does `from .launcher import log` and then calls `log(\"ok\")` — never passing `error`.\n\n3. A grep for `error=True` across the whole tree returns zero matches.\n\n4. `src/noise.py` defines a completely separate `log(message)` function (no `error` param, no import from launcher) that is called only locally by `noise.py:emit()`. This is the \"same-named-but-different symbol\" the claim warned about — it is not a use of launcher's `log`.\n\n5. The repository has only two files under `src/app/` and one file under `src/`; no other call sites exist anywhere.\n\nReality: The gap is real. The `error` parameter of `launcher.log` is never exercised by any caller; it permanently takes its default value `False`.\n\nSignificance: The parameter misleads readers into thinking callers can signal error state, yet no caller does. The return value always embeds `:False`, making the format string deceptive. Removing the dead parameter clarifies the API and eliminates a false affordance.\n\nActionability: Concrete fix available — remove `error=False` from the signature and update the return to `return message` (or whatever the intended format is without the always-False suffix).\n",
+    "suggested_fix": "Remove the dead `error` parameter from `log`'s signature in `src/app/launcher.py` and update the return statement to drop the `:{error}` suffix (e.g., `return message`). If error-signalling behaviour is genuinely needed in the future, add it at that point with a real call site.",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "fef97c9fea95cf5c",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "src/app/launcher.py"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "src/app/cli.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "grep",
+        "input": {
+          "pattern": "log\\("
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "src/noise.py"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "list_dir",
+        "input": {}
+      },
+      {
+        "turn": 5,
+        "name": "list_dir",
+        "input": {
+          "path": "src"
+        }
+      },
+      {
+        "turn": 6,
+        "name": "list_dir",
+        "input": {
+          "path": "src/app"
+        }
+      },
+      {
+        "turn": 7,
+        "name": "grep",
+        "input": {
+          "pattern": "error=True"
+        }
+      },
+      {
+        "turn": 8,
+        "name": "grep",
+        "input": {
+          "pattern": "launcher"
+        }
+      },
+      {
+        "turn": 9,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.97,
+          "severity": "warning",
+          "reasoning": "\nEvidence gathered:\n\n1. `src/app/launcher.py` defines `log(message, error=False)` and uses `error` in its body (`return f\"{message}:{error}\"`). The parameter is reachable inside the function, but the question is whether any caller ever supplies a non-default value.\n\n2. The entire codebase contains exactly one import of this `log`: `src/app/cli.py` does `from .launcher import log` and then calls `log(\"ok\")` — never passing `error`.\n\n3. A grep for `error=True` across the whole tree returns zero matches.\n\n4. `src/noise.py` defines a completely separate `log(message)` function (no `error` param, no import from launcher) that is called only locally by `noise.py:emit()`. This is the \"same-named-but-different symbol\" the claim warned about — it is not a use of launcher's `log`.\n\n5. The repository has only two files under `src/app/` and one file under `src/`; no other call sites exist anywhere.\n\nReality: The gap is real. The `error` parameter of `launcher.log` is never exercised by any caller; it permanently takes its default value `False`.\n\nSignificance: The parameter misleads readers into thinking callers can signal error state, yet no caller does. The return value always embeds `:False`, making the format string deceptive. Removing the dead parameter clarifies the API and eliminates a false affordance.\n\nActionability: Concrete fix available — remove `error=False` from the signature and update the return to `return message` (or whatever the intended format is without the always-False suffix).\n",
+          "suggested_fix": "Remove the dead `error` parameter from `log`'s signature in `src/app/launcher.py` and update the return statement to drop the `:{error}` suffix (e.g., `return message`). If error-signalling behaviour is genuinely needed in the future, add it at that point with a real call site."
+        }
+      }
+    ],
+    "cost_usd": 0.153894
+  }
+}

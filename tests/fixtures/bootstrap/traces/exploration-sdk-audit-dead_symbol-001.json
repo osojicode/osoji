@@ -1,0 +1,64 @@
+{
+  "slug": "audit-dead_symbol-001",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:dead_symbol",
+    "gap_type": "reachability",
+    "path": "src/osoji/llm/rate_limited.py",
+    "line_start": 114,
+    "line_end": 115,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "[AST] L114: function `RateLimitedProvider.get_rate_limit_summary` — No cross-file references found (AST-proven)",
+    "observed_behavior": "Remove function `RateLimitedProvider.get_rate_limit_summary`",
+    "evidence": [],
+    "id": "e189f9a33487fdeb",
+    "verdict": "dismissed",
+    "confidence": 0.99,
+    "triage_reasoning": "The AST scanner correctly found no *direct* attribute-access references to `get_rate_limit_summary` in other files, but missed a real dynamic-dispatch call in `src/osoji/llm/logging.py` lines 133–135:\n\n```python\nget_rate_limit_summary = getattr(self._provider, \"get_rate_limit_summary\", None)\nif callable(get_rate_limit_summary):\n    rate_summary = get_rate_limit_summary()\n```\n\nThis is a cross-file invocation via `getattr` with an exact string match on the method name. The method is live and executed at runtime whenever the logging provider summarises rate-limit state. Removing it would silently drop rate-limit summary output from logs.\n\nReality: the gap does NOT exist — the function is reachable via `getattr` string-dispatch.\nSignificance: N/A (gap doesn't exist).\nActionability: N/A.\n\nThis is a false positive caused by the AST scanner's inability to track `getattr`-based dynamic dispatch.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "e189f9a33487fdeb",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "get_rate_limit_summary"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/llm/rate_limited.py",
+          "start": 100,
+          "end": 130
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/llm/logging.py",
+          "start": 125,
+          "end": 145
+        }
+      },
+      {
+        "turn": 3,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 0.99,
+          "reasoning": "The AST scanner correctly found no *direct* attribute-access references to `get_rate_limit_summary` in other files, but missed a real dynamic-dispatch call in `src/osoji/llm/logging.py` lines 133–135:\n\n```python\nget_rate_limit_summary = getattr(self._provider, \"get_rate_limit_summary\", None)\nif callable(get_rate_limit_summary):\n    rate_summary = get_rate_limit_summary()\n```\n\nThis is a cross-file invocation via `getattr` with an exact string match on the method name. The method is live and executed at runtime whenever the logging provider summarises rate-limit state. Removing it would silently drop rate-limit summary output from logs.\n\nReality: the gap does NOT exist — the function is reachable via `getattr` string-dispatch.\nSignificance: N/A (gap doesn't exist).\nActionability: N/A.\n\nThis is a false positive caused by the AST scanner's inability to track `getattr`-based dynamic dispatch."
+        }
+      }
+    ],
+    "cost_usd": 0.052579
+  }
+}

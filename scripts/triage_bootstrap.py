@@ -215,7 +215,9 @@ async def run_sdk_exploration(
         prompt = (
             Triage._render_claim_block(0, finding)
             + "\nExplore the repository with read_file / grep / list_dir as needed, "
-            "then call submit_triage_verdict with your decision."
+            "then call submit_triage_verdict with your decision. Your final action "
+            "MUST be a submit_triage_verdict tool call — a prose answer without it "
+            "is discarded as no verdict."
         )
         in_tok = out_tok = 0
         cost_usd = 0.0

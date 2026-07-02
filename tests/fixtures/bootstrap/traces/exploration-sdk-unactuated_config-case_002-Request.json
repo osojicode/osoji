@@ -1,0 +1,105 @@
+{
+  "slug": "unactuated_config-case_002-Request",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "plumbing:unactuated_config",
+    "gap_type": "reachability",
+    "path": "docs/debugAdapterProtocol.json",
+    "line_start": 3,
+    "line_end": 5,
+    "symbol": "Request",
+    "contract_source": "config schema",
+    "contract_claim": "The schema definition `Request` in docs/debugAdapterProtocol.json declares a configuration structure that application code is obliged to load and actuate.",
+    "observed_behavior": "Nothing in the project loads docs/debugAdapterProtocol.json as runtime configuration: the file is a vendored copy of the Debug Adapter Protocol reference stored under docs/, and the project's actual runtime schema is src/runtime-schema.json.",
+    "evidence": [],
+    "id": "d8be188b6fb738c6",
+    "verdict": "dismissed",
+    "confidence": 0.93,
+    "triage_reasoning": "Evidence gathered:\n\n1. `docs/debugAdapterProtocol.json` exists with a `Request` type definition consistent with the upstream Debug Adapter Protocol specification schema.\n2. `src/runtime-schema.json` exists as a separate, purpose-built runtime schema (defines `timeoutMs` property — project-specific config).\n3. grep for `debugAdapterProtocol` returns zero hits across the entire repo: no source file references this file by name or path.\n4. grep for `docs/` also returns zero hits: nothing loads from the docs directory.\n5. The repo has only two directories (`docs/`, `src/`) and no source code files that could dynamically load either schema.\n\nPredicate analysis:\n\n**Reality — FAILS.** The finding's claim depends on treating a file in `docs/` as an \"unactuated config\" that the project is \"obliged to load.\" A file placed under `docs/` has no such obligation. This is a category error: `docs/debugAdapterProtocol.json` is a vendored copy of the upstream DAP specification schema, stored for human reference (and potentially tool introspection), not for runtime consumption. Its placement in `docs/` is the correct signal that it is reference material, not application configuration. The true runtime config is `src/runtime-schema.json`, which correctly lives under `src/` and serves a distinct, project-specific purpose.\n\n**Significance — FAILS.** Even if one accepted the framing, removing or \"actuating\" the DAP spec reference would not improve the codebase. Having a copy of the DAP spec in `docs/` is standard practice for projects that implement or extend the protocol. There is no harm in its presence.\n\n**Actionability — N/A** (moot once Reality and Significance fail).\n\nConclusion: The finding misidentifies a documentation/vendor reference artifact as an unactuated configuration file. The gap it describes does not exist because no project contract requires `docs/debugAdapterProtocol.json` to be loaded at runtime. Dismiss.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "d8be188b6fb738c6",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "debugAdapterProtocol"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "list_dir",
+        "input": {
+          "path": "docs"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "grep",
+        "input": {
+          "pattern": "runtime-schema\\.json"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "grep",
+        "input": {
+          "pattern": "docs/"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "list_dir",
+        "input": {
+          "path": "src"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "list_dir",
+        "input": {}
+      },
+      {
+        "turn": 6,
+        "name": "read_file",
+        "input": {
+          "path": "docs/debugAdapterProtocol.json",
+          "start": 1,
+          "end": 20
+        }
+      },
+      {
+        "turn": 7,
+        "name": "read_file",
+        "input": {
+          "path": "src/runtime-schema.json",
+          "start": 1,
+          "end": 20
+        }
+      },
+      {
+        "turn": 8,
+        "name": "grep",
+        "input": {
+          "pattern": "require|import|load|readFile|readFileSync|schema",
+          "glob": "src/**/*"
+        }
+      },
+      {
+        "turn": 9,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 0.93,
+          "reasoning": "Evidence gathered:\n\n1. `docs/debugAdapterProtocol.json` exists with a `Request` type definition consistent with the upstream Debug Adapter Protocol specification schema.\n2. `src/runtime-schema.json` exists as a separate, purpose-built runtime schema (defines `timeoutMs` property — project-specific config).\n3. grep for `debugAdapterProtocol` returns zero hits across the entire repo: no source file references this file by name or path.\n4. grep for `docs/` also returns zero hits: nothing loads from the docs directory.\n5. The repo has only two directories (`docs/`, `src/`) and no source code files that could dynamically load either schema.\n\nPredicate analysis:\n\n**Reality — FAILS.** The finding's claim depends on treating a file in `docs/` as an \"unactuated config\" that the project is \"obliged to load.\" A file placed under `docs/` has no such obligation. This is a category error: `docs/debugAdapterProtocol.json` is a vendored copy of the upstream DAP specification schema, stored for human reference (and potentially tool introspection), not for runtime consumption. Its placement in `docs/` is the correct signal that it is reference material, not application configuration. The true runtime config is `src/runtime-schema.json`, which correctly lives under `src/` and serves a distinct, project-specific purpose.\n\n**Significance — FAILS.** Even if one accepted the framing, removing or \"actuating\" the DAP spec reference would not improve the codebase. Having a copy of the DAP spec in `docs/` is standard practice for projects that implement or extend the protocol. There is no harm in its presence.\n\n**Actionability — N/A** (moot once Reality and Significance fail).\n\nConclusion: The finding misidentifies a documentation/vendor reference artifact as an unactuated configuration file. The gap it describes does not exist because no project contract requires `docs/debugAdapterProtocol.json` to be loaded at runtime. Dismiss."
+        }
+      }
+    ],
+    "cost_usd": 0.123059
+  }
+}

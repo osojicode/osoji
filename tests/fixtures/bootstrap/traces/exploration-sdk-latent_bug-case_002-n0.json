@@ -1,0 +1,59 @@
+{
+  "slug": "latent_bug-case_002-n0",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "debris:latent_bug",
+    "gap_type": "uncategorized",
+    "path": "main.ts",
+    "line_start": 8,
+    "line_end": 8,
+    "symbol": null,
+    "contract_source": "code",
+    "contract_claim": "document.getElementById(\"root\") returns HTMLElement | null, so the non-null assertion `document.getElementById(\"root\")!` passed to ReactDOM.createRoot will raise at runtime if the element is missing.",
+    "observed_behavior": "The code asserts non-null with `!` instead of a runtime check; the accompanying comment states the element is known to exist in index.html (standard React 18 bootstrapping pattern).",
+    "evidence": [],
+    "id": "35dcb00d997833cb",
+    "verdict": "dismissed",
+    "confidence": 0.93,
+    "triage_reasoning": "**Reality check:** The `!` non-null assertion is present at L8, and `document.getElementById(\"root\")` does return `HTMLElement | null` in the TypeScript type system. So the mechanical observation is accurate.\n\n**Significance check:** This fails. The pattern `ReactDOM.createRoot(document.getElementById(\"root\")!)` is the canonical, template-generated React 18 bootstrapping idiom — it appears verbatim in every `create-react-app`, Vite, and `create-next-app` scaffold. The `<div id=\"root\">` element in `index.html` is a compile-time invariant of the project: if it were missing or renamed, the entire app would have already failed during development and would never ship. A runtime null-check here (e.g. `if (!el) throw new Error(...)`) adds no meaningful safety — it merely relocates the failure from a JS crash to a slightly friendlier JS crash at the same call site in the same conditions. The comment in the file explicitly acknowledges this reasoning (\"we know the element exists in index.html\"). There is no scenario where the `#root` element exists during development/testing but is absent in production, making the \"latent bug\" a theoretical rather than practical risk.\n\n**Actionability:** A concrete fix exists (replace `!` with an explicit null-guard), but applying it would add noise rather than value to this standard boilerplate entry point. The fix is trivial but its benefit is negligible.\n\n**Conclusion:** This is the ecosystem-convention pattern for React 18 entry points. The gap identified (missing runtime null-check on a known-stable DOM element) does not represent a real defect in this codebase. Dismissing as a false positive.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "35dcb00d997833cb",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "getElementById.*root",
+          "glob": "**/*.ts*"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "list_dir",
+        "input": {}
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "main.ts"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 0.93,
+          "reasoning": "**Reality check:** The `!` non-null assertion is present at L8, and `document.getElementById(\"root\")` does return `HTMLElement | null` in the TypeScript type system. So the mechanical observation is accurate.\n\n**Significance check:** This fails. The pattern `ReactDOM.createRoot(document.getElementById(\"root\")!)` is the canonical, template-generated React 18 bootstrapping idiom — it appears verbatim in every `create-react-app`, Vite, and `create-next-app` scaffold. The `<div id=\"root\">` element in `index.html` is a compile-time invariant of the project: if it were missing or renamed, the entire app would have already failed during development and would never ship. A runtime null-check here (e.g. `if (!el) throw new Error(...)`) adds no meaningful safety — it merely relocates the failure from a JS crash to a slightly friendlier JS crash at the same call site in the same conditions. The comment in the file explicitly acknowledges this reasoning (\"we know the element exists in index.html\"). There is no scenario where the `#root` element exists during development/testing but is absent in production, making the \"latent bug\" a theoretical rather than practical risk.\n\n**Actionability:** A concrete fix exists (replace `!` with an explicit null-guard), but applying it would add noise rather than value to this standard boilerplate entry point. The fix is trivial but its benefit is negligible.\n\n**Conclusion:** This is the ecosystem-convention pattern for React 18 entry points. The gap identified (missing runtime null-check on a known-stable DOM element) does not represent a real defect in this codebase. Dismissing as a false positive."
+        }
+      }
+    ],
+    "cost_usd": 0.075014
+  }
+}
