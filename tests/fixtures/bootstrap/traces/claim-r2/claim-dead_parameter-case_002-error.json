@@ -1,0 +1,72 @@
+{
+  "slug": "dead_parameter-case_002-error",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "deadparam:dead_parameter",
+    "gap_type": "reachability",
+    "path": "src/app/launcher.py",
+    "line_start": 1,
+    "line_end": 1,
+    "symbol": "error",
+    "contract_source": "function signature",
+    "contract_claim": "Parameter `error` is declared in the signature of log(message, error=False) (src/app/launcher.py line 1) as an accepted input that callers may pass.",
+    "observed_behavior": "The attributed call site, log(\"ok\") in src/app/cli.py, does not pass `error`, so the parameter appears to always take its default False. `log` is a common name with high fan-out: src/noise.py defines an unrelated log(message) that is called locally.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "src/app/launcher.py",
+              "kind": "text_match",
+              "line": 2,
+              "context": "def log(message, error=False):\n    return f\"{message}:{error}\"",
+              "needle": "error",
+              "source": "text_scan",
+              "same_file": true
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 3,
+            "needles": [
+              "error"
+            ],
+            "same_file_swept": true
+          },
+          "export_surface": {
+            "symbol": "error",
+            "exported_from_flagged_file": false
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/app/launcher.py",
+          "line_start": 1,
+          "line_end": 2,
+          "snippet": "1: def log(message, error=False):\n2:     return f\"{message}:{error}\"",
+          "anchor": "symbol",
+          "enclosing_symbol": {
+            "name": "log",
+            "kind": "function",
+            "line_start": 1,
+            "line_end": 2
+          }
+        }
+      }
+    ],
+    "id": "fef97c9fea95cf5c",
+    "verdict": "dismissed",
+    "confidence": 0.95,
+    "triage_reasoning": "The claim frames `error` as a dead parameter because the only observed call site (`log(\"ok\")` in cli.py) doesn't pass it. However, reality check: the parameter IS referenced in the function body — `return f\"{message}:{error}\"`. A parameter that contributes to the return value is not dead. The default `False` means callers that don't pass it get `\"ok:False\"` and callers that do pass `error=True` get `\"ok:True\"`. The fact that one call site uses the default doesn't make the parameter unreachable — it's reachable via any call that explicitly passes `error=True`. The `error` flag is part of the function's public contract and is actuated by the body. The reachability gap does not exist.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "228744c93aea2a61"
+  },
+  "trace": null
+}

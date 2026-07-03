@@ -1,0 +1,147 @@
+{
+  "slug": "audit-obligation_implicit_contract-000",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "src/osoji/audit.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "2 implicit contracts between src/osoji/obligations.py and src/osoji/audit.py: \"implicit_contract\", \"violation\"",
+    "observed_behavior": "Extract shared constants to a module in src/osoji/ so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [],
+    "id": "e1a2b39bd275b679",
+    "verdict": "confirmed",
+    "confidence": 0.97,
+    "triage_reasoning": "**Evidence gathered:**\n\n- `obligations.py` is the *producer*: `ContractFinding.finding_type` is set to the bare string literals `\"violation\"` (line 371) and `\"implicit_contract\"` (lines 500, 581), and also compared against `\"violation\"` internally at line 625. The docstring even annotates the field: `# \"violation\" or \"implicit_contract\"`, signalling these are a stable two-value enum.\n\n- `audit.py` is the *consumer*: it compares `f.finding_type == \"violation\"` and `f.finding_type == \"implicit_contract\"` in four places (lines 503, 506, 688, 689) to compute scorecard counts and emit progress logs.\n\n- `findings_adapter.py` does *not* hardcode the values; it interpolates `cf.finding_type` directly, so it is unaffected.\n\n- No shared constant exists anywhere in `src/osoji/` — grep for `FINDING_TYPE`, `VIOLATION`, `IMPLICIT_CONTRACT` returns nothing relevant.\n\n**Predicate assessment:**\n\n- **Reality ✓** — the bare string literals are duplicated across two files in a producer→consumer relationship with no shared definition.\n- **Significance ✓** — renaming `\"violation\"` to e.g. `\"contract_violation\"` in `obligations.py` would silently zero-out scorecard fields `obligation_violations` and break the phase-3.5 log line in `audit.py`, with no import error or exception to catch the drift. These counts feed into the serialized scorecard and CLI output.\n- **Actionability ✓** — extract named constants from the unambiguous two-value set documented in the `ContractFinding` dataclass comment.\n\n**Classification:** Unnamed project obligation — two files share bare literals in clearly-related producer/consumer roles; no constant yet. Confirm and extract.",
+    "suggested_fix": "In `obligations.py`, add two module-level constants immediately above (or below) the `ContractFinding` dataclass:\n\n```python\nFINDING_TYPE_VIOLATION = \"violation\"\nFINDING_TYPE_IMPLICIT_CONTRACT = \"implicit_contract\"\n```\n\nThen replace all bare literals in `obligations.py` (lines 371, 500, 581, 625) and in `audit.py` (lines 503, 506, 688, 689) with the named constants. `audit.py` imports them with `from .obligations import FINDING_TYPE_VIOLATION, FINDING_TYPE_IMPLICIT_CONTRACT`. A future rename now triggers an `ImportError` instead of silent count mismatch.",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "e1a2b39bd275b679",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "implicit_contract|violation",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "list_dir",
+        "input": {
+          "path": "src/osoji"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "grep",
+        "input": {
+          "pattern": "finding_type\\s*=\\s*[\"\\']|finding_type\\s*==\\s*[\"\\']",
+          "glob": "src/osoji/obligations.py"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "grep",
+        "input": {
+          "pattern": "finding_type\\s*==\\s*[\"\\']",
+          "glob": "src/osoji/audit.py"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "implicit_contract|[\"\\']violation[\"\\']",
+          "glob": "src/osoji/findings_adapter.py"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "grep",
+        "input": {
+          "pattern": "class ContractFinding|finding_type",
+          "glob": "src/osoji/findings.py"
+        }
+      },
+      {
+        "turn": 6,
+        "name": "grep",
+        "input": {
+          "pattern": "finding_type|ContractFinding",
+          "glob": "src/osoji/findings.py"
+        }
+      },
+      {
+        "turn": 7,
+        "name": "grep",
+        "input": {
+          "pattern": "finding_type|ContractFinding|implicit_contract|violation",
+          "glob": "src/osoji/findings_adapter.py"
+        }
+      },
+      {
+        "turn": 8,
+        "name": "grep",
+        "input": {
+          "pattern": "class ContractFinding|finding_type",
+          "glob": "src/osoji/obligations.py"
+        }
+      },
+      {
+        "turn": 9,
+        "name": "grep",
+        "input": {
+          "pattern": "FINDING_TYPE|VIOLATION|IMPLICIT_CONTRACT",
+          "glob": "src/osoji/*.py"
+        }
+      },
+      {
+        "turn": 10,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/obligations.py",
+          "start": 40,
+          "end": 60
+        }
+      },
+      {
+        "turn": 11,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/audit.py",
+          "start": 499,
+          "end": 510
+        }
+      },
+      {
+        "turn": 12,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/audit.py",
+          "start": 685,
+          "end": 695
+        }
+      },
+      {
+        "turn": 13,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.97,
+          "severity": "warning",
+          "reasoning": "**Evidence gathered:**\n\n- `obligations.py` is the *producer*: `ContractFinding.finding_type` is set to the bare string literals `\"violation\"` (line 371) and `\"implicit_contract\"` (lines 500, 581), and also compared against `\"violation\"` internally at line 625. The docstring even annotates the field: `# \"violation\" or \"implicit_contract\"`, signalling these are a stable two-value enum.\n\n- `audit.py` is the *consumer*: it compares `f.finding_type == \"violation\"` and `f.finding_type == \"implicit_contract\"` in four places (lines 503, 506, 688, 689) to compute scorecard counts and emit progress logs.\n\n- `findings_adapter.py` does *not* hardcode the values; it interpolates `cf.finding_type` directly, so it is unaffected.\n\n- No shared constant exists anywhere in `src/osoji/` — grep for `FINDING_TYPE`, `VIOLATION`, `IMPLICIT_CONTRACT` returns nothing relevant.\n\n**Predicate assessment:**\n\n- **Reality ✓** — the bare string literals are duplicated across two files in a producer→consumer relationship with no shared definition.\n- **Significance ✓** — renaming `\"violation\"` to e.g. `\"contract_violation\"` in `obligations.py` would silently zero-out scorecard fields `obligation_violations` and break the phase-3.5 log line in `audit.py`, with no import error or exception to catch the drift. These counts feed into the serialized scorecard and CLI output.\n- **Actionability ✓** — extract named constants from the unambiguous two-value set documented in the `ContractFinding` dataclass comment.\n\n**Classification:** Unnamed project obligation — two files share bare literals in clearly-related producer/consumer roles; no constant yet. Confirm and extract.",
+          "suggested_fix": "In `obligations.py`, add two module-level constants immediately above (or below) the `ContractFinding` dataclass:\n\n```python\nFINDING_TYPE_VIOLATION = \"violation\"\nFINDING_TYPE_IMPLICIT_CONTRACT = \"implicit_contract\"\n```\n\nThen replace all bare literals in `obligations.py` (lines 371, 500, 581, 625) and in `audit.py` (lines 503, 506, 688, 689) with the named constants. `audit.py` imports them with `from .obligations import FINDING_TYPE_VIOLATION, FINDING_TYPE_IMPLICIT_CONTRACT`. A future rename now triggers an `ImportError` instead of silent count mismatch."
+        }
+      }
+    ],
+    "cost_usd": 0.216353
+  }
+}

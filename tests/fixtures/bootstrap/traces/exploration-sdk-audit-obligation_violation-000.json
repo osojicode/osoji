@@ -1,0 +1,105 @@
+{
+  "slug": "audit-obligation_violation-000",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:obligation_violation",
+    "gap_type": "uncategorized",
+    "path": "src/osoji/audit.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "String \"obligation_implicit_contract\" is checked but never produced or defined in any project file",
+    "observed_behavior": "Check string contract with (no producer found)",
+    "evidence": [],
+    "id": "7073b74b3d93dbad",
+    "verdict": "dismissed",
+    "confidence": 0.97,
+    "triage_reasoning": "The claim asserts that `\"obligation_implicit_contract\"` is checked but never produced in the project. The evidence refutes this:\n\n**Producer (dynamic assembly):**\n- `src/osoji/audit.py:467` builds the category string dynamically:\n  ```python\n  category=f\"obligation_{f.finding_type}\",\n  ```\n  When `f.finding_type == \"implicit_contract\"` (which happens whenever the obligations engine emits an implicit-contract finding), this f-string evaluates to exactly `\"obligation_implicit_contract\"`.\n\n**Where `finding_type=\"implicit_contract\"` is set:**\n- `src/osoji/obligations.py:500` — per-pair implicit contract findings: `finding_type=\"implicit_contract\"`.\n- `src/osoji/obligations.py:581` — grouped implicit contract findings: `finding_type=\"implicit_contract\"`.\n\n**Checker sites (correctly consuming the produced value):**\n- `audit.py:506`, `audit.py:689` — count `f.finding_type == \"implicit_contract\"` directly on obligation findings.\n- `audit.py:1059–1060`, `audit.py:1992–1993` — filter `i.category == \"obligation_implicit_contract\"` on `AuditIssue` objects, which are fed exactly by the f-string construction at line 467.\n\n**Why the detector misfired:**\nThe detector appears to have searched for the full literal string `\"obligation_implicit_contract\"` as a *complete unit* at production sites and found only check sites. It failed to trace through the f-string composition where `\"obligation_\"` prefix + `\"implicit_contract\"` suffix (from `obligations.py`) are assembled at `audit.py:467`. This is a classic blind spot for literal-string contract detectors when the producer side uses string interpolation.\n\n**Conclusion:**\nThe gap does not exist. The string is legitimately produced via f-string interpolation backed by a concrete literal `\"implicit_contract\"` in `obligations.py`. All checker sites are correctly aligned with the production path. False positive — dismiss.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "7073b74b3d93dbad",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "obligation_implicit_contract"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "obligation_implicit_contract",
+          "glob": "src/**/*.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "grep",
+        "input": {
+          "pattern": "category.*obligation",
+          "glob": "src/**/*.py"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/audit.py",
+          "start": 460,
+          "end": 475
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "finding_type.*implicit_contract|implicit_contract.*finding_type"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "read_file",
+        "input": {
+          "path": "tests/fixtures/bootstrap/manifest-audit.json",
+          "start": 280,
+          "end": 310
+        }
+      },
+      {
+        "turn": 6,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/obligations.py",
+          "start": 490,
+          "end": 510
+        }
+      },
+      {
+        "turn": 7,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/obligations.py",
+          "start": 570,
+          "end": 590
+        }
+      },
+      {
+        "turn": 8,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 0.97,
+          "reasoning": "The claim asserts that `\"obligation_implicit_contract\"` is checked but never produced in the project. The evidence refutes this:\n\n**Producer (dynamic assembly):**\n- `src/osoji/audit.py:467` builds the category string dynamically:\n  ```python\n  category=f\"obligation_{f.finding_type}\",\n  ```\n  When `f.finding_type == \"implicit_contract\"` (which happens whenever the obligations engine emits an implicit-contract finding), this f-string evaluates to exactly `\"obligation_implicit_contract\"`.\n\n**Where `finding_type=\"implicit_contract\"` is set:**\n- `src/osoji/obligations.py:500` — per-pair implicit contract findings: `finding_type=\"implicit_contract\"`.\n- `src/osoji/obligations.py:581` — grouped implicit contract findings: `finding_type=\"implicit_contract\"`.\n\n**Checker sites (correctly consuming the produced value):**\n- `audit.py:506`, `audit.py:689` — count `f.finding_type == \"implicit_contract\"` directly on obligation findings.\n- `audit.py:1059–1060`, `audit.py:1992–1993` — filter `i.category == \"obligation_implicit_contract\"` on `AuditIssue` objects, which are fed exactly by the f-string construction at line 467.\n\n**Why the detector misfired:**\nThe detector appears to have searched for the full literal string `\"obligation_implicit_contract\"` as a *complete unit* at production sites and found only check sites. It failed to trace through the f-string composition where `\"obligation_\"` prefix + `\"implicit_contract\"` suffix (from `obligations.py`) are assembled at `audit.py:467`. This is a classic blind spot for literal-string contract detectors when the producer side uses string interpolation.\n\n**Conclusion:**\nThe gap does not exist. The string is legitimately produced via f-string interpolation backed by a concrete literal `\"implicit_contract\"` in `obligations.py`. All checker sites are correctly aligned with the production path. False positive — dismiss."
+        }
+      }
+    ],
+    "cost_usd": 0.18714
+  }
+}

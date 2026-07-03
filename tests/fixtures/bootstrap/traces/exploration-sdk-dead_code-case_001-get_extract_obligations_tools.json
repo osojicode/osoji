@@ -1,0 +1,78 @@
+{
+  "slug": "dead_code-case_001-get_extract_obligations_tools",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/tools.py",
+    "line_start": 599,
+    "line_end": 601,
+    "symbol": "get_extract_obligations_tools",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `get_extract_obligations_tools` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "No callers or importers of `get_extract_obligations_tools` were found in the fixture project; consumer modules import the get_*_tool_definitions() variants instead, so this wrapper is never invoked even though the TOOL constant it returns is alive.",
+    "evidence": [],
+    "id": "f8d072f6b7c80a41",
+    "verdict": "confirmed",
+    "confidence": 0.98,
+    "triage_reasoning": "**Reality:** Grep finds `get_extract_obligations_tools` only at its declaration in `src/osoji/tools.py:599`. No import, call, or re-export anywhere in the codebase. The sole consumer of `tools.py` that deals with obligation-stage tooling (`src/osoji/plumbing.py`) explicitly imports and calls `get_extract_obligations_tool_definitions` (the `ToolDefinition`-returning variant), not the raw-dict `get_extract_obligations_tools` wrapper. The sibling `get_verify_actuation_tools` is identically dead.\n\n**Significance:** The two stale wrappers (`list[dict]` return type) sit adjacent to the live `ToolDefinition`-returning pair and create API surface confusion — a reader cannot tell which is canonical without tracing all callers. Removing them shrinks the public API to only what is actually used.\n\n**Actionability:** Delete `get_extract_obligations_tools` (lines 599–601) and `get_verify_actuation_tools` (lines 604–606) from `src/osoji/tools.py`. No other file references them, so the removal is safe with no downstream edits required.",
+    "suggested_fix": "Delete `get_extract_obligations_tools` (lines 599–601) and its dead sibling `get_verify_actuation_tools` (lines 604–606) from `src/osoji/tools.py`. Neither is imported or called anywhere; the live equivalents are `get_extract_obligations_tool_definitions` and `get_verify_actuation_tool_definitions`.",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "f8d072f6b7c80a41",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "get_extract_obligations_tools"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/tools.py",
+          "start": 590,
+          "end": 620
+        }
+      },
+      {
+        "turn": 2,
+        "name": "grep",
+        "input": {
+          "pattern": "get_verify_actuation_tools\\b"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "grep",
+        "input": {
+          "pattern": "get_extract_obligations_tool_definitions|get_verify_actuation_tool_definitions"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "from .tools import|from osoji.tools import"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.98,
+          "severity": "warning",
+          "reasoning": "**Reality:** Grep finds `get_extract_obligations_tools` only at its declaration in `src/osoji/tools.py:599`. No import, call, or re-export anywhere in the codebase. The sole consumer of `tools.py` that deals with obligation-stage tooling (`src/osoji/plumbing.py`) explicitly imports and calls `get_extract_obligations_tool_definitions` (the `ToolDefinition`-returning variant), not the raw-dict `get_extract_obligations_tools` wrapper. The sibling `get_verify_actuation_tools` is identically dead.\n\n**Significance:** The two stale wrappers (`list[dict]` return type) sit adjacent to the live `ToolDefinition`-returning pair and create API surface confusion — a reader cannot tell which is canonical without tracing all callers. Removing them shrinks the public API to only what is actually used.\n\n**Actionability:** Delete `get_extract_obligations_tools` (lines 599–601) and `get_verify_actuation_tools` (lines 604–606) from `src/osoji/tools.py`. No other file references them, so the removal is safe with no downstream edits required.",
+          "suggested_fix": "Delete `get_extract_obligations_tools` (lines 599–601) and its dead sibling `get_verify_actuation_tools` (lines 604–606) from `src/osoji/tools.py`. Neither is imported or called anywhere; the live equivalents are `get_extract_obligations_tool_definitions` and `get_verify_actuation_tool_definitions`."
+        }
+      }
+    ],
+    "cost_usd": 0.18988
+  }
+}

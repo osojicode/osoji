@@ -1,0 +1,91 @@
+{
+  "slug": "dead_code-case_001-SUBMIT_SHADOW_DOC_TOOL",
+  "mode": "build",
+  "insufficient": false,
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/tools.py",
+    "line_start": 9,
+    "line_end": 130,
+    "symbol": "SUBMIT_SHADOW_DOC_TOOL",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `SUBMIT_SHADOW_DOC_TOOL` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "A naive external-reference scan reported zero references for `SUBMIT_SHADOW_DOC_TOOL`, but the symbol participates in the live tool-definition access path.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/test_validate.py",
+              "kind": "text_match",
+              "line": 7,
+              "context": "from osoji.llm.validate import validate_tool_input\nfrom osoji.llm.types import CompletionOptions, CompletionResult, ToolCall, ToolDefinition\nfrom osoji.tools import SUBMIT_SHADOW_DOC_TOOL, SUBMIT_DIRECTORY_SHADOW_DOC_TOOL\n\n",
+              "needle": "SUBMIT_SHADOW_DOC_TOOL",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_validate.py",
+              "kind": "text_match",
+              "line": 224,
+              "context": "\n    def test_valid_shadow_doc(self):\n        schema = SUBMIT_SHADOW_DOC_TOOL[\"input_schema\"]\n        data = {\n            \"content\": \"# Shadow doc\\nSome content here.\",",
+              "needle": "SUBMIT_SHADOW_DOC_TOOL",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_validate.py",
+              "kind": "text_match",
+              "line": 249,
+              "context": "    def test_shadow_doc_string_topic_signature(self):\n        \"\"\"The bug that prompted this feature: topic_signature as string.\"\"\"\n        schema = SUBMIT_SHADOW_DOC_TOOL[\"input_schema\"]\n        data = {\n            \"content\": \"Some content.\",",
+              "needle": "SUBMIT_SHADOW_DOC_TOOL",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_validate.py",
+              "kind": "text_match",
+              "line": 260,
+              "context": "\n    def test_shadow_doc_bad_finding_category(self):\n        schema = SUBMIT_SHADOW_DOC_TOOL[\"input_schema\"]\n        data = {\n            \"content\": \"Content.\",",
+              "needle": "SUBMIT_SHADOW_DOC_TOOL",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_validate.py",
+              "kind": "text_match",
+              "line": 278,
+              "context": "\n    def test_shadow_doc_missing_required(self):\n        schema = SUBMIT_SHADOW_DOC_TOOL[\"input_schema\"]\n        data = {\"content\": \"Content.\"}  # missing findings, file_role\n        errs = validate_tool_input(data, schema)",
+              "needle": "SUBMIT_SHADOW_DOC_TOOL",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 6,
+            "needles": [
+              "SUBMIT_SHADOW_DOC_TOOL"
+            ]
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/tools.py",
+          "line_start": 1,
+          "line_end": 19,
+          "snippet": "1: \"\"\"Tool definitions for LLM-forced output.\"\"\"\n2: \n3: from typing import Any\n4: \n5: from .llm.types import ToolDefinition\n6: \n7: \n8: # Tool definition for file shadow documentation\n9: SUBMIT_SHADOW_DOC_TOOL = {\n10:     \"name\": \"submit_shadow_doc\",\n11:     \"description\": \"\"\"Submit a shadow documentation summary for a source file.\n12: \n13: The shadow doc should be a semantically dense summary optimized for AI agent consumption.\n14: Include:\n15: - Primary purpose and responsibility of the file\n16: - Key classes, functions, and their roles (with line numbers)\n17: - Important dependencies and relationships\n18: - Notable patterns or architectural decisions\n19: - Any critical invariants or constraints",
+          "anchor": "symbol"
+        }
+      }
+    ],
+    "id": "81a973717bbda220",
+    "verdict": null,
+    "confidence": null,
+    "triage_reasoning": null,
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "7ffc73d615eff2b1"
+  }
+}

@@ -134,7 +134,11 @@ class TestEvidence:
         ev = Evidence(kind="cross_file_reference", weight_hint=0.5, payload={"file": "a.py"})
         assert Evidence.from_dict(ev.to_dict()) == ev
 
-    def test_six_kinds_present(self):
+    def test_kind_set_is_pinned(self):
+        # V1-2 shipped six kinds; V1-4 added surrounding_code + declared_intent
+        # (mined from the bootstrap exploration traces, Checkpoint-1 ratified).
+        # Growing this set is a claim-builder schema version bump — update
+        # claim_builder.CLAIM_BUILDER_SCHEMA_VERSION alongside this pin.
         assert set(EVIDENCE_KINDS) == {
             "ast_fact",
             "cross_file_reference",
@@ -142,6 +146,8 @@ class TestEvidence:
             "scanner_metadata",
             "git_blame",
             "type_signature",
+            "surrounding_code",
+            "declared_intent",
         }
 
     def test_empty_payload_round_trips(self):

@@ -1,0 +1,216 @@
+{
+  "slug": "audit-doc_incorrect_content-000",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:doc_incorrect_content",
+    "gap_type": "uncategorized",
+    "path": ".claude/skills/osoji-triage/SKILL.md",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "The skill instructs users to 'Read the system prompts and tool schemas in src/osoji/tools.py' when investigating false positives. While tool schemas are indeed in tools.py, the system prompts are located in the individual module files, not in tools.py. This misdirects investigators to the wrong file for critical context. [evidence: src\\osoji\\deadcode.py — \"_DEAD_CODE_SYSTEM_PROMPT (L373–428) encodes the full decision logic for the LLM\"]",
+    "observed_behavior": "Change the instruction to: 'Read the tool schemas in src/osoji/tools.py and the system prompts in the specific module that generates the finding (e.g., _DEAD_CODE_SYSTEM_PROMPT in deadcode.py, _ANALYZE_SYSTEM_PROMPT in doc_analysis.py, system prompts in junk_cicd.py, triage.py, plumbing.py, etc.)'",
+    "evidence": [
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": ".claude/skills/osoji-triage/SKILL.md",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: ---\n2: name: osoji-triage\n3: description: Triage findings and produce a structured report (read-only, no fixes)\n4: arguments: Optional category or path filter\n5: ---\n6: \n7: You are reviewing the audit findings from an osoji audit of the CURRENT working\n8: directory project. Your goal is to classify each finding as a true positive, false\n9: positive, or downgrade to info, then propose improvements for both this repo and\n10: osoji itself.\n11: ",
+          "anchor": "lines"
+        }
+      },
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "CHANGELOG.md",
+              "kind": "text_match",
+              "line": 30,
+              "context": "- `osoji safety check/self-test/patterns` — personal path and secret scanning\n- `osoji config show` — display resolved configuration\n- `osoji skills list/show` — bundled AI agent skill files (`osoji-sweep`,\n  `osoji-triage`)\n- Multi-provider LLM support: Anthropic, OpenAI, Google Gemini, OpenRouter",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 111,
+              "context": "- `src/osoji/doc_prompts.py` — Concept-centric documentation coverage and writing prompt generation\n- `src/osoji/plugins/` — Language-specific AST extraction plugins (Python, TypeScript)\n- `src/osoji/skills/` — Bundled AI agent skill prompts (markdown files with YAML frontmatter); also mirrored at `.claude/skills/<name>/SKILL.md` for Claude Code agents working on this repo (parity enforced by `tests/test_skills_parity.py`)\n- `src/osoji/osoji-observatory.schema.json` — JSON Schema (Draft 2020-12) for the observatory bundle\n",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "CONTRIBUTING.md",
+              "kind": "text_match",
+              "line": 6,
+              "context": "\nThe best way to contribute: run `osoji audit` on your own projects, use the\nbundled skill files (`osoji-sweep`, `osoji-triage`) to triage findings, and let\nthe skill workflow file issues for false positives and missed detections.\n",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "CONTRIBUTING.md",
+              "kind": "text_match",
+              "line": 7,
+              "context": "The best way to contribute: run `osoji audit` on your own projects, use the\nbundled skill files (`osoji-sweep`, `osoji-triage`) to triage findings, and let\nthe skill workflow file issues for false positives and missed detections.\n\n```bash",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "CONTRIBUTING.md",
+              "kind": "text_match",
+              "line": 14,
+              "context": "```\n\nFalse-positive reports and missed-detection issues filed through the skill\nworkflow are the highest-impact contributions. They directly improve the\npipeline for everyone.",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "CONTRIBUTING.md",
+              "kind": "text_match",
+              "line": 73,
+              "context": "\nIf you've found a false-positive pattern but don't want to dig into prompts,\nthe fastest path is to run the `osoji-sweep` skill on your project — it will\nautomatically file a structured GitHub issue with the evidence osoji needs\nto improve.",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 14,
+              "context": "## What it does\n\nosoji audits your codebase for dead code, stale documentation, misleading comments, and semantic contradictions. It produces structured, actionable findings — and ships with agent skill files that automate the entire triage-fix-feedback loop. Stop wasting time working around the garbage accumulating in your project.\n\n## Quick start",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 28,
+              "context": "## Agent workflow\n\nosoji ships with bundled skill files that teach AI coding agents how to work with audit findings end-to-end:\n\n1. **Audit** — `osoji audit .` scans your codebase",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 44,
+              "context": "```\n\n**Other agents** — pipe skill content into your agent's prompt:\n\n```bash",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 59,
+              "context": "### Improving detection\n\nosoji gets smarter the more people use it. When your agent finds a false positive or spots something osoji missed, the skill files help it file a structured issue automatically. Those issues improve detection for everyone — including you on your next audit.\n\n## What it finds",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 90,
+              "context": "| `osoji export .` | Export observatory bundle |\n| `osoji push` | Push bundle to osoji-teams |\n| `osoji skills list` | List bundled agent skill files |\n| `osoji config show` | Inspect resolved configuration |\n| `osoji hooks install` | Manage git hooks |",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_skills_parity.py",
+              "kind": "text_match",
+              "line": 22,
+              "context": "    mirror = (REPO_ROOT / \".claude\" / \"skills\" / name / \"SKILL.md\").read_bytes()\n    assert canonical == mirror, (\n        f\"{name} skill drift: src/osoji/skills/{name}.md and \"\n        f\".claude/skills/{name}/SKILL.md must be byte-identical. \"\n        \"Update both when changing either.\"",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 982,
+              "context": "      \"adjudication_notes\": \"SKILL.md directs agents to system prompts in tools.py; zero SYSTEM_PROMPT constants there - all 19 live in detector modules. Misdirects FP root-cause tracing.\",\n      \"evidence_consulted\": [\n        \"read skill section\",\n        \"grep SYSTEM_PROMPT across src\",\n        \"read tools.py confirming\"",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 994,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"The skill instructs users to 'Read the system prompts and tool schemas in src/osoji/tools.py' when investigating false positives. While tool schemas are indeed in tools.py, the system prompts are located in the individual module files, not in tools.py. This misdirects investigators to the wrong file for critical context. [evidence: src\\\\osoji\\\\deadcode.py — \\\"_DEAD_CODE_SYSTEM_PROMPT (L373–428) encodes the full decision logic for the LLM\\\"]\",\n        \"observed_behavior\": \"Change the instruction to: 'Read the tool schemas in src/osoji/tools.py and the system prompts in the specific module that generates the finding (e.g., _DEAD_CODE_SYSTEM_PROMPT in deadcode.py, _ANALYZE_SYSTEM_PROMPT in doc_analysis.py, system prompts in junk_cicd.py, triage.py, plumbing.py, etc.)'\",\n        \"evidence\": [],",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 1046,
+              "context": "      \"severity\": \"warning\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"Sweep skill Phase 1.5 endpoint resolution omits .osoji.local.toml which has highest TOML priority per push.py and CLAUDE.md.\",\n      \"evidence_consulted\": [\n        \"read skill section\",",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 1048,
+              "context": "      \"adjudication_notes\": \"Sweep skill Phase 1.5 endpoint resolution omits .osoji.local.toml which has highest TOML priority per push.py and CLAUDE.md.\",\n      \"evidence_consulted\": [\n        \"read skill section\",\n        \"read _merge_push_config\",\n        \"cross-checked CLAUDE.md precedence\"",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 1060,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"Phase 1.5 endpoint resolution omits .osoji.local.toml, which has higher priority than .osoji.toml in the actual push config merge chain. The skill instructs the agent to resolve the endpoint from (in priority order): OSOJI_ENDPOINT env var, .osoji.toml [push].endpoint, or ~/.config/osoji/config.toml [push].endpoint. However, push.py's _merge_push_config merges global → .osoji.toml → .osoji.local.toml with last-write-wins, meaning .osoji.local.toml has the highest TOML priority. If the endpoint is configured only in .osoji.local.toml, the agent following this skill would fail to find it for the display message. [evidence: src\\\\osoji\\\\push.py — \\\"TOML config loaded via `_merge_push_config`: global config → `.osoji.toml` → `.osoji.local.toml` (last write wins per key)\\\"]\",\n        \"observed_behavior\": \"Add .osoji.local.toml to the endpoint resolution list in Phase 1.5, placed at higher priority than .osoji.toml: 'OSOJI_ENDPOINT env var, .osoji.local.toml [push].endpoint, .osoji.toml [push].endpoint, or ~/.config/osoji/config.toml [push].endpoint'.\",\n        \"evidence\": [],",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1532,
+              "context": "      \"adjudication_notes\": \"SKILL.md directs agents to system prompts in tools.py; zero SYSTEM_PROMPT constants there - all 19 live in detector modules. Misdirects FP root-cause tracing.\",\n      \"evidence_consulted\": [\n        \"read skill section\",\n        \"grep SYSTEM_PROMPT across src\",\n        \"read tools.py confirming\"",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1544,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"The skill instructs users to 'Read the system prompts and tool schemas in src/osoji/tools.py' when investigating false positives. While tool schemas are indeed in tools.py, the system prompts are located in the individual module files, not in tools.py. This misdirects investigators to the wrong file for critical context. [evidence: src\\\\osoji\\\\deadcode.py — \\\"_DEAD_CODE_SYSTEM_PROMPT (L373–428) encodes the full decision logic for the LLM\\\"]\",\n        \"observed_behavior\": \"Change the instruction to: 'Read the tool schemas in src/osoji/tools.py and the system prompts in the specific module that generates the finding (e.g., _DEAD_CODE_SYSTEM_PROMPT in deadcode.py, _ANALYZE_SYSTEM_PROMPT in doc_analysis.py, system prompts in junk_cicd.py, triage.py, plumbing.py, etc.)'\",\n        \"evidence\": [],",
+              "needle": "skill",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1596,
+              "context": "      \"severity\": \"warning\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"Sweep skill Phase 1.5 endpoint resolution omits .osoji.local.toml which has highest TOML priority per push.py and CLAUDE.md.\",\n      \"evidence_consulted\": [\n        \"read skill section\",",
+              "needle": "skill",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 354,
+            "needles": [
+              "skill"
+            ]
+          },
+          "export_surface": {
+            "symbol": "skill",
+            "exported_from_flagged_file": false
+          }
+        }
+      }
+    ],
+    "id": "743d06db088b6f44",
+    "verdict": "confirmed",
+    "confidence": 0.95,
+    "triage_reasoning": "Reality: The bootstrap adjudication notes are explicit: 'SKILL.md directs agents to system prompts in tools.py; zero SYSTEM_PROMPT constants there - all 19 live in detector modules. Misdirects FP root-cause tracing.' The evidence sweep confirmed this via 'grep SYSTEM_PROMPT across src' and 'read tools.py confirming' — tools.py holds tool schema definitions only, while every system prompt lives in the individual detector module (deadcode.py, doc_analysis.py, junk_cicd.py, triage.py, plumbing.py, etc.).\n\nSignificance: The osoji-triage SKILL.md is the primary navigation artifact for AI agents investigating false positives. Pointing to the wrong file for system prompts means an agent probing a suspected false positive traces to the wrong location, wastes turns, and may fail to surface the actual LLM decision logic.\n\nActionability: Update the instruction in SKILL.md to direct users to both tools.py (for tool schemas) and the specific detector module that generated the finding (for system prompts).",
+    "suggested_fix": "In .claude/skills/osoji-triage/SKILL.md (and its canonical copy at src/osoji/skills/osoji-triage.md), change the instruction from:\n  'Read the system prompts and tool schemas in src/osoji/tools.py'\nto:\n  'Read the tool schemas in src/osoji/tools.py and the system prompts in the specific module that generates the finding (e.g., _DEAD_CODE_SYSTEM_PROMPT in deadcode.py, _ANALYZE_SYSTEM_PROMPT in doc_analysis.py, system prompts in junk_cicd.py, triage.py, plumbing.py, etc.)'\n\nBoth the .claude/ mirror and src/osoji/skills/ canonical must be updated together (parity enforced by tests/test_skills_parity.py).",
+    "severity": "warning",
+    "evidence_fingerprint": "21b40fbdceec41ba"
+  },
+  "trace": null
+}

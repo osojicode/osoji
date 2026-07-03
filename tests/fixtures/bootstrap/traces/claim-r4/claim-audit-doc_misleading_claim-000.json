@@ -1,0 +1,228 @@
+{
+  "slug": "audit-doc_misleading_claim-000",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:doc_misleading_claim",
+    "gap_type": "uncategorized",
+    "path": ".claude/skills/osoji-sweep/SKILL.md",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "Phase 1.5 endpoint resolution omits .osoji.local.toml, which has higher priority than .osoji.toml in the actual push config merge chain. The skill instructs the agent to resolve the endpoint from (in priority order): OSOJI_ENDPOINT env var, .osoji.toml [push].endpoint, or ~/.config/osoji/config.toml [push].endpoint. However, push.py's _merge_push_config merges global → .osoji.toml → .osoji.local.toml with last-write-wins, meaning .osoji.local.toml has the highest TOML priority. If the endpoint is configured only in .osoji.local.toml, the agent following this skill would fail to find it for the display message. [evidence: src\\osoji\\push.py — \"TOML config loaded via `_merge_push_config`: global config → `.osoji.toml` → `.osoji.local.toml` (last write wins per key)\"]",
+    "observed_behavior": "Add .osoji.local.toml to the endpoint resolution list in Phase 1.5, placed at higher priority than .osoji.toml: 'OSOJI_ENDPOINT env var, .osoji.local.toml [push].endpoint, .osoji.toml [push].endpoint, or ~/.config/osoji/config.toml [push].endpoint'.",
+    "evidence": [
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": ".claude/skills/osoji-sweep/SKILL.md",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: ---\n2: name: osoji-sweep\n3: description: End-to-end audit — triage every finding, fix problems, file GitHub issues for osoji improvements\n4: arguments: Optional flags like --skip-audit\n5: ---\n6: \n7: You are running a **complete end-to-end audit** of the current working directory\n8: project. This means: run the audit, triage every finding, fix every true positive\n9: in this repo, and file GitHub issues for osoji pipeline improvements.\n10: \n11: ## Exhaustive Thoroughness — Non-Negotiable",
+          "anchor": "lines"
+        }
+      },
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "src/osoji/push.py",
+              "kind": "call",
+              "context": "calls _merge_push_config at line 143",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/push.py",
+              "kind": "text_match",
+              "line": 75,
+              "context": "\n\ndef _merge_push_config(root: Path) -> tuple[dict[str, str], dict[str, str]]:\n    \"\"\"Merge [push] config and track which file each key came from.\"\"\"\n",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/push.py",
+              "kind": "text_match",
+              "line": 143,
+              "context": "    \"\"\"Resolve push config: CLI arg -> env var -> TOML config -> git remote -> error.\"\"\"\n\n    merged, toml_sources = _merge_push_config(root_path)\n\n    # --- endpoint ---",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 1049,
+              "context": "      \"evidence_consulted\": [\n        \"read skill section\",\n        \"read _merge_push_config\",\n        \"cross-checked CLAUDE.md precedence\"\n      ],",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 1060,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"Phase 1.5 endpoint resolution omits .osoji.local.toml, which has higher priority than .osoji.toml in the actual push config merge chain. The skill instructs the agent to res\n        \"observed_behavior\": \"Add .osoji.local.toml to the endpoint resolution list in Phase 1.5, placed at higher priority than .osoji.toml: 'OSOJI_ENDPOINT env var, .osoji.local.toml [push].endpoint\n        \"evidence\": [],",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1599,
+              "context": "      \"evidence_consulted\": [\n        \"read skill section\",\n        \"read _merge_push_config\",\n        \"cross-checked CLAUDE.md precedence\"\n      ],",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1610,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"Phase 1.5 endpoint resolution omits .osoji.local.toml, which has higher priority than .osoji.toml in the actual push config merge chain. The skill instructs the agent to res\n        \"observed_behavior\": \"Add .osoji.local.toml to the endpoint resolution list in Phase 1.5, placed at higher priority than .osoji.toml: 'OSOJI_ENDPOINT env var, .osoji.local.toml [push].endpoint\n        \"evidence\": [],",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-doc_misleading_claim-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"Phase 1.5 endpoint resolution omits .osoji.local.toml, which has higher priority than .osoji.toml in the actual push config merge chain. The skill instructs the agent to resolve\n    \"observed_behavior\": \"Add .osoji.local.toml to the endpoint resolution list in Phase 1.5, placed at higher priority than .osoji.toml: 'OSOJI_ENDPOINT env var, .osoji.local.toml [push].endpoint, .o\n    \"evidence\": [],",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-doc_misleading_claim-000.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"confirmed\",\n    \"confidence\": 0.97,\n    \"triage_reasoning\": \"**Reality — gap exists.**\\n`push.py::_merge_push_config` loads TOML config in this order: `get_global_config_path()` → `root / PROJECT_CONFIG_FILENAME` (`.osoji.toml`) → `root\n    \"suggested_fix\": \"In `.claude/skills/osoji-sweep/SKILL.md`, Phase 1.5, update the endpoint-resolution sentence from:\\n\\n> To resolve the endpoint for the message, read it from (in priority order):\n    \"severity\": \"warning\",",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-doc_misleading_claim-000.json",
+              "kind": "text_match",
+              "line": 20,
+              "context": "    \"confidence\": 0.97,\n    \"triage_reasoning\": \"**Reality — gap exists.**\\n`push.py::_merge_push_config` loads TOML config in this order: `get_global_config_path()` → `root / PROJECT_CONFIG_FILENAME` (`.osoji.toml`) → `root\n    \"suggested_fix\": \"In `.claude/skills/osoji-sweep/SKILL.md`, Phase 1.5, update the endpoint-resolution sentence from:\\n\\n> To resolve the endpoint for the message, read it from (in priority order):\n    \"severity\": \"warning\",\n    \"evidence_fingerprint\": null",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-doc_incorrect_content-000.json",
+              "kind": "text_match",
+              "line": 156,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1048,\n              \"context\": \"      \\\"adjudication_notes\\\": \\\"Sweep skill Phase 1.5 endpoint resolution omits .osoji.local.toml which has highest TOML priority per push.py and CLAUDE.md.\\\",\\n      \\\"evide\n              \"needle\": \"skill\",\n              \"source\": \"text_scan\"",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-doc_incorrect_content-000.json",
+              "kind": "text_match",
+              "line": 164,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1060,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"Phase 1.5 endpoint resolution omits .osoji.local.toml, which has higher prio\n              \"needle\": \"skill\",\n              \"source\": \"text_scan\"",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-doc_misleading_claim-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"Phase 1.5 endpoint resolution omits .osoji.local.toml, which has higher priority than .osoji.toml in the actual push config merge chain. The skill instructs the agent to resolve\n    \"observed_behavior\": \"Add .osoji.local.toml to the endpoint resolution list in Phase 1.5, placed at higher priority than .osoji.toml: 'OSOJI_ENDPOINT env var, .osoji.local.toml [push].endpoint, .o\n    \"evidence\": [",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-doc_misleading_claim-000.json",
+              "kind": "text_match",
+              "line": 35,
+              "context": "              \"file\": \"src/osoji/push.py\",\n              \"kind\": \"call\",\n              \"context\": \"calls _merge_push_config at line 143\",\n              \"source\": \"facts\"\n            },",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-doc_misleading_claim-000.json",
+              "kind": "text_match",
+              "line": 42,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1049,\n              \"context\": \"      \\\"evidence_consulted\\\": [\\n        \\\"read skill section\\\",\\n        \\\"read _merge_push_config\\\",\\n        \\\"cross-checked CLAUDE.md precedence\\\"\\n      ],\",\n              \"needle\": \"_merge_push_config\",\n              \"source\": \"text_scan\"",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-doc_incorrect_content-000.json",
+              "kind": "text_match",
+              "line": 156,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1048,\n              \"context\": \"      \\\"adjudication_notes\\\": \\\"Sweep skill Phase 1.5 endpoint resolution omits .osoji.local.toml which has highest TOML priority per push.py and CLAUDE.md.\\\",\\n      \\\"evide\n              \"needle\": \"skill\",\n              \"source\": \"text_scan\"",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-doc_incorrect_content-000.json",
+              "kind": "text_match",
+              "line": 164,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1060,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"Phase 1.5 endpoint resolution omits .osoji.local.toml, which has higher prio\n              \"needle\": \"skill\",\n              \"source\": \"text_scan\"",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-doc_misleading_claim-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"Phase 1.5 endpoint resolution omits .osoji.local.toml, which has higher priority than .osoji.toml in the actual push config merge chain. The skill instructs the agent to resolve\n    \"observed_behavior\": \"Add .osoji.local.toml to the endpoint resolution list in Phase 1.5, placed at higher priority than .osoji.toml: 'OSOJI_ENDPOINT env var, .osoji.local.toml [push].endpoint, .o\n    \"evidence\": [",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-doc_misleading_claim-000.json",
+              "kind": "text_match",
+              "line": 35,
+              "context": "              \"file\": \"src/osoji/push.py\",\n              \"kind\": \"call\",\n              \"context\": \"calls _merge_push_config at line 143\",\n              \"source\": \"facts\"\n            },",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-doc_misleading_claim-000.json",
+              "kind": "text_match",
+              "line": 42,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1049,\n              \"context\": \"      \\\"evidence_consulted\\\": [\\n        \\\"read skill section\\\",\\n        \\\"read _merge_push_config\\\",\\n        \\\"cross-checked CLAUDE.md precedence\\\"\\n      ],\",\n              \"needle\": \"_merge_push_config\",\n              \"source\": \"text_scan\"",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-doc_misleading_claim-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"Phase 1.5 endpoint resolution omits .osoji.local.toml, which has higher priority than .osoji.toml in the actual push config merge chain. The skill instructs the agent to resolve\n    \"observed_behavior\": \"Add .osoji.local.toml to the endpoint resolution list in Phase 1.5, placed at higher priority than .osoji.toml: 'OSOJI_ENDPOINT env var, .osoji.local.toml [push].endpoint, .o\n    \"evidence\": [",
+              "needle": "_merge_push_config",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {
+            "src/osoji/push.py": "# src\\osoji\\push.py\n@source-hash: 5f860e1047d62c87\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:27:07Z\n\n## Purpose\n\nImplements the `osoji push` command: resolves push configuration (endpoint, token, project slug), collects git context, generates or loads the observatory bundle, and POSTs an envelope to the osoji-teams ingest API at `/api/v1/ingest`.\n\n---\n\n## Data Classes\n\n### `PushConfig` (L26-33) — frozen dataclass\nResolved push configuration with fields `endpoint` (normalized, protocol-prefixed), `token`, `project_slug`, `token_source` (diagnostic provenance label, e.g. `\"--token flag\"`, `\".env file\"`, `\"OSOJI_TOKEN env var\"`, TOML source label).\n\n### `GitContext` (L36-43) — frozen dataclass\nHEAD metadata: `commit` (full SHA), `branch` (abbrev-ref), `message` (subject line), `timestamp` (ISO-8601 committer date).\n\n### `PushResult` (L46-57) — frozen dataclass\nPush outcome. `success: bool`, `status_code: int | None`, `run_id`, `project_slug`, `pushed_at`, `dashboard_url`, `error_message` all optional. `duplicate: bool` is `True` when the API returns HTTP 200 (as opposed to 201 for new pushes).\n\n---\n\n## Public Functions\n\n### `resolve_push_config(*, endpoint, token, project, root_path)` (L134-193)\nPriority chain per config value:\n- **endpoint**: CLI arg → `OSOJI_ENDPOINT` env var → `[push].endpoint` in TOML → `ClickException`\n- **token**: CLI `--token` → `OSOJI_TOKEN` env var → `[push].token` in TOML → `ClickException`; `token_source` label is set at each step via `_classify_env_source`.\n- **project**: CLI `--project` → `[push].project` in TOML → inferred from `git remote origin` URL via `_infer_project_from_git_remote` → `ClickException`\n\nEndpoint is normalized: strips trailing `/`, prepends `https://` if no scheme.\n\nTOML config loaded via `_merge_push_config`: global config → `.osoji.toml` → `.osoji.local.toml` (last write wins per key).\n\n### `gather_git_context(root)` (L196-215)\nRuns `git rev-parse HEAD`, `git rev-parse --abbrev-ref HEAD`, `git log -1 --p"
+          },
+          "scan_scope": {
+            "files_scanned": 519,
+            "needles": [
+              "_merge_push_config"
+            ],
+            "needle_totals": {
+              "_merge_push_config": 182
+            },
+            "same_file_swept": true
+          },
+          "export_surface": {
+            "symbol": "_merge_push_config",
+            "exported_from_flagged_file": false
+          }
+        }
+      }
+    ],
+    "id": "c8f30e1bd3eaec23",
+    "verdict": "confirmed",
+    "confidence": 0.95,
+    "triage_reasoning": "Reality: The `push.py` shadow doc explicitly states 'TOML config loaded via `_merge_push_config`: global config → `.osoji.toml` → `.osoji.local.toml` (last write wins per key).' This confirms `.osoji.local.toml` has the highest TOML priority. The skill's Phase 1.5 endpoint resolution list only includes `OSOJI_ENDPOINT env var`, `.osoji.toml [push].endpoint`, and `~/.config/osoji/config.toml [push].endpoint`, omitting `.osoji.local.toml`. If a user configures the endpoint only in `.osoji.local.toml` (a valid and higher-priority configuration), an agent following this skill would fail to find it. Significance: `.osoji.local.toml` is a documented override mechanism; agents that don't check it would produce incorrect status messages when the endpoint lives there. Actionability: Adding a single entry to the skill's priority list fixes the gap.",
+    "suggested_fix": "In `.claude/skills/osoji-sweep/SKILL.md` Phase 1.5, update the endpoint-resolution priority list to include `.osoji.local.toml` between the env var and `.osoji.toml`: 'OSOJI_ENDPOINT env var → .osoji.local.toml [push].endpoint → .osoji.toml [push].endpoint → ~/.config/osoji/config.toml [push].endpoint'.",
+    "severity": "warning",
+    "evidence_fingerprint": "fac1b456e375e2a5"
+  },
+  "trace": null
+}

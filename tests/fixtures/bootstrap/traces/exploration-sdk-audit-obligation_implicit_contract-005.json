@@ -1,0 +1,122 @@
+{
+  "slug": "audit-obligation_implicit_contract-005",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "tests/test_llm_provider.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "2 implicit contracts between src/osoji/llm/registry.py and tests/test_llm_provider.py: \"openai\", \"openrouter\"",
+    "observed_behavior": "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [],
+    "id": "9092313e5fe625d9",
+    "verdict": "dismissed",
+    "confidence": 0.85,
+    "triage_reasoning": "**Evidence assembled:**\n\n1. `registry.py` defines `_PROVIDER_SPECS[\"openai\"]` and `_PROVIDER_SPECS[\"openrouter\"]` as the authoritative dict keys, with no exported public constants for these names.\n\n2. `openai.py` already has `_PROVIDER_NAME = \"openai\"` (class-private) and `openrouter.py` has `_PROVIDER_NAME = \"openrouter\"` (class-private). These ARE single-source-of-truth constants within each class — they're used by `__init__` to call `get_provider_spec()`, and by the `name` property.\n\n3. `tests/test_llm_provider.py` imports both `OpenAIProvider` and `OpenRouterProvider` (lines 14–15), then uses bare string literals `\"openai\"` and `\"openrouter\"` throughout rather than `OpenAIProvider._PROVIDER_NAME`.\n\n**Why the \"silent mismatch\" claim is wrong:**\n\nEvery test use of these strings is either:\n- An input to a registry function (`create_provider(\"openai\")`, `normalize_provider_name(\"OPENROUTER\")`, `qualify_model_name(\"openai\", ...)`, `Config(..., provider=\"openai\")`) — all of which raise `ValueError(\"Unknown provider: …\")` if the key doesn't exist in `_PROVIDER_SPECS`. No silence; immediate loud failure.\n- An assertion on registry output (`assert provider_names() == (…, \"openai\", \"openrouter\")`) — fails loudly if the registry changes the key name.\n- An assertion on a real provider's `.name` property (`assert logging_provider.name == \"openai\"`) — if the registry key and class `_PROVIDER_NAME` both changed, this assertion would fail. If only one changed, the class's `__init__` call to `get_provider_spec()` would raise at construction.\n- A stub `return \"openai\"` (line 120) — this stub name is never asserted on; the test only checks `stop_reason=length` and summary text. This is pure placeholder.\n\n**Contract classification:**\n\nThis is closest to a *named project obligation* — `_PROVIDER_NAME` constants exist in each provider class. But they are class-private by Python convention. Referencing `OpenAIProvider._PROVIDER_NAME` in tests would access a private attribute and couple tests to internal implementation details, which is the wrong direction. For tests that validate what `provider_names()` returns, using bare string literals IS the correct approach — using the constant would make the assertion circular.\n\n**Predicates:**\n- Reality: Technically the same bare literals appear in two files without a shared exported constant — true, but both files are separately internally consistent.\n- Significance: **Fails.** The risk of a silent mismatch doesn't materialize — renames cause immediate failures via ValueError (registry lookup) or assertion error (tuple comparison). The existing `_PROVIDER_NAME` class constants are private, and tests correctly assert on observable string values.\n- Actionability: A fix exists (extract public constants), but it would impose test-to-internal coupling with no real benefit over the existing loud-failure safety net.\n\nSignificance predicate fails — closing this gap does not materially improve correctness or safety of the codebase.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "9092313e5fe625d9",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "openai|openrouter",
+          "glob": "src/osoji/llm/registry.py"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "openai|openrouter",
+          "glob": "tests/test_llm_provider.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/llm/registry.py"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "tests/test_llm_provider.py",
+          "start": 55,
+          "end": 130
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "OPENAI|OPENROUTER|openai_name|openrouter_name|PROVIDER_NAME",
+          "glob": "src/osoji/llm/*.py"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "list_dir",
+        "input": {
+          "path": "src/osoji/llm"
+        }
+      },
+      {
+        "turn": 6,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/llm/openai.py",
+          "start": 1,
+          "end": 40
+        }
+      },
+      {
+        "turn": 7,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/llm/openrouter.py",
+          "start": 1,
+          "end": 40
+        }
+      },
+      {
+        "turn": 8,
+        "name": "read_file",
+        "input": {
+          "path": "tests/test_llm_provider.py",
+          "start": 115,
+          "end": 160
+        }
+      },
+      {
+        "turn": 9,
+        "name": "read_file",
+        "input": {
+          "path": "tests/test_llm_provider.py",
+          "start": 1,
+          "end": 55
+        }
+      },
+      {
+        "turn": 10,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 0.85,
+          "reasoning": "**Evidence assembled:**\n\n1. `registry.py` defines `_PROVIDER_SPECS[\"openai\"]` and `_PROVIDER_SPECS[\"openrouter\"]` as the authoritative dict keys, with no exported public constants for these names.\n\n2. `openai.py` already has `_PROVIDER_NAME = \"openai\"` (class-private) and `openrouter.py` has `_PROVIDER_NAME = \"openrouter\"` (class-private). These ARE single-source-of-truth constants within each class — they're used by `__init__` to call `get_provider_spec()`, and by the `name` property.\n\n3. `tests/test_llm_provider.py` imports both `OpenAIProvider` and `OpenRouterProvider` (lines 14–15), then uses bare string literals `\"openai\"` and `\"openrouter\"` throughout rather than `OpenAIProvider._PROVIDER_NAME`.\n\n**Why the \"silent mismatch\" claim is wrong:**\n\nEvery test use of these strings is either:\n- An input to a registry function (`create_provider(\"openai\")`, `normalize_provider_name(\"OPENROUTER\")`, `qualify_model_name(\"openai\", ...)`, `Config(..., provider=\"openai\")`) — all of which raise `ValueError(\"Unknown provider: …\")` if the key doesn't exist in `_PROVIDER_SPECS`. No silence; immediate loud failure.\n- An assertion on registry output (`assert provider_names() == (…, \"openai\", \"openrouter\")`) — fails loudly if the registry changes the key name.\n- An assertion on a real provider's `.name` property (`assert logging_provider.name == \"openai\"`) — if the registry key and class `_PROVIDER_NAME` both changed, this assertion would fail. If only one changed, the class's `__init__` call to `get_provider_spec()` would raise at construction.\n- A stub `return \"openai\"` (line 120) — this stub name is never asserted on; the test only checks `stop_reason=length` and summary text. This is pure placeholder.\n\n**Contract classification:**\n\nThis is closest to a *named project obligation* — `_PROVIDER_NAME` constants exist in each provider class. But they are class-private by Python convention. Referencing `OpenAIProvider._PROVIDER_NAME` in tests would access a private attribute and couple tests to internal implementation details, which is the wrong direction. For tests that validate what `provider_names()` returns, using bare string literals IS the correct approach — using the constant would make the assertion circular.\n\n**Predicates:**\n- Reality: Technically the same bare literals appear in two files without a shared exported constant — true, but both files are separately internally consistent.\n- Significance: **Fails.** The risk of a silent mismatch doesn't materialize — renames cause immediate failures via ValueError (registry lookup) or assertion error (tuple comparison). The existing `_PROVIDER_NAME` class constants are private, and tests correctly assert on observable string values.\n- Actionability: A fix exists (extract public constants), but it would impose test-to-internal coupling with no real benefit over the existing loud-failure safety net.\n\nSignificance predicate fails — closing this gap does not materially improve correctness or safety of the codebase."
+        }
+      }
+    ],
+    "cost_usd": 0.314576
+  }
+}

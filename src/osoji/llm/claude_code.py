@@ -7,6 +7,8 @@ import json
 import logging
 import os
 import shutil
+import tempfile
+from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
@@ -290,6 +292,21 @@ class ClaudeCodeProvider(LLMProvider):
                 stripped = stripped[len(prefix):]
         return stripped
 
+    @staticmethod
+    def _neutral_cwd() -> str:
+        """Working directory for the spawned CLI, outside any project.
+
+        The session must be context-equivalent to a raw API call. CLAUDE.md is
+        already excluded via --settings, but the CLI resolves auto-memory and
+        project-level .claude/ settings from its working directory — running
+        from the host project leaks that context into completions
+        (osojicode/work#50). A dedicated empty temp subdirectory has none of
+        it, and the session runs with --tools "" so it needs no file access.
+        """
+        path = Path(tempfile.gettempdir()) / "osoji-claude-code-neutral"
+        path.mkdir(parents=True, exist_ok=True)
+        return str(path)
+
     async def _execute_cli(
         self,
         args: list[str],
@@ -306,6 +323,7 @@ class ClaudeCodeProvider(LLMProvider):
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             env=env,
+            cwd=self._neutral_cwd(),
         )
         try:
             stdout, stderr = await asyncio.wait_for(

@@ -1,0 +1,141 @@
+{
+  "slug": "audit-obligation_implicit_contract-003",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "tests/test_impl_hash.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "2 implicit contracts between src/osoji/diff.py and tests/test_impl_hash.py: \"missing\", \"stale\"",
+    "observed_behavior": "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [],
+    "id": "e9b7de8785a3c135",
+    "verdict": "confirmed",
+    "confidence": 0.88,
+    "triage_reasoning": "\n**What the code actually does:**\n\n`src/osoji/diff.py::check_stale_shadows()` (lines ~136–160) independently assigns bare string literals to `StaleShadow.status`:\n- `status=\"missing\"` when no shadow doc exists\n- `status=\"stale\"` when `is_stale()` returns True\n- `status=\"deleted_source\"` for deleted files\n\n`diff.py` then consumes those same literals in `format_diff_report()` (line 330: `s.status == \"missing\"`) and serialises them verbatim into JSON output via `format_diff_json()`.\n\n`src/osoji/shadow.py::staleness_reason()` (lines 279–317) independently returns the very same string vocabulary—\"missing\", \"stale\", \"stale-impl\"—for the identical domain concept: shadow-doc currency relative to source.\n\n`tests/test_impl_hash.py` verifies that `staleness_reason()` returns exactly \"missing\" and \"stale\" (and \"stale-impl\"). It has no visibility into `diff.py`'s status strings.\n\n**Contract classification — Unnamed project obligation:**\nTwo production sites (`diff.py` and `shadow.py`) share bare literals \"missing\" and \"stale\" in clearly-related roles (both describe the status of a shadow document). No shared constant exists. `diff.py` does NOT call `staleness_reason()`; it re-implements equivalent logic with duplicated string values. The test file locks in `shadow.py`'s values but provides no guard against `diff.py` diverging.\n\n**Reality:** Confirmed. Bare string literals \"missing\" and \"stale\" appear independently in `diff.py` (written and read) and in `shadow.py` (returned) with identical semantics. They are not bound through any shared constant.\n\n**Significance:** A rename in either site silently diverges from the other. Concretely: `diff.py` serialises `s.status` directly to the JSON API; if its value drifts from `staleness_reason()`'s vocabulary (or vice versa), consumers parsing both sources would see inconsistent status strings with no compile-time signal. Additionally, `diff.py` is a natural future candidate to call `staleness_reason()` directly—when that refactor happens the implicit coupling becomes explicit and a stale rename could break it.\n\n**Actionability:** Extract shared status constants (e.g. `STATUS_MISSING = \"missing\"`, `STATUS_STALE = \"stale\"`, `STATUS_STALE_IMPL = \"stale-impl\"`, `STATUS_DELETED_SOURCE = \"deleted_source\"`) into `shadow.py` (where `staleness_reason()` lives) or a dedicated `_constants.py`. Import them in `diff.py` and in the test assertions. A rename then propagates as an import error rather than a silent mismatch.\n",
+    "suggested_fix": "\nExtract the shared status vocabulary as module-level constants in `src/osoji/shadow.py` (or a new `src/osoji/_constants.py`):\n\n```python\n# shadow.py (or _constants.py)\nSTATUS_MISSING        = \"missing\"\nSTATUS_STALE          = \"stale\"\nSTATUS_STALE_IMPL     = \"stale-impl\"\nSTATUS_DELETED_SOURCE = \"deleted_source\"\n```\n\nThen update:\n- `shadow.py::staleness_reason()` — return the constants instead of bare literals\n- `diff.py::check_stale_shadows()` — import and use the same constants for `StaleShadow.status`\n- `diff.py::format_diff_report()` — replace `== \"missing\"` / `== \"deleted_source\"` comparisons with the constants\n- `tests/test_impl_hash.py` — assert against the imported constants rather than bare strings\n\nThis converts silent string drift into an import error at module load time.\n",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "e9b7de8785a3c135",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "missing|stale",
+          "glob": "src/osoji/diff.py"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "missing|stale",
+          "glob": "tests/test_impl_hash.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/diff.py",
+          "start": 125,
+          "end": 165
+        }
+      },
+      {
+        "turn": 3,
+        "name": "grep",
+        "input": {
+          "pattern": "staleness_reason|def staleness_reason",
+          "glob": "src/osoji/shadow.py"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "staleness_reason",
+          "glob": "src/osoji/diff.py"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/shadow.py",
+          "start": 279,
+          "end": 320
+        }
+      },
+      {
+        "turn": 6,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/diff.py",
+          "start": 1,
+          "end": 60
+        }
+      },
+      {
+        "turn": 7,
+        "name": "grep",
+        "input": {
+          "pattern": "from.*diff|import.*diff|check_stale_shadows|StaleShadow",
+          "glob": "tests/**/*.py"
+        }
+      },
+      {
+        "turn": 8,
+        "name": "read_file",
+        "input": {
+          "path": "tests/test_diff_json.py"
+        }
+      },
+      {
+        "turn": 9,
+        "name": "grep",
+        "input": {
+          "pattern": "\"missing\"|\"stale\"|status.*missing|status.*stale",
+          "glob": "tests/test_diff_json.py"
+        }
+      },
+      {
+        "turn": 10,
+        "name": "read_file",
+        "input": {
+          "path": "tests/test_impl_hash.py",
+          "start": 200,
+          "end": 295
+        }
+      },
+      {
+        "turn": 11,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/diff.py",
+          "start": 320,
+          "end": 395
+        }
+      },
+      {
+        "turn": 12,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.88,
+          "severity": "warning",
+          "reasoning": "\n**What the code actually does:**\n\n`src/osoji/diff.py::check_stale_shadows()` (lines ~136–160) independently assigns bare string literals to `StaleShadow.status`:\n- `status=\"missing\"` when no shadow doc exists\n- `status=\"stale\"` when `is_stale()` returns True\n- `status=\"deleted_source\"` for deleted files\n\n`diff.py` then consumes those same literals in `format_diff_report()` (line 330: `s.status == \"missing\"`) and serialises them verbatim into JSON output via `format_diff_json()`.\n\n`src/osoji/shadow.py::staleness_reason()` (lines 279–317) independently returns the very same string vocabulary—\"missing\", \"stale\", \"stale-impl\"—for the identical domain concept: shadow-doc currency relative to source.\n\n`tests/test_impl_hash.py` verifies that `staleness_reason()` returns exactly \"missing\" and \"stale\" (and \"stale-impl\"). It has no visibility into `diff.py`'s status strings.\n\n**Contract classification — Unnamed project obligation:**\nTwo production sites (`diff.py` and `shadow.py`) share bare literals \"missing\" and \"stale\" in clearly-related roles (both describe the status of a shadow document). No shared constant exists. `diff.py` does NOT call `staleness_reason()`; it re-implements equivalent logic with duplicated string values. The test file locks in `shadow.py`'s values but provides no guard against `diff.py` diverging.\n\n**Reality:** Confirmed. Bare string literals \"missing\" and \"stale\" appear independently in `diff.py` (written and read) and in `shadow.py` (returned) with identical semantics. They are not bound through any shared constant.\n\n**Significance:** A rename in either site silently diverges from the other. Concretely: `diff.py` serialises `s.status` directly to the JSON API; if its value drifts from `staleness_reason()`'s vocabulary (or vice versa), consumers parsing both sources would see inconsistent status strings with no compile-time signal. Additionally, `diff.py` is a natural future candidate to call `staleness_reason()` directly—when that refactor happens the implicit coupling becomes explicit and a stale rename could break it.\n\n**Actionability:** Extract shared status constants (e.g. `STATUS_MISSING = \"missing\"`, `STATUS_STALE = \"stale\"`, `STATUS_STALE_IMPL = \"stale-impl\"`, `STATUS_DELETED_SOURCE = \"deleted_source\"`) into `shadow.py` (where `staleness_reason()` lives) or a dedicated `_constants.py`. Import them in `diff.py` and in the test assertions. A rename then propagates as an import error rather than a silent mismatch.\n",
+          "suggested_fix": "\nExtract the shared status vocabulary as module-level constants in `src/osoji/shadow.py` (or a new `src/osoji/_constants.py`):\n\n```python\n# shadow.py (or _constants.py)\nSTATUS_MISSING        = \"missing\"\nSTATUS_STALE          = \"stale\"\nSTATUS_STALE_IMPL     = \"stale-impl\"\nSTATUS_DELETED_SOURCE = \"deleted_source\"\n```\n\nThen update:\n- `shadow.py::staleness_reason()` — return the constants instead of bare literals\n- `diff.py::check_stale_shadows()` — import and use the same constants for `StaleShadow.status`\n- `diff.py::format_diff_report()` — replace `== \"missing\"` / `== \"deleted_source\"` comparisons with the constants\n- `tests/test_impl_hash.py` — assert against the imported constants rather than bare strings\n\nThis converts silent string drift into an import error at module load time.\n"
+        }
+      }
+    ],
+    "cost_usd": 0.29436
+  }
+}

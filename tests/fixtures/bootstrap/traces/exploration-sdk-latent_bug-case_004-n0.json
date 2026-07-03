@@ -1,0 +1,56 @@
+{
+  "slug": "latent_bug-case_004-n0",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "debris:latent_bug",
+    "gap_type": "uncategorized",
+    "path": "component.tsx",
+    "line_start": 8,
+    "line_end": 9,
+    "symbol": null,
+    "contract_source": "code",
+    "contract_claim": "React's Rules of Hooks require every hook to be called unconditionally, in the same order, on every render of a component.",
+    "observed_behavior": "OnboardingPage calls useState at lines 8-9 after two conditional early returns (loading at line 5, hasOrgs at line 6), so the hooks are skipped on some renders and hook state is corrupted once the conditions change between renders.",
+    "evidence": [],
+    "id": "31adec8e6cda5161",
+    "verdict": "confirmed",
+    "confidence": 1,
+    "triage_reasoning": "The file component.tsx shows exactly what the claim describes:\n\nLine 5: `if (loading) return <div>Loading...</div>;`  — conditional early return\nLine 6: `if (hasOrgs) return <Navigate to=\"/home\" replace />;` — conditional early return\nLines 8–9: `useState(\"\")` calls appear AFTER both early returns.\n\n**Reality**: Confirmed. The two `useState` calls on lines 8–9 are only reached when both `loading` and `hasOrgs` are falsy. On any render where either condition is true the hooks are skipped entirely.\n\n**Significance**: Confirmed. This is a direct violation of React's Rules of Hooks (\"only call Hooks at the top level\"). When the component transitions between states — e.g. first render has `loading=true` (hooks skipped), subsequent render has `loading=false` and `hasOrgs=false` (hooks called) — React's internal hook-order tracking diverges and will throw \"Rendered more hooks than during the previous render\" or silently corrupt hook state. The bug is latent but guaranteed to surface as soon as the props change between those states.\n\n**Actionability**: Confirmed. Fix is straightforward: move both `useState` declarations to the top of the function body, before any conditional returns, which is exactly what React requires.",
+    "suggested_fix": "Move both useState calls to the top of OnboardingPage, before any conditional returns:\n\n```tsx\nexport function OnboardingPage({ loading, hasOrgs }: { loading: boolean; hasOrgs: boolean }) {\n  const [name, setName] = useState(\"\");\n  const [slug, setSlug] = useState(\"\");\n\n  if (loading) return <div>Loading...</div>;\n  if (hasOrgs) return <Navigate to=\"/home\" replace />;\n\n  return <div>{name}{slug}</div>;\n}\n```\n\nThis satisfies React's Rules of Hooks: every hook is called unconditionally on every render, in the same order.",
+    "severity": "error",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "31adec8e6cda5161",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "OnboardingPage",
+          "glob": "**/*.tsx"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "component.tsx"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 1,
+          "severity": "error",
+          "reasoning": "The file component.tsx shows exactly what the claim describes:\n\nLine 5: `if (loading) return <div>Loading...</div>;`  — conditional early return\nLine 6: `if (hasOrgs) return <Navigate to=\"/home\" replace />;` — conditional early return\nLines 8–9: `useState(\"\")` calls appear AFTER both early returns.\n\n**Reality**: Confirmed. The two `useState` calls on lines 8–9 are only reached when both `loading` and `hasOrgs` are falsy. On any render where either condition is true the hooks are skipped entirely.\n\n**Significance**: Confirmed. This is a direct violation of React's Rules of Hooks (\"only call Hooks at the top level\"). When the component transitions between states — e.g. first render has `loading=true` (hooks skipped), subsequent render has `loading=false` and `hasOrgs=false` (hooks called) — React's internal hook-order tracking diverges and will throw \"Rendered more hooks than during the previous render\" or silently corrupt hook state. The bug is latent but guaranteed to surface as soon as the props change between those states.\n\n**Actionability**: Confirmed. Fix is straightforward: move both `useState` declarations to the top of the function body, before any conditional returns, which is exactly what React requires.",
+          "suggested_fix": "Move both useState calls to the top of OnboardingPage, before any conditional returns:\n\n```tsx\nexport function OnboardingPage({ loading, hasOrgs }: { loading: boolean; hasOrgs: boolean }) {\n  const [name, setName] = useState(\"\");\n  const [slug, setSlug] = useState(\"\");\n\n  if (loading) return <div>Loading...</div>;\n  if (hasOrgs) return <Navigate to=\"/home\" replace />;\n\n  return <div>{name}{slug}</div>;\n}\n```\n\nThis satisfies React's Rules of Hooks: every hook is called unconditionally on every render, in the same order."
+        }
+      }
+    ],
+    "cost_usd": 0.08383
+  }
+}

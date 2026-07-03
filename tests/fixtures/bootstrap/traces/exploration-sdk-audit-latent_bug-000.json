@@ -1,0 +1,83 @@
+{
+  "slug": "audit-latent_bug-000",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:latent_bug",
+    "gap_type": "uncategorized",
+    "path": "scripts/triage_bootstrap.py",
+    "line_start": 135,
+    "line_end": 135,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L135-135: Accesses `result.exploration_traces` on the return value of `triage.decide_batch()`. If the batch result object does not have an `exploration_traces` attribute (e.g., in claim mode where no exploration traces are collected), this will raise AttributeError at runtime.",
+    "observed_behavior": "Verify that the `decide_batch` return type always includes `exploration_traces` (even as an empty list) for both modes, or guard with `getattr(result, 'exploration_traces', [])` and add a cross-file type annotation.",
+    "evidence": [],
+    "id": "40820cb8d4c4b83c",
+    "verdict": "dismissed",
+    "confidence": 0.99,
+    "triage_reasoning": "The claim asserts that `result.exploration_traces` in `scripts/triage_bootstrap.py:L292` may raise `AttributeError` when `decide_batch()` runs in claim mode (where no exploration traces are collected).\n\nEvidence against the claim:\n\n1. **`TriageBatchResult` is a Python `@dataclass`** (`src/osoji/triage.py:L138–150`) with the field declared as:\n   ```python\n   exploration_traces: list[dict[str, Any]] = field(default_factory=list)\n   ```\n   Python dataclasses always initialize every declared field. There is no code path that constructs a `TriageBatchResult` without this attribute being present — `default_factory=list` guarantees it defaults to `[]`.\n\n2. **`decide_batch()` always returns a `TriageBatchResult`** (`src/osoji/triage.py:L246–253`). The return statement at L246 explicitly passes `exploration_traces=traces`, where `traces` is initialized as `[]` at the top of the method body and only appended to during exploration-mode calls. In claim mode, `traces` stays `[]` and is passed through — the attribute exists and is simply empty.\n\n3. **No alternative return type exists.** There is no code path in `decide_batch()` that returns a different type (e.g., a plain dict or `None`). The static type annotation `-> TriageBatchResult` matches the implementation.\n\n**Conclusion:** The attribute is always present. The access at L292 is safe in all modes. The claim fails the Reality predicate — the described gap does not exist in the code.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "40820cb8d4c4b83c",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "scripts/triage_bootstrap.py",
+          "start": 120,
+          "end": 155
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "decide_batch",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/triage.py",
+          "start": 135,
+          "end": 230
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "scripts/triage_bootstrap.py",
+          "start": 270,
+          "end": 310
+        }
+      },
+      {
+        "turn": 4,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/triage.py",
+          "start": 230,
+          "end": 270
+        }
+      },
+      {
+        "turn": 5,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 0.99,
+          "reasoning": "The claim asserts that `result.exploration_traces` in `scripts/triage_bootstrap.py:L292` may raise `AttributeError` when `decide_batch()` runs in claim mode (where no exploration traces are collected).\n\nEvidence against the claim:\n\n1. **`TriageBatchResult` is a Python `@dataclass`** (`src/osoji/triage.py:L138–150`) with the field declared as:\n   ```python\n   exploration_traces: list[dict[str, Any]] = field(default_factory=list)\n   ```\n   Python dataclasses always initialize every declared field. There is no code path that constructs a `TriageBatchResult` without this attribute being present — `default_factory=list` guarantees it defaults to `[]`.\n\n2. **`decide_batch()` always returns a `TriageBatchResult`** (`src/osoji/triage.py:L246–253`). The return statement at L246 explicitly passes `exploration_traces=traces`, where `traces` is initialized as `[]` at the top of the method body and only appended to during exploration-mode calls. In claim mode, `traces` stays `[]` and is passed through — the attribute exists and is simply empty.\n\n3. **No alternative return type exists.** There is no code path in `decide_batch()` that returns a different type (e.g., a plain dict or `None`). The static type annotation `-> TriageBatchResult` matches the implementation.\n\n**Conclusion:** The attribute is always present. The access at L292 is safe in all modes. The claim fails the Reality predicate — the described gap does not exist in the code."
+        }
+      }
+    ],
+    "cost_usd": 0.116897
+  }
+}

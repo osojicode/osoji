@@ -1,0 +1,236 @@
+{
+  "slug": "audit-stale_comment-000",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:stale_comment",
+    "gap_type": "description",
+    "path": "src/osoji/deadparam.py",
+    "line_start": 208,
+    "line_end": 211,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L208-211: Comment says 'For constructors nested inside a class, also grep for ClassName(' but the code adds the ClassName( grep pattern for ALL methods whose function name appears in class_for_method — not only __init__/constructors. For non-constructor methods this adds a spurious constructor-call grep pattern, potentially introducing false call sites.",
+    "observed_behavior": "Change comment to 'For methods inside a class, also grep for ClassName( to catch constructor calls and direct class invocations' or restrict the pattern addition to only __init__-style constructors if that was the original intent.",
+    "evidence": [
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/deadparam.py",
+          "line_start": 198,
+          "line_end": 221,
+          "snippet": "198:             # if no one calls it at all, it's a dead symbol (handled by deadcode.py)\n199:             importers = facts_db.importers_of(source_norm)\n200:             if not importers:\n201:                 continue\n202: \n203:             # Grep for call sites in plausible caller files only\n204:             # For dotted names (e.g. \"ClassName.method\"), use just the method name\n205:             # so instance calls like `obj.method(` are matched\n206:             grep_name = func_name.rsplit(\".\", 1)[-1] if \".\" in func_name else func_name\n207:             call_patterns = [re.compile(r\"\\b\" + re.escape(grep_name) + r\"\\s*\\(\")]\n208:             # For constructors nested inside a class, also grep for ClassName(\n209:             parent_class = class_for_method.get(func_name)\n210:             if parent_class:\n211:                 call_patterns.append(re.compile(r\"\\b\" + re.escape(parent_class) + r\"\\s*\\(\"))\n212:             call_sites: list[CallSite] = []\n213: \n214:             # Definition range for same-file filtering\n215:             func_def_start = sym[\"line_start\"]\n216:             func_def_end = sym.get(\"line_end\", func_def_start)\n217: \n218:             candidate_paths = [source_norm]\n219:             candidate_paths.extend(sorted(set(importers)))\n220: \n221:             for rel_str in candidate_paths:",
+          "anchor": "lines",
+          "enclosing_symbol": {
+            "name": "scan_dead_param_candidates",
+            "kind": "function",
+            "line_start": 116,
+            "line_end": 278
+          }
+        }
+      },
+      {
+        "kind": "declared_intent",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/deadparam.py",
+          "blocks": [
+            {
+              "label": "preceding_lines",
+              "line_start": 198,
+              "text": "            # if no one calls it at all, it's a dead symbol (handled by deadcode.py)\n            importers = facts_db.importers_of(source_norm)\n            if not importers:\n                continue\n\n            # Grep for call sites in plausible caller files only\n            # For dotted names (e.g. \"ClassName.method\"), use just the method name\n            # so instance calls like `obj.method(` are matched\n            grep_name = func_name.rsplit(\".\", 1)[-1] if \".\" in func_name else func_name\n            call_patterns = [re.compile(r\"\\b\" + re.escape(grep_name) + r\"\\s*\\(\")]"
+            },
+            {
+              "label": "enclosing_head",
+              "line_start": 116,
+              "symbol": "scan_dead_param_candidates",
+              "text": "def scan_dead_param_candidates(\n    config: Config,\n) -> list[DeadParamCandidate]:\n    \"\"\"Scan for functions with optional parameters that no caller passes.\n\n    Phase 1: Pure Python, no LLM calls.\n\n    Returns list of DeadParamCandidate (one per function+param pair).\n    \"\"\"\n    all_symbols = load_all_symbols(config)\n    if not all_symbols:\n        return []\n\n    # Load facts DB for call information\n    facts_db = FactsDB(config)"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shadow_doc_claim",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/deadparam.py",
+          "scope": "file",
+          "excerpt": "# src\\osoji\\deadparam.py\n@source-hash: d8ecf1f293b464b2\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:32:12Z\n\n## Purpose\nTwo-phase dead parameter detector: Phase 1 (pure Python) scans all symbols to find public functions with optional parameters that have known call sites; Phase 2 (async LLM) verifies whether any call site actually passes each optional param and identifies gated branches that would become dead code upon removal.\n\n## Data Types (L33–68)\n\n- **`CallSite`** (L36–42): Represents one grep-found call site — `file_path` (relative), `line_number`, `context` (±10 lines of surrounding code).\n- **`DeadParamCandidate`** (L44–53): One per `(function, param)` pair. **Key invariant**: all candidates for the same function share the same `call_sites` list. `_build_call_site_chunks` and `_verify_chunk_async` both access `candidates[0].call_sites` to retrieve the full call site list for a function.\n- **`DeadParamVerification`** (L56–68): LLM output — `is_dead`, `confidence`, `reason`, `remediation`, `param_line`, `gated_line_ranges: list[tuple[int, int]]`. Default `param_line=0`.\n\n## Phase 1 — Candidate Scanning: `scan_dead_param_candidates(config)` (L116–278)\n\n1. Calls `load_all_symbols(config)` for symbol metadata.\n2. Builds `FactsDB(config)` and calls `facts_db.importers_of(source_norm)` per source file; **skips functions with no importers** (no importers → dead symbol, handled by `deadcode.py`).\n3. Filters to `visibility != \"internal\"` functions with at least one optional param (`p.get(\"optional\")` is truthy) (L182–193).\n4. Builds `class_for_method` map (L160–169) by line-range containment; for class members, adds a `\\bClassName\\s*\\(` grep pattern in addition to `\\bmethod_name\\s*\\(` (L207–211).\n5. Greps `[source_file] + sorted(importers)`, skipping shadow dir, ignore patterns, doc candidates, and call sites inside the function's own definition range (L218–261).\n6. Deduplicates call sites via `_dedupe_call_sites` (keyed on `(file_path, line_number, context)"
+        }
+      },
+      {
+        "kind": "shadow_doc_claim",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/deadparam.py",
+          "scope": "directory",
+          "excerpt": "# src\\osoji/\n@children-hash: 01e0c48013067d10\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:36:49Z\n\n## `src/osoji` — Core Package\n\nThe `osoji` package is a shadow documentation engine and multi-phase code quality audit system. It generates LLM-driven \"shadow docs\" (concise machine-readable summaries of source files), then runs a 5.5-phase audit pipeline that cross-references those docs against live code to surface dead code, stale documentation, string-contract violations, dead dependencies, dead CI/CD elements, orphaned files, and doc accuracy errors.\n\n---\n\n## Architectural Layers\n\n### 1 — Configuration & Discovery\n**`config.py`** is the root of all path resolution. `Config` (the central dataclass) encodes a 5-level provider/model precedence chain (CLI → env → project TOML → global TOML → builtin defaults). Every other module receives a `Config` and derives its paths from it (shadow root, findings dir, symbols dir, analysis root, etc.).\n\n**`walker.py`** discovers source files (`discover_files`) and directories (`discover_directories`) with git-aware or rglob traversal, applying ignore patterns and `.osojiignore`. Results are sorted deepest-first (children before parents) to support bottom-up directory processing.\n\n**`hasher.py`** provides SHA-256 hashing, binary-safe file reading, and the staleness primitives (`@source-hash`, `@impl-hash`, `@children-hash`) embedded in shadow doc headers. `is_findings_current()` gates whether cached findings JSON is still valid.\n\n---\n\n### 2 — Shadow Doc Generation (`shadow.py`)\nThe generative core. Orchestrates the full shadow doc pipeline:\n- File staleness detection (source hash + implementation hash)\n- LLM calls via `generate_file_shadow_doc_async` (forced `submit_shadow_doc` tool call)\n- Large-file chunking (> 150K tokens → per-chunk generation + `_generate_chunk_rollup_async`)\n- Sidecar JSON writes: `.findings.json`, `.symbols.json`, `.signature.json`, `.facts.json`\n- AST plugin fact merging (via `plugins/`) — when ava"
+        }
+      },
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 831,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L208-211: Comment says 'For constructors nested inside a class, also grep for ClassName(' but the code adds the ClassName( grep pattern for ALL methods whose function name a\n        \"observed_behavior\": \"Change comment to 'For methods inside a class, also grep for ClassName( to catch constructor calls and direct class invocations' or restrict the pattern addition to only \n        \"evidence\": [],",
+              "needle": "For constructors nested inside a class, also grep for ClassName(",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1379,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L208-211: Comment says 'For constructors nested inside a class, also grep for ClassName(' but the code adds the ClassName( grep pattern for ALL methods whose function name a\n        \"observed_behavior\": \"Change comment to 'For methods inside a class, also grep for ClassName( to catch constructor calls and direct class invocations' or restrict the pattern addition to only \n        \"evidence\": [],",
+              "needle": "For constructors nested inside a class, also grep for ClassName(",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-stale_comment-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L208-211: Comment says 'For constructors nested inside a class, also grep for ClassName(' but the code adds the ClassName( grep pattern for ALL methods whose function name appea\n    \"observed_behavior\": \"Change comment to 'For methods inside a class, also grep for ClassName( to catch constructor calls and direct class invocations' or restrict the pattern addition to only __in\n    \"evidence\": [],",
+              "needle": "For constructors nested inside a class, also grep for ClassName(",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-stale_comment-000.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"confirmed\",\n    \"confidence\": 0.92,\n    \"triage_reasoning\": \"**Reality — the gap exists.**\\n\\n`class_for_method` is built at L161–168 by iterating over *all* `functions` and checking line-range containment inside a class — there is no f\n    \"suggested_fix\": \"Prefer Option B unless the broad behaviour is proven useful: change line 210 to `if parent_class and grep_name == \\\"__init__\\\":` so only `__init__` gets the `ClassName(` grep pat\n    \"severity\": \"warning\",",
+              "needle": "For constructors nested inside a class, also grep for ClassName(",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-stale_comment-000.json",
+              "kind": "text_match",
+              "line": 86,
+              "context": "          \"confidence\": 0.92,\n          \"severity\": \"warning\",\n          \"reasoning\": \"**Reality — the gap exists.**\\n\\n`class_for_method` is built at L161–168 by iterating over *all* `functions` and checking line-range containment inside a class — there is no fi\n          \"suggested_fix\": \"Prefer Option B unless the broad behaviour is proven useful: change line 210 to `if parent_class and grep_name == \\\"__init__\\\":` so only `__init__` gets the `ClassName(` gr\n        }",
+              "needle": "For constructors nested inside a class, also grep for ClassName(",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-stale_comment-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L208-211: Comment says 'For constructors nested inside a class, also grep for ClassName(' but the code adds the ClassName( grep pattern for ALL methods whose function name appea\n    \"observed_behavior\": \"Change comment to 'For methods inside a class, also grep for ClassName( to catch constructor calls and direct class invocations' or restrict the pattern addition to only __in\n    \"evidence\": [",
+              "needle": "For constructors nested inside a class, also grep for ClassName(",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-stale_comment-000.json",
+              "kind": "text_match",
+              "line": 23,
+              "context": "          \"line_start\": 198,\n          \"line_end\": 221,\n          \"snippet\": \"198:             # if no one calls it at all, it's a dead symbol (handled by deadcode.py)\\n199:             importers = facts_db.importers_of(source_norm)\\n200:             if no\n          \"anchor\": \"lines\",\n          \"enclosing_symbol\": {",
+              "needle": "For constructors nested inside a class, also grep for ClassName(",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-stale_comment-000.json",
+              "kind": "text_match",
+              "line": 144,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 831,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L208-211: Comment says 'For constructors nested inside a class, also grep fo\n              \"needle\": \"ClassName\",\n              \"source\": \"text_scan\"",
+              "needle": "For constructors nested inside a class, also grep for ClassName(",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-stale_comment-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L208-211: Comment says 'For constructors nested inside a class, also grep for ClassName(' but the code adds the ClassName( grep pattern for ALL methods whose function name appea\n    \"observed_behavior\": \"Change comment to 'For methods inside a class, also grep for ClassName( to catch constructor calls and direct class invocations' or restrict the pattern addition to only __in\n    \"evidence\": [",
+              "needle": "For constructors nested inside a class, also grep for ClassName(",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-stale_comment-000.json",
+              "kind": "text_match",
+              "line": 23,
+              "context": "          \"line_start\": 198,\n          \"line_end\": 221,\n          \"snippet\": \"198:             # if no one calls it at all, it's a dead symbol (handled by deadcode.py)\\n199:             importers = facts_db.importers_of(source_norm)\\n200:             if no\n          \"anchor\": \"lines\",\n          \"enclosing_symbol\": {",
+              "needle": "For constructors nested inside a class, also grep for ClassName(",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-stale_comment-000.json",
+              "kind": "text_match",
+              "line": 144,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 831,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L208-211: Comment says 'For constructors nested inside a class, also grep fo\n              \"needle\": \"ClassName\",\n              \"source\": \"text_scan\"",
+              "needle": "For constructors nested inside a class, also grep for ClassName(",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-stale_comment-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L208-211: Comment says 'For constructors nested inside a class, also grep for ClassName(' but the code adds the ClassName( grep pattern for ALL methods whose function name appea\n    \"observed_behavior\": \"Change comment to 'For methods inside a class, also grep for ClassName( to catch constructor calls and direct class invocations' or restrict the pattern addition to only __in\n    \"evidence\": [",
+              "needle": "For constructors nested inside a class, also grep for ClassName(",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-stale_comment-000.json",
+              "kind": "text_match",
+              "line": 23,
+              "context": "          \"line_start\": 198,\n          \"line_end\": 221,\n          \"snippet\": \"198:             # if no one calls it at all, it's a dead symbol (handled by deadcode.py)\\n199:             importers = facts_db.importers_of(source_norm)\\n200:             if no\n          \"anchor\": \"lines\",\n          \"enclosing_symbol\": {",
+              "needle": "For constructors nested inside a class, also grep for ClassName(",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-stale_comment-000.json",
+              "kind": "text_match",
+              "line": 80,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 831,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L208-211: Comment says 'For constructors nested inside a class, also grep fo\n              \"needle\": \"For constructors nested inside a class, also grep for ClassName(\",\n              \"source\": \"text_scan\"",
+              "needle": "For constructors nested inside a class, also grep for ClassName(",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r3/claim-audit-stale_comment-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L208-211: Comment says 'For constructors nested inside a class, also grep for ClassName(' but the code adds the ClassName( grep pattern for ALL methods whose function name appea\n    \"observed_behavior\": \"Change comment to 'For methods inside a class, also grep for ClassName( to catch constructor calls and direct class invocations' or restrict the pattern addition to only __in\n    \"evidence\": [",
+              "needle": "For constructors nested inside a class, also grep for ClassName(",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r3/claim-audit-stale_comment-000.json",
+              "kind": "text_match",
+              "line": 23,
+              "context": "          \"line_start\": 198,\n          \"line_end\": 221,\n          \"snippet\": \"198:             # if no one calls it at all, it's a dead symbol (handled by deadcode.py)\\n199:             importers = facts_db.importers_of(source_norm)\\n200:             if no\n          \"anchor\": \"lines\",\n          \"enclosing_symbol\": {",
+              "needle": "For constructors nested inside a class, also grep for ClassName(",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r3/claim-audit-stale_comment-000.json",
+              "kind": "text_match",
+              "line": 80,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 831,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L208-211: Comment says 'For constructors nested inside a class, also grep fo\n              \"needle\": \"For constructors nested inside a class, also grep for ClassName(\",\n              \"source\": \"text_scan\"",
+              "needle": "For constructors nested inside a class, also grep for ClassName(",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 519,
+            "needles": [
+              "For constructors nested inside a class, also grep for ClassName("
+            ],
+            "needle_totals": {
+              "For constructors nested inside a class, also grep for ClassName(": 118
+            },
+            "same_file_swept": true
+          }
+        }
+      }
+    ],
+    "id": "72ee1fe94df9c71c",
+    "verdict": "confirmed",
+    "confidence": 0.92,
+    "triage_reasoning": "Reality: confirmed. The comment at L208 says 'For constructors nested inside a class, also grep for ClassName(' but `class_for_method` is built by iterating over ALL functions with line-range containment inside any class — not filtered to `__init__`. So any class method (e.g., `compute`, `validate`, `reset`) also triggers the `ClassName(` grep pattern to be added. The comment is factually wrong: it says 'constructors' but the code applies to all class methods. This can introduce spurious call-site matches (e.g., grepping for `Foo(` when verifying dead params on `Foo.reset`) and mislead developers about the design intent. Significance: a misleading comment on a security-adjacent grep filter that affects what call sites the dead-parameter detector considers. Actionability: either fix the comment to say 'For methods inside a class, also grep for ClassName( to catch constructor and direct instantiation calls', or restrict the pattern to `__init__` only if that was the original intent.",
+    "suggested_fix": "Option A (fix comment): Change L208 to `# For methods inside a class, also grep for ClassName( to catch constructor/instantiation call sites`. Option B (fix code): Change L210 to `if parent_class and grep_name == \"__init__\":` to restrict the ClassName( pattern to constructors only.",
+    "severity": "warning",
+    "evidence_fingerprint": "62bc51c5cfb52231"
+  },
+  "trace": null
+}

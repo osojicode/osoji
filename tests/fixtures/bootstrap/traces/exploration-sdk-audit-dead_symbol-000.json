@@ -1,0 +1,82 @@
+{
+  "slug": "audit-dead_symbol-000",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:dead_symbol",
+    "gap_type": "reachability",
+    "path": "src/osoji/junk.py",
+    "line_start": 96,
+    "line_end": 115,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "[AST] L96: function `JunkAnalyzer.analyze` — No cross-file references found (AST-proven)",
+    "observed_behavior": "Remove function `JunkAnalyzer.analyze`",
+    "evidence": [],
+    "id": "b1e18af6a2f237f1",
+    "verdict": "confirmed",
+    "confidence": 0.98,
+    "triage_reasoning": "The grep for `.analyze(` across the entire repo returns zero real call sites — only string literals in manifest fixtures and adjudication notes that document this same gap. The orchestrator in `audit.py` (L728–742) constructs each `JunkAnalyzer` subclass and dispatches exclusively through `analyzer.analyze_async(...)`. No subclass overrides `analyze`; all override `analyze_async`. The `analyze` method (L96–115) is a concrete sync wrapper on the ABC that has been orphaned by the orchestrator's evolution to async dispatch. All three predicates hold: (1) Reality — the gap exists; `.analyze()` is never invoked. (2) Significance — dead API surface on a public ABC misleads subclass authors and creates a false impression that a sync entry point is supported. (3) Actionability — remove the `analyze` method from `JunkAnalyzer`.",
+    "suggested_fix": "Delete the `analyze` method (L96–115) from `JunkAnalyzer` in `src/osoji/junk.py`. If a sync entry point is genuinely needed in the future, it should be re-introduced deliberately and wired into the orchestrator.",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "b1e18af6a2f237f1",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "JunkAnalyzer"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/junk.py",
+          "start": 80,
+          "end": 130
+        }
+      },
+      {
+        "turn": 2,
+        "name": "grep",
+        "input": {
+          "pattern": "\\.analyze\\("
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/audit.py",
+          "start": 700,
+          "end": 750
+        }
+      },
+      {
+        "turn": 4,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/junk.py",
+          "start": 52,
+          "end": 120
+        }
+      },
+      {
+        "turn": 5,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.98,
+          "severity": "warning",
+          "reasoning": "The grep for `.analyze(` across the entire repo returns zero real call sites — only string literals in manifest fixtures and adjudication notes that document this same gap. The orchestrator in `audit.py` (L728–742) constructs each `JunkAnalyzer` subclass and dispatches exclusively through `analyzer.analyze_async(...)`. No subclass overrides `analyze`; all override `analyze_async`. The `analyze` method (L96–115) is a concrete sync wrapper on the ABC that has been orphaned by the orchestrator's evolution to async dispatch. All three predicates hold: (1) Reality — the gap exists; `.analyze()` is never invoked. (2) Significance — dead API surface on a public ABC misleads subclass authors and creates a false impression that a sync entry point is supported. (3) Actionability — remove the `analyze` method from `JunkAnalyzer`.",
+          "suggested_fix": "Delete the `analyze` method (L96–115) from `JunkAnalyzer` in `src/osoji/junk.py`. If a sync entry point is genuinely needed in the future, it should be re-introduced deliberately and wired into the orchestrator."
+        }
+      }
+    ],
+    "cost_usd": 0.116325
+  }
+}

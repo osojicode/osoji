@@ -1,0 +1,93 @@
+{
+  "slug": "audit-stale_comment-002",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:stale_comment",
+    "gap_type": "description",
+    "path": "src/osoji/junk_deps.py",
+    "line_start": 532,
+    "line_end": 533,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L532-533: The `_PARSERS` dict maps `setup.cfg` and `Pipfile` to `_parse_requirements_txt` with comments noting the parser misses INI/TOML structure. These are accurate limitation notes, but `discover_manifests` includes both files via `_MANIFEST_FILES`, meaning callers will receive silently incomplete results for these formats without any warning at runtime.",
+    "observed_behavior": "Either implement proper parsers for `setup.cfg` (INI `[options] install_requires`) and `Pipfile` (TOML `[packages]`), or emit a warning when these manifests are parsed so callers know coverage is partial.",
+    "evidence": [],
+    "id": "66c206a892904b75",
+    "verdict": "confirmed",
+    "confidence": 0.95,
+    "triage_reasoning": "\n**Reality — gap exists.**\n\nL528-533 of `_PARSERS`:\n```python\n\"setup.cfg\": _parse_requirements_txt,  # best-effort: only matches bare pkg==ver lines, misses INI structure\n\"Pipfile\":   _parse_requirements_txt,  # best-effort: only matches bare pkg lines, misses TOML structure\n```\nBoth filenames are also in `_MANIFEST_FILES` (L272-279), so `discover_manifests` returns them to the pipeline. In `detect_dead_deps_async` (L788+), each discovered manifest is read and passed to `parse_manifest`, which dispatches through `_PARSERS`. For `setup.cfg` and `Pipfile` that dispatch lands on `_parse_requirements_txt`.\n\n`_parse_requirements_txt` does line-by-line `re.match(r\"([A-Za-z0-9][\\w.\\-]*)\", line)` after skipping blank lines, comments, and `-r`/`--` directives. A canonical `setup.cfg` body looks like:\n```\n[options]\ninstall_requires =\n    requests\n    flask>=2\n```\nThe section header `[options]` starts with `[`, which matches the leading `[A-Za-z0-9]` pattern, producing a spurious candidate named `options`. The actual package names (`requests`, `flask`) sit on indented lines and would also match by accident, but the structural intent (INI group membership) is entirely lost — any key under a non-`install_requires` section gets silently included, and multi-line values after the `=` may be parsed as package names. A `Pipfile` with TOML syntax (`[packages]\\nrequests = \"*\"`) similarly provides no structure, causing both section headers and value strings to be misinterpreted.\n\n**The code's own comments acknowledge this**: \"misses INI structure\", \"misses TOML structure\". No runtime warning is emitted — confirmed by grepping all `warning`/`warn`/`logger`/`LOG` hits in the file; the only `[warn]` prints are for LLM resolution and small-model classification failures, not for parser coverage gaps.\n\n**Significance — closing the gap improves correctness.**\nA repo using `setup.cfg` or `Pipfile` will produce quietly wrong coverage: some packages silently missed (false \"no deps found\"), some false positives injected from INI/TOML structural tokens. No caller signal exists that results are partial. Widening the gap (e.g., adding more file types routed to the wrong parser) would further corrupt audit results.\n\n**Actionability — concrete fix available.**\nTwo options, both concrete:\n1. *Short-term*: emit a `print(f\"  [warn] {manifest_path}: parsed as plain-text requirements (INI/TOML structure ignored — coverage may be incomplete)\", flush=True)` inside `parse_manifest` when the filename is `setup.cfg` or `Pipfile`. This matches the existing `[warn]` convention already used at L843 and L887.\n2. *Proper fix*: implement `_parse_setup_cfg` (use `configparser` to read `[options] install_requires`) and `_parse_pipfile` (use `tomllib`/`tomli` already imported for `pyproject.toml`) and update `_PARSERS` accordingly.\n",
+    "suggested_fix": "\nShort-term (least disruption): In `parse_manifest`, before calling the parser, emit a warning for the two known under-parsed formats:\n\n```python\n_PARTIAL_PARSERS = {\"setup.cfg\", \"Pipfile\"}\n\ndef parse_manifest(content: str, path: str) -> list[DependencyCandidate]:\n    filename = Path(path).name\n    if filename in _PARSERS:\n        if filename in _PARTIAL_PARSERS:\n            print(\n                f\"  [warn] {path}: parsed as plain-text requirements \"\n                f\"(INI/TOML structure ignored — coverage may be incomplete)\",\n                flush=True,\n            )\n        return _PARSERS[filename](content, path)\n    if _REQUIREMENTS_PATTERN.match(filename):\n        return _parse_requirements_txt(content, path)\n    return []\n```\n\nProper fix: implement `_parse_setup_cfg` using `configparser` to read `[options] install_requires` (and `[options.extras_require]` if desired), and `_parse_pipfile` using `tomllib`/`tomli` to read `[packages]` and `[dev-packages]`, then wire them into `_PARSERS`.\n",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "66c206a892904b75",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/junk_deps.py",
+          "start": 510,
+          "end": 580
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "discover_manifests|_MANIFEST_FILES",
+          "glob": "src/osoji/junk_deps.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/junk_deps.py",
+          "start": 272,
+          "end": 320
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/junk_deps.py",
+          "start": 780,
+          "end": 830
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "warning|warn|logger|LOG|log\\.|WARNING",
+          "glob": "src/osoji/junk_deps.py"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/junk_deps.py",
+          "start": 303,
+          "end": 340
+        }
+      },
+      {
+        "turn": 6,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.95,
+          "severity": "warning",
+          "reasoning": "\n**Reality — gap exists.**\n\nL528-533 of `_PARSERS`:\n```python\n\"setup.cfg\": _parse_requirements_txt,  # best-effort: only matches bare pkg==ver lines, misses INI structure\n\"Pipfile\":   _parse_requirements_txt,  # best-effort: only matches bare pkg lines, misses TOML structure\n```\nBoth filenames are also in `_MANIFEST_FILES` (L272-279), so `discover_manifests` returns them to the pipeline. In `detect_dead_deps_async` (L788+), each discovered manifest is read and passed to `parse_manifest`, which dispatches through `_PARSERS`. For `setup.cfg` and `Pipfile` that dispatch lands on `_parse_requirements_txt`.\n\n`_parse_requirements_txt` does line-by-line `re.match(r\"([A-Za-z0-9][\\w.\\-]*)\", line)` after skipping blank lines, comments, and `-r`/`--` directives. A canonical `setup.cfg` body looks like:\n```\n[options]\ninstall_requires =\n    requests\n    flask>=2\n```\nThe section header `[options]` starts with `[`, which matches the leading `[A-Za-z0-9]` pattern, producing a spurious candidate named `options`. The actual package names (`requests`, `flask`) sit on indented lines and would also match by accident, but the structural intent (INI group membership) is entirely lost — any key under a non-`install_requires` section gets silently included, and multi-line values after the `=` may be parsed as package names. A `Pipfile` with TOML syntax (`[packages]\\nrequests = \"*\"`) similarly provides no structure, causing both section headers and value strings to be misinterpreted.\n\n**The code's own comments acknowledge this**: \"misses INI structure\", \"misses TOML structure\". No runtime warning is emitted — confirmed by grepping all `warning`/`warn`/`logger`/`LOG` hits in the file; the only `[warn]` prints are for LLM resolution and small-model classification failures, not for parser coverage gaps.\n\n**Significance — closing the gap improves correctness.**\nA repo using `setup.cfg` or `Pipfile` will produce quietly wrong coverage: some packages silently missed (false \"no deps found\"), some false positives injected from INI/TOML structural tokens. No caller signal exists that results are partial. Widening the gap (e.g., adding more file types routed to the wrong parser) would further corrupt audit results.\n\n**Actionability — concrete fix available.**\nTwo options, both concrete:\n1. *Short-term*: emit a `print(f\"  [warn] {manifest_path}: parsed as plain-text requirements (INI/TOML structure ignored — coverage may be incomplete)\", flush=True)` inside `parse_manifest` when the filename is `setup.cfg` or `Pipfile`. This matches the existing `[warn]` convention already used at L843 and L887.\n2. *Proper fix*: implement `_parse_setup_cfg` (use `configparser` to read `[options] install_requires`) and `_parse_pipfile` (use `tomllib`/`tomli` already imported for `pyproject.toml`) and update `_PARSERS` accordingly.\n",
+          "suggested_fix": "\nShort-term (least disruption): In `parse_manifest`, before calling the parser, emit a warning for the two known under-parsed formats:\n\n```python\n_PARTIAL_PARSERS = {\"setup.cfg\", \"Pipfile\"}\n\ndef parse_manifest(content: str, path: str) -> list[DependencyCandidate]:\n    filename = Path(path).name\n    if filename in _PARSERS:\n        if filename in _PARTIAL_PARSERS:\n            print(\n                f\"  [warn] {path}: parsed as plain-text requirements \"\n                f\"(INI/TOML structure ignored — coverage may be incomplete)\",\n                flush=True,\n            )\n        return _PARSERS[filename](content, path)\n    if _REQUIREMENTS_PATTERN.match(filename):\n        return _parse_requirements_txt(content, path)\n    return []\n```\n\nProper fix: implement `_parse_setup_cfg` using `configparser` to read `[options] install_requires` (and `[options.extras_require]` if desired), and `_parse_pipfile` using `tomllib`/`tomli` to read `[packages]` and `[dev-packages]`, then wire them into `_PARSERS`.\n"
+        }
+      }
+    ],
+    "cost_usd": 0.165842
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "slug": "dead_parameter-case_001-plumbing_result",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "deadparam:dead_parameter",
+    "gap_type": "reachability",
+    "path": "src/osoji/scorecard.py",
+    "line_start": 112,
+    "line_end": 112,
+    "symbol": "plumbing_result",
+    "contract_source": "function signature",
+    "contract_claim": "Parameter `plumbing_result` is declared in the signature of build_scorecard(config, analysis_results, junk_results=None, dead_code_results=None, plumbing_result=None) (signature at lines 106-113) as an accepted input that callers may pass.",
+    "observed_behavior": "No call site ever passes `plumbing_result`: the only caller, run_audit in src/osoji/audit.py, invokes build_scorecard with config, analysis_results and junk_results only, so the parameter always takes its default None and the branches gated on it never execute.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "src/osoji/scorecard.py",
+              "kind": "text_match",
+              "line": 225,
+              "context": "                })\n\n    # Backward compat: old-style dead_code_results / plumbing_result params\n    if dead_code_results is not None and (not junk_results or \"dead_code\" not in junk_results):\n        junk_sources.append(\"dead_symbol\")",
+              "needle": "plumbing_result",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/scorecard.py",
+              "kind": "text_match",
+              "line": 237,
+              "context": "            })\n\n    if plumbing_result is not None and (not junk_results or \"dead_plumbing\" not in junk_results):\n        junk_sources.append(\"unactuated_config\")\n        for item in plumbing_result.verifications:",
+              "needle": "plumbing_result",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/scorecard.py",
+              "kind": "text_match",
+              "line": 239,
+              "context": "    if plumbing_result is not None and (not junk_results or \"dead_plumbing\" not in junk_results):\n        junk_sources.append(\"unactuated_config\")\n        for item in plumbing_result.verifications:\n            source = item.source_path.replace(\"\\\\\", \"/\")\n            junk_items_by_file.setdefault(source, []).append({",
+              "needle": "plumbing_result",
+              "source": "text_scan",
+              "same_file": true
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 2,
+            "needles": [
+              "plumbing_result"
+            ],
+            "needle_totals": {
+              "plumbing_result": 8
+            },
+            "same_file_swept": true
+          },
+          "export_surface": {
+            "symbol": "plumbing_result",
+            "exported_from_flagged_file": false
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/scorecard.py",
+          "line_start": 102,
+          "line_end": 122,
+          "snippet": "102:             pass\n103:     return None\n104: \n105: \n106: def build_scorecard(\n107:     config: Config,\n108:     analysis_results: list[DocAnalysisResult],\n109:     junk_results: dict[str, JunkAnalysisResult] | None = None,\n110:     # Backward compat:\n111:     dead_code_results: list[DeadCodeVerification] | None = None,\n112:     plumbing_result: PlumbingResult | None = None,\n113: ) -> Scorecard:\n114:     \"\"\"Build a scorecard from audit phase outputs. Pure Python, no LLM calls.\"\"\"\n115: \n116:     # --- Coverage ---\n117:     # Enumerate all source files from shadow inventory\n118:     shadow_root = config.shadow_root\n119:     all_source_files: set[str] = set()\n120:     if shadow_root.exists():\n121:         for shadow_file in shadow_root.rglob(\"*.shadow.md\"):\n122:             if shadow_file.name == DIRECTORY_SHADOW_FILENAME:",
+          "anchor": "symbol",
+          "enclosing_symbol": {
+            "name": "build_scorecard",
+            "kind": "function",
+            "line_start": 106,
+            "line_end": 362
+          }
+        }
+      }
+    ],
+    "id": "ebdc008ae94fe8d4",
+    "verdict": "confirmed",
+    "confidence": 0.78,
+    "triage_reasoning": "Reality: Same analysis as claim 8. The `plumbing_result` parameter is explicitly labeled `# Backward compat:` and the only known caller (`run_audit` in `audit.py`) never passes it, making the `plumbing_result is not None` branch at scorecard.py:239 permanently dead. The parameter always takes its default `None`. The evidence sweep covered 2 files with 8 matches all within scorecard.py itself. Significance: The dead branch adds complexity. Actionability: Remove or formally deprecate.",
+    "suggested_fix": "If backward compatibility is no longer required, remove the `plumbing_result` parameter and the guarded block at scorecard.py:237-246. Otherwise, document the deprecation timeline and emit a DeprecationWarning when a non-None value is passed.",
+    "severity": "warning",
+    "evidence_fingerprint": "3e16c5af4e0487af"
+  },
+  "trace": null
+}

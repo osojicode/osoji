@@ -1,0 +1,112 @@
+{
+  "slug": "dead_code-case_001-get_dead_code_tools",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/tools.py",
+    "line_start": 391,
+    "line_end": 393,
+    "symbol": "get_dead_code_tools",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `get_dead_code_tools` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "No callers or importers of `get_dead_code_tools` were found in the fixture project; consumer modules import the get_*_tool_definitions() variants instead, so this wrapper is never invoked even though the TOOL constant it returns is alive.",
+    "evidence": [],
+    "id": "b1face2831596afe",
+    "verdict": "confirmed",
+    "confidence": 0.98,
+    "triage_reasoning": "Evidence is unambiguous across all three predicates.\n\n**Reality:** A project-wide grep for `get_dead_code_tools` returns exactly one hit — its own declaration at `src/osoji/tools.py:391`. No caller, no importer, no re-export exists anywhere in the repository. In contrast, the parallel function `get_dead_code_tool_definitions()` (L425) is a live symbol imported and called by `src/osoji/deadcode.py:336` and `tests/test_validate.py:459`. The broader sibling pattern (get_file_tools, get_directory_tools, get_match_doc_topics_tools, etc.) similarly shows those dict-returning wrappers as declaration-only, consistent with a migration where the `_definitions()` variants superseded the raw-dict variants and the old wrappers were never removed.\n\n**Significance:** The function wraps `VERIFY_DEAD_CODE_TOOL` (the underlying constant, which is alive) but the wrapper itself is dead. Leaving it in place creates confusion: a reader might wonder whether consumers should call `get_dead_code_tools()` (returns `list[dict]`) or `get_dead_code_tool_definitions()` (returns `list[ToolDefinition]`). In a codebase whose entire purpose is dead-code auditing, having confirmed dead code in the tool itself is a meaningful quality gap.\n\n**Actionability:** Delete lines 391–393 (`def get_dead_code_tools() → list[dict]: ...`). `VERIFY_DEAD_CODE_TOOL` remains in scope for `get_dead_code_tool_definitions()` which is the live consumer. No callers need updating.",
+    "suggested_fix": "Delete the three-line function `get_dead_code_tools` at `src/osoji/tools.py:L391–393`. All real consumers already use `get_dead_code_tool_definitions()`. The underlying `VERIFY_DEAD_CODE_TOOL` constant is unaffected.",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "b1face2831596afe",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "get_dead_code_tools"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/tools.py",
+          "start": 380,
+          "end": 410
+        }
+      },
+      {
+        "turn": 2,
+        "name": "grep",
+        "input": {
+          "pattern": "get_\\w+_tools\\(\\)"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/tools.py",
+          "start": 410,
+          "end": 460
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "get_file_tools|get_directory_tools|get_match_doc_topics_tools|get_verify_doc_finding_tools|get_extract_obligations_tools|get_verify_actuation_tools"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/tools.py",
+          "start": 305,
+          "end": 335
+        }
+      },
+      {
+        "turn": 6,
+        "name": "grep",
+        "input": {
+          "pattern": "get_file_tools\\(\\)|get_directory_tools\\(\\)|get_match_doc_topics_tools\\(\\)|get_verify_doc_finding_tools\\(\\)|get_extract_obligations_tools\\(\\)|get_verify_actuation_tools\\(\\)"
+        }
+      },
+      {
+        "turn": 7,
+        "name": "grep",
+        "input": {
+          "pattern": "get_dead_code_tool_definitions"
+        }
+      },
+      {
+        "turn": 8,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/tools.py",
+          "start": 388,
+          "end": 430
+        }
+      },
+      {
+        "turn": 9,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.98,
+          "severity": "warning",
+          "reasoning": "Evidence is unambiguous across all three predicates.\n\n**Reality:** A project-wide grep for `get_dead_code_tools` returns exactly one hit — its own declaration at `src/osoji/tools.py:391`. No caller, no importer, no re-export exists anywhere in the repository. In contrast, the parallel function `get_dead_code_tool_definitions()` (L425) is a live symbol imported and called by `src/osoji/deadcode.py:336` and `tests/test_validate.py:459`. The broader sibling pattern (get_file_tools, get_directory_tools, get_match_doc_topics_tools, etc.) similarly shows those dict-returning wrappers as declaration-only, consistent with a migration where the `_definitions()` variants superseded the raw-dict variants and the old wrappers were never removed.\n\n**Significance:** The function wraps `VERIFY_DEAD_CODE_TOOL` (the underlying constant, which is alive) but the wrapper itself is dead. Leaving it in place creates confusion: a reader might wonder whether consumers should call `get_dead_code_tools()` (returns `list[dict]`) or `get_dead_code_tool_definitions()` (returns `list[ToolDefinition]`). In a codebase whose entire purpose is dead-code auditing, having confirmed dead code in the tool itself is a meaningful quality gap.\n\n**Actionability:** Delete lines 391–393 (`def get_dead_code_tools() → list[dict]: ...`). `VERIFY_DEAD_CODE_TOOL` remains in scope for `get_dead_code_tool_definitions()` which is the live consumer. No callers need updating.",
+          "suggested_fix": "Delete the three-line function `get_dead_code_tools` at `src/osoji/tools.py:L391–393`. All real consumers already use `get_dead_code_tool_definitions()`. The underlying `VERIFY_DEAD_CODE_TOOL` constant is unaffected."
+        }
+      }
+    ],
+    "cost_usd": 0.196526
+  }
+}

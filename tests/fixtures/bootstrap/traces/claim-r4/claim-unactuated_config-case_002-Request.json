@@ -1,0 +1,55 @@
+{
+  "slug": "unactuated_config-case_002-Request",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "plumbing:unactuated_config",
+    "gap_type": "reachability",
+    "path": "docs/debugAdapterProtocol.json",
+    "line_start": 3,
+    "line_end": 5,
+    "symbol": "Request",
+    "contract_source": "config schema",
+    "contract_claim": "The schema definition `Request` in docs/debugAdapterProtocol.json declares a configuration structure that application code is obliged to load and actuate.",
+    "observed_behavior": "Nothing in the project loads docs/debugAdapterProtocol.json as runtime configuration: the file is a vendored copy of the Debug Adapter Protocol reference stored under docs/, and the project's actual runtime schema is src/runtime-schema.json.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 2,
+            "needles": [
+              "Request"
+            ],
+            "needle_totals": {
+              "Request": 0
+            },
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "docs/debugAdapterProtocol.json",
+          "line_start": 1,
+          "line_end": 7,
+          "snippet": "1: {\n2:   \"definitions\": {\n3:     \"Request\": {\n4:       \"type\": \"object\"\n5:     }\n6:   }\n7: }",
+          "anchor": "symbol"
+        }
+      }
+    ],
+    "id": "d8be188b6fb738c6",
+    "verdict": "dismissed",
+    "confidence": 0.98,
+    "triage_reasoning": "The evidence is explicit: nothing in the project loads `docs/debugAdapterProtocol.json` as runtime configuration — it is a vendored reference copy of the Debug Adapter Protocol spec stored under `docs/`. The reference sweep found zero matches outside the file itself. The actual runtime schema is `src/runtime-schema.json`. A vendored reference document under `docs/` is documentation, not actuated configuration. Reality predicate fails.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "63d4a8b2589896a0"
+  },
+  "trace": null
+}

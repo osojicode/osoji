@@ -3,6 +3,7 @@
 import asyncio
 import json
 import os
+from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -159,6 +160,34 @@ async def test_forced_tool_structured_output():
 
     # Verify --system-prompt was passed
     assert "--system-prompt" in call_args
+
+
+# ------------------------------------------------------------------
+# Context isolation: CLI must not run inside the host project
+# ------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_cli_runs_from_neutral_cwd(tmp_path, monkeypatch):
+    """The spawned CLI must not inherit the host project's cwd, or it
+    resolves project-scoped auto-memory and .claude/ settings into the
+    session context (osojicode/work#50)."""
+    monkeypatch.chdir(tmp_path)
+    p = _provider()
+    response = _cli_response(result="ok")
+    proc = _make_process(json.dumps(response).encode())
+
+    with patch("asyncio.create_subprocess_exec", return_value=proc) as mock_exec:
+        await p.complete(
+            [Message(role=MessageRole.USER, content="hi")],
+            system=None,
+            options=CompletionOptions(model="claude-sonnet-4-6"),
+        )
+
+    cwd = mock_exec.call_args.kwargs.get("cwd")
+    assert cwd is not None
+    assert Path(cwd).resolve() != tmp_path.resolve()
+    assert Path(cwd).is_dir()
 
 
 # ------------------------------------------------------------------

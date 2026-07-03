@@ -1,0 +1,75 @@
+{
+  "slug": "audit-dead_parameter-001",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:dead_parameter",
+    "gap_type": "reachability",
+    "path": "src/osoji/triage.py",
+    "line_start": 162,
+    "line_end": 162,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate_limiter` (call site 2), or passes only `provider` (call sites 5–16). The parameter's only use in the body is the inline expression `executor or ExplorationExecutor(config)`, which always resolves to `ExplorationExecutor(config)` because `executor` is always `None`.",
+    "observed_behavior": "Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or` expression simplifies.",
+    "evidence": [],
+    "id": "365a3ba84781389c",
+    "verdict": "confirmed",
+    "confidence": 0.98,
+    "triage_reasoning": "Examined all 14 call sites of Triage(...) across src/osoji/audit.py, scripts/triage_bootstrap.py, and tests/test_triage.py. Every invocation uses only positional `config`, optional `rate_limiter`, and/or keyword `provider`. The keyword `executor` is never passed at any call site.\n\nThe `executor` locals in triage_bootstrap.py (lines 168/173) are scoped entirely inside the `explore_one()` async closure and drive the SDK tool-wrapping logic there; they are never forwarded to a Triage constructor.\n\nAt L172 the body reads `self.executor = executor or ExplorationExecutor(config)`. Because `executor` is invariably `None`, the right-hand branch always executes. The parameter is unreachable dead code.\n\nAll three predicates hold:\n- Reality: confirmed — zero call sites supply the argument.\n- Significance: the dead parameter exposes a misleading injection surface (implies testability via executor injection, but no test uses it), and leaves dead code in the hot-path constructor.\n- Actionability: straightforward one-liner fix.",
+    "suggested_fix": "Remove the `executor` keyword parameter from `Triage.__init__` and replace the conditional assignment with an unconditional one:\n\n```python\n# Before\ndef __init__(\n    self,\n    config: Config,\n    rate_limiter: Any | None = None,\n    *,\n    executor: ExplorationExecutor | None = None,\n    provider: Any | None = None,\n) -> None:\n    ...\n    self.executor = executor or ExplorationExecutor(config)\n\n# After\ndef __init__(\n    self,\n    config: Config,\n    rate_limiter: Any | None = None,\n    *,\n    provider: Any | None = None,\n) -> None:\n    ...\n    self.executor = ExplorationExecutor(config)\n```\n\nNo call sites need updating.",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "365a3ba84781389c",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/triage.py",
+          "start": 140,
+          "end": 200
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "Triage\\s*\\(",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "grep",
+        "input": {
+          "pattern": "executor\\s*=",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "scripts/triage_bootstrap.py",
+          "start": 145,
+          "end": 290
+        }
+      },
+      {
+        "turn": 4,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.98,
+          "severity": "warning",
+          "reasoning": "Examined all 14 call sites of Triage(...) across src/osoji/audit.py, scripts/triage_bootstrap.py, and tests/test_triage.py. Every invocation uses only positional `config`, optional `rate_limiter`, and/or keyword `provider`. The keyword `executor` is never passed at any call site.\n\nThe `executor` locals in triage_bootstrap.py (lines 168/173) are scoped entirely inside the `explore_one()` async closure and drive the SDK tool-wrapping logic there; they are never forwarded to a Triage constructor.\n\nAt L172 the body reads `self.executor = executor or ExplorationExecutor(config)`. Because `executor` is invariably `None`, the right-hand branch always executes. The parameter is unreachable dead code.\n\nAll three predicates hold:\n- Reality: confirmed — zero call sites supply the argument.\n- Significance: the dead parameter exposes a misleading injection surface (implies testability via executor injection, but no test uses it), and leaves dead code in the hot-path constructor.\n- Actionability: straightforward one-liner fix.",
+          "suggested_fix": "Remove the `executor` keyword parameter from `Triage.__init__` and replace the conditional assignment with an unconditional one:\n\n```python\n# Before\ndef __init__(\n    self,\n    config: Config,\n    rate_limiter: Any | None = None,\n    *,\n    executor: ExplorationExecutor | None = None,\n    provider: Any | None = None,\n) -> None:\n    ...\n    self.executor = executor or ExplorationExecutor(config)\n\n# After\ndef __init__(\n    self,\n    config: Config,\n    rate_limiter: Any | None = None,\n    *,\n    provider: Any | None = None,\n) -> None:\n    ...\n    self.executor = ExplorationExecutor(config)\n```\n\nNo call sites need updating."
+        }
+      }
+    ],
+    "cost_usd": 0.126153
+  }
+}

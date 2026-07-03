@@ -1,0 +1,55 @@
+{
+  "slug": "dead_code-case_001-get_extract_obligations_tools",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/tools.py",
+    "line_start": 599,
+    "line_end": 601,
+    "symbol": "get_extract_obligations_tools",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `get_extract_obligations_tools` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "No callers or importers of `get_extract_obligations_tools` were found in the fixture project; consumer modules import the get_*_tool_definitions() variants instead, so this wrapper is never invoked even though the TOOL constant it returns is alive.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 6,
+            "needles": [
+              "get_extract_obligations_tools"
+            ],
+            "needle_totals": {
+              "get_extract_obligations_tools": 0
+            },
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/tools.py",
+          "line_start": 589,
+          "line_end": 609,
+          "snippet": "589:             \"remediation\": {\n590:                 \"type\": \"string\",\n591:                 \"description\": \"Suggested fix if unactuated (e.g. 'Add setTimeout with taskTimeoutMs in trial-runner.ts'). 'None needed' if actuated.\",\n592:             },\n593:         },\n594:         \"required\": [\"is_actuated\", \"confidence\", \"trace\", \"remediation\"],\n595:     },\n596: }\n597: \n598: \n599: def get_extract_obligations_tools() -> list[dict]:\n600:     \"\"\"Return tools for obligation extraction.\"\"\"\n601:     return [EXTRACT_OBLIGATIONS_TOOL]\n602: \n603: \n604: def get_verify_actuation_tools() -> list[dict]:\n605:     \"\"\"Return tools for actuation verification.\"\"\"\n606:     return [VERIFY_ACTUATION_TOOL]\n607: \n608: \n609: def get_extract_obligations_tool_definitions() -> list[ToolDefinition]:",
+          "anchor": "symbol"
+        }
+      }
+    ],
+    "id": "f8d072f6b7c80a41",
+    "verdict": "confirmed",
+    "confidence": 0.88,
+    "triage_reasoning": "Reality: `get_extract_obligations_tools()` at L599-601 is the raw-dict counterpart to `get_extract_obligations_tool_definitions()` at L609. The same pattern holds: consumers migrated to the `ToolDefinition`-returning variants; zero callers of `get_extract_obligations_tools` were found in 6 files. Significance: dead wrapper adds clutter. Actionability: remove the function.",
+    "suggested_fix": "Remove `get_extract_obligations_tools()` (L599-601). `EXTRACT_OBLIGATIONS_TOOL` remains live via `get_extract_obligations_tool_definitions()`.",
+    "severity": "warning",
+    "evidence_fingerprint": "7de671dbb6e3a8ed"
+  },
+  "trace": null
+}

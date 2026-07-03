@@ -1,0 +1,84 @@
+{
+  "slug": "audit-latent_bug-002",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:latent_bug",
+    "gap_type": "uncategorized",
+    "path": "src/osoji/doc_prompts.py",
+    "line_start": 628,
+    "line_end": 629,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L628-629: `Callable` is referenced in the string annotation `\"Callable[[str, int, int], None] | None\"` but is not imported anywhere in the file. With `from __future__ import annotations` active this causes no runtime error during normal execution. However, any call to `typing.get_type_hints(build_doc_prompts_async)` would raise a `NameError: name 'Callable' is not defined`.",
+    "observed_behavior": "Add `from collections.abc import Callable` (or `from typing import Callable`) to the imports, and remove the redundant inner quote wrapping since `from __future__ import annotations` already stringifies all annotations.",
+    "evidence": [],
+    "id": "4587d7d7dae13e7e",
+    "verdict": "confirmed",
+    "confidence": 0.98,
+    "triage_reasoning": "**Reality ✓** — `Callable` appears exactly once in the file (L628) inside the string annotation `\"Callable[[str, int, int], None] | None\"`. There is no import of `Callable` anywhere in the file — not from `typing`, not from `collections.abc`. The grep over the entire file confirms this exhaustively. `from __future__ import annotations` is present (L10), so normal execution never evaluates the annotation and no `NameError` is raised at call time. However, `typing.get_type_hints(build_doc_prompts_async)` evaluates all annotation strings against the module's `__globals__`, where `Callable` does not exist — that call would raise `NameError: name 'Callable' is not defined`. **The gap is real.**\n\n**Significance ✓** — Any introspection path that resolves annotations at runtime (dataclass tools, Pydantic, FastAPI route inspection, documentation generators, mypy/pyright runtime plugins, `inspect.signature` round-trips, or a direct `get_type_hints()` call in a test) will hit the NameError. The redundant explicit quoting of the annotation (`\"Callable[...]\"`) when `from __future__ import annotations` already stringifies everything is also a code-smell that should be cleaned up alongside the missing import. Closing the gap improves correctness and maintainability.\n\n**Actionability ✓** — Concrete two-part fix: (1) add `from collections.abc import Callable` to the imports block (preferred over `from typing import Callable` for Python ≥ 3.9); (2) remove the redundant inner quotation marks so the annotation reads `on_stage_complete: Callable[[str, int, int], None] | None = None` — identical meaning, but with `from __future__ import annotations` active the explicit quotes are unnecessary and misleading.",
+    "suggested_fix": "1. Add `from collections.abc import Callable` to the imports (alongside the existing stdlib/project imports near the top of the file).\n2. Remove the redundant explicit string quoting on the annotation so it reads:\n   `on_stage_complete: Callable[[str, int, int], None] | None = None,`\n   (`from __future__ import annotations` already makes all annotations lazily evaluated strings; the inner quotes are noise.)",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "4587d7d7dae13e7e",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/doc_prompts.py",
+          "start": 1,
+          "end": 30
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/doc_prompts.py",
+          "start": 620,
+          "end": 645
+        }
+      },
+      {
+        "turn": 2,
+        "name": "grep",
+        "input": {
+          "pattern": "Callable",
+          "glob": "src/osoji/doc_prompts.py"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "grep",
+        "input": {
+          "pattern": "^from __future__|^import typing|^from typing|^from collections",
+          "glob": "src/osoji/doc_prompts.py"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/doc_prompts.py",
+          "start": 624,
+          "end": 635
+        }
+      },
+      {
+        "turn": 5,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.98,
+          "severity": "warning",
+          "reasoning": "**Reality ✓** — `Callable` appears exactly once in the file (L628) inside the string annotation `\"Callable[[str, int, int], None] | None\"`. There is no import of `Callable` anywhere in the file — not from `typing`, not from `collections.abc`. The grep over the entire file confirms this exhaustively. `from __future__ import annotations` is present (L10), so normal execution never evaluates the annotation and no `NameError` is raised at call time. However, `typing.get_type_hints(build_doc_prompts_async)` evaluates all annotation strings against the module's `__globals__`, where `Callable` does not exist — that call would raise `NameError: name 'Callable' is not defined`. **The gap is real.**\n\n**Significance ✓** — Any introspection path that resolves annotations at runtime (dataclass tools, Pydantic, FastAPI route inspection, documentation generators, mypy/pyright runtime plugins, `inspect.signature` round-trips, or a direct `get_type_hints()` call in a test) will hit the NameError. The redundant explicit quoting of the annotation (`\"Callable[...]\"`) when `from __future__ import annotations` already stringifies everything is also a code-smell that should be cleaned up alongside the missing import. Closing the gap improves correctness and maintainability.\n\n**Actionability ✓** — Concrete two-part fix: (1) add `from collections.abc import Callable` to the imports block (preferred over `from typing import Callable` for Python ≥ 3.9); (2) remove the redundant inner quotation marks so the annotation reads `on_stage_complete: Callable[[str, int, int], None] | None = None` — identical meaning, but with `from __future__ import annotations` active the explicit quotes are unnecessary and misleading.",
+          "suggested_fix": "1. Add `from collections.abc import Callable` to the imports (alongside the existing stdlib/project imports near the top of the file).\n2. Remove the redundant explicit string quoting on the annotation so it reads:\n   `on_stage_complete: Callable[[str, int, int], None] | None = None,`\n   (`from __future__ import annotations` already makes all annotations lazily evaluated strings; the inner quotes are noise.)"
+        }
+      }
+    ],
+    "cost_usd": 0.118567
+  }
+}

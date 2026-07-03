@@ -1,0 +1,124 @@
+{
+  "slug": "audit-dead_symbol-003",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:dead_symbol",
+    "gap_type": "reachability",
+    "path": "src/osoji/junk_cicd.py",
+    "line_start": 826,
+    "line_end": 842,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "[AST] L826: function `DeadCICDAnalyzer.analyze` — No cross-file references found (AST-proven)",
+    "observed_behavior": "Remove function `DeadCICDAnalyzer.analyze`",
+    "evidence": [],
+    "id": "1049b9b18174bfc1",
+    "verdict": "confirmed",
+    "confidence": 0.98,
+    "triage_reasoning": "Evidence gathered:\n\n1. **Zero call sites for `.analyze(` repo-wide.** The grep `\\.analyze\\(` across all files returns no matches in production code — the orchestrator in `audit.py:733` exclusively dispatches `analyzer.analyze_async(...)`, never the sync `.analyze()` wrapper.\n\n2. **Base class `JunkAnalyzer.analyze` is also dead.** `junk.py:96` defines the base sync wrapper; `DeadCICDAnalyzer.analyze` at L826 overrides it. Both are reachable only through the polymorphic interface, but that interface is never exercised — `audit.py` always calls `analyze_async` directly.\n\n3. **Tests do not call `.analyze()`.** `TestDeadCICDAnalyzer` (test_junk_cicd.py:448–494) tests only `analyze_async` and property accessors. No test anywhere calls the sync `.analyze()` method.\n\n4. **Parallel overrides in sibling classes are equally dead.** `junk_deps.py:970` and `junk_orphan.py:568` also define `analyze()` overrides; all are equally uncalled, confirming the architectural pattern: sync wrappers were planned but the orchestrator was wired to `analyze_async` instead.\n\n5. **Prior adjudication in fixture manifest confirms this.** `manifest-audit.json:445` reads: \"No distinct caller: zero .analyze( call sites repo-wide; orchestrator dispatches analyze_async; belongs with confirmed base JunkAnalyzer.analyze remove-all-four-together set.\"\n\nAll three predicates hold:\n- **Reality**: Gap is real — the method exists but has no caller.\n- **Significance**: Dead code that purports to offer a sync entry point adds maintenance burden and misleads readers about the intended API.\n- **Actionability**: Remove `DeadCICDAnalyzer.analyze` (L826–842). Ideally remove all four `analyze()` sync wrappers together (base `JunkAnalyzer.analyze` + `junk_deps`, `junk_orphan` overrides) as a single coherent cleanup.",
+    "suggested_fix": "Remove `DeadCICDAnalyzer.analyze` (lines 826–842 of `src/osoji/junk_cicd.py`). This is cleanest done as part of a single commit that also removes the base `JunkAnalyzer.analyze` (`junk.py:96–115`) and the parallel dead sync wrappers in `junk_deps.py:970` and `junk_orphan.py:568`. The orchestrator (`audit.py`) already calls `analyze_async` directly; no call sites need updating.",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "1049b9b18174bfc1",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/junk_cicd.py",
+          "start": 820,
+          "end": 860
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "DeadCICDAnalyzer"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "grep",
+        "input": {
+          "pattern": "\\.analyze\\(",
+          "glob": "src/osoji/audit.py"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/audit.py",
+          "start": 700,
+          "end": 730
+        }
+      },
+      {
+        "turn": 4,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/audit.py",
+          "start": 730,
+          "end": 760
+        }
+      },
+      {
+        "turn": 5,
+        "name": "grep",
+        "input": {
+          "pattern": "analyze_async|\\.analyze",
+          "glob": "src/osoji/audit.py"
+        }
+      },
+      {
+        "turn": 6,
+        "name": "read_file",
+        "input": {
+          "path": "tests/test_junk_cicd.py",
+          "start": 446,
+          "end": 510
+        }
+      },
+      {
+        "turn": 7,
+        "name": "grep",
+        "input": {
+          "pattern": "\\.analyze\\b"
+        }
+      },
+      {
+        "turn": 8,
+        "name": "grep",
+        "input": {
+          "pattern": "def analyze",
+          "glob": "src/osoji/junk*.py"
+        }
+      },
+      {
+        "turn": 9,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/junk.py",
+          "start": 78,
+          "end": 115
+        }
+      },
+      {
+        "turn": 10,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.98,
+          "severity": "warning",
+          "reasoning": "Evidence gathered:\n\n1. **Zero call sites for `.analyze(` repo-wide.** The grep `\\.analyze\\(` across all files returns no matches in production code — the orchestrator in `audit.py:733` exclusively dispatches `analyzer.analyze_async(...)`, never the sync `.analyze()` wrapper.\n\n2. **Base class `JunkAnalyzer.analyze` is also dead.** `junk.py:96` defines the base sync wrapper; `DeadCICDAnalyzer.analyze` at L826 overrides it. Both are reachable only through the polymorphic interface, but that interface is never exercised — `audit.py` always calls `analyze_async` directly.\n\n3. **Tests do not call `.analyze()`.** `TestDeadCICDAnalyzer` (test_junk_cicd.py:448–494) tests only `analyze_async` and property accessors. No test anywhere calls the sync `.analyze()` method.\n\n4. **Parallel overrides in sibling classes are equally dead.** `junk_deps.py:970` and `junk_orphan.py:568` also define `analyze()` overrides; all are equally uncalled, confirming the architectural pattern: sync wrappers were planned but the orchestrator was wired to `analyze_async` instead.\n\n5. **Prior adjudication in fixture manifest confirms this.** `manifest-audit.json:445` reads: \"No distinct caller: zero .analyze( call sites repo-wide; orchestrator dispatches analyze_async; belongs with confirmed base JunkAnalyzer.analyze remove-all-four-together set.\"\n\nAll three predicates hold:\n- **Reality**: Gap is real — the method exists but has no caller.\n- **Significance**: Dead code that purports to offer a sync entry point adds maintenance burden and misleads readers about the intended API.\n- **Actionability**: Remove `DeadCICDAnalyzer.analyze` (L826–842). Ideally remove all four `analyze()` sync wrappers together (base `JunkAnalyzer.analyze` + `junk_deps`, `junk_orphan` overrides) as a single coherent cleanup.",
+          "suggested_fix": "Remove `DeadCICDAnalyzer.analyze` (lines 826–842 of `src/osoji/junk_cicd.py`). This is cleanest done as part of a single commit that also removes the base `JunkAnalyzer.analyze` (`junk.py:96–115`) and the parallel dead sync wrappers in `junk_deps.py:970` and `junk_orphan.py:568`. The orchestrator (`audit.py`) already calls `analyze_async` directly; no call sites need updating."
+        }
+      }
+    ],
+    "cost_usd": 0.189788
+  }
+}

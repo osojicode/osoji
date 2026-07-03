@@ -1,0 +1,56 @@
+{
+  "description": "V1-4 falsifiability-metric baselines (osojicode/work#27). V1-7's corpus evaluator builds on these; a climbing escalation rate or CE-gap rate signals the Claim Builder schema / taxonomy needs revision.",
+  "measured_at_commit": "50547ec",
+  "claim_builder_schema_version": "cb-1",
+  "bootstrap_set": {
+    "n_claims": 54,
+    "gray_count": 5,
+    "gray_rate": 0.0926,
+    "escalation_rate": 0.0,
+    "ce_gap_rate": 0.4259,
+    "ce_gap_note": "23/54 findings carry gap_type=uncategorized — dominated by the V1-2 adapters defaulting obligation_* (contract) and doc_* (description) findings. The metric is correctly flagging adapter under-classification; V1-5 native Finding emission resolves it.",
+    "claim_vs_exploration_disagreement_raw": 0.0741,
+    "claim_vs_exploration_disagreement_nongray": 0.0408,
+    "gate": "non-gray < 5% (spec 0001 verification criterion 5): MET at r4",
+    "claim_mode_adjudication_accuracy": 0.8889,
+    "exploration_adjudication_accuracy": 0.8889,
+    "claim_mode_uncertain_count": 0,
+    "final_run": "tests/fixtures/bootstrap/traces/claim-r4",
+    "residual_disagreements": [
+      {
+        "slug": "dead_parameter-case_002-error",
+        "gray": true,
+        "note": "claim mode dismissed (0.97) agreeing with adjudication; exploration had confirmed"
+      },
+      {
+        "slug": "audit-obligation_implicit_contract-007",
+        "gray": true,
+        "note": "claim mode dismissed agreeing with adjudication (pair-attribution false, the recorded gray_reason); exploration had confirmed"
+      },
+      {
+        "slug": "audit-obligation_implicit_contract-003",
+        "gray": false,
+        "note": "rubric-level judgment: claim mode argues pair-misattribution (test imports staleness_reason from shadow, not diff); adjudicated confirmed. Owned by V1-5 rubric work."
+      },
+      {
+        "slug": "audit-dead_symbol-001",
+        "gray": false,
+        "note": "rubric-level judgment: claim mode confirms a 2-line delegating wrapper as dead (519 files swept, 282 class refs, zero method calls); adjudication dismissed on Significance. Owned by V1-5 rubric work."
+      }
+    ]
+  },
+  "live_debris_corpus": {
+    "source": "tests/fixtures/bootstrap/debris-cutover.json",
+    "debris_total": 68,
+    "eligible": 62,
+    "escalation_rate_old_inline_builder": 0.5484,
+    "escalation_rate_mechanized_builder": 0.0,
+    "note": "The V1-3 inline builder left 34/62 eligible debris findings unverified (no FactsDB evidence); the mechanized builders fill all 62 (evidence-of-absence with honest scope). Production Phase 3 triages ~2.2x more debris claims, each with a real verdict, still under DEBRIS_TRIAGE_SYSTEM_PROMPT."
+  },
+  "ablation_iterations": [
+    {"run": "claim-r1", "raw": 0.2037, "nongray": 0.1837, "fixes": "quoted-literal needles; same-file sweep"},
+    {"run": "claim-r2", "raw": 0.3704, "nongray": 0.3673, "note": "12 claims lost to transient transport", "fixes": "word-boundary literals; claim-named files first; honest truncation"},
+    {"run": "claim-r3", "raw": 0.3704, "nongray": 0.3061, "note": "12 claims lost to payload blow-up", "fixes": "context-line caps; per-file diversity cap; per-claim budget; batch bisect"},
+    {"run": "claim-r4", "raw": 0.0741, "nongray": 0.0408, "note": "gate met; accepted"}
+  ]
+}

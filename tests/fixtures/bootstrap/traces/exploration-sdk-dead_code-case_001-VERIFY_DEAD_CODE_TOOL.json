@@ -1,0 +1,78 @@
+{
+  "slug": "dead_code-case_001-VERIFY_DEAD_CODE_TOOL",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/tools.py",
+    "line_start": 327,
+    "line_end": 388,
+    "symbol": "VERIFY_DEAD_CODE_TOOL",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `VERIFY_DEAD_CODE_TOOL` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "A naive external-reference scan reported zero references for `VERIFY_DEAD_CODE_TOOL`, but the symbol participates in the live tool-definition access path.",
+    "evidence": [],
+    "id": "04a0ed80592132a2",
+    "verdict": "dismissed",
+    "confidence": 1,
+    "triage_reasoning": "The grep scan finds three real references to `VERIFY_DEAD_CODE_TOOL` in `src/osoji/tools.py`:\n\n1. **Line 327** — declaration.\n2. **Line 393** — returned by `get_dead_code_tools()`.\n3. **Line 427** — passed to `_dict_to_tool_definition()` inside `get_dead_code_tool_definitions()`.\n\n`get_dead_code_tool_definitions()` is in turn imported and called from two live sites:\n- `src/osoji/deadcode.py:17` (imported) and `src/osoji/deadcode.py:336` (called, passing the tool to an LLM invocation).\n- `tests/test_validate.py:441` (imported) and `tests/test_validate.py:459` (called in a test).\n\nThe naive scan apparently searched only for the bare symbol name `VERIFY_DEAD_CODE_TOOL` and missed that the symbol is consumed transitively via `get_dead_code_tools()` / `get_dead_code_tool_definitions()`. Both accessor functions are actively called from production code (`deadcode.py`) and tests. The symbol is fully reachable — **no gap exists**.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "04a0ed80592132a2",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "VERIFY_DEAD_CODE_TOOL"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/tools.py",
+          "start": 310,
+          "end": 420
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/tools.py",
+          "start": 420,
+          "end": 450
+        }
+      },
+      {
+        "turn": 3,
+        "name": "grep",
+        "input": {
+          "pattern": "get_dead_code_tools"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "get_dead_code_tool_definitions|get_dead_code_tools"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 1,
+          "reasoning": "The grep scan finds three real references to `VERIFY_DEAD_CODE_TOOL` in `src/osoji/tools.py`:\n\n1. **Line 327** — declaration.\n2. **Line 393** — returned by `get_dead_code_tools()`.\n3. **Line 427** — passed to `_dict_to_tool_definition()` inside `get_dead_code_tool_definitions()`.\n\n`get_dead_code_tool_definitions()` is in turn imported and called from two live sites:\n- `src/osoji/deadcode.py:17` (imported) and `src/osoji/deadcode.py:336` (called, passing the tool to an LLM invocation).\n- `tests/test_validate.py:441` (imported) and `tests/test_validate.py:459` (called in a test).\n\nThe naive scan apparently searched only for the bare symbol name `VERIFY_DEAD_CODE_TOOL` and missed that the symbol is consumed transitively via `get_dead_code_tools()` / `get_dead_code_tool_definitions()`. Both accessor functions are actively called from production code (`deadcode.py`) and tests. The symbol is fully reachable — **no gap exists**."
+        }
+      }
+    ],
+    "cost_usd": 0.102956
+  }
+}

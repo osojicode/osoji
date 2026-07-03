@@ -1,0 +1,80 @@
+{
+  "slug": "audit-doc_incorrect_content-001",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:doc_incorrect_content",
+    "gap_type": "uncategorized",
+    "path": "docs/explanatory/facts-database-and-import-graphs.md",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "The doc claims observatory 'Uses `build_import_graph` via `_build_import_graph_edges`' to emit the import graph. However, observatory's `_build_import_graph_edges` does NOT call `FactsDB.build_import_graph()`. It directly iterates `facts_db.all_files()` and resolves each import via `facts_db.resolve_import_source()`, building its own edge list with additional metadata (names, is_reexport) that the `build_import_graph()` method (which returns a simple `dict[str, set[str]]`) does not provide. [evidence: src\\osoji\\observatory.py — \"_build_import_graph_edges (L152-176): Iterates facts_db.all_files(), skips entries where file_facts.classification is not None (doc files only), resolves each import via facts_db.resolve_import_source(). Deduplicates by (source, target) pair, accumulates names and propagates is_reexport = True if any import edge is a re-export.\"]",
+    "observed_behavior": "Change the observatory description to: 'Uses `all_files()` and `resolve_import_source()` via `_build_import_graph_edges` to emit the `import_graph` edge list in the export bundle.' This accurately reflects that observatory builds its own edge-list representation with metadata rather than delegating to `build_import_graph()`.",
+    "evidence": [],
+    "id": "80a2188778cd753e",
+    "verdict": "confirmed",
+    "confidence": 0.99,
+    "triage_reasoning": "All three predicates hold:\n\n**Reality:** The doc at `docs/explanatory/facts-database-and-import-graphs.md:164` states \"Uses `build_import_graph` via `_build_import_graph_edges`\". However, the actual code at `observatory.py:152–176` shows `_build_import_graph_edges` iterates `facts_db.all_files()` and calls `facts_db.resolve_import_source()` directly — it never calls `FactsDB.build_import_graph()`. A grep for `build_import_graph` confirms zero callers in `src/`; only `tests/test_facts.py` calls it. The doc is factually wrong.\n\n**Significance:** The misconception is material: `build_import_graph()` returns a simple `dict[str, set[str]]` (no names, no is_reexport), while `_build_import_graph_edges` produces a richer `list[dict]` with `names` and `is_reexport` metadata. A developer reading the doc would form an incorrect mental model of both the observatory's behavior and which FactsDB method is authoritative for the import-graph export. This harms comprehension and future maintenance.\n\n**Actionability:** A precise, targeted fix exists: replace the one sentence in the \"Observatory bundle\" section of the doc so it accurately describes that `_build_import_graph_edges` uses `all_files()` and `resolve_import_source()` directly — not `build_import_graph()` — and that the edge list carries additional metadata (names, is_reexport).",
+    "suggested_fix": "In `docs/explanatory/facts-database-and-import-graphs.md`, replace the \"Observatory bundle\" sentence:\n\nBefore: \"Uses `build_import_graph` via `_build_import_graph_edges` to emit the `import_graph` edge list in the export bundle.\"\n\nAfter: \"Uses `all_files()` and `resolve_import_source()` via `_build_import_graph_edges` to emit the `import_graph` edge list in the export bundle (with per-edge `names` and `is_reexport` metadata not provided by `build_import_graph()`).\"",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "80a2188778cd753e",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "docs/explanatory/facts-database-and-import-graphs.md"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/observatory.py",
+          "start": 140,
+          "end": 190
+        }
+      },
+      {
+        "turn": 2,
+        "name": "grep",
+        "input": {
+          "pattern": "build_import_graph"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "grep",
+        "input": {
+          "pattern": "_build_import_graph_edges"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/facts.py",
+          "start": 355,
+          "end": 375
+        }
+      },
+      {
+        "turn": 5,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.99,
+          "reasoning": "All three predicates hold:\n\n**Reality:** The doc at `docs/explanatory/facts-database-and-import-graphs.md:164` states \"Uses `build_import_graph` via `_build_import_graph_edges`\". However, the actual code at `observatory.py:152–176` shows `_build_import_graph_edges` iterates `facts_db.all_files()` and calls `facts_db.resolve_import_source()` directly — it never calls `FactsDB.build_import_graph()`. A grep for `build_import_graph` confirms zero callers in `src/`; only `tests/test_facts.py` calls it. The doc is factually wrong.\n\n**Significance:** The misconception is material: `build_import_graph()` returns a simple `dict[str, set[str]]` (no names, no is_reexport), while `_build_import_graph_edges` produces a richer `list[dict]` with `names` and `is_reexport` metadata. A developer reading the doc would form an incorrect mental model of both the observatory's behavior and which FactsDB method is authoritative for the import-graph export. This harms comprehension and future maintenance.\n\n**Actionability:** A precise, targeted fix exists: replace the one sentence in the \"Observatory bundle\" section of the doc so it accurately describes that `_build_import_graph_edges` uses `all_files()` and `resolve_import_source()` directly — not `build_import_graph()` — and that the edge list carries additional metadata (names, is_reexport).",
+          "severity": "warning",
+          "suggested_fix": "In `docs/explanatory/facts-database-and-import-graphs.md`, replace the \"Observatory bundle\" sentence:\n\nBefore: \"Uses `build_import_graph` via `_build_import_graph_edges` to emit the `import_graph` edge list in the export bundle.\"\n\nAfter: \"Uses `all_files()` and `resolve_import_source()` via `_build_import_graph_edges` to emit the `import_graph` edge list in the export bundle (with per-edge `names` and `is_reexport` metadata not provided by `build_import_graph()`).\""
+        }
+      }
+    ],
+    "cost_usd": 0.139748
+  }
+}

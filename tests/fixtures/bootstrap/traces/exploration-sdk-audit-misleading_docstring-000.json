@@ -1,0 +1,76 @@
+{
+  "slug": "audit-misleading_docstring-000",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:misleading_docstring",
+    "gap_type": "description",
+    "path": "src/osoji/deadparam.py",
+    "line_start": 1,
+    "line_end": 9,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.",
+    "observed_behavior": "Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'",
+    "evidence": [],
+    "id": "347be1cb319fbde5",
+    "verdict": "confirmed",
+    "confidence": 0.97,
+    "triage_reasoning": "The module docstring at L4-6 states:\n\n  \"Phase 1 — Candidate scanning (pure Python, no LLM): find exported functions\n   with optional parameters that have callers but no call site passes those optional params.\"\n\nExamining `scan_dead_param_candidates` (Phase 1, starting at L121), the actual filtering logic is:\n1. Skip functions with no optional parameters → `if not opt_params: continue`\n2. Skip functions with no importers → `if not importers: continue`\n3. Skip if grep turns up zero call sites → `if not call_sites: continue`\n4. Otherwise: build a `DeadParamCandidate` with ALL collected call sites attached and return it.\n\nThere is no code anywhere in Phase 1 that inspects call-site contents to determine whether the optional param is being passed. Every candidate that reaches Phase 2 carries its full list of call sites; the LLM in Phase 2 is what decides whether \"no call site passes those optional params.\" The phrase \"but no call site passes those optional params\" in the docstring therefore misrepresents Phase 1's responsibilities.\n\nAll three predicates hold:\n- **Reality**: Confirmed by code — Phase 1 only gates on \"has callers\" and \"has call sites found by grep\", never on \"no call site passes the param\".\n- **Significance**: A developer (or AI agent) reading the docstring may incorrectly believe Phase 1 already filters out functions where at least one caller does pass the param, leading to confusion about the two-phase boundary or incorrect future modifications.\n- **Actionability**: Straightforward wording fix in the module docstring.",
+    "suggested_fix": "Replace lines 4-6 of the module docstring with the accurate description:\n\n  Phase 1 — Candidate scanning (pure Python, no LLM): find exported functions\n            with optional parameters that have callers — collecting all call sites\n            for LLM verification in Phase 2.\n\nOptionally update the inline docstring of `scan_dead_param_candidates` (L122-125) to match:\n  \"Scan for functions with optional parameters and at least one call site.\n   Phase 1: Pure Python, no LLM calls. Returns one DeadParamCandidate per\n   function+param pair with all call sites attached for Phase 2 verification.\"",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "347be1cb319fbde5",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/deadparam.py",
+          "start": 1,
+          "end": 60
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "Phase 1|phase_1|phase1|_phase1|collect_call_sites|find_candidates",
+          "glob": "src/osoji/deadparam.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/deadparam.py",
+          "start": 76,
+          "end": 180
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/deadparam.py",
+          "start": 180,
+          "end": 310
+        }
+      },
+      {
+        "turn": 4,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.97,
+          "severity": "warning",
+          "reasoning": "The module docstring at L4-6 states:\n\n  \"Phase 1 — Candidate scanning (pure Python, no LLM): find exported functions\n   with optional parameters that have callers but no call site passes those optional params.\"\n\nExamining `scan_dead_param_candidates` (Phase 1, starting at L121), the actual filtering logic is:\n1. Skip functions with no optional parameters → `if not opt_params: continue`\n2. Skip functions with no importers → `if not importers: continue`\n3. Skip if grep turns up zero call sites → `if not call_sites: continue`\n4. Otherwise: build a `DeadParamCandidate` with ALL collected call sites attached and return it.\n\nThere is no code anywhere in Phase 1 that inspects call-site contents to determine whether the optional param is being passed. Every candidate that reaches Phase 2 carries its full list of call sites; the LLM in Phase 2 is what decides whether \"no call site passes those optional params.\" The phrase \"but no call site passes those optional params\" in the docstring therefore misrepresents Phase 1's responsibilities.\n\nAll three predicates hold:\n- **Reality**: Confirmed by code — Phase 1 only gates on \"has callers\" and \"has call sites found by grep\", never on \"no call site passes the param\".\n- **Significance**: A developer (or AI agent) reading the docstring may incorrectly believe Phase 1 already filters out functions where at least one caller does pass the param, leading to confusion about the two-phase boundary or incorrect future modifications.\n- **Actionability**: Straightforward wording fix in the module docstring.",
+          "suggested_fix": "Replace lines 4-6 of the module docstring with the accurate description:\n\n  Phase 1 — Candidate scanning (pure Python, no LLM): find exported functions\n            with optional parameters that have callers — collecting all call sites\n            for LLM verification in Phase 2.\n\nOptionally update the inline docstring of `scan_dead_param_candidates` (L122-125) to match:\n  \"Scan for functions with optional parameters and at least one call site.\n   Phase 1: Pure Python, no LLM calls. Returns one DeadParamCandidate per\n   function+param pair with all call sites attached for Phase 2 verification.\""
+        }
+      }
+    ],
+    "cost_usd": 0.151907
+  }
+}

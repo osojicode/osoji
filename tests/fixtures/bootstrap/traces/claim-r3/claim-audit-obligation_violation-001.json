@@ -1,0 +1,219 @@
+{
+  "slug": "audit-obligation_violation-001",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:obligation_violation",
+    "gap_type": "uncategorized",
+    "path": "src/osoji/llm/google.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "String \"tool_result\" is checked but never produced or defined in any project file",
+    "observed_behavior": "Check string contract with (no producer found)",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/test_tool_retry.py",
+              "kind": "text_match",
+              "line": 219,
+              "context": "        retry_messages = retry_call.kwargs[\"messages\"]\n\n        # Should have: original user msg + assistant (tool_use) + user (tool_result)\n        assert len(retry_messages) == 3\n        assert retry_messages[1][\"role\"] == \"assistant\"",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_tool_retry.py",
+              "kind": "text_match",
+              "line": 224,
+              "context": "        assert retry_messages[2][\"role\"] == \"user\"\n\n        # tool_result should have is_error=True\n        tool_result_block = retry_messages[2][\"content\"][0]\n        assert tool_result_block[\"is_error\"] is True",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 277,
+              "context": "    names = [c[\"name\"] for c in result.exploration_traces[0][\"calls\"]]\n    assert names == [\"read_file\", \"submit_triage_verdict\"]\n    # two provider turns, and the executor output was fed back as a tool_result\n    assert len(provider.calls) == 2\n    second_turn_msgs = provider.calls[1][\"messages\"]",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 285,
+              "context": "        if isinstance(m.content, list)\n        for block in m.content\n        if block.get(\"type\") == \"tool_result\"\n    )\n    assert \"DISTINCTIVE-MARKER\" in fed_back",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 307,
+              "context": "      \"severity\": \"warning\",\n      \"adjudicated_verdict\": \"dismissed\",\n      \"adjudication_notes\": \"'Never produced' false: _provider_base.py:495 produces tool_result blocks on the anthropic retry path google.py selects; triage.py:397 also produces them; also an Anthropic Messages API constant (ecosystem convention).\",\n      \"evidence_consulted\": [\n        \"grep literal across src\",",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 323,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"String \\\"tool_result\\\" is checked but never produced or defined in any project file\",\n        \"observed_behavior\": \"Check string contract with (no producer found)\",\n        \"evidence\": [],",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 851,
+              "context": "      \"severity\": \"warning\",\n      \"adjudicated_verdict\": \"dismissed\",\n      \"adjudication_notes\": \"'Never produced' false: _provider_base.py:495 produces tool_result blocks on the anthropic retry path google.py selects; triage.py:397 also produces them; also an Anthropic Messages API constant (ecosystem convention).\",\n      \"evidence_consulted\": [\n        \"grep literal across src\",",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 867,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"String \\\"tool_result\\\" is checked but never produced or defined in any project file\",\n        \"observed_behavior\": \"Check string contract with (no producer found)\",\n        \"evidence\": [],",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 2074,
+              "context": "          \"turn\": 0,\n          \"name\": \"grep\",\n          \"pattern\": \"tool_result\",\n          \"shape\": \"symbol\",\n          \"breadth\": \"repo_wide\"",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_violation-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"String \\\"tool_result\\\" is checked but never produced or defined in any project file\",\n    \"observed_behavior\": \"Check string contract with (no producer found)\",\n    \"evidence\": [],",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_violation-001.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"dismissed\",\n    \"confidence\": 1,\n    \"triage_reasoning\": \"The claim asserts \\\"String 'tool_result' is checked but never produced or defined in any project file.\\\" This is factually incorrect on all counts:\\n\\n1. **Producer 1 — `src/osoji/llm/_provider_base.py:495`**: `_build_retry_messages()` emits `{\\\"type\\\": \\\"tool_result\\\", ...}` blocks whenever `response_format == \\\"anthropic\\\"`. `google.py`'s `_parse_sdk_response` explicitly returns `response_format=\\\"anthropic\\\"`, so every Google retry path goes through this producer.\\n\\n2. **Producer 2 — `src/osoji/triage.py:397`**: `triage.py` independently produces `{\\\"type\\\": \\\"tool_result\\\", ...}` blocks when feeding tool call results back to the LLM in the triage loop.\\n\\n3. **Consumer — `src/osoji/llm/google.py:170`**: `_raw_messages_to_contents()` checks `btype == \\\"tool_result\\\"` and converts those blocks to `genai_types.FunctionResponse` — this is entirely correct behavior bridging the Anthropic-style message format to Google's native format.\\n\\nThe producer↔consumer contract is fully intact. The string is defined, produced, and consumed within the project. The fixture files (`manifest-audit.json`, `manifest.json`) already document this as a known false positive with the same analysis. Reality predicate fails — no gap exists.\",\n    \"suggested_fix\": null,\n    \"severity\": null,",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_violation-001.json",
+              "kind": "text_match",
+              "line": 31,
+              "context": "        \"name\": \"grep\",\n        \"input\": {\n          \"pattern\": \"tool_result\"\n        }\n      },",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_violation-001.json",
+              "kind": "text_match",
+              "line": 65,
+              "context": "          \"verdict\": \"dismissed\",\n          \"confidence\": 1,\n          \"reasoning\": \"The claim asserts \\\"String 'tool_result' is checked but never produced or defined in any project file.\\\" This is factually incorrect on all counts:\\n\\n1. **Producer 1 — `src/osoji/llm/_provider_base.py:495`**: `_build_retry_messages()` emits `{\\\"type\\\": \\\"tool_result\\\", ...}` blocks whenever `response_format == \\\"anthropic\\\"`. `google.py`'s `_parse_sdk_response` explicitly returns `response_format=\\\"anthropic\\\"`, so every Google retry path goes through this producer.\\n\\n2. **Producer 2 — `src/osoji/triage.py:397`**: `triage.py` independently produces `{\\\"type\\\": \\\"tool_result\\\", ...}` blocks when feeding tool call results back to the LLM in the triage loop.\\n\\n3. **Consumer — `src/osoji/llm/google.py:170`**: `_raw_messages_to_contents()` checks `btype == \\\"tool_result\\\"` and converts those blocks to `genai_types.FunctionResponse` — this is entirely correct behavior bridging the Anthropic-style message format to Google's native format.\\n\\nThe producer↔consumer contract is fully intact. The string is defined, produced, and consumed within the project. The fixture files (`manifest-audit.json`, `manifest.json`) already document this as a known false positive with the same analysis. Reality predicate fails — no gap exists.\"\n        }\n      }",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 89,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 277,\n              \"context\": \"    names = [c[\\\"name\\\"] for c in result.exploration_traces[0][\\\"calls\\\"]]\\n    assert names == [\\\"read_file\\\", \\\"submit_triage_verdict\\\"]\\n    # two provider turns, and the executor output was fed back as a tool_result\\n    assert len(provider.calls) == 2\\n    second_turn_msgs = provider.calls[1][\\\"messages\\\"]\",\n              \"needle\": \"executor\",\n              \"source\": \"text_scan\"",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 848,
+              "context": "          \"shadow_excerpts\": {\n            \"tests/test_deadparam.py\": \"# tests\\\\test_deadparam.py\\n@source-hash: 8f71e2e6ff6c9c0f\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:28:21Z\\n\\n## Purpose\\n\\nTest suite for `osoji.deadparam` — dead parameter detection. Covers the three-phase pipeline: static candidate scanning (`scan_dead_param_candidates`), LLM verification (`_verify_batch_async`), and the `DeadParameterAnalyzer` junk analyzer class. All LLM calls are fully mocked; file system interactions use the `temp_dir` pytest fixture.\\n\\n---\\n\\n## File Organization\\n\\n### Helper Fixtures (L21–59)\\n\\nFour helper functions build the `.osoji/` artifact tree inside `temp_dir`:\\n\\n| Helper | Writes | Path pattern |\\n|--------|--------|--------------|\\n| `_write_shadow` | Shadow markdown with `@source-hash: abc` | `.osoji/shadow/<source>.shadow.md` |\\n| `_write_source` | Python source (placeholder or custom) | `<path>` relative to root |\\n| `_write_symbols` | JSON with `source`, `source_hash`, `file_role`, `symbols[]` | `.osoji/symbols/<source>.symbols.json` |\\n| `_write_facts` | JSON with `imports`, `exports`, `calls`, `string_literals` | `.osoji/facts/<source>.facts.json` |\\n\\nAll tests mock `osoji.deadparam.list_repo_files` to return only the files written in the test, keeping tests hermetic.\\n\\n---\\n\\n## Test Classes\\n\\n### `TestScanCandidates` (L64–312)\\n\\nTests `scan_dead_param_candidates(config)` — Phase 1, pure static analysis over symbols + facts.\\n\\n**Inclusion criteria tested:**\\n- `test_function_with_optional_params_and_callers` (L65): Optional params + ≥1 importer → produces `DeadParamCandidate`. Required params (`config`, `results`) are excluded.\\n- `test_dotted_method_name_matches_instance_calls` (L218): `MyAnalyzer.analyze` dotted symbol name matches `analyzer.analyze(...)` instance-call pattern in caller files.\\n- `test_same_file_caller_outside_definition_is_visible` (via `TestSameFileCaller`, L620): Same-file call outside the function's own line range counts as a call site.\\n- `test_common_name_scan_only_checks_importers` (L268): Candidate call-site col\",\n            \"tests/test_tool_retry.py\": \"# tests\\\\test_tool_retry.py\\n@source-hash: 039bd6614d4b5331\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:28:46Z\\n\\n## `tests/test_tool_retry.py`\\n\\nTests for `AnthropicProvider.complete()` covering tool-input JSON Schema validation and the retry loop. The file uses `SimpleNamespace` to fake Anthropic API responses without hitting the real SDK.\\n\\n### Key Fixtures & Helpers\\n\\n- **`_make_response(content_blocks, input_tokens, output_tokens)` (L20-30):** Builds a `SimpleNamespace` mimicking an Anthropic SDK response object. `content` is a list of `SimpleNamespace` blocks; `usage` has `input_tokens`/`output_tokens`; hardcodes `model=\\\"claude-test\\\"` and `stop_reason=\\\"tool_use\\\"`.\\n- **`_tool_use_block(tool_id, name, tool_input)` (L33-34):** Returns a dict with `type=\\\"tool_use\\\"`, `id`, `name`, `input`.\\n- **`_text_block(text)` (L37-38):** Returns a dict with `type=\\\"text\\\"`, `text`.\\n- **`provider` fixture (L58-64):** Creates `AnthropicProvider` with `ANTHROPIC_API_KEY=\\\"test-key\\\"` injected and `anthropic.AsyncAnthropic` patched out. Tests then assign `provider._client.messages.create = AsyncMock(...)`.\\n\\n### Module-Level Constants\\n\\n- **`SIMPLE_SCHEMA` (L41-47):** JSON Schema requiring `value` → object with required string property `x`.\\n- **`TOOL_DEF` (L49-53):** `ToolDefinition(name=\\\"test_tool\\\", ...)` using `SIMPLE_SCHEMA`.\\n- **`FORCED_CHOICE` (L55):** `{\\\"type\\\": \\\"tool\\\", \\\"name\\\": \\\"test_tool\\\"}` — forces tool use, which triggers validation/retry logic.\\n\\n### Test Classes\\n\\n| Class | Lines | What it covers |\\n|---|---|---|\\n| `TestValidInputSkipsRetry` | L67-116 | Valid input → single API call; multiple text blocks concatenated into `result.content` |\\n| `TestInvalidInputTriggersRetry` | L119-227 | Bad input → retry on second call; text concat on retry; retry call's `messages` arg has 3 entries: original user + assistant (tool_use) + user (tool_result with `is_error=True` and error text `\\\"expected object\\\"`) |\\n| `TestTokenSumming` | L230-259 | Tokens from both attempts accumulate: `result.\",\n            \"src/osoji/config.py\": \"# src\\\\osoji\\\\config.py\\n@source-hash: a676189706fb3bb2\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:28:59Z\\n\\n## Purpose\\nCentral configuration module for Osoji: defines all path constants, provider/model defaults, and the `Config` dataclass that resolves model policy from a 5-level precedence chain (CLI > env > project > global > builtin).\\n\\n---\\n\\n## Module-Level Constants\\n\\n### Path & Directory Constants (L13–140)\\n| Constant | Value | Role |\\n|---|---|---|\\n| `SHADOW_DIR` | `\\\".osoji\\\"` | Root metadata directory; used in all path helpers |\\n| `SHADOW_SUBDIR` | `\\\"shadow\\\"` | Subdirectory under `.osoji` for shadow docs |\\n| `DIRECTORY_SHADOW_FILENAME` | `\\\"_directory.shadow.md\\\"` | Filename for directory roll-up shadow docs |\\n| `GLOBAL_CONFIG_FILENAME` | `\\\"config.toml\\\"` | Filename within `~/.config/osoji/` |\\n| `LOCAL_CONFIG_FILENAME` | `\\\".osoji.local.toml\\\"` | Project-local policy file (used by `project_config_path`) |\\n| `PROJECT_CONFIG_FILENAME` | `\\\".osoji.toml\\\"` | Defined but **not used** within this file (see findings) |\\n\\n### Extension & Ignore Sets (L16–126)\\n- `DEFAULT_IGNORE_PATTERNS`: 40+ directory/file names including VCS dirs, caches, lock files, build outputs, vendored deps. Includes `SHADOW_DIR` itself.\\n- `DEFAULT_EXTENSIONS`: 40+ source/config file extensions (`.py`, `.ts`, `.rs`, `.go`, `.toml`, `.yaml`, etc.)\\n- `DOC_EXTENSIONS`, `DOC_FILENAMES`, `DOC_DIRECTORIES`: Used by `Config.is_doc_candidate()`.\\n\\n### Provider & Model Constants (L131–184)\\n- `DEFAULT_PROVIDER = \\\"anthropic\\\"` — fallback when no provider configured\\n- `ENV_PROVIDER`, `ENV_MODEL`, `ENV_MODEL_SMALL/MEDIUM/LARGE` — environment variable names read at `Config.__post_init__`\\n- Per-provider model name constants for anthropic, openai, google, openrouter (small/medium/large tiers)\\n- `BUILTIN_PROVIDER_MODELS`: nested dict `{provider → {tier → model_id}}` for 5 providers: `\\\"anthropic\\\"`, `\\\"claude-code\\\"`, `\\\"google\\\"`, `\\\"openai\\\"`, `\\\"openrouter\\\"`; `\\\"claude-code\\\"` mirrors anthropic models\\n- `RESOLUTION_ORDER = (\"\n          },",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-doc_obsolete_reference-000.json",
+              "kind": "text_match",
+              "line": 840,
+              "context": "          \"shadow_excerpts\": {\n            \"tests/test_llm_provider.py\": \"# tests\\\\test_llm_provider.py\\n@source-hash: 55bce0a62242ec9a\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:31:43Z\\n\\n## Purpose\\n\\nTest suite for the osoji LLM provider layer: registry helpers, factory, `create_runtime`, `LoggingProvider`, and the `OpenAIProvider` retry/logging mechanics.\\n\\n---\\n\\n## Module-Level Shared Fixtures\\n\\n### `SIMPLE_SCHEMA` (L34–40) / `TOOL_DEF` (L42–46)\\nJSON schema requiring `{\\\"value\\\": {\\\"x\\\": string}}` and a `ToolDefinition` named `\\\"test_tool\\\"`. Shared across all OpenAI retry tests.\\n\\n### `_make_openai_response()` (L49–59)\\nBuilds a plain-dict mock of the OpenAI chat-completions response format:\\n```python\\n{\\\"choices\\\": [{\\\"message\\\": {...}, \\\"finish_reason\\\": ...}], \\\"usage\\\": {...}, \\\"model\\\": \\\"gpt-test\\\"}\\n```\\nAll parameters are keyword-only with defaults. The provider under test must use dict-style access for these mocks to work correctly.\\n\\n### `openai_provider` fixture (L157–160)\\nSets `OPENAI_API_KEY=test-key` via monkeypatch, returns a fresh `OpenAIProvider()`.\\n\\n---\\n\\n## Registry & Factory Tests (L62–98)\\n\\n| Test | What it verifies |\\n|---|---|\\n| `test_provider_names_include_all_supported_providers` (L62) | `provider_names()` returns exactly `(\\\"anthropic\\\", \\\"claude-code\\\", \\\"google\\\", \\\"openai\\\", \\\"openrouter\\\")` |\\n| `test_registry_normalizes_and_reports_metadata` (L66) | `normalize_provider_name(\\\"OPENROUTER\\\") == \\\"openrouter\\\"`; `get_provider_spec(\\\"google\\\").api_key_env == \\\"GEMINI_API_KEY\\\"` |\\n| `test_model_qualification_helpers_handle_cross_provider_prefixes` (L72) | `qualify_model_name` strips provider prefixes for direct-SDK providers; `strip_provider_prefix` works for Google |\\n| `test_create_provider_returns_expected_wrapper` (L88, parametrized) | All 4 SDK providers (anthropic/openai/google/openrouter) instantiate correctly given their env var |\\n| `test_create_provider_rejects_unknown_name` (L96) | Raises `ValueError` matching \\\"Unknown provider\\\" |\\n\\n---\\n\\n## Runtime & Logging Tests (L101–154)\\n\\n### `test_create_runtime_wraps_provider_with_reservation_limiter` \",\n            \"tests/test_tool_retry.py\": \"# tests\\\\test_tool_retry.py\\n@source-hash: 039bd6614d4b5331\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:28:46Z\\n\\n## `tests/test_tool_retry.py`\\n\\nTests for `AnthropicProvider.complete()` covering tool-input JSON Schema validation and the retry loop. The file uses `SimpleNamespace` to fake Anthropic API responses without hitting the real SDK.\\n\\n### Key Fixtures & Helpers\\n\\n- **`_make_response(content_blocks, input_tokens, output_tokens)` (L20-30):** Builds a `SimpleNamespace` mimicking an Anthropic SDK response object. `content` is a list of `SimpleNamespace` blocks; `usage` has `input_tokens`/`output_tokens`; hardcodes `model=\\\"claude-test\\\"` and `stop_reason=\\\"tool_use\\\"`.\\n- **`_tool_use_block(tool_id, name, tool_input)` (L33-34):** Returns a dict with `type=\\\"tool_use\\\"`, `id`, `name`, `input`.\\n- **`_text_block(text)` (L37-38):** Returns a dict with `type=\\\"text\\\"`, `text`.\\n- **`provider` fixture (L58-64):** Creates `AnthropicProvider` with `ANTHROPIC_API_KEY=\\\"test-key\\\"` injected and `anthropic.AsyncAnthropic` patched out. Tests then assign `provider._client.messages.create = AsyncMock(...)`.\\n\\n### Module-Level Constants\\n\\n- **`SIMPLE_SCHEMA` (L41-47):** JSON Schema requiring `value` → object with required string property `x`.\\n- **`TOOL_DEF` (L49-53):** `ToolDefinition(name=\\\"test_tool\\\", ...)` using `SIMPLE_SCHEMA`.\\n- **`FORCED_CHOICE` (L55):** `{\\\"type\\\": \\\"tool\\\", \\\"name\\\": \\\"test_tool\\\"}` — forces tool use, which triggers validation/retry logic.\\n\\n### Test Classes\\n\\n| Class | Lines | What it covers |\\n|---|---|---|\\n| `TestValidInputSkipsRetry` | L67-116 | Valid input → single API call; multiple text blocks concatenated into `result.content` |\\n| `TestInvalidInputTriggersRetry` | L119-227 | Bad input → retry on second call; text concat on retry; retry call's `messages` arg has 3 entries: original user + assistant (tool_use) + user (tool_result with `is_error=True` and error text `\\\"expected object\\\"`) |\\n| `TestTokenSumming` | L230-259 | Tokens from both attempts accumulate: `result.\"\n          },\n          \"scan_scope\": {",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-000.json",
+              "kind": "text_match",
+              "line": 120,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 275,\n              \"context\": \"    assert result.findings[0].triage_reasoning == \\\"found a use\\\"\\n    # trace records both tool calls in order\\n    names = [c[\\\"name\\\"] for c in result.exploration_traces[0][\\\"calls\\\"]]\\n    assert names == [\\\"read_file\\\", \\\"submit_triage_verdict\\\"]\\n    # two provider turns, and the executor output was fed back as a tool_result\",\n              \"needle\": \"exploration_traces\",\n              \"source\": \"text_scan\"",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_violation-000.json",
+              "kind": "text_match",
+              "line": 81,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 323,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"String \\\\\\\"tool_result\\\\\\\" is checked but never produced or defined in any project file\\\",\\n        \\\"observed_behavior\\\": \\\"Check string contract with (no producer found)\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"String\",\n              \"source\": \"text_scan\"",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_violation-000.json",
+              "kind": "text_match",
+              "line": 97,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 867,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"String \\\\\\\"tool_result\\\\\\\" is checked but never produced or defined in any project file\\\",\\n        \\\"observed_behavior\\\": \\\"Check string contract with (no producer found)\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"String\",\n              \"source\": \"text_scan\"",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_violation-000.json",
+              "kind": "text_match",
+              "line": 137,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 13,\n              \"context\": \"    \\\"symbol\\\": null,\\n    \\\"contract_source\\\": \\\"audit\\\",\\n    \\\"contract_claim\\\": \\\"String \\\\\\\"tool_result\\\\\\\" is checked but never produced or defined in any project file\\\",\\n    \\\"observed_behavior\\\": \\\"Check string contract with (no producer found)\\\",\\n    \\\"evidence\\\": [],\",\n              \"needle\": \"String\",\n              \"source\": \"text_scan\"",
+              "needle": "tool_result",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {
+            "tests/test_tool_retry.py": "# tests\\test_tool_retry.py\n@source-hash: 039bd6614d4b5331\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:28:46Z\n\n## `tests/test_tool_retry.py`\n\nTests for `AnthropicProvider.complete()` covering tool-input JSON Schema validation and the retry loop. The file uses `SimpleNamespace` to fake Anthropic API responses without hitting the real SDK.\n\n### Key Fixtures & Helpers\n\n- **`_make_response(content_blocks, input_tokens, output_tokens)` (L20-30):** Builds a `SimpleNamespace` mimicking an Anthropic SDK response object. `content` is a list of `SimpleNamespace` blocks; `usage` has `input_tokens`/`output_tokens`; hardcodes `model=\"claude-test\"` and `stop_reason=\"tool_use\"`.\n- **`_tool_use_block(tool_id, name, tool_input)` (L33-34):** Returns a dict with `type=\"tool_use\"`, `id`, `name`, `input`.\n- **`_text_block(text)` (L37-38):** Returns a dict with `type=\"text\"`, `text`.\n- **`provider` fixture (L58-64):** Creates `AnthropicProvider` with `ANTHROPIC_API_KEY=\"test-key\"` injected and `anthropic.AsyncAnthropic` patched out. Tests then assign `provider._client.messages.create = AsyncMock(...)`.\n\n### Module-Level Constants\n\n- **`SIMPLE_SCHEMA` (L41-47):** JSON Schema requiring `value` → object with required string property `x`.\n- **`TOOL_DEF` (L49-53):** `ToolDefinition(name=\"test_tool\", ...)` using `SIMPLE_SCHEMA`.\n- **`FORCED_CHOICE` (L55):** `{\"type\": \"tool\", \"name\": \"test_tool\"}` — forces tool use, which triggers validation/retry logic.\n\n### Test Classes\n\n| Class | Lines | What it covers |\n|---|---|---|\n| `TestValidInputSkipsRetry` | L67-116 | Valid input → single API call; multiple text blocks concatenated into `result.content` |\n| `TestInvalidInputTriggersRetry` | L119-227 | Bad input → retry on second call; text concat on retry; retry call's `messages` arg has 3 entries: original user + assistant (tool_use) + user (tool_result with `is_error=True` and error text `\"expected object\"`) |\n| `TestTokenSumming` | L230-259 | Tokens from both attempts accumulate: `result.",
+            "tests/test_triage.py": "# tests\\test_triage.py\n@source-hash: 6f0bf225090bd017\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:29:24Z\n\n## File Purpose\n\nTest suite for `osoji.triage.Triage` — the unified triage stage (V1-3). Validates claim mode, exploration mode, verdict cache short-circuit, and insufficient-evidence escalation routing. All LLM calls use `FakeProvider`; no network, deterministic.\n\n## Key Components\n\n### Fixtures\n- **`config(temp_dir)` (L22-24)**: Minimal `Config` with a temp root, `respect_gitignore=False`. Used for non-file-access tests.\n- **`explore_repo(temp_dir)` (L183-188)**: Creates a real on-disk repo (`temp_dir/repo/src/x.py`) containing the string `DISTINCTIVE-MARKER`. Required for exploration-mode tests that actually read files.\n\n### Helper Classes/Functions\n- **`make_finding(**overrides)` (L27-40)**: Factory for `Finding` with sensible defaults (`detector=\"debris:dead_code\"`, `gap_type=\"reachability\"`, `symbol=\"old_helper\"`, etc.). All fields can be overridden via kwargs.\n- **`FakeProvider` (L43-58)**: Mock async LLM provider. Consumes pre-queued `CompletionResult` objects from a list via `pop(0)`. Records every `complete(messages, system, options)` call in `.calls` for assertion. Implements `async close()` as no-op.\n- **`verdicts_result(verdicts, *, in_tok, out_tok)` (L61-70)**: Produces a `CompletionResult` simulating the `submit_triage_verdicts` batch tool call (claim mode). Tool call id `\"tc1\"`.\n- **`tool_use_result(name, tool_input, *, call_id, in_tok, out_tok)` (L172-180)**: Produces a `CompletionResult` with a single arbitrary named tool call. Used for multi-turn exploration sequences.\n\n## Test Sections & Key Invariants\n\n### Claim Mode (L76-166)\n| Test | What it pins |\n|------|-------------|\n| `test_claim_mode_fills_all_verdict_fields` | All verdict fields (`verdict`, `confidence`, `triage_reasoning`, `suggested_fix`, `severity`) are populated on result findings; `input_tokens`/`output_tokens` propagated; exactly 1 provider call. |\n| `test_claim_mod"
+          },
+          "scan_scope": {
+            "files_scanned": 464,
+            "needles": [
+              "tool_result"
+            ],
+            "needle_totals": {
+              "tool_result": 113
+            },
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/llm/google.py",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: \"\"\"Google Gemini provider using the google-genai SDK directly.\"\"\"\n2: \n3: from __future__ import annotations\n4: \n5: import os\n6: from typing import Any\n7: \n8: from google import genai\n9: from google.genai import types as genai_types\n10: \n11: from ._provider_base import DirectProvider, _ParsedResponse",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "1a747eb00baa3c93",
+    "verdict": "dismissed",
+    "confidence": 1,
+    "triage_reasoning": "Reality predicate fails. The bootstrap manifest explicitly records the prior dismissal: ''Never produced' false: _provider_base.py:495 produces tool_result blocks on the anthropic retry path google.py selects; triage.py:397 also produces them; also an Anthropic Messages API constant (ecosystem convention).' The exploration trace confirms at confidence 1.0 that (1) `_provider_base.py:495` emits `{'type': 'tool_result', ...}` blocks on the anthropic retry path, (2) `triage.py:397` independently produces them when feeding tool call results back to the LLM, and (3) `google.py:170` correctly consumes them to bridge Anthropic-style messages to Google's native format. The producer↔consumer contract is fully intact. Additionally, 'tool_result' is an Anthropic Messages API ecosystem constant. Reality predicate fails — no gap exists.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "b75bf37776cca970"
+  },
+  "trace": null
+}

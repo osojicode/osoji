@@ -1,0 +1,226 @@
+{
+  "slug": "audit-obligation_implicit_contract-007",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "scripts/triage_bootstrap.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "Implicit contract: \"exploration\" is produced in tests/test_triage.py and checked in scripts/triage_bootstrap.py with no shared definition",
+    "observed_behavior": "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 3,
+              "context": "\"\"\"V1-4 Phase C trace mining (osojicode/work#27).\n\nMines the *correct* exploration traces from the Phase B baseline run for the\nEvidence kinds the LLM consistently consulted per finding category. The output\nis the requirements doc for mechanizing the Claim Builder (see osojicode/wiki",
+              "needle": "exploration",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 12,
+              "context": "\nOnly ``agree: true`` rows of the baseline summary are mined — the LLM sometimes\nwanders into hallucinated paths and we don't want to mechanize bad exploration.\n\nTraces record tool-call *inputs* only. To classify a read as landing on a",
+              "needle": "exploration",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 17,
+              "context": "referencing site, prior greps in the same trace are re-executed offline through\n``ExplorationExecutor`` (read-only, root-confined) against the same roots the\nexploration used. Fixture claims re-root at ``<fixture_root>/source/`` exactly\nas ``triage_bootstrap.run_sdk_exploration`` did; audit claims re-execute against\nthe current working tree, so minor drift since the baseline commit is possible",
+              "needle": "exploration",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 18,
+              "context": "``ExplorationExecutor`` (read-only, root-confined) against the same roots the\nexploration used. Fixture claims re-root at ``<fixture_root>/source/`` exactly\nas ``triage_bootstrap.run_sdk_exploration`` did; audit claims re-execute against\nthe current working tree, so minor drift since the baseline commit is possible\n(flagged in the report, tolerable for classification).",
+              "needle": "exploration",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 26,
+              "context": "    PYTHONUTF8=1 python scripts/mine_traces.py \\\n        [--traces-dir tests/fixtures/bootstrap/traces] \\\n        [--summary tests/fixtures/bootstrap/traces/exploration-sdk-summary.json] \\\n        [--manifest tests/fixtures/bootstrap/manifest.json] \\\n        [--out tests/fixtures/bootstrap/mining]",
+              "needle": "exploration",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 57,
+              "context": "BOOTSTRAP_DIR = REPO_ROOT / \"tests\" / \"fixtures\" / \"bootstrap\"\nDEFAULT_TRACES = BOOTSTRAP_DIR / \"traces\"\nDEFAULT_SUMMARY = DEFAULT_TRACES / \"exploration-sdk-summary.json\"\nDEFAULT_MANIFEST = BOOTSTRAP_DIR / \"manifest.json\"\nDEFAULT_OUT = BOOTSTRAP_DIR / \"mining\"",
+              "needle": "exploration",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 61,
+              "context": "DEFAULT_OUT = BOOTSTRAP_DIR / \"mining\"\n\nTRACE_PREFIX = \"exploration-sdk-\"  # a stray legacy trace exists; filter on this\n\n# Classification taxonomies. Closed sets, each with an `other` outlet — the",
+              "needle": "exploration",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 5,
+              "context": "Runs the unified Triage stage over the curated bootstrap set in either mode:\n\n- ``explore``: exploration-mode baseline. Each claim is presented with its\n  Evidence STRIPPED so the LLM must retrieve everything itself via\n  read_file / grep / list_dir — the tool-call traces are the observation",
+              "needle": "exploration",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 11,
+              "context": "  ``concepts/self-sufficient-claims.md``, *Bootstrap path*).\n- ``claim``: claim-mode ablation run. Each claim keeps the Evidence the\n  Claim Builder assembled; verdicts are compared against the exploration\n  baseline to measure verdict-disagreement (ship gate: < 5%, spec 0001\n  verification criterion 5).",
+              "needle": "exploration",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 131,
+              "context": "    \"\"\"Materialize a fixture case as a mini-repo (test_prompt_regression layout):\n    source/** at the root, symbols/facts sidecars under .osoji/. expected.json\n    (the answer key) stays behind — same isolation rule as exploration.\"\"\"\n\n    for sub, dest in ((\"source\", tmp), (\"symbols\", tmp / \".osoji\" / \"symbols\"),",
+              "needle": "exploration",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 151,
+              "context": "\n    Fixture entries build against a temp mini-repo staged from their snapshot\n    (path prefix stripped exactly as ``run_sdk_exploration`` does); audit\n    entries build against the live repo root. Returns claims aligned 1:1 with\n    ``entries`` plus per-entry build metadata.",
+              "needle": "exploration",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 225,
+              "context": "\n\nasync def run_sdk_exploration(\n    entries: list[dict[str, Any]],\n    *,",
+              "needle": "exploration",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 235,
+              "context": "\n    `claude -p` cannot round-trip custom tool calls, so the in-process\n    Triage exploration loop has no transport on the claude-code provider.\n    The Agent SDK wraps the same CLI (Max OAuth auth carries over) and\n    dispatches MCP tool calls to in-process callbacks — ExplorationExecutor",
+              "needle": "exploration",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 239,
+              "context": "    dispatches MCP tool calls to in-process callbacks — ExplorationExecutor\n    remains the single implementation of read_file/grep/list_dir semantics,\n    so traces stay comparable with the native exploration loop.\n    \"\"\"\n",
+              "needle": "exploration",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 414,
+              "context": "        return 0\n\n    if mode == \"exploration-sdk\":\n        findings, traces_by_id, in_tokens, out_tokens = await run_sdk_exploration(\n            entries, model=args.model, max_turns=args.max_turns,",
+              "needle": "exploration",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 415,
+              "context": "\n    if mode == \"exploration-sdk\":\n        findings, traces_by_id, in_tokens, out_tokens = await run_sdk_exploration(\n            entries, model=args.model, max_turns=args.max_turns,\n            concurrency=args.concurrency,",
+              "needle": "exploration",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 425,
+              "context": "            claims, build_meta = build_claims_for_entries(entries)\n        else:\n            claims = entries_to_claims(entries, strip_evidence=(mode == \"exploration\"))\n        config = Config(root_path=REPO_ROOT, provider=args.provider, model=args.model)\n        triage = Triage(config)",
+              "needle": "exploration",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 454,
+              "context": "            findings.extend(result.findings)\n            traces_by_id.update(\n                {t[\"finding_id\"]: t for t in result.exploration_traces}\n            )\n            in_tokens += result.input_tokens",
+              "needle": "exploration",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 540,
+              "context": "    sub = parser.add_subparsers(dest=\"command\", required=True)\n    for name, mode in (\n        (\"explore\", \"exploration\"),\n        (\"explore-sdk\", \"exploration-sdk\"),\n        (\"claim\", \"claim\"),",
+              "needle": "exploration",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 541,
+              "context": "    for name, mode in (\n        (\"explore\", \"exploration\"),\n        (\"explore-sdk\", \"exploration-sdk\"),\n        (\"claim\", \"claim\"),\n        (\"build\", \"build\"),",
+              "needle": "exploration",
+              "source": "text_scan",
+              "same_file": true
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 409,
+            "needles": [
+              "exploration"
+            ],
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "scripts/triage_bootstrap.py",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: \"\"\"V1-4 Claim Builder bootstrap harness (osojicode/work#27).\n2: \n3: Runs the unified Triage stage over the curated bootstrap set in either mode:\n4: \n5: - ``explore``: exploration-mode baseline. Each claim is presented with its\n6:   Evidence STRIPPED so the LLM must retrieve everything itself via\n7:   read_file / grep / list_dir — the tool-call traces are the observation\n8:   data the Claim Builder schema is mined from (see osojicode/wiki\n9:   ``concepts/self-sufficient-claims.md``, *Bootstrap path*).\n10: - ``claim``: claim-mode ablation run. Each claim keeps the Evidence the\n11:   Claim Builder assembled; verdicts are compared against the exploration",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "c35574b587bb040c",
+    "verdict": "dismissed",
+    "confidence": 0.9,
+    "triage_reasoning": "Reality — the claim misidentifies `tests/test_triage.py` as the producer of 'exploration'. Examining the evidence, `scripts/triage_bootstrap.py` itself is both the origin and consumer of this string: at lines 540-541 the CLI subparser maps command name 'explore' to internal mode 'exploration', and at line 425 this mode is used in the conditional `strip_evidence=(mode == \"exploration\")`. The string is self-contained within triage_bootstrap.py.\n\nThe word 'exploration' in test_triage.py (line 277) is used in an English comment ('the executor output was fed back as a tool_result') and as an attribute name ('result.exploration_traces') — neither constitutes producing the string 'exploration' as a contract value.\n\nSignificance fails — there is no cross-file implicit contract. The mode string is defined, set, and consumed entirely within triage_bootstrap.py. Renaming it would only require changes within that one file's subparser and mode-check code.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "9fbf048b3a705edf"
+  },
+  "trace": null
+}

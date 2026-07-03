@@ -1,0 +1,234 @@
+{
+  "slug": "audit-misleading_docstring-000",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:misleading_docstring",
+    "gap_type": "description",
+    "path": "src/osoji/deadparam.py",
+    "line_start": 1,
+    "line_end": 9,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.",
+    "observed_behavior": "Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'",
+    "evidence": [
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/deadparam.py",
+          "line_start": 1,
+          "line_end": 19,
+          "snippet": "1: \"\"\"Dead parameter detection: find function parameters no caller ever passes.\n2: \n3: Two-phase architecture matching DeadCodeAnalyzer:\n4:   Phase 1 — Candidate scanning (pure Python, no LLM): find exported functions\n5:             with optional parameters that have callers but no call site passes\n6:             those optional params.\n7:   Phase 2 — LLM verification (batched, async): confirm dead params with full\n8:             call-site context and identify gated branches.\n9: \"\"\"\n10: \n11: import asyncio\n12: import re\n13: from collections import defaultdict\n14: from dataclasses import dataclass, field\n15: from pathlib import Path\n16: from typing import Callable\n17: \n18: from .async_utils import gather_with_buffer\n19: from .config import Config, SHADOW_DIR",
+          "anchor": "lines"
+        }
+      },
+      {
+        "kind": "shadow_doc_claim",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/deadparam.py",
+          "scope": "file",
+          "excerpt": "# src\\osoji\\deadparam.py\n@source-hash: d8ecf1f293b464b2\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:32:12Z\n\n## Purpose\nTwo-phase dead parameter detector: Phase 1 (pure Python) scans all symbols to find public functions with optional parameters that have known call sites; Phase 2 (async LLM) verifies whether any call site actually passes each optional param and identifies gated branches that would become dead code upon removal.\n\n## Data Types (L33–68)\n\n- **`CallSite`** (L36–42): Represents one grep-found call site — `file_path` (relative), `line_number`, `context` (±10 lines of surrounding code).\n- **`DeadParamCandidate`** (L44–53): One per `(function, param)` pair. **Key invariant**: all candidates for the same function share the same `call_sites` list. `_build_call_site_chunks` and `_verify_chunk_async` both access `candidates[0].call_sites` to retrieve the full call site list for a function.\n- **`DeadParamVerification`** (L56–68): LLM output — `is_dead`, `confidence`, `reason`, `remediation`, `param_line`, `gated_line_ranges: list[tuple[int, int]]`. Default `param_line=0`.\n\n## Phase 1 — Candidate Scanning: `scan_dead_param_candidates(config)` (L116–278)\n\n1. Calls `load_all_symbols(config)` for symbol metadata.\n2. Builds `FactsDB(config)` and calls `facts_db.importers_of(source_norm)` per source file; **skips functions with no importers** (no importers → dead symbol, handled by `deadcode.py`).\n3. Filters to `visibility != \"internal\"` functions with at least one optional param (`p.get(\"optional\")` is truthy) (L182–193).\n4. Builds `class_for_method` map (L160–169) by line-range containment; for class members, adds a `\\bClassName\\s*\\(` grep pattern in addition to `\\bmethod_name\\s*\\(` (L207–211).\n5. Greps `[source_file] + sorted(importers)`, skipping shadow dir, ignore patterns, doc candidates, and call sites inside the function's own definition range (L218–261).\n6. Deduplicates call sites via `_dedupe_call_sites` (keyed on `(file_path, line_number, context)"
+        }
+      },
+      {
+        "kind": "shadow_doc_claim",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/deadparam.py",
+          "scope": "directory",
+          "excerpt": "# src\\osoji/\n@children-hash: 01e0c48013067d10\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:36:49Z\n\n## `src/osoji` — Core Package\n\nThe `osoji` package is a shadow documentation engine and multi-phase code quality audit system. It generates LLM-driven \"shadow docs\" (concise machine-readable summaries of source files), then runs a 5.5-phase audit pipeline that cross-references those docs against live code to surface dead code, stale documentation, string-contract violations, dead dependencies, dead CI/CD elements, orphaned files, and doc accuracy errors.\n\n---\n\n## Architectural Layers\n\n### 1 — Configuration & Discovery\n**`config.py`** is the root of all path resolution. `Config` (the central dataclass) encodes a 5-level provider/model precedence chain (CLI → env → project TOML → global TOML → builtin defaults). Every other module receives a `Config` and derives its paths from it (shadow root, findings dir, symbols dir, analysis root, etc.).\n\n**`walker.py`** discovers source files (`discover_files`) and directories (`discover_directories`) with git-aware or rglob traversal, applying ignore patterns and `.osojiignore`. Results are sorted deepest-first (children before parents) to support bottom-up directory processing.\n\n**`hasher.py`** provides SHA-256 hashing, binary-safe file reading, and the staleness primitives (`@source-hash`, `@impl-hash`, `@children-hash`) embedded in shadow doc headers. `is_findings_current()` gates whether cached findings JSON is still valid.\n\n---\n\n### 2 — Shadow Doc Generation (`shadow.py`)\nThe generative core. Orchestrates the full shadow doc pipeline:\n- File staleness detection (source hash + implementation hash)\n- LLM calls via `generate_file_shadow_doc_async` (forced `submit_shadow_doc` tool call)\n- Large-file chunking (> 150K tokens → per-chunk generation + `_generate_chunk_rollup_async`)\n- Sidecar JSON writes: `.findings.json`, `.symbols.json`, `.signature.json`, `.facts.json`\n- AST plugin fact merging (via `plugins/`) — when ava"
+        }
+      },
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 930,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\",\n        \"observed_behavior\": \"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\",\n        \"evidence\": [],",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1480,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\",\n        \"observed_behavior\": \"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\",\n        \"evidence\": [],",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\",\n    \"observed_behavior\": \"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\",\n    \"evidence\": [],",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\",\n    \"observed_behavior\": \"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\",\n    \"evidence\": [",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 62,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 930,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\\\",\\n        \\\"observed_behavior\\\": \\\"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 78,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1480,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\\\",\\n        \\\"observed_behavior\\\": \\\"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 102,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 13,\n              \"context\": \"    \\\"symbol\\\": null,\\n    \\\"contract_source\\\": \\\"audit\\\",\\n    \\\"contract_claim\\\": \\\"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\\\",\\n    \\\"observed_behavior\\\": \\\"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\\\",\\n    \\\"evidence\\\": [],\",\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 76,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 930,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\\\",\\n        \\\"observed_behavior\\\": \\\"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 92,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1480,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\\\",\\n        \\\"observed_behavior\\\": \\\"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 116,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 13,\n              \"context\": \"    \\\"symbol\\\": null,\\n    \\\"contract_source\\\": \\\"audit\\\",\\n    \\\"contract_claim\\\": \\\"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\\\",\\n    \\\"observed_behavior\\\": \\\"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\\\",\\n    \\\"evidence\\\": [],\",\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\",\n    \"observed_behavior\": \"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\",\n    \"evidence\": [",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 62,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 930,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\\\",\\n        \\\"observed_behavior\\\": \\\"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 78,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1480,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\\\",\\n        \\\"observed_behavior\\\": \\\"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 102,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 13,\n              \"context\": \"    \\\"symbol\\\": null,\\n    \\\"contract_source\\\": \\\"audit\\\",\\n    \\\"contract_claim\\\": \\\"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\\\",\\n    \\\"observed_behavior\\\": \\\"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\\\",\\n    \\\"evidence\\\": [],\",\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 166,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 13,\n              \"context\": \"    \\\"symbol\\\": null,\\n    \\\"contract_source\\\": \\\"audit\\\",\\n    \\\"contract_claim\\\": \\\"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\\\",\\n    \\\"observed_behavior\\\": \\\"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\\\",\\n    \\\"evidence\\\": [\",\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 190,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 62,\n              \"context\": \"              \\\"kind\\\": \\\"text_match\\\",\\n              \\\"line\\\": 930,\\n              \\\"context\\\": \\\"        \\\\\\\"symbol\\\\\\\": null,\\\\n        \\\\\\\"contract_source\\\\\\\": \\\\\\\"audit\\\\\\\",\\\\n        \\\\\\\"contract_claim\\\\\\\": \\\\\\\"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\\\\\\\",\\\\n        \\\\\\\"observed_behavior\\\\\\\": \\\\\\\"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\\\\\\\",\\\\n        \\\\\\\"evidence\\\\\\\": [],\\\",\\n              \\\"needle\\\": \\\"Module\\\",\\n              \\\"source\\\": \\\"text_scan\\\"\",\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 198,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 63,\n              \"context\": \"              \\\"line\\\": 930,\\n              \\\"context\\\": \\\"        \\\\\\\"symbol\\\\\\\": null,\\\\n        \\\\\\\"contract_source\\\\\\\": \\\\\\\"audit\\\\\\\",\\\\n        \\\\\\\"contract_claim\\\\\\\": \\\\\\\"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\\\\\\\",\\\\n        \\\\\\\"observed_behavior\\\\\\\": \\\\\\\"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\\\\\\\",\\\\n        \\\\\\\"evidence\\\\\\\": [],\\\",\\n              \\\"needle\\\": \\\"Module\\\",\\n              \\\"source\\\": \\\"text_scan\\\"\\n            },\",\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 76,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 930,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\\\",\\n        \\\"observed_behavior\\\": \\\"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 92,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1480,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\\\",\\n        \\\"observed_behavior\\\": \\\"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 116,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 13,\n              \"context\": \"    \\\"symbol\\\": null,\\n    \\\"contract_source\\\": \\\"audit\\\",\\n    \\\"contract_claim\\\": \\\"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\\\",\\n    \\\"observed_behavior\\\": \\\"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\\\",\\n    \\\"evidence\\\": [],\",\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "with callers but no call site passes those optional params.",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 464,
+            "needles": [
+              "with callers but no call site passes those optional params."
+            ],
+            "needle_totals": {
+              "with callers but no call site passes those optional params.": 65
+            },
+            "same_file_swept": true
+          }
+        }
+      }
+    ],
+    "id": "347be1cb319fbde5",
+    "verdict": null,
+    "confidence": null,
+    "triage_reasoning": null,
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "1c2bf7ebc7c24d40"
+  },
+  "trace": null
+}

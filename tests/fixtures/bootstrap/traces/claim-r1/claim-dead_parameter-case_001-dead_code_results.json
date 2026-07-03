@@ -1,0 +1,61 @@
+{
+  "slug": "dead_parameter-case_001-dead_code_results",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "deadparam:dead_parameter",
+    "gap_type": "reachability",
+    "path": "src/osoji/scorecard.py",
+    "line_start": 111,
+    "line_end": 111,
+    "symbol": "dead_code_results",
+    "contract_source": "function signature",
+    "contract_claim": "Parameter `dead_code_results` is declared in the signature of build_scorecard(config, analysis_results, junk_results=None, dead_code_results=None, plumbing_result=None) (signature at lines 106-113) as an accepted input that callers may pass.",
+    "observed_behavior": "No call site ever passes `dead_code_results`: the only caller, run_audit in src/osoji/audit.py, invokes build_scorecard with config, analysis_results and junk_results only, so the parameter always takes its default None and the branches gated on it never execute.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 2,
+            "needles": [
+              "dead_code_results"
+            ]
+          },
+          "export_surface": {
+            "symbol": "dead_code_results",
+            "exported_from_flagged_file": false
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/scorecard.py",
+          "line_start": 101,
+          "line_end": 121,
+          "snippet": "101:         except (json.JSONDecodeError, OSError):\n102:             pass\n103:     return None\n104: \n105: \n106: def build_scorecard(\n107:     config: Config,\n108:     analysis_results: list[DocAnalysisResult],\n109:     junk_results: dict[str, JunkAnalysisResult] | None = None,\n110:     # Backward compat:\n111:     dead_code_results: list[DeadCodeVerification] | None = None,\n112:     plumbing_result: PlumbingResult | None = None,\n113: ) -> Scorecard:\n114:     \"\"\"Build a scorecard from audit phase outputs. Pure Python, no LLM calls.\"\"\"\n115: \n116:     # --- Coverage ---\n117:     # Enumerate all source files from shadow inventory\n118:     shadow_root = config.shadow_root\n119:     all_source_files: set[str] = set()\n120:     if shadow_root.exists():\n121:         for shadow_file in shadow_root.rglob(\"*.shadow.md\"):",
+          "anchor": "symbol",
+          "enclosing_symbol": {
+            "name": "build_scorecard",
+            "kind": "function",
+            "line_start": 106,
+            "line_end": 362
+          }
+        }
+      }
+    ],
+    "id": "6cb6f9385f006e47",
+    "verdict": "confirmed",
+    "confidence": 0.82,
+    "triage_reasoning": "Reality: The parameter dead_code_results is never passed by any caller. The only call site (run_audit in audit.py) only passes config, analysis_results, and junk_results. The parameter is annotated with a '# Backward compat:' comment, but the export surface check confirms build_scorecard is not part of the module's exported symbols. If there are no external API consumers (it is internal), the 'backward compat' rationale is hollow and any branches gated on this parameter are permanently dead. Significance: Dead parameter with misleading comment creates maintenance confusion. Actionability: Remove the parameter and its associated dead branches, or if truly needed for backward compat with external callers, document those callers explicitly.",
+    "suggested_fix": "Remove the dead_code_results parameter from build_scorecard (and its gated branches) if no external callers depend on it. If external backward-compat is genuinely required, add a comment naming the specific external consumer.",
+    "severity": "warning",
+    "evidence_fingerprint": "c0227bd7d2c6d610"
+  },
+  "trace": null
+}

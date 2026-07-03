@@ -1,0 +1,216 @@
+{
+  "slug": "audit-obligation_implicit_contract-005",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "tests/test_llm_provider.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "2 implicit contracts between src/osoji/llm/registry.py and tests/test_llm_provider.py: \"openai\", \"openrouter\"",
+    "observed_behavior": "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "CHANGELOG.md",
+              "kind": "text_match",
+              "line": 16,
+              "context": "- Optional audit phases: `--dead-code`, `--dead-params`, `--dead-plumbing`,\n  `--dead-deps`, `--dead-cicd`, `--orphaned-files` (or `--junk` for all)\n- `--obligations` — cross-file implicit string contract detection\n- `--doc-prompts` — concept-centric documentation coverage and writing prompts\n- `--full` — run all optional phases at once",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 182,
+              "context": "  (a value-level error). When both import a shared constant, a rename causes an\n  ImportError or NameError at load time (a name-level error). The obligation checker\n  exists to find these implicit string contracts. Remediation text should explain\n  this distinction — the goal is to convert silent value-level mismatches into loud\n  name-level errors, not merely to \"extract constants.\"",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 68,
+              "context": "- **Misleading comments** — outdated comments, inaccurate docstrings\n- **Latent bugs** — unchecked returns, type confusion patterns\n- **Obligation violations** — implicit string contracts broken across files\n- **Unactuated config** — config fields declared but never enforced\n- **Unused dependencies** — packages listed but never imported",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 322,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 1\n        assert implicit[0].severity == \"info\"",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 323,
+              "context": "        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 1\n        assert implicit[0].severity == \"info\"\n        assert implicit[0].producer_file == \"src/producer.py\"",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 324,
+              "context": "        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 1\n        assert implicit[0].severity == \"info\"\n        assert implicit[0].producer_file == \"src/producer.py\"\n        assert implicit[0].consumer_file == \"src/consumer.py\"",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 325,
+              "context": "        assert len(implicit) == 1\n        assert implicit[0].severity == \"info\"\n        assert implicit[0].producer_file == \"src/producer.py\"\n        assert implicit[0].consumer_file == \"src/consumer.py\"\n",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 326,
+              "context": "        assert implicit[0].severity == \"info\"\n        assert implicit[0].producer_file == \"src/producer.py\"\n        assert implicit[0].consumer_file == \"src/consumer.py\"\n\n    def test_robust_contract_not_flagged(self, tmp_path):",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 352,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 0\n",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 353,
+              "context": "        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 0\n\n    def test_partially_robust_flagged(self, tmp_path):",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 378,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 1\n",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 379,
+              "context": "        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 1\n\n    def test_same_file_contract_not_flagged(self, tmp_path):",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 393,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 0\n",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 394,
+              "context": "        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 0\n\n    def test_external_protocol_literals_skipped(self, tmp_path):",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 397,
+              "context": "\n    def test_external_protocol_literals_skipped(self, tmp_path):\n        \"\"\"Wire/API protocol literals should not create implicit-contract noise.\"\"\"\n        _write_facts(tmp_path, \"src/provider.py\", {\n            \"string_literals\": [",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 412,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert implicit == []\n",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 413,
+              "context": "        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert implicit == []\n\n    def test_grouping_works(self, tmp_path):",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 416,
+              "context": "\n    def test_grouping_works(self, tmp_path):\n        \"\"\"3 implicit values between same file pair -> 1 grouped finding.\"\"\"\n        _write_facts(tmp_path, \"src/producer.py\", {\n            \"string_literals\": [",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 435,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 1\n        assert implicit[0].value is None  # grouped",
+              "needle": "implicit",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 436,
+              "context": "        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 1\n        assert implicit[0].value is None  # grouped\n        assert implicit[0].evidence[\"count\"] == 3",
+              "needle": "implicit",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 354,
+            "needles": [
+              "implicit"
+            ]
+          },
+          "export_surface": {
+            "symbol": "implicit",
+            "exported_from_flagged_file": false
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "tests/test_llm_provider.py",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: \"\"\"Tests for provider registry, factory, and direct-SDK provider adapters.\"\"\"\n2: \n3: import asyncio\n4: import json\n5: from unittest.mock import AsyncMock, MagicMock\n6: \n7: import pytest\n8: \n9: from osoji.config import Config\n10: from osoji.llm.anthropic import AnthropicProvider\n11: from osoji.llm.factory import create_provider",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "9092313e5fe625d9",
+    "verdict": "dismissed",
+    "confidence": 0.88,
+    "triage_reasoning": "The strings 'openai' and 'openrouter' are names of external LLM services — the canonical identifiers used by the industry, in CLI flags exposed to users, in documentation, and in configuration files. They cannot be renamed within the project without breaking the public interface and misrepresenting the external services. This falls squarely in the 'Ecosystem convention' category: the meaning is defined outside the project by the actual service names. The contract is with the external standard, not an internal project obligation. The test_llm_provider.py shadow doc shows these strings appear in registry normalization tests (normalize_provider_name, provider_names()) which are testing the public-facing registry contract against the ecosystem. Dismiss.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "ba28454a3a30cdde"
+  },
+  "trace": null
+}

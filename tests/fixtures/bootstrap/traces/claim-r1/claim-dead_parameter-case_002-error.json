@@ -1,0 +1,61 @@
+{
+  "slug": "dead_parameter-case_002-error",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "deadparam:dead_parameter",
+    "gap_type": "reachability",
+    "path": "src/app/launcher.py",
+    "line_start": 1,
+    "line_end": 1,
+    "symbol": "error",
+    "contract_source": "function signature",
+    "contract_claim": "Parameter `error` is declared in the signature of log(message, error=False) (src/app/launcher.py line 1) as an accepted input that callers may pass.",
+    "observed_behavior": "The attributed call site, log(\"ok\") in src/app/cli.py, does not pass `error`, so the parameter appears to always take its default False. `log` is a common name with high fan-out: src/noise.py defines an unrelated log(message) that is called locally.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 3,
+            "needles": [
+              "error"
+            ]
+          },
+          "export_surface": {
+            "symbol": "error",
+            "exported_from_flagged_file": false
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/app/launcher.py",
+          "line_start": 1,
+          "line_end": 2,
+          "snippet": "1: def log(message, error=False):\n2:     return f\"{message}:{error}\"",
+          "anchor": "symbol",
+          "enclosing_symbol": {
+            "name": "log",
+            "kind": "function",
+            "line_start": 1,
+            "line_end": 2
+          }
+        }
+      }
+    ],
+    "id": "fef97c9fea95cf5c",
+    "verdict": "uncertain",
+    "confidence": 0.45,
+    "triage_reasoning": "The sweep covered only 3 files and found no external callers passing `error`. The one confirmed call site `log('ok')` in src/app/cli.py omits the parameter. However, the function body does use `error` (it's included in the return string), and `log` is a common name that could have additional callers outside the swept files. The export surface note says `error` is not exported, but that refers to the parameter symbol — the `log` function itself may well be exported and called elsewhere. With such a narrow sweep (3 files) and a common function name, the evidence is insufficient to definitively declare the parameter dead. A broader sweep of the entire codebase for calls to `log(` from `launcher` would be needed to confirm.",
+    "suggested_fix": "",
+    "severity": null,
+    "evidence_fingerprint": "47994b384486186d"
+  },
+  "trace": null
+}

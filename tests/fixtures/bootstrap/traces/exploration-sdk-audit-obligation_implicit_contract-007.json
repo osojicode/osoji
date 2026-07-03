@@ -1,0 +1,115 @@
+{
+  "slug": "audit-obligation_implicit_contract-007",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "scripts/triage_bootstrap.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "Implicit contract: \"exploration\" is produced in tests/test_triage.py and checked in scripts/triage_bootstrap.py with no shared definition",
+    "observed_behavior": "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [],
+    "id": "c35574b587bb040c",
+    "verdict": "confirmed",
+    "confidence": 0.82,
+    "triage_reasoning": "Reality: The bare string literal \"exploration\" appears in clearly related roles across at least four call sites with no shared constant or Literal type constraint:\n• src/osoji/triage.py:211 — authoritative branch: `if mode == \"exploration\":` (mode typed as plain `str`)\n• scripts/triage_bootstrap.py:277 — secondary check: `strip_evidence=(mode == \"exploration\")`\n• scripts/triage_bootstrap.py:339 — CLI mapping: `(\"explore\", \"exploration\")`\n• tests/test_triage.py:203,230,243 — direct argument: `mode=\"exploration\"`\nNo TriageMode constant, no Literal[\"claim\",\"exploration\",\"exploration-sdk\"] annotation exists anywhere in the codebase.\n\nSignificance: This is an unnamed project obligation. A partial rename (e.g., triage.py updated but triage_bootstrap.py's secondary check on line 277 missed) silently flips `strip_evidence`, contaminating exploration-baseline traces without any runtime error or type-checker warning. The strip_evidence check is the most dangerous site because it is behaviorally distinct from just forwarding the mode string to decide_batch — it is a redundant re-interpretation of the mode concept in bootstrap logic.\n\nActionability: Concrete fix is to annotate the `mode` parameter with `Literal[\"claim\", \"exploration\", \"exploration-sdk\"]` and/or extract module-level constants (`TRIAGE_MODE_CLAIM = \"claim\"`, `TRIAGE_MODE_EXPLORATION = \"exploration\"`) in triage.py, then import and use them in triage_bootstrap.py. This turns a silent mismatch into an import error or type-checker error.",
+    "suggested_fix": "In src/osoji/triage.py, change the mode parameter annotation from `str` to `Literal[\"claim\", \"exploration\", \"exploration-sdk\"]` (importing Literal from typing). Optionally extract module-level string constants (e.g. `TRIAGE_MODE_EXPLORATION = \"exploration\"`) and have scripts/triage_bootstrap.py import and use them in the CLI mapping tuple and the strip_evidence comparison, so a rename propagates as an ImportError rather than a silent behavioral divergence.",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "c35574b587bb040c",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "exploration",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "scripts/triage_bootstrap.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "tests/test_triage.py",
+          "start": 160,
+          "end": 260
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/triage.py",
+          "start": 180,
+          "end": 260
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "MODE_|_MODE|Literal\\[.*exploration|mode.*=.*[\"\\']exploration[\"\\']|exploration.*mode",
+          "glob": "src/**/*.py"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "grep",
+        "input": {
+          "pattern": "[\"']exploration[\"']|[\"']claim[\"']|[\"']exploration-sdk[\"']",
+          "glob": "src/**/*.py"
+        }
+      },
+      {
+        "turn": 6,
+        "name": "grep",
+        "input": {
+          "pattern": "TriageMode|TRIAGE_MODE|MODE_EXPLORATION|MODE_CLAIM",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 7,
+        "name": "grep",
+        "input": {
+          "pattern": "mode.*:.*Literal|Literal.*claim.*exploration",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 8,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/triage.py",
+          "start": 175,
+          "end": 215
+        }
+      },
+      {
+        "turn": 9,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.82,
+          "severity": "warning",
+          "reasoning": "Reality: The bare string literal \"exploration\" appears in clearly related roles across at least four call sites with no shared constant or Literal type constraint:\n• src/osoji/triage.py:211 — authoritative branch: `if mode == \"exploration\":` (mode typed as plain `str`)\n• scripts/triage_bootstrap.py:277 — secondary check: `strip_evidence=(mode == \"exploration\")`\n• scripts/triage_bootstrap.py:339 — CLI mapping: `(\"explore\", \"exploration\")`\n• tests/test_triage.py:203,230,243 — direct argument: `mode=\"exploration\"`\nNo TriageMode constant, no Literal[\"claim\",\"exploration\",\"exploration-sdk\"] annotation exists anywhere in the codebase.\n\nSignificance: This is an unnamed project obligation. A partial rename (e.g., triage.py updated but triage_bootstrap.py's secondary check on line 277 missed) silently flips `strip_evidence`, contaminating exploration-baseline traces without any runtime error or type-checker warning. The strip_evidence check is the most dangerous site because it is behaviorally distinct from just forwarding the mode string to decide_batch — it is a redundant re-interpretation of the mode concept in bootstrap logic.\n\nActionability: Concrete fix is to annotate the `mode` parameter with `Literal[\"claim\", \"exploration\", \"exploration-sdk\"]` and/or extract module-level constants (`TRIAGE_MODE_CLAIM = \"claim\"`, `TRIAGE_MODE_EXPLORATION = \"exploration\"`) in triage.py, then import and use them in triage_bootstrap.py. This turns a silent mismatch into an import error or type-checker error.",
+          "suggested_fix": "In src/osoji/triage.py, change the mode parameter annotation from `str` to `Literal[\"claim\", \"exploration\", \"exploration-sdk\"]` (importing Literal from typing). Optionally extract module-level string constants (e.g. `TRIAGE_MODE_EXPLORATION = \"exploration\"`) and have scripts/triage_bootstrap.py import and use them in the CLI mapping tuple and the strip_evidence comparison, so a rename propagates as an ImportError rather than a silent behavioral divergence."
+        }
+      }
+    ],
+    "cost_usd": 0.267254
+  }
+}

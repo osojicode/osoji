@@ -1,0 +1,56 @@
+{
+  "slug": "audit-dead_code-002",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/claim_builder.py",
+    "line_start": 25,
+    "line_end": 25,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L25-25: `Path` is imported from `pathlib` (L25) but is never directly used anywhere in the file. All path construction uses `config.root_path / ...` where `config.root_path` is already a `Path` object — the `Path` constructor itself is never called.",
+    "observed_behavior": "Remove `Path` from the import: change `from pathlib import Path` to remove that name, or delete the import entirely if no other pathlib names are needed.",
+    "evidence": [],
+    "id": "0922e4d1ce2aeb1c",
+    "verdict": "confirmed",
+    "confidence": 0.99,
+    "triage_reasoning": "The grep returns exactly one hit for `Path` in the file — the import on L25. Every path constructed in the file uses the `/` operator on `config.root_path` (which is already a `Path` instance injected by `Config`); the `Path` constructor is never invoked directly. No other pathlib name is imported alongside it, so the entire `from pathlib import Path` line is dead.\n\nReality ✓ — The symbol is imported but has zero call-sites in the file.\nSignificance ✓ — Dead imports are noise, confuse readers, and may trip linters/audits.\nActionability ✓ — Delete `from pathlib import Path` (the whole line; it's the sole import from pathlib).",
+    "suggested_fix": "Delete line 25: `from pathlib import Path`. No other pathlib names are imported, so the entire line can be removed.",
+    "severity": "info",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "0922e4d1ce2aeb1c",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/claim_builder.py"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "Path",
+          "glob": "src/osoji/claim_builder.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.99,
+          "reasoning": "The grep returns exactly one hit for `Path` in the file — the import on L25. Every path constructed in the file uses the `/` operator on `config.root_path` (which is already a `Path` instance injected by `Config`); the `Path` constructor is never invoked directly. No other pathlib name is imported alongside it, so the entire `from pathlib import Path` line is dead.\n\nReality ✓ — The symbol is imported but has zero call-sites in the file.\nSignificance ✓ — Dead imports are noise, confuse readers, and may trip linters/audits.\nActionability ✓ — Delete `from pathlib import Path` (the whole line; it's the sole import from pathlib).",
+          "severity": "info",
+          "suggested_fix": "Delete line 25: `from pathlib import Path`. No other pathlib names are imported, so the entire line can be removed."
+        }
+      }
+    ],
+    "cost_usd": 0.10301
+  }
+}

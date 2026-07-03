@@ -1,0 +1,152 @@
+{
+  "slug": "unactuated_config-case_001-confidence",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "plumbing:unactuated_config",
+    "gap_type": "reachability",
+    "path": "tools.py",
+    "line_start": 329,
+    "line_end": 333,
+    "symbol": "confidence",
+    "contract_source": "config schema",
+    "contract_claim": "The schema field `confidence` declares numeric bounds (type number, minimum 0.0, maximum 1.0) — an obligation that consuming code must enforce when the value is provided.",
+    "observed_behavior": "No application code reads or validates a `confidence` configuration value against these bounds; the declaration appears only inside an LLM tool_use input_schema in tools.py, where the model itself is the consumer of the constraint.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tools.py",
+              "kind": "text_match",
+              "line": 398,
+              "context": "            },\n        },\n        \"required\": [\"classification\", \"confidence\", \"classification_reason\", \"findings\"],\n    },\n}",
+              "needle": "confidence",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tools.py",
+              "kind": "text_match",
+              "line": 455,
+              "context": "                            \"description\": \"True if the symbol is genuinely dead code with no alive pathway\",\n                        },\n                        \"confidence\": {\n                            \"type\": \"number\",\n                            \"minimum\": 0.0,",
+              "needle": "confidence",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tools.py",
+              "kind": "text_match",
+              "line": 470,
+              "context": "                        },\n                    },\n                    \"required\": [\"symbol_name\", \"is_dead\", \"confidence\", \"reason\", \"remediation\"],\n                },\n            },",
+              "needle": "confidence",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tools.py",
+              "kind": "text_match",
+              "line": 657,
+              "context": "                \"description\": \"True if the obligation is enforced at runtime somewhere in the codebase\",\n            },\n            \"confidence\": {\n                \"type\": \"number\",\n                \"minimum\": 0.0,",
+              "needle": "confidence",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tools.py",
+              "kind": "text_match",
+              "line": 672,
+              "context": "            },\n        },\n        \"required\": [\"is_actuated\", \"confidence\", \"trace\", \"remediation\"],\n    },\n}",
+              "needle": "confidence",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tools.py",
+              "kind": "text_match",
+              "line": 724,
+              "context": "                            \"description\": \"True if the dependency is genuinely unused\",\n                        },\n                        \"confidence\": {\n                            \"type\": \"number\",\n                            \"minimum\": 0.0,",
+              "needle": "confidence",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tools.py",
+              "kind": "text_match",
+              "line": 744,
+              "context": "                        },\n                    },\n                    \"required\": [\"package_name\", \"is_dead\", \"confidence\", \"reason\", \"remediation\", \"usage_type\"],\n                },\n            },",
+              "needle": "confidence",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tools.py",
+              "kind": "text_match",
+              "line": 797,
+              "context": "                            \"description\": \"True if the element is stale/dead\",\n                        },\n                        \"confidence\": {\n                            \"type\": \"number\",\n                            \"minimum\": 0.0,",
+              "needle": "confidence",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tools.py",
+              "kind": "text_match",
+              "line": 812,
+              "context": "                        },\n                    },\n                    \"required\": [\"element_name\", \"is_dead\", \"confidence\", \"reason\", \"remediation\"],\n                },\n            },",
+              "needle": "confidence",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tools.py",
+              "kind": "text_match",
+              "line": 1106,
+              "context": "                            \"description\": \"True if the file is genuinely orphaned\",\n                        },\n                        \"confidence\": {\n                            \"type\": \"number\",\n                            \"minimum\": 0.0,",
+              "needle": "confidence",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tools.py",
+              "kind": "text_match",
+              "line": 1120,
+              "context": "                        },\n                    },\n                    \"required\": [\"source_path\", \"is_orphaned\", \"confidence\", \"reason\", \"remediation\"],\n                },\n            },",
+              "needle": "confidence",
+              "source": "text_scan",
+              "same_file": true
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 1,
+            "needles": [
+              "confidence"
+            ],
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "tools.py",
+          "line_start": 319,
+          "line_end": 339,
+          "snippet": "319: \n320: Validation: check for contradictions between the doc and the shadow docs (source of truth).\n321: Report findings with evidence from shadow docs. Empty findings array if no issues found.\"\"\",\n322:     \"input_schema\": {\n323:         \"type\": \"object\",\n324:         \"properties\": {\n325:             \"classification\": {\n326:                 \"type\": \"string\",\n327:                 \"enum\": [\"reference\", \"tutorial\", \"how-to\", \"explanatory\", \"process_artifact\"],\n328:             },\n329:             \"confidence\": {\n330:                 \"type\": \"number\",\n331:                 \"minimum\": 0.0,\n332:                 \"maximum\": 1.0,\n333:             },\n334:             \"classification_reason\": {\n335:                 \"type\": \"string\",\n336:                 \"description\": \"Brief explanation of classification\",\n337:             },\n338:             \"findings\": {\n339:                 \"type\": \"array\",",
+          "anchor": "symbol"
+        }
+      }
+    ],
+    "id": "114871ab970f8e2a",
+    "verdict": "dismissed",
+    "confidence": 0.97,
+    "triage_reasoning": "The `confidence` field with `minimum: 0.0, maximum: 1.0` is declared inside an LLM `tool_use` `input_schema`. In this architecture, the schema is consumed by the LLM model — the model is instructed to produce values that conform to these bounds when it calls the tool. Application code does not need to re-validate the model's output against these bounds because the schema constraint is the mechanism by which the LLM is guided. This is the intended design: JSON Schema constraints in LLM tool schemas are directives to the model, not contracts for application-layer validation. The 'unactuated config' framing mischaracterizes the relationship — the schema IS actuated by the model's generation process.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "b88f68bcc052b5d4"
+  },
+  "trace": null
+}
