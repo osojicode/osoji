@@ -276,3 +276,152 @@ class TestGapTypeTable:
     def test_debris_categories_present(self):
         # Sanity-check our extraction path matches the known debris enum.
         assert "stale_comment" in self._category_enum(SUBMIT_SHADOW_DOC_TOOL)
+
+
+# --- propose-time candidate adapters (V1-5a) ---------------------------------
+
+
+def _dc_candidate(**over):
+    from osoji.deadcode import DeadCodeCandidate, GrepHit
+
+    kwargs = dict(
+        source_path="src/osoji/foo.py",
+        name="Widget.render",
+        kind="method",
+        line_start=40,
+        line_end=44,
+        ref_count=2,
+        grep_hits=[
+            GrepHit(file_path="src/osoji/b.py", line_number=3, context="w.render()"),
+            GrepHit(file_path="src/osoji/a.py", line_number=9, context="# render"),
+        ],
+    )
+    kwargs.update(over)
+    return DeadCodeCandidate(**kwargs)
+
+
+def _dp_candidate(**over):
+    from osoji.deadparam import CallSite, DeadParamCandidate
+
+    kwargs = dict(
+        source_path="src/osoji/foo.py",
+        function_name="Widget.render",
+        param_name="verbose",
+        param_line=40,
+        has_default=True,
+        call_sites=[
+            CallSite(file_path="src/osoji/b.py", line_number=3, context="w.render()"),
+            CallSite(file_path="src/osoji/b.py", line_number=8, context="w.render(1)"),
+        ],
+    )
+    kwargs.update(over)
+    return DeadParamCandidate(**kwargs)
+
+
+class TestDeadCodeCandidateAdapter:
+    def test_basic_mapping(self):
+        from osoji.findings_adapter import finding_from_dead_code_candidate
+
+        f = finding_from_dead_code_candidate(_dc_candidate())
+        assert f.detector == "deadcode:dead_symbol"
+        assert f.gap_type == "reachability"
+        assert f.path == "src/osoji/foo.py"
+        assert f.symbol == "Widget.render"
+        assert f.contract_source == "symbol declaration"
+        assert "`Widget.render` (method)" in f.contract_claim
+        assert f.verdict is None and f.confidence is None
+
+    def test_scanner_metadata_carries_needles_and_priority(self):
+        from osoji.findings_adapter import finding_from_dead_code_candidate
+
+        f = finding_from_dead_code_candidate(_dc_candidate())
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert meta.payload["scan_needles"] == ["Widget.render", "render"]
+        assert meta.payload["priority_paths"] == ["src/osoji/a.py", "src/osoji/b.py"]
+        assert meta.payload["scan"] == "grep"
+        assert meta.payload["ref_count"] == 2
+
+    def test_bare_name_needle_not_duplicated(self):
+        from osoji.findings_adapter import finding_from_dead_code_candidate
+
+        f = finding_from_dead_code_candidate(_dc_candidate(name="lonely", kind="function"))
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert meta.payload["scan_needles"] == ["lonely"]
+
+    def test_ast_proven_changes_scan_and_observation(self):
+        from osoji.findings_adapter import finding_from_dead_code_candidate
+
+        f = finding_from_dead_code_candidate(
+            _dc_candidate(ref_count=0, grep_hits=[]), ast_proven=True
+        )
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert meta.payload["scan"] == "ast"
+        assert "AST graph" in f.observed_behavior
+
+    def test_id_stable_under_line_drift(self):
+        from osoji.findings_adapter import finding_from_dead_code_candidate
+
+        a = finding_from_dead_code_candidate(_dc_candidate(line_start=40, line_end=44))
+        b = finding_from_dead_code_candidate(_dc_candidate(line_start=90, line_end=94))
+        assert a.id == b.id
+
+    def test_id_stable_across_ref_count_changes(self):
+        # counts live in observed_behavior, never in the hashed contract_claim
+        from osoji.findings_adapter import finding_from_dead_code_candidate
+
+        a = finding_from_dead_code_candidate(_dc_candidate(ref_count=0, grep_hits=[]))
+        b = finding_from_dead_code_candidate(_dc_candidate(ref_count=2))
+        assert a.id == b.id
+
+
+class TestDeadParamCandidateAdapter:
+    def test_basic_mapping(self):
+        from osoji.findings_adapter import finding_from_dead_param_candidate
+
+        f = finding_from_dead_param_candidate(_dp_candidate())
+        assert f.detector == "deadparam:dead_parameter"
+        assert f.gap_type == "reachability"
+        assert f.symbol == "Widget.render.verbose"
+        assert f.contract_source == "function signature"
+        assert f.line_start == f.line_end == 40
+        assert "`verbose`" in f.contract_claim
+
+    def test_needles_are_function_names_never_the_param(self):
+        from osoji.findings_adapter import finding_from_dead_param_candidate
+
+        f = finding_from_dead_param_candidate(_dp_candidate())
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert meta.payload["scan_needles"] == ["render", "Widget"]
+        assert "verbose" not in meta.payload["scan_needles"]
+
+    def test_plain_function_gets_single_needle(self):
+        from osoji.findings_adapter import finding_from_dead_param_candidate
+
+        f = finding_from_dead_param_candidate(_dp_candidate(function_name="run"))
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert meta.payload["scan_needles"] == ["run"]
+
+    def test_priority_paths_source_then_call_sites_then_importers(self):
+        from osoji.findings_adapter import finding_from_dead_param_candidate
+
+        f = finding_from_dead_param_candidate(
+            _dp_candidate(), importers=["src/osoji/b.py", "src/osoji/c.py"]
+        )
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert meta.payload["priority_paths"] == [
+            "src/osoji/foo.py", "src/osoji/b.py", "src/osoji/c.py",
+        ]
+
+    def test_same_param_name_different_functions_distinct_ids(self):
+        from osoji.findings_adapter import finding_from_dead_param_candidate
+
+        a = finding_from_dead_param_candidate(_dp_candidate(function_name="alpha"))
+        b = finding_from_dead_param_candidate(_dp_candidate(function_name="beta"))
+        assert a.id != b.id
+
+    def test_id_stable_under_param_line_drift(self):
+        from osoji.findings_adapter import finding_from_dead_param_candidate
+
+        a = finding_from_dead_param_candidate(_dp_candidate(param_line=40))
+        b = finding_from_dead_param_candidate(_dp_candidate(param_line=77))
+        assert a.id == b.id

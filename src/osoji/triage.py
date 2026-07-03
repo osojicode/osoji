@@ -102,9 +102,18 @@ Confirm only when all three hold. Dismiss when any fails. Use 'uncertain' when t
 assembled evidence genuinely cannot decide.
 
 Weigh the assembled evidence. For reachability claims, a cross-file reference that is a
-real import/call/use refutes the gap (dismiss); a reference that is only a comment, a
-string literal, or a same-named-but-different symbol does not (confirm). Account for
-dynamic dispatch, framework registration, re-exports, and within-file transitive liveness.
+real import/call/use refutes the gap (dismiss); a reference that is only an unrelated
+comment, a doc mention, or a same-named-but-different symbol does not (confirm). A hit
+inside a quoted string (marked [match is inside a quoted string]) needs care: when the
+flagged symbol's exact name appears as a string in executable code, it may be a
+dynamic-dispatch key — reflection, name-based lookup, a registry, a command/RPC/config
+table. Examine the surrounding lines; if the string plausibly feeds a mechanism that can
+reach the symbol, the symbol is reachable — dismiss. Account for framework registration,
+re-exports, and within-file transitive liveness. And when reachability evidence is
+positive but marginal and the flagged symbol is a small delegating member of a uniform
+interface surface, removing it is unlikely to improve the codebase — dismiss on
+Significance. (Zero-hit sweeps carry no such doubt: an honest zero over a real scan
+scope is the canonical case FOR confirming.)
 
 For contract gaps over hard-coded literals, classify the literal before deciding:
 - Named project obligation — a constant exists; another site duplicates its bare literal.
@@ -455,9 +464,10 @@ def _render_evidence(ev: Evidence) -> str:
             for ref in references:
                 resolves = " (resolves to source)" if ref.get("resolves_to_source") else ""
                 same_file = " (same file, outside the flagged region)" if ref.get("same_file") else ""
+                quoted = " [match is inside a quoted string]" if ref.get("in_string_literal") else ""
                 line = f":{ref['line']}" if ref.get("line") else ""
                 out.append(
-                    f"- `{ref.get('file')}{line}` [{ref.get('kind')}]{same_file}: "
+                    f"- `{ref.get('file')}{line}` [{ref.get('kind')}]{same_file}{quoted}: "
                     f"{ref.get('context')}{resolves}"
                 )
             if scope:

@@ -32,6 +32,8 @@ from .evidence import Evidence
 from .findings import Finding, GapType
 
 if TYPE_CHECKING:  # pragma: no cover - typing only, avoids import-time coupling
+    from .deadcode import DeadCodeCandidate
+    from .deadparam import DeadParamCandidate
     from .doc_analysis import DocFinding
     from .junk import JunkFinding
     from .obligations import ContractFinding
@@ -127,6 +129,132 @@ def finding_from_junk(jf: "JunkFinding", *, root: str | Path | None = None) -> F
         contract_source=jf.kind,
         contract_claim=jf.original_purpose,
         observed_behavior=jf.reason,
+        evidence=[evidence],
+    )
+
+
+def finding_from_dead_code_candidate(
+    c: "DeadCodeCandidate",
+    *,
+    ast_proven: bool = False,
+    root: str | Path | None = None,
+) -> Finding:
+    """Convert a propose-time :class:`osoji.deadcode.DeadCodeCandidate` (V1-5a).
+
+    Unlike :func:`finding_from_junk` (which bridges the *post-verification*
+    ``JunkFinding``), this adapter runs *before* Triage: the candidate is the
+    hypothesis, and the scanner's propose-time observations ride along as
+    ``scanner_metadata`` for the Claim Builder. ``scan_needles`` and
+    ``priority_paths`` steer :class:`~osoji.evidence_builders.CrossFileReferenceBuilder`
+    (qualified + bare needles; grep-hit files swept cap-exempt).
+
+    ``contract_claim`` interpolates only name/kind — it is hashed into
+    ``finding.id``, so counts and line numbers must stay out of it.
+    """
+
+    name = c.name
+    bare = name.rsplit(".", 1)[-1]
+    hit_files = sorted({h.file_path for h in c.grep_hits})
+    if ast_proven:
+        observed = (
+            "FactsDB AST graph shows zero cross-file references to the symbol; "
+            "all importers of the defining file have AST-extracted facts."
+        )
+    elif c.ref_count == 0:
+        observed = "Reference scan found no external file referencing the symbol."
+    else:
+        observed = (
+            f"Reference scan found textual matches in {c.ref_count} external "
+            "location(s) that may not be genuine usages."
+        )
+    evidence = Evidence(
+        kind="scanner_metadata",
+        payload={
+            "ref_count": c.ref_count,
+            "kind": c.kind,
+            "scan": "ast" if ast_proven else "grep",
+            "hit_files": hit_files,
+            "scan_needles": [name] + ([bare] if bare != name else []),
+            "priority_paths": hit_files,
+        },
+    )
+    return Finding(
+        detector="deadcode:dead_symbol",
+        gap_type="reachability",
+        path=_norm_path(c.source_path, root),
+        line_start=c.line_start,
+        line_end=c.line_end,
+        symbol=name,
+        contract_source="symbol declaration",
+        contract_claim=(
+            f"Symbol `{name}` ({c.kind}) is declared as part of the file's public "
+            "surface but appears unused — no genuine references outside its own "
+            "declaration."
+        ),
+        observed_behavior=observed,
+        evidence=[evidence],
+    )
+
+
+def finding_from_dead_param_candidate(
+    c: "DeadParamCandidate",
+    importers: list[str] | None = None,
+    *,
+    root: str | Path | None = None,
+) -> Finding:
+    """Convert a propose-time :class:`osoji.deadparam.DeadParamCandidate` (V1-5a).
+
+    ``symbol`` is ``function.param`` (matches the legacy ``JunkFinding.name``
+    and keeps same-named params in different functions from colliding on
+    ``finding.id``). The scan needles are the *function's* grep names — never
+    the bare parameter name, which is a hopelessly noisy repo-wide needle; the
+    call-site contexts the sweep returns are what show whether callers pass the
+    parameter. ``priority_paths`` puts the defining file, the observed call-site
+    files, and the importers ahead of the hit cap.
+    """
+
+    func = c.function_name
+    grep_name = func.rsplit(".", 1)[-1]
+    needles = [grep_name]
+    if "." in func:
+        needles.append(func.rsplit(".", 1)[0])  # constructor calls: ClassName(...)
+    call_site_files = sorted({s.file_path for s in c.call_sites})
+    priority: list[str] = []
+    for p in [_norm_path(c.source_path, root), *call_site_files, *(importers or [])]:
+        norm = _norm_path(p, root)
+        if norm and norm not in priority:
+            priority.append(norm)
+    evidence = Evidence(
+        kind="scanner_metadata",
+        payload={
+            "function_name": func,
+            "param_name": c.param_name,
+            "has_default": c.has_default,
+            "param_line": c.param_line,
+            "n_call_sites": len(c.call_sites),
+            "call_site_files": call_site_files,
+            "scan_needles": needles,
+            "priority_paths": priority,
+        },
+    )
+    return Finding(
+        detector="deadparam:dead_parameter",
+        gap_type="reachability",
+        path=_norm_path(c.source_path, root),
+        line_start=c.param_line,
+        line_end=c.param_line,
+        symbol=f"{func}.{c.param_name}",
+        contract_source="function signature",
+        contract_claim=(
+            f"Parameter `{c.param_name}` is declared in the signature of "
+            f"`{func}` as an accepted optional input that callers may pass."
+        ),
+        observed_behavior=(
+            f"Reference scan found {len(c.call_sites)} call site(s) of `{func}` "
+            "across the defining file and its importers; the scanner does not "
+            f"parse call arguments — whether any caller passes `{c.param_name}` "
+            "must be judged from the call-site evidence."
+        ),
         evidence=[evidence],
     )
 

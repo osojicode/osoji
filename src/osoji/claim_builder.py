@@ -45,7 +45,7 @@ from .triage import Claim
 #: Version tag of the Claim Builder schema (kind set + tables below). Part of
 #: every evidence_fingerprint; bump on any schema change so the V1-9 verdict
 #: cache invalidates rather than serving verdicts produced by an older schema.
-CLAIM_BUILDER_SCHEMA_VERSION = "cb-1"
+CLAIM_BUILDER_SCHEMA_VERSION = "cb-2"
 
 
 @dataclass(frozen=True)
