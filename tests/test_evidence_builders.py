@@ -515,3 +515,43 @@ def test_match_in_quotes_positional_check():
     escaped = 'msg = "say \\"old_helper\\" now"'
     assert _match_in_quotes(escaped, escaped.index("old_helper")) is True
     assert _match_in_quotes("old_helper()", 0) is False
+
+
+def test_backticked_dotted_names_yield_qualified_and_bare_needles(config, temp_dir):
+    # dead_symbol-001 lesson: the plain-word backtick pattern skipped dotted
+    # names entirely, so the method was never swept and its string-dispatch
+    # site stayed invisible.
+    write(temp_dir, "src/x.py", "class Widget:\n    def render(self):\n        pass\n")
+    write(temp_dir, "src/reg.py", "handler = getattr(w, 'render')\n")
+    finding = make_finding(
+        symbol=None,
+        line_start=1,
+        line_end=3,
+        contract_claim="Symbol `Widget.render` is declared but appears unused",
+        observed_behavior="no references to `Widget.render` were found",
+    )
+    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
+    evidence = BUILDERS["cross_file_reference"].build(finding, ctx)
+    scope = evidence[0].payload["scan_scope"]
+    assert "Widget.render" in scope["needles"]
+    assert "render" in scope["needles"]
+    hits = [r for r in evidence[0].payload["references"] if r["file"] == "src/reg.py"]
+    assert hits and hits[0].get("in_string_literal") is True
+
+
+def test_sweep_orders_by_proximity_to_flagged_file(config, temp_dir):
+    # V1-5a dead_symbol-002 lesson: a committed corpus's own JSON artifacts
+    # (source-ranked extensions) crowded out the flagged file's sibling-package
+    # usage sites. Proximity to the flagged file breaks the tie.
+    write(temp_dir, "src/pkg/x.py", "class Base:\n    pass\n")
+    write(temp_dir, "src/pkg/impl.py", "from x import Base\nclass Impl(Base):\n    pass\n")
+    # A far-away fixture corpus with more than enough hits to fill the cap
+    for i in range(30):
+        write(temp_dir, f"tests/fixtures/trace_{i:02d}.json", '{"note": "mentions Base"}\n')
+    finding = make_finding(
+        path="src/pkg/x.py", symbol="Base", line_start=1, line_end=2
+    )
+    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
+    evidence = BUILDERS["cross_file_reference"].build(finding, ctx)
+    files = [r["file"] for r in evidence[0].payload["references"]]
+    assert files[0] == "src/pkg/impl.py"

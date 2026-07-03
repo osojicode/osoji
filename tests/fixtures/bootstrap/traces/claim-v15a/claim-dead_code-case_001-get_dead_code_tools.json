@@ -1,0 +1,55 @@
+{
+  "slug": "dead_code-case_001-get_dead_code_tools",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/tools.py",
+    "line_start": 391,
+    "line_end": 393,
+    "symbol": "get_dead_code_tools",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `get_dead_code_tools` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "No callers or importers of `get_dead_code_tools` were found in the fixture project; consumer modules import the get_*_tool_definitions() variants instead, so this wrapper is never invoked even though the TOOL constant it returns is alive.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 6,
+            "needles": [
+              "get_dead_code_tools"
+            ],
+            "needle_totals": {
+              "get_dead_code_tools": 0
+            },
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/tools.py",
+          "line_start": 381,
+          "line_end": 401,
+          "snippet": "381:                     },\n382:                     \"required\": [\"symbol_name\", \"is_dead\", \"confidence\", \"reason\", \"remediation\"],\n383:                 },\n384:             },\n385:         },\n386:         \"required\": [\"verdicts\"],\n387:     },\n388: }\n389: \n390: \n391: def get_dead_code_tools() -> list[dict]:\n392:     \"\"\"Return tools for dead code verification.\"\"\"\n393:     return [VERIFY_DEAD_CODE_TOOL]\n394: \n395: \n396: def _dict_to_tool_definition(tool_dict: dict[str, Any]) -> ToolDefinition:\n397:     \"\"\"Convert a tool dictionary to a ToolDefinition object.\"\"\"\n398:     return ToolDefinition(\n399:         name=tool_dict[\"name\"],\n400:         description=tool_dict[\"description\"],\n401:         input_schema=tool_dict[\"input_schema\"],",
+          "anchor": "symbol"
+        }
+      }
+    ],
+    "id": "b1face2831596afe",
+    "verdict": "confirmed",
+    "confidence": 0.92,
+    "triage_reasoning": "Reality: Zero references to `get_dead_code_tools` in the 6-file sweep. The same pattern as Claim 0: the raw-dict variant was replaced by `get_dead_code_tool_definitions()`. The `get_*_tool_definitions()` functions are the live API; the `get_*_tools()` wrappers are orphaned. Significance: Dead code adds noise and can mislead future contributors. Actionability: Delete the function at L391-393.",
+    "suggested_fix": "Remove `get_dead_code_tools()` (L391-393). Callers should use `get_dead_code_tool_definitions()` instead.",
+    "severity": "warning",
+    "evidence_fingerprint": "fb9d41cf0a9a0a3d"
+  },
+  "trace": null
+}

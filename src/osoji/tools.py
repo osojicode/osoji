@@ -1346,7 +1346,9 @@ assembled for you. Decide each against the three true-positive predicates:
 - Significance: does closing it improve the codebase?
 - Actionability: is there a concrete fix?
 
-Return one verdict per claim, identified by its batch_index.""",
+Return one verdict per claim, identified by its batch_index. When a claim shows a
+Symbol line, echo it in the verdict's symbol field — sibling claims (e.g. two
+parameters of the same function) are easy to cross-wire by index alone.""",
     "input_schema": {
         "type": "object",
         "properties": {
@@ -1359,6 +1361,11 @@ Return one verdict per claim, identified by its batch_index.""",
                             "type": "integer",
                             "minimum": 0,
                             "description": "0-based index of the claim being judged, as listed in the prompt.",
+                        },
+                        "symbol": {
+                            "type": "string",
+                            "description": "The claim's Symbol line, echoed exactly as shown. "
+                                           "Omit for claims without one.",
                         },
                         **_TRIAGE_VERDICT_FIELDS,
                     },

@@ -292,8 +292,24 @@ class Triage:
         def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
             if tool_name != "submit_triage_verdicts":
                 return []
-            got = {v.get("batch_index") for v in tool_input.get("verdicts", [])}
-            return [f"Missing verdict for batch_index {i}" for i in range(n) if i not in got]
+            by_index = {
+                v.get("batch_index"): v for v in tool_input.get("verdicts", [])
+            }
+            errors = [
+                f"Missing verdict for batch_index {i}" for i in range(n) if i not in by_index
+            ]
+            # Symbol echo guard: sibling claims (two params of one function)
+            # are easy to cross-wire by index alone — a mismatched echo means
+            # the verdict was written about a different claim.
+            for i, claim in enumerate(claims):
+                echoed = (by_index.get(i) or {}).get("symbol")
+                expected = claim.finding.symbol
+                if echoed and expected and echoed != expected:
+                    errors.append(
+                        f"Verdict for batch_index {i} echoes symbol '{echoed}' but "
+                        f"claim {i} is `{expected}` — re-check your batch_index assignment"
+                    )
+            return errors
 
         result = await provider.complete(
             messages=[Message(role=MessageRole.USER, content=user)],
@@ -333,7 +349,8 @@ class Triage:
             parts.append(self._render_claim_block(i, claim.finding))
         parts.append(
             f"\nProvide a verdict for EVERY claim (batch indices 0..{len(claims) - 1}) "
-            "using the submit_triage_verdicts tool."
+            "using the submit_triage_verdicts tool, echoing each claim's Symbol line "
+            "in the verdict's symbol field."
         )
         return "\n".join(parts)
 

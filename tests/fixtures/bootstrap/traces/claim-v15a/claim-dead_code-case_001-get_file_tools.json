@@ -1,0 +1,55 @@
+{
+  "slug": "dead_code-case_001-get_file_tools",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/tools.py",
+    "line_start": 311,
+    "line_end": 313,
+    "symbol": "get_file_tools",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `get_file_tools` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "No callers or importers of `get_file_tools` were found in the fixture project; consumer modules import the get_*_tool_definitions() variants instead, so this wrapper is never invoked even though the TOOL constant it returns is alive.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 6,
+            "needles": [
+              "get_file_tools"
+            ],
+            "needle_totals": {
+              "get_file_tools": 0
+            },
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/tools.py",
+          "line_start": 301,
+          "line_end": 321,
+          "snippet": "301:                         \"search_terms\",\n302:                     ],\n303:                 },\n304:             },\n305:         },\n306:         \"required\": [\"classification\", \"confidence\", \"classification_reason\", \"findings\"],\n307:     },\n308: }\n309: \n310: \n311: def get_file_tools() -> list[dict]:\n312:     \"\"\"Return tools for file shadow doc generation.\"\"\"\n313:     return [SUBMIT_SHADOW_DOC_TOOL]\n314: \n315: \n316: def get_directory_tools() -> list[dict]:\n317:     \"\"\"Return tools for directory shadow doc generation.\"\"\"\n318:     return [SUBMIT_DIRECTORY_SHADOW_DOC_TOOL]\n319: \n320: \n321: def get_match_doc_topics_tools() -> list[dict]:",
+          "anchor": "symbol"
+        }
+      }
+    ],
+    "id": "0e0ee964d3f2b5d1",
+    "verdict": "confirmed",
+    "confidence": 0.92,
+    "triage_reasoning": "Reality: The evidence shows zero references to `get_file_tools` across 6 files swept. The function's raison d'être — returning raw dict wrappers around tool constants — was superseded by the `get_*_tool_definitions()` family, and specifically `get_file_tool_definitions()` is the live path used by `shadow.py`. The raw-dict variant is never called. Significance: Removing it reduces confusion about which API surface to use. Actionability: Delete the function body at L311-313.",
+    "suggested_fix": "Remove `get_file_tools()` (L311-313). Callers should use `get_file_tool_definitions()` instead.",
+    "severity": "warning",
+    "evidence_fingerprint": "ec96b2210a0f8d91"
+  },
+  "trace": null
+}

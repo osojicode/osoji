@@ -254,3 +254,40 @@ async def test_failing_chunk_bisects_then_keeps_claims_undecided(temp_dir):
     assert len(decided) == 4
     assert all(f.verdict is None for f in decided)
     assert (in_tok, out_tok) == (0, 0)
+
+
+@pytest.mark.asyncio
+async def test_symbol_echo_mismatch_is_a_validation_error(temp_dir):
+    """Cross-wired sibling verdicts are caught mechanically (A/B finding)."""
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    _write(temp_dir, "src/anchor.py", "print('corpus is non-empty')\n")
+    claims = _trivial_claims(config, 2)
+
+    captured = {}
+
+    class ProbingProvider(FakeProvider):
+        async def complete(self, messages, system, options):
+            validator = options.tool_input_validators[0]
+            crossed = {"verdicts": [
+                {"batch_index": 0, "symbol": claims[1].finding.symbol,
+                 "verdict": "confirmed", "confidence": 0.9, "reasoning": "x"},
+                {"batch_index": 1, "symbol": claims[0].finding.symbol,
+                 "verdict": "dismissed", "confidence": 0.9, "reasoning": "y"},
+            ]}
+            captured["crossed_errors"] = validator("submit_triage_verdicts", crossed)
+            aligned = {"verdicts": [
+                {"batch_index": 0, "symbol": claims[0].finding.symbol,
+                 "verdict": "confirmed", "confidence": 0.9, "reasoning": "x"},
+                {"batch_index": 1, "symbol": claims[1].finding.symbol,
+                 "verdict": "dismissed", "confidence": 0.9, "reasoning": "y"},
+            ]}
+            captured["aligned_errors"] = validator("submit_triage_verdicts", aligned)
+            return await super().complete(messages, system, options)
+
+    provider = ProbingProvider()
+    decided, _in_tok, _out_tok = await decide_junk_claims(claims, config, provider)
+
+    assert len(captured["crossed_errors"]) == 2
+    assert "re-check" in captured["crossed_errors"][0]
+    assert captured["aligned_errors"] == []
+    assert len(decided) == 2

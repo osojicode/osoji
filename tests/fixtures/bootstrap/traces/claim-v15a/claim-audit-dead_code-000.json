@@ -1,0 +1,246 @@
+{
+  "slug": "audit-dead_code-000",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/async_utils.py",
+    "line_start": 54,
+    "line_end": 54,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L54-54: The `_SENTINEL` filter `[result for result in results if result is not _SENTINEL]` is never triggered in practice. In the success path all slots are filled; in the exception + `return_exceptions=False` path the function raises before reaching this line; in the `return_exceptions=True` path exceptions are stored directly so all slots are also filled. The filter is an always-no-op guard.",
+    "observed_behavior": "Replace with a plain `return list(results)` (after casting) or add an assertion `assert _SENTINEL not in results` for debugging. If the sentinel guard is intentionally defensive, document why residual sentinels could occur.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 596,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L54-54: The `_SENTINEL` filter `[result for result in results if result is not _SENTINEL]` is never triggered in practice. In the success path all slots are filled; in the e\n        \"observed_behavior\": \"Replace with a plain `return list(results)` (after casting) or add an assertion `assert _SENTINEL not in results` for debugging. If the sentinel guard is intentionally de\n        \"evidence\": [],",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 597,
+              "context": "        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L54-54: The `_SENTINEL` filter `[result for result in results if result is not _SENTINEL]` is never triggered in practice. In the success path all slots are filled; in the e\n        \"observed_behavior\": \"Replace with a plain `return list(results)` (after casting) or add an assertion `assert _SENTINEL not in results` for debugging. If the sentinel guard is intentionally de\n        \"evidence\": [],\n        \"id\": \"16f520141daaf396\",",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1142,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L54-54: The `_SENTINEL` filter `[result for result in results if result is not _SENTINEL]` is never triggered in practice. In the success path all slots are filled; in the e\n        \"observed_behavior\": \"Replace with a plain `return list(results)` (after casting) or add an assertion `assert _SENTINEL not in results` for debugging. If the sentinel guard is intentionally de\n        \"evidence\": [],",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1143,
+              "context": "        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L54-54: The `_SENTINEL` filter `[result for result in results if result is not _SENTINEL]` is never triggered in practice. In the success path all slots are filled; in the e\n        \"observed_behavior\": \"Replace with a plain `return list(results)` (after casting) or add an assertion `assert _SENTINEL not in results` for debugging. If the sentinel guard is intentionally de\n        \"evidence\": [],\n        \"id\": \"16f520141daaf396\",",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-dead_code-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L54-54: The `_SENTINEL` filter `[result for result in results if result is not _SENTINEL]` is never triggered in practice. In the success path all slots are filled; in the excep\n    \"observed_behavior\": \"Replace with a plain `return list(results)` (after casting) or add an assertion `assert _SENTINEL not in results` for debugging. If the sentinel guard is intentionally defens\n    \"evidence\": [],",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-dead_code-000.json",
+              "kind": "text_match",
+              "line": 14,
+              "context": "    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L54-54: The `_SENTINEL` filter `[result for result in results if result is not _SENTINEL]` is never triggered in practice. In the success path all slots are filled; in the excep\n    \"observed_behavior\": \"Replace with a plain `return list(results)` (after casting) or add an assertion `assert _SENTINEL not in results` for debugging. If the sentinel guard is intentionally defens\n    \"evidence\": [],\n    \"id\": \"16f520141daaf396\",",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-dead_code-000.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"confirmed\",\n    \"confidence\": 0.95,\n    \"triage_reasoning\": \"\\n**Tracing every path that can reach line 54:**\\n\\n`results` is initialised as `[_SENTINEL] * len(factories)`. The outer `while` loop continues as long as `next_index < len(f\n    \"suggested_fix\": \"Replace line 54 with a plain return that makes the invariant explicit:\\n\\n```python\\n# All slots guaranteed filled: successes stored above, exceptions stored or\\n# function raise\n    \"severity\": \"info\",",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_code-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L54-54: The `_SENTINEL` filter `[result for result in results if result is not _SENTINEL]` is never triggered in practice. In the success path all slots are filled; in the excep\n    \"observed_behavior\": \"Replace with a plain `return list(results)` (after casting) or add an assertion `assert _SENTINEL not in results` for debugging. If the sentinel guard is intentionally defens\n    \"evidence\": [",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_code-000.json",
+              "kind": "text_match",
+              "line": 14,
+              "context": "    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L54-54: The `_SENTINEL` filter `[result for result in results if result is not _SENTINEL]` is never triggered in practice. In the success path all slots are filled; in the excep\n    \"observed_behavior\": \"Replace with a plain `return list(results)` (after casting) or add an assertion `assert _SENTINEL not in results` for debugging. If the sentinel guard is intentionally defens\n    \"evidence\": [\n      {",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_code-000.json",
+              "kind": "text_match",
+              "line": 25,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 596,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L54-54: The `_SENTINEL` filter `[result for result in results if result is n\n              \"needle\": \"_SENTINEL\",\n              \"source\": \"text_scan\"",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-002.json",
+              "kind": "text_match",
+              "line": 347,
+              "context": "          ],\n          \"shadow_excerpts\": {\n            \"src/osoji/async_utils.py\": \"# src\\\\osoji\\\\async_utils.py\\n@source-hash: 0e244cbdf3458c73\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:27:38Z\\n\\n## `src/osoji/async_utils.py` —\n            \"src/osoji/deadcode.py\": \"# src\\\\osoji\\\\deadcode.py\\n@source-hash: fc6f41f83fe56754\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:29:27Z\\n\\n## `src/osoji/deadcode.py` — Cross-Fi\n            \"src/osoji/deadparam.py\": \"# src\\\\osoji\\\\deadparam.py\\n@source-hash: d8ecf1f293b464b2\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:32:12Z\\n\\n## Purpose\\nTwo-phase dead paramete",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-dead_code-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L54-54: The `_SENTINEL` filter `[result for result in results if result is not _SENTINEL]` is never triggered in practice. In the success path all slots are filled; in the excep\n    \"observed_behavior\": \"Replace with a plain `return list(results)` (after casting) or add an assertion `assert _SENTINEL not in results` for debugging. If the sentinel guard is intentionally defens\n    \"evidence\": [",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-dead_code-000.json",
+              "kind": "text_match",
+              "line": 14,
+              "context": "    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L54-54: The `_SENTINEL` filter `[result for result in results if result is not _SENTINEL]` is never triggered in practice. In the success path all slots are filled; in the excep\n    \"observed_behavior\": \"Replace with a plain `return list(results)` (after casting) or add an assertion `assert _SENTINEL not in results` for debugging. If the sentinel guard is intentionally defens\n    \"evidence\": [\n      {",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-dead_code-000.json",
+              "kind": "text_match",
+              "line": 25,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 596,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L54-54: The `_SENTINEL` filter `[result for result in results if result is n\n              \"needle\": \"_SENTINEL\",\n              \"source\": \"text_scan\"",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-latent_bug-002.json",
+              "kind": "text_match",
+              "line": 451,
+              "context": "          ],\n          \"shadow_excerpts\": {\n            \"src/osoji/async_utils.py\": \"# src\\\\osoji\\\\async_utils.py\\n@source-hash: 0e244cbdf3458c73\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:27:38Z\\n\\n## `src/osoji/async_utils.py` —\n            \"src/osoji/deadcode.py\": \"# src\\\\osoji\\\\deadcode.py\\n@source-hash: fc6f41f83fe56754\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:29:27Z\\n\\n## `src/osoji/deadcode.py` — Cross-Fi\n            \"src/osoji/deadparam.py\": \"# src\\\\osoji\\\\deadparam.py\\n@source-hash: d8ecf1f293b464b2\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:32:12Z\\n\\n## Purpose\\nTwo-phase dead paramete",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-dead_code-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L54-54: The `_SENTINEL` filter `[result for result in results if result is not _SENTINEL]` is never triggered in practice. In the success path all slots are filled; in the excep\n    \"observed_behavior\": \"Replace with a plain `return list(results)` (after casting) or add an assertion `assert _SENTINEL not in results` for debugging. If the sentinel guard is intentionally defens\n    \"evidence\": [",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-dead_code-000.json",
+              "kind": "text_match",
+              "line": 14,
+              "context": "    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L54-54: The `_SENTINEL` filter `[result for result in results if result is not _SENTINEL]` is never triggered in practice. In the success path all slots are filled; in the excep\n    \"observed_behavior\": \"Replace with a plain `return list(results)` (after casting) or add an assertion `assert _SENTINEL not in results` for debugging. If the sentinel guard is intentionally defens\n    \"evidence\": [\n      {",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-dead_code-000.json",
+              "kind": "text_match",
+              "line": 25,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 596,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L54-54: The `_SENTINEL` filter `[result for result in results if result is n\n              \"needle\": \"_SENTINEL\",\n              \"source\": \"text_scan\"",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-latent_bug-002.json",
+              "kind": "text_match",
+              "line": 611,
+              "context": "          ],\n          \"shadow_excerpts\": {\n            \"src/osoji/async_utils.py\": \"# src\\\\osoji\\\\async_utils.py\\n@source-hash: 0e244cbdf3458c73\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:27:38Z\\n\\n## `src/osoji/async_utils.py` —\n            \"src/osoji/deadcode.py\": \"# src\\\\osoji\\\\deadcode.py\\n@source-hash: fc6f41f83fe56754\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:29:27Z\\n\\n## `src/osoji/deadcode.py` — Cross-Fi\n            \"src/osoji/deadparam.py\": \"# src\\\\osoji\\\\deadparam.py\\n@source-hash: d8ecf1f293b464b2\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:32:12Z\\n\\n## Purpose\\nTwo-phase dead paramete",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r3/claim-audit-dead_code-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L54-54: The `_SENTINEL` filter `[result for result in results if result is not _SENTINEL]` is never triggered in practice. In the success path all slots are filled; in the excep\n    \"observed_behavior\": \"Replace with a plain `return list(results)` (after casting) or add an assertion `assert _SENTINEL not in results` for debugging. If the sentinel guard is intentionally defens\n    \"evidence\": [",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "in_string_literal": true
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 577,
+            "needles": [
+              "_SENTINEL"
+            ],
+            "needle_totals": {
+              "_SENTINEL": 227
+            },
+            "same_file_swept": true
+          },
+          "export_surface": {
+            "symbol": "_SENTINEL",
+            "exported_from_flagged_file": false
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/async_utils.py",
+          "line_start": 44,
+          "line_end": 54,
+          "snippet": "44:                 results[index] = await task\n45:             except Exception as exc:\n46:                 if not return_exceptions:\n47:                     for pending_task in pending:\n48:                         pending_task.cancel()\n49:                     if pending:\n50:                         await asyncio.gather(*pending, return_exceptions=True)\n51:                     raise\n52:                 results[index] = exc\n53: \n54:     return [result for result in results if result is not _SENTINEL]",
+          "anchor": "lines",
+          "enclosing_symbol": {
+            "name": "gather_with_buffer",
+            "kind": "function",
+            "line_start": 16,
+            "line_end": 54
+          }
+        }
+      }
+    ],
+    "id": "16f520141daaf396",
+    "verdict": "confirmed",
+    "confidence": 0.92,
+    "triage_reasoning": "Reality: The sentinel filter is logically provable as a no-op. Tracing all paths that reach line 54: (1) Success path — `results[index] = await task` fills the slot. (2) Exception + `return_exceptions=False` — `raise` is executed before line 54; the function never reaches the return. (3) Exception + `return_exceptions=True` — `results[index] = exc` fills the slot. In all reachable paths to line 54, every slot in `results` is filled; no sentinel survives.\n\nSignificance: The filter implies sentinels could remain, misleading future maintainers about the invariants. Replacing with `return list(results)` plus an assertion makes the invariant explicit and communicates intent clearly.\n\nActionability: Replace the filter comprehension with `assert _SENTINEL not in results; return list(results)` (for debugging clarity) or simply `return list(results)` with an explaining comment. Prior expert verdict confirmed at 0.95.",
+    "suggested_fix": "In `src/osoji/async_utils.py` L54, replace `return [result for result in results if result is not _SENTINEL]` with:\n```python\n# Invariant: all slots filled — success or exception stored above, raises before here otherwise.\nassert _SENTINEL not in results\nreturn list(results)  # type: ignore[return-value]\n```",
+    "severity": "info",
+    "evidence_fingerprint": "6fb32ae59d38f13f"
+  },
+  "trace": null
+}

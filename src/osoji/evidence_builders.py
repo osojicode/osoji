@@ -31,7 +31,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from .config import Config
@@ -135,10 +135,11 @@ def _extract_all_symbols_from_debris(description: str) -> list[str]:
     """Extract all plausible symbol names from a debris finding description."""
     names: list[str] = []
     seen: set[str] = set()
-    # 1. Backtick-quoted simple names
-    for m in re.finditer(r"`(\w+)`", description):
-        name = m.group(1)
-        if name.lower() not in _SYMBOL_FILLER and name not in seen:
+    # 1. Backtick-quoted names (dotted allowed — FactsDB resolves
+    #    `Class.method` including bare-method dispatch matching)
+    for m in re.finditer(r"`([\w.]+)`", description):
+        name = m.group(1).strip(".")
+        if name and name.lower() not in _SYMBOL_FILLER and name not in seen:
             names.append(name)
             seen.add(name)
     # 2. PascalCase compounds (catches type names in plain text). Linear
@@ -282,11 +283,24 @@ def _match_in_quotes(line: str, pos: int) -> bool:
 
 
 def _backticked_names(text: str) -> list[str]:
+    """Backticked identifiers, including dotted ones.
+
+    A dotted name contributes both the qualified form and its bare last
+    segment — `Class.method` reachability lives at `obj.method(` call sites
+    and string-dispatch keys that name only the method (the dead_symbol-001
+    lesson: the plain-word pattern silently skipped dotted names, so the
+    method was never swept and its dispatch string stayed invisible).
+    """
+
     seen: list[str] = []
-    for match in re.finditer(r"`(\w+)`", text):
-        name = match.group(1)
-        if name.lower() not in _SYMBOL_FILLER and name not in seen:
-            seen.append(name)
+    for match in re.finditer(r"`([\w.]+)`", text):
+        name = match.group(1).strip(".")
+        candidates = [name]
+        if "." in name:
+            candidates.append(name.rsplit(".", 1)[-1])
+        for candidate in candidates:
+            if candidate and candidate.lower() not in _SYMBOL_FILLER and candidate not in seen:
+                seen.append(candidate)
     return seen
 
 
@@ -445,9 +459,12 @@ class CrossFileReferenceBuilder(EvidenceBuilder):
 
         # Sweep order decides what survives the hit cap: detector-supplied
         # priority paths (grep-hit files, importers) and claim-named files
-        # first, then source-extension files, then everything else (r2 lesson:
-        # alphabetical order filled the cap with LICENSE/docs junk while the
-        # deciding producer/consumer sites never made it in).
+        # first, then by proximity to the flagged file within source-extension
+        # rank, then everything else. Two mined lessons: alphabetical order
+        # filled the cap with LICENSE/docs junk (r2), and raw glob order let a
+        # committed fixture corpus's own trace JSONs crowd out the flagged
+        # file's sibling-package usage sites (V1-5a dead_symbol-002) — the
+        # nearest files in the tree are the most probative reference sites.
         named: list[str] = []
         for p in _scanner_meta(finding).get("priority_paths", ()):
             norm = str(p).replace("\\", "/")
@@ -457,9 +474,21 @@ class CrossFileReferenceBuilder(EvidenceBuilder):
             if p not in named:
                 named.append(p)
         extensions = getattr(ctx.config, "extensions", ())
+        source_parts = PurePosixPath(source).parts
+
+        def _proximity(rel: str) -> int:
+            parts = PurePosixPath(rel).parts
+            shared = 0
+            for a, b in zip(source_parts[:-1], parts[:-1]):
+                if a != b:
+                    break
+                shared += 1
+            return shared
+
         rest = [f for f in ctx.scan_files() if f not in named]
         ordered = named + sorted(
-            rest, key=lambda f: 0 if Path(f).suffix in extensions else 1
+            rest,
+            key=lambda f: (0 if Path(f).suffix in extensions else 1, -_proximity(f)),
         )
         needle_totals: dict[str, int] = {}
         scan_entries = 0
