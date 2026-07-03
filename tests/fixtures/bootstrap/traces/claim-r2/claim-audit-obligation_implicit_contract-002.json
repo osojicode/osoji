@@ -1,0 +1,516 @@
+{
+  "slug": "audit-obligation_implicit_contract-002",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "tests/test_claude_code_provider.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "3 implicit contracts between src/osoji/llm/claude_code.py and tests/test_claude_code_provider.py: \"claude-code\", \"claudeMdExcludes\", \"end_turn\"",
+    "observed_behavior": "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": ".env.example",
+              "kind": "text_match",
+              "line": 8,
+              "context": "\n# Override provider from config file (default: anthropic).\n# Supported: anthropic, openai, google, openrouter, claude-code\n# OSOJI_PROVIDER=anthropic\n",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 8,
+              "context": "\n# Override the default LLM provider (default: anthropic)\n# Options: anthropic, openai, google, openrouter, claude-code\n# default_provider = \"openai\"\n",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 22,
+              "context": "# large  = \"gpt-5.4\"\n\n# claude-code provider routes through the locally installed Claude Code CLI.\n# Model overrides are passed via --model flag to the CLI.\n# [providers.claude-code]",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 24,
+              "context": "# claude-code provider routes through the locally installed Claude Code CLI.\n# Model overrides are passed via --model flag to the CLI.\n# [providers.claude-code]\n# medium = \"claude-sonnet-4-6\"\n",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "SUPPLY-CHAIN-SECURITY.md",
+              "kind": "text_match",
+              "line": 102,
+              "context": "An earlier version of this workflow also ran an \"adversarial review agent\"\n(an LLM reviewing every PR diff for security concerns) via\n`anthropics/claude-code-action`. That agent was removed: automatically feeding\nuntrusted PR content to an LLM that has any write capability is, by\nconstruction, a prompt-injection target, and the available mitigations (tool",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 34,
+              "context": "Usage:\n\n    python scripts/triage_bootstrap.py explore --provider claude-code\n    python scripts/triage_bootstrap.py claim --provider claude-code \\\n        --baseline tests/fixtures/bootstrap/traces/explore-summary.json",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 35,
+              "context": "\n    python scripts/triage_bootstrap.py explore --provider claude-code\n    python scripts/triage_bootstrap.py claim --provider claude-code \\\n        --baseline tests/fixtures/bootstrap/traces/explore-summary.json\n",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 235,
+              "context": "\n    `claude -p` cannot round-trip custom tool calls, so the in-process\n    Triage exploration loop has no transport on the claude-code provider.\n    The Agent SDK wraps the same CLI (Max OAuth auth carries over) and\n    dispatches MCP tool calls to in-process callbacks — ExplorationExecutor",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 549,
+              "context": "        p.add_argument(\"--manifest\", type=Path, default=DEFAULT_MANIFEST)\n        p.add_argument(\"--out\", type=Path, default=DEFAULT_TRACE_DIR)\n        p.add_argument(\"--provider\", default=None, help=\"LLM provider (e.g. claude-code)\")\n        p.add_argument(\"--model\", default=None)\n        p.add_argument(\"--baseline\", type=Path, default=None,",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_claude_code_provider.py",
+              "kind": "text_match",
+              "line": 83,
+              "context": "def test_provider_name():\n    p = _provider()\n    assert p.name == \"claude-code\"\n\n",
+              "needle": "claude-code",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_claude_code_provider.py",
+              "kind": "text_match",
+              "line": 361,
+              "context": "def test_model_mapping_strips_prefix():\n    assert ClaudeCodeProvider._map_model(\"anthropic/claude-sonnet-4-6\") == \"claude-sonnet-4-6\"\n    assert ClaudeCodeProvider._map_model(\"claude-code/sonnet\") == \"sonnet\"\n\n",
+              "needle": "claude-code",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 318,
+              "context": "\n    def test_non_interactive_claude_code_no_api_key(self, tmp_path):\n        \"\"\"claude-code provider has no API key env var — only OSOJI_TOKEN placeholder.\"\"\"\n        run_init(root=tmp_path, interactive=False, provider=\"claude-code\")\n        env_content = (tmp_path / \".env\").read_text()",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 319,
+              "context": "    def test_non_interactive_claude_code_no_api_key(self, tmp_path):\n        \"\"\"claude-code provider has no API key env var — only OSOJI_TOKEN placeholder.\"\"\"\n        run_init(root=tmp_path, interactive=False, provider=\"claude-code\")\n        env_content = (tmp_path / \".env\").read_text()\n        assert \"ANTHROPIC_API_KEY\" not in env_content",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 324,
+              "context": "        assert \"# OSOJI_TOKEN=\" in env_content\n        toml_content = (tmp_path / \".osoji.toml\").read_text()\n        assert 'default_provider = \"claude-code\"' in toml_content\n\n    def test_non_interactive_google_provider(self, tmp_path):",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 396,
+              "context": "    @patch(\"click.prompt\")\n    def test_interactive_claude_code_skips_api_key(self, mock_prompt, mock_confirm, tmp_path):\n        \"\"\"claude-code provider skips API key prompt and model defaults.\"\"\"\n        # provider (5=claude-code), config target (1), OSOJI_TOKEN, project slug\n        mock_prompt.side_effect = [5, 1, \"\", \"myproject\"]",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 397,
+              "context": "    def test_interactive_claude_code_skips_api_key(self, mock_prompt, mock_confirm, tmp_path):\n        \"\"\"claude-code provider skips API key prompt and model defaults.\"\"\"\n        # provider (5=claude-code), config target (1), OSOJI_TOKEN, project slug\n        mock_prompt.side_effect = [5, 1, \"\", \"myproject\"]\n        run_init(root=tmp_path, interactive=True, provider=\"anthropic\")",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 406,
+              "context": "            assert \"OPENAI_API_KEY\" not in env_content\n        toml_content = (tmp_path / \".osoji.toml\").read_text()\n        assert 'default_provider = \"claude-code\"' in toml_content\n\n    @patch(\"osoji.init._infer_project_from_git_remote\", return_value=\"myproject\")",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_llm_provider.py",
+              "kind": "text_match",
+              "line": 63,
+              "context": "\ndef test_provider_names_include_all_supported_providers():\n    assert provider_names() == (\"anthropic\", \"claude-code\", \"google\", \"openai\", \"openrouter\")\n\n",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 59,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"3 implicit contracts between tests/test_init.py and src/osoji/init.py: \\\"OSOJI_TOKEN\\\", \\\"claude-code\\\", \\\"default_provider\\\"\",\n        \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n        \"evidence\": [],",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 77,
+              "context": "      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"[carried from audit-obligation_implicit_contract-002 r1] claude-code is osoji's own registry key (not ecosystem); bare literal in 5+ files, budgets.py tuple check fails silently on rename.\",\n      \"evidence_consulted\": [\n        \"read provider registry\",",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_claude_code_provider.py",
+              "kind": "text_match",
+              "line": 624,
+              "context": "    assert \"--disable-slash-commands\" in call_args\n    assert \"--settings\" in call_args\n    # The settings arg should contain claudeMdExcludes\n    settings_idx = call_args.index(\"--settings\")\n    settings_val = call_args[settings_idx + 1]",
+              "needle": "claudeMdExcludes",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_claude_code_provider.py",
+              "kind": "text_match",
+              "line": 627,
+              "context": "    settings_idx = call_args.index(\"--settings\")\n    settings_val = call_args[settings_idx + 1]\n    assert \"claudeMdExcludes\" in settings_val\n\n",
+              "needle": "claudeMdExcludes",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 92,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"3 implicit contracts between src/osoji/llm/claude_code.py and tests/test_claude_code_provider.py: \\\"claude-code\\\", \\\"claudeMdExcludes\\\", \\\"end_turn\\\"\",\n        \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n        \"evidence\": [],",
+              "needle": "claudeMdExcludes",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 634,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"3 implicit contracts between src/osoji/llm/claude_code.py and tests/test_claude_code_provider.py: \\\"claude-code\\\", \\\"claudeMdExcludes\\\", \\\"end_turn\\\"\",\n        \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n        \"evidence\": [],",
+              "needle": "claudeMdExcludes",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"3 implicit contracts between src/osoji/llm/claude_code.py and tests/test_claude_code_provider.py: \\\"claude-code\\\", \\\"claudeMdExcludes\\\", \\\"end_turn\\\"\",\n    \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n    \"evidence\": [],",
+              "needle": "claudeMdExcludes",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"dismissed\",\n    \"confidence\": 0.85,\n    \"triage_reasoning\": \"\\nExamined all three string literals across both files, plus their usage in the broader codebase.\\n\\n**\\\"claude-code\\\"**\\n- Defined in `claude_code.py` as a bare return value (`return \\\"claude-code\\\"`) and in `_parse_response` as a model fallback (`model=model_name or \\\"claude-code\\\"`).\\n- Appears in 10+ files throughout the project (`config.py`, `init.py`, `rate_limiter.py`, `factory.py`, `registry.py`, etc.).\\n- `OpenAIProvider` and `OpenRouterProvider` use a `_PROVIDER_NAME = \\\"openai\\\"` class-variable pattern; `ClaudeCodeProvider` does not — a real style inconsistency.\\n- Test asserts `p.name == \\\"claude-code\\\"` (line 83) and tests the prefix-stripping overload (line 361).\\n- Any drift between production and test causes an explicit `AssertionError`, not a silent mismatch. The \\\"silent mismatch\\\" framing does not hold for test assertions.\\n- The real codebase concern (10+ bare literals with no central constant) is broader than the specific test↔production claim.\\n\\n**\\\"claudeMdExcludes\\\"**\\n- Appears only once in production code (`--settings` JSON payload at line 267) and once in the test as a substring check (line 627).\\n- This is a Claude Code CLI parameter name — an external protocol string the project does not control. Falls squarely in the ecosystem-convention category: the CLI binary defines the schema, not this project.\\n- Extracting it to a constant would name something the project has no authority to rename.\\n\\n**\\\"end_turn\\\"**\\n- Set as the hardcoded stop-reason in `_parse_response` (`stop_reason=\\\"end_turn\\\"`) and mapped from Google's \\\"STOP\\\" in `google.py:23`.\\n- Originates from the Anthropic API vocabulary — an ecosystem convention. `google.py` explicitly maps a foreign value (Google's \\\"STOP\\\") to this string, confirming it's treated as a cross-provider normalization target, not a locally-owned constant.\\n- No production code ever branches on \\\"end_turn\\\" specifically (only \\\"length\\\" is consumed). A mismatch between files would have no behavioral consequence.\\n- Test assertion `result.stop_reason == \\\"end_turn\\\"` is an explicit check; drift fails loudly.\\n\\n**Common flaw in the claim:** The premise is \\\"a rename triggers a silent mismatch.\\\" All three literals appear only in test assertions. Test assertions are definitionally not silent — they produce AssertionError at run time. Extracting to shared constants would convert a test-run failure (AssertionError) to an import-collection failure (ImportError), a marginal DX improvement, not a correctness fix. None of the three literals constitutes a latent bug or a risk of undetected divergence in deployed behaviour.\\n\",\n    \"suggested_fix\": null,\n    \"severity\": null,",
+              "needle": "claudeMdExcludes",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 45,
+              "context": "        \"name\": \"grep\",\n        \"input\": {\n          \"pattern\": \"claudeMdExcludes|end_turn|claude-code\",\n          \"glob\": \"tests/test_claude_code_provider.py\"\n        }",
+              "needle": "claudeMdExcludes",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 53,
+              "context": "        \"name\": \"grep\",\n        \"input\": {\n          \"pattern\": \"claudeMdExcludes|end_turn|claude-code\",\n          \"glob\": \"src/**/*.py\"\n        }",
+              "needle": "claudeMdExcludes",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 128,
+              "context": "          \"verdict\": \"dismissed\",\n          \"confidence\": 0.85,\n          \"reasoning\": \"\\nExamined all three string literals across both files, plus their usage in the broader codebase.\\n\\n**\\\"claude-code\\\"**\\n- Defined in `claude_code.py` as a bare return value (`return \\\"claude-code\\\"`) and in `_parse_response` as a model fallback (`model=model_name or \\\"claude-code\\\"`).\\n- Appears in 10+ files throughout the project (`config.py`, `init.py`, `rate_limiter.py`, `factory.py`, `registry.py`, etc.).\\n- `OpenAIProvider` and `OpenRouterProvider` use a `_PROVIDER_NAME = \\\"openai\\\"` class-variable pattern; `ClaudeCodeProvider` does not — a real style inconsistency.\\n- Test asserts `p.name == \\\"claude-code\\\"` (line 83) and tests the prefix-stripping overload (line 361).\\n- Any drift between production and test causes an explicit `AssertionError`, not a silent mismatch. The \\\"silent mismatch\\\" framing does not hold for test assertions.\\n- The real codebase concern (10+ bare literals with no central constant) is broader than the specific test↔production claim.\\n\\n**\\\"claudeMdExcludes\\\"**\\n- Appears only once in production code (`--settings` JSON payload at line 267) and once in the test as a substring check (line 627).\\n- This is a Claude Code CLI parameter name — an external protocol string the project does not control. Falls squarely in the ecosystem-convention category: the CLI binary defines the schema, not this project.\\n- Extracting it to a constant would name something the project has no authority to rename.\\n\\n**\\\"end_turn\\\"**\\n- Set as the hardcoded stop-reason in `_parse_response` (`stop_reason=\\\"end_turn\\\"`) and mapped from Google's \\\"STOP\\\" in `google.py:23`.\\n- Originates from the Anthropic API vocabulary — an ecosystem convention. `google.py` explicitly maps a foreign value (Google's \\\"STOP\\\") to this string, confirming it's treated as a cross-provider normalization target, not a locally-owned constant.\\n- No production code ever branches on \\\"end_turn\\\" specifically (only \\\"length\\\" is consumed). A mismatch between files would have no behavioral consequence.\\n- Test assertion `result.stop_reason == \\\"end_turn\\\"` is an explicit check; drift fails loudly.\\n\\n**Common flaw in the claim:** The premise is \\\"a rename triggers a silent mismatch.\\\" All three literals appear only in test assertions. Test assertions are definitionally not silent — they produce AssertionError at run time. Extracting to shared constants would convert a test-run failure (AssertionError) to an import-collection failure (ImportError), a marginal DX improvement, not a correctness fix. None of the three literals constitutes a latent bug or a risk of undetected divergence in deployed behaviour.\\n\"\n        }\n      }",
+              "needle": "claudeMdExcludes",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-doc_obsolete_reference-000.json",
+              "kind": "text_match",
+              "line": 673,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 19,\n              \"context\": \"    \\\"verdict\\\": \\\"dismissed\\\",\\n    \\\"confidence\\\": 0.85,\\n    \\\"triage_reasoning\\\": \\\"\\\\nExamined all three string literals across both files, plus their usage in the broader codebase.\\\\n\\\\n**\\\\\\\"claude-code\\\\\\\"**\\\\n- Defined in `claude_code.py` as a bare return value (`return \\\\\\\"claude-code\\\\\\\"`) and in `_parse_response` as a model fallback (`model=model_name or \\\\\\\"claude-code\\\\\\\"`).\\\\n- Appears in 10+ files throughout the project (`config.py`, `init.py`, `rate_limiter.py`, `factory.py`, `registry.py`, etc.).\\\\n- `OpenAIProvider` and `OpenRouterProvider` use a `_PROVIDER_NAME = \\\\\\\"openai\\\\\\\"` class-variable pattern; `ClaudeCodeProvider` does not — a real style inconsistency.\\\\n- Test asserts `p.name == \\\\\\\"claude-code\\\\\\\"` (line 83) and tests the prefix-stripping overload (line 361).\\\\n- Any drift between production and test causes an explicit `AssertionError`, not a silent mismatch. The \\\\\\\"silent mismatch\\\\\\\" framing does not hold for test assertions.\\\\n- The real codebase concern (10+ bare literals with no central constant) is broader than the specific test↔production claim.\\\\n\\\\n**\\\\\\\"claudeMdExcludes\\\\\\\"**\\\\n- Appears only once in production code (`--settings` JSON payload at line 267) and once in the test as a substring check (line 627).\\\\n- This is a Claude Code CLI parameter name — an external protocol string the project does not control. Falls squarely in the ecosystem-convention category: the CLI binary defines the schema, not this project.\\\\n- Extracting it to a constant would name something the project has no authority to rename.\\\\n\\\\n**\\\\\\\"end_turn\\\\\\\"**\\\\n- Set as the hardcoded stop-reason in `_parse_response` (`stop_reason=\\\\\\\"end_turn\\\\\\\"`) and mapped from Google's \\\\\\\"STOP\\\\\\\" in `google.py:23`.\\\\n- Originates from the Anthropic API vocabulary — an ecosystem convention. `google.py` explicitly maps a foreign value (Google's \\\\\\\"STOP\\\\\\\") to this string, confirming it's treated as a cross-provider normalization target, not a locally-owned constant.\\\\n- No production code ever branches on \\\\\\\"end_turn\\\\\\\" specifically (only \\\\\\\"length\\\\\\\" is consumed). A mismatch between files would have no behavioral consequence.\\\\n- Test assertion `result.stop_reason == \\\\\\\"end_turn\\\\\\\"` is an explicit check; drift fails loudly.\\\\n\\\\n**Common flaw in the claim:** The premise is \\\\\\\"a rename triggers a silent mismatch.\\\\\\\" All three literals appear only in test assertions. Test assertions are definitionally not silent — they produce AssertionError at run time. Extracting to shared constants would convert a test-run failure (AssertionError) to an import-collection failure (ImportError), a marginal DX improvement, not a correctness fix. None of the three literals constitutes a latent bug or a risk of undetected divergence in deployed behaviour.\\\\n\\\",\\n    \\\"suggested_fix\\\": null,\\n    \\\"severity\\\": null,\",\n              \"needle\": \"ClaudeCodeProvider\",\n              \"source\": \"text_scan\"",
+              "needle": "claudeMdExcludes",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-doc_obsolete_reference-000.json",
+              "kind": "text_match",
+              "line": 681,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 128,\n              \"context\": \"          \\\"verdict\\\": \\\"dismissed\\\",\\n          \\\"confidence\\\": 0.85,\\n          \\\"reasoning\\\": \\\"\\\\nExamined all three string literals across both files, plus their usage in the broader codebase.\\\\n\\\\n**\\\\\\\"claude-code\\\\\\\"**\\\\n- Defined in `claude_code.py` as a bare return value (`return \\\\\\\"claude-code\\\\\\\"`) and in `_parse_response` as a model fallback (`model=model_name or \\\\\\\"claude-code\\\\\\\"`).\\\\n- Appears in 10+ files throughout the project (`config.py`, `init.py`, `rate_limiter.py`, `factory.py`, `registry.py`, etc.).\\\\n- `OpenAIProvider` and `OpenRouterProvider` use a `_PROVIDER_NAME = \\\\\\\"openai\\\\\\\"` class-variable pattern; `ClaudeCodeProvider` does not — a real style inconsistency.\\\\n- Test asserts `p.name == \\\\\\\"claude-code\\\\\\\"` (line 83) and tests the prefix-stripping overload (line 361).\\\\n- Any drift between production and test causes an explicit `AssertionError`, not a silent mismatch. The \\\\\\\"silent mismatch\\\\\\\" framing does not hold for test assertions.\\\\n- The real codebase concern (10+ bare literals with no central constant) is broader than the specific test↔production claim.\\\\n\\\\n**\\\\\\\"claudeMdExcludes\\\\\\\"**\\\\n- Appears only once in production code (`--settings` JSON payload at line 267) and once in the test as a substring check (line 627).\\\\n- This is a Claude Code CLI parameter name — an external protocol string the project does not control. Falls squarely in the ecosystem-convention category: the CLI binary defines the schema, not this project.\\\\n- Extracting it to a constant would name something the project has no authority to rename.\\\\n\\\\n**\\\\\\\"end_turn\\\\\\\"**\\\\n- Set as the hardcoded stop-reason in `_parse_response` (`stop_reason=\\\\\\\"end_turn\\\\\\\"`) and mapped from Google's \\\\\\\"STOP\\\\\\\" in `google.py:23`.\\\\n- Originates from the Anthropic API vocabulary — an ecosystem convention. `google.py` explicitly maps a foreign value (Google's \\\\\\\"STOP\\\\\\\") to this string, confirming it's treated as a cross-provider normalization target, not a locally-owned constant.\\\\n- No production code ever branches on \\\\\\\"end_turn\\\\\\\" specifically (only \\\\\\\"length\\\\\\\" is consumed). A mismatch between files would have no behavioral consequence.\\\\n- Test assertion `result.stop_reason == \\\\\\\"end_turn\\\\\\\"` is an explicit check; drift fails loudly.\\\\n\\\\n**Common flaw in the claim:** The premise is \\\\\\\"a rename triggers a silent mismatch.\\\\\\\" All three literals appear only in test assertions. Test assertions are definitionally not silent — they produce AssertionError at run time. Extracting to shared constants would convert a test-run failure (AssertionError) to an import-collection failure (ImportError), a marginal DX improvement, not a correctness fix. None of the three literals constitutes a latent bug or a risk of undetected divergence in deployed behaviour.\\\\n\\\"\\n        }\\n      }\",\n              \"needle\": \"ClaudeCodeProvider\",\n              \"source\": \"text_scan\"",
+              "needle": "claudeMdExcludes",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"3 implicit contracts between src/osoji/llm/claude_code.py and tests/test_claude_code_provider.py: \\\"claude-code\\\", \\\"claudeMdExcludes\\\", \\\"end_turn\\\"\",\n    \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n    \"evidence\": [",
+              "needle": "claudeMdExcludes",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-doc_obsolete_reference-000.json",
+              "kind": "text_match",
+              "line": 673,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 19,\n              \"context\": \"    \\\"verdict\\\": \\\"dismissed\\\",\\n    \\\"confidence\\\": 0.85,\\n    \\\"triage_reasoning\\\": \\\"\\\\nExamined all three string literals across both files, plus their usage in the broader codebase.\\\\n\\\\n**\\\\\\\"claude-code\\\\\\\"**\\\\n- Defined in `claude_code.py` as a bare return value (`return \\\\\\\"claude-code\\\\\\\"`) and in `_parse_response` as a model fallback (`model=model_name or \\\\\\\"claude-code\\\\\\\"`).\\\\n- Appears in 10+ files throughout the project (`config.py`, `init.py`, `rate_limiter.py`, `factory.py`, `registry.py`, etc.).\\\\n- `OpenAIProvider` and `OpenRouterProvider` use a `_PROVIDER_NAME = \\\\\\\"openai\\\\\\\"` class-variable pattern; `ClaudeCodeProvider` does not — a real style inconsistency.\\\\n- Test asserts `p.name == \\\\\\\"claude-code\\\\\\\"` (line 83) and tests the prefix-stripping overload (line 361).\\\\n- Any drift between production and test causes an explicit `AssertionError`, not a silent mismatch. The \\\\\\\"silent mismatch\\\\\\\" framing does not hold for test assertions.\\\\n- The real codebase concern (10+ bare literals with no central constant) is broader than the specific test↔production claim.\\\\n\\\\n**\\\\\\\"claudeMdExcludes\\\\\\\"**\\\\n- Appears only once in production code (`--settings` JSON payload at line 267) and once in the test as a substring check (line 627).\\\\n- This is a Claude Code CLI parameter name — an external protocol string the project does not control. Falls squarely in the ecosystem-convention category: the CLI binary defines the schema, not this project.\\\\n- Extracting it to a constant would name something the project has no authority to rename.\\\\n\\\\n**\\\\\\\"end_turn\\\\\\\"**\\\\n- Set as the hardcoded stop-reason in `_parse_response` (`stop_reason=\\\\\\\"end_turn\\\\\\\"`) and mapped from Google's \\\\\\\"STOP\\\\\\\" in `google.py:23`.\\\\n- Originates from the Anthropic API vocabulary — an ecosystem convention. `google.py` explicitly maps a foreign value (Google's \\\\\\\"STOP\\\\\\\") to this string, confirming it's treated as a cross-provider normalization target, not a locally-owned constant.\\\\n- No production code ever branches on \\\\\\\"end_turn\\\\\\\" specifically (only \\\\\\\"length\\\\\\\" is consumed). A mismatch between files would have no behavioral consequence.\\\\n- Test assertion `result.stop_reason == \\\\\\\"end_turn\\\\\\\"` is an explicit check; drift fails loudly.\\\\n\\\\n**Common flaw in the claim:** The premise is \\\\\\\"a rename triggers a silent mismatch.\\\\\\\" All three literals appear only in test assertions. Test assertions are definitionally not silent — they produce AssertionError at run time. Extracting to shared constants would convert a test-run failure (AssertionError) to an import-collection failure (ImportError), a marginal DX improvement, not a correctness fix. None of the three literals constitutes a latent bug or a risk of undetected divergence in deployed behaviour.\\\\n\\\",\\n    \\\"suggested_fix\\\": null,\\n    \\\"severity\\\": null,\",\n              \"needle\": \"ClaudeCodeProvider\",\n              \"source\": \"text_scan\"",
+              "needle": "claudeMdExcludes",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-doc_obsolete_reference-000.json",
+              "kind": "text_match",
+              "line": 681,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 128,\n              \"context\": \"          \\\"verdict\\\": \\\"dismissed\\\",\\n          \\\"confidence\\\": 0.85,\\n          \\\"reasoning\\\": \\\"\\\\nExamined all three string literals across both files, plus their usage in the broader codebase.\\\\n\\\\n**\\\\\\\"claude-code\\\\\\\"**\\\\n- Defined in `claude_code.py` as a bare return value (`return \\\\\\\"claude-code\\\\\\\"`) and in `_parse_response` as a model fallback (`model=model_name or \\\\\\\"claude-code\\\\\\\"`).\\\\n- Appears in 10+ files throughout the project (`config.py`, `init.py`, `rate_limiter.py`, `factory.py`, `registry.py`, etc.).\\\\n- `OpenAIProvider` and `OpenRouterProvider` use a `_PROVIDER_NAME = \\\\\\\"openai\\\\\\\"` class-variable pattern; `ClaudeCodeProvider` does not — a real style inconsistency.\\\\n- Test asserts `p.name == \\\\\\\"claude-code\\\\\\\"` (line 83) and tests the prefix-stripping overload (line 361).\\\\n- Any drift between production and test causes an explicit `AssertionError`, not a silent mismatch. The \\\\\\\"silent mismatch\\\\\\\" framing does not hold for test assertions.\\\\n- The real codebase concern (10+ bare literals with no central constant) is broader than the specific test↔production claim.\\\\n\\\\n**\\\\\\\"claudeMdExcludes\\\\\\\"**\\\\n- Appears only once in production code (`--settings` JSON payload at line 267) and once in the test as a substring check (line 627).\\\\n- This is a Claude Code CLI parameter name — an external protocol string the project does not control. Falls squarely in the ecosystem-convention category: the CLI binary defines the schema, not this project.\\\\n- Extracting it to a constant would name something the project has no authority to rename.\\\\n\\\\n**\\\\\\\"end_turn\\\\\\\"**\\\\n- Set as the hardcoded stop-reason in `_parse_response` (`stop_reason=\\\\\\\"end_turn\\\\\\\"`) and mapped from Google's \\\\\\\"STOP\\\\\\\" in `google.py:23`.\\\\n- Originates from the Anthropic API vocabulary — an ecosystem convention. `google.py` explicitly maps a foreign value (Google's \\\\\\\"STOP\\\\\\\") to this string, confirming it's treated as a cross-provider normalization target, not a locally-owned constant.\\\\n- No production code ever branches on \\\\\\\"end_turn\\\\\\\" specifically (only \\\\\\\"length\\\\\\\" is consumed). A mismatch between files would have no behavioral consequence.\\\\n- Test assertion `result.stop_reason == \\\\\\\"end_turn\\\\\\\"` is an explicit check; drift fails loudly.\\\\n\\\\n**Common flaw in the claim:** The premise is \\\\\\\"a rename triggers a silent mismatch.\\\\\\\" All three literals appear only in test assertions. Test assertions are definitionally not silent — they produce AssertionError at run time. Extracting to shared constants would convert a test-run failure (AssertionError) to an import-collection failure (ImportError), a marginal DX improvement, not a correctness fix. None of the three literals constitutes a latent bug or a risk of undetected divergence in deployed behaviour.\\\\n\\\"\\n        }\\n      }\",\n              \"needle\": \"ClaudeCodeProvider\",\n              \"source\": \"text_scan\"",
+              "needle": "claudeMdExcludes",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"3 implicit contracts between src/osoji/llm/claude_code.py and tests/test_claude_code_provider.py: \\\"claude-code\\\", \\\"claudeMdExcludes\\\", \\\"end_turn\\\"\",\n    \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n    \"evidence\": [",
+              "needle": "claudeMdExcludes",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 210,
+              "context": "    \"verdict\": \"uncertain\",\n    \"confidence\": 0.5,\n    \"triage_reasoning\": \"The three strings flagged have different natures:\\n\\n1. `'claude-code'` — an internal provider identifier. This is a named project obligation; if the identifier changes in `claude_code.py` but not in the test, the test silently passes or incorrectly fails.\\n\\n2. `'end_turn'` — this is an Anthropic Claude API stop_reason value defined by the external API contract. It is an ecosystem convention; both files must use this exact string to correctly interact with the API. Extracting it to a constant does not eliminate the external dependency.\\n\\n3. `'claudeMdExcludes'` — this appears to be a JSON field name from the Claude Code CLI output format (an external protocol). If so, it is also an ecosystem convention.\\n\\nThe claim bundles an internal contract string (`'claude-code'`) with external protocol strings (`'end_turn'`, `'claudeMdExcludes'`). Without seeing the actual code usage to verify which strings are truly internal vs. protocol-defined, a clean confirm or dismiss is not possible.\",\n    \"suggested_fix\": \"\",\n    \"severity\": null,",
+              "needle": "claudeMdExcludes",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/llm/claude_code.py",
+              "kind": "text_match",
+              "line": 267,
+              "context": "            \"--strict-mcp-config\",\n            \"--disable-slash-commands\",\n            \"--settings\", json.dumps({\"claudeMdExcludes\": [\"**/*\"]}),\n            \"--tools\", \"\",\n        ]",
+              "needle": "claudeMdExcludes",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_claude_code_provider.py",
+              "kind": "text_match",
+              "line": 123,
+              "context": "    assert result.output_tokens == 50\n    assert result.model == \"claude-sonnet-4-6-20250514\"\n    assert result.stop_reason == \"end_turn\"\n\n",
+              "needle": "end_turn",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_deadcode.py",
+              "kind": "text_match",
+              "line": 409,
+              "context": "            tool_calls=[],\n            input_tokens=100, output_tokens=50,\n            model=\"test\", stop_reason=\"end_turn\",\n        )\n        candidate = DeadCodeCandidate(",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_junk_cicd.py",
+              "kind": "text_match",
+              "line": 361,
+              "context": "            tool_calls=[],\n            input_tokens=100, output_tokens=50,\n            model=\"test\", stop_reason=\"end_turn\",\n        )\n",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_junk_deps.py",
+              "kind": "text_match",
+              "line": 547,
+              "context": "            tool_calls=[],\n            input_tokens=100, output_tokens=50,\n            model=\"test\", stop_reason=\"end_turn\",\n        )\n",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_junk_orphan.py",
+              "kind": "text_match",
+              "line": 333,
+              "context": "            tool_calls=[],\n            input_tokens=100, output_tokens=50,\n            model=\"test\", stop_reason=\"end_turn\",\n        )\n",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "text_match",
+              "line": 83,
+              "context": "        output_tokens=output_tokens,\n        model=\"test-model\",\n        stop_reason=\"end_turn\",\n    )\n",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "text_match",
+              "line": 511,
+              "context": "        result = CompletionResult(\n            content=\"ok\", tool_calls=[], input_tokens=10, output_tokens=5,\n            model=\"test\", stop_reason=\"end_turn\",\n            response_headers={\n                \"anthropic-ratelimit-requests-limit\": \"4000\",",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "text_match",
+              "line": 540,
+              "context": "        result = CompletionResult(\n            content=\"ok\", tool_calls=[], input_tokens=10, output_tokens=5,\n            model=\"test\", stop_reason=\"end_turn\",\n            response_headers=None,\n        )",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 92,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"3 implicit contracts between src/osoji/llm/claude_code.py and tests/test_claude_code_provider.py: \\\"claude-code\\\", \\\"claudeMdExcludes\\\", \\\"end_turn\\\"\",\n        \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n        \"evidence\": [],",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 634,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"3 implicit contracts between src/osoji/llm/claude_code.py and tests/test_claude_code_provider.py: \\\"claude-code\\\", \\\"claudeMdExcludes\\\", \\\"end_turn\\\"\",\n        \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n        \"evidence\": [],",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"3 implicit contracts between src/osoji/llm/claude_code.py and tests/test_claude_code_provider.py: \\\"claude-code\\\", \\\"claudeMdExcludes\\\", \\\"end_turn\\\"\",\n    \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n    \"evidence\": [],",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"dismissed\",\n    \"confidence\": 0.85,\n    \"triage_reasoning\": \"\\nExamined all three string literals across both files, plus their usage in the broader codebase.\\n\\n**\\\"claude-code\\\"**\\n- Defined in `claude_code.py` as a bare return value (`return \\\"claude-code\\\"`) and in `_parse_response` as a model fallback (`model=model_name or \\\"claude-code\\\"`).\\n- Appears in 10+ files throughout the project (`config.py`, `init.py`, `rate_limiter.py`, `factory.py`, `registry.py`, etc.).\\n- `OpenAIProvider` and `OpenRouterProvider` use a `_PROVIDER_NAME = \\\"openai\\\"` class-variable pattern; `ClaudeCodeProvider` does not — a real style inconsistency.\\n- Test asserts `p.name == \\\"claude-code\\\"` (line 83) and tests the prefix-stripping overload (line 361).\\n- Any drift between production and test causes an explicit `AssertionError`, not a silent mismatch. The \\\"silent mismatch\\\" framing does not hold for test assertions.\\n- The real codebase concern (10+ bare literals with no central constant) is broader than the specific test↔production claim.\\n\\n**\\\"claudeMdExcludes\\\"**\\n- Appears only once in production code (`--settings` JSON payload at line 267) and once in the test as a substring check (line 627).\\n- This is a Claude Code CLI parameter name — an external protocol string the project does not control. Falls squarely in the ecosystem-convention category: the CLI binary defines the schema, not this project.\\n- Extracting it to a constant would name something the project has no authority to rename.\\n\\n**\\\"end_turn\\\"**\\n- Set as the hardcoded stop-reason in `_parse_response` (`stop_reason=\\\"end_turn\\\"`) and mapped from Google's \\\"STOP\\\" in `google.py:23`.\\n- Originates from the Anthropic API vocabulary — an ecosystem convention. `google.py` explicitly maps a foreign value (Google's \\\"STOP\\\") to this string, confirming it's treated as a cross-provider normalization target, not a locally-owned constant.\\n- No production code ever branches on \\\"end_turn\\\" specifically (only \\\"length\\\" is consumed). A mismatch between files would have no behavioral consequence.\\n- Test assertion `result.stop_reason == \\\"end_turn\\\"` is an explicit check; drift fails loudly.\\n\\n**Common flaw in the claim:** The premise is \\\"a rename triggers a silent mismatch.\\\" All three literals appear only in test assertions. Test assertions are definitionally not silent — they produce AssertionError at run time. Extracting to shared constants would convert a test-run failure (AssertionError) to an import-collection failure (ImportError), a marginal DX improvement, not a correctness fix. None of the three literals constitutes a latent bug or a risk of undetected divergence in deployed behaviour.\\n\",\n    \"suggested_fix\": null,\n    \"severity\": null,",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 45,
+              "context": "        \"name\": \"grep\",\n        \"input\": {\n          \"pattern\": \"claudeMdExcludes|end_turn|claude-code\",\n          \"glob\": \"tests/test_claude_code_provider.py\"\n        }",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 53,
+              "context": "        \"name\": \"grep\",\n        \"input\": {\n          \"pattern\": \"claudeMdExcludes|end_turn|claude-code\",\n          \"glob\": \"src/**/*.py\"\n        }",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 70,
+              "context": "        \"name\": \"grep\",\n        \"input\": {\n          \"pattern\": \"end_turn\",\n          \"glob\": \"src/**/*.py\"\n        }",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 128,
+              "context": "          \"verdict\": \"dismissed\",\n          \"confidence\": 0.85,\n          \"reasoning\": \"\\nExamined all three string literals across both files, plus their usage in the broader codebase.\\n\\n**\\\"claude-code\\\"**\\n- Defined in `claude_code.py` as a bare return value (`return \\\"claude-code\\\"`) and in `_parse_response` as a model fallback (`model=model_name or \\\"claude-code\\\"`).\\n- Appears in 10+ files throughout the project (`config.py`, `init.py`, `rate_limiter.py`, `factory.py`, `registry.py`, etc.).\\n- `OpenAIProvider` and `OpenRouterProvider` use a `_PROVIDER_NAME = \\\"openai\\\"` class-variable pattern; `ClaudeCodeProvider` does not — a real style inconsistency.\\n- Test asserts `p.name == \\\"claude-code\\\"` (line 83) and tests the prefix-stripping overload (line 361).\\n- Any drift between production and test causes an explicit `AssertionError`, not a silent mismatch. The \\\"silent mismatch\\\" framing does not hold for test assertions.\\n- The real codebase concern (10+ bare literals with no central constant) is broader than the specific test↔production claim.\\n\\n**\\\"claudeMdExcludes\\\"**\\n- Appears only once in production code (`--settings` JSON payload at line 267) and once in the test as a substring check (line 627).\\n- This is a Claude Code CLI parameter name — an external protocol string the project does not control. Falls squarely in the ecosystem-convention category: the CLI binary defines the schema, not this project.\\n- Extracting it to a constant would name something the project has no authority to rename.\\n\\n**\\\"end_turn\\\"**\\n- Set as the hardcoded stop-reason in `_parse_response` (`stop_reason=\\\"end_turn\\\"`) and mapped from Google's \\\"STOP\\\" in `google.py:23`.\\n- Originates from the Anthropic API vocabulary — an ecosystem convention. `google.py` explicitly maps a foreign value (Google's \\\"STOP\\\") to this string, confirming it's treated as a cross-provider normalization target, not a locally-owned constant.\\n- No production code ever branches on \\\"end_turn\\\" specifically (only \\\"length\\\" is consumed). A mismatch between files would have no behavioral consequence.\\n- Test assertion `result.stop_reason == \\\"end_turn\\\"` is an explicit check; drift fails loudly.\\n\\n**Common flaw in the claim:** The premise is \\\"a rename triggers a silent mismatch.\\\" All three literals appear only in test assertions. Test assertions are definitionally not silent — they produce AssertionError at run time. Extracting to shared constants would convert a test-run failure (AssertionError) to an import-collection failure (ImportError), a marginal DX improvement, not a correctness fix. None of the three literals constitutes a latent bug or a risk of undetected divergence in deployed behaviour.\\n\"\n        }\n      }",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-doc_obsolete_reference-000.json",
+              "kind": "text_match",
+              "line": 673,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 19,\n              \"context\": \"    \\\"verdict\\\": \\\"dismissed\\\",\\n    \\\"confidence\\\": 0.85,\\n    \\\"triage_reasoning\\\": \\\"\\\\nExamined all three string literals across both files, plus their usage in the broader codebase.\\\\n\\\\n**\\\\\\\"claude-code\\\\\\\"**\\\\n- Defined in `claude_code.py` as a bare return value (`return \\\\\\\"claude-code\\\\\\\"`) and in `_parse_response` as a model fallback (`model=model_name or \\\\\\\"claude-code\\\\\\\"`).\\\\n- Appears in 10+ files throughout the project (`config.py`, `init.py`, `rate_limiter.py`, `factory.py`, `registry.py`, etc.).\\\\n- `OpenAIProvider` and `OpenRouterProvider` use a `_PROVIDER_NAME = \\\\\\\"openai\\\\\\\"` class-variable pattern; `ClaudeCodeProvider` does not — a real style inconsistency.\\\\n- Test asserts `p.name == \\\\\\\"claude-code\\\\\\\"` (line 83) and tests the prefix-stripping overload (line 361).\\\\n- Any drift between production and test causes an explicit `AssertionError`, not a silent mismatch. The \\\\\\\"silent mismatch\\\\\\\" framing does not hold for test assertions.\\\\n- The real codebase concern (10+ bare literals with no central constant) is broader than the specific test↔production claim.\\\\n\\\\n**\\\\\\\"claudeMdExcludes\\\\\\\"**\\\\n- Appears only once in production code (`--settings` JSON payload at line 267) and once in the test as a substring check (line 627).\\\\n- This is a Claude Code CLI parameter name — an external protocol string the project does not control. Falls squarely in the ecosystem-convention category: the CLI binary defines the schema, not this project.\\\\n- Extracting it to a constant would name something the project has no authority to rename.\\\\n\\\\n**\\\\\\\"end_turn\\\\\\\"**\\\\n- Set as the hardcoded stop-reason in `_parse_response` (`stop_reason=\\\\\\\"end_turn\\\\\\\"`) and mapped from Google's \\\\\\\"STOP\\\\\\\" in `google.py:23`.\\\\n- Originates from the Anthropic API vocabulary — an ecosystem convention. `google.py` explicitly maps a foreign value (Google's \\\\\\\"STOP\\\\\\\") to this string, confirming it's treated as a cross-provider normalization target, not a locally-owned constant.\\\\n- No production code ever branches on \\\\\\\"end_turn\\\\\\\" specifically (only \\\\\\\"length\\\\\\\" is consumed). A mismatch between files would have no behavioral consequence.\\\\n- Test assertion `result.stop_reason == \\\\\\\"end_turn\\\\\\\"` is an explicit check; drift fails loudly.\\\\n\\\\n**Common flaw in the claim:** The premise is \\\\\\\"a rename triggers a silent mismatch.\\\\\\\" All three literals appear only in test assertions. Test assertions are definitionally not silent — they produce AssertionError at run time. Extracting to shared constants would convert a test-run failure (AssertionError) to an import-collection failure (ImportError), a marginal DX improvement, not a correctness fix. None of the three literals constitutes a latent bug or a risk of undetected divergence in deployed behaviour.\\\\n\\\",\\n    \\\"suggested_fix\\\": null,\\n    \\\"severity\\\": null,\",\n              \"needle\": \"ClaudeCodeProvider\",\n              \"source\": \"text_scan\"",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-doc_obsolete_reference-000.json",
+              "kind": "text_match",
+              "line": 681,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 128,\n              \"context\": \"          \\\"verdict\\\": \\\"dismissed\\\",\\n          \\\"confidence\\\": 0.85,\\n          \\\"reasoning\\\": \\\"\\\\nExamined all three string literals across both files, plus their usage in the broader codebase.\\\\n\\\\n**\\\\\\\"claude-code\\\\\\\"**\\\\n- Defined in `claude_code.py` as a bare return value (`return \\\\\\\"claude-code\\\\\\\"`) and in `_parse_response` as a model fallback (`model=model_name or \\\\\\\"claude-code\\\\\\\"`).\\\\n- Appears in 10+ files throughout the project (`config.py`, `init.py`, `rate_limiter.py`, `factory.py`, `registry.py`, etc.).\\\\n- `OpenAIProvider` and `OpenRouterProvider` use a `_PROVIDER_NAME = \\\\\\\"openai\\\\\\\"` class-variable pattern; `ClaudeCodeProvider` does not — a real style inconsistency.\\\\n- Test asserts `p.name == \\\\\\\"claude-code\\\\\\\"` (line 83) and tests the prefix-stripping overload (line 361).\\\\n- Any drift between production and test causes an explicit `AssertionError`, not a silent mismatch. The \\\\\\\"silent mismatch\\\\\\\" framing does not hold for test assertions.\\\\n- The real codebase concern (10+ bare literals with no central constant) is broader than the specific test↔production claim.\\\\n\\\\n**\\\\\\\"claudeMdExcludes\\\\\\\"**\\\\n- Appears only once in production code (`--settings` JSON payload at line 267) and once in the test as a substring check (line 627).\\\\n- This is a Claude Code CLI parameter name — an external protocol string the project does not control. Falls squarely in the ecosystem-convention category: the CLI binary defines the schema, not this project.\\\\n- Extracting it to a constant would name something the project has no authority to rename.\\\\n\\\\n**\\\\\\\"end_turn\\\\\\\"**\\\\n- Set as the hardcoded stop-reason in `_parse_response` (`stop_reason=\\\\\\\"end_turn\\\\\\\"`) and mapped from Google's \\\\\\\"STOP\\\\\\\" in `google.py:23`.\\\\n- Originates from the Anthropic API vocabulary — an ecosystem convention. `google.py` explicitly maps a foreign value (Google's \\\\\\\"STOP\\\\\\\") to this string, confirming it's treated as a cross-provider normalization target, not a locally-owned constant.\\\\n- No production code ever branches on \\\\\\\"end_turn\\\\\\\" specifically (only \\\\\\\"length\\\\\\\" is consumed). A mismatch between files would have no behavioral consequence.\\\\n- Test assertion `result.stop_reason == \\\\\\\"end_turn\\\\\\\"` is an explicit check; drift fails loudly.\\\\n\\\\n**Common flaw in the claim:** The premise is \\\\\\\"a rename triggers a silent mismatch.\\\\\\\" All three literals appear only in test assertions. Test assertions are definitionally not silent — they produce AssertionError at run time. Extracting to shared constants would convert a test-run failure (AssertionError) to an import-collection failure (ImportError), a marginal DX improvement, not a correctness fix. None of the three literals constitutes a latent bug or a risk of undetected divergence in deployed behaviour.\\\\n\\\"\\n        }\\n      }\",\n              \"needle\": \"ClaudeCodeProvider\",\n              \"source\": \"text_scan\"",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"3 implicit contracts between src/osoji/llm/claude_code.py and tests/test_claude_code_provider.py: \\\"claude-code\\\", \\\"claudeMdExcludes\\\", \\\"end_turn\\\"\",\n    \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n    \"evidence\": [",
+              "needle": "end_turn",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-doc_obsolete_reference-000.json",
+              "kind": "text_match",
+              "line": 673,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 19,\n              \"context\": \"    \\\"verdict\\\": \\\"dismissed\\\",\\n    \\\"confidence\\\": 0.85,\\n    \\\"triage_reasoning\\\": \\\"\\\\nExamined all three string literals across both files, plus their usage in the broader codebase.\\\\n\\\\n**\\\\\\\"claude-code\\\\\\\"**\\\\n- Defined in `claude_code.py` as a bare return value (`return \\\\\\\"claude-code\\\\\\\"`) and in `_parse_response` as a model fallback (`model=model_name or \\\\\\\"claude-code\\\\\\\"`).\\\\n- Appears in 10+ files throughout the project (`config.py`, `init.py`, `rate_limiter.py`, `factory.py`, `registry.py`, etc.).\\\\n- `OpenAIProvider` and `OpenRouterProvider` use a `_PROVIDER_NAME = \\\\\\\"openai\\\\\\\"` class-variable pattern; `ClaudeCodeProvider` does not — a real style inconsistency.\\\\n- Test asserts `p.name == \\\\\\\"claude-code\\\\\\\"` (line 83) and tests the prefix-stripping overload (line 361).\\\\n- Any drift between production and test causes an explicit `AssertionError`, not a silent mismatch. The \\\\\\\"silent mismatch\\\\\\\" framing does not hold for test assertions.\\\\n- The real codebase concern (10+ bare literals with no central constant) is broader than the specific test↔production claim.\\\\n\\\\n**\\\\\\\"claudeMdExcludes\\\\\\\"**\\\\n- Appears only once in production code (`--settings` JSON payload at line 267) and once in the test as a substring check (line 627).\\\\n- This is a Claude Code CLI parameter name — an external protocol string the project does not control. Falls squarely in the ecosystem-convention category: the CLI binary defines the schema, not this project.\\\\n- Extracting it to a constant would name something the project has no authority to rename.\\\\n\\\\n**\\\\\\\"end_turn\\\\\\\"**\\\\n- Set as the hardcoded stop-reason in `_parse_response` (`stop_reason=\\\\\\\"end_turn\\\\\\\"`) and mapped from Google's \\\\\\\"STOP\\\\\\\" in `google.py:23`.\\\\n- Originates from the Anthropic API vocabulary — an ecosystem convention. `google.py` explicitly maps a foreign value (Google's \\\\\\\"STOP\\\\\\\") to this string, confirming it's treated as a cross-provider normalization target, not a locally-owned constant.\\\\n- No production code ever branches on \\\\\\\"end_turn\\\\\\\" specifically (only \\\\\\\"length\\\\\\\" is consumed). A mismatch between files would have no behavioral consequence.\\\\n- Test assertion `result.stop_reason == \\\\\\\"end_turn\\\\\\\"` is an explicit check; drift fails loudly.\\\\n\\\\n**Common flaw in the claim:** The premise is \\\\\\\"a rename triggers a silent mismatch.\\\\\\\" All three literals appear only in test assertions. Test assertions are definitionally not silent — they produce AssertionError at run time. Extracting to shared constants would convert a test-run failure (AssertionError) to an import-collection failure (ImportError), a marginal DX improvement, not a correctness fix. None of the three literals constitutes a latent bug or a risk of undetected divergence in deployed behaviour.\\\\n\\\",\\n    \\\"suggested_fix\\\": null,\\n    \\\"severity\\\": null,\",\n              \"needle\": \"ClaudeCodeProvider\",\n              \"source\": \"text_scan\"",
+              "needle": "end_turn",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 409,
+            "needles": [
+              "claude-code",
+              "claudeMdExcludes",
+              "end_turn"
+            ],
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "tests/test_claude_code_provider.py",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: \"\"\"Tests for the Claude Code CLI provider.\"\"\"\n2: \n3: import asyncio\n4: import json\n5: import os\n6: from pathlib import Path\n7: from unittest.mock import AsyncMock, MagicMock, patch\n8: \n9: import pytest\n10: \n11: from osoji.llm.claude_code import ClaudeCodeCLIError, ClaudeCodeProvider",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "b7a238e62ed9c00e",
+    "verdict": "dismissed",
+    "confidence": 0.9,
+    "triage_reasoning": "A prior high-quality triage (0.85 confidence, dismissed) examined all three strings in detail. The analysis holds: (1) 'claudeMdExcludes' is a Claude Code CLI parameter name — an external protocol string the project cannot rename; it is an ecosystem convention. (2) 'end_turn' originates from the Anthropic API vocabulary and is used as a cross-provider normalization target, also an ecosystem convention. (3) 'claude-code' in the test context appears only in explicit `AssertionError`-producing test assertions (`assert p.name == \"claude-code\"`), which fail loudly on drift. The claim's 'silent mismatch' premise does not hold for test assertions. None of the three requires a shared constant to prevent silent failures in this specific test↔production pairing (unlike claim 9's production `budgets.py` path).",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "f01c8488e5457f4a"
+  },
+  "trace": null
+}

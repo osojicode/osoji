@@ -281,6 +281,24 @@ def _quoted_literals(text: str) -> list[str]:
     return seen[:_MAX_NEEDLES]
 
 
+def _named_paths(finding: Finding, ctx: BuildContext) -> list[str]:
+    """Root-relative paths the claim prose names and that exist in the corpus.
+
+    Contract findings name their file tuple in prose ("produced in
+    src/osoji/shadow.py, checked in tests/test_x.py") — those files carry the
+    deciding evidence and must be swept before the hit cap can fill with
+    incidental matches (the file-tuple minimum context, mechanized)."""
+
+    paths: list[str] = []
+    for token in re.findall(r"[\w./\\-]+", _claim_text(finding)):
+        if "/" not in token and "\\" not in token:
+            continue
+        norm = token.strip(".,;:'\"`").replace("\\", "/")
+        if norm and norm not in paths and ctx.read_lines(norm) is not None:
+            paths.append(norm)
+    return paths
+
+
 def _find_symbol_entry(
     symbols_by_file: dict[str, list[dict]], rel_path: str, name: str
 ) -> dict | None:
@@ -360,16 +378,33 @@ class CrossFileReferenceBuilder(EvidenceBuilder):
 
         # Mechanical text scan — the whole corpus, beyond any file pair, and
         # the flagged file itself outside the flagged region (wrapper-pattern
-        # usage lives in the same file; ablation r1 lesson).
+        # usage lives in the same file; ablation r1 lesson). Identifier-like
+        # literals get word-boundary guards ('ast' must not match 'fastest';
+        # ablation r2 lesson).
         needles = [(sym, rf"\b{re.escape(sym)}\b") for sym in symbols]
-        needles += [(lit, re.escape(lit)) for lit in literals]
+        needles += [
+            (lit, rf"\b{re.escape(lit)}\b" if re.fullmatch(r"\w+", lit) else re.escape(lit))
+            for lit in literals
+        ]
         flagged_lo = finding.line_start or 0
         flagged_hi = finding.line_end or flagged_lo
-        scan_files = ctx.scan_files()
+
+        # Sweep order decides what survives the hit cap: claim-named files
+        # first, then source-extension files, then everything else (r2 lesson:
+        # alphabetical order filled the cap with LICENSE/docs junk while the
+        # deciding producer/consumer sites never made it in).
+        named = _named_paths(finding, ctx)
+        extensions = getattr(ctx.config, "extensions", ())
+        rest = [f for f in ctx.scan_files() if f not in named]
+        ordered = named + sorted(
+            rest, key=lambda f: 0 if Path(f).suffix in extensions else 1
+        )
+        needle_totals: dict[str, int] = {}
         for needle, pattern in needles:
             regex = re.compile(pattern)
             hits = 0
-            for rel in scan_files:
+            total = 0
+            for rel in ordered:
                 same_file = rel == source
                 lines = ctx.read_lines(rel)
                 if lines is None:
@@ -379,6 +414,9 @@ class CrossFileReferenceBuilder(EvidenceBuilder):
                         continue  # the declaration itself is not a reference
                     if not regex.search(line):
                         continue
+                    total += 1
+                    if hits >= _MAX_HITS_PER_NEEDLE:
+                        continue  # keep counting for honest totals
                     context = "\n".join(
                         lines[max(0, lineno - 1 - _CONTEXT_LINES): lineno + _CONTEXT_LINES]
                     )
@@ -394,10 +432,7 @@ class CrossFileReferenceBuilder(EvidenceBuilder):
                         entry["same_file"] = True
                     references.append(entry)
                     hits += 1
-                    if hits >= _MAX_HITS_PER_NEEDLE:
-                        break
-                if hits >= _MAX_HITS_PER_NEEDLE:
-                    break
+            needle_totals[needle] = total
 
         # Export surface: is the flagged symbol part of the file's public
         # export list? Positional fact that lets Triage weigh the
@@ -416,11 +451,12 @@ class CrossFileReferenceBuilder(EvidenceBuilder):
                 export_surface = None
 
         scan_scope = {
-            "files_scanned": len(scan_files),
+            "files_scanned": len(ordered),
             "needles": [n for n, _ in needles],
+            "needle_totals": needle_totals,
             "same_file_swept": True,
         }
-        if not references and not export_surface and not scan_files:
+        if not references and not export_surface and not ordered:
             # We could not even look — no graph, no corpus. This (and only
             # this) is the insufficient-evidence case for references.
             return []

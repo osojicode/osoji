@@ -1,0 +1,374 @@
+{
+  "slug": "audit-obligation_implicit_contract-003",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "tests/test_impl_hash.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "2 implicit contracts between src/osoji/diff.py and tests/test_impl_hash.py: \"missing\", \"stale\"",
+    "observed_behavior": "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 172,
+              "context": "\n- **Facts DB is noisy — use LLM reasoning to filter.** LLM-extracted `.facts.json`\n  data may contain malformed entries, misclassified strings, or missing references.\n  Never use facts mechanically to suppress findings (e.g. \"if referenced anywhere,\n  dismiss\"). Instead, present facts as evidence to the LLM and let it reason about",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 84,
+              "context": "| `osoji audit .` | Scan for dead code, stale docs, and semantic issues |\n| `osoji shadow .` | Generate shadow documentation |\n| `osoji check .` | Check for stale or missing shadow docs |\n| `osoji diff` | Show documentation impact of source changes |\n| `osoji stats .` | Token statistics for source vs shadow docs |",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 64,
+              "context": "\n# Classification taxonomies. Closed sets, each with an `other` outlet — the\n# other-rate is itself a signal the taxonomy is missing a class (CLAUDE.md,\n# closed-set discipline).\nGREP_SHAPES = (\"import_probe\", \"symbol\", \"literal\", \"regex\", \"other\")",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 74,
+              "context": "        for key in (\"slug\", \"category\", \"adjudicated_verdict\", \"finding\"):\n            if key not in entry:\n                raise ValueError(f\"manifest entry missing {key!r}: {entry.get('slug', entry)}\")\n    return data\n",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 477,
+              "context": "        assert loaded.config_snapshot == original.config_snapshot\n\n    def test_missing_file_raises(self, temp_dir):\n        \"\"\"load_audit_result raises FileNotFoundError when no cache exists.\"\"\"\n        from osoji.config import Config",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 734,
+              "context": "        assert len(result) == 1\n\n    def test_missing_file_skipped(self, tmp_path):\n        from unittest.mock import MagicMock\n        config = MagicMock()",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 796,
+              "context": "        assert result == []\n\n    def test_missing_file(self, tmp_path):\n        from unittest.mock import MagicMock\n        config = MagicMock()",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_claude_code_provider.py",
+              "kind": "text_match",
+              "line": 263,
+              "context": "\n@pytest.mark.asyncio\nasync def test_missing_structured_output_raises_after_max_retries():\n    p = _provider()\n    # All 3 calls return no structured_output",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode.py",
+              "kind": "text_match",
+              "line": 497,
+              "context": "        assert errs == []\n\n        # The validator should fail when symbols are missing\n        errs = validator(\"verify_dead_code\", {\"verdicts\": []})\n        assert len(errs) == 1",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_doc_prompts.py",
+              "kind": "text_match",
+              "line": 162,
+              "context": "        _map_coverage([c], scorecard)\n        assert c.coverage_status == \"partially_documented\"\n        assert set(c.missing_types) == {\"tutorial\", \"how-to\"}\n        assert len(c.existing_coverage) == 1\n        assert c.existing_coverage[0][\"diataxis_type\"] == \"reference\"",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_doc_prompts.py",
+              "kind": "text_match",
+              "line": 182,
+              "context": "        _map_coverage([c], scorecard)\n        assert c.coverage_status == \"fully_documented\"\n        assert c.missing_types == []\n\n    def test_undocumented_concept(self):",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_doc_prompts.py",
+              "kind": "text_match",
+              "line": 200,
+              "context": "        _map_coverage([c], scorecard)\n        assert c.coverage_status == \"undocumented\"\n        assert set(c.missing_types) == {\"reference\", \"tutorial\"}\n\n    def test_multi_file_concept_coverage(self):",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_doc_prompts.py",
+              "kind": "text_match",
+              "line": 289,
+              "context": "            appropriate_types=[\"reference\", \"tutorial\"],\n        )\n        c1.missing_types = [\"tutorial\"]\n\n        c2 = _make_concept(",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_doc_prompts.py",
+              "kind": "text_match",
+              "line": 296,
+              "context": "            appropriate_types=[\"reference\", \"tutorial\"],\n        )\n        c2.missing_types = [\"tutorial\"]\n\n        clusters = _cluster_for_prompts([c1, c2])",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_doc_prompts.py",
+              "kind": "text_match",
+              "line": 307,
+              "context": "            source_files=[\"src/x.py\"],\n        )\n        c1.missing_types = [\"tutorial\"]\n\n        c2 = _make_concept(",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_doc_prompts.py",
+              "kind": "text_match",
+              "line": 313,
+              "context": "            source_files=[\"src/y.py\"],\n        )\n        c2.missing_types = [\"tutorial\"]\n\n        clusters = _cluster_for_prompts([c1, c2])",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_doc_prompts.py",
+              "kind": "text_match",
+              "line": 318,
+              "context": "        assert len(clusters) == 0\n\n    def test_no_cluster_without_shared_missing_type(self):\n        c1 = _make_concept(\n            concept_id=\"a\",",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_doc_prompts.py",
+              "kind": "text_match",
+              "line": 323,
+              "context": "            source_files=[\"src/x.py\", \"src/y.py\"],\n        )\n        c1.missing_types = [\"tutorial\"]\n\n        c2 = _make_concept(",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_doc_prompts.py",
+              "kind": "text_match",
+              "line": 329,
+              "context": "            source_files=[\"src/x.py\", \"src/y.py\"],\n        )\n        c2.missing_types = [\"reference\"]  # different missing type\n\n        clusters = _cluster_for_prompts([c1, c2])",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_doc_prompts.py",
+              "kind": "text_match",
+              "line": 336,
+              "context": "    def test_fully_documented_not_clustered(self):\n        c1 = _make_concept(concept_id=\"a\", source_files=[\"src/x.py\"])\n        c1.missing_types = []  # fully documented\n        clusters = _cluster_for_prompts([c1])\n        assert len(clusters) == 0",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "CHANGELOG.md",
+              "kind": "text_match",
+              "line": 20,
+              "context": "- `--full` — run all optional phases at once\n- `osoji shadow` — shadow documentation generation with incremental updates\n- `osoji check` — staleness checking with `--dry-run` mode\n- `osoji diff` — git diff documentation impact analysis\n- `osoji stats` — token compression statistics",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 65,
+              "context": "\nThe pre-commit hook runs `osoji safety check` (blocks on failure) then\n`osoji check .` which marks stale docs with warning lines and writes\n`.osoji/staleness.json`, but does not regenerate them (no LLM calls).\nRun `osoji shadow .` explicitly to regenerate.",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 66,
+              "context": "The pre-commit hook runs `osoji safety check` (blocks on failure) then\n`osoji check .` which marks stale docs with warning lines and writes\n`.osoji/staleness.json`, but does not regenerate them (no LLM calls).\nRun `osoji shadow .` explicitly to regenerate.\nUse `osoji check --dry-run` for a read-only report without file modifications.",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 102,
+              "context": "- `src/osoji/safety/` — Pre-commit safety checks (personal path and secret scanning, filters)\n- `src/osoji/walker.py` — Repository file discovery (git ls-files / fallback walk)\n- `src/osoji/hasher.py` — SHA-256 hashing and Merkle staleness detection\n- `src/osoji/diff.py` — Git diff documentation impact analysis\n- `src/osoji/stats.py` — Token counting statistics",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 14,
+              "context": "## What it does\n\nosoji audits your codebase for dead code, stale documentation, misleading comments, and semantic contradictions. It produces structured, actionable findings — and ships with agent skill files that automate the entire triage-fix-feedback loop. Stop wasting time working around the garbage accumulating in your project.\n\n## Quick start",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 71,
+              "context": "- **Unactuated config** — config fields declared but never enforced\n- **Unused dependencies** — packages listed but never imported\n- **Dead CI/CD** — stale pipeline jobs, unused Makefile targets\n- **Orphaned files** — source files unreachable from any entry point\n",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 82,
+              "context": "| Command | Description |\n|---------|-------------|\n| `osoji audit .` | Scan for dead code, stale docs, and semantic issues |\n| `osoji shadow .` | Generate shadow documentation |\n| `osoji check .` | Check for stale or missing shadow docs |",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 84,
+              "context": "| `osoji audit .` | Scan for dead code, stale docs, and semantic issues |\n| `osoji shadow .` | Generate shadow documentation |\n| `osoji check .` | Check for stale or missing shadow docs |\n| `osoji diff` | Show documentation impact of source changes |\n| `osoji stats .` | Token statistics for source vs shadow docs |",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "SUPPLY-CHAIN-SECURITY.md",
+              "kind": "text_match",
+              "line": 81,
+              "context": "| Branch protection on main | No direct pushes, even for admin | `enforce_admins: true`, server-side |\n| Required CI status checks | Tests + audit must pass before merge | Named checks: `test (3.11/3.12/3.13)`, `audit` |\n| `strict: true` | PR must be up-to-date with main | Prevents merging stale branches |\n| No force pushes, no deletions | Protect git history | Branch protection rule |\n| Manual merge only | Project owner decides when changes land | Agents create PRs but do not merge |",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/measure_debris_cutover.py",
+              "kind": "text_match",
+              "line": 40,
+              "context": "    This branch changes osoji source, so ``impl_hash`` drifts and the live\n    findings sidecars (generated 2026-07-01, pre-branch) would all be filtered\n    as stale. For *measurement* the gate is irrelevant — both the legacy rule\n    and the mechanized builders see identical inputs — so it is deliberately\n    bypassed here. Production keeps the gate.",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 66,
+              "context": "        sc = _minimal_scorecard(\n            coverage_pct=75.0, covered_count=3, total_source_count=4,\n            accuracy_by_category={\"stale_content\": 2},\n        )\n        lines = _format_scorecard_section(sc)",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 268,
+              "context": "    def test_html_dead_docs_section(self):\n        \"\"\"Dead docs section renders when debris exists.\"\"\"\n        sc = _minimal_scorecard(dead_docs=[\"docs/old.md\", \"docs/stale.md\"])\n        result = AuditResult(issues=[], scorecard=sc)\n        html = format_audit_html(result)",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 273,
+              "context": "        assert 'id=\"section-dead-docs\"' in html\n        assert \"docs/old.md\" in html\n        assert \"docs/stale.md\" in html\n\n    def test_html_no_dead_docs_omits_section(self):",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 301,
+              "context": "            coverage_pct=50.0, covered_count=1, total_source_count=2,\n            dead_docs=[\"docs/old.md\"],\n            accuracy_by_category={\"stale_content\": 1},\n            total_accuracy_errors=1, live_doc_count=1, accuracy_errors_per_doc=1.0,\n            junk_by_category={\"dead_code\": 1},",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 309,
+              "context": "        )\n        result = AuditResult(\n            issues=[AuditIssue(Path(\"docs/a.md\"), \"error\", \"doc_stale\", \"Stale\", \"Fix\")],\n            scorecard=sc,\n        )",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 440,
+              "context": "                    path=Path(\"src/utils.py\"),\n                    severity=\"warning\",\n                    category=\"stale_shadow\",\n                    message=\"Shadow is stale\",\n                    remediation=\"Run osoji shadow\",",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 441,
+              "context": "                    severity=\"warning\",\n                    category=\"stale_shadow\",\n                    message=\"Shadow is stale\",\n                    remediation=\"Run osoji shadow\",\n                ),",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 579,
+              "context": "            issues=[\n                AuditIssue(Path(\"a.md\"), \"error\", \"debris\", \"bad\", \"fix\"),\n                AuditIssue(Path(\"b.md\"), \"warning\", \"stale\", \"old\", \"update\"),\n                AuditIssue(Path(\"c.md\"), \"info\", \"note\", \"fyi\", \"none\"),\n            ],",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 617,
+              "context": "\n\n# Note: the legacy `_verify_debris_findings_async` unit tests (stale_comment /\n# latent_bug eligibility + suppression) were removed in V1-3 when that function\n# was replaced by the unified Triage stage. Their coverage moved to",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit_debris_cutover.py",
+              "kind": "text_match",
+              "line": 100,
+              "context": "    config = Config(root_path=temp_dir, respect_gitignore=False)\n    raw = [\n        _debris(\"stale_comment\", \"comment is stale\"),  # no cross_file flag → ineligible\n        _debris(\"misleading_docstring\", \"docstring drifted\"),\n    ]",
+              "needle": "stale",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 409,
+            "needles": [
+              "missing",
+              "stale"
+            ],
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "tests/test_impl_hash.py",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: \"\"\"Tests for implementation hash staleness detection.\"\"\"\n2: \n3: import re\n4: from pathlib import Path\n5: \n6: import pytest\n7: \n8: from osoji.hasher import compute_impl_hash, extract_impl_hash, _IMPL_HASH_EXCLUDES\n9: from osoji.shadow import (\n10:     assemble_shadow_doc,\n11:     assemble_directory_shadow_doc,",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "e9b7de8785a3c135",
+    "verdict": "dismissed",
+    "confidence": 0.95,
+    "triage_reasoning": "The strings 'missing' and 'stale' are extremely common English adjectives that appear across hundreds of unrelated contexts in this codebase: missing files, stale docs, stale branches, missing references, missing symbols, stale CI checks, missing parameters. The evidence sweep returned matches in README.md, CHANGELOG.md, CLAUDE.md, SUPPLY-CHAIN-SECURITY.md, multiple test files, and scripts — all in unrelated roles. This is coincidental duplication of generic vocabulary, not an implicit cross-component contract. There is no reason `diff.py` and `test_impl_hash.py` need to agree on the exact spelling of these words, and any shared use would be incidental. Significance fails.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "75432be467948744"
+  },
+  "trace": null
+}

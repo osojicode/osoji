@@ -429,25 +429,50 @@ async def run(args: argparse.Namespace) -> int:
         traces_by_id = {}
         in_tokens = out_tokens = 0
         batch_size = args.batch_size if mode == "claim" else len(claims) or 1
-        for lo in range(0, len(claims), batch_size):
-            chunk = claims[lo: lo + batch_size]
-            result = None
+
+        async def decide_chunk(chunk, label):
             for attempt in range(3):
                 try:
-                    result = await triage.decide_batch(
+                    return await triage.decide_batch(
                         chunk, mode=mode, system_prompt=TRIAGE_SYSTEM_PROMPT
                     )
-                    break
                 except Exception as exc:  # noqa: BLE001 — transient CLI/API errors
-                    print(f"  batch {lo // batch_size + 1} attempt {attempt + 1} failed: {exc}")
+                    print(f"  {label} attempt {attempt + 1} failed: {exc}")
                     if attempt < 2:
-                        await asyncio.sleep(5 * (attempt + 1))
+                        await asyncio.sleep(10 * (attempt + 1))
+            return None
+
+        chunks = [
+            (lo // batch_size + 1, claims[lo: lo + batch_size])
+            for lo in range(0, len(claims), batch_size)
+        ]
+        decided: dict[int, Any] = {}
+        failed: list[tuple[int, list[Claim]]] = []
+        for num, chunk in chunks:
+            result = await decide_chunk(chunk, f"batch {num}")
             if result is None:
-                # Keep going: undecided findings surface in the no_verdict list
-                # and count as disagreements — never silently dropped.
-                findings.extend(c.finding for c in chunk)
-                print(f"  batch {lo // batch_size + 1}: FAILED after retries; "
+                failed.append((num, chunk))
+            else:
+                decided[num] = result
+                if mode == "claim" and len(chunks) > 1:
+                    print(f"  batch {num}: {len(chunk)} claims decided")
+        # Second pass: transient transport errors (ConnectionRefused bursts)
+        # often clear by the time the rest of the run finishes.
+        for num, chunk in failed:
+            result = await decide_chunk(chunk, f"batch {num} (second pass)")
+            if result is None:
+                print(f"  batch {num}: FAILED after second pass; "
                       f"{len(chunk)} claims left undecided")
+            else:
+                decided[num] = result
+                print(f"  batch {num}: recovered on second pass")
+
+        for num, chunk in chunks:
+            result = decided.get(num)
+            if result is None:
+                # Undecided findings surface in the no_verdict list and count
+                # as disagreements — never silently dropped.
+                findings.extend(c.finding for c in chunk)
                 continue
             findings.extend(result.findings)
             traces_by_id.update(
@@ -455,8 +480,6 @@ async def run(args: argparse.Namespace) -> int:
             )
             in_tokens += result.input_tokens
             out_tokens += result.output_tokens
-            if mode == "claim" and len(claims) > batch_size:
-                print(f"  batch {lo // batch_size + 1}: {len(chunk)} claims decided")
 
     args.out.mkdir(parents=True, exist_ok=True)
     for entry, finding in zip(entries, findings):

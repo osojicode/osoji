@@ -1,0 +1,52 @@
+{
+  "slug": "unactuated_config-case_002-Request",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "plumbing:unactuated_config",
+    "gap_type": "reachability",
+    "path": "docs/debugAdapterProtocol.json",
+    "line_start": 3,
+    "line_end": 5,
+    "symbol": "Request",
+    "contract_source": "config schema",
+    "contract_claim": "The schema definition `Request` in docs/debugAdapterProtocol.json declares a configuration structure that application code is obliged to load and actuate.",
+    "observed_behavior": "Nothing in the project loads docs/debugAdapterProtocol.json as runtime configuration: the file is a vendored copy of the Debug Adapter Protocol reference stored under docs/, and the project's actual runtime schema is src/runtime-schema.json.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 2,
+            "needles": [
+              "Request"
+            ],
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "docs/debugAdapterProtocol.json",
+          "line_start": 1,
+          "line_end": 7,
+          "snippet": "1: {\n2:   \"definitions\": {\n3:     \"Request\": {\n4:       \"type\": \"object\"\n5:     }\n6:   }\n7: }",
+          "anchor": "symbol"
+        }
+      }
+    ],
+    "id": "d8be188b6fb738c6",
+    "verdict": "dismissed",
+    "confidence": 0.99,
+    "triage_reasoning": "The file is `docs/debugAdapterProtocol.json` — it lives in the `docs/` directory and is described as a vendored copy of the Debug Adapter Protocol reference. The claim's premise that 'application code is obliged to load and actuate' this file is unfounded: reference documents in `docs/` are not runtime configuration. The evidence confirms no code in the project loads this file; the actual runtime schema is in `src/runtime-schema.json`. There is no actuation obligation for vendored reference documentation. The reachability gap is not a gap at all — this file is not supposed to be loaded at runtime.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "6760c5f28b5d56ab"
+  },
+  "trace": null
+}

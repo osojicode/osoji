@@ -1,0 +1,151 @@
+{
+  "slug": "dead_parameter-case_001-config",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "deadparam:dead_parameter",
+    "gap_type": "reachability",
+    "path": "src/osoji/scorecard.py",
+    "line_start": 107,
+    "line_end": 107,
+    "symbol": "config",
+    "contract_source": "function signature",
+    "contract_claim": "Parameter `config` is declared in the signature of build_scorecard(config, analysis_results, junk_results=None, dead_code_results=None, plumbing_result=None) (signature at lines 106-113) as an accepted input that callers may pass.",
+    "observed_behavior": "The caller run_audit in src/osoji/audit.py passes `config` on every invocation of build_scorecard.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 6,
+              "context": "\n\ndef run_audit(config, analysis_results, junk_results):\n    \"\"\"Build scorecard from audit results.\"\"\"\n    scorecard = build_scorecard(",
+              "needle": "config",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 9,
+              "context": "    \"\"\"Build scorecard from audit results.\"\"\"\n    scorecard = build_scorecard(\n        config,\n        analysis_results=analysis_results,\n        junk_results=junk_results if junk_results else None,",
+              "needle": "config",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/scorecard.py",
+              "kind": "text_match",
+              "line": 7,
+              "context": "from pathlib import Path\n\nfrom .config import Config, DIRECTORY_SHADOW_FILENAME, SHADOW_DIR\nfrom .doc_analysis import DocAnalysisResult\nfrom .deadcode import DeadCodeVerification",
+              "needle": "config",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/scorecard.py",
+              "kind": "text_match",
+              "line": 95,
+              "context": "\n\ndef _load_signature(config: Config, source_path: str) -> dict | None:\n    \"\"\"Load a topic signature for a source file, if available.\"\"\"\n    sig_path = config.signatures_path_for(Path(source_path))",
+              "needle": "config",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/scorecard.py",
+              "kind": "text_match",
+              "line": 97,
+              "context": "def _load_signature(config: Config, source_path: str) -> dict | None:\n    \"\"\"Load a topic signature for a source file, if available.\"\"\"\n    sig_path = config.signatures_path_for(Path(source_path))\n    if sig_path.exists():\n        try:",
+              "needle": "config",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/scorecard.py",
+              "kind": "text_match",
+              "line": 118,
+              "context": "    # --- Coverage ---\n    # Enumerate all source files from shadow inventory\n    shadow_root = config.shadow_root\n    all_source_files: set[str] = set()\n    if shadow_root.exists():",
+              "needle": "config",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/scorecard.py",
+              "kind": "text_match",
+              "line": 143,
+              "context": "    coverage_entries: list[CoverageEntry] = []\n    for source_path in sorted(all_source_files):\n        sig = _load_signature(config, source_path)\n        covering = source_to_docs.get(source_path, [])\n        coverage_entries.append(CoverageEntry(",
+              "needle": "config",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/scorecard.py",
+              "kind": "text_match",
+              "line": 193,
+              "context": "\n    # Code debris findings from .osoji/findings/\n    findings_dir = config.root_path / SHADOW_DIR / \"findings\"\n    if findings_dir.exists():\n        junk_sources.append(\"code_debris\")",
+              "needle": "config",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/scorecard.py",
+              "kind": "text_match",
+              "line": 258,
+              "context": "    junk_total_source_lines = 0\n    for source_path in all_source_files:\n        full_path = config.root_path / source_path\n        lines = count_lines(full_path)\n        junk_total_source_lines += lines",
+              "needle": "config",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/scorecard.py",
+              "kind": "text_match",
+              "line": 263,
+              "context": "\n    for source, items in junk_items_by_file.items():\n        full_path = config.root_path / source\n        file_lines = count_lines(full_path)\n",
+              "needle": "config",
+              "source": "text_scan",
+              "same_file": true
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 2,
+            "needles": [
+              "config"
+            ],
+            "same_file_swept": true
+          },
+          "export_surface": {
+            "symbol": "config",
+            "exported_from_flagged_file": false
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/scorecard.py",
+          "line_start": 97,
+          "line_end": 117,
+          "snippet": "97:     sig_path = config.signatures_path_for(Path(source_path))\n98:     if sig_path.exists():\n99:         try:\n100:             return json.loads(sig_path.read_text(encoding=\"utf-8\"))\n101:         except (json.JSONDecodeError, OSError):\n102:             pass\n103:     return None\n104: \n105: \n106: def build_scorecard(\n107:     config: Config,\n108:     analysis_results: list[DocAnalysisResult],\n109:     junk_results: dict[str, JunkAnalysisResult] | None = None,\n110:     # Backward compat:\n111:     dead_code_results: list[DeadCodeVerification] | None = None,\n112:     plumbing_result: PlumbingResult | None = None,\n113: ) -> Scorecard:\n114:     \"\"\"Build a scorecard from audit phase outputs. Pure Python, no LLM calls.\"\"\"\n115: \n116:     # --- Coverage ---\n117:     # Enumerate all source files from shadow inventory",
+          "anchor": "symbol",
+          "enclosing_symbol": {
+            "name": "build_scorecard",
+            "kind": "function",
+            "line_start": 106,
+            "line_end": 362
+          }
+        }
+      }
+    ],
+    "id": "ac5ed579a7a38c1c",
+    "verdict": null,
+    "confidence": null,
+    "triage_reasoning": null,
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "af50b86098b10246"
+  },
+  "trace": null
+}

@@ -208,6 +208,53 @@ def test_export_surface_reported_when_facts_know_the_file(config):
     assert surface["exported_from_flagged_file"] is True
 
 
+def test_literal_needles_use_word_boundaries(config, temp_dir):
+    # Ablation r2 lesson: 'ast' must not match 'fastest' / 'last'.
+    write(temp_dir, "src/producer.py", "method = 'ast'\n")
+    write(temp_dir, "src/noise.py", "speed = 'fastest'\nlast = 1\n")
+    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
+    finding = make_finding(
+        path="src/producer.py", symbol=None, gap_type="uncategorized",
+        contract_claim="Implicit contract: 'ast' produced here",
+        observed_behavior="checked elsewhere",
+    )
+    evidence = BUILDERS["cross_file_reference"].build(finding, ctx)
+    files = {r["file"] for r in evidence[0].payload["references"]}
+    assert "src/noise.py" not in files
+
+
+def test_claim_named_files_are_scanned_first(config, temp_dir):
+    # Ablation r2 lesson: the hit cap must not starve the files the claim
+    # names in prose — for contract findings those ARE the file tuple.
+    for i in range(30):
+        write(temp_dir, f"docs/aaa_{i:02}.md", "the shared_key appears here\n")
+    write(temp_dir, "src/consumer.py", "value = conf['shared_key']\n")
+    write(temp_dir, "src/producer.py", "conf = {'shared_key': 1}\n")
+    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
+    finding = make_finding(
+        path="src/producer.py", symbol=None, gap_type="uncategorized",
+        contract_claim="Implicit contract: 'shared_key' produced in src/producer.py",
+        observed_behavior="checked in src/consumer.py with no shared constant",
+    )
+    evidence = BUILDERS["cross_file_reference"].build(finding, ctx)
+    files = {r["file"] for r in evidence[0].payload["references"]}
+    assert "src/consumer.py" in files
+
+
+def test_scan_scope_reports_per_needle_totals(config, temp_dir):
+    for i in range(30):
+        write(temp_dir, f"docs/n_{i:02}.md", "needle_word here\n")
+    write(temp_dir, "src/x.py", "def needle_word():\n    pass\n")
+    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
+    evidence = BUILDERS["cross_file_reference"].build(
+        make_finding(symbol="needle_word", line_start=1, line_end=2), ctx
+    )
+    payload = evidence[0].payload
+    totals = payload["scan_scope"]["needle_totals"]
+    assert totals["needle_word"] == 30
+    assert len([r for r in payload["references"] if r["needle"] == "needle_word"]) < 30
+
+
 # --- surrounding_code -------------------------------------------------------
 
 

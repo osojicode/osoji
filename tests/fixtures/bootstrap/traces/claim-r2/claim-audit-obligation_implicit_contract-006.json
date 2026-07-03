@@ -1,0 +1,213 @@
+{
+  "slug": "audit-obligation_implicit_contract-006",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "tests/test_plugin_python.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "Implicit contract: \"ast\" is produced in src/osoji/shadow.py and checked in tests/test_plugin_python.py with no shared definition",
+    "observed_behavior": "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 11,
+              "context": "# default_provider = \"openai\"\n\n# Per-provider model overrides (small = fast/cheap, medium = balanced, large = most capable)\n# [providers.anthropic]\n# small  = \"claude-haiku-4-5-20251001\"",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "CODE_OF_CONDUCT.md",
+              "kind": "text_match",
+              "line": 6,
+              "context": "## Our Pledge\n\nWe as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, caste, color, religion, or sexual identity and orientation.\n\nWe pledge to act and interact in ways that contribute to an open, welcoming, diverse, inclusive, and healthy community.",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "CONTRIBUTING.md",
+              "kind": "text_match",
+              "line": 61,
+              "context": "times against the real Anthropic API and uses binomial hypothesis testing to\ndetect regressions. The suite automatically computes the sample size needed\nfor 99% statistical power, so stochastic LLM behavior doesn't cause false\ntest failures.\n",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "CONTRIBUTING.md",
+              "kind": "text_match",
+              "line": 73,
+              "context": "\nIf you've found a false-positive pattern but don't want to dig into prompts,\nthe fastest path is to run the `osoji-sweep` skill on your project — it will\nautomatically file a structured GitHub issue with the evidence osoji needs\nto improve.",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "LICENSE",
+              "kind": "text_match",
+              "line": 111,
+              "context": "          include a readable copy of the attribution notices contained\n          within such NOTICE file, excluding any notices that do not\n          pertain to any part of the Derivative Works, in at least one\n          of the following places: within a NOTICE text file distributed\n          as part of the Derivative Works; within the Source form or",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 14,
+              "context": "## What it does\n\nosoji audits your codebase for dead code, stale documentation, misleading comments, and semantic contradictions. It produces structured, actionable findings — and ships with agent skill files that automate the entire triage-fix-feedback loop. Stop wasting time working around the garbage accumulating in your project.\n\n## Quick start",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 87,
+              "context": "| `osoji diff` | Show documentation impact of source changes |\n| `osoji stats .` | Token statistics for source vs shadow docs |\n| `osoji report .` | Re-render last audit in a different format |\n| `osoji export .` | Export observatory bundle |\n| `osoji push` | Push bundle to osoji-teams |",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/stat_utils.py",
+              "kind": "text_match",
+              "line": 4,
+              "context": "\nProvides a one-sided binomial test framework to detect regressions in\nstochastic LLM-based tests with controlled false-positive rates.\n\"\"\"\n",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit_debris_cutover.py",
+              "kind": "text_match",
+              "line": 33,
+              "context": "        self._result = result\n        self.calls = 0\n        self.last_system = None\n\n    async def complete(self, messages, system, options):",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit_debris_cutover.py",
+              "kind": "text_match",
+              "line": 37,
+              "context": "    async def complete(self, messages, system, options):\n        self.calls += 1\n        self.last_system = system\n        return self._result\n",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit_debris_cutover.py",
+              "kind": "text_match",
+              "line": 123,
+              "context": "    # Re-plumbing: the debris claim call uses the legacy prompt verbatim, NOT the\n    # unified three-gap rubric. This is what makes the mock-equivalence sufficient.\n    assert provider.last_system == DEBRIS_TRIAGE_SYSTEM_PROMPT\n    assert \"code debris findings are genuine or false positives\" in provider.last_system",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit_debris_cutover.py",
+              "kind": "text_match",
+              "line": 124,
+              "context": "    # unified three-gap rubric. This is what makes the mock-equivalence sufficient.\n    assert provider.last_system == DEBRIS_TRIAGE_SYSTEM_PROMPT\n    assert \"code debris findings are genuine or false positives\" in provider.last_system",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_claim_builder.py",
+              "kind": "text_match",
+              "line": 41,
+              "context": "    # The PascalCase pass is fed LLM-generated text. A pathological \"AaAa…A\"\n    # input (the kind that made the old nested-quantifier pattern backtrack\n    # catastrophically) must resolve in linear time, not hang.\n    pathological = \"Aa\" * 5000 + \"A\"\n    start = time.monotonic()",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode.py",
+              "kind": "text_match",
+              "line": 548,
+              "context": "        )\n\n        results, _ast_keys = await detect_dead_code_async(\n            mock_provider, config,\n        )",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode.py",
+              "kind": "text_match",
+              "line": 592,
+              "context": "        )\n\n        results, _ast_keys = await detect_dead_code_async(\n            mock_provider, config,\n        )",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode.py",
+              "kind": "text_match",
+              "line": 608,
+              "context": "        mock_provider = AsyncMock()\n\n        results, _ast_keys = await detect_dead_code_async(\n            mock_provider, config,\n        )",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode.py",
+              "kind": "text_match",
+              "line": 678,
+              "context": "    \"\"\"Tests for _compute_transitive_liveness().\"\"\"\n\n    def test_transitive_liveness_includes_last_line(self):\n        \"\"\"Constant used on the last line of a function should be found.\n",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode.py",
+              "kind": "text_match",
+              "line": 679,
+              "context": "\n    def test_transitive_liveness_includes_last_line(self):\n        \"\"\"Constant used on the last line of a function should be found.\n\n        LLM-extracted line_end values are commonly 1 line short of the actual",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode.py",
+              "kind": "text_match",
+              "line": 683,
+              "context": "        LLM-extracted line_end values are commonly 1 line short of the actual\n        function body.  The +1 padding on line_end in _compute_transitive_liveness\n        compensates for this, ensuring the real last line is scanned.\n        \"\"\"\n        # Simulate LLM reporting line_end=4 when the function actually ends",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode.py",
+              "kind": "text_match",
+              "line": 696,
+              "context": "            '',                          # line 2\n            'def get_things():',         # line 3\n            '    data = process()',       # line 4 (LLM thinks this is last line)\n            '    return _HELPER',        # line 5 (actual last line, uses _HELPER)\n            '',                          # line 6",
+              "needle": "ast",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 409,
+            "needles": [
+              "ast"
+            ],
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "tests/test_plugin_python.py",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: \"\"\"Tests for the Python AST plugin.\"\"\"\n2: \n3: import textwrap\n4: \n5: import pytest\n6: \n7: from osoji.plugins.python_plugin import PythonPlugin\n8: \n9: \n10: @pytest.fixture\n11: def plugin():",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "576f7953c9e0cb7f",
+    "verdict": "dismissed",
+    "confidence": 0.92,
+    "triage_reasoning": "Reality — the evidence sweep for 'ast' returned hundreds of unrelated hits across 409 files because 'ast' is the name of Python's standard library Abstract Syntax Tree module and also appears in identifiers like 'ast_keys', 'last', 'fastest', etc. No specific evidence establishes a clear producer-consumer relationship between `src/osoji/shadow.py` producing the literal string 'ast' and `tests/test_plugin_python.py` checking it.\n\nThe surrounding code for test_plugin_python.py (L1-11) only shows an import of `PythonPlugin` — no string 'ast' check is visible in the evidence.\n\nEcosystem convention — 'ast' is the canonical Python stdlib module name, which means its meaning is defined outside the project. Any use of 'ast' as a plugin type/kind identifier would primarily be referencing the standard terminology.\n\nSignificance fails regardless — the evidence does not support that a rename of 'ast' in shadow.py would silently break test_plugin_python.py in a way that wouldn't be caught by other means. All three predicates require evidence; here the Reality predicate cannot be established.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "f2d9854d6588b68c"
+  },
+  "trace": null
+}

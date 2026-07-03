@@ -1,0 +1,541 @@
+{
+  "slug": "audit-latent_bug-003",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:latent_bug",
+    "gap_type": "uncategorized",
+    "path": "src/osoji/init.py",
+    "line_start": 320,
+    "line_end": 323,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L320-323: _prompt_model_defaults accesses defaults['small'], defaults['medium'], and defaults['large'] by hard-coded key without guarding against missing tiers. If any BUILTIN_PROVIDER_MODELS entry omits a tier, this raises KeyError.",
+    "observed_behavior": "Use defaults.get('small', '') or verify BUILTIN_PROVIDER_MODELS schema guarantees all three tiers for every provider entry.",
+    "evidence": [
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/init.py",
+          "line_start": 310,
+          "line_end": 333,
+          "snippet": "310:     built-in defaults), or None if defaults were accepted.\n311:     \"\"\"\n312: \n313:     defaults = BUILTIN_PROVIDER_MODELS.get(provider)\n314:     if not defaults:\n315:         return None\n316: \n317:     click.echo()\n318:     spec = get_provider_spec(provider)\n319:     click.echo(f\"   Model defaults for {spec.display_name}:\")\n320:     click.echo(f\"     small:  {defaults['small']}\")\n321:     click.echo(f\"     medium: {defaults['medium']}\")\n322:     click.echo(f\"     large:  {defaults['large']}\")\n323: \n324:     if click.confirm(\"   Accept defaults?\", default=True):\n325:         return None\n326: \n327:     overrides: dict[str, str] = {}\n328:     for tier in (\"small\", \"medium\", \"large\"):\n329:         value = click.prompt(f\"   {tier} model\", default=defaults[tier])\n330:         value = value.strip()\n331:         if value != defaults[tier]:\n332:             overrides[tier] = value\n333: ",
+          "anchor": "lines",
+          "enclosing_symbol": {
+            "name": "_prompt_model_defaults",
+            "kind": "function",
+            "line_start": 306,
+            "line_end": 334
+          }
+        }
+      },
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 11,
+              "context": "# default_provider = \"openai\"\n\n# Per-provider model overrides (small = fast/cheap, medium = balanced, large = most capable)\n# [providers.anthropic]\n# small  = \"claude-haiku-4-5-20251001\"",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 13,
+              "context": "# Per-provider model overrides (small = fast/cheap, medium = balanced, large = most capable)\n# [providers.anthropic]\n# small  = \"claude-haiku-4-5-20251001\"\n# medium = \"claude-sonnet-4-6\"\n# large  = \"claude-opus-4-6\"",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 18,
+              "context": "\n# [providers.openai]\n# small  = \"gpt-5-mini\"\n# medium = \"gpt-5.2\"\n# large  = \"gpt-5.4\"",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": "CHANGELOG.md",
+              "kind": "text_match",
+              "line": 34,
+              "context": "- Multi-provider LLM support: Anthropic, OpenAI, Google Gemini, OpenRouter\n  (all via LiteLLM), Claude Code (via CLI subprocess)\n- Tiered model configuration (small / medium / large) via TOML config files\n- Reservation-based async rate limiter with provider-specific defaults and\n  environment variable overrides",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 123,
+              "context": "\n[providers.openai]\nsmall = \"gpt-5-mini\"\nmedium = \"gpt-5.2\"\nlarge = \"gpt-5.4\"",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": "SUPPLY-CHAIN-SECURITY.md",
+              "kind": "text_match",
+              "line": 41,
+              "context": "- **Novel zero-day exploits.** Automated scanning catches known vulnerabilities.\n  Zero-days are discovered through other channels (security advisories, news).\n- **Slow poisoning.** Many small, individually innocuous changes that combine\n  into a vulnerability over time. Per-PR review cannot detect emergent\n  properties of accumulated changes.",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": "SUPPLY-CHAIN-SECURITY.md",
+              "kind": "text_match",
+              "line": 175,
+              "context": "  content can attempt prompt injection. Risk is bounded by the workflow's\n  declared permissions and whatever tools the invocation enables.\n- **Slow poisoning.** Many small, individually benign changes that combine\n  into a vulnerability are not detectable by per-PR review.\n- **Advisory lag.** pip-audit and Dependabot only catch vulnerabilities after",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/stat_utils.py",
+              "kind": "text_match",
+              "line": 16,
+              "context": "    \"\"\"Compute minimum N for one-sided binomial test.\n\n    Finds smallest N such that if true p = p0, we reject\n    H0: p <= p0*(1-relative_drop) with probability >= power.\n",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 455,
+              "context": "                \"provider\": {\"value\": \"openai\", \"source\": \"project\", \"trace\": []},\n                \"models\": {\n                    \"small\": {\"value\": \"gpt-5-mini\", \"source\": \"global\", \"trace\": []},\n                    \"medium\": {\"value\": \"gpt-5.2\", \"source\": \"project\", \"trace\": []},\n                    \"large\": {\"value\": \"gpt-5.4\", \"source\": \"project\", \"trace\": []},",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_cli_llm.py",
+              "kind": "text_match",
+              "line": 188,
+              "context": "            \"provider\": {\"value\": \"openai\", \"source\": \"project\", \"trace\": []},\n            \"models\": {\n                \"small\": {\"value\": \"gpt-5-mini\", \"source\": \"global\", \"trace\": []},\n                \"medium\": {\"value\": \"gpt-5.2\", \"source\": \"project\", \"trace\": []},\n                \"large\": {\"value\": \"gpt-5.4\", \"source\": \"project\", \"trace\": []},",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_diff_json.py",
+              "kind": "text_match",
+              "line": 19,
+              "context": "            \"provider\": {\"value\": \"openai\", \"source\": \"project\", \"trace\": []},\n            \"models\": {\n                \"small\": {\"value\": \"gpt-5-mini\", \"source\": \"global\", \"trace\": []},\n                \"medium\": {\"value\": \"gpt-5.2\", \"source\": \"project\", \"trace\": []},\n                \"large\": {\"value\": \"gpt-5.4\", \"source\": \"project\", \"trace\": []},",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 35,
+              "context": "\n    def test_with_nested_section(self):\n        data = {\"providers\": {\"openai\": {\"small\": \"gpt-5-mini\", \"large\": \"gpt-5.4\"}}}\n        result = _serialize_toml(data)\n        parsed = tomllib.loads(result)",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 45,
+              "context": "            \"default_provider\": \"openai\",\n            \"push\": {\"endpoint\": \"https://api.osojicode.ai\", \"project\": \"osoji\"},\n            \"providers\": {\"openai\": {\"small\": \"gpt-5-mini\", \"large\": \"gpt-5.4\"}},\n        }\n        result = _serialize_toml(data)",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 206,
+              "context": "\n    def test_writes_model_overrides(self, tmp_path):\n        models = {\"small\": \"custom-small\", \"large\": \"custom-large\"}\n        actions = merge_provider_toml(tmp_path, provider=\"openai\", models=models)\n        content = (tmp_path / \".osoji.toml\").read_text()",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 211,
+              "context": "        assert 'default_provider = \"openai\"' in content\n        assert \"[providers.openai]\" in content\n        assert 'small = \"custom-small\"' in content\n        assert 'large = \"custom-large\"' in content\n",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 295,
+              "context": "        \"\"\"When user declines all prompts, minimal files are created.\"\"\"\n        # confirm returns False for everything: gitignore (3x), model accept, API key, OSOJI_TOKEN\n        # prompt calls: provider (1), small/medium/large models (defaults), config target (1), project slug\n        from osoji.config import BUILTIN_PROVIDER_MODELS\n        defaults = BUILTIN_PROVIDER_MODELS[\"anthropic\"]",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 300,
+              "context": "        mock_prompt.side_effect = [\n            1,                    # provider selection\n            defaults[\"small\"],    # small model (confirm=False → override prompts)\n            defaults[\"medium\"],   # medium model\n            defaults[\"large\"],    # large model",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 358,
+              "context": "        \"\"\"User can override individual model tiers.\"\"\"\n        # Sequence: provider (1=anthropic), model accept (N from confirm),\n        # small model, medium model, large model, config target (1),\n        # set API key? (Y), API key value, set OSOJI_TOKEN? (Y), token, project slug\n        mock_confirm.side_effect = [",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 368,
+              "context": "        mock_prompt.side_effect = [\n            1,                               # provider selection\n            \"my-small\", \"my-medium\", \"my-large\",  # model overrides\n            1,                               # config target\n            \"sk-key\",                        # API key",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 378,
+              "context": "        assert 'default_provider = \"anthropic\"' in toml_content\n        assert \"[providers.anthropic]\" in toml_content\n        assert 'small = \"my-small\"' in toml_content\n        assert 'medium = \"my-medium\"' in toml_content\n        assert 'large = \"my-large\"' in toml_content",
+              "needle": "small",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 11,
+              "context": "# default_provider = \"openai\"\n\n# Per-provider model overrides (small = fast/cheap, medium = balanced, large = most capable)\n# [providers.anthropic]\n# small  = \"claude-haiku-4-5-20251001\"",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 14,
+              "context": "# [providers.anthropic]\n# small  = \"claude-haiku-4-5-20251001\"\n# medium = \"claude-sonnet-4-6\"\n# large  = \"claude-opus-4-6\"\n",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 19,
+              "context": "# [providers.openai]\n# small  = \"gpt-5-mini\"\n# medium = \"gpt-5.2\"\n# large  = \"gpt-5.4\"\n",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 25,
+              "context": "# Model overrides are passed via --model flag to the CLI.\n# [providers.claude-code]\n# medium = \"claude-sonnet-4-6\"\n\n# Local push config overrides (e.g. push to a staging endpoint)",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": "CHANGELOG.md",
+              "kind": "text_match",
+              "line": 34,
+              "context": "- Multi-provider LLM support: Anthropic, OpenAI, Google Gemini, OpenRouter\n  (all via LiteLLM), Claude Code (via CLI subprocess)\n- Tiered model configuration (small / medium / large) via TOML config files\n- Reservation-based async rate limiter with provider-specific defaults and\n  environment variable overrides",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": "LICENSE",
+              "kind": "text_match",
+              "line": 91,
+              "context": "\n   4. Redistribution. You may reproduce and distribute copies of the\n      Work or Derivative Works thereof in any medium, with or without\n      modifications, and in Source or Object form, provided that You\n      meet the following conditions:",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 124,
+              "context": "[providers.openai]\nsmall = \"gpt-5-mini\"\nmedium = \"gpt-5.2\"\nlarge = \"gpt-5.4\"\n```",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 260,
+              "context": "    config = Config(root_path=REPO_ROOT)\n    repo_executor = ExplorationExecutor(config)\n    resolved_model = model or config.model_for(\"medium\")\n    neutral_cwd = ClaudeCodeProvider._neutral_cwd()\n    sem = asyncio.Semaphore(concurrency)",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 456,
+              "context": "                \"models\": {\n                    \"small\": {\"value\": \"gpt-5-mini\", \"source\": \"global\", \"trace\": []},\n                    \"medium\": {\"value\": \"gpt-5.2\", \"source\": \"project\", \"trace\": []},\n                    \"large\": {\"value\": \"gpt-5.4\", \"source\": \"project\", \"trace\": []},\n                },",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_cli_llm.py",
+              "kind": "text_match",
+              "line": 79,
+              "context": "    async def fake_generate_shadow_docs_async(config, verbose=False):\n        captured[\"provider\"] = config.provider\n        captured[\"model\"] = config.model_for(\"medium\")\n        return True\n",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_cli_llm.py",
+              "kind": "text_match",
+              "line": 114,
+              "context": "                \"\",\n                \"[providers.openai]\",\n                'medium = \"gpt-5.2\"',\n            ]\n        ),",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_cli_llm.py",
+              "kind": "text_match",
+              "line": 125,
+              "context": "                \"\",\n                \"[providers.openai]\",\n                'medium = \"gpt-5.4\"',\n            ]\n        ),",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_cli_llm.py",
+              "kind": "text_match",
+              "line": 134,
+              "context": "\n    assert result.exit_code == 0\n    assert \"providers.openai.medium\" in result.output\n    assert str(tmp_path / LOCAL_CONFIG_FILENAME) in result.output\n    assert \"gpt-5.4\" in result.output",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_cli_llm.py",
+              "kind": "text_match",
+              "line": 154,
+              "context": "    def fake_run_diff(config, base_ref):\n        captured[\"provider\"] = config.provider\n        captured[\"model\"] = config.model_for(\"medium\")\n        assert base_ref == \"main\"\n        return _Report()",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_cli_llm.py",
+              "kind": "text_match",
+              "line": 189,
+              "context": "            \"models\": {\n                \"small\": {\"value\": \"gpt-5-mini\", \"source\": \"global\", \"trace\": []},\n                \"medium\": {\"value\": \"gpt-5.2\", \"source\": \"project\", \"trace\": []},\n                \"large\": {\"value\": \"gpt-5.4\", \"source\": \"project\", \"trace\": []},\n            },",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_diff_json.py",
+              "kind": "text_match",
+              "line": 20,
+              "context": "            \"models\": {\n                \"small\": {\"value\": \"gpt-5-mini\", \"source\": \"global\", \"trace\": []},\n                \"medium\": {\"value\": \"gpt-5.2\", \"source\": \"project\", \"trace\": []},\n                \"large\": {\"value\": \"gpt-5.4\", \"source\": \"project\", \"trace\": []},\n            },",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_diff_json.py",
+              "kind": "text_match",
+              "line": 29,
+              "context": "\n    assert payload[\"config\"][\"provider\"][\"value\"] == \"openai\"\n    assert payload[\"config\"][\"models\"][\"medium\"][\"value\"] == \"gpt-5.2\"",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_doc_prompts.py",
+              "kind": "text_match",
+              "line": 91,
+              "context": "        assert c.priority_score < 3\n\n    def test_cli_command_moderate_fanin_is_medium(self):\n        c = _make_concept(concept_role=\"cli_command\", fan_in=3, public_count=0)\n        c.coverage_status = \"partially_documented\"  # avoid +2 from undocumented",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_doc_prompts.py",
+              "kind": "text_match",
+              "line": 95,
+              "context": "        c.coverage_status = \"partially_documented\"  # avoid +2 from undocumented\n        _compute_priority(c)\n        assert c.priority == \"medium\"\n\n    def test_testing_infra_penalty(self):",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_doc_prompts.py",
+              "kind": "text_match",
+              "line": 421,
+              "context": "        assert deserialized.concepts[0].concept_name == \"Test Concept\"\n        assert deserialized.concepts[0].missing_types == [\"tutorial\"]\n        assert deserialized.concepts[0].priority in (\"high\", \"medium\", \"low\")\n        assert deserialized.concepts[0].priority_score > 0  # recomputed\n        assert len(deserialized.writing_prompts) == 1",
+              "needle": "medium",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 11,
+              "context": "# default_provider = \"openai\"\n\n# Per-provider model overrides (small = fast/cheap, medium = balanced, large = most capable)\n# [providers.anthropic]\n# small  = \"claude-haiku-4-5-20251001\"",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 15,
+              "context": "# small  = \"claude-haiku-4-5-20251001\"\n# medium = \"claude-sonnet-4-6\"\n# large  = \"claude-opus-4-6\"\n\n# [providers.openai]",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 20,
+              "context": "# small  = \"gpt-5-mini\"\n# medium = \"gpt-5.2\"\n# large  = \"gpt-5.4\"\n\n# claude-code provider routes through the locally installed Claude Code CLI.",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": "CHANGELOG.md",
+              "kind": "text_match",
+              "line": 34,
+              "context": "- Multi-provider LLM support: Anthropic, OpenAI, Google Gemini, OpenRouter\n  (all via LiteLLM), Claude Code (via CLI subprocess)\n- Tiered model configuration (small / medium / large) via TOML config files\n- Reservation-based async rate limiter with provider-specific defaults and\n  environment variable overrides",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 125,
+              "context": "small = \"gpt-5-mini\"\nmedium = \"gpt-5.2\"\nlarge = \"gpt-5.4\"\n```\n",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 223,
+              "context": "        assert \"&#10007;\" in html  # cross mark\n\n    def test_html_large_matrix_collapsed(self):\n        \"\"\"Coverage matrix with >50 entries wrapped in <details>.\"\"\"\n        entries = [",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 457,
+              "context": "                    \"small\": {\"value\": \"gpt-5-mini\", \"source\": \"global\", \"trace\": []},\n                    \"medium\": {\"value\": \"gpt-5.2\", \"source\": \"project\", \"trace\": []},\n                    \"large\": {\"value\": \"gpt-5.4\", \"source\": \"project\", \"trace\": []},\n                },\n            },",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_cli_llm.py",
+              "kind": "text_match",
+              "line": 190,
+              "context": "                \"small\": {\"value\": \"gpt-5-mini\", \"source\": \"global\", \"trace\": []},\n                \"medium\": {\"value\": \"gpt-5.2\", \"source\": \"project\", \"trace\": []},\n                \"large\": {\"value\": \"gpt-5.4\", \"source\": \"project\", \"trace\": []},\n            },\n        },",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_cli_llm.py",
+              "kind": "text_match",
+              "line": 206,
+              "context": "    payload = json.loads(result.output)\n    assert payload[\"config\"][\"provider\"][\"value\"] == \"openai\"\n    assert payload[\"config\"][\"models\"][\"large\"][\"value\"] == \"gpt-5.4\"",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_diff_json.py",
+              "kind": "text_match",
+              "line": 21,
+              "context": "                \"small\": {\"value\": \"gpt-5-mini\", \"source\": \"global\", \"trace\": []},\n                \"medium\": {\"value\": \"gpt-5.2\", \"source\": \"project\", \"trace\": []},\n                \"large\": {\"value\": \"gpt-5.4\", \"source\": \"project\", \"trace\": []},\n            },\n        },",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 35,
+              "context": "\n    def test_with_nested_section(self):\n        data = {\"providers\": {\"openai\": {\"small\": \"gpt-5-mini\", \"large\": \"gpt-5.4\"}}}\n        result = _serialize_toml(data)\n        parsed = tomllib.loads(result)",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 45,
+              "context": "            \"default_provider\": \"openai\",\n            \"push\": {\"endpoint\": \"https://api.osojicode.ai\", \"project\": \"osoji\"},\n            \"providers\": {\"openai\": {\"small\": \"gpt-5-mini\", \"large\": \"gpt-5.4\"}},\n        }\n        result = _serialize_toml(data)",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 206,
+              "context": "\n    def test_writes_model_overrides(self, tmp_path):\n        models = {\"small\": \"custom-small\", \"large\": \"custom-large\"}\n        actions = merge_provider_toml(tmp_path, provider=\"openai\", models=models)\n        content = (tmp_path / \".osoji.toml\").read_text()",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 212,
+              "context": "        assert \"[providers.openai]\" in content\n        assert 'small = \"custom-small\"' in content\n        assert 'large = \"custom-large\"' in content\n\n    def test_skips_existing_provider(self, tmp_path):",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 295,
+              "context": "        \"\"\"When user declines all prompts, minimal files are created.\"\"\"\n        # confirm returns False for everything: gitignore (3x), model accept, API key, OSOJI_TOKEN\n        # prompt calls: provider (1), small/medium/large models (defaults), config target (1), project slug\n        from osoji.config import BUILTIN_PROVIDER_MODELS\n        defaults = BUILTIN_PROVIDER_MODELS[\"anthropic\"]",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 302,
+              "context": "            defaults[\"small\"],    # small model (confirm=False → override prompts)\n            defaults[\"medium\"],   # medium model\n            defaults[\"large\"],    # large model\n            1,                    # config target\n            \"\",                   # project slug",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 358,
+              "context": "        \"\"\"User can override individual model tiers.\"\"\"\n        # Sequence: provider (1=anthropic), model accept (N from confirm),\n        # small model, medium model, large model, config target (1),\n        # set API key? (Y), API key value, set OSOJI_TOKEN? (Y), token, project slug\n        mock_confirm.side_effect = [",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 368,
+              "context": "        mock_prompt.side_effect = [\n            1,                               # provider selection\n            \"my-small\", \"my-medium\", \"my-large\",  # model overrides\n            1,                               # config target\n            \"sk-key\",                        # API key",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 380,
+              "context": "        assert 'small = \"my-small\"' in toml_content\n        assert 'medium = \"my-medium\"' in toml_content\n        assert 'large = \"my-large\"' in toml_content\n\n    @patch(\"click.confirm\", return_value=True)",
+              "needle": "large",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_llm_config.py",
+              "kind": "text_match",
+              "line": 36,
+              "context": "    assert config.model_for(\"small\") == ANTHROPIC_MODEL_SMALL\n    assert config.model_for(\"medium\") == ANTHROPIC_MODEL_MEDIUM\n    assert config.model_for(\"large\") == ANTHROPIC_MODEL_LARGE\n\n",
+              "needle": "large",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 409,
+            "needles": [
+              "small",
+              "medium",
+              "large"
+            ],
+            "same_file_swept": true
+          }
+        }
+      }
+    ],
+    "id": "0caebaf64c26394a",
+    "verdict": "uncertain",
+    "confidence": 0.55,
+    "triage_reasoning": "The concern is valid in principle: `_prompt_model_defaults` accesses `defaults['small']`, `defaults['medium']`, and `defaults['large']` without guarding against missing keys. The guard at L313-314 (`if not defaults: return None`) only handles the case where the provider is absent from `BUILTIN_PROVIDER_MODELS` entirely — a non-empty dict with only some tiers would pass the falsy check and then KeyError on the missing tier.\n\nThe `.osoji.local.toml.example` shows `claude-code` with only `medium`, which raises the question of whether `BUILTIN_PROVIDER_MODELS` for claude-code (if it has an entry at all) includes all three tiers. The test suite accesses `BUILTIN_PROVIDER_MODELS[\"anthropic\"]` with all three tiers, but `claude-code` behavior is unclear.\n\nHowever, the actual `BUILTIN_PROVIDER_MODELS` definition in `config.py` is not shown in the evidence, making it impossible to confirm whether any current entry omits a tier. The risk is conditional on the schema, which cannot be verified from available evidence. The claim is plausible but unconfirmed.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "888b1a9846bb3d26"
+  },
+  "trace": null
+}

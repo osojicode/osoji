@@ -1,0 +1,379 @@
+{
+  "slug": "audit-obligation_implicit_contract-005",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "tests/test_llm_provider.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "2 implicit contracts between src/osoji/llm/registry.py and tests/test_llm_provider.py: \"openai\", \"openrouter\"",
+    "observed_behavior": "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": ".env.example",
+              "kind": "text_match",
+              "line": 8,
+              "context": "\n# Override provider from config file (default: anthropic).\n# Supported: anthropic, openai, google, openrouter, claude-code\n# OSOJI_PROVIDER=anthropic\n",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 8,
+              "context": "\n# Override the default LLM provider (default: anthropic)\n# Options: anthropic, openai, google, openrouter, claude-code\n# default_provider = \"openai\"\n",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 9,
+              "context": "# Override the default LLM provider (default: anthropic)\n# Options: anthropic, openai, google, openrouter, claude-code\n# default_provider = \"openai\"\n\n# Per-provider model overrides (small = fast/cheap, medium = balanced, large = most capable)",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 17,
+              "context": "# large  = \"claude-opus-4-6\"\n\n# [providers.openai]\n# small  = \"gpt-5-mini\"\n# medium = \"gpt-5.2\"",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": "pyproject.toml",
+              "kind": "text_match",
+              "line": 34,
+              "context": "    \"click>=8.1.0\",\n    \"google-genai>=1.10.0\",\n    \"openai>=1.75.0\",\n    \"python-dotenv>=1.0.0\",\n    \"tabulate>=0.9.0\",",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 110,
+              "context": "\n```bash\nosoji audit . --provider openai --model gpt-5.2\nosoji audit . --provider google --model gemini-2.0-flash\n```",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 120,
+              "context": "# .osoji.local.toml (per-project, gitignored)\n\ndefault_provider = \"openai\"\n\n[providers.openai]",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 122,
+              "context": "default_provider = \"openai\"\n\n[providers.openai]\nsmall = \"gpt-5-mini\"\nmedium = \"gpt-5.2\"",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": "requirements-dev.lock",
+              "kind": "text_match",
+              "line": 18,
+              "context": "    #   google-genai\n    #   httpx\n    #   openai\nattrs==26.1.0 \\\n    --hash=sha256:c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309 \\",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": "requirements-dev.lock",
+              "kind": "text_match",
+              "line": 314,
+              "context": "    #   anthropic\n    #   google-genai\n    #   openai\ndocstring-parser==0.18.0 \\\n    --hash=sha256:292510982205c12b1248696f44959db3cdd1740237a968ea1e2e7a900eeb2015 \\",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": "requirements-dev.lock",
+              "kind": "text_match",
+              "line": 341,
+              "context": "    #   anthropic\n    #   google-genai\n    #   openai\nidna==3.18 \\\n    --hash=sha256:7f952cbe720b688055e3f87de14f5c3e5fdaa8bc3928985c4077ca689de849a2 \\",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": "requirements-dev.lock",
+              "kind": "text_match",
+              "line": 465,
+              "context": "    # via\n    #   anthropic\n    #   openai\njsonschema==4.23.0 \\\n    --hash=sha256:d71497fef26351a33265337fa77ffeb82423f3ea21283cd9467bb03999266bc4 \\",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": "requirements-dev.lock",
+              "kind": "text_match",
+              "line": 548,
+              "context": "    --hash=sha256:fcfe2045fd2e8f3cb0ce9d4ba6dba6333b8fa05bb8a4939c908cd43322d14c7e\n    # via scipy\nopenai==2.30.0 \\\n    --hash=sha256:92f7661c990bda4b22a941806c83eabe4896c3094465030dd882a71abe80c885 \\\n    --hash=sha256:9a5ae616888eb2748ec5e0c5b955a51592e0b201a11f4262db920f2a78c5231d",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": "requirements-dev.lock",
+              "kind": "text_match",
+              "line": 578,
+              "context": "    #   anthropic\n    #   google-genai\n    #   openai\npydantic-core==2.41.5 \\\n    --hash=sha256:0177272f88ab8312479336e1d777f6b124537d47f2123f89cb37e0accea97f90 \\",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": "requirements-dev.lock",
+              "kind": "text_match",
+              "line": 925,
+              "context": "    #   anthropic\n    #   google-genai\n    #   openai\ntabulate==0.10.0 \\\n    --hash=sha256:e2cfde8f79420f6deeffdeda9aaec3b6bc5abce947655d17ac662b126e48a60d \\",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": "requirements-dev.lock",
+              "kind": "text_match",
+              "line": 937,
+              "context": "    --hash=sha256:7d825f03f89244ef73f1d4ce193cb1774a8179fd96f31d7e1dcde62092b960bb \\\n    --hash=sha256:ee1e4c0e59148062281c49d80b25b67771a127c85fc9676d3be5f243206826bf\n    # via openai\ntyping-extensions==4.15.0 \\\n    --hash=sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466 \\",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": "requirements-dev.lock",
+              "kind": "text_match",
+              "line": 944,
+              "context": "    #   anthropic\n    #   google-genai\n    #   openai\n    #   pydantic\n    #   pydantic-core",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": "requirements.lock",
+              "kind": "text_match",
+              "line": 18,
+              "context": "    #   google-genai\n    #   httpx\n    #   openai\ncertifi==2026.2.25 \\\n    --hash=sha256:027692e4402ad994f1c42e52a4997a9763c646b73e4096e4d5d6db8af1d6f0fa \\",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": "requirements.lock",
+              "kind": "text_match",
+              "line": 307,
+              "context": "    #   anthropic\n    #   google-genai\n    #   openai\ndocstring-parser==0.17.0 \\\n    --hash=sha256:583de4a309722b3315439bb31d64ba3eebada841f2e2cee23b99df001434c912 \\",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": "requirements.lock",
+              "kind": "text_match",
+              "line": 334,
+              "context": "    #   anthropic\n    #   google-genai\n    #   openai\nidna==3.18 \\\n    --hash=sha256:7f952cbe720b688055e3f87de14f5c3e5fdaa8bc3928985c4077ca689de849a2 \\",
+              "needle": "openai",
+              "source": "text_scan"
+            },
+            {
+              "file": ".env.example",
+              "kind": "text_match",
+              "line": 8,
+              "context": "\n# Override provider from config file (default: anthropic).\n# Supported: anthropic, openai, google, openrouter, claude-code\n# OSOJI_PROVIDER=anthropic\n",
+              "needle": "openrouter",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 8,
+              "context": "\n# Override the default LLM provider (default: anthropic)\n# Options: anthropic, openai, google, openrouter, claude-code\n# default_provider = \"openai\"\n",
+              "needle": "openrouter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 333,
+              "context": "        assert 'default_provider = \"google\"' in toml_content\n\n    def test_non_interactive_openrouter_provider(self, tmp_path):\n        run_init(root=tmp_path, interactive=False, provider=\"openrouter\")\n        env_content = (tmp_path / \".env\").read_text()",
+              "needle": "openrouter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 334,
+              "context": "\n    def test_non_interactive_openrouter_provider(self, tmp_path):\n        run_init(root=tmp_path, interactive=False, provider=\"openrouter\")\n        env_content = (tmp_path / \".env\").read_text()\n        assert \"# OPENROUTER_API_KEY=\" in env_content",
+              "needle": "openrouter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 338,
+              "context": "        assert \"# OPENROUTER_API_KEY=\" in env_content\n        toml_content = (tmp_path / \".osoji.toml\").read_text()\n        assert 'default_provider = \"openrouter\"' in toml_content\n\n    @patch(\"click.confirm\", return_value=True)",
+              "needle": "openrouter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_live_smoke.py",
+              "kind": "text_match",
+              "line": 72,
+              "context": "    reason=\"requires OPENROUTER_API_KEY and OPENROUTER_LIVE_MODEL\",\n)\ndef test_openrouter_live_smoke():\n    asyncio.run(_run_smoke(\"openrouter\", os.environ[\"OPENROUTER_LIVE_MODEL\"]))",
+              "needle": "openrouter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_live_smoke.py",
+              "kind": "text_match",
+              "line": 73,
+              "context": ")\ndef test_openrouter_live_smoke():\n    asyncio.run(_run_smoke(\"openrouter\", os.environ[\"OPENROUTER_LIVE_MODEL\"]))",
+              "needle": "openrouter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_llm_config.py",
+              "kind": "text_match",
+              "line": 75,
+              "context": "def test_tier_override_wins_over_base_model(monkeypatch, tmp_path):\n    _clear_llm_env(monkeypatch)\n    monkeypatch.setenv(\"OSOJI_PROVIDER\", \"openrouter\")\n    monkeypatch.setenv(\"OSOJI_MODEL\", \"openai/gpt-4.1-mini\")\n    monkeypatch.setenv(\"OSOJI_MODEL_SMALL\", \"meta-llama/llama-3.3-70b-instruct\")",
+              "needle": "openrouter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_llm_config.py",
+              "kind": "text_match",
+              "line": 161,
+              "context": "    _clear_llm_env(monkeypatch)\n\n    config = Config(root_path=tmp_path, provider=\"openrouter\")\n    assert config.provider == \"openrouter\"\n    assert config.config_snapshot[\"models\"][\"small\"][\"source\"] == \"builtin\"",
+              "needle": "openrouter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_llm_config.py",
+              "kind": "text_match",
+              "line": 162,
+              "context": "\n    config = Config(root_path=tmp_path, provider=\"openrouter\")\n    assert config.provider == \"openrouter\"\n    assert config.config_snapshot[\"models\"][\"small\"][\"source\"] == \"builtin\"",
+              "needle": "openrouter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_llm_provider.py",
+              "kind": "text_match",
+              "line": 15,
+              "context": "from osoji.llm.logging import LoggingProvider\nfrom osoji.llm.openai import OpenAIProvider\nfrom osoji.llm.openrouter import OpenRouterProvider\nfrom osoji.llm.rate_limited import RateLimitedProvider\nfrom osoji.llm.registry import (",
+              "needle": "openrouter",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_llm_provider.py",
+              "kind": "text_match",
+              "line": 63,
+              "context": "\ndef test_provider_names_include_all_supported_providers():\n    assert provider_names() == (\"anthropic\", \"claude-code\", \"google\", \"openai\", \"openrouter\")\n\n",
+              "needle": "openrouter",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_llm_provider.py",
+              "kind": "text_match",
+              "line": 67,
+              "context": "\ndef test_registry_normalizes_and_reports_metadata():\n    assert normalize_provider_name(\"OPENROUTER\") == \"openrouter\"\n    google = get_provider_spec(\"google\")\n    assert google.api_key_env == \"GEMINI_API_KEY\"",
+              "needle": "openrouter",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_llm_provider.py",
+              "kind": "text_match",
+              "line": 75,
+              "context": "    # Direct SDKs don't want provider prefixes — qualify_model_name now strips them.\n    assert qualify_model_name(\"openai\", \"gpt-4.1-mini\") == \"gpt-4.1-mini\"\n    assert qualify_model_name(\"openrouter\", \"openai/gpt-4.1-mini\") == \"gpt-4.1-mini\"\n    assert strip_provider_prefix(\"google\", \"gemini/gemini-2.0-flash\") == \"gemini-2.0-flash\"\n",
+              "needle": "openrouter",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_llm_provider.py",
+              "kind": "text_match",
+              "line": 85,
+              "context": "        (\"openai\", \"OPENAI_API_KEY\", OpenAIProvider),\n        (\"google\", \"GEMINI_API_KEY\", GoogleProvider),\n        (\"openrouter\", \"OPENROUTER_API_KEY\", OpenRouterProvider),\n    ],\n)",
+              "needle": "openrouter",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 189,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"2 implicit contracts between src/osoji/llm/registry.py and tests/test_llm_provider.py: \\\"openai\\\", \\\"openrouter\\\"\",\n        \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n        \"evidence\": [],",
+              "needle": "openrouter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 731,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"2 implicit contracts between src/osoji/llm/registry.py and tests/test_llm_provider.py: \\\"openai\\\", \\\"openrouter\\\"\",\n        \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n        \"evidence\": [],",
+              "needle": "openrouter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 1857,
+              "context": "          \"turn\": 0,\n          \"name\": \"grep\",\n          \"pattern\": \"openai|openrouter\",\n          \"shape\": \"regex\",\n          \"breadth\": \"scoped\",",
+              "needle": "openrouter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 1865,
+              "context": "          \"turn\": 1,\n          \"name\": \"grep\",\n          \"pattern\": \"openai|openrouter\",\n          \"shape\": \"regex\",\n          \"breadth\": \"scoped\",",
+              "needle": "openrouter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 1885,
+              "context": "          \"turn\": 4,\n          \"name\": \"grep\",\n          \"pattern\": \"OPENAI|OPENROUTER|openai_name|openrouter_name|PROVIDER_NAME\",\n          \"shape\": \"regex\",\n          \"breadth\": \"scoped\",",
+              "needle": "openrouter",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 409,
+            "needles": [
+              "openai",
+              "openrouter"
+            ],
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "tests/test_llm_provider.py",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: \"\"\"Tests for provider registry, factory, and direct-SDK provider adapters.\"\"\"\n2: \n3: import asyncio\n4: import json\n5: from unittest.mock import AsyncMock, MagicMock\n6: \n7: import pytest\n8: \n9: from osoji.config import Config\n10: from osoji.llm.anthropic import AnthropicProvider\n11: from osoji.llm.factory import create_provider",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "9092313e5fe625d9",
+    "verdict": "dismissed",
+    "confidence": 0.9,
+    "triage_reasoning": "Reality — the literals 'openai' and 'openrouter' do appear in both files, but the framing misidentifies the contract type. These are **ecosystem provider names** defined externally by OpenAI and OpenRouter respectively. They appear throughout the entire codebase — in README.md, .env.example, .osoji.local.toml.example, pyproject.toml, all test files, and source modules.\n\nIn `test_llm_provider.py`, the tests at lines 63, 67, 75, and 85-87 are checking the observable API of `registry.py` (that it registers providers under these names). This is the standard producer/consumer pattern for unit tests — the test pins behavior the registry explicitly defines.\n\nSignificance fails — there is no silent mismatch path. If `registry.py` ever renamed its 'openai' key to something else, the `test_provider_names_include_all_supported_providers` assertion at line 63 would fail immediately and loudly. Extracting shared constants would not prevent any regression.\n\nThe strings are also partly ecosystem conventions — the providers are literally named OpenAI and OpenRouter.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "b6214c53150dd43c"
+  },
+  "trace": null
+}

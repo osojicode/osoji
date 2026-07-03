@@ -461,9 +461,19 @@ def _render_evidence(ev: Evidence) -> str:
                     f"{ref.get('context')}{resolves}"
                 )
             if scope:
+                totals = scope.get("needle_totals") or {}
+                shown = {}
+                for ref in references:
+                    if ref.get("needle"):
+                        shown[ref["needle"]] = shown.get(ref["needle"], 0) + 1
+                per_needle = ", ".join(
+                    f"`{needle}`: {total} match(es)"
+                    + (f" ({shown[needle]} shown)" if shown.get(needle, total) < total else "")
+                    for needle, total in totals.items()
+                ) or ", ".join(scope.get("needles", []))
                 out.append(
-                    f"(reference sweep covered {scope.get('files_scanned')} files "
-                    f"for: {', '.join(scope.get('needles', []))})"
+                    f"(reference sweep covered {scope.get('files_scanned')} files — "
+                    f"{per_needle})"
                 )
         elif scope:
             # Evidence-of-absence: state it explicitly — the canonical case-FOR
