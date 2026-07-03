@@ -5,8 +5,14 @@ import tempfile
 from pathlib import Path
 
 import pytest
+from dotenv import load_dotenv
 
 from osoji.walker import clear_repo_files_cache
+
+# The CLI loads .env at its entry point (cli.py); pytest never goes through it,
+# so the LLM-backed prompt_regression tests would only see keys exported by the
+# shell. Load it here the same way — non-overriding, no-op when absent (CI).
+load_dotenv()
 
 
 def pytest_addoption(parser):
