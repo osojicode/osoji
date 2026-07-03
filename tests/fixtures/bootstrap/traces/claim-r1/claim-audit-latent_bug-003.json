@@ -1,0 +1,222 @@
+{
+  "slug": "audit-latent_bug-003",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:latent_bug",
+    "gap_type": "uncategorized",
+    "path": "src/osoji/init.py",
+    "line_start": 320,
+    "line_end": 323,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L320-323: _prompt_model_defaults accesses defaults['small'], defaults['medium'], and defaults['large'] by hard-coded key without guarding against missing tiers. If any BUILTIN_PROVIDER_MODELS entry omits a tier, this raises KeyError.",
+    "observed_behavior": "Use defaults.get('small', '') or verify BUILTIN_PROVIDER_MODELS schema guarantees all three tiers for every provider entry.",
+    "evidence": [
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/init.py",
+          "line_start": 310,
+          "line_end": 333,
+          "snippet": "310:     built-in defaults), or None if defaults were accepted.\n311:     \"\"\"\n312: \n313:     defaults = BUILTIN_PROVIDER_MODELS.get(provider)\n314:     if not defaults:\n315:         return None\n316: \n317:     click.echo()\n318:     spec = get_provider_spec(provider)\n319:     click.echo(f\"   Model defaults for {spec.display_name}:\")\n320:     click.echo(f\"     small:  {defaults['small']}\")\n321:     click.echo(f\"     medium: {defaults['medium']}\")\n322:     click.echo(f\"     large:  {defaults['large']}\")\n323: \n324:     if click.confirm(\"   Accept defaults?\", default=True):\n325:         return None\n326: \n327:     overrides: dict[str, str] = {}\n328:     for tier in (\"small\", \"medium\", \"large\"):\n329:         value = click.prompt(f\"   {tier} model\", default=defaults[tier])\n330:         value = value.strip()\n331:         if value != defaults[tier]:\n332:             overrides[tier] = value\n333: ",
+          "anchor": "lines",
+          "enclosing_symbol": {
+            "name": "_prompt_model_defaults",
+            "kind": "function",
+            "line_start": 306,
+            "line_end": 334
+          }
+        }
+      },
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "scripts/measure_debris_cutover.py",
+              "kind": "text_match",
+              "line": 59,
+              "context": "                    {\"source\": source_path_str, \"source_path\": Path(source_path_str), **finding}\n                )\n        except (json.JSONDecodeError, KeyError):\n            continue\n    return raw_debris",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 784,
+              "context": "      \"severity\": \"error\",\n      \"adjudicated_verdict\": \"dismissed\",\n      \"adjudication_notes\": \"BUILTIN_PROVIDER_MODELS is a static literal with all tiers for all five providers; .get() guard + never mutated. KeyError unreachable.\",\n      \"evidence_consulted\": [\n        \"read function + guard\",",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 798,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L320-323: _prompt_model_defaults accesses defaults['small'], defaults['medium'], and defaults['large'] by hard-coded key without guarding against missing tiers. If any BUILTIN_PROVIDER_MODELS entry omits a tier, this raises KeyError.\",\n        \"observed_behavior\": \"Use defaults.get('small', '') or verify BUILTIN_PROVIDER_MODELS schema guarantees all three tiers for every provider entry.\",\n        \"evidence\": [],",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1332,
+              "context": "      \"severity\": \"error\",\n      \"adjudicated_verdict\": \"dismissed\",\n      \"adjudication_notes\": \"BUILTIN_PROVIDER_MODELS is a static literal with all tiers for all five providers; .get() guard + never mutated. KeyError unreachable.\",\n      \"evidence_consulted\": [\n        \"read function + guard\",",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1346,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L320-323: _prompt_model_defaults accesses defaults['small'], defaults['medium'], and defaults['large'] by hard-coded key without guarding against missing tiers. If any BUILTIN_PROVIDER_MODELS entry omits a tier, this raises KeyError.\",\n        \"observed_behavior\": \"Use defaults.get('small', '') or verify BUILTIN_PROVIDER_MODELS schema guarantees all three tiers for every provider entry.\",\n        \"evidence\": [],",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/dead_params/case_001_backward_compat/source/src/osoji/scorecard.py",
+              "kind": "text_match",
+              "line": 209,
+              "context": "                        \"source\": \"code_debris\",\n                    })\n            except (json.JSONDecodeError, KeyError, OSError):\n                continue\n",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/dead_code/case_002_internal_dataclass/source/src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 218,
+              "context": "                        line_end=finding[\"line_end\"],\n                    ))\n            except (json.JSONDecodeError, KeyError):\n                continue  # Skip malformed findings files\n    if verbose:",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-latent_bug-003.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L320-323: _prompt_model_defaults accesses defaults['small'], defaults['medium'], and defaults['large'] by hard-coded key without guarding against missing tiers. If any BUILTIN_PROVIDER_MODELS entry omits a tier, this raises KeyError.\",\n    \"observed_behavior\": \"Use defaults.get('small', '') or verify BUILTIN_PROVIDER_MODELS schema guarantees all three tiers for every provider entry.\",\n    \"evidence\": [],",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-latent_bug-003.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"dismissed\",\n    \"confidence\": 0.88,\n    \"triage_reasoning\": \"\\n**Evidence gathered:**\\n\\n1. `_prompt_model_defaults` (init.py L305–338) accesses `defaults['small']`, `defaults['medium']`, and `defaults['large']` without `.get()` guards — twice: once in the echo block (L320–322) and once in the override loop (L329–330).\\n\\n2. `BUILTIN_PROVIDER_MODELS` is defined exactly once in `config.py` L158–183 as `dict[str, dict[str, str]]`. It currently contains **5** provider entries (anthropic, claude-code, google, openai, openrouter). Every single entry is populated with all three tier keys (`small`, `medium`, `large`), each backed by a named module-level constant — no bare literals, no missing entries.\\n\\n3. No other site mutates or extends `BUILTIN_PROVIDER_MODELS` (grep confirms only reads and one test reference).\\n\\n**Reality predicate — FAILS (for the current codebase):**\\nThe bug is described as latent: \\\"if any entry omits a tier, this raises KeyError.\\\" That conditional has never been true for any line in the repo. All five entries are structurally complete. The `dict[str, dict[str, str]]` type annotation doesn't enumerate which string keys must be present, but the actual data satisfies the three-key invariant uniformly. There is no current gap to confirm.\\n\\n**Significance predicate — also weak:**\\nThe proposed fix (`defaults.get('small', '')`) would silently substitute empty strings for model names when a tier is missing. That failure mode is *harder* to diagnose than the KeyError it replaces. A KeyError at this point in the init flow immediately identifies the incomplete provider entry; a silent empty string would propagate to a later API call with an opaque error. The defensive guard would make the code nominally safer against missing keys while actually worsening debuggability.\\n\\n**Actionability predicate — holds, but the suggested remedy is counterproductive:**\\nThe concrete alternative would be to introduce a TypedDict or validate at import time (e.g., assert all three keys for every entry). That *would* be an improvement over unguarded access. But the claim only suggests `.get()` fallbacks, which as noted are a downgrade.\\n\\n**Conclusion:** Dismissed as a false positive. The gap doesn't currently exist (all entries are complete), the structural constraint is simple and easy to maintain when adding providers (the pattern is obvious), and the suggested remedy would introduce silent failures. If the team later extends `BUILTIN_PROVIDER_MODELS` frequently, a TypedDict-based inner type would be a genuine improvement, but that is a proactive hardening suggestion rather than a bug fix.\\n\",\n    \"suggested_fix\": null,\n    \"severity\": null,",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-latent_bug-003.json",
+              "kind": "text_match",
+              "line": 76,
+              "context": "          \"verdict\": \"dismissed\",\n          \"confidence\": 0.88,\n          \"reasoning\": \"\\n**Evidence gathered:**\\n\\n1. `_prompt_model_defaults` (init.py L305–338) accesses `defaults['small']`, `defaults['medium']`, and `defaults['large']` without `.get()` guards — twice: once in the echo block (L320–322) and once in the override loop (L329–330).\\n\\n2. `BUILTIN_PROVIDER_MODELS` is defined exactly once in `config.py` L158–183 as `dict[str, dict[str, str]]`. It currently contains **5** provider entries (anthropic, claude-code, google, openai, openrouter). Every single entry is populated with all three tier keys (`small`, `medium`, `large`), each backed by a named module-level constant — no bare literals, no missing entries.\\n\\n3. No other site mutates or extends `BUILTIN_PROVIDER_MODELS` (grep confirms only reads and one test reference).\\n\\n**Reality predicate — FAILS (for the current codebase):**\\nThe bug is described as latent: \\\"if any entry omits a tier, this raises KeyError.\\\" That conditional has never been true for any line in the repo. All five entries are structurally complete. The `dict[str, dict[str, str]]` type annotation doesn't enumerate which string keys must be present, but the actual data satisfies the three-key invariant uniformly. There is no current gap to confirm.\\n\\n**Significance predicate — also weak:**\\nThe proposed fix (`defaults.get('small', '')`) would silently substitute empty strings for model names when a tier is missing. That failure mode is *harder* to diagnose than the KeyError it replaces. A KeyError at this point in the init flow immediately identifies the incomplete provider entry; a silent empty string would propagate to a later API call with an opaque error. The defensive guard would make the code nominally safer against missing keys while actually worsening debuggability.\\n\\n**Actionability predicate — holds, but the suggested remedy is counterproductive:**\\nThe concrete alternative would be to introduce a TypedDict or validate at import time (e.g., assert all three keys for every entry). That *would* be an improvement over unguarded access. But the claim only suggests `.get()` fallbacks, which as noted are a downgrade.\\n\\n**Conclusion:** Dismissed as a false positive. The gap doesn't currently exist (all entries are complete), the structural constraint is simple and easy to maintain when adding providers (the pattern is obvious), and the suggested remedy would introduce silent failures. If the team later extends `BUILTIN_PROVIDER_MODELS` frequently, a TypedDict-based inner type would be a genuine improvement, but that is a proactive hardening suggestion rather than a bug fix.\\n\"\n        }\n      }",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-003.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L320-323: _prompt_model_defaults accesses defaults['small'], defaults['medium'], and defaults['large'] by hard-coded key without guarding against missing tiers. If any BUILTIN_PROVIDER_MODELS entry omits a tier, this raises KeyError.\",\n    \"observed_behavior\": \"Use defaults.get('small', '') or verify BUILTIN_PROVIDER_MODELS schema guarantees all three tiers for every provider entry.\",\n    \"evidence\": [",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-003.json",
+              "kind": "text_match",
+              "line": 42,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 784,\n              \"context\": \"      \\\"severity\\\": \\\"error\\\",\\n      \\\"adjudicated_verdict\\\": \\\"dismissed\\\",\\n      \\\"adjudication_notes\\\": \\\"BUILTIN_PROVIDER_MODELS is a static literal with all tiers for all five providers; .get() guard + never mutated. KeyError unreachable.\\\",\\n      \\\"evidence_consulted\\\": [\\n        \\\"read function + guard\\\",\",\n              \"needle\": \"KeyError\",\n              \"source\": \"text_scan\"",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-003.json",
+              "kind": "text_match",
+              "line": 43,
+              "context": "              \"line\": 784,\n              \"context\": \"      \\\"severity\\\": \\\"error\\\",\\n      \\\"adjudicated_verdict\\\": \\\"dismissed\\\",\\n      \\\"adjudication_notes\\\": \\\"BUILTIN_PROVIDER_MODELS is a static literal with all tiers for all five providers; .get() guard + never mutated. KeyError unreachable.\\\",\\n      \\\"evidence_consulted\\\": [\\n        \\\"read function + guard\\\",\",\n              \"needle\": \"KeyError\",\n              \"source\": \"text_scan\"\n            },",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-003.json",
+              "kind": "text_match",
+              "line": 50,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 798,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L320-323: _prompt_model_defaults accesses defaults['small'], defaults['medium'], and defaults['large'] by hard-coded key without guarding against missing tiers. If any BUILTIN_PROVIDER_MODELS entry omits a tier, this raises KeyError.\\\",\\n        \\\"observed_behavior\\\": \\\"Use defaults.get('small', '') or verify BUILTIN_PROVIDER_MODELS schema guarantees all three tiers for every provider entry.\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"KeyError\",\n              \"source\": \"text_scan\"",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-003.json",
+              "kind": "text_match",
+              "line": 51,
+              "context": "              \"line\": 798,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L320-323: _prompt_model_defaults accesses defaults['small'], defaults['medium'], and defaults['large'] by hard-coded key without guarding against missing tiers. If any BUILTIN_PROVIDER_MODELS entry omits a tier, this raises KeyError.\\\",\\n        \\\"observed_behavior\\\": \\\"Use defaults.get('small', '') or verify BUILTIN_PROVIDER_MODELS schema guarantees all three tiers for every provider entry.\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"KeyError\",\n              \"source\": \"text_scan\"\n            },",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-003.json",
+              "kind": "text_match",
+              "line": 58,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1332,\n              \"context\": \"      \\\"severity\\\": \\\"error\\\",\\n      \\\"adjudicated_verdict\\\": \\\"dismissed\\\",\\n      \\\"adjudication_notes\\\": \\\"BUILTIN_PROVIDER_MODELS is a static literal with all tiers for all five providers; .get() guard + never mutated. KeyError unreachable.\\\",\\n      \\\"evidence_consulted\\\": [\\n        \\\"read function + guard\\\",\",\n              \"needle\": \"KeyError\",\n              \"source\": \"text_scan\"",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-003.json",
+              "kind": "text_match",
+              "line": 59,
+              "context": "              \"line\": 1332,\n              \"context\": \"      \\\"severity\\\": \\\"error\\\",\\n      \\\"adjudicated_verdict\\\": \\\"dismissed\\\",\\n      \\\"adjudication_notes\\\": \\\"BUILTIN_PROVIDER_MODELS is a static literal with all tiers for all five providers; .get() guard + never mutated. KeyError unreachable.\\\",\\n      \\\"evidence_consulted\\\": [\\n        \\\"read function + guard\\\",\",\n              \"needle\": \"KeyError\",\n              \"source\": \"text_scan\"\n            },",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-003.json",
+              "kind": "text_match",
+              "line": 66,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1346,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L320-323: _prompt_model_defaults accesses defaults['small'], defaults['medium'], and defaults['large'] by hard-coded key without guarding against missing tiers. If any BUILTIN_PROVIDER_MODELS entry omits a tier, this raises KeyError.\\\",\\n        \\\"observed_behavior\\\": \\\"Use defaults.get('small', '') or verify BUILTIN_PROVIDER_MODELS schema guarantees all three tiers for every provider entry.\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"KeyError\",\n              \"source\": \"text_scan\"",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-003.json",
+              "kind": "text_match",
+              "line": 67,
+              "context": "              \"line\": 1346,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L320-323: _prompt_model_defaults accesses defaults['small'], defaults['medium'], and defaults['large'] by hard-coded key without guarding against missing tiers. If any BUILTIN_PROVIDER_MODELS entry omits a tier, this raises KeyError.\\\",\\n        \\\"observed_behavior\\\": \\\"Use defaults.get('small', '') or verify BUILTIN_PROVIDER_MODELS schema guarantees all three tiers for every provider entry.\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"KeyError\",\n              \"source\": \"text_scan\"\n            },",
+              "needle": "KeyError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-003.json",
+              "kind": "text_match",
+              "line": 74,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 209,\n              \"context\": \"                        \\\"source\\\": \\\"code_debris\\\",\\n                    })\\n            except (json.JSONDecodeError, KeyError, OSError):\\n                continue\\n\",\n              \"needle\": \"KeyError\",\n              \"source\": \"text_scan\"",
+              "needle": "KeyError",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 354,
+            "needles": [
+              "KeyError"
+            ]
+          },
+          "export_surface": {
+            "symbol": "KeyError",
+            "exported_from_flagged_file": false
+          }
+        }
+      }
+    ],
+    "id": "0caebaf64c26394a",
+    "verdict": "dismissed",
+    "confidence": 0.92,
+    "triage_reasoning": "Reality: `BUILTIN_PROVIDER_MODELS` is a static literal defined in `config.py` as `dict[str, dict[str, str]]` containing exactly 5 provider entries (anthropic, claude-code, google, openai, openrouter), each populated with all three tiers (small, medium, large) using named module-level constants. The constant is never mutated after definition. The `if not defaults:` guard at L314 already handles missing providers. No current code path can produce a `defaults` dict that lacks any of the three keys. The adjudication notes confirm: 'BUILTIN_PROVIDER_MODELS is a static literal with all tiers for all five providers; .get() guard + never mutated. KeyError unreachable.' Prior triage dismissed at 0.88 confidence. Additionally, replacing bare index access with `.get('small', '')` would silently produce empty strings instead of a loud KeyError, worsening debuggability.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "b34df8cbe732dcd1"
+  },
+  "trace": null
+}

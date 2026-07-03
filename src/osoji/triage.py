@@ -454,9 +454,11 @@ def _render_evidence(ev: Evidence) -> str:
             out.append("Cross-file references:")
             for ref in references:
                 resolves = " (resolves to source)" if ref.get("resolves_to_source") else ""
+                same_file = " (same file, outside the flagged region)" if ref.get("same_file") else ""
                 line = f":{ref['line']}" if ref.get("line") else ""
                 out.append(
-                    f"- `{ref.get('file')}{line}` [{ref.get('kind')}]: {ref.get('context')}{resolves}"
+                    f"- `{ref.get('file')}{line}` [{ref.get('kind')}]{same_file}: "
+                    f"{ref.get('context')}{resolves}"
                 )
             if scope:
                 out.append(
@@ -466,10 +468,14 @@ def _render_evidence(ev: Evidence) -> str:
         elif scope:
             # Evidence-of-absence: state it explicitly — the canonical case-FOR
             # a reachability claim is the zero-hit sweep with honest scope.
+            swept = (
+                "including the flagged file outside the flagged region"
+                if scope.get("same_file_swept")
+                else "outside the flagged file"
+            )
             out.append(
                 f"No references found: {scope.get('files_scanned')} files swept "
-                f"for {', '.join(scope.get('needles', []))} — zero matches "
-                "outside the flagged file."
+                f"for {', '.join(scope.get('needles', []))} — zero matches, {swept}."
             )
         surface = ev.payload.get("export_surface")
         if surface:

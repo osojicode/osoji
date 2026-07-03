@@ -1,0 +1,51 @@
+{
+  "slug": "unactuated_config-case_001-confidence",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "plumbing:unactuated_config",
+    "gap_type": "reachability",
+    "path": "tools.py",
+    "line_start": 329,
+    "line_end": 333,
+    "symbol": "confidence",
+    "contract_source": "config schema",
+    "contract_claim": "The schema field `confidence` declares numeric bounds (type number, minimum 0.0, maximum 1.0) — an obligation that consuming code must enforce when the value is provided.",
+    "observed_behavior": "No application code reads or validates a `confidence` configuration value against these bounds; the declaration appears only inside an LLM tool_use input_schema in tools.py, where the model itself is the consumer of the constraint.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 1,
+            "needles": [
+              "confidence"
+            ]
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "tools.py",
+          "line_start": 319,
+          "line_end": 339,
+          "snippet": "319: \n320: Validation: check for contradictions between the doc and the shadow docs (source of truth).\n321: Report findings with evidence from shadow docs. Empty findings array if no issues found.\"\"\",\n322:     \"input_schema\": {\n323:         \"type\": \"object\",\n324:         \"properties\": {\n325:             \"classification\": {\n326:                 \"type\": \"string\",\n327:                 \"enum\": [\"reference\", \"tutorial\", \"how-to\", \"explanatory\", \"process_artifact\"],\n328:             },\n329:             \"confidence\": {\n330:                 \"type\": \"number\",\n331:                 \"minimum\": 0.0,\n332:                 \"maximum\": 1.0,\n333:             },\n334:             \"classification_reason\": {\n335:                 \"type\": \"string\",\n336:                 \"description\": \"Brief explanation of classification\",\n337:             },\n338:             \"findings\": {\n339:                 \"type\": \"array\",",
+          "anchor": "symbol"
+        }
+      }
+    ],
+    "id": "114871ab970f8e2a",
+    "verdict": "dismissed",
+    "confidence": 0.95,
+    "triage_reasoning": "The `confidence` field with `minimum: 0.0 / maximum: 1.0` constraints exists inside an LLM `tool_use` input_schema. The consumer of this schema is the LLM API itself — the model is instructed to return values within these bounds, and the API can enforce or surface violations. There is no application-layer obligation to separately validate this value. This is analogous to an OpenAPI schema: the schema describes the contract for an external consumer (the model), not for application code. The 'unactuated config' framing does not apply.",
+    "suggested_fix": "",
+    "severity": null,
+    "evidence_fingerprint": "a99bd82ae1a68423"
+  },
+  "trace": null
+}

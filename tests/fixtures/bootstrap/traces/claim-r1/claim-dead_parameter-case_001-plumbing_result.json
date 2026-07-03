@@ -1,0 +1,61 @@
+{
+  "slug": "dead_parameter-case_001-plumbing_result",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "deadparam:dead_parameter",
+    "gap_type": "reachability",
+    "path": "src/osoji/scorecard.py",
+    "line_start": 112,
+    "line_end": 112,
+    "symbol": "plumbing_result",
+    "contract_source": "function signature",
+    "contract_claim": "Parameter `plumbing_result` is declared in the signature of build_scorecard(config, analysis_results, junk_results=None, dead_code_results=None, plumbing_result=None) (signature at lines 106-113) as an accepted input that callers may pass.",
+    "observed_behavior": "No call site ever passes `plumbing_result`: the only caller, run_audit in src/osoji/audit.py, invokes build_scorecard with config, analysis_results and junk_results only, so the parameter always takes its default None and the branches gated on it never execute.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 2,
+            "needles": [
+              "plumbing_result"
+            ]
+          },
+          "export_surface": {
+            "symbol": "plumbing_result",
+            "exported_from_flagged_file": false
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/scorecard.py",
+          "line_start": 102,
+          "line_end": 122,
+          "snippet": "102:             pass\n103:     return None\n104: \n105: \n106: def build_scorecard(\n107:     config: Config,\n108:     analysis_results: list[DocAnalysisResult],\n109:     junk_results: dict[str, JunkAnalysisResult] | None = None,\n110:     # Backward compat:\n111:     dead_code_results: list[DeadCodeVerification] | None = None,\n112:     plumbing_result: PlumbingResult | None = None,\n113: ) -> Scorecard:\n114:     \"\"\"Build a scorecard from audit phase outputs. Pure Python, no LLM calls.\"\"\"\n115: \n116:     # --- Coverage ---\n117:     # Enumerate all source files from shadow inventory\n118:     shadow_root = config.shadow_root\n119:     all_source_files: set[str] = set()\n120:     if shadow_root.exists():\n121:         for shadow_file in shadow_root.rglob(\"*.shadow.md\"):\n122:             if shadow_file.name == DIRECTORY_SHADOW_FILENAME:",
+          "anchor": "symbol",
+          "enclosing_symbol": {
+            "name": "build_scorecard",
+            "kind": "function",
+            "line_start": 106,
+            "line_end": 362
+          }
+        }
+      }
+    ],
+    "id": "ebdc008ae94fe8d4",
+    "verdict": "confirmed",
+    "confidence": 0.82,
+    "triage_reasoning": "Reality: The parameter plumbing_result is never passed by any caller. The only call site (run_audit in audit.py) does not supply it, so it always resolves to None and any branches gated on it are permanently dead. The export surface check shows build_scorecard is not exported, so the 'backward compat' comment at L110 covers both parameters but lacks an identifiable external consumer. Significance: Dead parameter with misleading compat comment. Actionability: Remove it along with its dead branches.",
+    "suggested_fix": "Remove the plumbing_result parameter from build_scorecard (and its gated branches) if no external callers depend on it.",
+    "severity": "warning",
+    "evidence_fingerprint": "52fbc5e6ad2c3646"
+  },
+  "trace": null
+}

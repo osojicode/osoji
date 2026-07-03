@@ -656,13 +656,15 @@ async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
                 phase_tokens = (result.input_tokens, result.output_tokens)
             if suppressed_indices and verbose:
                 _emit(config, f"  Dismissed {len(suppressed_indices)} false positive debris finding(s)")
-            # Dormant escalation tally (decision 1): eligible findings the Claim
-            # Builder couldn't fill are kept unverified, not escalated, in V1-3.
-            # Surfacing the count keeps the dormant path observable and gives V1-4
-            # a free escalation-rate baseline.
+            # Dormant escalation tally (decision 0014): eligible findings whose
+            # require_any gate was unmet are kept unverified, not escalated.
+            # The rate is a V1-4 falsifiability metric — a climbing rate says
+            # the Claim Builder schema needs revision.
             if would_escalate and verbose:
-                _emit(config, f"  {would_escalate} eligible finding(s) lacked cross-file evidence "
-                              "(would-escalate; kept unverified)")
+                eligible_total = len(claims) + would_escalate
+                rate = would_escalate / eligible_total if eligible_total else 0.0
+                _emit(config, f"  {would_escalate} eligible finding(s) lacked gatherable evidence "
+                              f"(would-escalate; kept unverified; escalation rate {rate:.1%})")
         except Exception:
             pass  # Triage is best-effort; on failure, keep all findings
     elapsed = time_module.monotonic() - phase_start

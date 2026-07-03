@@ -431,9 +431,24 @@ async def run(args: argparse.Namespace) -> int:
         batch_size = args.batch_size if mode == "claim" else len(claims) or 1
         for lo in range(0, len(claims), batch_size):
             chunk = claims[lo: lo + batch_size]
-            result = await triage.decide_batch(
-                chunk, mode=mode, system_prompt=TRIAGE_SYSTEM_PROMPT
-            )
+            result = None
+            for attempt in range(3):
+                try:
+                    result = await triage.decide_batch(
+                        chunk, mode=mode, system_prompt=TRIAGE_SYSTEM_PROMPT
+                    )
+                    break
+                except Exception as exc:  # noqa: BLE001 — transient CLI/API errors
+                    print(f"  batch {lo // batch_size + 1} attempt {attempt + 1} failed: {exc}")
+                    if attempt < 2:
+                        await asyncio.sleep(5 * (attempt + 1))
+            if result is None:
+                # Keep going: undecided findings surface in the no_verdict list
+                # and count as disagreements — never silently dropped.
+                findings.extend(c.finding for c in chunk)
+                print(f"  batch {lo // batch_size + 1}: FAILED after retries; "
+                      f"{len(chunk)} claims left undecided")
+                continue
             findings.extend(result.findings)
             traces_by_id.update(
                 {t["finding_id"]: t for t in result.exploration_traces}

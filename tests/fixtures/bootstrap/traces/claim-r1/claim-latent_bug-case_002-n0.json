@@ -1,0 +1,51 @@
+{
+  "slug": "latent_bug-case_002-n0",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "debris:latent_bug",
+    "gap_type": "uncategorized",
+    "path": "main.ts",
+    "line_start": 8,
+    "line_end": 8,
+    "symbol": null,
+    "contract_source": "code",
+    "contract_claim": "document.getElementById(\"root\") returns HTMLElement | null, so the non-null assertion `document.getElementById(\"root\")!` passed to ReactDOM.createRoot will raise at runtime if the element is missing.",
+    "observed_behavior": "The code asserts non-null with `!` instead of a runtime check; the accompanying comment states the element is known to exist in index.html (standard React 18 bootstrapping pattern).",
+    "evidence": [
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "main.ts",
+          "line_start": 1,
+          "line_end": 15,
+          "snippet": "1: import React from \"react\";\n2: import ReactDOM from \"react-dom/client\";\n3: import { App } from \"./App\";\n4: \n5: // Standard React 18 bootstrapping pattern — getElementById returns\n6: // HTMLElement | null, but we know the element exists in index.html.\n7: const root = ReactDOM.createRoot(\n8:   document.getElementById(\"root\")!\n9: );\n10: \n11: root.render(\n12:   <React.StrictMode>\n13:     <App />\n14:   </React.StrictMode>\n15: );",
+          "anchor": "lines"
+        }
+      },
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 1,
+            "needles": [
+              "returns"
+            ]
+          }
+        }
+      }
+    ],
+    "id": "35dcb00d997833cb",
+    "verdict": "dismissed",
+    "confidence": 0.95,
+    "triage_reasoning": "Reality: The `!` non-null assertion is intentional and explicitly documented by the inline comment: 'we know the element exists in index.html.' This is universally accepted React 18 bootstrapping. If `#root` were absent the app would crash at startup under any environment, which is caught during development and CI rather than silently in production.\n\nSignificance: This is an ecosystem convention — virtually every CRA / Vite React 18 scaffold uses this exact pattern. Replacing it with a runtime null-check and error throw would be marginally safer but is not an improvement meaningful enough to action.\n\nThe claim does not meet the significance predicate; it is a false positive on a deliberate, commented, and universally accepted idiom.",
+    "suggested_fix": "",
+    "severity": null,
+    "evidence_fingerprint": "8b24d785a4f8ac45"
+  },
+  "trace": null
+}

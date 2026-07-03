@@ -129,22 +129,57 @@ def test_text_scan_sweeps_beyond_flagged_file_pair(config, temp_dir):
     assert "src/z.py" in files
 
 
-def test_text_scan_excludes_flagged_file(config, temp_dir):
-    write(temp_dir, "src/x.py", "def old_helper():\n    pass\nold_helper()\n")
+def test_text_scan_reports_same_file_usage_outside_flagged_region(config, temp_dir):
+    # The wrapper-pattern FP class (ablation r1 lesson): the genuine usage of a
+    # "dead" symbol often lives further down the SAME file. Those hits are
+    # reported, tagged same_file; hits inside the flagged region (the
+    # declaration itself) are not references and stay excluded.
+    lines = ["def old_helper():", "    pass"] + ["# filler"] * 20 + [
+        "def wrapper():", "    return old_helper()"]
+    write(temp_dir, "src/x.py", "\n".join(lines) + "\n")
     write(temp_dir, "src/y.py", "print('unrelated')\n")
     ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
-    evidence = BUILDERS["cross_file_reference"].build(make_finding(), ctx)
+    evidence = BUILDERS["cross_file_reference"].build(make_finding(line_start=1, line_end=2), ctx)
+    refs = evidence[0].payload["references"]
+    same_file = [r for r in refs if r.get("same_file")]
+    assert same_file, "same-file usage outside the flagged region must be reported"
+    assert all(r["line"] > 2 for r in same_file)  # declaration lines excluded
+
+
+def test_symbolless_finding_uses_quoted_literals_as_needles(config, temp_dir):
+    # Obligation findings carry symbol=None and quote the contract literal in
+    # prose; the literal must become a scan needle regardless of gap_type
+    # (ablation r1: needles were prose words like 'Implicit').
+    write(temp_dir, "src/producer.py", "result['extraction_method'] = 'ast'\n")
+    write(temp_dir, "src/consumer.py", "if method == 'ast':\n    pass\n")
+    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
+    finding = make_finding(
+        detector="obligations:obligation_implicit_contract",
+        gap_type="uncategorized",  # the V1-2 adapter default, NOT "contract"
+        path="src/producer.py",
+        symbol=None,
+        contract_claim="Implicit contract: literal 'ast' produced here",
+        observed_behavior="String checked in src/consumer.py with no shared constant",
+    )
+    evidence = BUILDERS["cross_file_reference"].build(finding, ctx)
+    needles = evidence[0].payload["scan_scope"]["needles"]
+    assert "ast" in needles
+    assert "Implicit" not in needles
     files = {r["file"] for r in evidence[0].payload["references"]}
-    assert "src/x.py" not in files
+    assert "src/consumer.py" in files
 
 
 def test_zero_hit_scan_is_evidence_of_absence_with_scope(config, temp_dir):
     # Ratified at Checkpoint 1: zero hits across a NON-EMPTY scope is the
     # canonical case-FOR a reachability claim, carried with honest scope.
+    # The declaration sits inside the flagged region, so the same-file sweep
+    # (which excludes that region) finds nothing either.
     write(temp_dir, "src/x.py", "def old_helper():\n    pass\n")
     write(temp_dir, "src/y.py", "print('nothing relevant')\n")
     ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
-    evidence = BUILDERS["cross_file_reference"].build(make_finding(), ctx)
+    evidence = BUILDERS["cross_file_reference"].build(
+        make_finding(line_start=1, line_end=2), ctx
+    )
     assert len(evidence) == 1
     payload = evidence[0].payload
     assert payload["references"] == []

@@ -240,10 +240,33 @@ def _claim_text(finding: Finding) -> str:
     return f"{finding.contract_claim} {finding.observed_behavior}"
 
 
-def _symbol_needles(finding: Finding) -> list[str]:
+def _backticked_names(text: str) -> list[str]:
+    seen: list[str] = []
+    for match in re.finditer(r"`(\w+)`", text):
+        name = match.group(1)
+        if name.lower() not in _SYMBOL_FILLER and name not in seen:
+            seen.append(name)
+    return seen
+
+
+def _scan_needles(finding: Finding) -> tuple[list[str], list[str]]:
+    """(symbol_needles, literal_needles) for the text scan.
+
+    A flagged symbol wins outright. Symbol-less findings use what the claim
+    prose explicitly marks — backticked identifiers and quoted literals —
+    falling back to the loose prose extractor only when neither exists
+    (ablation r1 lesson: prose words like 'Implicit' make junk needles while
+    the actual contract literal sits in quotes).
+    """
+
+    text = _claim_text(finding)
+    literals = _quoted_literals(text)
     if finding.symbol:
-        return [finding.symbol]
-    return _extract_all_symbols_from_debris(_claim_text(finding))[:_MAX_NEEDLES]
+        return [finding.symbol], literals if finding.gap_type == "contract" else []
+    symbols = _backticked_names(text)[:_MAX_NEEDLES]
+    if not symbols and not literals:
+        symbols = _extract_all_symbols_from_debris(text)[:_MAX_NEEDLES]
+    return symbols, literals
 
 
 def _quoted_literals(text: str) -> list[str]:
@@ -311,17 +334,22 @@ class CrossFileReferenceBuilder(EvidenceBuilder):
 
     def build(self, finding: Finding, ctx: BuildContext) -> list[Evidence]:
         source = finding.path.replace("\\", "/")
-        symbols = _symbol_needles(finding)
-        literals = _quoted_literals(_claim_text(finding)) if finding.gap_type == "contract" else []
+        symbols, literals = _scan_needles(finding)
         if not symbols and not literals:
             return []
 
         references: list[dict] = []
 
-        # FactsDB graph refs — legacy best-per-symbol selection preserved.
+        # FactsDB graph refs — legacy best-per-symbol selection preserved
+        # (loose extractor on purpose: facts lookups are cheap and precise).
         facts = ctx.facts()
+        facts_symbols = (
+            [finding.symbol]
+            if finding.symbol
+            else _extract_all_symbols_from_debris(_claim_text(finding))
+        )
         best_refs: list[dict] = []
-        for sym in symbols:
+        for sym in facts_symbols:
             try:
                 refs = facts.cross_file_references(sym, source)
             except Exception:
@@ -330,35 +358,41 @@ class CrossFileReferenceBuilder(EvidenceBuilder):
                 best_refs = refs
         references.extend({**ref, "source": "facts"} for ref in best_refs)
 
-        # Mechanical text scan — sweeps the whole corpus, beyond any file pair.
+        # Mechanical text scan — the whole corpus, beyond any file pair, and
+        # the flagged file itself outside the flagged region (wrapper-pattern
+        # usage lives in the same file; ablation r1 lesson).
         needles = [(sym, rf"\b{re.escape(sym)}\b") for sym in symbols]
         needles += [(lit, re.escape(lit)) for lit in literals]
+        flagged_lo = finding.line_start or 0
+        flagged_hi = finding.line_end or flagged_lo
         scan_files = ctx.scan_files()
         for needle, pattern in needles:
             regex = re.compile(pattern)
             hits = 0
             for rel in scan_files:
-                if rel == source:
-                    continue
+                same_file = rel == source
                 lines = ctx.read_lines(rel)
                 if lines is None:
                     continue
                 for lineno, line in enumerate(lines, start=1):
+                    if same_file and flagged_lo <= lineno <= flagged_hi:
+                        continue  # the declaration itself is not a reference
                     if not regex.search(line):
                         continue
                     context = "\n".join(
                         lines[max(0, lineno - 1 - _CONTEXT_LINES): lineno + _CONTEXT_LINES]
                     )
-                    references.append(
-                        {
-                            "file": rel,
-                            "kind": "text_match",
-                            "line": lineno,
-                            "context": context,
-                            "needle": needle,
-                            "source": "text_scan",
-                        }
-                    )
+                    entry = {
+                        "file": rel,
+                        "kind": "text_match",
+                        "line": lineno,
+                        "context": context,
+                        "needle": needle,
+                        "source": "text_scan",
+                    }
+                    if same_file:
+                        entry["same_file"] = True
+                    references.append(entry)
                     hits += 1
                     if hits >= _MAX_HITS_PER_NEEDLE:
                         break
@@ -384,6 +418,7 @@ class CrossFileReferenceBuilder(EvidenceBuilder):
         scan_scope = {
             "files_scanned": len(scan_files),
             "needles": [n for n, _ in needles],
+            "same_file_swept": True,
         }
         if not references and not export_surface and not scan_files:
             # We could not even look — no graph, no corpus. This (and only
