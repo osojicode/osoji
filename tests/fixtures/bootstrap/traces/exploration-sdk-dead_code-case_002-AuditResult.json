@@ -1,0 +1,94 @@
+{
+  "slug": "dead_code-case_002-AuditResult",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/audit.py",
+    "line_start": 32,
+    "line_end": 49,
+    "symbol": "AuditResult",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `AuditResult` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "No other file imports `AuditResult` directly, so an external-reference scan reported zero references; all of its uses are within audit.py itself.",
+    "evidence": [],
+    "id": "9e1ce2bca11e9782",
+    "verdict": "dismissed",
+    "confidence": 0.98,
+    "triage_reasoning": "The scanner flagged `AuditResult` because no external file imports it by name. That criterion is insufficient for Python duck-typed code.\n\nTracing the actual execution path:\n\n1. **Within `audit.py`** — `AuditResult` is genuinely live at four sites:\n   - L97: return-type annotation for `run_audit() -> AuditResult`\n   - L320: instantiation — `return AuditResult(issues=issues, scorecard=scorecard)`\n   - L409: parameter-type annotation for `format_audit_report(result: AuditResult, ...)`\n   - L455: parameter-type annotation for `format_audit_json(result: AuditResult)`\n\n2. **From `cli.py`** — `cli.py` imports `run_audit`, `format_audit_report`, and `format_audit_json` from `audit.py`. In the `audit` CLI command it does:\n   ```python\n   result = run_audit(config, ...)        # receives an AuditResult instance\n   format_audit_json(result)              # passes AuditResult instance\n   format_audit_report(result, ...)       # passes AuditResult instance\n   if not result.passed: raise SystemExit(1)  # uses AuditResult.passed property\n   ```\n   In Python you do not need to import a class by name to receive, pass, and call methods on instances of it. `AuditResult.passed` (an `@property`) is live at runtime.\n\nThe \"no external name-reference\" finding is a false positive from a name-based static scan that does not account for implicit instance usage. `AuditResult` is the central data-carrying type of the entire audit subsystem and is fully reachable. No gap exists.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "9e1ce2bca11e9782",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "AuditResult"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "from.*audit.*import|import.*audit",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/audit.py",
+          "start": 32,
+          "end": 49
+        }
+      },
+      {
+        "turn": 3,
+        "name": "grep",
+        "input": {
+          "pattern": "AuditResult",
+          "glob": "src/osoji/__init__.py"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "list_dir",
+        "input": {
+          "path": "src/osoji"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/cli.py"
+        }
+      },
+      {
+        "turn": 6,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/audit.py",
+          "start": 90,
+          "end": 105
+        }
+      },
+      {
+        "turn": 7,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 0.98,
+          "reasoning": "The scanner flagged `AuditResult` because no external file imports it by name. That criterion is insufficient for Python duck-typed code.\n\nTracing the actual execution path:\n\n1. **Within `audit.py`** — `AuditResult` is genuinely live at four sites:\n   - L97: return-type annotation for `run_audit() -> AuditResult`\n   - L320: instantiation — `return AuditResult(issues=issues, scorecard=scorecard)`\n   - L409: parameter-type annotation for `format_audit_report(result: AuditResult, ...)`\n   - L455: parameter-type annotation for `format_audit_json(result: AuditResult)`\n\n2. **From `cli.py`** — `cli.py` imports `run_audit`, `format_audit_report`, and `format_audit_json` from `audit.py`. In the `audit` CLI command it does:\n   ```python\n   result = run_audit(config, ...)        # receives an AuditResult instance\n   format_audit_json(result)              # passes AuditResult instance\n   format_audit_report(result, ...)       # passes AuditResult instance\n   if not result.passed: raise SystemExit(1)  # uses AuditResult.passed property\n   ```\n   In Python you do not need to import a class by name to receive, pass, and call methods on instances of it. `AuditResult.passed` (an `@property`) is live at runtime.\n\nThe \"no external name-reference\" finding is a false positive from a name-based static scan that does not account for implicit instance usage. `AuditResult` is the central data-carrying type of the entire audit subsystem and is fully reachable. No gap exists."
+        }
+      }
+    ],
+    "cost_usd": 0.165271
+  }
+}

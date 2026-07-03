@@ -1,0 +1,547 @@
+{
+  "slug": "audit-obligation_implicit_contract-001",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "src/osoji/init.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "3 implicit contracts between tests/test_init.py and src/osoji/init.py: \"OSOJI_TOKEN\", \"claude-code\", \"default_provider\"",
+    "observed_behavior": "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 92,
+              "context": "class TestMergeDotenv:\n    def test_creates_env_when_missing(self, tmp_path):\n        values = {\"ANTHROPIC_API_KEY\": \"sk-test\", \"OSOJI_TOKEN\": \"\"}\n        actions = merge_dotenv(tmp_path, values)\n        content = (tmp_path / \".env\").read_text()",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 96,
+              "context": "        content = (tmp_path / \".env\").read_text()\n        assert \"ANTHROPIC_API_KEY=sk-test\" in content\n        assert \"# OSOJI_TOKEN=\" in content\n        added = [a for a in actions if a[\"action\"] == \"added\"]\n        assert len(added) == 2",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 102,
+              "context": "    def test_skips_existing_keys(self, tmp_path):\n        (tmp_path / \".env\").write_text(\"ANTHROPIC_API_KEY=sk-existing\\n\")\n        values = {\"ANTHROPIC_API_KEY\": \"sk-new\", \"OSOJI_TOKEN\": \"tok123\"}\n        actions = merge_dotenv(tmp_path, values)\n        content = (tmp_path / \".env\").read_text()",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 107,
+              "context": "        assert \"sk-existing\" in content\n        assert \"sk-new\" not in content\n        assert \"OSOJI_TOKEN=tok123\" in content\n        skipped = [a for a in actions if a[\"action\"] == \"skipped\"]\n        assert len(skipped) == 1",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 113,
+              "context": "\n    def test_empty_value_written_as_comment(self, tmp_path):\n        values = {\"OSOJI_TOKEN\": \"\"}\n        actions = merge_dotenv(tmp_path, values)\n        content = (tmp_path / \".env\").read_text()",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 116,
+              "context": "        actions = merge_dotenv(tmp_path, values)\n        content = (tmp_path / \".env\").read_text()\n        assert \"# OSOJI_TOKEN=\" in content\n\n    def test_non_empty_value_written_bare(self, tmp_path):",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 119,
+              "context": "\n    def test_non_empty_value_written_bare(self, tmp_path):\n        values = {\"OSOJI_TOKEN\": \"tok123\"}\n        actions = merge_dotenv(tmp_path, values)\n        content = (tmp_path / \".env\").read_text()",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 122,
+              "context": "        actions = merge_dotenv(tmp_path, values)\n        content = (tmp_path / \".env\").read_text()\n        assert \"OSOJI_TOKEN=tok123\" in content\n        assert \"# OSOJI_TOKEN\" not in content\n",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 123,
+              "context": "        content = (tmp_path / \".env\").read_text()\n        assert \"OSOJI_TOKEN=tok123\" in content\n        assert \"# OSOJI_TOKEN\" not in content\n\n    def test_handles_commented_existing_key(self, tmp_path):",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 126,
+              "context": "\n    def test_handles_commented_existing_key(self, tmp_path):\n        \"\"\"A commented-out key (# OSOJI_TOKEN=) should NOT count as 'existing'.\"\"\"\n        (tmp_path / \".env\").write_text(\"# OSOJI_TOKEN=\\n\")\n        values = {\"OSOJI_TOKEN\": \"tok123\"}",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 127,
+              "context": "    def test_handles_commented_existing_key(self, tmp_path):\n        \"\"\"A commented-out key (# OSOJI_TOKEN=) should NOT count as 'existing'.\"\"\"\n        (tmp_path / \".env\").write_text(\"# OSOJI_TOKEN=\\n\")\n        values = {\"OSOJI_TOKEN\": \"tok123\"}\n        actions = merge_dotenv(tmp_path, values)",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 128,
+              "context": "        \"\"\"A commented-out key (# OSOJI_TOKEN=) should NOT count as 'existing'.\"\"\"\n        (tmp_path / \".env\").write_text(\"# OSOJI_TOKEN=\\n\")\n        values = {\"OSOJI_TOKEN\": \"tok123\"}\n        actions = merge_dotenv(tmp_path, values)\n        content = (tmp_path / \".env\").read_text()",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 131,
+              "context": "        actions = merge_dotenv(tmp_path, values)\n        content = (tmp_path / \".env\").read_text()\n        assert \"OSOJI_TOKEN=tok123\" in content\n        added = [a for a in actions if a[\"action\"] == \"added\"]\n        assert len(added) == 1",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 137,
+              "context": "    def test_skips_commented_placeholder_when_empty(self, tmp_path):\n        \"\"\"Writing an empty value when a commented-out placeholder exists should skip.\"\"\"\n        (tmp_path / \".env\").write_text(\"# OSOJI_TOKEN=\\n\")\n        values = {\"OSOJI_TOKEN\": \"\"}\n        actions = merge_dotenv(tmp_path, values)",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 138,
+              "context": "        \"\"\"Writing an empty value when a commented-out placeholder exists should skip.\"\"\"\n        (tmp_path / \".env\").write_text(\"# OSOJI_TOKEN=\\n\")\n        values = {\"OSOJI_TOKEN\": \"\"}\n        actions = merge_dotenv(tmp_path, values)\n        content = (tmp_path / \".env\").read_text()",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 142,
+              "context": "        content = (tmp_path / \".env\").read_text()\n        # Should NOT add a second placeholder\n        assert content.count(\"OSOJI_TOKEN\") == 1\n        skipped = [a for a in actions if a[\"action\"] == \"skipped\"]\n        assert len(skipped) == 1",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 282,
+              "context": "    def test_interactive_prompts_for_values(self, mock_prompt, mock_confirm, tmp_path):\n        # Prompts: provider selection (1), model accept (Y from confirm),\n        # config target (1), API key, OSOJI_TOKEN, project slug\n        mock_prompt.side_effect = [1, 1, \"sk-test-key\", \"\", \"myproject\"]\n        run_init(root=tmp_path, interactive=True, provider=\"anthropic\")",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 294,
+              "context": "    def test_interactive_skips_when_declined(self, mock_confirm, mock_prompt, tmp_path):\n        \"\"\"When user declines all prompts, minimal files are created.\"\"\"\n        # confirm returns False for everything: gitignore (3x), model accept, API key, OSOJI_TOKEN\n        # prompt calls: provider (1), small/medium/large models (defaults), config target (1), project slug\n        from osoji.config import BUILTIN_PROVIDER_MODELS",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 318,
+              "context": "\n    def test_non_interactive_claude_code_no_api_key(self, tmp_path):\n        \"\"\"claude-code provider has no API key env var — only OSOJI_TOKEN placeholder.\"\"\"\n        run_init(root=tmp_path, interactive=False, provider=\"claude-code\")\n        env_content = (tmp_path / \".env\").read_text()",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 322,
+              "context": "        env_content = (tmp_path / \".env\").read_text()\n        assert \"ANTHROPIC_API_KEY\" not in env_content\n        assert \"# OSOJI_TOKEN=\" in env_content\n        toml_content = (tmp_path / \".osoji.toml\").read_text()\n        assert 'default_provider = \"claude-code\"' in toml_content",
+              "needle": "OSOJI_TOKEN",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 318,
+              "context": "\n    def test_non_interactive_claude_code_no_api_key(self, tmp_path):\n        \"\"\"claude-code provider has no API key env var — only OSOJI_TOKEN placeholder.\"\"\"\n        run_init(root=tmp_path, interactive=False, provider=\"claude-code\")\n        env_content = (tmp_path / \".env\").read_text()",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 319,
+              "context": "    def test_non_interactive_claude_code_no_api_key(self, tmp_path):\n        \"\"\"claude-code provider has no API key env var — only OSOJI_TOKEN placeholder.\"\"\"\n        run_init(root=tmp_path, interactive=False, provider=\"claude-code\")\n        env_content = (tmp_path / \".env\").read_text()\n        assert \"ANTHROPIC_API_KEY\" not in env_content",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 324,
+              "context": "        assert \"# OSOJI_TOKEN=\" in env_content\n        toml_content = (tmp_path / \".osoji.toml\").read_text()\n        assert 'default_provider = \"claude-code\"' in toml_content\n\n    def test_non_interactive_google_provider(self, tmp_path):",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 396,
+              "context": "    @patch(\"click.prompt\")\n    def test_interactive_claude_code_skips_api_key(self, mock_prompt, mock_confirm, tmp_path):\n        \"\"\"claude-code provider skips API key prompt and model defaults.\"\"\"\n        # provider (5=claude-code), config target (1), OSOJI_TOKEN, project slug\n        mock_prompt.side_effect = [5, 1, \"\", \"myproject\"]",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 397,
+              "context": "    def test_interactive_claude_code_skips_api_key(self, mock_prompt, mock_confirm, tmp_path):\n        \"\"\"claude-code provider skips API key prompt and model defaults.\"\"\"\n        # provider (5=claude-code), config target (1), OSOJI_TOKEN, project slug\n        mock_prompt.side_effect = [5, 1, \"\", \"myproject\"]\n        run_init(root=tmp_path, interactive=True, provider=\"anthropic\")",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 406,
+              "context": "            assert \"OPENAI_API_KEY\" not in env_content\n        toml_content = (tmp_path / \".osoji.toml\").read_text()\n        assert 'default_provider = \"claude-code\"' in toml_content\n\n    @patch(\"osoji.init._infer_project_from_git_remote\", return_value=\"myproject\")",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/init.py",
+              "kind": "text_match",
+              "line": 27,
+              "context": "    (\"google\", \"Gemini models, built-in defaults\"),\n    (\"openrouter\", \"Multi-provider gateway, built-in defaults\"),\n    (\"claude-code\", \"Uses your Claude Code subscription (no API key needed)\"),\n]\n",
+              "needle": "claude-code",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/init.py",
+              "kind": "text_match",
+              "line": 435,
+              "context": "            click.echo(f\"   Selected: {spec.display_name}\")\n\n        # Model defaults (skip for claude-code — it manages models internally)\n        if provider != \"claude-code\":\n            model_overrides = _prompt_model_defaults(provider)",
+              "needle": "claude-code",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/init.py",
+              "kind": "text_match",
+              "line": 436,
+              "context": "\n        # Model defaults (skip for claude-code — it manages models internally)\n        if provider != \"claude-code\":\n            model_overrides = _prompt_model_defaults(provider)\n        else:",
+              "needle": "claude-code",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/init.py",
+              "kind": "text_match",
+              "line": 481,
+              "context": "            existing_keys = _parse_env_keys(env_path.read_text(encoding=\"utf-8\"))\n\n        if provider == \"claude-code\":\n            click.echo(\"   Claude Code uses your existing subscription. No API key needed.\")\n        elif api_key_env:",
+              "needle": "claude-code",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/init.py",
+              "kind": "text_match",
+              "line": 507,
+              "context": "                else:\n                    click.echo(f\"   Skipping {a['key']} in .env ({a['reason']})\")\n        elif not existing_keys and provider != \"claude-code\":\n            click.echo(\"   No secrets configured.\")\n    else:",
+              "needle": "claude-code",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 34,
+              "context": "Usage:\n\n    python scripts/triage_bootstrap.py explore --provider claude-code\n    python scripts/triage_bootstrap.py claim --provider claude-code \\\n        --baseline tests/fixtures/bootstrap/traces/explore-summary.json",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 35,
+              "context": "\n    python scripts/triage_bootstrap.py explore --provider claude-code\n    python scripts/triage_bootstrap.py claim --provider claude-code \\\n        --baseline tests/fixtures/bootstrap/traces/explore-summary.json\n",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 235,
+              "context": "\n    `claude -p` cannot round-trip custom tool calls, so the in-process\n    Triage exploration loop has no transport on the claude-code provider.\n    The Agent SDK wraps the same CLI (Max OAuth auth carries over) and\n    dispatches MCP tool calls to in-process callbacks — ExplorationExecutor",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 572,
+              "context": "        p.add_argument(\"--manifest\", type=Path, default=DEFAULT_MANIFEST)\n        p.add_argument(\"--out\", type=Path, default=DEFAULT_TRACE_DIR)\n        p.add_argument(\"--provider\", default=None, help=\"LLM provider (e.g. claude-code)\")\n        p.add_argument(\"--model\", default=None)\n        p.add_argument(\"--baseline\", type=Path, default=None,",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_claude_code_provider.py",
+              "kind": "text_match",
+              "line": 83,
+              "context": "def test_provider_name():\n    p = _provider()\n    assert p.name == \"claude-code\"\n\n",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_claude_code_provider.py",
+              "kind": "text_match",
+              "line": 361,
+              "context": "def test_model_mapping_strips_prefix():\n    assert ClaudeCodeProvider._map_model(\"anthropic/claude-sonnet-4-6\") == \"claude-sonnet-4-6\"\n    assert ClaudeCodeProvider._map_model(\"claude-code/sonnet\") == \"sonnet\"\n\n",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_llm_provider.py",
+              "kind": "text_match",
+              "line": 63,
+              "context": "\ndef test_provider_names_include_all_supported_providers():\n    assert provider_names() == (\"anthropic\", \"claude-code\", \"google\", \"openai\", \"openrouter\")\n\n",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 59,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"3 implicit contracts between tests/test_init.py and src/osoji/init.py: \\\"OSOJI_TOKEN\\\", \\\"claude-code\\\", \\\"default_provider\\\"\",\n        \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n        \"evidence\": [],",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 77,
+              "context": "      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"[carried from audit-obligation_implicit_contract-002 r1] claude-code is osoji's own registry key (not ecosystem); bare literal in 5+ files, budgets.py tuple check fails silently on rename.\",\n      \"evidence_consulted\": [\n        \"read provider registry\",",
+              "needle": "claude-code",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 22,
+              "context": "\n    def test_top_level_only(self):\n        result = _serialize_toml({\"default_provider\": \"anthropic\"})\n        parsed = tomllib.loads(result)\n        assert parsed == {\"default_provider\": \"anthropic\"}",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 24,
+              "context": "        result = _serialize_toml({\"default_provider\": \"anthropic\"})\n        parsed = tomllib.loads(result)\n        assert parsed == {\"default_provider\": \"anthropic\"}\n\n    def test_with_section(self):",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 27,
+              "context": "\n    def test_with_section(self):\n        data = {\"default_provider\": \"anthropic\", \"push\": {\"project\": \"osoji\"}}\n        result = _serialize_toml(data)\n        parsed = tomllib.loads(result)",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 31,
+              "context": "        parsed = tomllib.loads(result)\n        assert parsed == data\n        # default_provider must appear before [push]\n        assert result.index(\"default_provider\") < result.index(\"[push]\")\n",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 32,
+              "context": "        assert parsed == data\n        # default_provider must appear before [push]\n        assert result.index(\"default_provider\") < result.index(\"[push]\")\n\n    def test_with_nested_section(self):",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 43,
+              "context": "    def test_full_roundtrip(self):\n        data = {\n            \"default_provider\": \"openai\",\n            \"push\": {\"endpoint\": \"https://api.osojicode.ai\", \"project\": \"osoji\"},\n            \"providers\": {\"openai\": {\"small\": \"gpt-5-mini\", \"large\": \"gpt-5.4\"}},",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 165,
+              "context": "\n    def test_adds_push_section_to_existing_toml(self, tmp_path):\n        (tmp_path / \".osoji.toml\").write_text('default_provider = \"openai\"\\n')\n        actions = merge_project_toml(tmp_path, project_slug=\"myproject\")\n        content = (tmp_path / \".osoji.toml\").read_text()",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 168,
+              "context": "        actions = merge_project_toml(tmp_path, project_slug=\"myproject\")\n        content = (tmp_path / \".osoji.toml\").read_text()\n        assert 'default_provider = \"openai\"' in content\n        assert '[push]' in content\n        assert 'project = \"myproject\"' in content",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 194,
+              "context": "        actions = merge_provider_toml(tmp_path, provider=\"anthropic\")\n        content = (tmp_path / \".osoji.toml\").read_text()\n        assert 'default_provider = \"anthropic\"' in content\n        added = [a for a in actions if a[\"action\"] == \"added\"]\n        assert len(added) == 1",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 197,
+              "context": "        added = [a for a in actions if a[\"action\"] == \"added\"]\n        assert len(added) == 1\n        assert added[0][\"key\"] == \"default_provider\"\n\n    def test_writes_provider_to_local_toml(self, tmp_path):",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 202,
+              "context": "        actions = merge_provider_toml(tmp_path, provider=\"openai\", use_local=True)\n        content = (tmp_path / \".osoji.local.toml\").read_text()\n        assert 'default_provider = \"openai\"' in content\n        assert not (tmp_path / \".osoji.toml\").exists()\n",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 209,
+              "context": "        actions = merge_provider_toml(tmp_path, provider=\"openai\", models=models)\n        content = (tmp_path / \".osoji.toml\").read_text()\n        assert 'default_provider = \"openai\"' in content\n        assert \"[providers.openai]\" in content\n        assert 'small = \"custom-small\"' in content",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 215,
+              "context": "\n    def test_skips_existing_provider(self, tmp_path):\n        (tmp_path / \".osoji.toml\").write_text('default_provider = \"anthropic\"\\n')\n        actions = merge_provider_toml(tmp_path, provider=\"anthropic\")\n        skipped = [a for a in actions if a[\"action\"] == \"skipped\"]",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 219,
+              "context": "        skipped = [a for a in actions if a[\"action\"] == \"skipped\"]\n        assert len(skipped) == 1\n        assert skipped[0][\"key\"] == \"default_provider\"\n\n    def test_no_models_means_no_providers_section(self, tmp_path):",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 224,
+              "context": "        actions = merge_provider_toml(tmp_path, provider=\"google\")\n        content = (tmp_path / \".osoji.toml\").read_text()\n        assert 'default_provider = \"google\"' in content\n        assert \"[providers.\" not in content\n",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 233,
+              "context": "        assert '[push]' in content\n        assert 'project = \"myproject\"' in content\n        assert 'default_provider = \"openai\"' in content\n\n    def test_provider_with_preexisting_push_section(self, tmp_path):",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 236,
+              "context": "\n    def test_provider_with_preexisting_push_section(self, tmp_path):\n        \"\"\"default_provider must be top-level, not inside [push].\"\"\"\n        (tmp_path / \".osoji.toml\").write_text('[push]\\nendpoint = \"https://api.osojicode.ai\"\\n')\n        merge_provider_toml(tmp_path, provider=\"anthropic\")",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 241,
+              "context": "        content = (tmp_path / \".osoji.toml\").read_text()\n        parsed = tomllib.loads(content)\n        # default_provider must be top-level, NOT inside push\n        assert parsed.get(\"default_provider\") == \"anthropic\"\n        assert \"default_provider\" not in parsed.get(\"push\", {})",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 242,
+              "context": "        parsed = tomllib.loads(content)\n        # default_provider must be top-level, NOT inside push\n        assert parsed.get(\"default_provider\") == \"anthropic\"\n        assert \"default_provider\" not in parsed.get(\"push\", {})\n        # endpoint must be preserved",
+              "needle": "default_provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 243,
+              "context": "        # default_provider must be top-level, NOT inside push\n        assert parsed.get(\"default_provider\") == \"anthropic\"\n        assert \"default_provider\" not in parsed.get(\"push\", {})\n        # endpoint must be preserved\n        assert parsed[\"push\"][\"endpoint\"] == \"https://api.osojicode.ai\"",
+              "needle": "default_provider",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {
+            "tests/test_init.py": "# tests\\test_init.py\n@source-hash: a793f03cb6115f24\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:29:12Z\n\n## tests/test_init.py\n\nTest suite for `osoji/init.py` — the module that handles `osoji init` project scaffolding. Covers TOML serialization, file merge operations, the top-level `run_init` orchestrator, and CLI integration via Click's test runner.\n\n### Test Classes\n\n**`TestSerializeToml` (L17–55)**\nTests `_serialize_toml(dict) → str`. Verifies:\n- Empty dict → empty string (L18–19)\n- Round-trip fidelity via `tomllib.loads()` (L22–30, L41–49)\n- Scalar keys appear before table sections in output (L31–32)\n- Nested sections render as `[parent.child]` headers (L34–39)\n- String escaping for quotes and backslashes (L51–55)\n\n**`TestMergeGitignore` (L58–87)**\nTests `merge_gitignore(root: Path) → list[dict]`. Verifies:\n- Creates `.gitignore` with `.osoji/`, `.osoji.local.toml`, `.env` when missing (L59–66)\n- Returns action dicts with `{\"action\": \"added\"|\"skipped\"}` entries (L66, L73–76)\n- Skips lines already present; adds only missing lines (L68–76)\n- Appends new entries under a `# Osoji\\n` section separator when file has existing content (L83–87)\n\n**`TestMergeDotenv` (L90–144)**\nTests `merge_dotenv(root: Path, values: dict) → list[dict]`. Verifies:\n- Empty-value entries written as `# KEY=` comment placeholders; non-empty as bare `KEY=val` (L91–98, L112–123)\n- Existing keys (uncommented) are skipped; action dict includes `\"key\"` field (L100–110)\n- A commented placeholder `# KEY=` does NOT count as existing for non-empty writes — will be added again (L125–133)\n- A commented placeholder `# KEY=` DOES skip if writing an empty value (avoids duplicate comments) (L135–144)\n\n**`TestMergeProjectToml` (L147–187)**\nTests `merge_project_toml(root: Path, project_slug: str|None) → list[dict]`. Verifies:\n- Creates `.osoji.toml` with `[push]\\nproject = \"...\"` when missing (L148–154)\n- Skips when `push.project` already set; preserves existing value (L156–162)\n- Merges `project` k"
+          },
+          "scan_scope": {
+            "files_scanned": 464,
+            "needles": [
+              "OSOJI_TOKEN",
+              "claude-code",
+              "default_provider"
+            ],
+            "needle_totals": {
+              "OSOJI_TOKEN": 144,
+              "claude-code": 268,
+              "default_provider": 158
+            },
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/init.py",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: \"\"\"Interactive project setup for Osoji.\"\"\"\n2: \n3: from __future__ import annotations\n4: \n5: import re\n6: import tomllib\n7: from pathlib import Path\n8: \n9: import click\n10: \n11: from .config import BUILTIN_PROVIDER_MODELS, PROJECT_CONFIG_FILENAME",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "d347d0481ce92dba",
+    "verdict": "dismissed",
+    "confidence": 0.82,
+    "triage_reasoning": "All three strings — `\"OSOJI_TOKEN\"`, `\"claude-code\"`, `\"default_provider\"` — appear in test assertions. Test assertions are explicit, not silent: if `init.py` changes any of these values, the tests raise `AssertionError` immediately, not a silent mismatch. The 'silent mismatch' framing that motivates the finding does not hold for test-to-production boundaries. The broader concern about `\"claude-code\"` appearing as a bare literal in 5+ production files (including budgets.py tuple checks) is a real but distinct finding not captured by this specific test-vs-init.py claim. Dismissing this specific claim on the merits.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "544f3bc1f2934384"
+  },
+  "trace": null
+}

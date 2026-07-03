@@ -1,0 +1,71 @@
+{
+  "slug": "audit-obligation_violation-001",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:obligation_violation",
+    "gap_type": "uncategorized",
+    "path": "src/osoji/llm/google.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "String \"tool_result\" is checked but never produced or defined in any project file",
+    "observed_behavior": "Check string contract with (no producer found)",
+    "evidence": [],
+    "id": "1a747eb00baa3c93",
+    "verdict": "dismissed",
+    "confidence": 1,
+    "triage_reasoning": "The claim asserts \"String 'tool_result' is checked but never produced or defined in any project file.\" This is factually incorrect on all counts:\n\n1. **Producer 1 — `src/osoji/llm/_provider_base.py:495`**: `_build_retry_messages()` emits `{\"type\": \"tool_result\", ...}` blocks whenever `response_format == \"anthropic\"`. `google.py`'s `_parse_sdk_response` explicitly returns `response_format=\"anthropic\"`, so every Google retry path goes through this producer.\n\n2. **Producer 2 — `src/osoji/triage.py:397`**: `triage.py` independently produces `{\"type\": \"tool_result\", ...}` blocks when feeding tool call results back to the LLM in the triage loop.\n\n3. **Consumer — `src/osoji/llm/google.py:170`**: `_raw_messages_to_contents()` checks `btype == \"tool_result\"` and converts those blocks to `genai_types.FunctionResponse` — this is entirely correct behavior bridging the Anthropic-style message format to Google's native format.\n\nThe producer↔consumer contract is fully intact. The string is defined, produced, and consumed within the project. The fixture files (`manifest-audit.json`, `manifest.json`) already document this as a known false positive with the same analysis. Reality predicate fails — no gap exists.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "1a747eb00baa3c93",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "tool_result"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/llm/google.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/llm/_provider_base.py",
+          "start": 485,
+          "end": 510
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/triage.py",
+          "start": 390,
+          "end": 410
+        }
+      },
+      {
+        "turn": 4,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 1,
+          "reasoning": "The claim asserts \"String 'tool_result' is checked but never produced or defined in any project file.\" This is factually incorrect on all counts:\n\n1. **Producer 1 — `src/osoji/llm/_provider_base.py:495`**: `_build_retry_messages()` emits `{\"type\": \"tool_result\", ...}` blocks whenever `response_format == \"anthropic\"`. `google.py`'s `_parse_sdk_response` explicitly returns `response_format=\"anthropic\"`, so every Google retry path goes through this producer.\n\n2. **Producer 2 — `src/osoji/triage.py:397`**: `triage.py` independently produces `{\"type\": \"tool_result\", ...}` blocks when feeding tool call results back to the LLM in the triage loop.\n\n3. **Consumer — `src/osoji/llm/google.py:170`**: `_raw_messages_to_contents()` checks `btype == \"tool_result\"` and converts those blocks to `genai_types.FunctionResponse` — this is entirely correct behavior bridging the Anthropic-style message format to Google's native format.\n\nThe producer↔consumer contract is fully intact. The string is defined, produced, and consumed within the project. The fixture files (`manifest-audit.json`, `manifest.json`) already document this as a known false positive with the same analysis. Reality predicate fails — no gap exists."
+        }
+      }
+    ],
+    "cost_usd": 0.109032
+  }
+}

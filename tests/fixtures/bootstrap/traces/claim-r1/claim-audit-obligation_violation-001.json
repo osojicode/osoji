@@ -1,0 +1,218 @@
+{
+  "slug": "audit-obligation_violation-001",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:obligation_violation",
+    "gap_type": "uncategorized",
+    "path": "src/osoji/llm/google.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "String \"tool_result\" is checked but never produced or defined in any project file",
+    "observed_behavior": "Check string contract with (no producer found)",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 92,
+              "context": "- `src/osoji/facts.py` — Structured facts database and queries\n- `src/osoji/symbols.py` — Symbol loading and querying from `.osoji/symbols/`\n- `src/osoji/obligations.py` — String contract / obligation checking\n- `src/osoji/tools.py` — Tool definitions (schemas) for LLM tool use\n- `src/osoji/doc_analysis.py` — Documentation accuracy analysis",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 85,
+              "context": "\ndef _quoted_strings(*texts: str) -> set[str]:\n    \"\"\"String literals quoted in the claim prose ('x', \"x\", or `x`).\"\"\"\n\n    found: set[str] = set()",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 720,
+              "context": "\n    def test_process_env_comparison_skipped(self, tmp_path):\n        \"\"\"String with comparison_source 'process.env' is not flagged.\"\"\"\n        _write_facts(tmp_path, \"src/registry.py\", {\n            \"string_literals\": [",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 740,
+              "context": "\n    def test_req_url_comparison_skipped(self, tmp_path):\n        \"\"\"String with comparison_source 'req.url' is not flagged.\"\"\"\n        _write_facts(tmp_path, \"src/registry.py\", {\n            \"string_literals\": [",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 760,
+              "context": "\n    def test_non_global_comparison_still_flagged(self, tmp_path):\n        \"\"\"String with comparison_source 'myVar' (not a runtime global) is still flagged.\"\"\"\n        _write_facts(tmp_path, \"src/registry.py\", {\n            \"string_literals\": [",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_plugin_python.py",
+              "kind": "text_match",
+              "line": 333,
+              "context": "\n\n# --- String literal extraction tests ---\n\n",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 289,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"String \\\"obligation_implicit_contract\\\" is checked but never produced or defined in any project file\",\n        \"observed_behavior\": \"Check string contract with (no producer found)\",\n        \"evidence\": [],",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 323,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"String \\\"tool_result\\\" is checked but never produced or defined in any project file\",\n        \"observed_behavior\": \"Check string contract with (no producer found)\",\n        \"evidence\": [],",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 833,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"String \\\"obligation_implicit_contract\\\" is checked but never produced or defined in any project file\",\n        \"observed_behavior\": \"Check string contract with (no producer found)\",\n        \"evidence\": [],",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 867,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"String \\\"tool_result\\\" is checked but never produced or defined in any project file\",\n        \"observed_behavior\": \"Check string contract with (no producer found)\",\n        \"evidence\": [],",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/plumbing/case_001_tool_schema/source/tools.py",
+              "kind": "text_match",
+              "line": 410,
+              "context": "## False positives for grep hits (hit exists but is NOT a real usage)\n- **Comments**: The symbol name appears only inside a comment or docstring\n- **String literals**: Appears in a string, log message, or error message\n- **Name collision**: A different module/class defines a symbol with the same name\n- **Similar-but-different**: Substring match on a longer identifier (e.g. `run` inside `run_tests`)",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/dead_code/case_001_wrapper_pattern/source/src/osoji/deadcode.py",
+              "kind": "text_match",
+              "line": 258,
+              "context": "Each grep hit has ±5 lines of context. Judge whether each hit is a real usage or a false positive:\n- **Comment / docstring**: mentioned in a comment but never actually called\n- **String literal**: appears in a log message, error string, or config key\n- **Name collision**: a different module defines a symbol with the same name\n- **Type annotation only**: used in a type hint but never called at runtime",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/dead_code/case_001_wrapper_pattern/source/src/osoji/tools.py",
+              "kind": "text_match",
+              "line": 333,
+              "context": "## False positives for grep hits (hit exists but is NOT a real usage)\n- **Comments**: The symbol name appears only inside a comment or docstring\n- **String literals**: Appears in a string, log message, or error message\n- **Name collision**: A different module/class defines a symbol with the same name\n- **Similar-but-different**: Substring match on a longer identifier (e.g. `run` inside `run_tests`)",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_violation-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"String \\\"obligation_implicit_contract\\\" is checked but never produced or defined in any project file\",\n    \"observed_behavior\": \"Check string contract with (no producer found)\",\n    \"evidence\": [],",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_violation-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"String \\\"tool_result\\\" is checked but never produced or defined in any project file\",\n    \"observed_behavior\": \"Check string contract with (no producer found)\",\n    \"evidence\": [],",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_violation-001.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"dismissed\",\n    \"confidence\": 1,\n    \"triage_reasoning\": \"The claim asserts \\\"String 'tool_result' is checked but never produced or defined in any project file.\\\" This is factually incorrect on all counts:\\n\\n1. **Producer 1 — `src/osoji/llm/_provider_base.py:495`**: `_build_retry_messages()` emits `{\\\"type\\\": \\\"tool_result\\\", ...}` blocks whenever `response_format == \\\"anthropic\\\"`. `google.py`'s `_parse_sdk_response` explicitly returns `response_format=\\\"anthropic\\\"`, so every Google retry path goes through this producer.\\n\\n2. **Producer 2 — `src/osoji/triage.py:397`**: `triage.py` independently produces `{\\\"type\\\": \\\"tool_result\\\", ...}` blocks when feeding tool call results back to the LLM in the triage loop.\\n\\n3. **Consumer — `src/osoji/llm/google.py:170`**: `_raw_messages_to_contents()` checks `btype == \\\"tool_result\\\"` and converts those blocks to `genai_types.FunctionResponse` — this is entirely correct behavior bridging the Anthropic-style message format to Google's native format.\\n\\nThe producer↔consumer contract is fully intact. The string is defined, produced, and consumed within the project. The fixture files (`manifest-audit.json`, `manifest.json`) already document this as a known false positive with the same analysis. Reality predicate fails — no gap exists.\",\n    \"suggested_fix\": null,\n    \"severity\": null,",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_violation-001.json",
+              "kind": "text_match",
+              "line": 65,
+              "context": "          \"verdict\": \"dismissed\",\n          \"confidence\": 1,\n          \"reasoning\": \"The claim asserts \\\"String 'tool_result' is checked but never produced or defined in any project file.\\\" This is factually incorrect on all counts:\\n\\n1. **Producer 1 — `src/osoji/llm/_provider_base.py:495`**: `_build_retry_messages()` emits `{\\\"type\\\": \\\"tool_result\\\", ...}` blocks whenever `response_format == \\\"anthropic\\\"`. `google.py`'s `_parse_sdk_response` explicitly returns `response_format=\\\"anthropic\\\"`, so every Google retry path goes through this producer.\\n\\n2. **Producer 2 — `src/osoji/triage.py:397`**: `triage.py` independently produces `{\\\"type\\\": \\\"tool_result\\\", ...}` blocks when feeding tool call results back to the LLM in the triage loop.\\n\\n3. **Consumer — `src/osoji/llm/google.py:170`**: `_raw_messages_to_contents()` checks `btype == \\\"tool_result\\\"` and converts those blocks to `genai_types.FunctionResponse` — this is entirely correct behavior bridging the Anthropic-style message format to Google's native format.\\n\\nThe producer↔consumer contract is fully intact. The string is defined, produced, and consumed within the project. The fixture files (`manifest-audit.json`, `manifest.json`) already document this as a known false positive with the same analysis. Reality predicate fails — no gap exists.\"\n        }\n      }",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_implicit_contract-006.json",
+              "kind": "text_match",
+              "line": 81,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1071,\n              \"context\": \"        if implicit_contracts:\\n            has_test_pairs = any(_is_test_path(str(ic.path)) for ic in implicit_contracts)\\n            lines.append(\\\"## Implicit String Contracts\\\\n\\\")\\n            if has_test_pairs:\\n                lines.append(_IMPLICIT_CONTRACT_PREAMBLE)\",\n              \"needle\": \"Implicit\",\n              \"source\": \"text_scan\"",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_implicit_contract-006.json",
+              "kind": "text_match",
+              "line": 89,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 2016,\n              \"context\": \"        has_test_pairs = any(_is_test_path(str(ic.path)) for ic in implicit_contracts)\\n        parts.append('<div class=\\\"section\\\" id=\\\"section-implicit-contracts\\\">')\\n        parts.append('<div class=\\\"section-head\\\">Implicit String Contracts</div>')\\n        parts.append('<div class=\\\"section-body\\\">')\\n        if has_test_pairs:\",\n              \"needle\": \"Implicit\",\n              \"source\": \"text_scan\"",
+              "needle": "String",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_implicit_contract-006.json",
+              "kind": "text_match",
+              "line": 105,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1,\n              \"context\": \"# String Contract and Obligation Checking: Detecting Cross-File Implicit Contracts\\n\\n## What are string contracts?\",\n              \"needle\": \"Implicit\",\n              \"source\": \"text_scan\"",
+              "needle": "String",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {
+            "tests/test_obligations.py": "# tests\\test_obligations.py\n@source-hash: 13cd2c6cd0485322\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:27:01Z\n\n## `tests/test_obligations.py` — Obligations Module Test Suite\n\n### Purpose\nComprehensive test suite for `osoji.obligations`: `StringContractChecker`, `ContractFinding`, `CONTRACT_CHECKERS` registry, and `run_all_contract_checks`. Tests are organized into 9 test classes covering algorithm behavior, filtering edge cases, fragility detection, remediation text, and the contract framework API.\n\n---\n\n### Shared Helpers (L17–39)\n\n**`_write_facts(temp_dir, source, facts)`** (L19–34)  \nWrites a `.osoji/facts/<source>.facts.json` file under `temp_dir`. Base schema includes `source`, `source_hash`, `imports`, `exports`, `calls`, `string_literals` — all overridable via `**facts`. Used by every test to set up `FactsDB` state without needing a real LLM analysis pass.\n\n**`_make_config(tmp_path)`** (L37–38)  \nReturns `Config(root_path=tmp_path)`. Minimal config for instantiating `FactsDB` in tests.\n\n---\n\n### Test Class Overview\n\n#### `TestRatioAlgorithm` (L43–136) — `StringContractChecker.check()` core algorithm\nTests the ratio-based violation detection logic:\n- **Zero-match rule** (L44–57): If 0 out of N checked strings are produced anywhere, the entire set is skipped (assumed external contract). Applies at all set sizes.\n- **Full match** (L59–79): All checked strings matched → no violations.\n- **Partial match** (L81–104): N checked strings, M matched → (N−M) violations with `confidence = M/N`. Here 1/4 match → 3 violations each with `confidence=0.25`.\n- **Test file exclusion** (L119–136): Checked strings in `tests/` files are excluded from violation detection entirely. Test files with unmatched strings do not produce violations.\n\nKey assertion patterns:\n```python\nflagged = {v.evidence[\"value\"] for v in violations}\nv.confidence == 0.25\n```\n\n#### `TestComparisonSource` (L139–249) — Per-string `comparison_source` filtering\nTests how the `comparison_source` field"
+          },
+          "scan_scope": {
+            "files_scanned": 354,
+            "needles": [
+              "String"
+            ]
+          },
+          "export_surface": {
+            "symbol": "String",
+            "exported_from_flagged_file": false
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/llm/google.py",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: \"\"\"Google Gemini provider using the google-genai SDK directly.\"\"\"\n2: \n3: from __future__ import annotations\n4: \n5: import os\n6: from typing import Any\n7: \n8: from google import genai\n9: from google.genai import types as genai_types\n10: \n11: from ._provider_base import DirectProvider, _ParsedResponse",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "1a747eb00baa3c93",
+    "verdict": "dismissed",
+    "confidence": 1,
+    "triage_reasoning": "This claim was definitively dismissed in a prior triage run with confidence 1.0 and detailed reasoning that remains accurate. The string 'tool_result' has two identified producers: (1) src/osoji/llm/_provider_base.py:495 — _build_retry_messages() emits {\"type\": \"tool_result\", ...} blocks when response_format == 'anthropic', which Google's _parse_sdk_response returns; (2) src/osoji/triage.py:397 — independently produces tool_result blocks when feeding tool call results back to the LLM. The consumer src/osoji/llm/google.py:170 (_raw_messages_to_contents()) checks btype == 'tool_result' to convert blocks to genai_types.FunctionResponse. The producer↔consumer contract is fully intact within the project. Reality predicate fails — no gap exists.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "c9b39efb54f9cd35"
+  },
+  "trace": null
+}

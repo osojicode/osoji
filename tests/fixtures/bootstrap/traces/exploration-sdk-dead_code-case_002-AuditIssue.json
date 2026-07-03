@@ -1,0 +1,70 @@
+{
+  "slug": "dead_code-case_002-AuditIssue",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/audit.py",
+    "line_start": 19,
+    "line_end": 29,
+    "symbol": "AuditIssue",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `AuditIssue` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "No other file imports `AuditIssue` directly, so an external-reference scan reported zero references; all of its uses are within audit.py itself.",
+    "evidence": [],
+    "id": "39a2d6867489cf67",
+    "verdict": "dismissed",
+    "confidence": 0.99,
+    "triage_reasoning": "The claim rests on the observation that no external file imports `AuditIssue` by name. That is true: `cli.py` imports only `run_audit`, `format_audit_report`, and `format_audit_json` from `audit.py`. However, \"no direct external import\" does not equal \"dead code\" — transitive liveness must be accounted for.\n\nWithin `audit.py` itself:\n1. `AuditIssue` is the element type of `AuditResult.issues: list[AuditIssue]` (line 36) — a structural dependency, not merely a comment or string.\n2. It is instantiated six times (lines 133, 151, 162, 209, 234, 277) inside the body of `run_audit`, which IS imported and called externally.\n3. `AuditResult` (the container) is what callers receive; every `AuditIssue` instance inside it is reachable at runtime whenever `run_audit()` executes.\n\n`AuditIssue` is a live internal implementation detail of the module — analogous to a private helper class that is used inside a public function. The absence of an explicit external `import AuditIssue` is expected design, not dead code. All three triage predicates fail for the \"dead\" classification: the gap does not exist in reality, there is nothing harmful to close, and there is nothing to fix.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "39a2d6867489cf67",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "AuditIssue"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "AuditIssue",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "grep",
+        "input": {
+          "pattern": "from.*audit.*import|import.*audit"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/audit.py",
+          "start": 19,
+          "end": 45
+        }
+      },
+      {
+        "turn": 4,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 0.99,
+          "reasoning": "The claim rests on the observation that no external file imports `AuditIssue` by name. That is true: `cli.py` imports only `run_audit`, `format_audit_report`, and `format_audit_json` from `audit.py`. However, \"no direct external import\" does not equal \"dead code\" — transitive liveness must be accounted for.\n\nWithin `audit.py` itself:\n1. `AuditIssue` is the element type of `AuditResult.issues: list[AuditIssue]` (line 36) — a structural dependency, not merely a comment or string.\n2. It is instantiated six times (lines 133, 151, 162, 209, 234, 277) inside the body of `run_audit`, which IS imported and called externally.\n3. `AuditResult` (the container) is what callers receive; every `AuditIssue` instance inside it is reachable at runtime whenever `run_audit()` executes.\n\n`AuditIssue` is a live internal implementation detail of the module — analogous to a private helper class that is used inside a public function. The absence of an explicit external `import AuditIssue` is expected design, not dead code. All three triage predicates fail for the \"dead\" classification: the gap does not exist in reality, there is nothing harmful to close, and there is nothing to fix."
+        }
+      }
+    ],
+    "cost_usd": 0.092845
+  }
+}

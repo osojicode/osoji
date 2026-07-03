@@ -22,13 +22,18 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:  # pragma: no cover - typing only, avoids circular import
+    from .evidence_builders import BuildContext
     from .findings import Finding
 
 
 # The closed set of evidence kinds. Like every closed-set taxonomy in osoji this
-# is a falsifiable engineering claim; unlike gap_type it has no ``other`` outlet
-# yet because evidence kinds are produced by us (the Claim Builder), not
-# classified from the wild. Revisit if V1-4 builders need a kind not listed here.
+# is a falsifiable engineering claim; it has no ``other`` outlet because evidence
+# kinds are produced by us (the Claim Builder), not classified from the wild —
+# the outlet discipline instead lives in the trace-mining taxonomies that derive
+# this set (scripts/mine_traces.py). ``surrounding_code`` and ``declared_intent``
+# were added in V1-4 from the Phase B exploration traces
+# (tests/fixtures/bootstrap/mining/mining-report.md); adding a kind is a
+# claim-builder schema version bump (claim_builder.CLAIM_BUILDER_SCHEMA_VERSION).
 EvidenceKind = Literal[
     "ast_fact",
     "cross_file_reference",
@@ -36,6 +41,8 @@ EvidenceKind = Literal[
     "scanner_metadata",
     "git_blame",
     "type_signature",
+    "surrounding_code",
+    "declared_intent",
 ]
 
 EVIDENCE_KINDS: tuple[EvidenceKind, ...] = (
@@ -45,6 +52,8 @@ EVIDENCE_KINDS: tuple[EvidenceKind, ...] = (
     "scanner_metadata",
     "git_blame",
     "type_signature",
+    "surrounding_code",
+    "declared_intent",
 )
 
 
@@ -87,32 +96,37 @@ class Evidence:
         )
 
 
-# --- Builder skeleton (concrete builders land in V1-4) ---------------------
+# --- Builder contract -------------------------------------------------------
 #
 # An EvidenceBuilder turns a propose-time Finding into zero or more Evidence
 # objects (e.g. by querying FactsDB.cross_file_references or loading shadow
-# docs). V1-2 reserves the contract and an empty registry; no builders are
-# implemented yet. Keep this skeleton tiny.
+# docs). Concrete builders live in :mod:`osoji.evidence_builders` (V1-4), which
+# populates :data:`BUILDERS` at import; this module stays import-light because
+# ``findings.py`` imports from it.
 
 
 class EvidenceBuilder(ABC):
     """Assembles :class:`Evidence` for a Finding before Triage.
 
-    Concrete builders are added in V1-4 (the Claim Builder bootstrap). They are
-    registered in :data:`BUILDERS` keyed by the :data:`EvidenceKind` they
-    produce, so the Claim Builder schema can be a configuration object (a list
-    of kinds to invoke) rather than hardcoded logic — see
-    ``osojicode/wiki`` ``concepts/self-sufficient-claims.md``.
+    Builders are registered in :data:`BUILDERS` keyed by the
+    :data:`EvidenceKind` they produce, so the Claim Builder schema can be a
+    configuration object (a list of kinds to invoke) rather than hardcoded
+    logic — see ``osojicode/wiki`` ``concepts/self-sufficient-claims.md``.
+
+    Builders gather *positional* evidence only (where the artifact lives, what
+    surrounds it, who references it) and never raise: a builder that cannot
+    gather returns ``[]``; sufficiency is the schema layer's concern.
     """
 
     #: The evidence kind this builder produces.
     kind: EvidenceKind
 
     @abstractmethod
-    def build(self, finding: "Finding") -> list[Evidence]:
+    def build(self, finding: "Finding", ctx: "BuildContext") -> list[Evidence]:
         """Return evidence of ``self.kind`` for ``finding`` (may be empty)."""
         ...
 
 
-#: Registry of evidence builders, keyed by kind. Populated in V1-4.
+#: Registry of evidence builders, keyed by kind. Populated by
+#: :mod:`osoji.evidence_builders` at import time.
 BUILDERS: dict[EvidenceKind, EvidenceBuilder] = {}

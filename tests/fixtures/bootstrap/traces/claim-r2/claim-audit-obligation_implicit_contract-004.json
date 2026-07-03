@@ -1,0 +1,381 @@
+{
+  "slug": "audit-obligation_implicit_contract-004",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "tests/test_junk_orphan.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "2 implicit contracts between src/osoji/junk_orphan.py and tests/test_junk_orphan.py: \"orphaned-files\", \"orphaned_files\"",
+    "observed_behavior": "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "CHANGELOG.md",
+              "kind": "text_match",
+              "line": 15,
+              "context": "  accuracy validation, and code debris detection\n- Optional audit phases: `--dead-code`, `--dead-params`, `--dead-plumbing`,\n  `--dead-deps`, `--dead-cicd`, `--orphaned-files` (or `--junk` for all)\n- `--obligations` — cross-file implicit string contract detection\n- `--doc-prompts` — concept-centric documentation coverage and writing prompts",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_junk_orphan.py",
+              "kind": "text_match",
+              "line": 378,
+              "context": "        analyzer = OrphanedFilesAnalyzer()\n        assert analyzer.name == \"orphaned_files\"\n        assert analyzer.cli_flag == \"orphaned-files\"\n        assert \"orphan\" in analyzer.description.lower()\n",
+              "needle": "orphaned-files",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_scorecard.py",
+              "kind": "text_match",
+              "line": 807,
+              "context": "        assert \"`--dead-deps`\" in text\n        assert \"`--dead-cicd`\" in text\n        assert \"`--orphaned-files`\" in text\n\n    def test_partial_phases_lists_only_missing(self):",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_scorecard.py",
+              "kind": "text_match",
+              "line": 824,
+              "context": "        assert \"`--dead-deps`\" in text\n        assert \"`--dead-cicd`\" in text\n        assert \"`--orphaned-files`\" in text",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 158,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"2 implicit contracts between src/osoji/junk_orphan.py and tests/test_junk_orphan.py: \\\"orphaned-files\\\", \\\"orphaned_files\\\"\",\n        \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n        \"evidence\": [],",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 700,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"2 implicit contracts between src/osoji/junk_orphan.py and tests/test_junk_orphan.py: \\\"orphaned-files\\\", \\\"orphaned_files\\\"\",\n        \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n        \"evidence\": [],",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-004.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"2 implicit contracts between src/osoji/junk_orphan.py and tests/test_junk_orphan.py: \\\"orphaned-files\\\", \\\"orphaned_files\\\"\",\n    \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n    \"evidence\": [],",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-004.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"dismissed\",\n    \"confidence\": 0.95,\n    \"triage_reasoning\": \"**Reality — the literals exist, but the framing misidentifies the contract.**\\n\\n`junk_orphan.py` defines both strings as property return values:\\n- `return \\\"orphaned_files\\\"` (`.name`)\\n- `return \\\"orphaned-files\\\"` (`.cli_flag`)\\n\\n`test_junk_orphan.py` pins them in two assertions:\\n- `assert analyzer.name == \\\"orphaned_files\\\"`\\n- `assert analyzer.cli_flag == \\\"orphaned-files\\\"`\\n\\nThe bare literals do appear in both files. However, the \\\"implicit contract\\\" characterisation is misleading: one file is the *producer* (src property), the other is the *consumer/verifier* (test assertion). That relationship is intentional — it is exactly how property-value unit tests work.\\n\\n**Significance — the claimed harm (silent mismatch) does not materialise.**\\n\\nThe audit suggests \\\"a rename triggers an import error instead of a silent mismatch\\\". But the current arrangement already causes a *loud* failure: if either property is renamed in `junk_orphan.py`, `TestOrphanedFilesAnalyzer.test_analyzer_properties` fails immediately at test-run time. There is no silent mismatch path. An import-time constant would only move the failure a few milliseconds earlier; it would not prevent any real regression.\\n\\n**Broader pattern — this is the established convention across all 6 analyzers.**\\n\\nEvery other analyzer follows the same structure: `dead_code`/`dead-code` in `deadcode.py` + test in `test_junk.py`, `dead_params`/`dead-params` in `deadparam.py` + test in `test_deadparam.py`, etc. None use shared constants. Extracting constants for `orphaned_files`/`orphaned-files` alone would be inconsistent; extracting for all 6 is a style refactor with no correctness benefit.\\n\\n**Cross-file risk that IS real, but is a different finding.**\\n\\n`audit.py:217` independently hardcodes `flags.add(\\\"orphaned-files\\\")` — a string that must match `OrphanedFilesAnalyzer.cli_flag`. That cross-component use (orchestrator ↔ analyzer) is a genuine unnamed obligation that could drift silently. But that pair is not what this finding targets; this finding names `junk_orphan.py ↔ test_junk_orphan.py`.\\n\\n**Bootstrap manifest confirms previous dismissal.**\\n\\nPrior adjudication note: \\\"Producer attribution wrong: orphaned_files defined in src (junk_orphan.py name property); both tests independently pin the src value; no test↔test contract.\\\" Same reasoning, same conclusion.\\n\\n**Actionability — technically possible but not justified.**\\n\\nA fix is mechanically possible (extract constants), but because there is no silent-mismatch risk and the fix is style-only, the Significance predicate fails. All three predicates must hold; Significance does not.\",\n    \"suggested_fix\": null,\n    \"severity\": null,",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-004.json",
+              "kind": "text_match",
+              "line": 109,
+              "context": "          \"verdict\": \"dismissed\",\n          \"confidence\": 0.95,\n          \"reasoning\": \"**Reality — the literals exist, but the framing misidentifies the contract.**\\n\\n`junk_orphan.py` defines both strings as property return values:\\n- `return \\\"orphaned_files\\\"` (`.name`)\\n- `return \\\"orphaned-files\\\"` (`.cli_flag`)\\n\\n`test_junk_orphan.py` pins them in two assertions:\\n- `assert analyzer.name == \\\"orphaned_files\\\"`\\n- `assert analyzer.cli_flag == \\\"orphaned-files\\\"`\\n\\nThe bare literals do appear in both files. However, the \\\"implicit contract\\\" characterisation is misleading: one file is the *producer* (src property), the other is the *consumer/verifier* (test assertion). That relationship is intentional — it is exactly how property-value unit tests work.\\n\\n**Significance — the claimed harm (silent mismatch) does not materialise.**\\n\\nThe audit suggests \\\"a rename triggers an import error instead of a silent mismatch\\\". But the current arrangement already causes a *loud* failure: if either property is renamed in `junk_orphan.py`, `TestOrphanedFilesAnalyzer.test_analyzer_properties` fails immediately at test-run time. There is no silent mismatch path. An import-time constant would only move the failure a few milliseconds earlier; it would not prevent any real regression.\\n\\n**Broader pattern — this is the established convention across all 6 analyzers.**\\n\\nEvery other analyzer follows the same structure: `dead_code`/`dead-code` in `deadcode.py` + test in `test_junk.py`, `dead_params`/`dead-params` in `deadparam.py` + test in `test_deadparam.py`, etc. None use shared constants. Extracting constants for `orphaned_files`/`orphaned-files` alone would be inconsistent; extracting for all 6 is a style refactor with no correctness benefit.\\n\\n**Cross-file risk that IS real, but is a different finding.**\\n\\n`audit.py:217` independently hardcodes `flags.add(\\\"orphaned-files\\\")` — a string that must match `OrphanedFilesAnalyzer.cli_flag`. That cross-component use (orchestrator ↔ analyzer) is a genuine unnamed obligation that could drift silently. But that pair is not what this finding targets; this finding names `junk_orphan.py ↔ test_junk_orphan.py`.\\n\\n**Bootstrap manifest confirms previous dismissal.**\\n\\nPrior adjudication note: \\\"Producer attribution wrong: orphaned_files defined in src (junk_orphan.py name property); both tests independently pin the src value; no test↔test contract.\\\" Same reasoning, same conclusion.\\n\\n**Actionability — technically possible but not justified.**\\n\\nA fix is mechanically possible (extract constants), but because there is no silent-mismatch risk and the fix is style-only, the Significance predicate fails. All three predicates must hold; Significance does not.\"\n        }\n      }",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 697,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 15,\n              \"context\": \"  accuracy validation, and code debris detection\\n- Optional audit phases: `--dead-code`, `--dead-params`, `--dead-plumbing`,\\n  `--dead-deps`, `--dead-cicd`, `--orphaned-files` (or `--junk` for all)\\n- `--obligations` — cross-file implicit string contract detection\\n- `--doc-prompts` — concept-centric documentation coverage and writing prompts\",\n              \"needle\": \"or\",\n              \"source\": \"text_scan\"",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_implicit_contract-000.json",
+              "kind": "text_match",
+              "line": 25,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 16,\n              \"context\": \"- Optional audit phases: `--dead-code`, `--dead-params`, `--dead-plumbing`,\\n  `--dead-deps`, `--dead-cicd`, `--orphaned-files` (or `--junk` for all)\\n- `--obligations` — cross-file implicit string contract detection\\n- `--doc-prompts` — concept-centric documentation coverage and writing prompts\\n- `--full` — run all optional phases at once\",\n              \"needle\": \"implicit\",\n              \"source\": \"text_scan\"",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_implicit_contract-001.json",
+              "kind": "text_match",
+              "line": 25,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 16,\n              \"context\": \"- Optional audit phases: `--dead-code`, `--dead-params`, `--dead-plumbing`,\\n  `--dead-deps`, `--dead-cicd`, `--orphaned-files` (or `--junk` for all)\\n- `--obligations` — cross-file implicit string contract detection\\n- `--doc-prompts` — concept-centric documentation coverage and writing prompts\\n- `--full` — run all optional phases at once\",\n              \"needle\": \"implicit\",\n              \"source\": \"text_scan\"",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 25,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 16,\n              \"context\": \"- Optional audit phases: `--dead-code`, `--dead-params`, `--dead-plumbing`,\\n  `--dead-deps`, `--dead-cicd`, `--orphaned-files` (or `--junk` for all)\\n- `--obligations` — cross-file implicit string contract detection\\n- `--doc-prompts` — concept-centric documentation coverage and writing prompts\\n- `--full` — run all optional phases at once\",\n              \"needle\": \"implicit\",\n              \"source\": \"text_scan\"",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_implicit_contract-003.json",
+              "kind": "text_match",
+              "line": 25,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 16,\n              \"context\": \"- Optional audit phases: `--dead-code`, `--dead-params`, `--dead-plumbing`,\\n  `--dead-deps`, `--dead-cicd`, `--orphaned-files` (or `--junk` for all)\\n- `--obligations` — cross-file implicit string contract detection\\n- `--doc-prompts` — concept-centric documentation coverage and writing prompts\\n- `--full` — run all optional phases at once\",\n              \"needle\": \"implicit\",\n              \"source\": \"text_scan\"",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_implicit_contract-004.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"2 implicit contracts between src/osoji/junk_orphan.py and tests/test_junk_orphan.py: \\\"orphaned-files\\\", \\\"orphaned_files\\\"\",\n    \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n    \"evidence\": [",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_implicit_contract-004.json",
+              "kind": "text_match",
+              "line": 25,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 16,\n              \"context\": \"- Optional audit phases: `--dead-code`, `--dead-params`, `--dead-plumbing`,\\n  `--dead-deps`, `--dead-cicd`, `--orphaned-files` (or `--junk` for all)\\n- `--obligations` — cross-file implicit string contract detection\\n- `--doc-prompts` — concept-centric documentation coverage and writing prompts\\n- `--full` — run all optional phases at once\",\n              \"needle\": \"implicit\",\n              \"source\": \"text_scan\"",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_implicit_contract-005.json",
+              "kind": "text_match",
+              "line": 25,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 16,\n              \"context\": \"- Optional audit phases: `--dead-code`, `--dead-params`, `--dead-plumbing`,\\n  `--dead-deps`, `--dead-cicd`, `--orphaned-files` (or `--junk` for all)\\n- `--obligations` — cross-file implicit string contract detection\\n- `--doc-prompts` — concept-centric documentation coverage and writing prompts\\n- `--full` — run all optional phases at once\",\n              \"needle\": \"implicit\",\n              \"source\": \"text_scan\"",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 697,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 15,\n              \"context\": \"  accuracy validation, and code debris detection\\n- Optional audit phases: `--dead-code`, `--dead-params`, `--dead-plumbing`,\\n  `--dead-deps`, `--dead-cicd`, `--orphaned-files` (or `--junk` for all)\\n- `--obligations` — cross-file implicit string contract detection\\n- `--doc-prompts` — concept-centric documentation coverage and writing prompts\",\n              \"needle\": \"or\",\n              \"source\": \"text_scan\"",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-obligation_implicit_contract-000.json",
+              "kind": "text_match",
+              "line": 25,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 16,\n              \"context\": \"- Optional audit phases: `--dead-code`, `--dead-params`, `--dead-plumbing`,\\n  `--dead-deps`, `--dead-cicd`, `--orphaned-files` (or `--junk` for all)\\n- `--obligations` — cross-file implicit string contract detection\\n- `--doc-prompts` — concept-centric documentation coverage and writing prompts\\n- `--full` — run all optional phases at once\",\n              \"needle\": \"implicit\",\n              \"source\": \"text_scan\"",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-obligation_implicit_contract-001.json",
+              "kind": "text_match",
+              "line": 25,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 16,\n              \"context\": \"- Optional audit phases: `--dead-code`, `--dead-params`, `--dead-plumbing`,\\n  `--dead-deps`, `--dead-cicd`, `--orphaned-files` (or `--junk` for all)\\n- `--obligations` — cross-file implicit string contract detection\\n- `--doc-prompts` — concept-centric documentation coverage and writing prompts\\n- `--full` — run all optional phases at once\",\n              \"needle\": \"implicit\",\n              \"source\": \"text_scan\"",
+              "needle": "orphaned-files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_junk_orphan.py",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    _load_signatures,\n    _verify_orphans_batch_async,\n    detect_orphaned_files_async,\n    find_orphans,\n)",
+              "needle": "orphaned_files",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_junk_orphan.py",
+              "kind": "text_match",
+              "line": 377,
+              "context": "    def test_analyzer_properties(self):\n        analyzer = OrphanedFilesAnalyzer()\n        assert analyzer.name == \"orphaned_files\"\n        assert analyzer.cli_flag == \"orphaned-files\"\n        assert \"orphan\" in analyzer.description.lower()",
+              "needle": "orphaned_files",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_junk_orphan.py",
+              "kind": "text_match",
+              "line": 389,
+              "context": "        config = Config(root_path=temp_dir, respect_gitignore=False)\n        mock_provider = AsyncMock()\n        results, total = await detect_orphaned_files_async(mock_provider, config)\n        assert results == []\n        assert total == 0",
+              "needle": "orphaned_files",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_scorecard.py",
+              "kind": "text_match",
+              "line": 784,
+              "context": "\n    ALL_ANALYZER_NAMES = [\n        \"dead_code\", \"dead_params\", \"dead_plumbing\", \"dead_deps\", \"dead_cicd\", \"orphaned_files\",\n    ]\n",
+              "needle": "orphaned_files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 144,
+              "context": "      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"dismissed\",\n      \"adjudication_notes\": \"[carried from audit-obligation_implicit_contract-005 r1] Producer attribution wrong: orphaned_files defined in src (junk_orphan.py name property); both tests independently pin the src value; no test↔test contract.\",\n      \"evidence_consulted\": [\n        \"grep literal across repo\",",
+              "needle": "orphaned_files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 158,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"2 implicit contracts between src/osoji/junk_orphan.py and tests/test_junk_orphan.py: \\\"orphaned-files\\\", \\\"orphaned_files\\\"\",\n        \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n        \"evidence\": [],",
+              "needle": "orphaned_files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 686,
+              "context": "      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"dismissed\",\n      \"adjudication_notes\": \"[carried from audit-obligation_implicit_contract-005 r1] Producer attribution wrong: orphaned_files defined in src (junk_orphan.py name property); both tests independently pin the src value; no test↔test contract.\",\n      \"evidence_consulted\": [\n        \"grep literal across repo\",",
+              "needle": "orphaned_files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 700,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"2 implicit contracts between src/osoji/junk_orphan.py and tests/test_junk_orphan.py: \\\"orphaned-files\\\", \\\"orphaned_files\\\"\",\n        \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n        \"evidence\": [],",
+              "needle": "orphaned_files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 1813,
+              "context": "          \"turn\": 4,\n          \"name\": \"grep\",\n          \"pattern\": \"ORPHANED|orphaned_files\\\\s*=\\\\s*['\\\\\\\"]\",\n          \"shape\": \"regex\",\n          \"breadth\": \"scoped\",",
+              "needle": "orphaned_files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-004.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"2 implicit contracts between src/osoji/junk_orphan.py and tests/test_junk_orphan.py: \\\"orphaned-files\\\", \\\"orphaned_files\\\"\",\n    \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n    \"evidence\": [],",
+              "needle": "orphaned_files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-004.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"dismissed\",\n    \"confidence\": 0.95,\n    \"triage_reasoning\": \"**Reality — the literals exist, but the framing misidentifies the contract.**\\n\\n`junk_orphan.py` defines both strings as property return values:\\n- `return \\\"orphaned_files\\\"` (`.name`)\\n- `return \\\"orphaned-files\\\"` (`.cli_flag`)\\n\\n`test_junk_orphan.py` pins them in two assertions:\\n- `assert analyzer.name == \\\"orphaned_files\\\"`\\n- `assert analyzer.cli_flag == \\\"orphaned-files\\\"`\\n\\nThe bare literals do appear in both files. However, the \\\"implicit contract\\\" characterisation is misleading: one file is the *producer* (src property), the other is the *consumer/verifier* (test assertion). That relationship is intentional — it is exactly how property-value unit tests work.\\n\\n**Significance — the claimed harm (silent mismatch) does not materialise.**\\n\\nThe audit suggests \\\"a rename triggers an import error instead of a silent mismatch\\\". But the current arrangement already causes a *loud* failure: if either property is renamed in `junk_orphan.py`, `TestOrphanedFilesAnalyzer.test_analyzer_properties` fails immediately at test-run time. There is no silent mismatch path. An import-time constant would only move the failure a few milliseconds earlier; it would not prevent any real regression.\\n\\n**Broader pattern — this is the established convention across all 6 analyzers.**\\n\\nEvery other analyzer follows the same structure: `dead_code`/`dead-code` in `deadcode.py` + test in `test_junk.py`, `dead_params`/`dead-params` in `deadparam.py` + test in `test_deadparam.py`, etc. None use shared constants. Extracting constants for `orphaned_files`/`orphaned-files` alone would be inconsistent; extracting for all 6 is a style refactor with no correctness benefit.\\n\\n**Cross-file risk that IS real, but is a different finding.**\\n\\n`audit.py:217` independently hardcodes `flags.add(\\\"orphaned-files\\\")` — a string that must match `OrphanedFilesAnalyzer.cli_flag`. That cross-component use (orchestrator ↔ analyzer) is a genuine unnamed obligation that could drift silently. But that pair is not what this finding targets; this finding names `junk_orphan.py ↔ test_junk_orphan.py`.\\n\\n**Bootstrap manifest confirms previous dismissal.**\\n\\nPrior adjudication note: \\\"Producer attribution wrong: orphaned_files defined in src (junk_orphan.py name property); both tests independently pin the src value; no test↔test contract.\\\" Same reasoning, same conclusion.\\n\\n**Actionability — technically possible but not justified.**\\n\\nA fix is mechanically possible (extract constants), but because there is no silent-mismatch risk and the fix is style-only, the Significance predicate fails. All three predicates must hold; Significance does not.\",\n    \"suggested_fix\": null,\n    \"severity\": null,",
+              "needle": "orphaned_files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-004.json",
+              "kind": "text_match",
+              "line": 65,
+              "context": "        \"name\": \"grep\",\n        \"input\": {\n          \"pattern\": \"ORPHANED|orphaned_files\\\\s*=\\\\s*['\\\\\\\"]\",\n          \"glob\": \"src/osoji/*.py\"\n        }",
+              "needle": "orphaned_files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-004.json",
+              "kind": "text_match",
+              "line": 109,
+              "context": "          \"verdict\": \"dismissed\",\n          \"confidence\": 0.95,\n          \"reasoning\": \"**Reality — the literals exist, but the framing misidentifies the contract.**\\n\\n`junk_orphan.py` defines both strings as property return values:\\n- `return \\\"orphaned_files\\\"` (`.name`)\\n- `return \\\"orphaned-files\\\"` (`.cli_flag`)\\n\\n`test_junk_orphan.py` pins them in two assertions:\\n- `assert analyzer.name == \\\"orphaned_files\\\"`\\n- `assert analyzer.cli_flag == \\\"orphaned-files\\\"`\\n\\nThe bare literals do appear in both files. However, the \\\"implicit contract\\\" characterisation is misleading: one file is the *producer* (src property), the other is the *consumer/verifier* (test assertion). That relationship is intentional — it is exactly how property-value unit tests work.\\n\\n**Significance — the claimed harm (silent mismatch) does not materialise.**\\n\\nThe audit suggests \\\"a rename triggers an import error instead of a silent mismatch\\\". But the current arrangement already causes a *loud* failure: if either property is renamed in `junk_orphan.py`, `TestOrphanedFilesAnalyzer.test_analyzer_properties` fails immediately at test-run time. There is no silent mismatch path. An import-time constant would only move the failure a few milliseconds earlier; it would not prevent any real regression.\\n\\n**Broader pattern — this is the established convention across all 6 analyzers.**\\n\\nEvery other analyzer follows the same structure: `dead_code`/`dead-code` in `deadcode.py` + test in `test_junk.py`, `dead_params`/`dead-params` in `deadparam.py` + test in `test_deadparam.py`, etc. None use shared constants. Extracting constants for `orphaned_files`/`orphaned-files` alone would be inconsistent; extracting for all 6 is a style refactor with no correctness benefit.\\n\\n**Cross-file risk that IS real, but is a different finding.**\\n\\n`audit.py:217` independently hardcodes `flags.add(\\\"orphaned-files\\\")` — a string that must match `OrphanedFilesAnalyzer.cli_flag`. That cross-component use (orchestrator ↔ analyzer) is a genuine unnamed obligation that could drift silently. But that pair is not what this finding targets; this finding names `junk_orphan.py ↔ test_junk_orphan.py`.\\n\\n**Bootstrap manifest confirms previous dismissal.**\\n\\nPrior adjudication note: \\\"Producer attribution wrong: orphaned_files defined in src (junk_orphan.py name property); both tests independently pin the src value; no test↔test contract.\\\" Same reasoning, same conclusion.\\n\\n**Actionability — technically possible but not justified.**\\n\\nA fix is mechanically possible (extract constants), but because there is no silent-mismatch risk and the fix is style-only, the Significance predicate fails. All three predicates must hold; Significance does not.\"\n        }\n      }",
+              "needle": "orphaned_files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_implicit_contract-004.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"2 implicit contracts between src/osoji/junk_orphan.py and tests/test_junk_orphan.py: \\\"orphaned-files\\\", \\\"orphaned_files\\\"\",\n    \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n    \"evidence\": [",
+              "needle": "orphaned_files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-obligation_implicit_contract-004.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"2 implicit contracts between src/osoji/junk_orphan.py and tests/test_junk_orphan.py: \\\"orphaned-files\\\", \\\"orphaned_files\\\"\",\n    \"observed_behavior\": \"Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch\",\n    \"evidence\": [",
+              "needle": "orphaned_files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-obligation_implicit_contract-004.json",
+              "kind": "text_match",
+              "line": 210,
+              "context": "    \"verdict\": \"confirmed\",\n    \"confidence\": 0.75,\n    \"triage_reasoning\": \"The strings 'orphaned-files' (cli_flag) and 'orphaned_files' (category/name) are internal project identifiers shared between src/osoji/junk_orphan.py and tests/test_junk_orphan.py. Parallel evidence from the shadow docs for test_junk_cicd.py and test_junk_deps.py confirms the pattern: both show assertions like `assert issubclass(OrphanedFilesAnalyzer, JunkAnalyzer)` and analyzer property checks (cli_flag, name). Analogously, test_junk_orphan.py almost certainly asserts `analyzer.cli_flag == 'orphaned-files'` and `analyzer.name == 'orphaned_files'` (or equivalent). These are unnamed project obligations: two sites share bare literals in clearly-related roles with no shared constant. A rename in the source would silently break the test at assertion time rather than at import time. Reality: the bare literals exist in both files. Significance: extracting constants converts a value-level runtime failure into a name-level load-time error. Actionability: define ORPHANED_FILES_NAME = 'orphaned_files' and ORPHANED_FILES_CLI_FLAG = 'orphaned-files' in junk_orphan.py and import them in the test.\",\n    \"suggested_fix\": \"Define module-level constants in src/osoji/junk_orphan.py (e.g. ORPHANED_FILES_CATEGORY = 'orphaned_files', ORPHANED_FILES_CLI_FLAG = 'orphaned-files') and import them in tests/test_junk_orphan.py so a rename triggers an ImportError rather than a silent test-assertion mismatch.\",\n    \"severity\": \"info\",",
+              "needle": "orphaned_files",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-obligation_implicit_contract-004.json",
+              "kind": "text_match",
+              "line": 211,
+              "context": "    \"confidence\": 0.75,\n    \"triage_reasoning\": \"The strings 'orphaned-files' (cli_flag) and 'orphaned_files' (category/name) are internal project identifiers shared between src/osoji/junk_orphan.py and tests/test_junk_orphan.py. Parallel evidence from the shadow docs for test_junk_cicd.py and test_junk_deps.py confirms the pattern: both show assertions like `assert issubclass(OrphanedFilesAnalyzer, JunkAnalyzer)` and analyzer property checks (cli_flag, name). Analogously, test_junk_orphan.py almost certainly asserts `analyzer.cli_flag == 'orphaned-files'` and `analyzer.name == 'orphaned_files'` (or equivalent). These are unnamed project obligations: two sites share bare literals in clearly-related roles with no shared constant. A rename in the source would silently break the test at assertion time rather than at import time. Reality: the bare literals exist in both files. Significance: extracting constants converts a value-level runtime failure into a name-level load-time error. Actionability: define ORPHANED_FILES_NAME = 'orphaned_files' and ORPHANED_FILES_CLI_FLAG = 'orphaned-files' in junk_orphan.py and import them in the test.\",\n    \"suggested_fix\": \"Define module-level constants in src/osoji/junk_orphan.py (e.g. ORPHANED_FILES_CATEGORY = 'orphaned_files', ORPHANED_FILES_CLI_FLAG = 'orphaned-files') and import them in tests/test_junk_orphan.py so a rename triggers an ImportError rather than a silent test-assertion mismatch.\",\n    \"severity\": \"info\",\n    \"evidence_fingerprint\": \"caa4388c743b9b39\"",
+              "needle": "orphaned_files",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 196,
+              "context": "    dead_deps: bool = False,\n    dead_cicd: bool = False,\n    orphaned_files: bool = False,\n    junk: bool = False,\n) -> set[str]:",
+              "needle": "orphaned_files",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 216,
+              "context": "    if dead_cicd:\n        flags.add(\"dead-cicd\")\n    if orphaned_files:\n        flags.add(\"orphaned-files\")\n    return flags",
+              "needle": "orphaned_files",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 255,
+              "context": "    dead_deps: bool = False,\n    dead_cicd: bool = False,\n    orphaned_files: bool = False,\n    junk: bool = False,\n    obligations: bool = False,",
+              "needle": "orphaned_files",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {
+            "tests/test_junk_orphan.py": "# tests\\test_junk_orphan.py\n@source-hash: cbd5a580d1b7a35e\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:26:36Z\n\n## Purpose\n\nTest suite for `osoji/junk_orphan.py` — orphaned file detection. Covers the full pipeline: import-edge graph construction, graph reachability (BFS/DFS), entry-point heuristics, LLM-backed entry-point identification, semantic relationship discovery, and LLM-based orphan verification. All async tests use `pytest-asyncio`.\n\n---\n\n## File Helpers (L27–42)\n\n### `_write_source(temp_dir, path, content)` (L27)\nWrites a Python source file under `temp_dir`. Creates parent directories. Used to seed realistic source trees for graph-construction tests.\n\n### `_write_signature(temp_dir, source_path, purpose, topics)` (L34)\nWrites a `.osoji/signatures/<source_path>.signature.json` file. Signature JSON has keys: `path`, `purpose`, `topics`. Used by `TestLoadSignatures` to simulate pre-computed shadow docs on disk.\n\n---\n\n## Test Classes\n\n### `TestBuildImportEdges` (L47–92)\nTests `_build_import_edges(all_symbols, config)`.\n\n| Test | Key assertion |\n|------|--------------|\n| `test_finds_cross_file_references` (L48) | `src/b.py ∈ adjacency[\"src/a.py\"]` when `a.py` imports `helper` defined in `b.py` |\n| `test_no_self_edges` (L63) | `src/a.py ∉ adjacency[\"src/a.py\"]` — function must not create reflexive edges |\n| `test_empty_symbols` (L75) | Returns `{}` for empty input |\n| `test_bidirectional_edges` (L80) | Mutual import creates edges in both directions |\n\nGraph is undirected (bidirectional): each detected cross-file reference inserts edges for both source and target.\n\n---\n\n### `TestFindOrphans` (L97–152)\nTests `find_orphans(adjacency, entry_points)` — graph reachability returning orphaned node list.\n\n| Test | Key assertion |\n|------|--------------|\n| `test_simple_graph` (L98) | `orphan.py` (no edges) not reachable from `a.py` |\n| `test_all_reachable` (L112) | Returns `[]` when all nodes reachable |\n| `test_all_orphaned` (L121) | All nodes returned when ent",
+            "tests/test_scorecard.py": "# tests\\test_scorecard.py\n@source-hash: 2c036cc7843b441c\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:25:29Z\n\n## Purpose\nPure-Python test suite for `osoji/scorecard.py` (`build_scorecard`, `merge_ranges`, `Scorecard`) and `osoji/audit._format_scorecard_section`. No LLM mocking required; all tests exercise deterministic tabulation logic against fixture files written to `temp_dir`.\n\n## File Helpers (L21–93)\n\nFive private fixture-construction helpers:\n- **`_write_shadow(temp_dir, source)`** (L21–26): Creates `.osoji/shadow/<source>.shadow.md` so the source path appears in the shadow inventory used by `build_scorecard`.\n- **`_write_source(temp_dir, path, content)`** (L29–33): Creates the actual source file so line counting works.\n- **`_write_signature(temp_dir, source, purpose, topics)`** (L36–48): Writes `.osoji/signatures/<source>.signature.json` with `path/kind/purpose/topics/public_surface` fields.\n- **`_write_findings(temp_dir, source, findings)`** (L51–66): Writes `.osoji/findings/<source>.findings.json`. Calls `compute_file_hash(source_path)` and `compute_impl_hash()` from `osoji.hasher` at write-time so hashes match the current file.\n- **`_make_analysis(path, classification, matched_shadows, findings, is_process_artifact, topic_sig)`** (L69–81): Builds a `DocAnalysisResult`; `is_process_artifact=True` forces `classification=\"process_artifact\"`.\n- **`_make_finding(category, severity)`** (L84–93): Builds a `DocFinding` with fixed description/shadow_ref/evidence/remediation.\n\n## Test Classes\n\n### `TestMergeRanges` (L98–118)\nTests the `merge_ranges` utility for interval merging: empty input, non-overlapping, overlapping, adjacent (treated as one), fully-contained, unsorted input, single range.\n\n### `TestCoverage` (L123–229)\nTests `sc.coverage_pct`, `sc.coverage_entries`, `sc.coverage_by_type`:\n- Full/partial/zero coverage by `matched_shadows` on `DocAnalysisResult`.\n- No source files → 0.0 with no division error.\n- **`process_artifact` docs excluded from c"
+          },
+          "scan_scope": {
+            "files_scanned": 409,
+            "needles": [
+              "orphaned-files",
+              "orphaned_files"
+            ],
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "tests/test_junk_orphan.py",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: \"\"\"Tests for orphaned file detection.\"\"\"\n2: \n3: import json\n4: from pathlib import Path\n5: from unittest.mock import AsyncMock\n6: \n7: import pytest\n8: \n9: from osoji.config import Config\n10: from osoji.junk_orphan import (\n11:     OrphanCandidate,",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "3eb640eb02fb522e",
+    "verdict": "dismissed",
+    "confidence": 0.95,
+    "triage_reasoning": "Reality — the bare literals exist in both files, but the framing misidentifies the relationship. `junk_orphan.py` is the producer (property return values `return \"orphaned_files\"` and `return \"orphaned-files\"`); `test_junk_orphan.py` is the consumer/verifier (unit-test assertions). That is the intended design for property-value tests.\n\nSignificance fails — the claimed harm (silent mismatch) cannot materialise. If either property is renamed in `junk_orphan.py`, `TestOrphanedFilesAnalyzer.test_analyzer_properties` fails immediately at test-run time. A shared constant would only move the failure a few milliseconds earlier; it prevents no real regression.\n\nBroader pattern — all 6 analyzers follow the same convention without shared constants. Extracting constants for this pair alone is inconsistent.\n\nThis verdict agrees with two prior adjudications (manifest-audit.json and exploration-sdk trace both dismissed at 0.95).",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "36db1fb2b3fde99f"
+  },
+  "trace": null
+}

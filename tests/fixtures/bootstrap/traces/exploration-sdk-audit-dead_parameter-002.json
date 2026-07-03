@@ -1,0 +1,90 @@
+{
+  "slug": "audit-dead_parameter-002",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:dead_parameter",
+    "gap_type": "reachability",
+    "path": "src/osoji/triage_exec.py",
+    "line_start": 40,
+    "line_end": 40,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L40: parameter `ExplorationExecutor.__init__.max_list_entries` — None of the 16 call sites pass `max_list_entries`. The production call site (triage.py:172) uses `ExplorationExecutor(config)` with no optional args, and all 14 test call sites either pass no optional args or pass only `max_file_bytes` or `max_grep_matches`. The parameter always takes its default value of 200.",
+    "observed_behavior": "Consider hardcoding 200 as a module-level constant (e.g. `_MAX_LIST_ENTRIES = 200`) and removing the constructor parameter, or leave it as a tunable but document that no caller currently overrides it. No conditional branches are exclusively gated by this parameter — `self.max_list_entries` is used as a loop cap threshold that always runs, not as a guard for an optional code path.",
+    "evidence": [],
+    "id": "e48fc447d6af8bf1",
+    "verdict": "confirmed",
+    "confidence": 0.95,
+    "triage_reasoning": "**Reality — confirmed.**\n\nGrep of all call sites for `ExplorationExecutor(` finds exactly 17 instantiation points:\n- 1 production site: `src/osoji/triage.py:172` → `ExplorationExecutor(config)` (no optional args)\n- 2 script sites: `scripts/triage_bootstrap.py:153,168` → no optional args\n- 14 test sites in `tests/test_triage_exec.py` — lines 33,39,46,53,60,74,93,99,105,112,119,126 pass nothing, line 66 passes only `max_file_bytes=20`, line 82 passes only `max_grep_matches=2`\n\nNone of the 17 call sites ever supply `max_list_entries`. The sibling parameters `max_file_bytes` and `max_grep_matches` *are* overridden (lines 66 and 82 respectively), confirming those are live tunables. `max_list_entries` is an orphaned third member of the trio.\n\nThe parameter is consumed at runtime (L172–173: loop-cap truncation of `list_dir`), so the *value* 200 is active; only the *constructor parameter interface* is dead — no caller ever diverges from the default.\n\n**Significance — confirmed.**\n\nA public constructor parameter implies external tunability. Readers must scan all call sites to determine no override exists. The presence of two live sibling params makes this one misleadingly resemble a live tunable. Removing it (or promoting 200 to a named constant) eliminates that API surface and makes the invariant explicit. The `list_dir` tests do not exercise the truncation boundary at all (`test_list_dir_lists_entries` uses a tiny fixture), so the parameter isn't even tested indirectly.\n\n**Actionability — confirmed.**\n\nConcrete fix: promote the magic number to a module-level constant `_MAX_LIST_ENTRIES = 200`, replace the parameter with a reference to that constant in `list_dir`, and delete the constructor parameter. This is a non-breaking internal refactor (no public consumers outside the repo pass this arg).",
+    "suggested_fix": "Add `_MAX_LIST_ENTRIES = 200` near the other module-level constants (beside `_SKIP_DIRS`). In `list_dir`, replace `self.max_list_entries` with `_MAX_LIST_ENTRIES`. Remove the `max_list_entries` keyword parameter from `__init__` and the corresponding `self.max_list_entries = max_list_entries` assignment. If the intent is to keep it configurable in the future, at minimum add a comment in the constructor: `# max_list_entries: no caller currently overrides the default of 200`.",
+    "severity": "info",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "e48fc447d6af8bf1",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/triage_exec.py",
+          "start": 30,
+          "end": 60
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "max_list_entries"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "grep",
+        "input": {
+          "pattern": "ExplorationExecutor\\("
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/triage_exec.py",
+          "start": 160,
+          "end": 185
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "list_dir|max_list",
+          "glob": "tests/**/*.py"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "read_file",
+        "input": {
+          "path": "tests/test_triage_exec.py",
+          "start": 104,
+          "end": 130
+        }
+      },
+      {
+        "turn": 6,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.95,
+          "severity": "info",
+          "reasoning": "**Reality — confirmed.**\n\nGrep of all call sites for `ExplorationExecutor(` finds exactly 17 instantiation points:\n- 1 production site: `src/osoji/triage.py:172` → `ExplorationExecutor(config)` (no optional args)\n- 2 script sites: `scripts/triage_bootstrap.py:153,168` → no optional args\n- 14 test sites in `tests/test_triage_exec.py` — lines 33,39,46,53,60,74,93,99,105,112,119,126 pass nothing, line 66 passes only `max_file_bytes=20`, line 82 passes only `max_grep_matches=2`\n\nNone of the 17 call sites ever supply `max_list_entries`. The sibling parameters `max_file_bytes` and `max_grep_matches` *are* overridden (lines 66 and 82 respectively), confirming those are live tunables. `max_list_entries` is an orphaned third member of the trio.\n\nThe parameter is consumed at runtime (L172–173: loop-cap truncation of `list_dir`), so the *value* 200 is active; only the *constructor parameter interface* is dead — no caller ever diverges from the default.\n\n**Significance — confirmed.**\n\nA public constructor parameter implies external tunability. Readers must scan all call sites to determine no override exists. The presence of two live sibling params makes this one misleadingly resemble a live tunable. Removing it (or promoting 200 to a named constant) eliminates that API surface and makes the invariant explicit. The `list_dir` tests do not exercise the truncation boundary at all (`test_list_dir_lists_entries` uses a tiny fixture), so the parameter isn't even tested indirectly.\n\n**Actionability — confirmed.**\n\nConcrete fix: promote the magic number to a module-level constant `_MAX_LIST_ENTRIES = 200`, replace the parameter with a reference to that constant in `list_dir`, and delete the constructor parameter. This is a non-breaking internal refactor (no public consumers outside the repo pass this arg).",
+          "suggested_fix": "Add `_MAX_LIST_ENTRIES = 200` near the other module-level constants (beside `_SKIP_DIRS`). In `list_dir`, replace `self.max_list_entries` with `_MAX_LIST_ENTRIES`. Remove the `max_list_entries` keyword parameter from `__init__` and the corresponding `self.max_list_entries = max_list_entries` assignment. If the intent is to keep it configurable in the future, at minimum add a comment in the constructor: `# max_list_entries: no caller currently overrides the default of 200`."
+        }
+      }
+    ],
+    "cost_usd": 0.169289
+  }
+}

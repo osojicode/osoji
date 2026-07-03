@@ -1,0 +1,50 @@
+{
+  "slug": "dead_code-case_002-AuditIssue",
+  "mode": "build",
+  "insufficient": false,
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/audit.py",
+    "line_start": 19,
+    "line_end": 29,
+    "symbol": "AuditIssue",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `AuditIssue` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "No other file imports `AuditIssue` directly, so an external-reference scan reported zero references; all of its uses are within audit.py itself.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 2,
+            "needles": [
+              "AuditIssue"
+            ]
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/audit.py",
+          "line_start": 10,
+          "line_end": 30,
+          "snippet": "10: from .rate_limiter import RateLimiter, get_config_with_overrides\n11: from .shadow import check_shadow_docs, generate_shadow_docs\n12: from .debris import analyze_docs\n13: from .deadcode import detect_dead_code\n14: from .plumbing import detect_dead_plumbing\n15: from .scorecard import Scorecard, build_scorecard\n16: from .walker import _matches_ignore\n17: \n18: \n19: @dataclass\n20: class AuditIssue:\n21:     \"\"\"A single audit finding.\"\"\"\n22: \n23:     path: Path\n24:     severity: str  # \"error\" or \"warning\"\n25:     category: str  # \"debris\", \"stale_shadow\", \"missing_shadow\"\n26:     message: str\n27:     remediation: str\n28:     line_start: int | None = None\n29:     line_end: int | None = None\n30: ",
+          "anchor": "symbol"
+        }
+      }
+    ],
+    "id": "39a2d6867489cf67",
+    "verdict": null,
+    "confidence": null,
+    "triage_reasoning": null,
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "a29b349c8099f493"
+  }
+}

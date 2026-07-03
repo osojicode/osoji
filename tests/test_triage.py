@@ -13,7 +13,7 @@ from osoji.config import Config
 from osoji.evidence import Evidence
 from osoji.findings import Finding
 from osoji.llm.types import CompletionResult, ToolCall
-from osoji.triage import Claim, Triage, TriageBatchResult
+from osoji.triage import Claim, Triage, TriageBatchResult, _render_evidence
 
 
 # --- helpers ---------------------------------------------------------------
@@ -164,6 +164,73 @@ async def test_claim_mode_uses_supplied_system_prompt(config):
     triage = Triage(config, provider=provider)
     await triage.decide_batch([Claim(make_finding())], mode="claim", system_prompt="CUSTOM-RUBRIC")
     assert provider.calls[0]["system"] == "CUSTOM-RUBRIC"
+
+
+# --- evidence rendering (V1-4 kinds) ----------------------------------------
+
+
+def test_render_surrounding_code_evidence():
+    ev = Evidence(
+        kind="surrounding_code",
+        payload={
+            "file": "src/x.py", "line_start": 5, "line_end": 20,
+            "snippet": "10: def old_helper():", "anchor": "symbol",
+            "enclosing_symbol": {"name": "Outer", "kind": "class",
+                                 "line_start": 1, "line_end": 40},
+        },
+    )
+    out = _render_evidence(ev)
+    assert not out.startswith("{")  # rendered, not the JSON-dump fallback
+    assert "src/x.py" in out
+    assert "def old_helper():" in out
+    assert "Outer" in out
+
+
+def test_render_declared_intent_evidence():
+    ev = Evidence(
+        kind="declared_intent",
+        payload={"file": "src/x.py",
+                 "blocks": [{"label": "preceding_lines", "line_start": 3,
+                             "text": "# NOTE: legacy shim"}]},
+    )
+    out = _render_evidence(ev)
+    assert not out.startswith("{")  # rendered, not the JSON-dump fallback
+    assert "NOTE: legacy shim" in out
+    assert "preceding" in out
+
+
+def test_render_zero_hit_scan_scope_states_absence():
+    # Evidence-of-absence must render as an explicit statement, not an empty list.
+    ev = Evidence(
+        kind="cross_file_reference",
+        payload={"references": [], "shadow_excerpts": {},
+                 "scan_scope": {"files_scanned": 312, "needles": ["old_helper"]}},
+    )
+    out = _render_evidence(ev)
+    assert "No references" in out
+    assert "312" in out
+    assert "old_helper" in out
+
+
+def test_render_export_surface():
+    ev = Evidence(
+        kind="cross_file_reference",
+        payload={"references": [], "shadow_excerpts": {},
+                 "scan_scope": {"files_scanned": 10, "needles": ["h"]},
+                 "export_surface": {"symbol": "h", "exported_from_flagged_file": True}},
+    )
+    out = _render_evidence(ev)
+    assert "export" in out.lower()
+
+
+def test_render_shadow_doc_excerpt_payload():
+    # V1-4 builder payload uses scope + excerpt (legacy 'content' still renders).
+    ev = Evidence(
+        kind="shadow_doc_claim",
+        payload={"file": "src/x.py", "scope": "file", "excerpt": "Purpose: helpers."},
+    )
+    out = _render_evidence(ev)
+    assert "Purpose: helpers." in out
 
 
 # --- exploration mode ------------------------------------------------------

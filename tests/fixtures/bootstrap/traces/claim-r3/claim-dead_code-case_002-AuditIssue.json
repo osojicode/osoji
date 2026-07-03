@@ -1,0 +1,128 @@
+{
+  "slug": "dead_code-case_002-AuditIssue",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/audit.py",
+    "line_start": 19,
+    "line_end": 29,
+    "symbol": "AuditIssue",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `AuditIssue` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "No other file imports `AuditIssue` directly, so an external-reference scan reported zero references; all of its uses are within audit.py itself.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 36,
+              "context": "    \"\"\"Complete audit result.\"\"\"\n\n    issues: list[AuditIssue] = field(default_factory=list)\n    scorecard: Scorecard | None = None\n",
+              "needle": "AuditIssue",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 107,
+              "context": "        verbose: If True, show detailed per-file progress and timing\n    \"\"\"\n    issues: list[AuditIssue] = []\n    progress_cb = _make_progress_verbose(config) if verbose else _make_progress_default(config)\n    osojiignore = config.load_osojiignore()",
+              "needle": "AuditIssue",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 133,
+              "context": "\n    for path, status in shadow_issues:\n        issues.append(AuditIssue(\n            path=path,\n            severity=\"warning\",  # Shadow issues are warnings (omission)",
+              "needle": "AuditIssue",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 151,
+              "context": "    for item in analysis_results:\n        if item.is_debris:\n            issues.append(AuditIssue(\n                path=item.path,\n                severity=\"error\",",
+              "needle": "AuditIssue",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 162,
+              "context": "            if finding.shadow_ref and finding.evidence:\n                evidence_tag = f\" [evidence: {finding.shadow_ref} — \\\"{finding.evidence}\\\"]\"\n            issues.append(AuditIssue(\n                path=item.path,\n                severity=finding.severity,",
+              "needle": "AuditIssue",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 209,
+              "context": "                    continue\n                for finding in data.get(\"findings\", []):\n                    issues.append(AuditIssue(\n                        path=source_path,\n                        severity=finding[\"severity\"],",
+              "needle": "AuditIssue",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 234,
+              "context": "            print(f\"  [{elapsed:.1f}s]\", flush=True)\n        for item in dead_code_results:\n            issues.append(AuditIssue(\n                path=Path(item.source_path),\n                severity=\"warning\",",
+              "needle": "AuditIssue",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 277,
+              "context": "            print(f\"  [{elapsed:.1f}s]\", flush=True)\n        for item in plumbing_result.verifications:\n            issues.append(AuditIssue(\n                path=Path(item.source_path),\n                severity=\"warning\",",
+              "needle": "AuditIssue",
+              "source": "text_scan",
+              "same_file": true
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 2,
+            "needles": [
+              "AuditIssue"
+            ],
+            "needle_totals": {
+              "AuditIssue": 8
+            },
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/audit.py",
+          "line_start": 10,
+          "line_end": 30,
+          "snippet": "10: from .rate_limiter import RateLimiter, get_config_with_overrides\n11: from .shadow import check_shadow_docs, generate_shadow_docs\n12: from .debris import analyze_docs\n13: from .deadcode import detect_dead_code\n14: from .plumbing import detect_dead_plumbing\n15: from .scorecard import Scorecard, build_scorecard\n16: from .walker import _matches_ignore\n17: \n18: \n19: @dataclass\n20: class AuditIssue:\n21:     \"\"\"A single audit finding.\"\"\"\n22: \n23:     path: Path\n24:     severity: str  # \"error\" or \"warning\"\n25:     category: str  # \"debris\", \"stale_shadow\", \"missing_shadow\"\n26:     message: str\n27:     remediation: str\n28:     line_start: int | None = None\n29:     line_end: int | None = None\n30: ",
+          "anchor": "symbol"
+        }
+      }
+    ],
+    "id": "39a2d6867489cf67",
+    "verdict": "dismissed",
+    "confidence": 0.97,
+    "triage_reasoning": "Reality gap does not exist. `AuditIssue` is used in 8 places inside `audit.py` itself — as the type annotation of the `issues` list in `AuditResult`, and in 6 `issues.append(AuditIssue(...))` call sites in `run_audit`. Internal usage within the declaring module is genuine liveness; the absence of cross-file imports does not make it dead. `AuditResult` (which holds `list[AuditIssue]`) is exported as the return type of public functions, transitively making `AuditIssue` reachable.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "6d6dc587a85ec88b"
+  },
+  "trace": null
+}

@@ -1,0 +1,108 @@
+{
+  "slug": "audit-latent_bug-001",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:latent_bug",
+    "gap_type": "uncategorized",
+    "path": "src/osoji/audit.py",
+    "line_start": 1031,
+    "line_end": 1031,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L1031-1031: `c.priority_score` is accessed in `format_audit_report` when sorting underdocumented concepts, but `priority_score` is not visible as a standard field of `Concept` from this file. It may be set by `_compute_priority()` which is imported only in `_deserialize_doc_prompts`. If live-run `Concept` objects don't have this attribute, sorting will raise AttributeError.",
+    "observed_behavior": "Verify that `Concept` dataclass in `doc_prompts.py` always initializes `priority_score`, or that `_compute_priority` is called before any sort in the live code path.",
+    "evidence": [],
+    "id": "ba45c073276242d3",
+    "verdict": "dismissed",
+    "confidence": 0.98,
+    "triage_reasoning": "Three sub-claims in the finding are all refuted by the code:\n\n**Sub-claim 1: \"`priority_score` is not visible as a standard field of `Concept`\"**\nFalse. `doc_prompts.py:51` declares `priority_score: float = 0.0` as a proper dataclass field with a default value. Every `Concept` instance has this attribute from construction — no `AttributeError` is ever possible regardless of what else runs.\n\n**Sub-claim 2: \"`_compute_priority` is imported only in `_deserialize_doc_prompts`\"**\nFalse at the semantic level. `_compute_priority` is called in `_deserialize_doc_prompts` (audit.py:1508) for the cache-reload path, AND it is called in the live pipeline inside `doc_prompts.py:667` (Stage 4a: \"Priority scoring\") for every concept produced in a fresh run. The two entry-points cover the full set of `Concept` objects that can ever reach `format_audit_report`.\n\n**Sub-claim 3: \"sorting will raise AttributeError\"**\nFalse. Even in the hypothetical worst case where neither call to `_compute_priority` had run, the dataclass field default (`0.0`) ensures the attribute is present. The sort key `(priority_order.get(c.priority, 3), -c.priority_score)` is safe.\n\n**Reality check:** The gap does not exist. `priority_score` is always initialized (default 0.0) and is further populated by `_compute_priority` which is invoked on every `Concept` in both the live and deserialization code paths before any call to `format_audit_report`.\n\n**Significance / Actionability:** Moot — the predicate of the claim is false.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "ba45c073276242d3",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/audit.py",
+          "start": 1020,
+          "end": 1050
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "priority_score",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/doc_prompts.py",
+          "start": 40,
+          "end": 80
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/doc_prompts.py",
+          "start": 360,
+          "end": 395
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "_compute_priority",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "grep",
+        "input": {
+          "pattern": "_deserialize_doc_prompts|deserialize_doc_prompts",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 6,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/audit.py",
+          "start": 1487,
+          "end": 1530
+        }
+      },
+      {
+        "turn": 7,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/doc_prompts.py",
+          "start": 655,
+          "end": 680
+        }
+      },
+      {
+        "turn": 8,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 0.98,
+          "reasoning": "Three sub-claims in the finding are all refuted by the code:\n\n**Sub-claim 1: \"`priority_score` is not visible as a standard field of `Concept`\"**\nFalse. `doc_prompts.py:51` declares `priority_score: float = 0.0` as a proper dataclass field with a default value. Every `Concept` instance has this attribute from construction — no `AttributeError` is ever possible regardless of what else runs.\n\n**Sub-claim 2: \"`_compute_priority` is imported only in `_deserialize_doc_prompts`\"**\nFalse at the semantic level. `_compute_priority` is called in `_deserialize_doc_prompts` (audit.py:1508) for the cache-reload path, AND it is called in the live pipeline inside `doc_prompts.py:667` (Stage 4a: \"Priority scoring\") for every concept produced in a fresh run. The two entry-points cover the full set of `Concept` objects that can ever reach `format_audit_report`.\n\n**Sub-claim 3: \"sorting will raise AttributeError\"**\nFalse. Even in the hypothetical worst case where neither call to `_compute_priority` had run, the dataclass field default (`0.0`) ensures the attribute is present. The sort key `(priority_order.get(c.priority, 3), -c.priority_score)` is safe.\n\n**Reality check:** The gap does not exist. `priority_score` is always initialized (default 0.0) and is further populated by `_compute_priority` which is invoked on every `Concept` in both the live and deserialization code paths before any call to `format_audit_report`.\n\n**Significance / Actionability:** Moot — the predicate of the claim is false."
+        }
+      }
+    ],
+    "cost_usd": 0.144692
+  }
+}

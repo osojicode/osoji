@@ -1,0 +1,129 @@
+{
+  "slug": "audit-obligation_implicit_contract-001",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "src/osoji/init.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "3 implicit contracts between tests/test_init.py and src/osoji/init.py: \"OSOJI_TOKEN\", \"claude-code\", \"default_provider\"",
+    "observed_behavior": "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [],
+    "id": "d347d0481ce92dba",
+    "verdict": "confirmed",
+    "confidence": 0.88,
+    "triage_reasoning": "All three bare string literals are real, appear across multiple production files, and lack shared constants. Evaluating each in turn:\n\n**\"OSOJI_TOKEN\"** — Strongest case. `src/osoji/config.py` already defines an established `ENV_*` constants family: `ENV_PROVIDER = \"OSOJI_PROVIDER\"`, `ENV_MODEL = \"OSOJI_MODEL\"`, `ENV_MODEL_SMALL`, `ENV_MODEL_MEDIUM`, `ENV_MODEL_LARGE`. These constants are imported and used consistently within config.py. However, `\"OSOJI_TOKEN\"` — the push-authentication env var — appears as a bare string in: `init.py` (4 occurrences: two dict key assignments, one `in existing_keys` check, one echo), `push.py` (5 production occurrences: `os.environ.get(\"OSOJI_TOKEN\")`, `os.environ[\"OSOJI_TOKEN\"]`, `_classify_env_source(\"OSOJI_TOKEN\")`, and two error message strings), and `cli.py` (help text). This is a **Named project obligation** gap — the pattern exists and this env var was not added to it. If init.py or push.py independently renames the string, the other file silently breaks.\n\n**\"claude-code\"** — The canonical registration is in `registry.py` `_PROVIDER_SPECS` (dict key + `name=\"claude-code\"` on the ProviderSpec), but no constant is exported. `init.py` references the bare string in `_PROVIDER_MENU` (tuple element), and in two distinct conditional branches (`if provider != \"claude-code\":`, `if provider == \"claude-code\":`). `config.py` uses it as a `BUILTIN_PROVIDER_MODELS` dict key. Cross-production obligation with no constant binding init.py to the registry's name.\n\n**\"default_provider\"** — The TOML schema key is written by `init.py` (five usages: `data.get(\"default_provider\")`, `data[\"default_provider\"] = provider`, and in action-dict `\"key\"` fields) and read by `config.py` (`data.get(\"default_provider\")` twice, plus multiple key string references). `config.py` already exports filename constants (`PROJECT_CONFIG_FILENAME`, etc.) and `DEFAULT_PROVIDER = \"anthropic\"` for the default value, but not for the key name itself. If one site changes the TOML key, the other silently reads `None`.\n\n**Framing note**: The claim frames these as contracts \"between tests/test_init.py and src/osoji/init.py.\" That framing understates the problem. Test assertions on these strings CANNOT produce silent mismatches — if init.py changes a string, the test fails loudly. The real risk is the production-to-production contracts: init.py ↔ push.py (OSOJI_TOKEN), init.py ↔ config.py (default_provider), init.py ↔ registry.py (claude-code). All three cross-production obligations exist; the underlying finding is valid regardless of the framing.\n\nReality ✅ | Significance ✅ | Actionability ✅",
+    "suggested_fix": "1. **\"OSOJI_TOKEN\"** — Add `ENV_TOKEN = \"OSOJI_TOKEN\"` to `src/osoji/config.py` alongside the existing `ENV_PROVIDER`, `ENV_MODEL`, etc. constants. Import and use `ENV_TOKEN` in `init.py` (dict key assignments and checks) and `push.py` (`os.environ.get(ENV_TOKEN)`, `os.environ[ENV_TOKEN]`, `_classify_env_source(ENV_TOKEN)`). Update `cli.py` help text to reference the constant or interpolate it.\n\n2. **\"claude-code\"** — Export a constant from `src/osoji/llm/registry.py`, e.g. `CLAUDE_CODE_PROVIDER = \"claude-code\"`, and reference it in `init.py`'s `_PROVIDER_MENU` tuple and the two conditional branches, and in `config.py`'s `BUILTIN_PROVIDER_MODELS` key.\n\n3. **\"default_provider\"** — Add `DEFAULT_PROVIDER_KEY = \"default_provider\"` to `src/osoji/config.py` and import it in `init.py` so both the writer (init.py) and reader (config.py) use the same symbol.",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "d347d0481ce92dba",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "OSOJI_TOKEN|claude-code|default_provider",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/init.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "tests/test_init.py"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "grep",
+        "input": {
+          "pattern": "OSOJI_TOKEN|claude-code|default_provider",
+          "glob": "src/osoji/init.py"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "OSOJI_TOKEN\\s*=|CLAUDE_CODE\\s*=|DEFAULT_PROVIDER\\s*=",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/init.py",
+          "start": 470,
+          "end": 550
+        }
+      },
+      {
+        "turn": 6,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/llm/registry.py"
+        }
+      },
+      {
+        "turn": 7,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/config.py",
+          "start": 120,
+          "end": 175
+        }
+      },
+      {
+        "turn": 8,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/config.py",
+          "start": 130,
+          "end": 145
+        }
+      },
+      {
+        "turn": 9,
+        "name": "grep",
+        "input": {
+          "pattern": "ENV_PROVIDER|ENV_MODEL|ENV_TOKEN|OSOJI_TOKEN",
+          "glob": "src/osoji/*.py"
+        }
+      },
+      {
+        "turn": 10,
+        "name": "grep",
+        "input": {
+          "pattern": "OSOJI_TOKEN",
+          "glob": "src/osoji/push.py"
+        }
+      },
+      {
+        "turn": 11,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.88,
+          "severity": "warning",
+          "reasoning": "All three bare string literals are real, appear across multiple production files, and lack shared constants. Evaluating each in turn:\n\n**\"OSOJI_TOKEN\"** — Strongest case. `src/osoji/config.py` already defines an established `ENV_*` constants family: `ENV_PROVIDER = \"OSOJI_PROVIDER\"`, `ENV_MODEL = \"OSOJI_MODEL\"`, `ENV_MODEL_SMALL`, `ENV_MODEL_MEDIUM`, `ENV_MODEL_LARGE`. These constants are imported and used consistently within config.py. However, `\"OSOJI_TOKEN\"` — the push-authentication env var — appears as a bare string in: `init.py` (4 occurrences: two dict key assignments, one `in existing_keys` check, one echo), `push.py` (5 production occurrences: `os.environ.get(\"OSOJI_TOKEN\")`, `os.environ[\"OSOJI_TOKEN\"]`, `_classify_env_source(\"OSOJI_TOKEN\")`, and two error message strings), and `cli.py` (help text). This is a **Named project obligation** gap — the pattern exists and this env var was not added to it. If init.py or push.py independently renames the string, the other file silently breaks.\n\n**\"claude-code\"** — The canonical registration is in `registry.py` `_PROVIDER_SPECS` (dict key + `name=\"claude-code\"` on the ProviderSpec), but no constant is exported. `init.py` references the bare string in `_PROVIDER_MENU` (tuple element), and in two distinct conditional branches (`if provider != \"claude-code\":`, `if provider == \"claude-code\":`). `config.py` uses it as a `BUILTIN_PROVIDER_MODELS` dict key. Cross-production obligation with no constant binding init.py to the registry's name.\n\n**\"default_provider\"** — The TOML schema key is written by `init.py` (five usages: `data.get(\"default_provider\")`, `data[\"default_provider\"] = provider`, and in action-dict `\"key\"` fields) and read by `config.py` (`data.get(\"default_provider\")` twice, plus multiple key string references). `config.py` already exports filename constants (`PROJECT_CONFIG_FILENAME`, etc.) and `DEFAULT_PROVIDER = \"anthropic\"` for the default value, but not for the key name itself. If one site changes the TOML key, the other silently reads `None`.\n\n**Framing note**: The claim frames these as contracts \"between tests/test_init.py and src/osoji/init.py.\" That framing understates the problem. Test assertions on these strings CANNOT produce silent mismatches — if init.py changes a string, the test fails loudly. The real risk is the production-to-production contracts: init.py ↔ push.py (OSOJI_TOKEN), init.py ↔ config.py (default_provider), init.py ↔ registry.py (claude-code). All three cross-production obligations exist; the underlying finding is valid regardless of the framing.\n\nReality ✅ | Significance ✅ | Actionability ✅",
+          "suggested_fix": "1. **\"OSOJI_TOKEN\"** — Add `ENV_TOKEN = \"OSOJI_TOKEN\"` to `src/osoji/config.py` alongside the existing `ENV_PROVIDER`, `ENV_MODEL`, etc. constants. Import and use `ENV_TOKEN` in `init.py` (dict key assignments and checks) and `push.py` (`os.environ.get(ENV_TOKEN)`, `os.environ[ENV_TOKEN]`, `_classify_env_source(ENV_TOKEN)`). Update `cli.py` help text to reference the constant or interpolate it.\n\n2. **\"claude-code\"** — Export a constant from `src/osoji/llm/registry.py`, e.g. `CLAUDE_CODE_PROVIDER = \"claude-code\"`, and reference it in `init.py`'s `_PROVIDER_MENU` tuple and the two conditional branches, and in `config.py`'s `BUILTIN_PROVIDER_MODELS` key.\n\n3. **\"default_provider\"** — Add `DEFAULT_PROVIDER_KEY = \"default_provider\"` to `src/osoji/config.py` and import it in `init.py` so both the writer (init.py) and reader (config.py) use the same symbol."
+        }
+      }
+    ],
+    "cost_usd": 0.419806
+  }
+}

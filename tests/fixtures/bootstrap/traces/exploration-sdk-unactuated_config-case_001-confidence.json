@@ -1,0 +1,104 @@
+{
+  "slug": "unactuated_config-case_001-confidence",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "plumbing:unactuated_config",
+    "gap_type": "reachability",
+    "path": "tools.py",
+    "line_start": 329,
+    "line_end": 333,
+    "symbol": "confidence",
+    "contract_source": "config schema",
+    "contract_claim": "The schema field `confidence` declares numeric bounds (type number, minimum 0.0, maximum 1.0) — an obligation that consuming code must enforce when the value is provided.",
+    "observed_behavior": "No application code reads or validates a `confidence` configuration value against these bounds; the declaration appears only inside an LLM tool_use input_schema in tools.py, where the model itself is the consumer of the constraint.",
+    "evidence": [],
+    "id": "114871ab970f8e2a",
+    "verdict": "dismissed",
+    "confidence": 0.95,
+    "triage_reasoning": "The `confidence` field with `minimum: 0.0, maximum: 1.0` appears exclusively inside LLM `input_schema` definitions throughout `tools.py`. The sole file in the repository is `tools.py` itself — there is no separate application layer that could be faulted for omitting enforcement.\n\n**Why the claim fails the Reality predicate:**\n\nIn the Anthropic (and OpenAI-compatible) tool-calling protocol, `input_schema` is transmitted to the LLM verbatim as part of the tool definition. The LLM reads the JSON Schema and uses `minimum`/`maximum` as constraints when it generates the tool-call arguments. This *is* actuation — the model itself is the enforcement mechanism, and that is the intended, documented role for these fields in this protocol. The claim acknowledges this (\"the model itself is the consumer of the constraint\"), but then treats it as a deficiency. It is not: the constraint reaches its consumer exactly as designed.\n\n**Ecosystem-convention classification:**\n\nThis falls squarely in the \"ecosystem convention\" bucket for hard-coded literals: `minimum: 0.0, maximum: 1.0` on a `confidence` field in an LLM tool schema is a well-established pattern whose semantics — \"tell the model the valid range\" — are defined by the Anthropic/OpenAI tool-calling spec, not by project-internal code. Requiring application-level re-validation of LLM-generated arguments against the same schema the LLM already respects would add defensive coding against a near-zero-probability edge case (the LLM violating its own schema), not close a meaningful gap.\n\n**Significance predicate also fails:**\n\nEven if one wanted application-level clamping, the `confidence` value is used downstream only for agent decision-making and display. An out-of-range value from a schema-violating LLM would be a diagnostic anomaly, not a correctness failure in any runtime path this repo controls.\n\n**Verdict:** False positive. The numeric bounds on `confidence` are actuated by the LLM, which is their correct and intended consumer in this ecosystem.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "114871ab970f8e2a",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "tools.py",
+          "start": 310,
+          "end": 360
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "confidence",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "grep",
+        "input": {
+          "pattern": "confidence"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "read_file",
+        "input": {
+          "path": "tools.py",
+          "start": 440,
+          "end": 480
+        }
+      },
+      {
+        "turn": 4,
+        "name": "list_dir",
+        "input": {}
+      },
+      {
+        "turn": 5,
+        "name": "read_file",
+        "input": {
+          "path": "tools.py",
+          "start": 640,
+          "end": 680
+        }
+      },
+      {
+        "turn": 6,
+        "name": "read_file",
+        "input": {
+          "path": "tools.py",
+          "start": 1090,
+          "end": 1130
+        }
+      },
+      {
+        "turn": 7,
+        "name": "read_file",
+        "input": {
+          "path": "tools.py",
+          "start": 1,
+          "end": 50
+        }
+      },
+      {
+        "turn": 8,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 0.95,
+          "reasoning": "The `confidence` field with `minimum: 0.0, maximum: 1.0` appears exclusively inside LLM `input_schema` definitions throughout `tools.py`. The sole file in the repository is `tools.py` itself — there is no separate application layer that could be faulted for omitting enforcement.\n\n**Why the claim fails the Reality predicate:**\n\nIn the Anthropic (and OpenAI-compatible) tool-calling protocol, `input_schema` is transmitted to the LLM verbatim as part of the tool definition. The LLM reads the JSON Schema and uses `minimum`/`maximum` as constraints when it generates the tool-call arguments. This *is* actuation — the model itself is the enforcement mechanism, and that is the intended, documented role for these fields in this protocol. The claim acknowledges this (\"the model itself is the consumer of the constraint\"), but then treats it as a deficiency. It is not: the constraint reaches its consumer exactly as designed.\n\n**Ecosystem-convention classification:**\n\nThis falls squarely in the \"ecosystem convention\" bucket for hard-coded literals: `minimum: 0.0, maximum: 1.0` on a `confidence` field in an LLM tool schema is a well-established pattern whose semantics — \"tell the model the valid range\" — are defined by the Anthropic/OpenAI tool-calling spec, not by project-internal code. Requiring application-level re-validation of LLM-generated arguments against the same schema the LLM already respects would add defensive coding against a near-zero-probability edge case (the LLM violating its own schema), not close a meaningful gap.\n\n**Significance predicate also fails:**\n\nEven if one wanted application-level clamping, the `confidence` value is used downstream only for agent decision-making and display. An out-of-range value from a schema-violating LLM would be a diagnostic anomaly, not a correctness failure in any runtime path this repo controls.\n\n**Verdict:** False positive. The numeric bounds on `confidence` are actuated by the LLM, which is their correct and intended consumer in this ecosystem."
+        }
+      }
+    ],
+    "cost_usd": 0.19523
+  }
+}

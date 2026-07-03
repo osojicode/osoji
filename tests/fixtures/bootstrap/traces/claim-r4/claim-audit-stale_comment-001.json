@@ -1,0 +1,414 @@
+{
+  "slug": "audit-stale_comment-001",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:stale_comment",
+    "gap_type": "description",
+    "path": "src/osoji/findings_adapter.py",
+    "line_start": 6,
+    "line_end": 8,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' is a PR-submission artifact. Whether the adapter is now wired into audit.py's live path cannot be confirmed from this file alone.",
+    "observed_behavior": "Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has since been integrated.",
+    "evidence": [
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/findings_adapter.py",
+          "line_start": 1,
+          "line_end": 18,
+          "snippet": "1: \"\"\"Bridge from legacy per-detector outputs to the unified :class:`Finding`.\n2: \n3: V1-2 introduces the ``Finding`` schema but does not change any detector. This\n4: module is the bridge: pure functions that convert each detector's current native\n5: output shape into a ``Finding`` so downstream consumers (Triage in V1-3) can be\n6: migrated incrementally. It is **not** wired into ``audit.py``'s live path in this\n7: PR — it is exercised by unit tests only, which is what keeps the\n8: ``prompt_regression`` baselines byte-identical.\n9: \n10: Two design rules carried from the V1-2 plan / C&C review:\n11: \n12: 1. **Triage-output fields stay ``None``.** The spec assigns\n13:    ``verdict``/``confidence``/``triage_reasoning``/``suggested_fix``/``severity``\n14:    to the Triage stage. The adapter never populates them, even though every\n15:    native type carries its own confidence/severity/remediation.\n16: 2. **Detector priors are preserved, not dropped** (signal conservation). Each\n17:    native finding's priors are attached as a single\n18:    ``Evidence(kind=\"scanner_metadata\", ...)`` rather than melted into prose or",
+          "anchor": "lines"
+        }
+      },
+      {
+        "kind": "declared_intent",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/findings_adapter.py",
+          "blocks": [
+            {
+              "label": "preceding_lines",
+              "line_start": 1,
+              "text": "\"\"\"Bridge from legacy per-detector outputs to the unified :class:`Finding`.\n\nV1-2 introduces the ``Finding`` schema but does not change any detector. This\nmodule is the bridge: pure functions that convert each detector's current native\noutput shape into a ``Finding`` so downstream consumers (Triage in V1-3) can be"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shadow_doc_claim",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/findings_adapter.py",
+          "scope": "file",
+          "excerpt": "# src\\osoji\\findings_adapter.py\n@source-hash: daf6c8b42139a68d\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:25:54Z\n\n## Purpose\n\nPure-function bridge module that converts each detector's native output shape into the unified `Finding` dataclass (introduced in V1-2). Downstream consumers (e.g., Triage in V1-3) consume `Finding` objects; detectors continue emitting their native types; this adapter is the seam between them.\n\n**Key design invariants (L10–23):**\n1. Triage-output fields (`verdict`, `confidence`, `triage_reasoning`, `suggested_fix`, `severity`) are **never populated** — they remain `None` and are reserved for the Triage stage.\n2. Detector priors are **preserved as `Evidence(kind=\"scanner_metadata\", ...)`** rather than dropped or melted into prose (signal conservation).\n3. Detector name is always `\"<producer>:<category>\"` format (e.g., `\"deadcode:dead_symbol\"`, `\"doc:stale_comment\"`, `\"obligations:missing_schema\"`) — decoupled from `gap_type`, stable as the V1-7 per-detector metrics unit.\n\n## Key Constants\n\n### `CATEGORY_TO_GAP_TYPE` (L48–68)\n`dict[str, GapType]` — authoritative category-to-gap-type mapping for three-gap taxonomy. Covers:\n- **reachability**: `dead_code`, `dead_symbol`, `dead_parameter`, `unactuated_config`, `orphaned_file`, `dead_dependency`, `unused_dependency` (forward-compat alias, not yet emitted), `dead_cicd`\n- **description**: `stale_content`, `incorrect_content`, `misleading_claim`, `stale_comment`, `obsolete_reference`, `misleading_docstring`, `commented_out_code`, `expired_todo`\n- `latent_bug` is **intentionally absent** → falls through to `\"uncategorized\"` (mechanically indeterminate)\n\n### `_JUNK_PRODUCER` (L71–78, internal)\n`dict[str, str]` — maps junk category to the analyzer short-name used in detector naming. E.g., `\"dead_symbol\"` → `\"deadcode\"`, `\"dead_dependency\"` → `\"deps\"`. Unknown categories fall back to `\"junk\"`.\n\n## Public API\n\n### `gap_type_for(category: str) -> GapType` (L81–84)\nThin wrapper over `CATEGORY_TO_"
+        }
+      },
+      {
+        "kind": "shadow_doc_claim",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/findings_adapter.py",
+          "scope": "directory",
+          "excerpt": "# src\\osoji/\n@children-hash: 01e0c48013067d10\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:36:49Z\n\n## `src/osoji` — Core Package\n\nThe `osoji` package is a shadow documentation engine and multi-phase code quality audit system. It generates LLM-driven \"shadow docs\" (concise machine-readable summaries of source files), then runs a 5.5-phase audit pipeline that cross-references those docs against live code to surface dead code, stale documentation, string-contract violations, dead dependencies, dead CI/CD elements, orphaned files, and doc accuracy errors.\n\n---\n\n## Architectural Layers\n\n### 1 — Configuration & Discovery\n**`config.py`** is the root of all path resolution. `Config` (the central dataclass) encodes a 5-level provider/model precedence chain (CLI → env → project TOML → global TOML → builtin defaults). Every other module receives a `Config` and derives its paths from it (shadow root, findings dir, symbols dir, analysis root, etc.).\n\n**`walker.py`** discovers source files (`discover_files`) and directories (`discover_directories`) with git-aware or rglob traversal, applying ignore patterns and `.osojiignore`. Results are sorted deepest-first (children before parents) to support bottom-up directory processing.\n\n**`hasher.py`** provides SHA-256 hashing, binary-safe file reading, and the staleness primitives (`@source-hash`, `@impl-hash`, `@children-hash`) embedded in shadow doc headers. `is_findings_current()` gates whether cached findings JSON is still valid.\n\n---\n\n### 2 — Shadow Doc Generation (`shadow.py`)\nThe generative core. Orchestrates the full shadow doc pipeline:\n- File staleness detection (source hash + implementation hash)\n- LLM calls via `generate_file_shadow_doc_async` (forced `submit_shadow_doc` tool call)\n- Large-file chunking (> 150K tokens → per-chunk generation + `_generate_chunk_rollup_async`)\n- Sidecar JSON writes: `.findings.json`, `.symbols.json`, `.signature.json`, `.facts.json`\n- AST plugin fact merging (via `plugins/`) — when ava"
+        }
+      },
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 865,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' i\n        \"observed_behavior\": \"Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has\n        \"evidence\": [],",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1413,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' i\n        \"observed_behavior\": \"Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has\n        \"evidence\": [],",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' is a \n    \"observed_behavior\": \"Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has sin\n    \"evidence\": [],",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 54,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 865,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 70,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1413,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 110,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 13,\n              \"context\": \"    \\\"symbol\\\": null,\\n    \\\"contract_source\\\": \\\"audit\\\",\\n    \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s \n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' is a \n    \"observed_behavior\": \"Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has sin\n    \"evidence\": [",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 68,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 865,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 84,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1413,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 54,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 865,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 70,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1413,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 110,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 13,\n              \"context\": \"    \\\"symbol\\\": null,\\n    \\\"contract_source\\\": \\\"audit\\\",\\n    \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s \n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' is a \n    \"observed_behavior\": \"Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has sin\n    \"evidence\": [",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 68,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 865,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 84,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1413,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' is a \n    \"observed_behavior\": \"Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has sin\n    \"evidence\": [",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 68,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 865,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"It is **not** wired into `audit.py`\",\n              \"source\": \"text_scan\"",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 69,
+              "context": "              \"line\": 865,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"It is **not** wired into `audit.py`\",\n              \"source\": \"text_scan\"\n            },",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r3/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' is a \n    \"observed_behavior\": \"Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has sin\n    \"evidence\": [",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r3/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 68,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 865,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"It is **not** wired into `audit.py`\",\n              \"source\": \"text_scan\"",
+              "needle": "It is **not** wired into `audit.py`",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 865,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' i\n        \"observed_behavior\": \"Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has\n        \"evidence\": [],",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1413,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' i\n        \"observed_behavior\": \"Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has\n        \"evidence\": [],",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' is a \n    \"observed_behavior\": \"Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has sin\n    \"evidence\": [],",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 54,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 865,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 70,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1413,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 110,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 13,\n              \"context\": \"    \\\"symbol\\\": null,\\n    \\\"contract_source\\\": \\\"audit\\\",\\n    \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s \n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' is a \n    \"observed_behavior\": \"Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has sin\n    \"evidence\": [",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 68,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 865,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 84,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1413,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 54,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 865,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 70,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1413,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 110,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 13,\n              \"context\": \"    \\\"symbol\\\": null,\\n    \\\"contract_source\\\": \\\"audit\\\",\\n    \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s \n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' is a \n    \"observed_behavior\": \"Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has sin\n    \"evidence\": [",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 68,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 865,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 84,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1413,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"Module\",\n              \"source\": \"text_scan\"",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' is a \n    \"observed_behavior\": \"Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has sin\n    \"evidence\": [",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 68,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 865,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"It is **not** wired into `audit.py`\",\n              \"source\": \"text_scan\"",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 76,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1413,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"It is **not** wired into `audit.py`\",\n              \"source\": \"text_scan\"",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r3/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' is a \n    \"observed_behavior\": \"Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has sin\n    \"evidence\": [",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r3/claim-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 68,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 865,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `\n              \"needle\": \"It is **not** wired into `audit.py`\",\n              \"source\": \"text_scan\"",
+              "needle": ". The phrase ",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 519,
+            "needles": [
+              "It is **not** wired into `audit.py`",
+              ". The phrase ",
+              " is a PR-submission artifact. Whether the adapter is now wired into audit.py",
+              "It is not currently wired into `audit.py`"
+            ],
+            "needle_totals": {
+              "It is **not** wired into `audit.py`": 231,
+              ". The phrase ": 228,
+              " is a PR-submission artifact. Whether the adapter is now wired into audit.py": 228,
+              "It is not currently wired into `audit.py`": 229
+            },
+            "same_file_swept": true
+          }
+        }
+      }
+    ],
+    "id": "c52ba3b22081c92a",
+    "verdict": "confirmed",
+    "confidence": 0.96,
+    "triage_reasoning": "Reality: confirmed. The module docstring at L6-8 contains the phrase 'in this PR' — a PR-submission artifact that has no meaning once the code is merged to the main branch. The phrase 'it is exercised by unit tests only' may also be stale, as `findings_adapter.py` has been in the codebase since V1-2 and downstream consumers (Triage in V1-3, audit.py in later phases) may now use it. The shadow doc for `findings_adapter.py` omits the PR-relative language entirely, indicating the current understanding of the file no longer needs that qualifier. Significance: PR-era language in committed code confuses new contributors who cannot determine which PR or what the current wiring status is. Actionability: update the docstring to describe the current wiring status without PR-relative language.",
+    "suggested_fix": "In `src/osoji/findings_adapter.py`, replace 'It is **not** wired into ``audit.py``\\'s live path in this PR — it is exercised by unit tests only, which is what keeps the ``prompt_regression`` baselines byte-identical.' with an accurate current-state description, e.g.: 'It is the seam between legacy detector outputs and the unified Finding schema; downstream consumers (Triage stage, audit pipeline) consume Finding objects via this adapter.'",
+    "severity": "info",
+    "evidence_fingerprint": "835537aaf91055c6"
+  },
+  "trace": null
+}

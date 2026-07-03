@@ -1,0 +1,83 @@
+{
+  "slug": "unactuated_config-case_001-confidence",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "plumbing:unactuated_config",
+    "gap_type": "reachability",
+    "path": "tools.py",
+    "line_start": 329,
+    "line_end": 333,
+    "symbol": "confidence",
+    "contract_source": "config schema",
+    "contract_claim": "The schema field `confidence` declares numeric bounds (type number, minimum 0.0, maximum 1.0) — an obligation that consuming code must enforce when the value is provided.",
+    "observed_behavior": "No application code reads or validates a `confidence` configuration value against these bounds; the declaration appears only inside an LLM tool_use input_schema in tools.py, where the model itself is the consumer of the constraint.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tools.py",
+              "kind": "text_match",
+              "line": 398,
+              "context": "            },\n        },\n        \"required\": [\"classification\", \"confidence\", \"classification_reason\", \"findings\"],\n    },\n}",
+              "needle": "confidence",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tools.py",
+              "kind": "text_match",
+              "line": 455,
+              "context": "                            \"description\": \"True if the symbol is genuinely dead code with no alive pathway\",\n                        },\n                        \"confidence\": {\n                            \"type\": \"number\",\n                            \"minimum\": 0.0,",
+              "needle": "confidence",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tools.py",
+              "kind": "text_match",
+              "line": 470,
+              "context": "                        },\n                    },\n                    \"required\": [\"symbol_name\", \"is_dead\", \"confidence\", \"reason\", \"remediation\"],\n                },\n            },",
+              "needle": "confidence",
+              "source": "text_scan",
+              "same_file": true
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 1,
+            "needles": [
+              "confidence"
+            ],
+            "needle_totals": {
+              "confidence": 11
+            },
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "tools.py",
+          "line_start": 319,
+          "line_end": 339,
+          "snippet": "319: \n320: Validation: check for contradictions between the doc and the shadow docs (source of truth).\n321: Report findings with evidence from shadow docs. Empty findings array if no issues found.\"\"\",\n322:     \"input_schema\": {\n323:         \"type\": \"object\",\n324:         \"properties\": {\n325:             \"classification\": {\n326:                 \"type\": \"string\",\n327:                 \"enum\": [\"reference\", \"tutorial\", \"how-to\", \"explanatory\", \"process_artifact\"],\n328:             },\n329:             \"confidence\": {\n330:                 \"type\": \"number\",\n331:                 \"minimum\": 0.0,\n332:                 \"maximum\": 1.0,\n333:             },\n334:             \"classification_reason\": {\n335:                 \"type\": \"string\",\n336:                 \"description\": \"Brief explanation of classification\",\n337:             },\n338:             \"findings\": {\n339:                 \"type\": \"array\",",
+          "anchor": "symbol"
+        }
+      }
+    ],
+    "id": "114871ab970f8e2a",
+    "verdict": "dismissed",
+    "confidence": 0.95,
+    "triage_reasoning": "The `confidence` field appears inside an LLM `tool_use` `input_schema`. The intended consumer is the LLM itself — JSON Schema constraints in tool schemas guide model output generation, not application-level enforcement code. The claim that 'application code must enforce when the value is provided' is incorrect for this architecture: the schema is a contract with the model, not with runtime validation logic. No application code is supposed to re-validate this; the LLM framework/provider handles it. Significance predicate fails.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "2ffc87fdfe494fb5"
+  },
+  "trace": null
+}

@@ -1,0 +1,72 @@
+{
+  "slug": "dead_code-case_001-get_file_tool_definitions",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/tools.py",
+    "line_start": 405,
+    "line_end": 407,
+    "symbol": "get_file_tool_definitions",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `get_file_tool_definitions` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "A naive external-reference scan reported zero references for `get_file_tool_definitions`, but the symbol participates in the live tool-definition access path.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "src/osoji/shadow.py",
+              "kind": "text_match",
+              "line": 25,
+              "context": ")\nfrom .rate_limiter import RateLimiter, get_config_with_overrides\nfrom .tools import get_file_tool_definitions, get_directory_tool_definitions\nfrom .walker import (\n    discover_files,",
+              "needle": "get_file_tool_definitions",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/shadow.py",
+              "kind": "text_match",
+              "line": 217,
+              "context": "        model=config.model,\n        max_tokens=4096,\n        tools=get_file_tool_definitions(),\n        tool_choice={\"type\": \"tool\", \"name\": \"submit_shadow_doc\"},\n    )",
+              "needle": "get_file_tool_definitions",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 6,
+            "needles": [
+              "get_file_tool_definitions"
+            ],
+            "needle_totals": {
+              "get_file_tool_definitions": 2
+            },
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/tools.py",
+          "line_start": 395,
+          "line_end": 415,
+          "snippet": "395: \n396: def _dict_to_tool_definition(tool_dict: dict[str, Any]) -> ToolDefinition:\n397:     \"\"\"Convert a tool dictionary to a ToolDefinition object.\"\"\"\n398:     return ToolDefinition(\n399:         name=tool_dict[\"name\"],\n400:         description=tool_dict[\"description\"],\n401:         input_schema=tool_dict[\"input_schema\"],\n402:     )\n403: \n404: \n405: def get_file_tool_definitions() -> list[ToolDefinition]:\n406:     \"\"\"Return ToolDefinition objects for file shadow doc generation.\"\"\"\n407:     return [_dict_to_tool_definition(SUBMIT_SHADOW_DOC_TOOL)]\n408: \n409: \n410: def get_directory_tool_definitions() -> list[ToolDefinition]:\n411:     \"\"\"Return ToolDefinition objects for directory shadow doc generation.\"\"\"\n412:     return [_dict_to_tool_definition(SUBMIT_DIRECTORY_SHADOW_DOC_TOOL)]\n413: \n414: \n415: def get_match_doc_topics_tool_definitions() -> list[ToolDefinition]:",
+          "anchor": "symbol"
+        }
+      }
+    ],
+    "id": "1ab56a90b9cf15b0",
+    "verdict": "dismissed",
+    "confidence": 0.99,
+    "triage_reasoning": "Reality gap does not exist. The evidence contains explicit cross-file imports: `src/osoji/shadow.py:25` imports `get_file_tool_definitions` by name, and `src/osoji/shadow.py:217` calls it with `tools=get_file_tool_definitions()`. The symbol is fully live.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "60974ae525a14f60"
+  },
+  "trace": null
+}

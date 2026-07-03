@@ -1,0 +1,55 @@
+{
+  "slug": "dead_code-case_001-get_file_tool_definitions",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/tools.py",
+    "line_start": 405,
+    "line_end": 407,
+    "symbol": "get_file_tool_definitions",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `get_file_tool_definitions` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "A naive external-reference scan reported zero references for `get_file_tool_definitions`, but the symbol participates in the live tool-definition access path.",
+    "evidence": [],
+    "id": "1ab56a90b9cf15b0",
+    "verdict": "dismissed",
+    "confidence": 1,
+    "triage_reasoning": "The grep scan is definitive. `get_file_tool_definitions` has two live references in `src/osoji/shadow.py`:\n\n1. **Line 25** — explicit named import: `from .tools import get_file_tool_definitions, get_directory_tool_definitions`\n2. **Line 217** — active call site: `tools=get_file_tool_definitions()`\n\nThe \"naive external-reference scan\" in the finding description apparently missed cross-file imports. The symbol is reachable, imported, and called in the production code path for file shadow-doc generation. All three dismissal conditions hold: the gap does not exist (Reality fails). No further evidence needed.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "1ab56a90b9cf15b0",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "get_file_tool_definitions"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/tools.py",
+          "start": 395,
+          "end": 430
+        }
+      },
+      {
+        "turn": 2,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 1,
+          "reasoning": "The grep scan is definitive. `get_file_tool_definitions` has two live references in `src/osoji/shadow.py`:\n\n1. **Line 25** — explicit named import: `from .tools import get_file_tool_definitions, get_directory_tool_definitions`\n2. **Line 217** — active call site: `tools=get_file_tool_definitions()`\n\nThe \"naive external-reference scan\" in the finding description apparently missed cross-file imports. The symbol is reachable, imported, and called in the production code path for file shadow-doc generation. All three dismissal conditions hold: the gap does not exist (Reality fails). No further evidence needed."
+        }
+      }
+    ],
+    "cost_usd": 0.061457
+  }
+}

@@ -1,0 +1,166 @@
+{
+  "slug": "audit-dead_code-001",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/audit.py",
+    "line_start": 1894,
+    "line_end": 1895,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L1894-1895: In `_html_file_health_section`, rows are filtered at L1874 to exclude `r[1] is not None`, guaranteeing all remaining rows have non-None health. The `h_val = health if health is not None else 0.0` guard at L1895 is therefore unreachable as written.",
+    "observed_behavior": "Simplify to `h_val = health` since None values are already filtered out at L1874. Or keep for defensive coding clarity.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 629,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L1894-1895: In `_html_file_health_section`, rows are filtered at L1874 to exclude `r[1] is not None`, guaranteeing all remaining rows have non-None health. The `h_val = health if health is not None else 0.0` guard at L1895 is therefore unreachable as written.\",\n        \"observed_behavior\": \"Simplify to `h_val = health` since None values are already filtered out at L1874. Or keep for defensive coding clarity.\",\n        \"evidence\": [],",
+              "needle": "_html_file_health_section",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1175,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L1894-1895: In `_html_file_health_section`, rows are filtered at L1874 to exclude `r[1] is not None`, guaranteeing all remaining rows have non-None health. The `h_val = health if health is not None else 0.0` guard at L1895 is therefore unreachable as written.\",\n        \"observed_behavior\": \"Simplify to `h_val = health` since None values are already filtered out at L1874. Or keep for defensive coding clarity.\",\n        \"evidence\": [],",
+              "needle": "_html_file_health_section",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-dead_code-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L1894-1895: In `_html_file_health_section`, rows are filtered at L1874 to exclude `r[1] is not None`, guaranteeing all remaining rows have non-None health. The `h_val = health if health is not None else 0.0` guard at L1895 is therefore unreachable as written.\",\n    \"observed_behavior\": \"Simplify to `h_val = health` since None values are already filtered out at L1874. Or keep for defensive coding clarity.\",\n    \"evidence\": [],",
+              "needle": "_html_file_health_section",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_code-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L1894-1895: In `_html_file_health_section`, rows are filtered at L1874 to exclude `r[1] is not None`, guaranteeing all remaining rows have non-None health. The `h_val = health if health is not None else 0.0` guard at L1895 is therefore unreachable as written.\",\n    \"observed_behavior\": \"Simplify to `h_val = health` since None values are already filtered out at L1874. Or keep for defensive coding clarity.\",\n    \"evidence\": [",
+              "needle": "_html_file_health_section",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_code-001.json",
+              "kind": "text_match",
+              "line": 25,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 629,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L1894-1895: In `_html_file_health_section`, rows are filtered at L1874 to exclude `r[1] is not None`, guaranteeing all remaining rows have non-None health. The `h_val = health if health is not None else 0.0` guard at L1895 is therefore unreachable as written.\\\",\\n        \\\"observed_behavior\\\": \\\"Simplify to `h_val = health` since None values are already filtered out at L1874. Or keep for defensive coding clarity.\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"_html_file_health_section\",\n              \"source\": \"text_scan\"",
+              "needle": "_html_file_health_section",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_code-001.json",
+              "kind": "text_match",
+              "line": 26,
+              "context": "              \"line\": 629,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L1894-1895: In `_html_file_health_section`, rows are filtered at L1874 to exclude `r[1] is not None`, guaranteeing all remaining rows have non-None health. The `h_val = health if health is not None else 0.0` guard at L1895 is therefore unreachable as written.\\\",\\n        \\\"observed_behavior\\\": \\\"Simplify to `h_val = health` since None values are already filtered out at L1874. Or keep for defensive coding clarity.\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"_html_file_health_section\",\n              \"source\": \"text_scan\"\n            },",
+              "needle": "_html_file_health_section",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_code-001.json",
+              "kind": "text_match",
+              "line": 33,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 1175,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L1894-1895: In `_html_file_health_section`, rows are filtered at L1874 to exclude `r[1] is not None`, guaranteeing all remaining rows have non-None health. The `h_val = health if health is not None else 0.0` guard at L1895 is therefore unreachable as written.\\\",\\n        \\\"observed_behavior\\\": \\\"Simplify to `h_val = health` since None values are already filtered out at L1874. Or keep for defensive coding clarity.\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"_html_file_health_section\",\n              \"source\": \"text_scan\"",
+              "needle": "_html_file_health_section",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_code-001.json",
+              "kind": "text_match",
+              "line": 34,
+              "context": "              \"line\": 1175,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L1894-1895: In `_html_file_health_section`, rows are filtered at L1874 to exclude `r[1] is not None`, guaranteeing all remaining rows have non-None health. The `h_val = health if health is not None else 0.0` guard at L1895 is therefore unreachable as written.\\\",\\n        \\\"observed_behavior\\\": \\\"Simplify to `h_val = health` since None values are already filtered out at L1874. Or keep for defensive coding clarity.\\\",\\n        \\\"evidence\\\": [],\",\n              \"needle\": \"_html_file_health_section\",\n              \"source\": \"text_scan\"\n            },",
+              "needle": "_html_file_health_section",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_code-001.json",
+              "kind": "text_match",
+              "line": 41,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 13,\n              \"context\": \"    \\\"symbol\\\": null,\\n    \\\"contract_source\\\": \\\"audit\\\",\\n    \\\"contract_claim\\\": \\\"L1894-1895: In `_html_file_health_section`, rows are filtered at L1874 to exclude `r[1] is not None`, guaranteeing all remaining rows have non-None health. The `h_val = health if health is not None else 0.0` guard at L1895 is therefore unreachable as written.\\\",\\n    \\\"observed_behavior\\\": \\\"Simplify to `h_val = health` since None values are already filtered out at L1874. Or keep for defensive coding clarity.\\\",\\n    \\\"evidence\\\": [],\",\n              \"needle\": \"_html_file_health_section\",\n              \"source\": \"text_scan\"",
+              "needle": "_html_file_health_section",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_code-001.json",
+              "kind": "text_match",
+              "line": 42,
+              "context": "              \"line\": 13,\n              \"context\": \"    \\\"symbol\\\": null,\\n    \\\"contract_source\\\": \\\"audit\\\",\\n    \\\"contract_claim\\\": \\\"L1894-1895: In `_html_file_health_section`, rows are filtered at L1874 to exclude `r[1] is not None`, guaranteeing all remaining rows have non-None health. The `h_val = health if health is not None else 0.0` guard at L1895 is therefore unreachable as written.\\\",\\n    \\\"observed_behavior\\\": \\\"Simplify to `h_val = health` since None values are already filtered out at L1874. Or keep for defensive coding clarity.\\\",\\n    \\\"evidence\\\": [],\",\n              \"needle\": \"_html_file_health_section\",\n              \"source\": \"text_scan\"\n            }",
+              "needle": "_html_file_health_section",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_code-001.json",
+              "kind": "text_match",
+              "line": 50,
+              "context": "            \"files_scanned\": 297,\n            \"needles\": [\n              \"_html_file_health_section\"\n            ]\n          },",
+              "needle": "_html_file_health_section",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_code-001.json",
+              "kind": "text_match",
+              "line": 54,
+              "context": "          },\n          \"export_surface\": {\n            \"symbol\": \"_html_file_health_section\",\n            \"exported_from_flagged_file\": false\n          }",
+              "needle": "_html_file_health_section",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_code-001.json",
+              "kind": "text_match",
+              "line": 69,
+              "context": "          \"anchor\": \"lines\",\n          \"enclosing_symbol\": {\n            \"name\": \"_html_file_health_section\",\n            \"kind\": \"function\",\n            \"line_start\": 1831,",
+              "needle": "_html_file_health_section",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 354,
+            "needles": [
+              "_html_file_health_section"
+            ]
+          },
+          "export_surface": {
+            "symbol": "_html_file_health_section",
+            "exported_from_flagged_file": false
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/audit.py",
+          "line_start": 1884,
+          "line_end": 1905,
+          "snippet": "1884:     parts.append('<div class=\"section\" id=\"section-file-health\">')\n1885:     parts.append('<div class=\"section-head\">File Health</div>')\n1886:     parts.append('<div class=\"section-body\">')\n1887: \n1888:     collapse = len(rows) > 50\n1889:     if collapse:\n1890:         parts.append(f'<details><summary>{len(rows)} files</summary>')\n1891: \n1892:     parts.append('<table><thead><tr>'\n1893:                  '<th>File</th><th>Health</th><th>Shadow</th>'\n1894:                  '<th>Junk %</th><th>Errors</th><th>Warnings</th>'\n1895:                  '</tr></thead><tbody>')\n1896:     for fp, health, shadow, jf, ec, wc in rows:\n1897:         h_val = health if health is not None else 0.0\n1898:         if h_val >= 0.8:\n1899:             h_color = \"var(--success)\"\n1900:         elif h_val >= 0.5:\n1901:             h_color = \"var(--amber)\"\n1902:         else:\n1903:             h_color = \"var(--warning)\"\n1904:         shadow_mark = '<span class=\"ok\">&#10003;</span>' if shadow else '<span class=\"miss\">&#10007;</span>'\n1905:         parts.append(",
+          "anchor": "lines",
+          "enclosing_symbol": {
+            "name": "_html_file_health_section",
+            "kind": "function",
+            "line_start": 1831,
+            "line_end": 1915
+          }
+        }
+      }
+    ],
+    "id": "b75136cda2513d18",
+    "verdict": "confirmed",
+    "confidence": 0.9,
+    "triage_reasoning": "Reality: The surrounding code shows `rows` is filtered at L1874 (per the claim) to keep only entries where `r[1] is not None` (i.e., health is not None). Consequently, in the loop `for fp, health, shadow, jf, ec, wc in rows:`, `health` is always non-None. The guard `h_val = health if health is not None else 0.0` — the `else 0.0` branch — is therefore unreachable. Significance: The defensive guard implies health could be None at this point, misleading readers about the data flow invariant established by the filter. Actionability: Simplify to `h_val = health` since None is guaranteed filtered out, or add a type assertion.",
+    "suggested_fix": "Replace `h_val = health if health is not None else 0.0` with `h_val = health` (and optionally add `assert health is not None` if a type narrowing hint is needed for the type checker).",
+    "severity": "info",
+    "evidence_fingerprint": "c4b54762799631f3"
+  },
+  "trace": null
+}

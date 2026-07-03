@@ -1,0 +1,219 @@
+{
+  "slug": "audit-obligation_violation-001",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:obligation_violation",
+    "gap_type": "uncategorized",
+    "path": "src/osoji/llm/google.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "String \"tool_result\" is checked but never produced or defined in any project file",
+    "observed_behavior": "Check string contract with (no producer found)",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/test_tool_retry.py",
+              "kind": "text_match",
+              "line": 219,
+              "context": "        retry_messages = retry_call.kwargs[\"messages\"]\n\n        # Should have: original user msg + assistant (tool_use) + user (tool_result)\n        assert len(retry_messages) == 3\n        assert retry_messages[1][\"role\"] == \"assistant\"",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_tool_retry.py",
+              "kind": "text_match",
+              "line": 224,
+              "context": "        assert retry_messages[2][\"role\"] == \"user\"\n\n        # tool_result should have is_error=True\n        tool_result_block = retry_messages[2][\"content\"][0]\n        assert tool_result_block[\"is_error\"] is True",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 277,
+              "context": "    names = [c[\"name\"] for c in result.exploration_traces[0][\"calls\"]]\n    assert names == [\"read_file\", \"submit_triage_verdict\"]\n    # two provider turns, and the executor output was fed back as a tool_result\n    assert len(provider.calls) == 2\n    second_turn_msgs = provider.calls[1][\"messages\"]",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 285,
+              "context": "        if isinstance(m.content, list)\n        for block in m.content\n        if block.get(\"type\") == \"tool_result\"\n    )\n    assert \"DISTINCTIVE-MARKER\" in fed_back",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 307,
+              "context": "      \"severity\": \"warning\",\n      \"adjudicated_verdict\": \"dismissed\",\n      \"adjudication_notes\": \"'Never produced' false: _provider_base.py:495 produces tool_result blocks on the anthropic retry path google.py selects; triage.py:397 also produces them; also an Anthropi\n      \"evidence_consulted\": [\n        \"grep literal across src\",",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 323,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"String \\\"tool_result\\\" is checked but never produced or defined in any project file\",\n        \"observed_behavior\": \"Check string contract with (no producer found)\",\n        \"evidence\": [],",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 851,
+              "context": "      \"severity\": \"warning\",\n      \"adjudicated_verdict\": \"dismissed\",\n      \"adjudication_notes\": \"'Never produced' false: _provider_base.py:495 produces tool_result blocks on the anthropic retry path google.py selects; triage.py:397 also produces them; also an Anthropi\n      \"evidence_consulted\": [\n        \"grep literal across src\",",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 867,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"String \\\"tool_result\\\" is checked but never produced or defined in any project file\",\n        \"observed_behavior\": \"Check string contract with (no producer found)\",\n        \"evidence\": [],",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 2074,
+              "context": "          \"turn\": 0,\n          \"name\": \"grep\",\n          \"pattern\": \"tool_result\",\n          \"shape\": \"symbol\",\n          \"breadth\": \"repo_wide\"",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_violation-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"String \\\"tool_result\\\" is checked but never produced or defined in any project file\",\n    \"observed_behavior\": \"Check string contract with (no producer found)\",\n    \"evidence\": [],",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_violation-001.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"dismissed\",\n    \"confidence\": 1,\n    \"triage_reasoning\": \"The claim asserts \\\"String 'tool_result' is checked but never produced or defined in any project file.\\\" This is factually incorrect on all counts:\\n\\n1. **Producer 1 — `src/o\n    \"suggested_fix\": null,\n    \"severity\": null,",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_violation-001.json",
+              "kind": "text_match",
+              "line": 31,
+              "context": "        \"name\": \"grep\",\n        \"input\": {\n          \"pattern\": \"tool_result\"\n        }\n      },",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 89,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 277,\n              \"context\": \"    names = [c[\\\"name\\\"] for c in result.exploration_traces[0][\\\"calls\\\"]]\\n    assert names == [\\\"read_file\\\", \\\"submit_triage_verdict\\\"]\\n    # two provider turns, and the \n              \"needle\": \"executor\",\n              \"source\": \"text_scan\"",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 848,
+              "context": "          \"shadow_excerpts\": {\n            \"tests/test_deadparam.py\": \"# tests\\\\test_deadparam.py\\n@source-hash: 8f71e2e6ff6c9c0f\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:28:21Z\\n\\n## Purpose\\n\\nTest suite for `osoj\n            \"tests/test_tool_retry.py\": \"# tests\\\\test_tool_retry.py\\n@source-hash: 039bd6614d4b5331\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:28:46Z\\n\\n## `tests/test_tool_retry.py`\\n\\\n            \"src/osoji/config.py\": \"# src\\\\osoji\\\\config.py\\n@source-hash: a676189706fb3bb2\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:28:59Z\\n\\n## Purpose\\nCentral configuration module \n          },",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-doc_obsolete_reference-000.json",
+              "kind": "text_match",
+              "line": 840,
+              "context": "          \"shadow_excerpts\": {\n            \"tests/test_llm_provider.py\": \"# tests\\\\test_llm_provider.py\\n@source-hash: 55bce0a62242ec9a\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:31:43Z\\n\\n## Purpose\\n\\nTest suite for\n            \"tests/test_tool_retry.py\": \"# tests\\\\test_tool_retry.py\\n@source-hash: 039bd6614d4b5331\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:28:46Z\\n\\n## `tests/test_tool_retry.py`\\n\\\n          },\n          \"scan_scope\": {",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-000.json",
+              "kind": "text_match",
+              "line": 120,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 275,\n              \"context\": \"    assert result.findings[0].triage_reasoning == \\\"found a use\\\"\\n    # trace records both tool calls in order\\n    names = [c[\\\"name\\\"] for c in result.exploration_traces[0\n              \"needle\": \"exploration_traces\",\n              \"source\": \"text_scan\"",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_violation-000.json",
+              "kind": "text_match",
+              "line": 81,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 323,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"String \\\\\\\"tool_result\\\\\\\" is checked but never produced or defined in any p\n              \"needle\": \"String\",\n              \"source\": \"text_scan\"",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_violation-000.json",
+              "kind": "text_match",
+              "line": 97,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 867,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"String \\\\\\\"tool_result\\\\\\\" is checked but never produced or defined in any p\n              \"needle\": \"String\",\n              \"source\": \"text_scan\"",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_violation-000.json",
+              "kind": "text_match",
+              "line": 137,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 13,\n              \"context\": \"    \\\"symbol\\\": null,\\n    \\\"contract_source\\\": \\\"audit\\\",\\n    \\\"contract_claim\\\": \\\"String \\\\\\\"tool_result\\\\\\\" is checked but never produced or defined in any project file\\\n              \"needle\": \"String\",\n              \"source\": \"text_scan\"",
+              "needle": "tool_result",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-obligation_violation-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"String \\\"tool_result\\\" is checked but never produced or defined in any project file\",\n    \"observed_behavior\": \"Check string contract with (no producer found)\",\n    \"evidence\": [",
+              "needle": "tool_result",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {
+            "tests/test_tool_retry.py": "# tests\\test_tool_retry.py\n@source-hash: 039bd6614d4b5331\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:28:46Z\n\n## `tests/test_tool_retry.py`\n\nTests for `AnthropicProvider.complete()` covering tool-input JSON Schema validation and the retry loop. The file uses `SimpleNamespace` to fake Anthropic API responses without hitting the real SDK.\n\n### Key Fixtures & Helpers\n\n- **`_make_response(content_blocks, input_tokens, output_tokens)` (L20-30):** Builds a `SimpleNamespace` mimicking an Anthropic SDK response object. `content` is a list of `SimpleNamespace` blocks; `usage` has `input_tokens`/`output_tokens`; hardcodes `model=\"claude-test\"` and `stop_reason=\"tool_use\"`.\n- **`_tool_use_block(tool_id, name, tool_input)` (L33-34):** Returns a dict with `type=\"tool_use\"`, `id`, `name`, `input`.\n- **`_text_block(text)` (L37-38):** Returns a dict with `type=\"text\"`, `text`.\n- **`provider` fixture (L58-64):** Creates `AnthropicProvider` with `ANTHROPIC_API_KEY=\"test-key\"` injected and `anthropic.AsyncAnthropic` patched out. Tests then assign `provider._client.messages.create = AsyncMock(...)`.\n\n### Module-Level Constants\n\n- **`SIMPLE_SCHEMA` (L41-47):** JSON Schema requiring `value` → object with required string property `x`.\n- **`TOOL_DEF` (L49-53):** `ToolDefinition(name=\"test_tool\", ...)` using `SIMPLE_SCHEMA`.\n- **`FORCED_CHOICE` (L55):** `{\"type\": \"tool\", \"name\": \"test_tool\"}` — forces tool use, which triggers validation/retry logic.\n\n### Test Classes\n\n| Class | Lines | What it covers |\n|---|---|---|\n| `TestValidInputSkipsRetry` | L67-116 | Valid input → single API call; multiple text blocks concatenated into `result.content` |\n| `TestInvalidInputTriggersRetry` | L119-227 | Bad input → retry on second call; text concat on retry; retry call's `messages` arg has 3 entries: original user + assistant (tool_use) + user (tool_result with `is_error=True` and error text `\"expected object\"`) |\n| `TestTokenSumming` | L230-259 | Tokens from both attempts accumulate: `result.",
+            "tests/test_triage.py": "# tests\\test_triage.py\n@source-hash: 6f0bf225090bd017\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:29:24Z\n\n## File Purpose\n\nTest suite for `osoji.triage.Triage` — the unified triage stage (V1-3). Validates claim mode, exploration mode, verdict cache short-circuit, and insufficient-evidence escalation routing. All LLM calls use `FakeProvider`; no network, deterministic.\n\n## Key Components\n\n### Fixtures\n- **`config(temp_dir)` (L22-24)**: Minimal `Config` with a temp root, `respect_gitignore=False`. Used for non-file-access tests.\n- **`explore_repo(temp_dir)` (L183-188)**: Creates a real on-disk repo (`temp_dir/repo/src/x.py`) containing the string `DISTINCTIVE-MARKER`. Required for exploration-mode tests that actually read files.\n\n### Helper Classes/Functions\n- **`make_finding(**overrides)` (L27-40)**: Factory for `Finding` with sensible defaults (`detector=\"debris:dead_code\"`, `gap_type=\"reachability\"`, `symbol=\"old_helper\"`, etc.). All fields can be overridden via kwargs.\n- **`FakeProvider` (L43-58)**: Mock async LLM provider. Consumes pre-queued `CompletionResult` objects from a list via `pop(0)`. Records every `complete(messages, system, options)` call in `.calls` for assertion. Implements `async close()` as no-op.\n- **`verdicts_result(verdicts, *, in_tok, out_tok)` (L61-70)**: Produces a `CompletionResult` simulating the `submit_triage_verdicts` batch tool call (claim mode). Tool call id `\"tc1\"`.\n- **`tool_use_result(name, tool_input, *, call_id, in_tok, out_tok)` (L172-180)**: Produces a `CompletionResult` with a single arbitrary named tool call. Used for multi-turn exploration sequences.\n\n## Test Sections & Key Invariants\n\n### Claim Mode (L76-166)\n| Test | What it pins |\n|------|-------------|\n| `test_claim_mode_fills_all_verdict_fields` | All verdict fields (`verdict`, `confidence`, `triage_reasoning`, `suggested_fix`, `severity`) are populated on result findings; `input_tokens`/`output_tokens` propagated; exactly 1 provider call. |\n| `test_claim_mod"
+          },
+          "scan_scope": {
+            "files_scanned": 519,
+            "needles": [
+              "tool_result"
+            ],
+            "needle_totals": {
+              "tool_result": 168
+            },
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/llm/google.py",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: \"\"\"Google Gemini provider using the google-genai SDK directly.\"\"\"\n2: \n3: from __future__ import annotations\n4: \n5: import os\n6: from typing import Any\n7: \n8: from google import genai\n9: from google.genai import types as genai_types\n10: \n11: from ._provider_base import DirectProvider, _ParsedResponse",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "1a747eb00baa3c93",
+    "verdict": "dismissed",
+    "confidence": 0.98,
+    "triage_reasoning": "The premise 'never produced or defined in any project file' is factually false. The bootstrap adjudication notes explicitly state: '_provider_base.py:495 produces tool_result blocks on the anthropic retry path google.py selects; triage.py:397 also produces them.' Additionally, test_tool_retry.py:224 verifies that tool_result blocks are constructed with is_error=True, and test_triage.py:285 checks for blocks with type == 'tool_result'. The exploration-sdk trace for this claim (obligation_violation-001) dismissed it at confidence 1.0 with the same finding. This is a clear false positive.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "1c084e672cea51ef"
+  },
+  "trace": null
+}

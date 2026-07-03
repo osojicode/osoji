@@ -1,0 +1,624 @@
+{
+  "slug": "audit-latent_bug-000",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:latent_bug",
+    "gap_type": "uncategorized",
+    "path": "scripts/triage_bootstrap.py",
+    "line_start": 135,
+    "line_end": 135,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L135-135: Accesses `result.exploration_traces` on the return value of `triage.decide_batch()`. If the batch result object does not have an `exploration_traces` attribute (e.g., in claim mode where no exploration traces are collected), this will raise AttributeError at runtime.",
+    "observed_behavior": "Verify that the `decide_batch` return type always includes `exploration_traces` (even as an empty list) for both modes, or guard with `getattr(result, 'exploration_traces', [])` and add a cross-file type annotation.",
+    "evidence": [
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "scripts/triage_bootstrap.py",
+          "line_start": 125,
+          "line_end": 145,
+          "snippet": "125:     }\n126: \n127: \n128: def _stage_fixture_root(fixture_root: Path, tmp: Path) -> None:\n129:     \"\"\"Materialize a fixture case as a mini-repo (test_prompt_regression layout):\n130:     source/** at the root, symbols/facts sidecars under .osoji/. expected.json\n131:     (the answer key) stays behind — same isolation rule as exploration.\"\"\"\n132: \n133:     for sub, dest in ((\"source\", tmp), (\"symbols\", tmp / \".osoji\" / \"symbols\"),\n134:                       (\"facts\", tmp / \".osoji\" / \"facts\")):\n135:         src_dir = fixture_root / sub\n136:         if not src_dir.exists():\n137:             continue\n138:         for src_file in src_dir.rglob(\"*\"):\n139:             if src_file.is_file():\n140:                 target = dest / src_file.relative_to(src_dir)\n141:                 target.parent.mkdir(parents=True, exist_ok=True)\n142:                 shutil.copy2(src_file, target)\n143: \n144: \n145: def build_claims_for_entries(",
+          "anchor": "lines",
+          "enclosing_symbol": {
+            "name": "run",
+            "kind": "function",
+            "line_start": 119,
+            "line_end": 180
+          }
+        }
+      },
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/test_triage.py",
+              "kind": "call",
+              "context": "calls triage.decide_batch at line 89",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "call",
+              "context": "calls triage.decide_batch at line 121",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "call",
+              "context": "calls triage.decide_batch at line 133",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "call",
+              "context": "calls triage.decide_batch at line 152",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "call",
+              "context": "calls triage.decide_batch at line 165",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "call",
+              "context": "calls triage.decide_batch at line 203",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "call",
+              "context": "calls triage.decide_batch at line 230",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "call",
+              "context": "calls triage.decide_batch at line 243",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "call",
+              "context": "calls triage.decide_batch at line 265",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "call",
+              "context": "calls triage.decide_batch at line 284",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "call",
+              "context": "calls triage.decide_batch at line 300",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "call",
+              "context": "calls triage.decide_batch at line 317",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "call",
+              "context": "calls triage.decide_batch at line 650",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 275,
+              "context": "    assert result.findings[0].triage_reasoning == \"found a use\"\n    # trace records both tool calls in order\n    names = [c[\"name\"] for c in result.exploration_traces[0][\"calls\"]]\n    assert names == [\"read_file\", \"submit_triage_verdict\"]\n    # two provider turns, and the executor output was fed back as a tool_result",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 392,
+              "context": "    assert result.findings[0].verdict == \"confirmed\"\n    assert result.would_escalate_count == 1\n    assert len(result.exploration_traces) == 1",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 682,
+              "context": "      \"severity\": \"error\",\n      \"adjudicated_verdict\": \"dismissed\",\n      \"adjudication_notes\": \"TriageBatchResult declares exploration_traces with default_factory; sole return site always passes it. AttributeError impossible.\",\n      \"evidence_consulted\": [\n        \"read access site + call\",",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 696,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L135-135: Accesses `result.exploration_traces` on the return value of `triage.decide_batch()`. If the batch result object does not have an `exploration_traces` attribute (e.g., in claim mode where no exploration traces are collected), this will raise AttributeError at runtime.\",\n        \"observed_behavior\": \"Verify that the `decide_batch` return type always includes `exploration_traces` (even as an empty list) for both modes, or guard with `getattr(result, 'exploration_traces', [])` and add a cross-file type annotation.\",\n        \"evidence\": [],",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 697,
+              "context": "        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L135-135: Accesses `result.exploration_traces` on the return value of `triage.decide_batch()`. If the batch result object does not have an `exploration_traces` attribute (e.g., in claim mode where no exploration traces are collected), this will raise AttributeError at runtime.\",\n        \"observed_behavior\": \"Verify that the `decide_batch` return type always includes `exploration_traces` (even as an empty list) for both modes, or guard with `getattr(result, 'exploration_traces', [])` and add a cross-file type annotation.\",\n        \"evidence\": [],\n        \"id\": \"40820cb8d4c4b83c\",",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1228,
+              "context": "      \"severity\": \"error\",\n      \"adjudicated_verdict\": \"dismissed\",\n      \"adjudication_notes\": \"TriageBatchResult declares exploration_traces with default_factory; sole return site always passes it. AttributeError impossible.\",\n      \"evidence_consulted\": [\n        \"read access site + call\",",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1242,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L135-135: Accesses `result.exploration_traces` on the return value of `triage.decide_batch()`. If the batch result object does not have an `exploration_traces` attribute (e.g., in claim mode where no exploration traces are collected), this will raise AttributeError at runtime.\",\n        \"observed_behavior\": \"Verify that the `decide_batch` return type always includes `exploration_traces` (even as an empty list) for both modes, or guard with `getattr(result, 'exploration_traces', [])` and add a cross-file type annotation.\",\n        \"evidence\": [],",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1243,
+              "context": "        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L135-135: Accesses `result.exploration_traces` on the return value of `triage.decide_batch()`. If the batch result object does not have an `exploration_traces` attribute (e.g., in claim mode where no exploration traces are collected), this will raise AttributeError at runtime.\",\n        \"observed_behavior\": \"Verify that the `decide_batch` return type always includes `exploration_traces` (even as an empty list) for both modes, or guard with `getattr(result, 'exploration_traces', [])` and add a cross-file type annotation.\",\n        \"evidence\": [],\n        \"id\": \"40820cb8d4c4b83c\",",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-latent_bug-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L135-135: Accesses `result.exploration_traces` on the return value of `triage.decide_batch()`. If the batch result object does not have an `exploration_traces` attribute (e.g., in claim mode where no exploration traces are collected), this will raise AttributeError at runtime.\",\n    \"observed_behavior\": \"Verify that the `decide_batch` return type always includes `exploration_traces` (even as an empty list) for both modes, or guard with `getattr(result, 'exploration_traces', [])` and add a cross-file type annotation.\",\n    \"evidence\": [],",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-latent_bug-000.json",
+              "kind": "text_match",
+              "line": 14,
+              "context": "    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L135-135: Accesses `result.exploration_traces` on the return value of `triage.decide_batch()`. If the batch result object does not have an `exploration_traces` attribute (e.g., in claim mode where no exploration traces are collected), this will raise AttributeError at runtime.\",\n    \"observed_behavior\": \"Verify that the `decide_batch` return type always includes `exploration_traces` (even as an empty list) for both modes, or guard with `getattr(result, 'exploration_traces', [])` and add a cross-file type annotation.\",\n    \"evidence\": [],\n    \"id\": \"40820cb8d4c4b83c\",",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-latent_bug-000.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"dismissed\",\n    \"confidence\": 0.99,\n    \"triage_reasoning\": \"The claim asserts that `result.exploration_traces` in `scripts/triage_bootstrap.py:L292` may raise `AttributeError` when `decide_batch()` runs in claim mode (where no exploration traces are collected).\\n\\nEvidence against the claim:\\n\\n1. **`TriageBatchResult` is a Python `@dataclass`** (`src/osoji/triage.py:L138–150`) with the field declared as:\\n   ```python\\n   exploration_traces: list[dict[str, Any]] = field(default_factory=list)\\n   ```\\n   Python dataclasses always initialize every declared field. There is no code path that constructs a `TriageBatchResult` without this attribute being present — `default_factory=list` guarantees it defaults to `[]`.\\n\\n2. **`decide_batch()` always returns a `TriageBatchResult`** (`src/osoji/triage.py:L246–253`). The return statement at L246 explicitly passes `exploration_traces=traces`, where `traces` is initialized as `[]` at the top of the method body and only appended to during exploration-mode calls. In claim mode, `traces` stays `[]` and is passed through — the attribute exists and is simply empty.\\n\\n3. **No alternative return type exists.** There is no code path in `decide_batch()` that returns a different type (e.g., a plain dict or `None`). The static type annotation `-> TriageBatchResult` matches the implementation.\\n\\n**Conclusion:** The attribute is always present. The access at L292 is safe in all modes. The claim fails the Reality predicate — the described gap does not exist in the code.\",\n    \"suggested_fix\": null,\n    \"severity\": null,",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-latent_bug-000.json",
+              "kind": "text_match",
+              "line": 77,
+              "context": "          \"verdict\": \"dismissed\",\n          \"confidence\": 0.99,\n          \"reasoning\": \"The claim asserts that `result.exploration_traces` in `scripts/triage_bootstrap.py:L292` may raise `AttributeError` when `decide_batch()` runs in claim mode (where no exploration traces are collected).\\n\\nEvidence against the claim:\\n\\n1. **`TriageBatchResult` is a Python `@dataclass`** (`src/osoji/triage.py:L138–150`) with the field declared as:\\n   ```python\\n   exploration_traces: list[dict[str, Any]] = field(default_factory=list)\\n   ```\\n   Python dataclasses always initialize every declared field. There is no code path that constructs a `TriageBatchResult` without this attribute being present — `default_factory=list` guarantees it defaults to `[]`.\\n\\n2. **`decide_batch()` always returns a `TriageBatchResult`** (`src/osoji/triage.py:L246–253`). The return statement at L246 explicitly passes `exploration_traces=traces`, where `traces` is initialized as `[]` at the top of the method body and only appended to during exploration-mode calls. In claim mode, `traces` stays `[]` and is passed through — the attribute exists and is simply empty.\\n\\n3. **No alternative return type exists.** There is no code path in `decide_batch()` that returns a different type (e.g., a plain dict or `None`). The static type annotation `-> TriageBatchResult` matches the implementation.\\n\\n**Conclusion:** The attribute is always present. The access at L292 is safe in all modes. The claim fails the Reality predicate — the described gap does not exist in the code.\"\n        }\n      }",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 89,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 277,\n              \"context\": \"    names = [c[\\\"name\\\"] for c in result.exploration_traces[0][\\\"calls\\\"]]\\n    assert names == [\\\"read_file\\\", \\\"submit_triage_verdict\\\"]\\n    # two provider turns, and the executor output was fed back as a tool_result\\n    assert len(provider.calls) == 2\\n    second_turn_msgs = provider.calls[1][\\\"messages\\\"]\",\n              \"needle\": \"executor\",\n              \"source\": \"text_scan\"",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L135-135: Accesses `result.exploration_traces` on the return value of `triage.decide_batch()`. If the batch result object does not have an `exploration_traces` attribute (e.g., in claim mode where no exploration traces are collected), this will raise AttributeError at runtime.\",\n    \"observed_behavior\": \"Verify that the `decide_batch` return type always includes `exploration_traces` (even as an empty list) for both modes, or guard with `getattr(result, 'exploration_traces', [])` and add a cross-file type annotation.\",\n    \"evidence\": [",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-000.json",
+              "kind": "text_match",
+              "line": 14,
+              "context": "    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L135-135: Accesses `result.exploration_traces` on the return value of `triage.decide_batch()`. If the batch result object does not have an `exploration_traces` attribute (e.g., in claim mode where no exploration traces are collected), this will raise AttributeError at runtime.\",\n    \"observed_behavior\": \"Verify that the `decide_batch` return type always includes `exploration_traces` (even as an empty list) for both modes, or guard with `getattr(result, 'exploration_traces', [])` and add a cross-file type annotation.\",\n    \"evidence\": [\n      {",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-000.json",
+              "kind": "text_match",
+              "line": 120,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 275,\n              \"context\": \"    assert result.findings[0].triage_reasoning == \\\"found a use\\\"\\n    # trace records both tool calls in order\\n    names = [c[\\\"name\\\"] for c in result.exploration_traces[0][\\\"calls\\\"]]\\n    assert names == [\\\"read_file\\\", \\\"submit_triage_verdict\\\"]\\n    # two provider turns, and the executor output was fed back as a tool_result\",\n              \"needle\": \"exploration_traces\",\n              \"source\": \"text_scan\"",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-000.json",
+              "kind": "text_match",
+              "line": 121,
+              "context": "              \"line\": 275,\n              \"context\": \"    assert result.findings[0].triage_reasoning == \\\"found a use\\\"\\n    # trace records both tool calls in order\\n    names = [c[\\\"name\\\"] for c in result.exploration_traces[0][\\\"calls\\\"]]\\n    assert names == [\\\"read_file\\\", \\\"submit_triage_verdict\\\"]\\n    # two provider turns, and the executor output was fed back as a tool_result\",\n              \"needle\": \"exploration_traces\",\n              \"source\": \"text_scan\"\n            },",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-000.json",
+              "kind": "text_match",
+              "line": 128,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 392,\n              \"context\": \"    assert result.findings[0].verdict == \\\"confirmed\\\"\\n    assert result.would_escalate_count == 1\\n    assert len(result.exploration_traces) == 1\",\n              \"needle\": \"exploration_traces\",\n              \"source\": \"text_scan\"",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-000.json",
+              "kind": "text_match",
+              "line": 129,
+              "context": "              \"line\": 392,\n              \"context\": \"    assert result.findings[0].verdict == \\\"confirmed\\\"\\n    assert result.would_escalate_count == 1\\n    assert len(result.exploration_traces) == 1\",\n              \"needle\": \"exploration_traces\",\n              \"source\": \"text_scan\"\n            },",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-latent_bug-000.json",
+              "kind": "text_match",
+              "line": 136,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 682,\n              \"context\": \"      \\\"severity\\\": \\\"error\\\",\\n      \\\"adjudicated_verdict\\\": \\\"dismissed\\\",\\n      \\\"adjudication_notes\\\": \\\"TriageBatchResult declares exploration_traces with default_factory; sole return site always passes it. AttributeError impossible.\\\",\\n      \\\"evidence_consulted\\\": [\\n        \\\"read access site + call\\\",\",\n              \"needle\": \"exploration_traces\",\n              \"source\": \"text_scan\"",
+              "needle": "exploration_traces",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 89,
+              "context": "    triage = Triage(config, provider=provider)\n\n    result = await triage.decide_batch(claims, mode=\"claim\")\n\n    assert isinstance(result, TriageBatchResult)",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 121,
+              "context": "    triage = Triage(config, provider=provider)\n\n    result = await triage.decide_batch(claims, mode=\"claim\")\n\n    assert result.findings[0].verdict == \"dismissed\"",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 133,
+              "context": "    provider = FakeProvider([])\n    triage = Triage(config, provider=provider)\n    result = await triage.decide_batch([], mode=\"claim\")\n    assert result.findings == []\n    assert provider.calls == []",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 152,
+              "context": "    triage = Triage(config, provider=provider)\n\n    await triage.decide_batch([Claim(finding)], mode=\"claim\")\n\n    user_msg = provider.calls[0][\"messages\"][0].content",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 165,
+              "context": "    ])\n    triage = Triage(config, provider=provider)\n    await triage.decide_batch([Claim(make_finding())], mode=\"claim\", system_prompt=\"CUSTOM-RUBRIC\")\n    assert provider.calls[0][\"system\"] == \"CUSTOM-RUBRIC\"\n",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 270,
+              "context": "    triage = Triage(explore_repo, provider=provider)\n\n    result = await triage.decide_batch([Claim(make_finding())], mode=\"exploration\")\n\n    assert result.findings[0].verdict == \"dismissed\"",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 297,
+              "context": "    ])\n    triage = Triage(explore_repo, provider=provider)\n    await triage.decide_batch([Claim(make_finding())], mode=\"exploration\")\n    assert provider.calls[0][\"options\"].tool_choice == {\"type\": \"auto\"}\n",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 310,
+              "context": "    triage = Triage(explore_repo, provider=provider)\n\n    result = await triage.decide_batch([Claim(make_finding())], mode=\"exploration\")\n\n    assert result.findings[0].verdict == \"uncertain\"",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 332,
+              "context": "    triage = Triage(config, provider=provider)\n\n    result = await triage.decide_batch([Claim(finding)], mode=\"claim\", verdict_cache=cache)\n\n    assert provider.calls == []  # the LLM was never called",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 351,
+              "context": "    triage = Triage(config, provider=provider)\n\n    result = await triage.decide_batch([Claim(finding)], mode=\"claim\", verdict_cache=cache)\n\n    assert len(provider.calls) == 1  # triaged, not served from cache",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 367,
+              "context": "    triage = Triage(config, provider=provider)\n\n    result = await triage.decide_batch(\n        [Claim(make_finding(), insufficient_evidence=True)], mode=\"claim\"\n    )",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 384,
+              "context": "    triage = Triage(explore_repo, provider=provider)\n\n    result = await triage.decide_batch(\n        [Claim(make_finding(), insufficient_evidence=True)],\n        mode=\"claim\",",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 240,
+              "context": "      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"dismissed\",\n      \"adjudication_notes\": \"Pairwise contract false: both files independently pass mode='exploration' to Triage.decide_batch - API-mediated, renaming one side cannot break the other.\",\n      \"evidence_consulted\": [\n        \"grep literal repo-wide\",",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 686,
+              "context": "        \"read access site + call\",\n        \"read dataclass fields\",\n        \"read decide_batch return\"\n      ],\n      \"finding\": {",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 696,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L135-135: Accesses `result.exploration_traces` on the return value of `triage.decide_batch()`. If the batch result object does not have an `exploration_traces` attribute (e.g., in claim mode where no exploration traces are collected), this will raise AttributeError at runtime.\",\n        \"observed_behavior\": \"Verify that the `decide_batch` return type always includes `exploration_traces` (even as an empty list) for both modes, or guard with `getattr(result, 'exploration_traces', [])` and add a cross-file type annotation.\",\n        \"evidence\": [],",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 697,
+              "context": "        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L135-135: Accesses `result.exploration_traces` on the return value of `triage.decide_batch()`. If the batch result object does not have an `exploration_traces` attribute (e.g., in claim mode where no exploration traces are collected), this will raise AttributeError at runtime.\",\n        \"observed_behavior\": \"Verify that the `decide_batch` return type always includes `exploration_traces` (even as an empty list) for both modes, or guard with `getattr(result, 'exploration_traces', [])` and add a cross-file type annotation.\",\n        \"evidence\": [],\n        \"id\": \"40820cb8d4c4b83c\",",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 782,
+              "context": "      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"dismissed\",\n      \"adjudication_notes\": \"Pairwise contract false: both files independently pass mode='exploration' to Triage.decide_batch - API-mediated, renaming one side cannot break the other.\",\n      \"evidence_consulted\": [\n        \"grep literal repo-wide\",",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1232,
+              "context": "        \"read access site + call\",\n        \"read dataclass fields\",\n        \"read decide_batch return\"\n      ],\n      \"finding\": {",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1242,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L135-135: Accesses `result.exploration_traces` on the return value of `triage.decide_batch()`. If the batch result object does not have an `exploration_traces` attribute (e.g., in claim mode where no exploration traces are collected), this will raise AttributeError at runtime.\",\n        \"observed_behavior\": \"Verify that the `decide_batch` return type always includes `exploration_traces` (even as an empty list) for both modes, or guard with `getattr(result, 'exploration_traces', [])` and add a cross-file type annotation.\",\n        \"evidence\": [],",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1243,
+              "context": "        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L135-135: Accesses `result.exploration_traces` on the return value of `triage.decide_batch()`. If the batch result object does not have an `exploration_traces` attribute (e.g., in claim mode where no exploration traces are collected), this will raise AttributeError at runtime.\",\n        \"observed_behavior\": \"Verify that the `decide_batch` return type always includes `exploration_traces` (even as an empty list) for both modes, or guard with `getattr(result, 'exploration_traces', [])` and add a cross-file type annotation.\",\n        \"evidence\": [],\n        \"id\": \"40820cb8d4c4b83c\",",
+              "needle": "decide_batch",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_evidence_builders.py",
+              "kind": "text_match",
+              "line": 297,
+              "context": "        gap_type=\"uncategorized\",\n        contract_claim=\"`CompletionOptions` has no field `top_k`\",\n        observed_behavior=\"access would raise AttributeError\",\n        symbol=None,\n    )",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 682,
+              "context": "      \"severity\": \"error\",\n      \"adjudicated_verdict\": \"dismissed\",\n      \"adjudication_notes\": \"TriageBatchResult declares exploration_traces with default_factory; sole return site always passes it. AttributeError impossible.\",\n      \"evidence_consulted\": [\n        \"read access site + call\",",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 696,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L135-135: Accesses `result.exploration_traces` on the return value of `triage.decide_batch()`. If the batch result object does not have an `exploration_traces` attribute (e.g., in claim mode where no exploration traces are collected), this will raise AttributeError at runtime.\",\n        \"observed_behavior\": \"Verify that the `decide_batch` return type always includes `exploration_traces` (even as an empty list) for both modes, or guard with `getattr(result, 'exploration_traces', [])` and add a cross-file type annotation.\",\n        \"evidence\": [],",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 715,
+              "context": "      \"severity\": \"error\",\n      \"adjudicated_verdict\": \"dismissed\",\n      \"adjudication_notes\": \"Concept declares priority_score: float = 0.0; both live and deserialize paths compute it. Sort cannot AttributeError.\",\n      \"evidence_consulted\": [\n        \"grep field across src\",",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 731,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L1031-1031: `c.priority_score` is accessed in `format_audit_report` when sorting underdocumented concepts, but `priority_score` is not visible as a standard field of `Concept` from this file. It may be set by `_compute_priority()` which is imported only in `_deserialize_doc_prompts`. If live-run `Concept` objects don't have this attribute, sorting will raise AttributeError.\",\n        \"observed_behavior\": \"Verify that `Concept` dataclass in `doc_prompts.py` always initializes `priority_score`, or that `_compute_priority` is called before any sort in the live code path.\",\n        \"evidence\": [],",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-fixtures.json",
+              "kind": "text_match",
+              "line": 360,
+              "context": "      \"category\": \"latent_bug\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"expected.json: one expected finding (severity error, lines 18-19, description contains 'usage'). CompletionResult has no .usage attribute — accessing it raises AttributeError at runtime.\",\n      \"finding\": {\n        \"detector\": \"debris:latent_bug\",",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-fixtures.json",
+              "kind": "text_match",
+              "line": 370,
+              "context": "        \"contract_source\": \"code\",\n        \"contract_claim\": \"record_token_usage reads result.usage.get(\\\"input_tokens\\\") and result.usage.get(\\\"output_tokens\\\"), implying CompletionResult exposes a `usage` mapping attribute.\",\n        \"observed_behavior\": \"The CompletionResult dataclass defines only content, input_tokens, output_tokens, model and stop_reason — there is no `usage` attribute, so lines 18-19 raise AttributeError the first time record_token_usage is called.\",\n        \"evidence\": [],\n        \"id\": \"b61c51e5e6f31e00\",",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 364,
+              "context": "      \"category\": \"latent_bug\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"expected.json: one expected finding (severity error, lines 18-19, description contains 'usage'). CompletionResult has no .usage attribute — accessing it raises AttributeError at runtime.\",\n      \"finding\": {\n        \"detector\": \"debris:latent_bug\",",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 374,
+              "context": "        \"contract_source\": \"code\",\n        \"contract_claim\": \"record_token_usage reads result.usage.get(\\\"input_tokens\\\") and result.usage.get(\\\"output_tokens\\\"), implying CompletionResult exposes a `usage` mapping attribute.\",\n        \"observed_behavior\": \"The CompletionResult dataclass defines only content, input_tokens, output_tokens, model and stop_reason — there is no `usage` attribute, so lines 18-19 raise AttributeError the first time record_token_usage is called.\",\n        \"evidence\": [],\n        \"id\": \"b61c51e5e6f31e00\",",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1228,
+              "context": "      \"severity\": \"error\",\n      \"adjudicated_verdict\": \"dismissed\",\n      \"adjudication_notes\": \"TriageBatchResult declares exploration_traces with default_factory; sole return site always passes it. AttributeError impossible.\",\n      \"evidence_consulted\": [\n        \"read access site + call\",",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1242,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L135-135: Accesses `result.exploration_traces` on the return value of `triage.decide_batch()`. If the batch result object does not have an `exploration_traces` attribute (e.g., in claim mode where no exploration traces are collected), this will raise AttributeError at runtime.\",\n        \"observed_behavior\": \"Verify that the `decide_batch` return type always includes `exploration_traces` (even as an empty list) for both modes, or guard with `getattr(result, 'exploration_traces', [])` and add a cross-file type annotation.\",\n        \"evidence\": [],",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1261,
+              "context": "      \"severity\": \"error\",\n      \"adjudicated_verdict\": \"dismissed\",\n      \"adjudication_notes\": \"Concept declares priority_score: float = 0.0; both live and deserialize paths compute it. Sort cannot AttributeError.\",\n      \"evidence_consulted\": [\n        \"grep field across src\",",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1277,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L1031-1031: `c.priority_score` is accessed in `format_audit_report` when sorting underdocumented concepts, but `priority_score` is not visible as a standard field of `Concept` from this file. It may be set by `_compute_priority()` which is imported only in `_deserialize_doc_prompts`. If live-run `Concept` objects don't have this attribute, sorting will raise AttributeError.\",\n        \"observed_behavior\": \"Verify that `Concept` dataclass in `doc_prompts.py` always initializes `priority_score`, or that `_compute_priority` is called before any sort in the live code path.\",\n        \"evidence\": [],",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/latent_bug/case_001_wrong_attribute/expected.json",
+              "kind": "text_match",
+              "line": 2,
+              "context": "{\n  \"description\": \"CompletionResult has no .usage attribute — accessing it will raise AttributeError at runtime\",\n  \"expected_findings\": [\n    {",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-latent_bug-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L135-135: Accesses `result.exploration_traces` on the return value of `triage.decide_batch()`. If the batch result object does not have an `exploration_traces` attribute (e.g., in claim mode where no exploration traces are collected), this will raise AttributeError at runtime.\",\n    \"observed_behavior\": \"Verify that the `decide_batch` return type always includes `exploration_traces` (even as an empty list) for both modes, or guard with `getattr(result, 'exploration_traces', [])` and add a cross-file type annotation.\",\n    \"evidence\": [],",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-latent_bug-000.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"dismissed\",\n    \"confidence\": 0.99,\n    \"triage_reasoning\": \"The claim asserts that `result.exploration_traces` in `scripts/triage_bootstrap.py:L292` may raise `AttributeError` when `decide_batch()` runs in claim mode (where no exploration traces are collected).\\n\\nEvidence against the claim:\\n\\n1. **`TriageBatchResult` is a Python `@dataclass`** (`src/osoji/triage.py:L138–150`) with the field declared as:\\n   ```python\\n   exploration_traces: list[dict[str, Any]] = field(default_factory=list)\\n   ```\\n   Python dataclasses always initialize every declared field. There is no code path that constructs a `TriageBatchResult` without this attribute being present — `default_factory=list` guarantees it defaults to `[]`.\\n\\n2. **`decide_batch()` always returns a `TriageBatchResult`** (`src/osoji/triage.py:L246–253`). The return statement at L246 explicitly passes `exploration_traces=traces`, where `traces` is initialized as `[]` at the top of the method body and only appended to during exploration-mode calls. In claim mode, `traces` stays `[]` and is passed through — the attribute exists and is simply empty.\\n\\n3. **No alternative return type exists.** There is no code path in `decide_batch()` that returns a different type (e.g., a plain dict or `None`). The static type annotation `-> TriageBatchResult` matches the implementation.\\n\\n**Conclusion:** The attribute is always present. The access at L292 is safe in all modes. The claim fails the Reality predicate — the described gap does not exist in the code.\",\n    \"suggested_fix\": null,\n    \"severity\": null,",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-latent_bug-000.json",
+              "kind": "text_match",
+              "line": 77,
+              "context": "          \"verdict\": \"dismissed\",\n          \"confidence\": 0.99,\n          \"reasoning\": \"The claim asserts that `result.exploration_traces` in `scripts/triage_bootstrap.py:L292` may raise `AttributeError` when `decide_batch()` runs in claim mode (where no exploration traces are collected).\\n\\nEvidence against the claim:\\n\\n1. **`TriageBatchResult` is a Python `@dataclass`** (`src/osoji/triage.py:L138–150`) with the field declared as:\\n   ```python\\n   exploration_traces: list[dict[str, Any]] = field(default_factory=list)\\n   ```\\n   Python dataclasses always initialize every declared field. There is no code path that constructs a `TriageBatchResult` without this attribute being present — `default_factory=list` guarantees it defaults to `[]`.\\n\\n2. **`decide_batch()` always returns a `TriageBatchResult`** (`src/osoji/triage.py:L246–253`). The return statement at L246 explicitly passes `exploration_traces=traces`, where `traces` is initialized as `[]` at the top of the method body and only appended to during exploration-mode calls. In claim mode, `traces` stays `[]` and is passed through — the attribute exists and is simply empty.\\n\\n3. **No alternative return type exists.** There is no code path in `decide_batch()` that returns a different type (e.g., a plain dict or `None`). The static type annotation `-> TriageBatchResult` matches the implementation.\\n\\n**Conclusion:** The attribute is always present. The access at L292 is safe in all modes. The claim fails the Reality predicate — the described gap does not exist in the code.\"\n        }\n      }",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-latent_bug-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L1031-1031: `c.priority_score` is accessed in `format_audit_report` when sorting underdocumented concepts, but `priority_score` is not visible as a standard field of `Concept` from this file. It may be set by `_compute_priority()` which is imported only in `_deserialize_doc_prompts`. If live-run `Concept` objects don't have this attribute, sorting will raise AttributeError.\",\n    \"observed_behavior\": \"Verify that `Concept` dataclass in `doc_prompts.py` always initializes `priority_score`, or that `_compute_priority` is called before any sort in the live code path.\",\n    \"evidence\": [],",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-latent_bug-001.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"dismissed\",\n    \"confidence\": 0.98,\n    \"triage_reasoning\": \"Three sub-claims in the finding are all refuted by the code:\\n\\n**Sub-claim 1: \\\"`priority_score` is not visible as a standard field of `Concept`\\\"**\\nFalse. `doc_prompts.py:51` declares `priority_score: float = 0.0` as a proper dataclass field with a default value. Every `Concept` instance has this attribute from construction — no `AttributeError` is ever possible regardless of what else runs.\\n\\n**Sub-claim 2: \\\"`_compute_priority` is imported only in `_deserialize_doc_prompts`\\\"**\\nFalse at the semantic level. `_compute_priority` is called in `_deserialize_doc_prompts` (audit.py:1508) for the cache-reload path, AND it is called in the live pipeline inside `doc_prompts.py:667` (Stage 4a: \\\"Priority scoring\\\") for every concept produced in a fresh run. The two entry-points cover the full set of `Concept` objects that can ever reach `format_audit_report`.\\n\\n**Sub-claim 3: \\\"sorting will raise AttributeError\\\"**\\nFalse. Even in the hypothetical worst case where neither call to `_compute_priority` had run, the dataclass field default (`0.0`) ensures the attribute is present. The sort key `(priority_order.get(c.priority, 3), -c.priority_score)` is safe.\\n\\n**Reality check:** The gap does not exist. `priority_score` is always initialized (default 0.0) and is further populated by `_compute_priority` which is invoked on every `Concept` in both the live and deserialization code paths before any call to `format_audit_report`.\\n\\n**Significance / Actionability:** Moot — the predicate of the claim is false.\",\n    \"suggested_fix\": null,\n    \"severity\": null,",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-latent_bug-001.json",
+              "kind": "text_match",
+              "line": 102,
+              "context": "          \"verdict\": \"dismissed\",\n          \"confidence\": 0.98,\n          \"reasoning\": \"Three sub-claims in the finding are all refuted by the code:\\n\\n**Sub-claim 1: \\\"`priority_score` is not visible as a standard field of `Concept`\\\"**\\nFalse. `doc_prompts.py:51` declares `priority_score: float = 0.0` as a proper dataclass field with a default value. Every `Concept` instance has this attribute from construction — no `AttributeError` is ever possible regardless of what else runs.\\n\\n**Sub-claim 2: \\\"`_compute_priority` is imported only in `_deserialize_doc_prompts`\\\"**\\nFalse at the semantic level. `_compute_priority` is called in `_deserialize_doc_prompts` (audit.py:1508) for the cache-reload path, AND it is called in the live pipeline inside `doc_prompts.py:667` (Stage 4a: \\\"Priority scoring\\\") for every concept produced in a fresh run. The two entry-points cover the full set of `Concept` objects that can ever reach `format_audit_report`.\\n\\n**Sub-claim 3: \\\"sorting will raise AttributeError\\\"**\\nFalse. Even in the hypothetical worst case where neither call to `_compute_priority` had run, the dataclass field default (`0.0`) ensures the attribute is present. The sort key `(priority_order.get(c.priority, 3), -c.priority_score)` is safe.\\n\\n**Reality check:** The gap does not exist. `priority_score` is always initialized (default 0.0) and is further populated by `_compute_priority` which is invoked on every `Concept` in both the live and deserialization code paths before any call to `format_audit_report`.\\n\\n**Significance / Actionability:** Moot — the predicate of the claim is false.\"\n        }\n      }",
+              "needle": "AttributeError",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {
+            "tests/test_triage.py": "# tests\\test_triage.py\n@source-hash: 6f0bf225090bd017\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:29:24Z\n\n## File Purpose\n\nTest suite for `osoji.triage.Triage` — the unified triage stage (V1-3). Validates claim mode, exploration mode, verdict cache short-circuit, and insufficient-evidence escalation routing. All LLM calls use `FakeProvider`; no network, deterministic.\n\n## Key Components\n\n### Fixtures\n- **`config(temp_dir)` (L22-24)**: Minimal `Config` with a temp root, `respect_gitignore=False`. Used for non-file-access tests.\n- **`explore_repo(temp_dir)` (L183-188)**: Creates a real on-disk repo (`temp_dir/repo/src/x.py`) containing the string `DISTINCTIVE-MARKER`. Required for exploration-mode tests that actually read files.\n\n### Helper Classes/Functions\n- **`make_finding(**overrides)` (L27-40)**: Factory for `Finding` with sensible defaults (`detector=\"debris:dead_code\"`, `gap_type=\"reachability\"`, `symbol=\"old_helper\"`, etc.). All fields can be overridden via kwargs.\n- **`FakeProvider` (L43-58)**: Mock async LLM provider. Consumes pre-queued `CompletionResult` objects from a list via `pop(0)`. Records every `complete(messages, system, options)` call in `.calls` for assertion. Implements `async close()` as no-op.\n- **`verdicts_result(verdicts, *, in_tok, out_tok)` (L61-70)**: Produces a `CompletionResult` simulating the `submit_triage_verdicts` batch tool call (claim mode). Tool call id `\"tc1\"`.\n- **`tool_use_result(name, tool_input, *, call_id, in_tok, out_tok)` (L172-180)**: Produces a `CompletionResult` with a single arbitrary named tool call. Used for multi-turn exploration sequences.\n\n## Test Sections & Key Invariants\n\n### Claim Mode (L76-166)\n| Test | What it pins |\n|------|-------------|\n| `test_claim_mode_fills_all_verdict_fields` | All verdict fields (`verdict`, `confidence`, `triage_reasoning`, `suggested_fix`, `severity`) are populated on result findings; `input_tokens`/`output_tokens` propagated; exactly 1 provider call. |\n| `test_claim_mod"
+          },
+          "scan_scope": {
+            "files_scanned": 354,
+            "needles": [
+              "exploration_traces",
+              "decide_batch",
+              "AttributeError"
+            ]
+          },
+          "export_surface": {
+            "symbol": "exploration_traces",
+            "exported_from_flagged_file": false
+          }
+        }
+      }
+    ],
+    "id": "40820cb8d4c4b83c",
+    "verdict": "dismissed",
+    "confidence": 0.99,
+    "triage_reasoning": "The evidence is decisive. `TriageBatchResult` is a Python `@dataclass` with `exploration_traces: list[dict[str, Any]] = field(default_factory=list)`. Python dataclasses always initialize every declared field at construction time; `default_factory=list` guarantees the attribute is always present. `decide_batch()` explicitly passes `exploration_traces=traces` at its sole return site, where `traces` is initialized as `[]` and only appended to during exploration-mode calls. In claim mode `traces` remains `[]` but is always passed through. The adjudication notes confirm: 'TriageBatchResult declares exploration_traces with default_factory; sole return site always passes it. AttributeError impossible.' Prior triage dismissed this at 0.99 confidence. The gap does not exist.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "bbedea2101dc2f1d"
+  },
+  "trace": null
+}

@@ -447,17 +447,89 @@ def _render_evidence(ev: Evidence) -> str:
     """Render a single Evidence into the claim prompt (positional, not semantic)."""
 
     if ev.kind == "cross_file_reference":
-        out = ["Cross-file references:"]
-        for ref in ev.payload.get("references", []):
-            resolves = " (resolves to source)" if ref.get("resolves_to_source") else ""
-            out.append(f"- `{ref.get('file')}` [{ref.get('kind')}]: {ref.get('context')}{resolves}")
+        references = ev.payload.get("references", [])
+        scope = ev.payload.get("scan_scope")
+        out = []
+        if references:
+            out.append("Cross-file references:")
+            for ref in references:
+                resolves = " (resolves to source)" if ref.get("resolves_to_source") else ""
+                same_file = " (same file, outside the flagged region)" if ref.get("same_file") else ""
+                line = f":{ref['line']}" if ref.get("line") else ""
+                out.append(
+                    f"- `{ref.get('file')}{line}` [{ref.get('kind')}]{same_file}: "
+                    f"{ref.get('context')}{resolves}"
+                )
+            if scope:
+                totals = scope.get("needle_totals") or {}
+                shown = {}
+                for ref in references:
+                    if ref.get("needle"):
+                        shown[ref["needle"]] = shown.get(ref["needle"], 0) + 1
+                per_needle = ", ".join(
+                    f"`{needle}`: {total} match(es)"
+                    + (f" ({shown[needle]} shown)" if shown.get(needle, total) < total else "")
+                    for needle, total in totals.items()
+                ) or ", ".join(scope.get("needles", []))
+                out.append(
+                    f"(reference sweep covered {scope.get('files_scanned')} files — "
+                    f"{per_needle})"
+                )
+        elif scope:
+            # Evidence-of-absence: state it explicitly — the canonical case-FOR
+            # a reachability claim is the zero-hit sweep with honest scope.
+            swept = (
+                "including the flagged file outside the flagged region"
+                if scope.get("same_file_swept")
+                else "outside the flagged file"
+            )
+            out.append(
+                f"No references found: {scope.get('files_scanned')} files swept "
+                f"for {', '.join(scope.get('needles', []))} — zero matches, {swept}."
+            )
+        surface = ev.payload.get("export_surface")
+        if surface:
+            exported = "IS" if surface.get("exported_from_flagged_file") else "is NOT"
+            out.append(
+                f"Export surface: `{surface.get('symbol')}` {exported} part of the "
+                "flagged file's export list (exported symbols may have consumers "
+                "outside this repository)."
+            )
         for file, excerpt in (ev.payload.get("shadow_excerpts") or {}).items():
             out.append(f"Shadow doc for `{file}`:\n{excerpt}")
+        if out:
+            return "\n".join(out)
+        return "Cross-file references: none gathered."
+    if ev.kind == "surrounding_code":
+        p = ev.payload
+        out = [
+            f"Surrounding code `{p.get('file')}` "
+            f"L{p.get('line_start')}-{p.get('line_end')} (anchor: {p.get('anchor')}):"
+        ]
+        enclosing = p.get("enclosing_symbol")
+        if enclosing:
+            out.append(
+                f"Enclosing {enclosing.get('kind')} `{enclosing.get('name')}` "
+                f"(L{enclosing.get('line_start')}-{enclosing.get('line_end')})"
+            )
+        out.append(f"```\n{p.get('snippet', '')}\n```")
+        return "\n".join(out)
+    if ev.kind == "declared_intent":
+        p = ev.payload
+        out = [f"Declared intent near the flagged region of `{p.get('file')}`:"]
+        for block in p.get("blocks", []):
+            symbol = f" of `{block['symbol']}`" if block.get("symbol") else ""
+            out.append(
+                f"[{block.get('label')}{symbol}, from L{block.get('line_start')}]\n"
+                f"{block.get('text', '')}"
+            )
         return "\n".join(out)
     if ev.kind == "type_signature":
         p = ev.payload
         return f"Type `{p.get('type_name')}` defined in `{p.get('file')}`:\n```\n{p.get('source', '')}\n```"
     if ev.kind == "shadow_doc_claim":
         p = ev.payload
-        return f"Shadow doc `{p.get('file')}`:\n{p.get('content', '')}"
+        scope = f" ({p['scope']} scope)" if p.get("scope") else ""
+        body = p.get("excerpt") or p.get("content", "")
+        return f"Shadow doc `{p.get('file')}`{scope}:\n{body}"
     return json.dumps(ev.payload, ensure_ascii=False, default=str)

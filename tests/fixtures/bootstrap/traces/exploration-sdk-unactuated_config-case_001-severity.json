@@ -1,0 +1,130 @@
+{
+  "slug": "unactuated_config-case_001-severity",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "plumbing:unactuated_config",
+    "gap_type": "reachability",
+    "path": "tools.py",
+    "line_start": 48,
+    "line_end": 51,
+    "symbol": "severity",
+    "contract_source": "config schema",
+    "contract_claim": "The schema field `severity` declares an enum constraint ([\"error\", \"warning\"]) — an obligation that consuming code must enforce when the value is provided.",
+    "observed_behavior": "No application code validates a `severity` configuration value against this enum; the declaration appears only inside an LLM tool_use input_schema in tools.py, where the model itself is the consumer of the constraint.",
+    "evidence": [],
+    "id": "369d61f998fdafec",
+    "verdict": "dismissed",
+    "confidence": 0.95,
+    "triage_reasoning": "The `severity` field at tools.py L48-51 (and again at L353) lives inside an Anthropic tool_use `input_schema` definition — specifically within `SUBMIT_SHADOW_DOC_TOOL` and `ANALYZE_DOCUMENT_TOOL`. This is an LLM forced/structured output schema, not a runtime configuration value read from user config files.\n\n**Reality check:** It is factually true that no Python application code in this repository explicitly validates the `severity` value after receiving the LLM's tool_use response. However, the claim itself acknowledges the actual consumer: \"the model itself is the consumer of the constraint.\" This is correct — Anthropic's tool_use API uses the `input_schema` JSON Schema to constrain model outputs at generation time. The enum `[\"error\", \"warning\"]` is a prompt-level instruction to the model.\n\n**Significance fails:** For LLM tool schemas, placing an `enum` constraint in `input_schema` *is* the actuated enforcement mechanism. This is the ecosystem convention for structured LLM outputs. The constraint is enforced by: (a) the model being trained to respect JSON Schema enums in tool schemas, and (b) the Anthropic API potentially validating tool outputs. No Python-side validation is needed or expected — that would be defensive double-validation of the LLM's response, which is not the project pattern (other enum fields like `category`, `kind`, `action` follow the same pattern with zero Python-side validation).\n\n**Actionability fails:** There is no concrete improvement to make. Adding a Python-side `assert severity in (\"error\", \"warning\")` would add noise without benefit, as the upstream LLM contract already constrains the value.\n\nThis is an ecosystem convention: the `input_schema` contract is with the external Anthropic API and model — not internal application code. The finding confuses \"no application-level validation\" with \"unactuated,\" but in the LLM tool_use pattern, the schema IS the actuation.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "369d61f998fdafec",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "tools.py",
+          "start": 40,
+          "end": 70
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "severity",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "tools.py",
+          "start": 340,
+          "end": 400
+        }
+      },
+      {
+        "turn": 3,
+        "name": "grep",
+        "input": {
+          "pattern": "severity",
+          "glob": "**/*.ts"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "severity"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "list_dir",
+        "input": {}
+      },
+      {
+        "turn": 6,
+        "name": "read_file",
+        "input": {
+          "path": "tools.py",
+          "start": 1,
+          "end": 50
+        }
+      },
+      {
+        "turn": 7,
+        "name": "read_file",
+        "input": {
+          "path": "tools.py",
+          "start": 500,
+          "end": 540
+        }
+      },
+      {
+        "turn": 8,
+        "name": "read_file",
+        "input": {
+          "path": "tools.py",
+          "start": 540,
+          "end": 600
+        }
+      },
+      {
+        "turn": 9,
+        "name": "read_file",
+        "input": {
+          "path": "tools.py",
+          "start": 395,
+          "end": 520
+        }
+      },
+      {
+        "turn": 10,
+        "name": "read_file",
+        "input": {
+          "path": "tools.py",
+          "start": 58,
+          "end": 75
+        }
+      },
+      {
+        "turn": 11,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 0.95,
+          "reasoning": "The `severity` field at tools.py L48-51 (and again at L353) lives inside an Anthropic tool_use `input_schema` definition — specifically within `SUBMIT_SHADOW_DOC_TOOL` and `ANALYZE_DOCUMENT_TOOL`. This is an LLM forced/structured output schema, not a runtime configuration value read from user config files.\n\n**Reality check:** It is factually true that no Python application code in this repository explicitly validates the `severity` value after receiving the LLM's tool_use response. However, the claim itself acknowledges the actual consumer: \"the model itself is the consumer of the constraint.\" This is correct — Anthropic's tool_use API uses the `input_schema` JSON Schema to constrain model outputs at generation time. The enum `[\"error\", \"warning\"]` is a prompt-level instruction to the model.\n\n**Significance fails:** For LLM tool schemas, placing an `enum` constraint in `input_schema` *is* the actuated enforcement mechanism. This is the ecosystem convention for structured LLM outputs. The constraint is enforced by: (a) the model being trained to respect JSON Schema enums in tool schemas, and (b) the Anthropic API potentially validating tool outputs. No Python-side validation is needed or expected — that would be defensive double-validation of the LLM's response, which is not the project pattern (other enum fields like `category`, `kind`, `action` follow the same pattern with zero Python-side validation).\n\n**Actionability fails:** There is no concrete improvement to make. Adding a Python-side `assert severity in (\"error\", \"warning\")` would add noise without benefit, as the upstream LLM contract already constrains the value.\n\nThis is an ecosystem convention: the `input_schema` contract is with the external Anthropic API and model — not internal application code. The finding confuses \"no application-level validation\" with \"unactuated,\" but in the LLM tool_use pattern, the schema IS the actuation."
+        }
+      }
+    ],
+    "cost_usd": 0.180941
+  }
+}

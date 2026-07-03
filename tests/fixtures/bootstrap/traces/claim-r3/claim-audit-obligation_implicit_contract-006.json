@@ -1,0 +1,221 @@
+{
+  "slug": "audit-obligation_implicit_contract-006",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "tests/test_plugin_python.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "Implicit contract: \"ast\" is produced in src/osoji/shadow.py and checked in tests/test_plugin_python.py with no shared definition",
+    "observed_behavior": "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "src/osoji/shadow.py",
+              "kind": "text_match",
+              "line": 673,
+              "context": "                \"member_writes\": pf.get(\"member_writes\", []),\n                \"string_literals\": _merge_string_literals(ast_strings, llm_strings),\n                \"extraction_method\": \"ast\",\n            }\n        else:",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_plugin_python.py",
+              "kind": "text_match",
+              "line": 258,
+              "context": "    assert facts_dict[\"source\"] == \"mod.py\"\n    assert facts_dict[\"source_hash\"] == \"abc123\"\n    assert facts_dict[\"extraction_method\"] == \"ast\"\n    assert \"imports\" in facts_dict\n    assert \"exports\" in facts_dict",
+              "needle": "ast",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 46,
+              "context": "def test_all_importers_ast_extracted_true(tmp_path):\n    \"\"\"Returns True when all importers have AST-extracted facts.\"\"\"\n    _write_facts(tmp_path, \"lib.py\", \"ast\", exports=[{\"name\": \"helper\", \"kind\": \"function\"}])\n    _write_facts(\n        tmp_path, \"app.py\", \"ast\",",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 48,
+              "context": "    _write_facts(tmp_path, \"lib.py\", \"ast\", exports=[{\"name\": \"helper\", \"kind\": \"function\"}])\n    _write_facts(\n        tmp_path, \"app.py\", \"ast\",\n        imports=[{\"source\": \"lib\", \"names\": [\"helper\"]}],\n    )",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 60,
+              "context": "def test_all_importers_ast_extracted_false_when_llm(tmp_path):\n    \"\"\"Returns False when any importer has LLM-extracted (or no) extraction_method.\"\"\"\n    _write_facts(tmp_path, \"lib.py\", \"ast\", exports=[{\"name\": \"helper\", \"kind\": \"function\"}])\n    _write_facts(\n        tmp_path, \"app.py\", \"llm\",",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 74,
+              "context": "def test_all_importers_ast_extracted_false_when_none(tmp_path):\n    \"\"\"Returns False when any importer has None extraction_method (legacy).\"\"\"\n    _write_facts(tmp_path, \"lib.py\", \"ast\", exports=[{\"name\": \"helper\", \"kind\": \"function\"}])\n    _write_facts(\n        tmp_path, \"app.py\", None,  # legacy — no extraction_method",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 88,
+              "context": "def test_all_importers_ast_extracted_no_importers(tmp_path):\n    \"\"\"Returns True when there are no importers (vacuously true).\"\"\"\n    _write_facts(tmp_path, \"lib.py\", \"ast\")\n\n    config = _make_config(tmp_path)",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 145,
+              "context": "    # lib.py — AST extracted, but imported by app.py which is LLM-only\n    _write_facts(\n        tmp_path, \"lib.py\", \"ast\",\n        exports=[{\"name\": \"helper\", \"kind\": \"function\"}],\n    )",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 155,
+              "context": "    # standalone.py — AST extracted, no importers\n    _write_facts(\n        tmp_path, \"standalone.py\", \"ast\",\n        exports=[{\"name\": \"orphan\", \"kind\": \"function\"}],\n    )",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 177,
+              "context": "    \"\"\"Methods implementing an abstract base method are marked alive.\"\"\"\n    # base.py defines abstract interface\n    _write_facts(tmp_path, \"base.py\", \"ast\", exports=[\n        {\"name\": \"Base\", \"kind\": \"class\", \"line\": 1},\n        {\"name\": \"Base.process\", \"kind\": \"function\", \"line\": 5,",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 183,
+              "context": "    ])\n    # impl.py extends Base\n    _write_facts(tmp_path, \"impl.py\", \"ast\",\n        imports=[{\"source\": \"base\", \"names\": [\"Base\"]}],\n        exports=[",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 201,
+              "context": "def test_interface_alive_no_base(tmp_path):\n    \"\"\"Methods on classes without bases are NOT marked alive.\"\"\"\n    _write_facts(tmp_path, \"standalone.py\", \"ast\", exports=[\n        {\"name\": \"Standalone\", \"kind\": \"class\", \"line\": 1},\n        {\"name\": \"Standalone.helper\", \"kind\": \"function\", \"line\": 5,",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 216,
+              "context": "def test_interface_alive_init_on_imported_class(tmp_path):\n    \"\"\"__init__ is alive if the class has cross-file references.\"\"\"\n    _write_facts(tmp_path, \"lib.py\", \"ast\", exports=[\n        {\"name\": \"MyClass\", \"kind\": \"class\", \"line\": 1},\n        {\"name\": \"MyClass.__init__\", \"kind\": \"function\", \"line\": 3,",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 222,
+              "context": "    ])\n    # consumer imports MyClass\n    _write_facts(tmp_path, \"app.py\", \"ast\",\n        imports=[{\"source\": \"lib\", \"names\": [\"MyClass\"]}],\n        calls=[{\"from_symbol\": \"main\", \"to\": \"MyClass\", \"line\": 10}],",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 236,
+              "context": "def test_interface_alive_post_init_on_dataclass(tmp_path):\n    \"\"\"__post_init__ is alive on dataclasses with cross-file refs.\"\"\"\n    _write_facts(tmp_path, \"models.py\", \"ast\", exports=[\n        {\"name\": \"Config\", \"kind\": \"class\", \"line\": 1,\n         \"decorators\": [\"dataclass\"]},",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 242,
+              "context": "         \"decorators\": [], \"exclude_from_dead_analysis\": False},\n    ])\n    _write_facts(tmp_path, \"app.py\", \"ast\",\n        imports=[{\"source\": \"models\", \"names\": [\"Config\"]}],\n    )",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 255,
+              "context": "def test_interface_alive_multi_level_inheritance(tmp_path):\n    \"\"\"Multi-level inheritance: A extends B extends C.\"\"\"\n    _write_facts(tmp_path, \"abc_base.py\", \"ast\", exports=[\n        {\"name\": \"AbstractBase\", \"kind\": \"class\", \"line\": 1},\n        {\"name\": \"AbstractBase.run\", \"kind\": \"function\", \"line\": 3,",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 260,
+              "context": "         \"decorators\": [\"abstractmethod\"], \"exclude_from_dead_analysis\": True},\n    ])\n    _write_facts(tmp_path, \"middle.py\", \"ast\",\n        imports=[{\"source\": \"abc_base\", \"names\": [\"AbstractBase\"]}],\n        exports=[",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 268,
+              "context": "        ],\n    )\n    _write_facts(tmp_path, \"concrete.py\", \"ast\",\n        imports=[{\"source\": \"middle\", \"names\": [\"Middle\"]}],\n        exports=[",
+              "needle": "ast",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "text_match",
+              "line": 287,
+              "context": "def test_interface_alive_implements_ts(tmp_path):\n    \"\"\"TS-style 'implements' also marks methods alive.\"\"\"\n    _write_facts(tmp_path, \"iface.ts\", \"ast\", exports=[\n        {\"name\": \"Handler\", \"kind\": \"class\", \"line\": 1},\n        {\"name\": \"Handler.handle\", \"kind\": \"function\", \"line\": 3,",
+              "needle": "ast",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {
+            "src/osoji/shadow.py": "# src\\osoji\\shadow.py\n@source-hash: 0336b3a0f77bf4fa\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:31:39Z\n\n## Purpose\n\nCore shadow documentation generation engine for the osoji project. Orchestrates the full pipeline: file/directory discovery, staleness detection (source + impl hash), LLM-driven doc generation (with forced tool calls), large-file chunking, plugin AST fact merging, writing sidecar JSON files (findings, symbols, signatures, facts), dependency-ordered directory roll-ups, orphan cleanup, and doc-to-source reference extraction.\n\n---\n\n## Key Data Structures\n\n### `Finding` (L51–60)\nDataclass representing a single code-debris finding from shadow generation.\n- Fields: `category`, `line_start`, `line_end`, `severity` (`\"error\"`|`\"warning\"`), `description`, `suggestion` (optional), `cross_file_verification_needed` (default `False`)\n- Findings with `valid == False` in LLM output are filtered out at L526.\n\n### `ShadowResult` (L64–76)\nResult from processing a single file. Key fields: `path`, `body`, `cached`, `error`, `input_tokens`, `output_tokens`, `findings` (list of `Finding`), `symbols` (list of dicts), `file_role`.\n\n### `MarkStaleResult` (L203–208)\nResult from `mark_stale_docs`: `stale_files` (list of `(Path, str)` tuples) and `marked_count` (count of docs actually annotated).\n\n---\n\n## Constants\n\n| Name | Value | Purpose |\n|------|-------|---------|\n| `_MAX_INPUT_TOKENS` | 150,000 | Trigger threshold for chunking |\n| `_CHUNK_TARGET_TOKENS` | 120,000 | Per-chunk token target |\n| `_CHUNK_OVERLAP_FRACTION` | 0.05 | 5% line overlap at chunk boundaries |\n| `_SHADOW_MAX_OUTPUT_TOKENS` | 8192 | Max LLM output tokens (raised from 4096 to avoid forced-tool-call truncation) |\n| `STALE_WARNING_SOURCE` | `\"> ⚠ STALE — source content has changed...\"` | Injected into docs whose source changed |\n| `STALE_WARNING_IMPL` | `\"> ⚠ STALE — generation toolchain has changed...\"` | Injected into docs whose impl hash changed |\n| `_TRANSIENT_ERRNOS` | `{errno.EINVAL, errno.",
+            "tests/test_plugin_python.py": "# tests\\test_plugin_python.py\n@source-hash: 85b683f6b9d3d9dd\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:27:14Z\n\n## Purpose\n\nTest suite for `PythonPlugin` — verifies AST-based fact extraction (imports, exports, calls, member_writes, string_literals) from Python source files and the `ExtractedFacts` serialization contract.\n\n## Fixtures\n\n### `plugin` (L10–12)\nReturns a bare `PythonPlugin()` instance shared across tests.\n\n### `project` (L15–30)\nWraps pytest's `tmp_path` in a `ProjectHelper` class. `ProjectHelper.add(relative_path, content)` dedents content, writes the file (creating parent dirs), appends to `self.files`, and returns the `Path`. The `root` and `files` attributes are passed directly to `plugin.extract_project_facts(project.root, project.files)`.\n\n## Primary API Under Test\n\n`PythonPlugin.extract_project_facts(root: Path, files: list[Path]) -> dict[str, ExtractedFacts]`\n\n- Keys are **relative paths with forward slashes** (e.g. `\"pkg/bar.py\"`, `\"pkg/__init__.py\"`).\n- Non-`.py`/`.pyi` files are silently excluded (L265–271).\n- Files with syntax errors are silently excluded; other files still appear (L93–99).\n- Empty files produce an entry with all lists empty (L223–231).\n\n## `ExtractedFacts` Field Contracts (as tested)\n\n### `imports` — list of dicts\n| Field | Type | Notes |\n|-------|------|-------|\n| `source` | str | Import specifier, e.g. `\"os\"`, `\".foo\"`, `\"..utils\"` |\n| `names` | list[str] | Imported identifiers |\n| `is_reexport` | bool | True in `__init__.py` when importing public (non-underscore) names (L199–221) |\n\n### `exports` — list of dicts\n| Field | Type | Notes |\n|-------|------|-------|\n| `name` | str | Bare name or `\"ClassName.method\"` form |\n| `exclude_from_dead_analysis` | bool | True for `@abstractmethod`, `@property`, framework route decorators (L140–162, L274–291) |\n| `bases` | list[str] | Only present when class has base classes; dotted names supported (L501–546) |\n\nExport inclusion rules (L102–162):\n- Underscore-prefixed names ",
+            "tests/test_deadcode_ast.py": "# tests\\test_deadcode_ast.py\n@source-hash: d06204de5de3b52e\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:30:11Z\n\n## Purpose\nTest suite covering the AST fast-path logic in the osoji dead-code detection subsystem. Verifies three internal `deadcode` functions (`_all_importers_ast_extracted`, `_group_symbols_by_file`, `_build_interface_alive_methods`) and the `JunkFinding.confidence_source` field default/override behaviour.\n\n## File Structure\n- **Helper `_make_config` (L16–20):** Creates a `MagicMock(spec=Config)` with `root_path` and `shadow_root` set to `tmp_path`. Avoids needing a real Config on disk.\n- **Helper `_write_facts` (L23–41):** Writes a `.facts.json` file under `tmp_path / SHADOW_DIR / \"facts\"`. Accepts optional `extraction_method`, `imports`, `exports`, `calls`. Omits the `extraction_method` key entirely when `None` (simulating legacy facts). Path-encodes `/` → `__` to produce a flat filename.\n\n## Test Groups\n\n### `_all_importers_ast_extracted` (L44–166)\nTests whether a file's entire importer graph uses only AST-extracted facts:\n- **L44–55** `test_all_importers_ast_extracted_true`: Single importer with `extraction_method=\"ast\"` → returns `True`.\n- **L58–69** `test_all_importers_ast_extracted_false_when_llm`: Importer with `extraction_method=\"llm\"` → returns `False`.\n- **L72–83** `test_all_importers_ast_extracted_false_when_none`: Importer with no `extraction_method` key (legacy) → returns `False`.\n- **L86–93** `test_all_importers_ast_extracted_no_importers`: No importers → vacuously `True`.\n- **L141–166** `test_mixed_graph_only_full_ast_gets_fast_path`: Mixed graph — `lib.py` has an LLM importer (→ `False`); `standalone.py` has no importers (→ `True`).\n\n### `_group_symbols_by_file` (L96–103)\n- **L96–103** `test_group_symbols_by_file`: Verifies backslash paths (`src\\b.py`) are normalised to forward slashes (`src/b.py`) in the grouped output.\n\n### `JunkFinding.confidence_source` (L106–138)\n- **L106–121** `test_confidence_source_ast_proven`: Explic"
+          },
+          "scan_scope": {
+            "files_scanned": 464,
+            "needles": [
+              "ast"
+            ],
+            "needle_totals": {
+              "ast": 190
+            },
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "tests/test_plugin_python.py",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: \"\"\"Tests for the Python AST plugin.\"\"\"\n2: \n3: import textwrap\n4: \n5: import pytest\n6: \n7: from osoji.plugins.python_plugin import PythonPlugin\n8: \n9: \n10: @pytest.fixture\n11: def plugin():",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "576f7953c9e0cb7f",
+    "verdict": "dismissed",
+    "confidence": 0.9,
+    "triage_reasoning": "The string 'ast' as a value for `extraction_method` appears in `shadow.py:673` (when merging AST + LLM strings) and is asserted in `test_plugin_python.py:258` checking `PythonPlugin.extract_project_facts()` output. This is the standard producer→verifier test pattern. Reality: both sites use the literal. Significance: fails. The test immediately catches any change to the extraction_method value in the source. Moreover 'ast' is used extensively across `test_deadcode_ast.py` (15+ invocations) and `deadcode.py` (checks `extraction_method == 'ast'`), so the string is a project-internal discriminator with consistent multi-site use, but the test already provides the safety net. No silent mismatch path exists. Significance predicate fails.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "5eba81220bddfb72"
+  },
+  "trace": null
+}

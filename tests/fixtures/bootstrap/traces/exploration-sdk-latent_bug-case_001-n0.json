@@ -1,0 +1,62 @@
+{
+  "slug": "latent_bug-case_001-n0",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "debris:latent_bug",
+    "gap_type": "uncategorized",
+    "path": "example.py",
+    "line_start": 18,
+    "line_end": 19,
+    "symbol": null,
+    "contract_source": "code",
+    "contract_claim": "record_token_usage reads result.usage.get(\"input_tokens\") and result.usage.get(\"output_tokens\"), implying CompletionResult exposes a `usage` mapping attribute.",
+    "observed_behavior": "The CompletionResult dataclass defines only content, input_tokens, output_tokens, model and stop_reason — there is no `usage` attribute, so lines 18-19 raise AttributeError the first time record_token_usage is called.",
+    "evidence": [],
+    "id": "b61c51e5e6f31e00",
+    "verdict": "confirmed",
+    "confidence": 1,
+    "triage_reasoning": "The `CompletionResult` dataclass (lines 7–12) defines exactly five fields: `content`, `input_tokens`, `output_tokens`, `model`, and `stop_reason`. There is no `usage` attribute anywhere on the class — no property, no `__post_init__`, no parent class.\n\nLines 18–19 in `record_token_usage` access `result.usage.get(\"input_tokens\", 0)` and `result.usage.get(\"output_tokens\", 0)`. Because `usage` does not exist on any `CompletionResult` instance, this raises `AttributeError: 'CompletionResult' object has no attribute 'usage'` on every invocation.\n\nAll three predicates hold:\n- **Reality**: Confirmed. The attribute access is against a field that is absent from the dataclass definition.\n- **Significance**: This is a runtime error that makes `record_token_usage` completely non-functional. Any call path that reaches it will crash.\n- **Actionability**: The data the function wants (`input_tokens`, `output_tokens`) is already present directly on the dataclass as named fields. The fix is straightforward substitution.",
+    "suggested_fix": "Replace the two `.usage.get(...)` calls with direct field access:\n\n```python\ndef record_token_usage(result: CompletionResult) -> dict:\n    \"\"\"Record token usage from a completion result.\"\"\"\n    return {\n        \"input\": result.input_tokens,\n        \"output\": result.output_tokens,\n    }\n```",
+    "severity": "error",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "b61c51e5e6f31e00",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "record_token_usage"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "CompletionResult"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "example.py"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 1,
+          "severity": "error",
+          "reasoning": "The `CompletionResult` dataclass (lines 7–12) defines exactly five fields: `content`, `input_tokens`, `output_tokens`, `model`, and `stop_reason`. There is no `usage` attribute anywhere on the class — no property, no `__post_init__`, no parent class.\n\nLines 18–19 in `record_token_usage` access `result.usage.get(\"input_tokens\", 0)` and `result.usage.get(\"output_tokens\", 0)`. Because `usage` does not exist on any `CompletionResult` instance, this raises `AttributeError: 'CompletionResult' object has no attribute 'usage'` on every invocation.\n\nAll three predicates hold:\n- **Reality**: Confirmed. The attribute access is against a field that is absent from the dataclass definition.\n- **Significance**: This is a runtime error that makes `record_token_usage` completely non-functional. Any call path that reaches it will crash.\n- **Actionability**: The data the function wants (`input_tokens`, `output_tokens`) is already present directly on the dataclass as named fields. The fix is straightforward substitution.",
+          "suggested_fix": "Replace the two `.usage.get(...)` calls with direct field access:\n\n```python\ndef record_token_usage(result: CompletionResult) -> dict:\n    \"\"\"Record token usage from a completion result.\"\"\"\n    return {\n        \"input\": result.input_tokens,\n        \"output\": result.output_tokens,\n    }\n```"
+        }
+      }
+    ],
+    "cost_usd": 0.079975
+  }
+}

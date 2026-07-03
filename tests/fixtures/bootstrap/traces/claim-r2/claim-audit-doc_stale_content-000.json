@@ -1,0 +1,220 @@
+{
+  "slug": "audit-doc_stale_content-000",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:doc_stale_content",
+    "gap_type": "uncategorized",
+    "path": "CLAUDE.md",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "The Key architecture section omits all V1 unified Finding/Triage architecture modules (claim_builder.py, evidence.py, findings.py, findings_adapter.py, triage.py, triage_exec.py) which are significant parts of the codebase as documented in the root shadow doc and individual module shadows. [evidence: _root — \"`src/osoji/findings.py` + `evidence.py` + `triage.py` + `triage_exec.py` + `claim_builder.py` define the canonical v1 types\"]",
+    "observed_behavior": "Add entries for the V1 architecture modules to the Key architecture list: findings.py (Unified Finding schema), evidence.py (Evidence schema), triage.py (Unified finding triage), triage_exec.py (Exploration tool executor), claim_builder.py (Debris claim builder), findings_adapter.py (Legacy-to-V1 finding adapter).",
+    "evidence": [
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "CLAUDE.md",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: # Osoji\n2: \n3: AI-powered documentation and code quality auditing tool. Uses Anthropic Claude to\n4: generate shadow documentation, extract structured facts, and detect code issues.\n5: \n6: ## Build & test\n7: \n8: ```bash\n9: pip install -e \".[dev]\"    # install with dev dependencies\n10: pytest                     # full suite\n11: pytest tests/test_facts.py -v  # single module",
+          "anchor": "lines"
+        }
+      },
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 81,
+              "context": "`_load()` handles this defensively.\n\n## Key architecture\n\n- `src/osoji/cli.py` — Click CLI with subcommands: `init`, `shadow`, `check` (`--dry-run`), `diff`, `stats`, `audit`, `report`, `export`, `push`, `hooks`, `safety`, `config show`, `skills list|show`",
+              "needle": "Key",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 241,
+              "context": "            \"string_literals\": [\n                {\"value\": \"alpha\", \"context\": \"membership test\", \"line\": 10, \"kind\": \"identifier\", \"usage\": \"checked\"},\n                {\"value\": \"source_hash\", \"context\": \"Key for file hash in facts JSON\", \"line\": 20, \"kind\": \"identifier\", \"usage\": \"checked\", \"comparison_source\": \"data.get(\\\"source_hash\\\", \\\"\\\")\"},\n            ],\n        })",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 1079,
+              "context": "      \"severity\": \"warning\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"CLAUDE.md Key architecture omits all six V1 modules (findings, evidence, triage, triage_exec, claim_builder, findings_adapter) which sit on the live Phase 3 path.\",\n      \"evidence_consulted\": [\n        \"grep CLAUDE.md for module names\",",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 1093,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"The Key architecture section omits all V1 unified Finding/Triage architecture modules (claim_builder.py, evidence.py, findings.py, findings_adapter.py, triage.py, triage_exec.py) which are significant parts of the codebase as documented in the root shadow doc and individual module shadows. [evidence: _root — \\\"`src/osoji/findings.py` + `evidence.py` + `triage.py` + `triage_exec.py` + `claim_builder.py` define the canonical v1 types\\\"]\",\n        \"observed_behavior\": \"Add entries for the V1 architecture modules to the Key architecture list: findings.py (Unified Finding schema), evidence.py (Evidence schema), triage.py (Unified finding triage), triage_exec.py (Exploration tool executor), claim_builder.py (Debris claim builder), findings_adapter.py (Legacy-to-V1 finding adapter).\",\n        \"evidence\": [],",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 1094,
+              "context": "        \"contract_source\": \"audit\",\n        \"contract_claim\": \"The Key architecture section omits all V1 unified Finding/Triage architecture modules (claim_builder.py, evidence.py, findings.py, findings_adapter.py, triage.py, triage_exec.py) which are significant parts of the codebase as documented in the root shadow doc and individual module shadows. [evidence: _root — \\\"`src/osoji/findings.py` + `evidence.py` + `triage.py` + `triage_exec.py` + `claim_builder.py` define the canonical v1 types\\\"]\",\n        \"observed_behavior\": \"Add entries for the V1 architecture modules to the Key architecture list: findings.py (Unified Finding schema), evidence.py (Evidence schema), triage.py (Unified finding triage), triage_exec.py (Exploration tool executor), claim_builder.py (Debris claim builder), findings_adapter.py (Legacy-to-V1 finding adapter).\",\n        \"evidence\": [],\n        \"id\": \"9e54c4945cc457ee\",",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1629,
+              "context": "      \"severity\": \"warning\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"CLAUDE.md Key architecture omits all six V1 modules (findings, evidence, triage, triage_exec, claim_builder, findings_adapter) which sit on the live Phase 3 path.\",\n      \"evidence_consulted\": [\n        \"grep CLAUDE.md for module names\",",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1643,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"The Key architecture section omits all V1 unified Finding/Triage architecture modules (claim_builder.py, evidence.py, findings.py, findings_adapter.py, triage.py, triage_exec.py) which are significant parts of the codebase as documented in the root shadow doc and individual module shadows. [evidence: _root — \\\"`src/osoji/findings.py` + `evidence.py` + `triage.py` + `triage_exec.py` + `claim_builder.py` define the canonical v1 types\\\"]\",\n        \"observed_behavior\": \"Add entries for the V1 architecture modules to the Key architecture list: findings.py (Unified Finding schema), evidence.py (Evidence schema), triage.py (Unified finding triage), triage_exec.py (Exploration tool executor), claim_builder.py (Debris claim builder), findings_adapter.py (Legacy-to-V1 finding adapter).\",\n        \"evidence\": [],",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1644,
+              "context": "        \"contract_source\": \"audit\",\n        \"contract_claim\": \"The Key architecture section omits all V1 unified Finding/Triage architecture modules (claim_builder.py, evidence.py, findings.py, findings_adapter.py, triage.py, triage_exec.py) which are significant parts of the codebase as documented in the root shadow doc and individual module shadows. [evidence: _root — \\\"`src/osoji/findings.py` + `evidence.py` + `triage.py` + `triage_exec.py` + `claim_builder.py` define the canonical v1 types\\\"]\",\n        \"observed_behavior\": \"Add entries for the V1 architecture modules to the Key architecture list: findings.py (Unified Finding schema), evidence.py (Evidence schema), triage.py (Unified finding triage), triage_exec.py (Exploration tool executor), claim_builder.py (Debris claim builder), findings_adapter.py (Legacy-to-V1 finding adapter).\",\n        \"evidence\": [],\n        \"id\": \"9e54c4945cc457ee\",",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/plumbing/case_001_tool_schema/source/tools.py",
+              "kind": "text_match",
+              "line": 16,
+              "context": "Include:\n- Primary purpose and responsibility of the file\n- Key classes, functions, and their roles (with line numbers)\n- Important dependencies and relationships\n- Notable patterns or architectural decisions",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/plumbing/case_001_tool_schema/source/tools.py",
+              "kind": "text_match",
+              "line": 232,
+              "context": "Include:\n- Overall purpose and responsibility of this module/package\n- Key components and how they relate\n- Public API surface (main entry points)\n- Internal organization and data flow",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/plumbing/case_001_tool_schema/source/tools.py",
+              "kind": "text_match",
+              "line": 433,
+              "context": "  a sibling function that merely references the same constant is NOT alive through this path.\n\n**Key rule**: A zero-reference wrapper function is DEAD even if it returns a constant/tool\nthat IS used by other functions. \"It looks like framework code\" or \"it wraps something used\"\nare NOT valid reasons — if the function itself has zero call sites, it is dead.",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/plumbing/case_001_tool_schema/source/tools.py",
+              "kind": "text_match",
+              "line": 645,
+              "context": "value is only stored, passed, restructured, and logged without enforcement.\n\nKey distinctions:\n- Passing a value to a library function documented to enforce it IS actuation (e.g. axios({timeout: value}))\n- Logging or displaying a value is NOT actuation",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/dead_code/case_001_wrapper_pattern/source/src/osoji/plumbing.py",
+              "kind": "text_match",
+              "line": 153,
+              "context": "Your job: trace the data flow from schema → config loading → handoff → enforcement.\n\nKey question: \"Does any shadow doc describe this field being used to CAUSE the declared effect?\nOr is it only stored, passed, and restructured?\"\n",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/dead_code/case_001_wrapper_pattern/source/src/osoji/shadow.py",
+              "kind": "text_match",
+              "line": 287,
+              "context": "- The overall purpose of this directory/module\n- How the components work together\n- Key entry points and public API\n\"\"\"\n",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/dead_code/case_001_wrapper_pattern/source/src/osoji/tools.py",
+              "kind": "text_match",
+              "line": 16,
+              "context": "Include:\n- Primary purpose and responsibility of the file\n- Key classes, functions, and their roles (with line numbers)\n- Important dependencies and relationships\n- Notable patterns or architectural decisions",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/dead_code/case_001_wrapper_pattern/source/src/osoji/tools.py",
+              "kind": "text_match",
+              "line": 140,
+              "context": "Include:\n- Overall purpose and responsibility of this module/package\n- Key components and how they relate\n- Public API surface (main entry points)\n- Internal organization and data flow",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/dead_code/case_001_wrapper_pattern/source/src/osoji/tools.py",
+              "kind": "text_match",
+              "line": 567,
+              "context": "value is only stored, passed, restructured, and logged without enforcement.\n\nKey distinctions:\n- Passing a value to a library function documented to enforce it IS actuation (e.g. axios({timeout: value}))\n- Logging or displaying a value is NOT actuation",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 2889,
+              "context": "          \"turn\": 1,\n          \"name\": \"grep\",\n          \"pattern\": \"Key architecture\",\n          \"shape\": \"literal\",\n          \"breadth\": \"scoped\",",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-doc_stale_content-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"The Key architecture section omits all V1 unified Finding/Triage architecture modules (claim_builder.py, evidence.py, findings.py, findings_adapter.py, triage.py, triage_exec.py) which are significant parts of the codebase as documented in the root shadow doc and individual module shadows. [evidence: _root — \\\"`src/osoji/findings.py` + `evidence.py` + `triage.py` + `triage_exec.py` + `claim_builder.py` define the canonical v1 types\\\"]\",\n    \"observed_behavior\": \"Add entries for the V1 architecture modules to the Key architecture list: findings.py (Unified Finding schema), evidence.py (Evidence schema), triage.py (Unified finding triage), triage_exec.py (Exploration tool executor), claim_builder.py (Debris claim builder), findings_adapter.py (Legacy-to-V1 finding adapter).\",\n    \"evidence\": [],",
+              "needle": "Key",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-doc_stale_content-000.json",
+              "kind": "text_match",
+              "line": 14,
+              "context": "    \"contract_source\": \"audit\",\n    \"contract_claim\": \"The Key architecture section omits all V1 unified Finding/Triage architecture modules (claim_builder.py, evidence.py, findings.py, findings_adapter.py, triage.py, triage_exec.py) which are significant parts of the codebase as documented in the root shadow doc and individual module shadows. [evidence: _root — \\\"`src/osoji/findings.py` + `evidence.py` + `triage.py` + `triage_exec.py` + `claim_builder.py` define the canonical v1 types\\\"]\",\n    \"observed_behavior\": \"Add entries for the V1 architecture modules to the Key architecture list: findings.py (Unified Finding schema), evidence.py (Evidence schema), triage.py (Unified finding triage), triage_exec.py (Exploration tool executor), claim_builder.py (Debris claim builder), findings_adapter.py (Legacy-to-V1 finding adapter).\",\n    \"evidence\": [],\n    \"id\": \"9e54c4945cc457ee\",",
+              "needle": "Key",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {
+            "tests/test_obligations.py": "# tests\\test_obligations.py\n@source-hash: 13cd2c6cd0485322\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:27:01Z\n\n## `tests/test_obligations.py` — Obligations Module Test Suite\n\n### Purpose\nComprehensive test suite for `osoji.obligations`: `StringContractChecker`, `ContractFinding`, `CONTRACT_CHECKERS` registry, and `run_all_contract_checks`. Tests are organized into 9 test classes covering algorithm behavior, filtering edge cases, fragility detection, remediation text, and the contract framework API.\n\n---\n\n### Shared Helpers (L17–39)\n\n**`_write_facts(temp_dir, source, facts)`** (L19–34)  \nWrites a `.osoji/facts/<source>.facts.json` file under `temp_dir`. Base schema includes `source`, `source_hash`, `imports`, `exports`, `calls`, `string_literals` — all overridable via `**facts`. Used by every test to set up `FactsDB` state without needing a real LLM analysis pass.\n\n**`_make_config(tmp_path)`** (L37–38)  \nReturns `Config(root_path=tmp_path)`. Minimal config for instantiating `FactsDB` in tests.\n\n---\n\n### Test Class Overview\n\n#### `TestRatioAlgorithm` (L43–136) — `StringContractChecker.check()` core algorithm\nTests the ratio-based violation detection logic:\n- **Zero-match rule** (L44–57): If 0 out of N checked strings are produced anywhere, the entire set is skipped (assumed external contract). Applies at all set sizes.\n- **Full match** (L59–79): All checked strings matched → no violations.\n- **Partial match** (L81–104): N checked strings, M matched → (N−M) violations with `confidence = M/N`. Here 1/4 match → 3 violations each with `confidence=0.25`.\n- **Test file exclusion** (L119–136): Checked strings in `tests/` files are excluded from violation detection entirely. Test files with unmatched strings do not produce violations.\n\nKey assertion patterns:\n```python\nflagged = {v.evidence[\"value\"] for v in violations}\nv.confidence == 0.25\n```\n\n#### `TestComparisonSource` (L139–249) — Per-string `comparison_source` filtering\nTests how the `comparison_source` field"
+          },
+          "scan_scope": {
+            "files_scanned": 409,
+            "needles": [
+              "Key"
+            ],
+            "same_file_swept": true
+          },
+          "export_surface": {
+            "symbol": "Key",
+            "exported_from_flagged_file": false
+          }
+        }
+      }
+    ],
+    "id": "9e54c4945cc457ee",
+    "verdict": "confirmed",
+    "confidence": 0.93,
+    "triage_reasoning": "Reality: The claim is supported by bootstrap adjudication notes: 'CLAUDE.md Key architecture omits all six V1 modules (findings, evidence, triage, triage_exec, claim_builder, findings_adapter) which sit on the live Phase 3 path.' The root shadow doc confirms these modules define the canonical v1 types. CLAUDE.md is the primary developer orientation document and its 'Key architecture' section is explicitly meant to enumerate important modules — yet these six files (which form the core of the V1 unified Finding/Triage pipeline) are absent.\n\nSignificance: CLAUDE.md is the first place a developer or AI agent looks when orienting to the codebase. Missing six significant modules from the 'Key architecture' list means agents and new contributors won't know where to find or modify the canonical Finding schema, evidence representation, or triage execution logic. This directly impairs codebase comprehension.\n\nActionability: Adding six bullet entries to the Key architecture list in CLAUDE.md is a straightforward, bounded fix.",
+    "suggested_fix": "Add the following entries to the Key architecture section of CLAUDE.md:\n- `src/osoji/findings.py` — Unified Finding schema (canonical V1 finding dataclass)\n- `src/osoji/evidence.py` — Evidence schema (V1 evidence container)\n- `src/osoji/triage.py` — Unified finding triage logic\n- `src/osoji/triage_exec.py` — Exploration tool executor (Phase 3 triage runner)\n- `src/osoji/claim_builder.py` — Debris/claim builder for V1 findings\n- `src/osoji/findings_adapter.py` — Legacy-to-V1 finding adapter",
+    "severity": "warning",
+    "evidence_fingerprint": "3dfece37eb3e044a"
+  },
+  "trace": null
+}

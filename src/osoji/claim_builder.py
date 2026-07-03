@@ -1,35 +1,213 @@
-"""Inline debris Claim Builder for V1-3.
+"""The mechanized Claim Builder (V1-4, osojicode/work#27).
 
-This is the V1-3 stand-in for the mechanized Claim Builder that lands in V1-4
-(``evidence.py`` ``BUILDERS``). It assembles the *same* cross-file evidence the
-legacy ``audit._verify_debris_findings_async`` gathered — cross-file references
-and (for latent bugs) type definitions — and attaches it as typed
-:class:`~osoji.evidence.Evidence` on each :class:`~osoji.findings.Finding`, so the
-unified Triage stage can decide them in claim mode.
+Assembles Findings into self-sufficient claims: per finding category a
+:class:`SchemaEntry` names the evidence kinds to build (invocation order) and
+the ``require_any`` sufficiency gate. The schema is **configuration, not
+code** — a JSON-round-trippable table (the gepa mutation surface for v2) whose
+content was ratified at the V1-4 Checkpoint 1 from the mined exploration
+traces (``tests/fixtures/bootstrap/mining/mining-report.md``).
 
-Behavior is preserved exactly: the set of findings turned into Claims is the same
-set the old verify step sent to the LLM (eligible category **and** gatherable
-evidence). Eligible findings the builder cannot fill are **counted**
-(``would_escalate``) for the V1-4 escalation-rate baseline but pass through
-unverified — they are never escalated here (decision 1).
+The Claim Builder also computes the deterministic ``evidence_fingerprint``
+(the V1-9 verdict-cache key, reserved in V1-2): a stable hash over the
+canonicalized evidence bundle, osoji's own ``impl_hash``, and
+:data:`CLAIM_BUILDER_SCHEMA_VERSION` — so an upgrade to detection logic or to
+this schema invalidates the whole cache (see osojicode/wiki
+``concepts/incremental-audit.md``). An **empty** bundle keeps the fingerprint
+``None`` (cache-ineligible): symbol-less findings can collide on ``finding.id``
+and an empty-bundle fingerprint would let two distinct findings share a cached
+verdict (decision 0014).
 
-The three positional helpers (``_extract_all_symbols_from_debris``,
-``_lookup_type_definitions``, ``_infer_variable_type``) are relocated verbatim
-from ``audit.py``; they are debris-specific and move with the path they served.
+``build_debris_claims`` remains the audit Phase-3 entry point with its V1-3
+contract intact; it now runs on the generalized builders with the legacy
+sufficiency semantics (refs OR type definitions) encoded as ``require_any``
+overrides in :data:`DEBRIS_SCHEMA`.
 """
 
 from __future__ import annotations
 
-import re
-from dataclasses import replace
-from pathlib import Path
-from typing import Any
+import json
+from dataclasses import dataclass, replace
+from typing import Any, Mapping, Sequence
 
 from .config import Config
-from .evidence import Evidence
+from .evidence import BUILDERS, Evidence, EvidenceKind
+from .evidence_builders import (  # noqa: F401  (re-exported: legacy import sites)
+    BuildContext,
+    _extract_all_symbols_from_debris,
+    _infer_variable_type,
+    _lookup_type_definitions,
+)
+from .findings import Finding
 from .findings_adapter import finding_from_debris
-from .junk import load_shadow_content
+from .hasher import compute_hash, compute_impl_hash
 from .triage import Claim
+
+#: Version tag of the Claim Builder schema (kind set + tables below). Part of
+#: every evidence_fingerprint; bump on any schema change so the V1-9 verdict
+#: cache invalidates rather than serving verdicts produced by an older schema.
+CLAIM_BUILDER_SCHEMA_VERSION = "cb-1"
+
+
+@dataclass(frozen=True)
+class SchemaEntry:
+    """What the Claim Builder gathers for one finding category.
+
+    Attributes:
+        kinds: Evidence kinds to build, in invocation order.
+        require_any: The claim is ``insufficient_evidence`` iff this set is
+            non-empty and NONE of its kinds produced evidence — i.e. the
+            builders could not even look, as distinct from looking and finding
+            an honest zero (evidence-of-absence carries scan scope).
+    """
+
+    kinds: tuple[EvidenceKind, ...]
+    require_any: frozenset[EvidenceKind] = frozenset()
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"kinds": list(self.kinds), "require_any": sorted(self.require_any)}
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "SchemaEntry":
+        return cls(
+            kinds=tuple(data["kinds"]),
+            require_any=frozenset(data.get("require_any", ())),
+        )
+
+
+_REACHABILITY_ENTRY = SchemaEntry(
+    kinds=("cross_file_reference", "surrounding_code"),
+    require_any=frozenset({"cross_file_reference"}),
+)
+_CONTRACT_ENTRY = _REACHABILITY_ENTRY
+_DESCRIPTION_ENTRY = SchemaEntry(
+    kinds=("surrounding_code", "declared_intent", "shadow_doc_claim", "cross_file_reference"),
+    require_any=frozenset({"surrounding_code"}),
+)
+_LATENT_BUG_ENTRY = SchemaEntry(
+    kinds=("surrounding_code", "cross_file_reference", "type_signature"),
+    require_any=frozenset({"cross_file_reference", "type_signature"}),
+)
+
+#: Ratified per-category schema (Checkpoint 1). Keyed by native category —
+#: the part after ``:`` in ``Finding.detector``.
+CLAIM_BUILDER_SCHEMA: dict[str, SchemaEntry] = {
+    # reachability
+    "dead_code": _REACHABILITY_ENTRY,
+    "dead_symbol": _REACHABILITY_ENTRY,
+    "dead_parameter": _REACHABILITY_ENTRY,
+    "unactuated_config": _REACHABILITY_ENTRY,
+    # contract
+    "obligation_implicit_contract": _CONTRACT_ENTRY,
+    "obligation_violation": _CONTRACT_ENTRY,
+    # description
+    "stale_comment": _DESCRIPTION_ENTRY,
+    "misleading_docstring": _DESCRIPTION_ENTRY,
+    "doc_incorrect_content": _DESCRIPTION_ENTRY,
+    "doc_misleading_claim": _DESCRIPTION_ENTRY,
+    "doc_stale_content": _DESCRIPTION_ENTRY,
+    "doc_obsolete_reference": _DESCRIPTION_ENTRY,
+    # uncategorized (latent bugs)
+    "latent_bug": _LATENT_BUG_ENTRY,
+}
+
+#: Fallback for categories the table does not know, keyed by gap type.
+DEFAULT_SCHEMA_BY_GAP_TYPE: dict[str, SchemaEntry] = {
+    "reachability": _REACHABILITY_ENTRY,
+    "contract": _CONTRACT_ENTRY,
+    "description": _DESCRIPTION_ENTRY,
+    "uncategorized": SchemaEntry(
+        kinds=("surrounding_code", "cross_file_reference"),
+        require_any=frozenset({"surrounding_code", "cross_file_reference"}),
+    ),
+}
+
+#: Debris cutover schema: the ratified kind lists with the LEGACY sufficiency
+#: gate (a claim existed iff cross-file refs OR type definitions were
+#: gatherable) so the V1-3 would_escalate semantics carry over unchanged.
+DEBRIS_SCHEMA: dict[str, SchemaEntry] = {
+    "dead_code": _REACHABILITY_ENTRY,
+    "stale_comment": replace(
+        _DESCRIPTION_ENTRY, require_any=frozenset({"cross_file_reference"})
+    ),
+    "latent_bug": _LATENT_BUG_ENTRY,
+}
+
+
+def category_of(finding: Finding) -> str:
+    """The native category: the part of ``detector`` after ``<producer>:``."""
+
+    _, _, category = finding.detector.partition(":")
+    return category or finding.detector
+
+
+def compute_evidence_fingerprint(
+    evidence: Sequence[Evidence],
+    *,
+    schema_version: str = CLAIM_BUILDER_SCHEMA_VERSION,
+) -> str | None:
+    """Deterministic hash of an evidence bundle + osoji's logic version.
+
+    Canonicalization: each Evidence serializes with sorted keys; the bundle is
+    order-insensitive (sorted serialized entries). ``None`` for an empty bundle
+    — cache-ineligible by decision 0014.
+    """
+
+    if not evidence:
+        return None
+    canonical = sorted(
+        json.dumps(ev.to_dict(), sort_keys=True, ensure_ascii=False, default=str)
+        for ev in evidence
+    )
+    return compute_hash("\n".join([schema_version, compute_impl_hash(), *canonical]))
+
+
+def build_claims(
+    findings: Sequence[Finding],
+    ctx: BuildContext,
+    *,
+    schema: Mapping[str, SchemaEntry] | None = None,
+) -> list[Claim]:
+    """Assemble each Finding into a self-sufficient Claim.
+
+    Resolution order for a finding's :class:`SchemaEntry`: the ``schema``
+    table by category, then :data:`DEFAULT_SCHEMA_BY_GAP_TYPE` by gap type,
+    then the conservative ``uncategorized`` default.
+    """
+
+    table = schema if schema is not None else CLAIM_BUILDER_SCHEMA
+    claims: list[Claim] = []
+    for finding in findings:
+        entry = (
+            table.get(category_of(finding))
+            or DEFAULT_SCHEMA_BY_GAP_TYPE.get(finding.gap_type)
+            or DEFAULT_SCHEMA_BY_GAP_TYPE["uncategorized"]
+        )
+        built: list[Evidence] = []
+        filled: set[EvidenceKind] = set()
+        for kind in entry.kinds:
+            builder = BUILDERS.get(kind)
+            if builder is None:
+                continue
+            produced = builder.build(finding, ctx)
+            if produced:
+                filled.add(kind)
+                built.extend(produced)
+        insufficient = bool(entry.require_any) and not (entry.require_any & filled)
+        bundle = [*finding.evidence, *built]
+        claims.append(
+            Claim(
+                finding=replace(
+                    finding,
+                    evidence=bundle,
+                    evidence_fingerprint=compute_evidence_fingerprint(bundle),
+                ),
+                insufficient_evidence=insufficient,
+            )
+        )
+    return claims
+
+
+# --- debris wrapper (V1-3 contract preserved) --------------------------------
 
 
 def _is_eligible(finding: dict) -> bool:
@@ -50,22 +228,17 @@ def build_debris_claims(
     facts_db: Any | None = None,
     symbols_by_file: dict[str, list[dict]] | None = None,
 ) -> tuple[list[Claim], list[int], int]:
-    """Assemble debris Claims with cross-file evidence.
+    """Assemble debris Claims through the mechanized builders.
 
     Returns ``(claims, original_indices, would_escalate)`` where
     ``original_indices[k]`` is the index into ``raw_debris`` of ``claims[k]`` —
     the unambiguous join used to map dismissed verdicts back to suppressions.
-    ``would_escalate`` counts eligible findings the builder could not fill.
+    ``would_escalate`` counts eligible findings whose ``require_any`` gate was
+    unmet (the builders could not gather deciding evidence); they pass through
+    unverified, never escalated here (decision 0014).
     """
 
-    if facts_db is None:
-        from .facts import FactsDB
-
-        facts_db = FactsDB(config)
-    if symbols_by_file is None:
-        from .symbols import load_all_symbols
-
-        symbols_by_file = load_all_symbols(config)
+    ctx = BuildContext(config, facts_db=facts_db, symbols_by_file=symbols_by_file)
 
     claims: list[Claim] = []
     original_indices: list[int] = []
@@ -74,183 +247,15 @@ def build_debris_claims(
     for i, finding in enumerate(raw_debris):
         if not _is_eligible(finding):
             continue
-        claim = _try_build_claim(config, finding, facts_db, symbols_by_file)
-        if claim is None:
+        if not (finding.get("source") or finding.get("source_path")):
+            would_escalate += 1
+            continue
+        finding_obj = finding_from_debris(finding, root=config.root_path)
+        claim = build_claims([finding_obj], ctx, schema=DEBRIS_SCHEMA)[0]
+        if claim.insufficient_evidence:
             would_escalate += 1
         else:
             claims.append(claim)
             original_indices.append(i)
 
     return claims, original_indices, would_escalate
-
-
-def _try_build_claim(
-    config: Config,
-    finding: dict,
-    facts_db: Any,
-    symbols_by_file: dict[str, list[dict]],
-) -> Claim | None:
-    """Build one Claim with evidence, or None if no evidence can be gathered."""
-
-    desc = finding.get("description", "")
-    source = finding.get("source") or finding.get("source_path") or ""
-    if not source:
-        return None
-    source = str(source)
-
-    symbols = _extract_all_symbols_from_debris(desc)
-    if not symbols:
-        return None
-
-    best_refs: list[dict] = []
-    for sym in symbols:
-        refs = facts_db.cross_file_references(sym, source)
-        if len(refs) > len(best_refs):
-            best_refs = refs
-
-    type_defs: list[dict] = []
-    if finding.get("category") == "latent_bug":
-        type_names = [s for s in symbols if s and s[0].isupper() and not s.isupper()]
-        inferred = _infer_variable_type(config, source, finding.get("line_start"), desc)
-        type_names.extend(inferred)
-        if type_names:
-            type_defs = _lookup_type_definitions(config, type_names, symbols_by_file)
-
-    if not best_refs and not type_defs:
-        return None
-
-    finding_obj = finding_from_debris(finding, root=config.root_path)
-    evidence: list[Evidence] = list(finding_obj.evidence)
-    if best_refs:
-        shadow_excerpts: dict[str, str] = {}
-        for ref in best_refs[:3]:
-            shadow = load_shadow_content(config, ref["file"])
-            if shadow:
-                shadow_excerpts[ref["file"]] = shadow[:2000]
-        evidence.append(
-            Evidence(
-                kind="cross_file_reference",
-                payload={"references": best_refs, "shadow_excerpts": shadow_excerpts},
-            )
-        )
-    for td in type_defs:
-        evidence.append(Evidence(kind="type_signature", payload=td))
-
-    return Claim(replace(finding_obj, evidence=evidence))
-
-
-# --- relocated debris evidence helpers (verbatim from audit.py) ------------
-
-_SYMBOL_FILLER = {
-    "field", "defined", "never", "set", "used", "unused", "dead", "code",
-    "the", "and", "but", "not", "this", "that", "from", "with", "are",
-    "was", "were", "has", "have", "been", "being",
-}
-
-
-def _extract_all_symbols_from_debris(description: str) -> list[str]:
-    """Extract all plausible symbol names from a debris finding description."""
-    names: list[str] = []
-    seen: set[str] = set()
-    # 1. Backtick-quoted simple names
-    for m in re.finditer(r"`(\w+)`", description):
-        name = m.group(1)
-        if name.lower() not in _SYMBOL_FILLER and name not in seen:
-            names.append(name)
-            seen.add(name)
-    # 2. PascalCase compounds (catches type names in plain text). Linear
-    #    tokenize + predicate instead of the prior nested quantifier
-    #    `[A-Z][a-z]\w*(?:[A-Z][a-z]\w*)+`, which backtracks catastrophically on
-    #    inputs like "AaAaAa…" (ReDoS — and ``description`` is LLM-generated).
-    #    Extracts the IDENTICAL set: a maximal word run that *starts* with
-    #    `[A-Z][a-z]` and contains >=2 such segments (the old anchored pattern
-    #    could only ever match a whole word, from a starting `[A-Z][a-z]`, with
-    #    a repeated `[A-Z][a-z]` segment — i.e. >=2 segments total).
-    for m in re.finditer(r"\w+", description):
-        word = m.group()
-        if re.match(r"[A-Z][a-z]", word) and len(re.findall(r"[A-Z][a-z]", word)) >= 2:
-            if word not in seen:
-                names.append(word)
-                seen.add(word)
-    # 3. Fallback: bare identifier words (existing logic)
-    if not names:
-        for word in description.split():
-            word = word.strip(".,;:()")
-            if re.match(r"^[a-zA-Z_]\w{2,}$", word) and word.lower() not in _SYMBOL_FILLER:
-                if word not in seen:
-                    names.append(word)
-                    seen.add(word)
-                    break  # just one fallback
-    return names
-
-
-def _lookup_type_definitions(
-    config: Config,
-    type_names: list[str],
-    symbols_by_file: dict[str, list[dict]],
-) -> list[dict]:
-    """Look up class/type definitions in the symbols DB and return source snippets.
-
-    Returns list of {"type_name": str, "file": str, "source": str}.
-    """
-    results: list[dict] = []
-    seen: set[str] = set()
-    type_set = set(type_names)
-    for file_path, symbols in symbols_by_file.items():
-        for sym in symbols:
-            name = sym.get("name", "")
-            if name in type_set and name not in seen and sym.get("kind") in ("class", "type"):
-                full_path = config.root_path / file_path
-                if not full_path.exists():
-                    continue
-                try:
-                    lines = full_path.read_text(encoding="utf-8").splitlines()
-                except OSError:
-                    continue
-                start = sym.get("line_start", 1) - 1
-                end = min(sym.get("line_end", start + 30), start + 50)
-                snippet = "\n".join(
-                    f"{start + 1 + i}: {l}" for i, l in enumerate(lines[start:end])
-                )
-                results.append({"type_name": name, "file": file_path, "source": snippet})
-                seen.add(name)
-    return results
-
-
-def _infer_variable_type(
-    config: Config,
-    source_path: str,
-    line_number: int | None,
-    description: str,
-) -> list[str]:
-    """Extract type names from variable annotations near the finding line.
-
-    Looks for patterns like `var: TypeName` in function signatures and assignments
-    near the finding. Returns PascalCase type names found.
-    """
-    if not line_number:
-        return []
-    full_path = config.root_path / source_path
-    if not full_path.exists():
-        return []
-    # Extract variable names from dotted backtick references (e.g. `options.field`)
-    var_names: set[str] = set()
-    for m in re.finditer(r"`(\w+)\.\w+`", description):
-        var_names.add(m.group(1))
-    if not var_names:
-        return []
-
-    try:
-        lines = full_path.read_text(encoding="utf-8").splitlines()
-    except OSError:
-        return []
-    start = max(0, line_number - 40)
-    type_names: list[str] = []
-    for var in var_names:
-        for i in range(line_number - 1, start - 1, -1):
-            line = lines[i] if i < len(lines) else ""
-            match = re.search(rf"\b{re.escape(var)}\s*:\s*[\"']?([A-Z]\w+)", line)
-            if match:
-                type_names.append(match.group(1))
-                break
-    return type_names

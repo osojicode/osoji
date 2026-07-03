@@ -1,0 +1,113 @@
+{
+  "slug": "audit-doc_stale_content-000",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:doc_stale_content",
+    "gap_type": "uncategorized",
+    "path": "CLAUDE.md",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "The Key architecture section omits all V1 unified Finding/Triage architecture modules (claim_builder.py, evidence.py, findings.py, findings_adapter.py, triage.py, triage_exec.py) which are significant parts of the codebase as documented in the root shadow doc and individual module shadows. [evidence: _root — \"`src/osoji/findings.py` + `evidence.py` + `triage.py` + `triage_exec.py` + `claim_builder.py` define the canonical v1 types\"]",
+    "observed_behavior": "Add entries for the V1 architecture modules to the Key architecture list: findings.py (Unified Finding schema), evidence.py (Evidence schema), triage.py (Unified finding triage), triage_exec.py (Exploration tool executor), claim_builder.py (Debris claim builder), findings_adapter.py (Legacy-to-V1 finding adapter).",
+    "evidence": [],
+    "id": "9e54c4945cc457ee",
+    "verdict": "confirmed",
+    "confidence": 0.97,
+    "triage_reasoning": "All six V1 unified Finding/Triage architecture modules (claim_builder.py, evidence.py, findings.py, findings_adapter.py, triage.py, triage_exec.py) exist in src/osoji/ and are actively cross-imported (triage.py imports triage_exec; claim_builder imports findings_adapter; audit.py re-exports from claim_builder). None of them appear in the \"Key architecture\" section of CLAUDE.md. The _root.shadow.md explicitly identifies these as defining the \"canonical v1 types\" and lists Triage.decide_batch as a primary public entry point, confirming their architectural significance. CLAUDE.md is explicitly the coding-agent navigation document (\"For coding agents: read shadow docs instead of parsing entire files\"), so omitting an entire architectural tier from the Key architecture list causes agents to navigate without a map of those modules. All three predicates hold: the gap is real (files exist, CLAUDE.md omits them), significant (they define the V1 unified Finding/Triage layer per _root.shadow.md), and actionable (add six bullet entries).",
+    "suggested_fix": "Add entries for the six V1 architecture modules to the Key architecture list in CLAUDE.md, e.g.:\n- `src/osoji/findings.py` — Unified Finding schema (v1 canonical finding type)\n- `src/osoji/evidence.py` — Evidence schema for triage exploration traces\n- `src/osoji/triage.py` — Unified finding triage (verdict + exploration via LLM tool use)\n- `src/osoji/triage_exec.py` — Exploration tool executor for triage\n- `src/osoji/claim_builder.py` — Debris claim builder (assembles cross-file evidence for LLM triage)\n- `src/osoji/findings_adapter.py` — Legacy-to-V1 finding adapter (bridges JunkFinding/AuditIssue to Finding)",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "9e54c4945cc457ee",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "list_dir",
+        "input": {}
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "Key architecture",
+          "glob": "**/*.md"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "CLAUDE.md"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "list_dir",
+        "input": {
+          "path": "src/osoji"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "claim_builder|evidence\\.py|findings\\.py|findings_adapter|triage\\.py|triage_exec",
+          "glob": "src/**/*.py"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "grep",
+        "input": {
+          "pattern": "claim_builder|evidence\\.py|findings\\.py|findings_adapter|triage\\.py|triage_exec",
+          "glob": "**/*.shadow.md"
+        }
+      },
+      {
+        "turn": 6,
+        "name": "list_dir",
+        "input": {
+          "path": ".osoji"
+        }
+      },
+      {
+        "turn": 7,
+        "name": "list_dir",
+        "input": {
+          "path": ".osoji/shadow"
+        }
+      },
+      {
+        "turn": 8,
+        "name": "grep",
+        "input": {
+          "pattern": "claim_builder|evidence|findings|triage",
+          "glob": ".osoji/shadow/_root.shadow.md"
+        }
+      },
+      {
+        "turn": 9,
+        "name": "read_file",
+        "input": {
+          "path": ".osoji/shadow/_root.shadow.md"
+        }
+      },
+      {
+        "turn": 10,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.97,
+          "severity": "warning",
+          "reasoning": "All six V1 unified Finding/Triage architecture modules (claim_builder.py, evidence.py, findings.py, findings_adapter.py, triage.py, triage_exec.py) exist in src/osoji/ and are actively cross-imported (triage.py imports triage_exec; claim_builder imports findings_adapter; audit.py re-exports from claim_builder). None of them appear in the \"Key architecture\" section of CLAUDE.md. The _root.shadow.md explicitly identifies these as defining the \"canonical v1 types\" and lists Triage.decide_batch as a primary public entry point, confirming their architectural significance. CLAUDE.md is explicitly the coding-agent navigation document (\"For coding agents: read shadow docs instead of parsing entire files\"), so omitting an entire architectural tier from the Key architecture list causes agents to navigate without a map of those modules. All three predicates hold: the gap is real (files exist, CLAUDE.md omits them), significant (they define the V1 unified Finding/Triage layer per _root.shadow.md), and actionable (add six bullet entries).",
+          "suggested_fix": "Add entries for the six V1 architecture modules to the Key architecture list in CLAUDE.md, e.g.:\n- `src/osoji/findings.py` — Unified Finding schema (v1 canonical finding type)\n- `src/osoji/evidence.py` — Evidence schema for triage exploration traces\n- `src/osoji/triage.py` — Unified finding triage (verdict + exploration via LLM tool use)\n- `src/osoji/triage_exec.py` — Exploration tool executor for triage\n- `src/osoji/claim_builder.py` — Debris claim builder (assembles cross-file evidence for LLM triage)\n- `src/osoji/findings_adapter.py` — Legacy-to-V1 finding adapter (bridges JunkFinding/AuditIssue to Finding)"
+        }
+      }
+    ],
+    "cost_usd": 0.509677
+  }
+}

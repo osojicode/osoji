@@ -1,0 +1,55 @@
+{
+  "slug": "dead_code-case_001-SUBMIT_SHADOW_DOC_TOOL",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/tools.py",
+    "line_start": 9,
+    "line_end": 130,
+    "symbol": "SUBMIT_SHADOW_DOC_TOOL",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `SUBMIT_SHADOW_DOC_TOOL` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "A naive external-reference scan reported zero references for `SUBMIT_SHADOW_DOC_TOOL`, but the symbol participates in the live tool-definition access path.",
+    "evidence": [],
+    "id": "81a973717bbda220",
+    "verdict": "dismissed",
+    "confidence": 1,
+    "triage_reasoning": "The grep scan definitively refutes the claim. `SUBMIT_SHADOW_DOC_TOOL` has multiple real, live references outside its own declaration:\n\n1. **`src/osoji/tools.py:313`** — returned in a list (within the same module but a different function, making it transitively live).\n2. **`src/osoji/tools.py:407`** — passed to `_dict_to_tool_definition(SUBMIT_SHADOW_DOC_TOOL)`, participating in the actual tool-definition access path called by the runtime.\n3. **`tests/test_validate.py:7`** — explicitly imported: `from osoji.tools import SUBMIT_SHADOW_DOC_TOOL, SUBMIT_DIRECTORY_SHADOW_DOC_TOOL`.\n4. **`tests/test_validate.py:224, 249, 260, 278`** — `SUBMIT_SHADOW_DOC_TOOL[\"input_schema\"]` is accessed directly in four separate test cases.\n\nThe naive external-reference scan likely only searched for non-test production-code references and missed the within-module uses on lines 313 and 407. Even if tests were excluded, the two within-module return-sites establish reachability through whatever calls those functions. All three predicates for a true positive fail: the gap (dead code) does not exist in reality.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "81a973717bbda220",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "SUBMIT_SHADOW_DOC_TOOL"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/tools.py",
+          "start": 1,
+          "end": 130
+        }
+      },
+      {
+        "turn": 2,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 1,
+          "reasoning": "The grep scan definitively refutes the claim. `SUBMIT_SHADOW_DOC_TOOL` has multiple real, live references outside its own declaration:\n\n1. **`src/osoji/tools.py:313`** — returned in a list (within the same module but a different function, making it transitively live).\n2. **`src/osoji/tools.py:407`** — passed to `_dict_to_tool_definition(SUBMIT_SHADOW_DOC_TOOL)`, participating in the actual tool-definition access path called by the runtime.\n3. **`tests/test_validate.py:7`** — explicitly imported: `from osoji.tools import SUBMIT_SHADOW_DOC_TOOL, SUBMIT_DIRECTORY_SHADOW_DOC_TOOL`.\n4. **`tests/test_validate.py:224, 249, 260, 278`** — `SUBMIT_SHADOW_DOC_TOOL[\"input_schema\"]` is accessed directly in four separate test cases.\n\nThe naive external-reference scan likely only searched for non-test production-code references and missed the within-module uses on lines 313 and 407. Even if tests were excluded, the two within-module return-sites establish reachability through whatever calls those functions. All three predicates for a true positive fail: the gap (dead code) does not exist in reality."
+        }
+      }
+    ],
+    "cost_usd": 0.073274
+  }
+}

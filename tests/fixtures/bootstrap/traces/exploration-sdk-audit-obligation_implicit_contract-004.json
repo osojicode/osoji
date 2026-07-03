@@ -1,0 +1,115 @@
+{
+  "slug": "audit-obligation_implicit_contract-004",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "tests/test_junk_orphan.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "2 implicit contracts between src/osoji/junk_orphan.py and tests/test_junk_orphan.py: \"orphaned-files\", \"orphaned_files\"",
+    "observed_behavior": "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [],
+    "id": "3eb640eb02fb522e",
+    "verdict": "dismissed",
+    "confidence": 0.95,
+    "triage_reasoning": "**Reality — the literals exist, but the framing misidentifies the contract.**\n\n`junk_orphan.py` defines both strings as property return values:\n- `return \"orphaned_files\"` (`.name`)\n- `return \"orphaned-files\"` (`.cli_flag`)\n\n`test_junk_orphan.py` pins them in two assertions:\n- `assert analyzer.name == \"orphaned_files\"`\n- `assert analyzer.cli_flag == \"orphaned-files\"`\n\nThe bare literals do appear in both files. However, the \"implicit contract\" characterisation is misleading: one file is the *producer* (src property), the other is the *consumer/verifier* (test assertion). That relationship is intentional — it is exactly how property-value unit tests work.\n\n**Significance — the claimed harm (silent mismatch) does not materialise.**\n\nThe audit suggests \"a rename triggers an import error instead of a silent mismatch\". But the current arrangement already causes a *loud* failure: if either property is renamed in `junk_orphan.py`, `TestOrphanedFilesAnalyzer.test_analyzer_properties` fails immediately at test-run time. There is no silent mismatch path. An import-time constant would only move the failure a few milliseconds earlier; it would not prevent any real regression.\n\n**Broader pattern — this is the established convention across all 6 analyzers.**\n\nEvery other analyzer follows the same structure: `dead_code`/`dead-code` in `deadcode.py` + test in `test_junk.py`, `dead_params`/`dead-params` in `deadparam.py` + test in `test_deadparam.py`, etc. None use shared constants. Extracting constants for `orphaned_files`/`orphaned-files` alone would be inconsistent; extracting for all 6 is a style refactor with no correctness benefit.\n\n**Cross-file risk that IS real, but is a different finding.**\n\n`audit.py:217` independently hardcodes `flags.add(\"orphaned-files\")` — a string that must match `OrphanedFilesAnalyzer.cli_flag`. That cross-component use (orchestrator ↔ analyzer) is a genuine unnamed obligation that could drift silently. But that pair is not what this finding targets; this finding names `junk_orphan.py ↔ test_junk_orphan.py`.\n\n**Bootstrap manifest confirms previous dismissal.**\n\nPrior adjudication note: \"Producer attribution wrong: orphaned_files defined in src (junk_orphan.py name property); both tests independently pin the src value; no test↔test contract.\" Same reasoning, same conclusion.\n\n**Actionability — technically possible but not justified.**\n\nA fix is mechanically possible (extract constants), but because there is no silent-mismatch risk and the fix is style-only, the Significance predicate fails. All three predicates must hold; Significance does not.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "3eb640eb02fb522e",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "orphaned.files",
+          "path": "src/osoji/junk_orphan.py"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/junk_orphan.py",
+          "start": 550,
+          "end": 595
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "tests/test_junk_orphan.py",
+          "start": 370,
+          "end": 395
+        }
+      },
+      {
+        "turn": 3,
+        "name": "grep",
+        "input": {
+          "pattern": "orphaned.files",
+          "glob": "src/osoji/*.py"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "ORPHANED|orphaned_files\\s*=\\s*['\\\"]",
+          "glob": "src/osoji/*.py"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "grep",
+        "input": {
+          "pattern": "analyzer\\.name ==|analyzer\\.cli_flag ==",
+          "glob": "tests/*.py"
+        }
+      },
+      {
+        "turn": 6,
+        "name": "grep",
+        "input": {
+          "pattern": "return \\\"dead.code\\\"|return \\\"dead.params\\\"|return \\\"dead.plumbing\\\"|return \\\"dead.deps\\\"|return \\\"dead.cicd\\\"",
+          "glob": "src/osoji/*.py"
+        }
+      },
+      {
+        "turn": 7,
+        "name": "read_file",
+        "input": {
+          "path": "tests/fixtures/bootstrap/manifest-audit.json",
+          "start": 138,
+          "end": 175
+        }
+      },
+      {
+        "turn": 8,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/audit.py",
+          "start": 210,
+          "end": 230
+        }
+      },
+      {
+        "turn": 9,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 0.95,
+          "reasoning": "**Reality — the literals exist, but the framing misidentifies the contract.**\n\n`junk_orphan.py` defines both strings as property return values:\n- `return \"orphaned_files\"` (`.name`)\n- `return \"orphaned-files\"` (`.cli_flag`)\n\n`test_junk_orphan.py` pins them in two assertions:\n- `assert analyzer.name == \"orphaned_files\"`\n- `assert analyzer.cli_flag == \"orphaned-files\"`\n\nThe bare literals do appear in both files. However, the \"implicit contract\" characterisation is misleading: one file is the *producer* (src property), the other is the *consumer/verifier* (test assertion). That relationship is intentional — it is exactly how property-value unit tests work.\n\n**Significance — the claimed harm (silent mismatch) does not materialise.**\n\nThe audit suggests \"a rename triggers an import error instead of a silent mismatch\". But the current arrangement already causes a *loud* failure: if either property is renamed in `junk_orphan.py`, `TestOrphanedFilesAnalyzer.test_analyzer_properties` fails immediately at test-run time. There is no silent mismatch path. An import-time constant would only move the failure a few milliseconds earlier; it would not prevent any real regression.\n\n**Broader pattern — this is the established convention across all 6 analyzers.**\n\nEvery other analyzer follows the same structure: `dead_code`/`dead-code` in `deadcode.py` + test in `test_junk.py`, `dead_params`/`dead-params` in `deadparam.py` + test in `test_deadparam.py`, etc. None use shared constants. Extracting constants for `orphaned_files`/`orphaned-files` alone would be inconsistent; extracting for all 6 is a style refactor with no correctness benefit.\n\n**Cross-file risk that IS real, but is a different finding.**\n\n`audit.py:217` independently hardcodes `flags.add(\"orphaned-files\")` — a string that must match `OrphanedFilesAnalyzer.cli_flag`. That cross-component use (orchestrator ↔ analyzer) is a genuine unnamed obligation that could drift silently. But that pair is not what this finding targets; this finding names `junk_orphan.py ↔ test_junk_orphan.py`.\n\n**Bootstrap manifest confirms previous dismissal.**\n\nPrior adjudication note: \"Producer attribution wrong: orphaned_files defined in src (junk_orphan.py name property); both tests independently pin the src value; no test↔test contract.\" Same reasoning, same conclusion.\n\n**Actionability — technically possible but not justified.**\n\nA fix is mechanically possible (extract constants), but because there is no silent-mismatch risk and the fix is style-only, the Significance predicate fails. All three predicates must hold; Significance does not."
+        }
+      }
+    ],
+    "cost_usd": 0.228973
+  }
+}

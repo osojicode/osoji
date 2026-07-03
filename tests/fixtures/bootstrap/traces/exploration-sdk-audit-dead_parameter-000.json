@@ -1,0 +1,138 @@
+{
+  "slug": "audit-dead_parameter-000",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:dead_parameter",
+    "gap_type": "reachability",
+    "path": "src/osoji/findings_adapter.py",
+    "line_start": 105,
+    "line_end": 105,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_from_junk` with only a `JunkFinding` positional argument (via `_junk(...)`) and never pass `root` as a keyword or positional argument. The parameter always takes its default value of `None`. The `root` value is forwarded to `_norm_path`, where the branch `if root is not None and p.is_absolute()` (inside `_norm_path`) handles it, but that gating is in the helper — no conditional branch gated exclusively by `root` exists inside `finding_from_junk` itself.",
+    "observed_behavior": "Remove the `root` keyword parameter from `finding_from_junk` and replace the call `_norm_path(jf.source_path, root)` with `_norm_path(jf.source_path)` (passing `None` implicitly via `_norm_path`'s own default). If `root`-based path relativization is ever needed in the future it can be re-added then.",
+    "evidence": [],
+    "id": "92c929204840dec8",
+    "verdict": "dismissed",
+    "confidence": 0.92,
+    "triage_reasoning": "\nThe claim is factually accurate at the surface: all 6 call sites of `finding_from_junk` are in tests and none passes `root`, so the parameter always takes its default value of `None`. However, the **significance** predicate fails.\n\nKey evidence:\n1. `finding_from_junk` is one of four adapter functions in the module, all sharing the identical `*, root: str | Path | None = None` signature: `finding_from_junk`, `finding_from_contract`, `finding_from_doc`, and `finding_from_debris`. This is a deliberate, consistent API contract.\n\n2. `finding_from_debris` — the same pattern — is already called with `root=config.root_path` in production code (`claim_builder.py:122`). This proves the `root` parameter is not a dead placeholder but an actively exercised design element for at least one adapter.\n\n3. The module docstring explicitly states the module is being wired incrementally (\"not wired into audit.py's live path in this PR\"). `finding_from_junk`, `finding_from_contract`, and `finding_from_doc` are not yet in the production call path, but the pattern makes clear they will be, and they'll need `root` for the same reason `finding_from_debris` does.\n\n4. Removing `root` from `finding_from_junk` while the three sibling functions retain it would create an asymmetric API requiring re-addition when the function is eventually wired into the production path — this is the opposite of an improvement.\n\nThe `root` parameter is a forward-compatible interface element, not dead code. The production precedent set by `finding_from_debris` refutes the \"dead parameter\" characterization: the code is in an incremental rollout state, not a state of permanent neglect. Significance fails; dismissal is appropriate.\n",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "92c929204840dec8",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/findings_adapter.py",
+          "start": 90,
+          "end": 130
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "finding_from_junk",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "read_file",
+        "input": {
+          "path": "tests/test_findings_adapter.py"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "grep",
+        "input": {
+          "pattern": "finding_from_junk.*root",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "finding_from_junk"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/findings_adapter.py",
+          "start": 1,
+          "end": 104
+        }
+      },
+      {
+        "turn": 6,
+        "name": "grep",
+        "input": {
+          "pattern": "_norm_path",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 7,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/findings_adapter.py",
+          "start": 130,
+          "end": 220
+        }
+      },
+      {
+        "turn": 8,
+        "name": "grep",
+        "input": {
+          "pattern": "finding_from_(contract|doc|debris|junk).*root",
+          "glob": "**/*.py"
+        }
+      },
+      {
+        "turn": 9,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/findings_adapter.py",
+          "start": 220,
+          "end": 260
+        }
+      },
+      {
+        "turn": 10,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/claim_builder.py",
+          "start": 110,
+          "end": 135
+        }
+      },
+      {
+        "turn": 11,
+        "name": "grep",
+        "input": {
+          "pattern": "finding_from_junk|finding_from_contract|finding_from_doc",
+          "glob": "src/**/*.py"
+        }
+      },
+      {
+        "turn": 12,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "dismissed",
+          "confidence": 0.92,
+          "reasoning": "\nThe claim is factually accurate at the surface: all 6 call sites of `finding_from_junk` are in tests and none passes `root`, so the parameter always takes its default value of `None`. However, the **significance** predicate fails.\n\nKey evidence:\n1. `finding_from_junk` is one of four adapter functions in the module, all sharing the identical `*, root: str | Path | None = None` signature: `finding_from_junk`, `finding_from_contract`, `finding_from_doc`, and `finding_from_debris`. This is a deliberate, consistent API contract.\n\n2. `finding_from_debris` — the same pattern — is already called with `root=config.root_path` in production code (`claim_builder.py:122`). This proves the `root` parameter is not a dead placeholder but an actively exercised design element for at least one adapter.\n\n3. The module docstring explicitly states the module is being wired incrementally (\"not wired into audit.py's live path in this PR\"). `finding_from_junk`, `finding_from_contract`, and `finding_from_doc` are not yet in the production call path, but the pattern makes clear they will be, and they'll need `root` for the same reason `finding_from_debris` does.\n\n4. Removing `root` from `finding_from_junk` while the three sibling functions retain it would create an asymmetric API requiring re-addition when the function is eventually wired into the production path — this is the opposite of an improvement.\n\nThe `root` parameter is a forward-compatible interface element, not dead code. The production precedent set by `finding_from_debris` refutes the \"dead parameter\" characterization: the code is in an incremental rollout state, not a state of permanent neglect. Significance fails; dismissal is appropriate.\n"
+        }
+      }
+    ],
+    "cost_usd": 0.264731
+  }
+}

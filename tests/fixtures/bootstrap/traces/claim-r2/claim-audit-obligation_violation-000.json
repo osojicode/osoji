@@ -1,0 +1,215 @@
+{
+  "slug": "audit-obligation_violation-000",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:obligation_violation",
+    "gap_type": "uncategorized",
+    "path": "src/osoji/audit.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "String \"obligation_implicit_contract\" is checked but never produced or defined in any project file",
+    "observed_behavior": "Check string contract with (no producer found)",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 541,
+              "context": "                junk_entries=junk_entries,\n                obligation_violations=3,\n                obligation_implicit_contracts=7,\n            ),\n        )",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 569,
+              "context": "        # Obligation fields\n        assert loaded.scorecard.obligation_violations == 3\n        assert loaded.scorecard.obligation_implicit_contracts == 7\n\n    def test_passed_and_counts_preserved(self, temp_dir):",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_evidence_builders.py",
+              "kind": "text_match",
+              "line": 157,
+              "context": "    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})\n    finding = make_finding(\n        detector=\"obligations:obligation_implicit_contract\",\n        gap_type=\"uncategorized\",  # the V1-2 adapter default, NOT \"contract\"\n        path=\"src/producer.py\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_observatory.py",
+              "kind": "text_match",
+              "line": 498,
+              "context": "        \"enforcement_by_schema\": None,\n        \"obligation_violations\": None,\n        \"obligation_implicit_contracts\": None,\n    }\n    _write_audit_result(",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_observatory.py",
+              "kind": "text_match",
+              "line": 686,
+              "context": "        \"enforcement_by_schema\": None,\n        \"obligation_violations\": None,\n        \"obligation_implicit_contracts\": None,\n    }\n",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 6,
+              "context": "  \"entries\": [\n    {\n      \"slug\": \"audit-obligation_implicit_contract-000\",\n      \"origin\": \"audit\",\n      \"category\": \"obligation_implicit_contract\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 8,
+              "context": "      \"slug\": \"audit-obligation_implicit_contract-000\",\n      \"origin\": \"audit\",\n      \"category\": \"obligation_implicit_contract\",\n      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"confirmed\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 11,
+              "context": "      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"[carried from audit-obligation_implicit_contract-000 r1] Unnamed project obligation: obligations.py finding_type strings counted via bare equality in audit.py; rename silently zeroes scorecard counts.\",\n      \"evidence_consulted\": [\n        \"grep literal across repo\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "      ],\n      \"finding\": {\n        \"detector\": \"audit:obligation_implicit_contract\",\n        \"gap_type\": \"uncategorized\",\n        \"path\": \"src/osoji/audit.py\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 39,
+              "context": "    },\n    {\n      \"slug\": \"audit-obligation_implicit_contract-001\",\n      \"origin\": \"audit\",\n      \"category\": \"obligation_implicit_contract\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 41,
+              "context": "      \"slug\": \"audit-obligation_implicit_contract-001\",\n      \"origin\": \"audit\",\n      \"category\": \"obligation_implicit_contract\",\n      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"confirmed\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 44,
+              "context": "      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"[carried from audit-obligation_implicit_contract-001 r1] default_provider TOML key: init.py writes, config.py reads, no shared constant; rename silently breaks provider resolution.\",\n      \"evidence_consulted\": [\n        \"grep key across repo\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 52,
+              "context": "      ],\n      \"finding\": {\n        \"detector\": \"audit:obligation_implicit_contract\",\n        \"gap_type\": \"uncategorized\",\n        \"path\": \"src/osoji/init.py\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 72,
+              "context": "    },\n    {\n      \"slug\": \"audit-obligation_implicit_contract-002\",\n      \"origin\": \"audit\",\n      \"category\": \"obligation_implicit_contract\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 74,
+              "context": "      \"slug\": \"audit-obligation_implicit_contract-002\",\n      \"origin\": \"audit\",\n      \"category\": \"obligation_implicit_contract\",\n      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"confirmed\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 77,
+              "context": "      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"[carried from audit-obligation_implicit_contract-002 r1] claude-code is osoji's own registry key (not ecosystem); bare literal in 5+ files, budgets.py tuple check fails silently on rename.\",\n      \"evidence_consulted\": [\n        \"read provider registry\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 85,
+              "context": "      ],\n      \"finding\": {\n        \"detector\": \"audit:obligation_implicit_contract\",\n        \"gap_type\": \"uncategorized\",\n        \"path\": \"tests/test_claude_code_provider.py\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 105,
+              "context": "    },\n    {\n      \"slug\": \"audit-obligation_implicit_contract-003\",\n      \"origin\": \"audit\",\n      \"category\": \"obligation_implicit_contract\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 107,
+              "context": "      \"slug\": \"audit-obligation_implicit_contract-003\",\n      \"origin\": \"audit\",\n      \"category\": \"obligation_implicit_contract\",\n      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"confirmed\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 110,
+              "context": "      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"[carried from audit-obligation_implicit_contract-004 r1] Real unnamed status vocabulary missing/stale/stale-impl produced in shadow.py, consumed via bare literals with silent fallbacks in cli.py; pair attribution imperfect (true producer shadow.py, not cli.py↔test).\",\n      \"evidence_consulted\": [\n        \"grep literals across repo\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {
+            "tests/test_audit.py": "# tests\\test_audit.py\n@source-hash: cbd62995a66865aa\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:27:36Z\n\n## Purpose\n\nTest suite for `osoji.audit` covering: HTML report generation (`format_audit_html`), console table formatting (`_format_scorecard_section`), audit result serialization/deserialization round-trips (`serialize_audit_result` / `load_audit_result`), debris symbol extraction (`_extract_all_symbols_from_debris`), type definition lookup (`_lookup_type_definitions`), and variable type inference (`_infer_variable_type`). Also tests `build_scorecard` integration via `TestScorecardCounts`.\n\n---\n\n## Key Helpers (module-level, not exported)\n\n### `_minimal_scorecard(**overrides)` (L21–51)\nConstructs a `Scorecard` with all numeric fields zeroed and collections empty. Accepts `**overrides` to selectively set fields. The `defaults` dict (L23–49) covers: `coverage_entries`, `coverage_pct`, `covered_count`, `total_source_count`, `coverage_by_type`, `type_covered_counts`, `type_total_counts`, `dead_docs`, accuracy fields, junk fields, and `enforcement_*` fields (all `None`). Does **not** include `obligation_violations` or `obligation_implicit_contracts` in defaults — those arrive only as overrides.\n\n### `_minimal_result(**sc_overrides)` (L54–56)\nWraps `_minimal_scorecard` in `AuditResult(issues=[], scorecard=...)`. Quick entry point for result-level tests.\n\n---\n\n## Test Classes\n\n### `TestConsoleTables` (L61–104)\nTests `_format_scorecard_section(sc)` output:\n- **L62**: Verifies \"simple\" tabulate format (no pipe-delimited table rows).\n- **L79**: Checks all metric names present: `\"Source file coverage\"`, `\"Dead docs (debris)\"`, `\"Accuracy errors / live doc\"`, `\"Junk code fraction\"`.\n- **L93**: Verifies doc linkage table columns (`\"Linked\"`, `\"Total\"`).\n\n### `TestUncoveredFiles` (L109–139)\n- **L110**: Uncovered source files (no `covering_docs`) appear under `\"Uncovered source files\"` with backtick-quoted paths and `topic_signature` purpose text.\n- **L128**: Covere"
+          },
+          "scan_scope": {
+            "files_scanned": 409,
+            "needles": [
+              "obligation_implicit_contract"
+            ],
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/audit.py",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: \"\"\"Documentation audit orchestration.\"\"\"\n2: \n3: import asyncio\n4: import html as _html_mod\n5: import json\n6: import shutil\n7: import time as time_module\n8: from dataclasses import dataclass, field, asdict\n9: from datetime import datetime, timezone\n10: from pathlib import Path\n11: from typing import Any",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "7073b74b3d93dbad",
+    "verdict": "dismissed",
+    "confidence": 0.92,
+    "triage_reasoning": "Reality fails — the claim states 'String \"obligation_implicit_contract\" is checked but never produced or defined in any project file.' This is factually incorrect. Multiple pieces of evidence show the string IS produced:\n\n1. `tests/test_evidence_builders.py:157` uses `detector=\"obligations:obligation_implicit_contract\"` explicitly.\n2. Fixture files `manifest-audit.json` and `manifest.json` contain numerous entries with `\"category\": \"obligation_implicit_contract\"` produced by the obligations phase.\n3. The bootstrap manifest's own confirmed finding audit-obligation_implicit_contract-000 notes: 'obligations.py finding_type strings counted via bare equality in audit.py' — meaning obligations.py DOES produce findings with this category string.\n\nThe obligations detector in the project produces findings with category 'obligation_implicit_contract', and audit.py counts them. The 'never produced' characterisation is wrong. The real contract issue (bare literal in obligations.py matched by bare literal in audit.py without a shared constant) was already captured and confirmed as a separate finding (audit-obligation_implicit_contract-000).",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "60b49cbf90f703df"
+  },
+  "trace": null
+}

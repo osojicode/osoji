@@ -1,0 +1,376 @@
+{
+  "slug": "audit-obligation_implicit_contract-000",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "src/osoji/audit.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "2 implicit contracts between src/osoji/obligations.py and src/osoji/audit.py: \"implicit_contract\", \"violation\"",
+    "observed_behavior": "Extract shared constants to a module in src/osoji/ so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 541,
+              "context": "                junk_entries=junk_entries,\n                obligation_violations=3,\n                obligation_implicit_contracts=7,\n            ),\n        )",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 569,
+              "context": "        # Obligation fields\n        assert loaded.scorecard.obligation_violations == 3\n        assert loaded.scorecard.obligation_implicit_contracts == 7\n\n    def test_passed_and_counts_preserved(self, temp_dir):",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_evidence_builders.py",
+              "kind": "text_match",
+              "line": 157,
+              "context": "    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})\n    finding = make_finding(\n        detector=\"obligations:obligation_implicit_contract\",\n        gap_type=\"uncategorized\",  # the V1-2 adapter default, NOT \"contract\"\n        path=\"src/producer.py\",",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_findings_adapter.py",
+              "kind": "text_match",
+              "line": 147,
+              "context": "        assert f.gap_type == \"contract\"\n\n    def test_implicit_contract_to_contract(self):\n        f = finding_from_contract(_contract(finding_type=\"implicit_contract\"))\n        assert f.detector == \"obligations:implicit_contract\"",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_findings_adapter.py",
+              "kind": "text_match",
+              "line": 148,
+              "context": "\n    def test_implicit_contract_to_contract(self):\n        f = finding_from_contract(_contract(finding_type=\"implicit_contract\"))\n        assert f.detector == \"obligations:implicit_contract\"\n        assert f.gap_type == \"contract\"",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_findings_adapter.py",
+              "kind": "text_match",
+              "line": 149,
+              "context": "    def test_implicit_contract_to_contract(self):\n        f = finding_from_contract(_contract(finding_type=\"implicit_contract\"))\n        assert f.detector == \"obligations:implicit_contract\"\n        assert f.gap_type == \"contract\"\n",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 306,
+              "context": "\nclass TestFragilityDetection:\n    def test_fully_implicit_contract_detected(self, tmp_path):\n        \"\"\"Value produced in one file and checked in another with no definer -> flagged.\"\"\"\n        _write_facts(tmp_path, \"src/producer.py\", {",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 322,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 1\n        assert implicit[0].severity == \"info\"",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 352,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 0\n",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 378,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 1\n",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 393,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 0\n",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 412,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert implicit == []\n",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 435,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 1\n        assert implicit[0].value is None  # grouped",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 457,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 1\n        assert implicit[0].consumer_file == \"tests/test_handler.py\"",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 481,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 0\n",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 624,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        # stale_comment is a tool schema enum value, so it should be filtered out\n        implicit_values = []",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 803,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 1\n        assert \"known dependency\" in implicit[0].remediation",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 827,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 1\n        assert \"Extract shared constants\" in implicit[0].remediation",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_observatory.py",
+              "kind": "text_match",
+              "line": 498,
+              "context": "        \"enforcement_by_schema\": None,\n        \"obligation_violations\": None,\n        \"obligation_implicit_contracts\": None,\n    }\n    _write_audit_result(",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_observatory.py",
+              "kind": "text_match",
+              "line": 686,
+              "context": "        \"enforcement_by_schema\": None,\n        \"obligation_violations\": None,\n        \"obligation_implicit_contracts\": None,\n    }\n",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "CODE_OF_CONDUCT.md",
+              "kind": "text_match",
+              "line": 46,
+              "context": "## Enforcement Guidelines\n\nCommunity leaders will follow these Community Impact Guidelines in determining the consequences for any action they deem in violation of this Code of Conduct:\n\n### 1. Correction",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "CODE_OF_CONDUCT.md",
+              "kind": "text_match",
+              "line": 52,
+              "context": "**Community Impact**: Use of inappropriate language or other behavior deemed unprofessional or unwelcome in the community.\n\n**Consequence**: A private, written warning from community leaders, providing clarity around the nature of the violation and an explanation of why the behavior was inappropriate. A public apology may be requested.\n\n### 2. Warning",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "CODE_OF_CONDUCT.md",
+              "kind": "text_match",
+              "line": 56,
+              "context": "### 2. Warning\n\n**Community Impact**: A violation through a single incident or series of actions.\n\n**Consequence**: A warning with consequences for continued behavior. No interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, for a specified period of time. This includes avoiding interactions in community spaces as well as external channels like social media. Violating these terms may lead to a temporary or permanent ban.",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "CODE_OF_CONDUCT.md",
+              "kind": "text_match",
+              "line": 62,
+              "context": "### 3. Temporary Ban\n\n**Community Impact**: A serious violation of community standards, including sustained inappropriate behavior.\n\n**Consequence**: A temporary ban from any sort of interaction or public communication with the community for a specified period of time. No public or private interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, is allowed during this period. Violating these terms may lead to a permanent ban.",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "CODE_OF_CONDUCT.md",
+              "kind": "text_match",
+              "line": 68,
+              "context": "### 4. Permanent Ban\n\n**Community Impact**: Demonstrating a pattern of violation of community standards, including sustained inappropriate behavior, harassment of an individual, or aggression toward or disparagement of classes of individuals.\n\n**Consequence**: A permanent ban from any sort of public interaction within the community.",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 68,
+              "context": "- **Misleading comments** — outdated comments, inaccurate docstrings\n- **Latent bugs** — unchecked returns, type confusion patterns\n- **Obligation violations** — implicit string contracts broken across files\n- **Unactuated config** — config fields declared but never enforced\n- **Unused dependencies** — packages listed but never imported",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 540,
+              "context": "                coverage_entries=coverage_entries,\n                junk_entries=junk_entries,\n                obligation_violations=3,\n                obligation_implicit_contracts=7,\n            ),",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 568,
+              "context": "\n        # Obligation fields\n        assert loaded.scorecard.obligation_violations == 3\n        assert loaded.scorecard.obligation_implicit_contracts == 7\n",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 597,
+              "context": "class TestExtractSymbolFromDebris:\n    def test_backtick_quoted(self):\n        result = _extract_all_symbols_from_debris(\"`obligation_violations` field defined but never set\")\n        assert result and result[0] == \"obligation_violations\"\n",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 598,
+              "context": "    def test_backtick_quoted(self):\n        result = _extract_all_symbols_from_debris(\"`obligation_violations` field defined but never set\")\n        assert result and result[0] == \"obligation_violations\"\n\n    def test_backtick_quoted_first(self):",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 605,
+              "context": "\n    def test_bare_identifier(self):\n        result = _extract_all_symbols_from_debris(\"obligation_violations field defined but never set\")\n        assert result and result[0] == \"obligation_violations\"\n",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 606,
+              "context": "    def test_bare_identifier(self):\n        result = _extract_all_symbols_from_debris(\"obligation_violations field defined but never set\")\n        assert result and result[0] == \"obligation_violations\"\n\n    def test_no_symbol(self):",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 657,
+              "context": "\n    def test_fallback_bare_identifier(self):\n        desc = \"obligation_violations field defined but never set\"\n        symbols = _extract_all_symbols_from_debris(desc)\n        assert symbols == [\"obligation_violations\"]",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 659,
+              "context": "        desc = \"obligation_violations field defined but never set\"\n        symbols = _extract_all_symbols_from_debris(desc)\n        assert symbols == [\"obligation_violations\"]\n\n    def test_empty_description(self):",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_facts.py",
+              "kind": "text_match",
+              "line": 232,
+              "context": "\n    def test_string_contract_match(self, tmp_path):\n        \"\"\"A produces 'dead_code', B checks 'dead_code' -> no violation expected.\"\"\"\n        _write_facts(tmp_path, \"src/a.py\", {\n            \"imports\": [],",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_facts.py",
+              "kind": "text_match",
+              "line": 330,
+              "context": "        _write_facts(tmp_path, \"src/scorecard.py\", {\n            \"imports\": [],\n            \"exports\": [{\"name\": \"obligation_violations\", \"kind\": \"variable\", \"line\": 66}],\n            \"calls\": [],\n            \"string_literals\": [],",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_facts.py",
+              "kind": "text_match",
+              "line": 337,
+              "context": "            \"imports\": [],\n            \"exports\": [],\n            \"calls\": [{\"to\": \"scorecard.obligation_violations\", \"line\": 397}],\n            \"string_literals\": [],\n        })",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_facts.py",
+              "kind": "text_match",
+              "line": 341,
+              "context": "        })\n        db = FactsDB(_make_config(tmp_path))\n        refs = db.cross_file_references(\"obligation_violations\", \"src/scorecard.py\")\n        call_refs = [r for r in refs if r[\"kind\"] == \"call\"]\n        assert len(call_refs) == 1",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_facts.py",
+              "kind": "text_match",
+              "line": 349,
+              "context": "        _write_facts(tmp_path, \"src/scorecard.py\", {\n            \"imports\": [],\n            \"exports\": [{\"name\": \"obligation_violations\", \"kind\": \"variable\", \"line\": 66}],\n            \"calls\": [],\n            \"string_literals\": [],",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_facts.py",
+              "kind": "text_match",
+              "line": 357,
+              "context": "            \"exports\": [],\n            \"calls\": [],\n            \"member_writes\": [{\"container\": \"scorecard\", \"member\": \"obligation_violations\", \"line\": 397}],\n            \"string_literals\": [],\n        })",
+              "needle": "violation",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {
+            "tests/test_audit.py": "# tests\\test_audit.py\n@source-hash: cbd62995a66865aa\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:27:36Z\n\n## Purpose\n\nTest suite for `osoji.audit` covering: HTML report generation (`format_audit_html`), console table formatting (`_format_scorecard_section`), audit result serialization/deserialization round-trips (`serialize_audit_result` / `load_audit_result`), debris symbol extraction (`_extract_all_symbols_from_debris`), type definition lookup (`_lookup_type_definitions`), and variable type inference (`_infer_variable_type`). Also tests `build_scorecard` integration via `TestScorecardCounts`.\n\n---\n\n## Key Helpers (module-level, not exported)\n\n### `_minimal_scorecard(**overrides)` (L21–51)\nConstructs a `Scorecard` with all numeric fields zeroed and collections empty. Accepts `**overrides` to selectively set fields. The `defaults` dict (L23–49) covers: `coverage_entries`, `coverage_pct`, `covered_count`, `total_source_count`, `coverage_by_type`, `type_covered_counts`, `type_total_counts`, `dead_docs`, accuracy fields, junk fields, and `enforcement_*` fields (all `None`). Does **not** include `obligation_violations` or `obligation_implicit_contracts` in defaults — those arrive only as overrides.\n\n### `_minimal_result(**sc_overrides)` (L54–56)\nWraps `_minimal_scorecard` in `AuditResult(issues=[], scorecard=...)`. Quick entry point for result-level tests.\n\n---\n\n## Test Classes\n\n### `TestConsoleTables` (L61–104)\nTests `_format_scorecard_section(sc)` output:\n- **L62**: Verifies \"simple\" tabulate format (no pipe-delimited table rows).\n- **L79**: Checks all metric names present: `\"Source file coverage\"`, `\"Dead docs (debris)\"`, `\"Accuracy errors / live doc\"`, `\"Junk code fraction\"`.\n- **L93**: Verifies doc linkage table columns (`\"Linked\"`, `\"Total\"`).\n\n### `TestUncoveredFiles` (L109–139)\n- **L110**: Uncovered source files (no `covering_docs`) appear under `\"Uncovered source files\"` with backtick-quoted paths and `topic_signature` purpose text.\n- **L128**: Covere"
+          },
+          "scan_scope": {
+            "files_scanned": 409,
+            "needles": [
+              "implicit_contract",
+              "violation"
+            ],
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/audit.py",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: \"\"\"Documentation audit orchestration.\"\"\"\n2: \n3: import asyncio\n4: import html as _html_mod\n5: import json\n6: import shutil\n7: import time as time_module\n8: from dataclasses import dataclass, field, asdict\n9: from datetime import datetime, timezone\n10: from pathlib import Path\n11: from typing import Any",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "e1a2b39bd275b679",
+    "verdict": "dismissed",
+    "confidence": 0.88,
+    "triage_reasoning": "The claim bundles 'implicit_contract' and 'violation' as strings forming implicit contracts between `src/osoji/obligations.py` and `src/osoji/audit.py`. Examining the evidence: (1) 'implicit_contract' is a finding_type string used in `StringContractChecker.find_contracts()` and tested via `f.finding_type == \"implicit_contract\"` in test assertions — any drift causes a loud AssertionError, not a silent mismatch. (2) 'violation' is an extremely common English word appearing in `obligation_violations` field names, `CODE_OF_CONDUCT.md` enforcement sections, and README descriptions in completely unrelated roles. The generic nature of 'violation' and the loudness of test assertion failures on 'implicit_contract' drift mean neither literal constitutes an actionable unnamed project obligation. Significance fails.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "8940e7ec0ade76ac"
+  },
+  "trace": null
+}

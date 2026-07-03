@@ -1,0 +1,52 @@
+{
+  "slug": "dead_code-case_001-get_dead_code_tools",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/tools.py",
+    "line_start": 391,
+    "line_end": 393,
+    "symbol": "get_dead_code_tools",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `get_dead_code_tools` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "No callers or importers of `get_dead_code_tools` were found in the fixture project; consumer modules import the get_*_tool_definitions() variants instead, so this wrapper is never invoked even though the TOOL constant it returns is alive.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 6,
+            "needles": [
+              "get_dead_code_tools"
+            ],
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/tools.py",
+          "line_start": 381,
+          "line_end": 401,
+          "snippet": "381:                     },\n382:                     \"required\": [\"symbol_name\", \"is_dead\", \"confidence\", \"reason\", \"remediation\"],\n383:                 },\n384:             },\n385:         },\n386:         \"required\": [\"verdicts\"],\n387:     },\n388: }\n389: \n390: \n391: def get_dead_code_tools() -> list[dict]:\n392:     \"\"\"Return tools for dead code verification.\"\"\"\n393:     return [VERIFY_DEAD_CODE_TOOL]\n394: \n395: \n396: def _dict_to_tool_definition(tool_dict: dict[str, Any]) -> ToolDefinition:\n397:     \"\"\"Convert a tool dictionary to a ToolDefinition object.\"\"\"\n398:     return ToolDefinition(\n399:         name=tool_dict[\"name\"],\n400:         description=tool_dict[\"description\"],\n401:         input_schema=tool_dict[\"input_schema\"],",
+          "anchor": "symbol"
+        }
+      }
+    ],
+    "id": "b1face2831596afe",
+    "verdict": null,
+    "confidence": null,
+    "triage_reasoning": null,
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "b568da29d41aacb5"
+  },
+  "trace": null
+}

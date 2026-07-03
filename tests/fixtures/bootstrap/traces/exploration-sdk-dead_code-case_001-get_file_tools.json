@@ -1,0 +1,126 @@
+{
+  "slug": "dead_code-case_001-get_file_tools",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/tools.py",
+    "line_start": 311,
+    "line_end": 313,
+    "symbol": "get_file_tools",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `get_file_tools` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "No callers or importers of `get_file_tools` were found in the fixture project; consumer modules import the get_*_tool_definitions() variants instead, so this wrapper is never invoked even though the TOOL constant it returns is alive.",
+    "evidence": [],
+    "id": "0e0ee964d3f2b5d1",
+    "verdict": "confirmed",
+    "confidence": 0.98,
+    "triage_reasoning": "Comprehensive grep found `get_file_tools` only at its own declaration (tools.py:311). No caller, no import, no `__all__`, no `__init__.py` re-export. The only consumer of the underlying `SUBMIT_SHADOW_DOC_TOOL` constant is `shadow.py`, which imports and calls `get_file_tool_definitions()` — the newer `list[ToolDefinition]`-returning sibling defined at tools.py:405. The pattern repeats for all `get_*_tools()` (dict-returning) siblings (`get_directory_tools`, `get_match_doc_topics_tools`, `get_dead_code_tools`, `get_verify_doc_finding_tools`) — every consumer switched to the `*_tool_definitions()` variants, leaving the old wrappers as dead code.\n\nReality ✓ — the gap exists; the function is unreachable.\nSignificance ✓ — removing it shrinks the API surface and eliminates misleading stale wrappers.\nActionability ✓ — delete `get_file_tools()` (L311-313); optionally audit and delete the other stranded `get_*_tools()` siblings at the same time.",
+    "suggested_fix": "Delete `get_file_tools()` at tools.py L311-313. Also review and remove the other unreferenced `list[dict]`-returning siblings (`get_directory_tools`, `get_match_doc_topics_tools`, `get_dead_code_tools`, `get_verify_doc_finding_tools`) — all superseded by the `*_tool_definitions()` family.",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "0e0ee964d3f2b5d1",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "grep",
+        "input": {
+          "pattern": "get_file_tools"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/tools.py",
+          "start": 300,
+          "end": 330
+        }
+      },
+      {
+        "turn": 2,
+        "name": "grep",
+        "input": {
+          "pattern": "get_\\w+_tools\\(\\)"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "grep",
+        "input": {
+          "pattern": "from osoji\\.tools import|from \\.tools import|import tools"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "grep",
+        "input": {
+          "pattern": "get_\\w+_tool_definitions"
+        }
+      },
+      {
+        "turn": 5,
+        "name": "grep",
+        "input": {
+          "pattern": "get_file_tool_definitions|get_directory_tool_definitions"
+        }
+      },
+      {
+        "turn": 6,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/tools.py",
+          "start": 385,
+          "end": 430
+        }
+      },
+      {
+        "turn": 7,
+        "name": "grep",
+        "input": {
+          "pattern": "__all__",
+          "glob": "src/osoji/tools.py"
+        }
+      },
+      {
+        "turn": 8,
+        "name": "grep",
+        "input": {
+          "pattern": "get_file_tools|get_directory_tools|get_dead_code_tools\\b|get_match_doc_topics_tools\\b|get_verify_doc_finding_tools\\b"
+        }
+      },
+      {
+        "turn": 9,
+        "name": "read_file",
+        "input": {
+          "path": "src/osoji/tools.py",
+          "start": 335,
+          "end": 360
+        }
+      },
+      {
+        "turn": 10,
+        "name": "grep",
+        "input": {
+          "pattern": "get_file_tools",
+          "glob": "src/osoji/__init__.py"
+        }
+      },
+      {
+        "turn": 11,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.98,
+          "reasoning": "Comprehensive grep found `get_file_tools` only at its own declaration (tools.py:311). No caller, no import, no `__all__`, no `__init__.py` re-export. The only consumer of the underlying `SUBMIT_SHADOW_DOC_TOOL` constant is `shadow.py`, which imports and calls `get_file_tool_definitions()` — the newer `list[ToolDefinition]`-returning sibling defined at tools.py:405. The pattern repeats for all `get_*_tools()` (dict-returning) siblings (`get_directory_tools`, `get_match_doc_topics_tools`, `get_dead_code_tools`, `get_verify_doc_finding_tools`) — every consumer switched to the `*_tool_definitions()` variants, leaving the old wrappers as dead code.\n\nReality ✓ — the gap exists; the function is unreachable.\nSignificance ✓ — removing it shrinks the API surface and eliminates misleading stale wrappers.\nActionability ✓ — delete `get_file_tools()` (L311-313); optionally audit and delete the other stranded `get_*_tools()` siblings at the same time.",
+          "severity": "warning",
+          "suggested_fix": "Delete `get_file_tools()` at tools.py L311-313. Also review and remove the other unreferenced `list[dict]`-returning siblings (`get_directory_tools`, `get_match_doc_topics_tools`, `get_dead_code_tools`, `get_verify_doc_finding_tools`) — all superseded by the `*_tool_definitions()` family."
+        }
+      }
+    ],
+    "cost_usd": 0.13217
+  }
+}

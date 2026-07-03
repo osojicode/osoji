@@ -1,0 +1,72 @@
+{
+  "slug": "audit-doc_incorrect_content-000",
+  "mode": "exploration-sdk",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:doc_incorrect_content",
+    "gap_type": "uncategorized",
+    "path": ".claude/skills/osoji-triage/SKILL.md",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "The skill instructs users to 'Read the system prompts and tool schemas in src/osoji/tools.py' when investigating false positives. While tool schemas are indeed in tools.py, the system prompts are located in the individual module files, not in tools.py. This misdirects investigators to the wrong file for critical context. [evidence: src\\osoji\\deadcode.py — \"_DEAD_CODE_SYSTEM_PROMPT (L373–428) encodes the full decision logic for the LLM\"]",
+    "observed_behavior": "Change the instruction to: 'Read the tool schemas in src/osoji/tools.py and the system prompts in the specific module that generates the finding (e.g., _DEAD_CODE_SYSTEM_PROMPT in deadcode.py, _ANALYZE_SYSTEM_PROMPT in doc_analysis.py, system prompts in junk_cicd.py, triage.py, plumbing.py, etc.)'",
+    "evidence": [],
+    "id": "743d06db088b6f44",
+    "verdict": "confirmed",
+    "confidence": 0.98,
+    "triage_reasoning": "**Reality — gap exists.**\n\nThe SKILL.md Phase C step 4 reads:\n> \"Read the system prompts and tool schemas in `src/osoji/tools.py` if the finding comes from an LLM-based analysis phase.\"\n\nGrepping `src/osoji/tools.py` for `SYSTEM_PROMPT` returns zero matches. The file contains only tool schema constants (`VERIFY_DEAD_CODE_TOOL`, `ANALYZE_DOCUMENT_TOOL`, `SUBMIT_TRIAGE_VERDICT_TOOL`, etc.) and helper functions that wrap them.\n\nSystem prompts live in the individual module files:\n- `deadcode.py` → `_DEAD_CODE_SYSTEM_PROMPT` (L373)\n- `deadparam.py` → `_DEAD_PARAM_SYSTEM_PROMPT` (L283)\n- `doc_analysis.py` → `_MATCH_SYSTEM_PROMPT` (L170), `_ANALYZE_SYSTEM_PROMPT` (L294), `_VERIFY_SYSTEM_PROMPT` (L447)\n- `doc_prompts.py` → `_CONCEPT_INVENTORY_SYSTEM_PROMPT` (L160), `_WRITING_PROMPTS_SYSTEM_PROMPT` (L429)\n- `junk_cicd.py` → `_EXTRACT_CICD_SYSTEM_PROMPT` (L312), `_DEAD_CICD_SYSTEM_PROMPT` (L514)\n- `junk_deps.py` → `_RESOLVE_IMPORTS_SYSTEM_PROMPT` (L135), `_CLASSIFY_DEPS_SYSTEM_PROMPT` (L205), `_DEAD_DEPS_SYSTEM_PROMPT` (L631)\n- `junk_orphan.py` → `_ENTRY_POINTS_SYSTEM_PROMPT` (L103), `_RELATIONSHIPS_SYSTEM_PROMPT` (L193), `_VERIFY_ORPHANS_SYSTEM_PROMPT` (L283)\n- `plumbing.py` → `_EXTRACT_OBLIGATIONS_SYSTEM_PROMPT` (L154), `_VERIFY_ACTUATION_SYSTEM_PROMPT` (L237)\n- `triage.py` → `DEBRIS_TRIAGE_SYSTEM_PROMPT` (L55), `TRIAGE_SYSTEM_PROMPT` (L85)\n\n**Significance — closing the gap improves the codebase.**\n\nAn investigator following Phase C to diagnose a false positive who reads only `tools.py` will see the tool schemas (output format) but miss the actual decision logic encoded in the system prompt (input guidance). These system prompts encode the full decision criteria for the LLM — the very thing most relevant to understanding why a false positive was produced. This is a genuine misdirection of non-trivial investigation effort.\n\n**Actionability — concrete fix exists.**\n\nThe skill's step 4 should be split: tool schemas → `src/osoji/tools.py`; system prompts → the specific module matching the finding's category (e.g., `deadcode.py` for `dead_code`, `doc_analysis.py` for `doc_incorrect_content`, etc.). The suggested fix in the claim is accurate and complete.",
+    "suggested_fix": "In `.claude/skills/osoji-triage/SKILL.md`, Phase C step 4, replace:\n\n> \"Read the system prompts and tool schemas in `src/osoji/tools.py` if the finding comes from an LLM-based analysis phase.\"\n\nwith:\n\n> \"Read the tool schemas in `src/osoji/tools.py` and the system prompts in the specific module that generates the finding (e.g., `_DEAD_CODE_SYSTEM_PROMPT` in `deadcode.py`, `_ANALYZE_SYSTEM_PROMPT`/`_VERIFY_SYSTEM_PROMPT` in `doc_analysis.py`, `_DEAD_CICD_SYSTEM_PROMPT` in `junk_cicd.py`, `TRIAGE_SYSTEM_PROMPT` in `triage.py`, `_VERIFY_ACTUATION_SYSTEM_PROMPT` in `plumbing.py`, etc.) if the finding comes from an LLM-based analysis phase.\"",
+    "severity": "warning",
+    "evidence_fingerprint": null
+  },
+  "trace": {
+    "finding_id": "743d06db088b6f44",
+    "calls": [
+      {
+        "turn": 0,
+        "name": "read_file",
+        "input": {
+          "path": ".claude/skills/osoji-triage/SKILL.md"
+        }
+      },
+      {
+        "turn": 1,
+        "name": "grep",
+        "input": {
+          "pattern": "SYSTEM_PROMPT",
+          "glob": "src/osoji/tools.py"
+        }
+      },
+      {
+        "turn": 2,
+        "name": "grep",
+        "input": {
+          "pattern": "SYSTEM_PROMPT",
+          "glob": "src/osoji/*.py"
+        }
+      },
+      {
+        "turn": 3,
+        "name": "grep",
+        "input": {
+          "pattern": "^def |^class |^[A-Z_]+ =",
+          "glob": "src/osoji/tools.py"
+        }
+      },
+      {
+        "turn": 4,
+        "name": "submit_triage_verdict",
+        "input": {
+          "verdict": "confirmed",
+          "confidence": 0.98,
+          "severity": "warning",
+          "reasoning": "**Reality — gap exists.**\n\nThe SKILL.md Phase C step 4 reads:\n> \"Read the system prompts and tool schemas in `src/osoji/tools.py` if the finding comes from an LLM-based analysis phase.\"\n\nGrepping `src/osoji/tools.py` for `SYSTEM_PROMPT` returns zero matches. The file contains only tool schema constants (`VERIFY_DEAD_CODE_TOOL`, `ANALYZE_DOCUMENT_TOOL`, `SUBMIT_TRIAGE_VERDICT_TOOL`, etc.) and helper functions that wrap them.\n\nSystem prompts live in the individual module files:\n- `deadcode.py` → `_DEAD_CODE_SYSTEM_PROMPT` (L373)\n- `deadparam.py` → `_DEAD_PARAM_SYSTEM_PROMPT` (L283)\n- `doc_analysis.py` → `_MATCH_SYSTEM_PROMPT` (L170), `_ANALYZE_SYSTEM_PROMPT` (L294), `_VERIFY_SYSTEM_PROMPT` (L447)\n- `doc_prompts.py` → `_CONCEPT_INVENTORY_SYSTEM_PROMPT` (L160), `_WRITING_PROMPTS_SYSTEM_PROMPT` (L429)\n- `junk_cicd.py` → `_EXTRACT_CICD_SYSTEM_PROMPT` (L312), `_DEAD_CICD_SYSTEM_PROMPT` (L514)\n- `junk_deps.py` → `_RESOLVE_IMPORTS_SYSTEM_PROMPT` (L135), `_CLASSIFY_DEPS_SYSTEM_PROMPT` (L205), `_DEAD_DEPS_SYSTEM_PROMPT` (L631)\n- `junk_orphan.py` → `_ENTRY_POINTS_SYSTEM_PROMPT` (L103), `_RELATIONSHIPS_SYSTEM_PROMPT` (L193), `_VERIFY_ORPHANS_SYSTEM_PROMPT` (L283)\n- `plumbing.py` → `_EXTRACT_OBLIGATIONS_SYSTEM_PROMPT` (L154), `_VERIFY_ACTUATION_SYSTEM_PROMPT` (L237)\n- `triage.py` → `DEBRIS_TRIAGE_SYSTEM_PROMPT` (L55), `TRIAGE_SYSTEM_PROMPT` (L85)\n\n**Significance — closing the gap improves the codebase.**\n\nAn investigator following Phase C to diagnose a false positive who reads only `tools.py` will see the tool schemas (output format) but miss the actual decision logic encoded in the system prompt (input guidance). These system prompts encode the full decision criteria for the LLM — the very thing most relevant to understanding why a false positive was produced. This is a genuine misdirection of non-trivial investigation effort.\n\n**Actionability — concrete fix exists.**\n\nThe skill's step 4 should be split: tool schemas → `src/osoji/tools.py`; system prompts → the specific module matching the finding's category (e.g., `deadcode.py` for `dead_code`, `doc_analysis.py` for `doc_incorrect_content`, etc.). The suggested fix in the claim is accurate and complete.",
+          "suggested_fix": "In `.claude/skills/osoji-triage/SKILL.md`, Phase C step 4, replace:\n\n> \"Read the system prompts and tool schemas in `src/osoji/tools.py` if the finding comes from an LLM-based analysis phase.\"\n\nwith:\n\n> \"Read the tool schemas in `src/osoji/tools.py` and the system prompts in the specific module that generates the finding (e.g., `_DEAD_CODE_SYSTEM_PROMPT` in `deadcode.py`, `_ANALYZE_SYSTEM_PROMPT`/`_VERIFY_SYSTEM_PROMPT` in `doc_analysis.py`, `_DEAD_CICD_SYSTEM_PROMPT` in `junk_cicd.py`, `TRIAGE_SYSTEM_PROMPT` in `triage.py`, `_VERIFY_ACTUATION_SYSTEM_PROMPT` in `plumbing.py`, etc.) if the finding comes from an LLM-based analysis phase.\""
+        }
+      }
+    ],
+    "cost_usd": 0.152409
+  }
+}

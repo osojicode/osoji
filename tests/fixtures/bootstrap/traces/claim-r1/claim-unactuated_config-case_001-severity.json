@@ -1,0 +1,51 @@
+{
+  "slug": "unactuated_config-case_001-severity",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "plumbing:unactuated_config",
+    "gap_type": "reachability",
+    "path": "tools.py",
+    "line_start": 48,
+    "line_end": 51,
+    "symbol": "severity",
+    "contract_source": "config schema",
+    "contract_claim": "The schema field `severity` declares an enum constraint ([\"error\", \"warning\"]) — an obligation that consuming code must enforce when the value is provided.",
+    "observed_behavior": "No application code validates a `severity` configuration value against this enum; the declaration appears only inside an LLM tool_use input_schema in tools.py, where the model itself is the consumer of the constraint.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 1,
+            "needles": [
+              "severity"
+            ]
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "tools.py",
+          "line_start": 38,
+          "line_end": 58,
+          "snippet": "38:                             \"enum\": [\n39:                                 \"stale_comment\",\n40:                                 \"misleading_docstring\",\n41:                                 \"commented_out_code\",\n42:                                 \"expired_todo\",\n43:                                 \"dead_code\",\n44:                             ],\n45:                         },\n46:                         \"line_start\": {\"type\": \"integer\", \"minimum\": 1},\n47:                         \"line_end\": {\"type\": \"integer\", \"minimum\": 1},\n48:                         \"severity\": {\n49:                             \"type\": \"string\",\n50:                             \"enum\": [\"error\", \"warning\"],\n51:                         },\n52:                         \"description\": {\"type\": \"string\"},\n53:                         \"suggestion\": {\n54:                             \"type\": \"string\",\n55:                             \"description\": \"What should be done to fix this issue\",\n56:                         },\n57:                     },\n58:                     \"required\": [\"category\", \"line_start\", \"line_end\", \"severity\", \"description\"],",
+          "anchor": "symbol"
+        }
+      }
+    ],
+    "id": "369d61f998fdafec",
+    "verdict": "dismissed",
+    "confidence": 0.95,
+    "triage_reasoning": "Same reasoning as Claim 5. The `severity` enum `['error', 'warning']` is declared inside an LLM `tool_use` input_schema. The model is the consumer of this constraint; the schema guides the model to return one of the enumerated values. Application code does not need to re-validate the output against these bounds because the JSON Schema is the specification handed to the model. No actionable gap exists in application code.",
+    "suggested_fix": "",
+    "severity": null,
+    "evidence_fingerprint": "263e26c7d587ac8c"
+  },
+  "trace": null
+}
