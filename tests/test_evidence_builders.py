@@ -255,6 +255,34 @@ def test_scan_scope_reports_per_needle_totals(config, temp_dir):
     assert len([r for r in payload["references"] if r["needle"] == "needle_word"]) < 30
 
 
+def test_scan_context_lines_are_length_capped(config, temp_dir):
+    # Ablation r3 lesson: a hit inside a huge one-liner (lock files, JSON)
+    # must not import the whole line into the claim payload.
+    write(temp_dir, "src/x.py", "def old_helper():\n    pass\n")
+    write(temp_dir, "data/blob.txt", "x" * 50_000 + " old_helper " + "y" * 50_000 + "\n")
+    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
+    evidence = BUILDERS["cross_file_reference"].build(
+        make_finding(line_start=1, line_end=2), ctx
+    )
+    for ref in evidence[0].payload["references"]:
+        assert len(ref["context"]) < 2_000
+
+
+def test_scan_hits_are_capped_per_file_for_diversity(config, temp_dir):
+    # Ablation r3 lesson: one noisy file must not fill the hit budget and
+    # drown the diverse reference sites exploration actually consulted.
+    write(temp_dir, "src/x.py", "def old_helper():\n    pass\n")
+    write(temp_dir, "src/noisy.py", "old_helper()\n" * 30)
+    write(temp_dir, "src/other.py", "from x import old_helper\n")
+    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
+    evidence = BUILDERS["cross_file_reference"].build(
+        make_finding(line_start=1, line_end=2), ctx
+    )
+    refs = evidence[0].payload["references"]
+    assert sum(1 for r in refs if r["file"] == "src/noisy.py") <= 3
+    assert any(r["file"] == "src/other.py" for r in refs)
+
+
 # --- surrounding_code -------------------------------------------------------
 
 

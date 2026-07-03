@@ -1,0 +1,300 @@
+{
+  "slug": "audit-dead_symbol-001",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:dead_symbol",
+    "gap_type": "reachability",
+    "path": "src/osoji/llm/rate_limited.py",
+    "line_start": 114,
+    "line_end": 115,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "[AST] L114: function `RateLimitedProvider.get_rate_limit_summary` — No cross-file references found (AST-proven)",
+    "observed_behavior": "Remove function `RateLimitedProvider.get_rate_limit_summary`",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/test_llm_provider.py",
+              "kind": "import",
+              "context": "imports RateLimitedProvider from osoji.llm.rate_limited",
+              "resolves_to_source": true,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "import",
+              "context": "imports RateLimitedProvider from osoji.llm.rate_limited",
+              "resolves_to_source": true,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "call",
+              "context": "calls RateLimitedProvider at line 342",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "call",
+              "context": "calls RateLimitedProvider at line 381",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "call",
+              "context": "calls RateLimitedProvider at line 415",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "call",
+              "context": "calls RateLimitedProvider at line 518",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "call",
+              "context": "calls RateLimitedProvider at line 544",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/llm/factory.py",
+              "kind": "import",
+              "context": "imports RateLimitedProvider from .rate_limited",
+              "resolves_to_source": true,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/llm/factory.py",
+              "kind": "call",
+              "context": "calls RateLimitedProvider at line 51",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/llm/runtime.py",
+              "kind": "import",
+              "context": "imports RateLimitedProvider from .rate_limited",
+              "resolves_to_source": true,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/llm/runtime.py",
+              "kind": "call",
+              "context": "calls RateLimitedProvider at line 34",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/llm/__init__.py",
+              "kind": "import",
+              "context": "imports RateLimitedProvider from .rate_limited",
+              "resolves_to_source": true,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_llm_provider.py",
+              "kind": "text_match",
+              "line": 16,
+              "context": "from osoji.llm.openai import OpenAIProvider\nfrom osoji.llm.openrouter import OpenRouterProvider\nfrom osoji.llm.rate_limited import RateLimitedProvider\nfrom osoji.llm.registry import (\n    get_provider_spec,",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_llm_provider.py",
+              "kind": "text_match",
+              "line": 108,
+              "context": "    try:\n        assert isinstance(logging_provider, LoggingProvider)\n        assert isinstance(logging_provider._provider, RateLimitedProvider)\n        assert logging_provider.name == \"openai\"\n        assert logging_provider._provider._rate_limiter is rate_limiter",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "text_match",
+              "line": 14,
+              "context": "\nfrom osoji.llm.base import LLMProvider\nfrom osoji.llm.rate_limited import RateLimitedProvider\nfrom osoji.llm.types import CompletionOptions, CompletionResult, Message, MessageRole\nfrom osoji.rate_limiter import (",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "text_match",
+              "line": 342,
+              "context": "        )\n        provider = SequenceProvider([_completion(input_tokens=120, output_tokens=80)])\n        wrapped = RateLimitedProvider(provider, limiter)\n\n        async def run() -> None:",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "text_match",
+              "line": 381,
+              "context": "            ]\n        )\n        wrapped = RateLimitedProvider(provider, limiter)\n\n        async def run() -> None:",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "text_match",
+              "line": 384,
+              "context": "\n        async def run() -> None:\n            with mock.patch.object(RateLimitedProvider, \"_is_retryable_error\", return_value=True):\n                result = await wrapped.complete(\n                    messages=[Message(role=MessageRole.USER, content=\"hello\")],",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "text_match",
+              "line": 415,
+              "context": "        )\n        provider = SequenceProvider([RuntimeError(\"boom\")])\n        wrapped = RateLimitedProvider(provider, limiter)\n\n        async def run() -> None:",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "text_match",
+              "line": 501,
+              "context": "\nclass TestAutoTuneFromHeaders:\n    \"\"\"Tests for header-based auto-tuning in RateLimitedProvider.\"\"\"\n\n    def test_anthropic_headers_trigger_update(self) -> None:",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "text_match",
+              "line": 518,
+              "context": "        )\n        provider = SequenceProvider([result])\n        wrapped = RateLimitedProvider(provider, limiter)\n\n        async def run():",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "text_match",
+              "line": 544,
+              "context": "        )\n        provider = SequenceProvider([result])\n        wrapped = RateLimitedProvider(provider, limiter)\n\n        async def run():",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 392,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"[AST] L114: function `RateLimitedProvider.get_rate_limit_summary` — No cross-file references found (AST-proven)\",\n        \"observed_behavior\": \"Remove function `RateLimitedProvider.get_rate_limit_summary`\",\n        \"evidence\": [],",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 393,
+              "context": "        \"contract_source\": \"audit\",\n        \"contract_claim\": \"[AST] L114: function `RateLimitedProvider.get_rate_limit_summary` — No cross-file references found (AST-proven)\",\n        \"observed_behavior\": \"Remove function `RateLimitedProvider.get_rate_limit_summary`\",\n        \"evidence\": [],\n        \"id\": \"e189f9a33487fdeb\",",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 936,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"[AST] L114: function `RateLimitedProvider.get_rate_limit_summary` — No cross-file references found (AST-proven)\",\n        \"observed_behavior\": \"Remove function `RateLimitedProvider.get_rate_limit_summary`\",\n        \"evidence\": [],",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 937,
+              "context": "        \"contract_source\": \"audit\",\n        \"contract_claim\": \"[AST] L114: function `RateLimitedProvider.get_rate_limit_summary` — No cross-file references found (AST-proven)\",\n        \"observed_behavior\": \"Remove function `RateLimitedProvider.get_rate_limit_summary`\",\n        \"evidence\": [],\n        \"id\": \"e189f9a33487fdeb\",",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-dead_symbol-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"[AST] L114: function `RateLimitedProvider.get_rate_limit_summary` — No cross-file references found (AST-proven)\",\n    \"observed_behavior\": \"Remove function `RateLimitedProvider.get_rate_limit_summary`\",\n    \"evidence\": [],",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-dead_symbol-001.json",
+              "kind": "text_match",
+              "line": 14,
+              "context": "    \"contract_source\": \"audit\",\n    \"contract_claim\": \"[AST] L114: function `RateLimitedProvider.get_rate_limit_summary` — No cross-file references found (AST-proven)\",\n    \"observed_behavior\": \"Remove function `RateLimitedProvider.get_rate_limit_summary`\",\n    \"evidence\": [],\n    \"id\": \"e189f9a33487fdeb\",",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 297,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 110,\n              \"context\": \"        assert isinstance(logging_provider._provider, RateLimitedProvider)\\n        assert logging_provider.name == \\\"openai\\\"\\n        assert logging_provider._provider._rate_limiter is rate_limiter\\n        assert logging_provider._provider._provider._interaction_log_path == config.llm_interactions_log_path\\n    finally:\",\n              \"needle\": \"rate_limiter\",\n              \"source\": \"text_scan\"",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 313,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 16,\n              \"context\": \"from osoji.llm.rate_limited import RateLimitedProvider\\nfrom osoji.llm.types import CompletionOptions, CompletionResult, Message, MessageRole\\nfrom osoji.rate_limiter import (\\n    ANTHROPIC_DEFAULTS,\\n    GOOGLE_DEFAULTS,\",\n              \"needle\": \"rate_limiter\",\n              \"source\": \"text_scan\"",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_symbol-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"[AST] L114: function `RateLimitedProvider.get_rate_limit_summary` — No cross-file references found (AST-proven)\",\n    \"observed_behavior\": \"Remove function `RateLimitedProvider.get_rate_limit_summary`\",\n    \"evidence\": [",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_symbol-001.json",
+              "kind": "text_match",
+              "line": 14,
+              "context": "    \"contract_source\": \"audit\",\n    \"contract_claim\": \"[AST] L114: function `RateLimitedProvider.get_rate_limit_summary` — No cross-file references found (AST-proven)\",\n    \"observed_behavior\": \"Remove function `RateLimitedProvider.get_rate_limit_summary`\",\n    \"evidence\": [\n      {",
+              "needle": "RateLimitedProvider",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {
+            "tests/test_llm_provider.py": "# tests\\test_llm_provider.py\n@source-hash: 55bce0a62242ec9a\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:31:43Z\n\n## Purpose\n\nTest suite for the osoji LLM provider layer: registry helpers, factory, `create_runtime`, `LoggingProvider`, and the `OpenAIProvider` retry/logging mechanics.\n\n---\n\n## Module-Level Shared Fixtures\n\n### `SIMPLE_SCHEMA` (L34–40) / `TOOL_DEF` (L42–46)\nJSON schema requiring `{\"value\": {\"x\": string}}` and a `ToolDefinition` named `\"test_tool\"`. Shared across all OpenAI retry tests.\n\n### `_make_openai_response()` (L49–59)\nBuilds a plain-dict mock of the OpenAI chat-completions response format:\n```python\n{\"choices\": [{\"message\": {...}, \"finish_reason\": ...}], \"usage\": {...}, \"model\": \"gpt-test\"}\n```\nAll parameters are keyword-only with defaults. The provider under test must use dict-style access for these mocks to work correctly.\n\n### `openai_provider` fixture (L157–160)\nSets `OPENAI_API_KEY=test-key` via monkeypatch, returns a fresh `OpenAIProvider()`.\n\n---\n\n## Registry & Factory Tests (L62–98)\n\n| Test | What it verifies |\n|---|---|\n| `test_provider_names_include_all_supported_providers` (L62) | `provider_names()` returns exactly `(\"anthropic\", \"claude-code\", \"google\", \"openai\", \"openrouter\")` |\n| `test_registry_normalizes_and_reports_metadata` (L66) | `normalize_provider_name(\"OPENROUTER\") == \"openrouter\"`; `get_provider_spec(\"google\").api_key_env == \"GEMINI_API_KEY\"` |\n| `test_model_qualification_helpers_handle_cross_provider_prefixes` (L72) | `qualify_model_name` strips provider prefixes for direct-SDK providers; `strip_provider_prefix` works for Google |\n| `test_create_provider_returns_expected_wrapper` (L88, parametrized) | All 4 SDK providers (anthropic/openai/google/openrouter) instantiate correctly given their env var |\n| `test_create_provider_rejects_unknown_name` (L96) | Raises `ValueError` matching \"Unknown provider\" |\n\n---\n\n## Runtime & Logging Tests (L101–154)\n\n### `test_create_runtime_wraps_provider_with_reservation_limiter` ",
+            "tests/test_rate_limiter.py": "# tests\\test_rate_limiter.py\n@source-hash: beb115e61932e2a1\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:29:14Z\n\n## tests/test_rate_limiter.py\n\nTest suite for the reservation-based token rate limiter, covering budget tracking, proactive reservation, cooldown/retry mechanics, dynamic auto-tuning from headers, and the `RateLimitedProvider` wrapper.\n\n### Test Doubles\n\n**FakeClock (L27-37)**\nInjected into `RateLimiter` via `now_fn`/`sleep_fn`. `sleep()` is async, appends to `sleeps: list[float]` and advances `current`. Lets tests assert exact sleep durations without real I/O.\n\n**SequenceProvider (L40-64)**\nMinimal `LLMProvider` that drains a `deque` of pre-built `CompletionResult | Exception` values in order. Raises the exception directly if the popped item is an `Exception`. Tracks all calls in `self.calls`. Used by `TestRateLimitedProvider` and `TestAutoTuneFromHeaders`.\n\n**RetryableError (L322-325)**\nException with `.response.headers` (via `SimpleNamespace`) so `RateLimitedProvider._is_retryable_error` can interrogate the `retry-after-ms` header.\n\n### Helpers\n\n**`_ticket_kwargs` (L67-73):** Builds the keyword-argument dict for `RateLimiter.acquire()` with defaults that produce a no-op reservation. Keeps test calls concise.\n\n**`_completion` (L76-84):** Constructs a minimal `CompletionResult` with fixed content `\"ok\"`, empty tool calls, and caller-specified token counts.\n\n### Test Classes\n\n**TestProviderDefaults (L87-113)**\n- Pins exact numeric values for `ANTHROPIC_DEFAULTS` (4000 RPM, 2M/400K TPM), `OPENAI_DEFAULTS` (500 RPM, 500K/500K TPM), `GOOGLE_DEFAULTS` (300 RPM, 5M/5M TPM).\n- Asserts `get_default_config()` returns a copy (mutating it doesn't affect the module-level constant).\n- Asserts `get_default_config(\"unknown\")` raises `ValueError` matching `\"Unknown provider\"`.\n\n**TestEnvironmentOverrides (L116-140)**\nExercises `get_config_with_overrides()` with `mock.patch.dict(os.environ, ...)`:\n- `ANTHROPIC_RPM` overrides only `requests_per_minute`.\n- `ANTHR"
+          },
+          "scan_scope": {
+            "files_scanned": 464,
+            "needles": [
+              "RateLimitedProvider"
+            ],
+            "needle_totals": {
+              "RateLimitedProvider": 218
+            },
+            "same_file_swept": true
+          },
+          "export_surface": {
+            "symbol": "RateLimitedProvider",
+            "exported_from_flagged_file": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/llm/rate_limited.py",
+          "line_start": 104,
+          "line_end": 125,
+          "snippet": "104:             )\n105:             if not self._rate_limiter._auto_tuned and result.response_headers:\n106:                 await self._auto_tune_from_headers(result.response_headers)\n107:             return result\n108: \n109:     async def close(self) -> None:\n110:         await self._provider.close()\n111:         if self._token_counter is not None:\n112:             await self._token_counter.close()\n113: \n114:     def get_rate_limit_summary(self) -> str:\n115:         return self._rate_limiter.get_summary()\n116: \n117:     async def _auto_tune_from_headers(self, headers: dict[str, str]) -> None:\n118:         \"\"\"Extract rate limit capacity from response headers and tune upward.\"\"\"\n119:         rpm = _parse_header_int(headers, \"anthropic-ratelimit-requests-limit\")\n120:         if rpm is None:\n121:             rpm = _parse_header_int(headers, \"x-ratelimit-limit-requests\")\n122: \n123:         tpm = _parse_header_int(headers, \"anthropic-ratelimit-tokens-limit\")\n124:         if tpm is None:\n125:             tpm = _parse_header_int(headers, \"x-ratelimit-limit-tokens\")",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "e189f9a33487fdeb",
+    "verdict": "confirmed",
+    "confidence": 0.88,
+    "triage_reasoning": "Reality: confirmed. All cross-file references are imports and constructor calls on `RateLimitedProvider`; none invoke `.get_rate_limit_summary()`. The method at L114–115 is a 2-line thin wrapper (`return self._rate_limiter.get_summary()`) with zero callers in any production or test file. Significance: a dead public method on a widely-imported class adds maintenance surface, creates an unused documentation obligation, and may mislead integrators into thinking this is the intended API for rate-limit introspection. Actionability: remove the 2-line method. If callers are ever needed they can be re-added. The class itself and all other methods are live. All three predicates hold.",
+    "suggested_fix": "Remove the `get_rate_limit_summary` method (lines 114–115 of `src/osoji/llm/rate_limited.py`). If rate-limit introspection is needed in the future, callers can access `self._rate_limiter.get_summary()` directly or the method can be re-added when there is a concrete consumer.",
+    "severity": "warning",
+    "evidence_fingerprint": "baa331d72f52bdde"
+  },
+  "trace": null
+}

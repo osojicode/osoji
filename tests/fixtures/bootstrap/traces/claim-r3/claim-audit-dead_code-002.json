@@ -1,0 +1,1980 @@
+{
+  "slug": "audit-dead_code-002",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/claim_builder.py",
+    "line_start": 25,
+    "line_end": 25,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L25-25: `Path` is imported from `pathlib` (L25) but is never directly used anywhere in the file. All path construction uses `config.root_path / ...` where `config.root_path` is already a `Path` object — the `Path` constructor itself is never called.",
+    "observed_behavior": "Remove `Path` from the import: change `from pathlib import Path` to remove that name, or delete the import entirely if no other pathlib names are needed.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "call",
+              "context": "calls Path at line 54",
+              "source": "facts"
+            },
+            {
+              "file": "tests/conftest.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/conftest.py",
+              "kind": "call",
+              "context": "calls Path at line 37",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "call",
+              "context": "calls Path at line 166",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "call",
+              "context": "calls Path at line 309",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "call",
+              "context": "calls Path at line 355",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "call",
+              "context": "calls Path at line 375",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "call",
+              "context": "calls Path at line 380",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "call",
+              "context": "calls Path at line 385",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "call",
+              "context": "calls Path at line 429",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "call",
+              "context": "calls Path at line 438",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "call",
+              "context": "calls Path at line 493",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "call",
+              "context": "calls Path at line 507",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "call",
+              "context": "calls Path at line 578",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "call",
+              "context": "calls Path at line 579",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "call",
+              "context": "calls Path at line 580",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_audit_debris_cutover.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_audit_debris_cutover.py",
+              "kind": "call",
+              "context": "calls Path at line 58",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_doc_refs.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_doc_refs.py",
+              "kind": "call",
+              "context": "calls Path at line 41",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_doc_refs.py",
+              "kind": "call",
+              "context": "calls Path at line 52",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_doc_refs.py",
+              "kind": "call",
+              "context": "calls Path at line 61",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_doc_refs.py",
+              "kind": "call",
+              "context": "calls Path at line 70",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_extract_js_integration.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_extract_js_integration.py",
+              "kind": "call",
+              "context": "calls Path at line 17",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_facts.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_findings_adapter.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_findings_adapter.py",
+              "kind": "call",
+              "context": "calls Path at line 178",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_findings_adapter.py",
+              "kind": "call",
+              "context": "calls Path at line 183",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_hasher.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_hasher.py",
+              "kind": "call",
+              "context": "calls Path at line 23",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_hasher.py",
+              "kind": "call",
+              "context": "calls Path at line 34",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_ignore_patterns.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_ignore_patterns.py",
+              "kind": "call",
+              "context": "calls Path at line 73",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_ignore_patterns.py",
+              "kind": "call",
+              "context": "calls Path at line 77",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_ignore_patterns.py",
+              "kind": "call",
+              "context": "calls Path at line 81",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_ignore_patterns.py",
+              "kind": "call",
+              "context": "calls Path at line 85",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_ignore_patterns.py",
+              "kind": "call",
+              "context": "calls Path at line 89",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_ignore_patterns.py",
+              "kind": "call",
+              "context": "calls Path at line 93",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_ignore_patterns.py",
+              "kind": "call",
+              "context": "calls Path at line 103",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_ignore_patterns.py",
+              "kind": "call",
+              "context": "calls Path at line 108",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_ignore_patterns.py",
+              "kind": "call",
+              "context": "calls Path at line 113",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_ignore_patterns.py",
+              "kind": "call",
+              "context": "calls Path at line 118",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_ignore_patterns.py",
+              "kind": "call",
+              "context": "calls Path at line 123",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_impl_hash.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_impl_hash.py",
+              "kind": "call",
+              "context": "calls Path at line 66",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_impl_hash.py",
+              "kind": "call",
+              "context": "calls Path at line 72",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_impl_hash.py",
+              "kind": "call",
+              "context": "calls Path at line 83",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_impl_hash.py",
+              "kind": "call",
+              "context": "calls Path at line 89",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_junk.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_junk.py",
+              "kind": "call",
+              "context": "calls Path at line 279",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_junk_cicd.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_junk_orphan.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_junk_orphan.py",
+              "kind": "call",
+              "context": "calls Path at line 210",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_junk_orphan.py",
+              "kind": "call",
+              "context": "calls Path at line 241",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_junk_orphan.py",
+              "kind": "call",
+              "context": "calls Path at line 252",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_junk_orphan.py",
+              "kind": "call",
+              "context": "calls Path at line 283",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_junk_orphan.py",
+              "kind": "call",
+              "context": "calls Path at line 315",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_junk_orphan.py",
+              "kind": "call",
+              "context": "calls Path at line 336",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_observatory.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_observatory.py",
+              "kind": "call",
+              "context": "calls Path at line 19",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_plugin_integration.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_plugin_integration.py",
+              "kind": "call",
+              "context": "calls Path at line 128",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_plugin_typescript.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_plumbing.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_plumbing.py",
+              "kind": "call",
+              "context": "calls Path at line 116",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_prompt_regression.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_prompt_regression.py",
+              "kind": "call",
+              "context": "calls Path at line 32",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_prompt_regression.py",
+              "kind": "call",
+              "context": "calls Path at line 93",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_read_file_safe.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_scorecard.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_scorecard.py",
+              "kind": "call",
+              "context": "calls Path at line 74",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_shadow_retry.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_skills_parity.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_skills_parity.py",
+              "kind": "call",
+              "context": "calls Path at line 13",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_staleness_marking.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_staleness_marking.py",
+              "kind": "call",
+              "context": "calls Path at line 146",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_staleness_marking.py",
+              "kind": "call",
+              "context": "calls Path at line 153",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_stats.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_stats.py",
+              "kind": "call",
+              "context": "calls Path at line 15",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_stats.py",
+              "kind": "call",
+              "context": "calls Path at line 16",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_checker.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_checker.py",
+              "kind": "call",
+              "context": "calls Path at line 124",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_checker.py",
+              "kind": "call",
+              "context": "calls Path at line 139",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_checker.py",
+              "kind": "call",
+              "context": "calls Path at line 146",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_checker.py",
+              "kind": "call",
+              "context": "calls Path at line 180",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_checker.py",
+              "kind": "call",
+              "context": "calls Path at line 211",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_checker.py",
+              "kind": "call",
+              "context": "calls Path at line 242",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 19",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 20",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 24",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 25",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 26",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 27",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 31",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 32",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 33",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 34",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 38",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 39",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 40",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 44",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 45",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 46",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 50",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 51",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 55",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 56",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 57",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 58",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 59",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 63",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 64",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 65",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 69",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 73",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 77",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 78",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 82",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 83",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 87",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 91",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 92",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 96",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 97",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 106",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 107",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 108",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 109",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 110",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 115",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 116",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 117",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 118",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 119",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 130",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 130",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 130",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 139",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 139",
+              "source": "facts"
+            },
+            {
+              "file": "tests/safety/test_filters.py",
+              "kind": "call",
+              "context": "calls Path at line 139",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "call",
+              "context": "calls Path at line 239",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "call",
+              "context": "calls Path at line 465",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "call",
+              "context": "calls Path at line 481",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "call",
+              "context": "calls Path at line 594",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "call",
+              "context": "calls Path at line 768",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "call",
+              "context": "calls click.Path at line 92",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "call",
+              "context": "calls click.Path at line 116",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "call",
+              "context": "calls click.Path at line 153",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "call",
+              "context": "calls Path at line 234",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "call",
+              "context": "calls click.Path at line 271",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "call",
+              "context": "calls click.Path at line 304",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "call",
+              "context": "calls click.Path at line 398",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "call",
+              "context": "calls Path at line 443",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "call",
+              "context": "calls click.Path at line 456",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "call",
+              "context": "calls click.Path at line 460",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "call",
+              "context": "calls click.Path at line 481",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "call",
+              "context": "calls click.Path at line 526",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "call",
+              "context": "calls click.Path at line 545",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "call",
+              "context": "calls Path at line 581",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "call",
+              "context": "calls click.Path at line 646",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/config.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/config.py",
+              "kind": "call",
+              "context": "calls Path at line 755",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/config.py",
+              "kind": "call",
+              "context": "calls Path at line 799",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/deadcode.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/deadcode.py",
+              "kind": "call",
+              "context": "calls Path at line 870",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/deadcode.py",
+              "kind": "call",
+              "context": "calls Path at line 880",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/deadparam.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/deadparam.py",
+              "kind": "call",
+              "context": "calls Path at line 663",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/deadparam.py",
+              "kind": "call",
+              "context": "calls Path at line 673",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "call",
+              "context": "calls Path at line 105",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "call",
+              "context": "calls Path at line 209",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "call",
+              "context": "calls Path at line 221",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/doc_analysis.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/doc_analysis.py",
+              "kind": "call",
+              "context": "calls Path at line 122",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/doc_analysis.py",
+              "kind": "call",
+              "context": "calls Path at line 142",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/doc_analysis.py",
+              "kind": "call",
+              "context": "calls Path at line 211",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/facts.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/facts.py",
+              "kind": "call",
+              "context": "calls Path at line 92",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/facts.py",
+              "kind": "call",
+              "context": "calls Path at line 108",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/facts.py",
+              "kind": "call",
+              "context": "calls Path at line 122",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/findings_adapter.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/findings_adapter.py",
+              "kind": "call",
+              "context": "calls Path at line 95",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/findings_adapter.py",
+              "kind": "call",
+              "context": "calls Path at line 98",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/hasher.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/hasher.py",
+              "kind": "call",
+              "context": "calls Path at line 146",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/hooks.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/hooks.py",
+              "kind": "call",
+              "context": "calls Path at line 148",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/init.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_cicd.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_cicd.py",
+              "kind": "call",
+              "context": "calls Path at line 789",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_cicd.py",
+              "kind": "call",
+              "context": "calls Path at line 799",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_deps.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_deps.py",
+              "kind": "call",
+              "context": "calls Path at line 543",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_deps.py",
+              "kind": "call",
+              "context": "calls Path at line 930",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_deps.py",
+              "kind": "call",
+              "context": "calls Path at line 940",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_orphan.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_orphan.py",
+              "kind": "call",
+              "context": "calls Path at line 177",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_orphan.py",
+              "kind": "call",
+              "context": "calls Path at line 531",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_orphan.py",
+              "kind": "call",
+              "context": "calls Path at line 541",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_orphan.py",
+              "kind": "call",
+              "context": "calls Path at line 591",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/observatory.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/observatory.py",
+              "kind": "call",
+              "context": "calls Path at line 420",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/observatory.py",
+              "kind": "call",
+              "context": "calls Path at line 427",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/plumbing.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/plumbing.py",
+              "kind": "call",
+              "context": "calls Path at line 552",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/plumbing.py",
+              "kind": "call",
+              "context": "calls Path at line 559",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/push.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/scorecard.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/scorecard.py",
+              "kind": "call",
+              "context": "calls Path at line 103",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/scorecard.py",
+              "kind": "call",
+              "context": "calls Path at line 129",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/shadow.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/shadow.py",
+              "kind": "call",
+              "context": "calls Path at line 555",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/shadow.py",
+              "kind": "call",
+              "context": "calls Path at line 556",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/shadow.py",
+              "kind": "call",
+              "context": "calls Path at line 1162",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/shadow.py",
+              "kind": "call",
+              "context": "calls Path at line 1163",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/shadow.py",
+              "kind": "call",
+              "context": "calls Path at line 1301",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/shadow.py",
+              "kind": "call",
+              "context": "calls Path at line 1399",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/shadow.py",
+              "kind": "call",
+              "context": "calls Path at line 1400",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/shadow.py",
+              "kind": "call",
+              "context": "calls Path at line 1487",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/stats.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/symbols.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/symbols.py",
+              "kind": "call",
+              "context": "calls Path at line 12",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/triage_exec.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/triage_exec.py",
+              "kind": "call",
+              "context": "calls Path at line 78",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/walker.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/llm/_provider_base.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/llm/_provider_base.py",
+              "kind": "call",
+              "context": "calls Path at line 110",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/plugins/base.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/plugins/python_plugin.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/plugins/python_plugin.py",
+              "kind": "call",
+              "context": "calls Path at line 496",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/plugins/registry.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/plugins/registry.py",
+              "kind": "call",
+              "context": "calls Path at line 26",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/plugins/typescript_plugin.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/plugins/typescript_plugin.py",
+              "kind": "call",
+              "context": "calls Path at line 14",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/plugins/typescript_plugin.py",
+              "kind": "call",
+              "context": "calls Path at line 51",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/plugins/typescript_plugin.py",
+              "kind": "call",
+              "context": "calls Path at line 98",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/plugins/typescript_plugin.py",
+              "kind": "call",
+              "context": "calls Path at line 137",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/safety/checker.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/safety/filters.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/safety/models.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/safety/paths.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/safety/paths.py",
+              "kind": "call",
+              "context": "calls Path at line 135",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/safety/secrets.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/skills/__init__.py",
+              "kind": "import",
+              "context": "imports Path from pathlib",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/skills/__init__.py",
+              "kind": "call",
+              "context": "calls Path at line 20",
+              "source": "facts"
+            },
+            {
+              "file": "scripts/measure_debris_cutover.py",
+              "kind": "text_match",
+              "line": 21,
+              "context": "import json\nimport sys\nfrom pathlib import Path\n\nREPO_ROOT = Path(__file__).resolve().parent.parent",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/measure_debris_cutover.py",
+              "kind": "text_match",
+              "line": 23,
+              "context": "from pathlib import Path\n\nREPO_ROOT = Path(__file__).resolve().parent.parent\nsys.path.insert(0, str(REPO_ROOT / \"src\"))\n",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/measure_debris_cutover.py",
+              "kind": "text_match",
+              "line": 57,
+              "context": "            for finding in data.get(\"findings\", []):\n                raw_debris.append(\n                    {\"source\": source_path_str, \"source_path\": Path(source_path_str), **finding}\n                )\n        except (json.JSONDecodeError, KeyError):",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/measure_debris_cutover.py",
+              "kind": "text_match",
+              "line": 95,
+              "context": "    parser = argparse.ArgumentParser(description=__doc__)\n    parser.add_argument(\n        \"--out\", type=Path,\n        default=REPO_ROOT / \"tests\" / \"fixtures\" / \"bootstrap\" / \"debris-cutover.json\",\n    )",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 46,
+              "context": "import sys\nfrom collections import Counter\nfrom pathlib import Path\nfrom typing import Any\n",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 49,
+              "context": "from typing import Any\n\nREPO_ROOT = Path(__file__).resolve().parent.parent\nsys.path.insert(0, str(REPO_ROOT / \"src\"))\n",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 172,
+              "context": "    ):\n        return \"referencing_site\"\n    if Path(path).suffix.lower() in _DOC_SUFFIXES:\n        return \"doc_file\"\n    return \"other_file\"",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 483,
+              "context": "def main() -> int:\n    parser = argparse.ArgumentParser(description=__doc__)\n    parser.add_argument(\"--traces-dir\", type=Path, default=DEFAULT_TRACES)\n    parser.add_argument(\"--summary\", type=Path, default=DEFAULT_SUMMARY)\n    parser.add_argument(\"--manifest\", type=Path, default=DEFAULT_MANIFEST)",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 484,
+              "context": "    parser = argparse.ArgumentParser(description=__doc__)\n    parser.add_argument(\"--traces-dir\", type=Path, default=DEFAULT_TRACES)\n    parser.add_argument(\"--summary\", type=Path, default=DEFAULT_SUMMARY)\n    parser.add_argument(\"--manifest\", type=Path, default=DEFAULT_MANIFEST)\n    parser.add_argument(\"--out\", type=Path, default=DEFAULT_OUT)",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 485,
+              "context": "    parser.add_argument(\"--traces-dir\", type=Path, default=DEFAULT_TRACES)\n    parser.add_argument(\"--summary\", type=Path, default=DEFAULT_SUMMARY)\n    parser.add_argument(\"--manifest\", type=Path, default=DEFAULT_MANIFEST)\n    parser.add_argument(\"--out\", type=Path, default=DEFAULT_OUT)\n    args = parser.parse_args()",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 486,
+              "context": "    parser.add_argument(\"--summary\", type=Path, default=DEFAULT_SUMMARY)\n    parser.add_argument(\"--manifest\", type=Path, default=DEFAULT_MANIFEST)\n    parser.add_argument(\"--out\", type=Path, default=DEFAULT_OUT)\n    args = parser.parse_args()\n",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 54,
+              "context": "from contextlib import ExitStack\nfrom dataclasses import replace\nfrom pathlib import Path\nfrom typing import Any\n",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 57,
+              "context": "from typing import Any\n\nREPO_ROOT = Path(__file__).resolve().parent.parent\nsys.path.insert(0, str(REPO_ROOT / \"src\"))\n",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 69,
+              "context": "\n\ndef load_manifest(path: Path) -> dict[str, Any]:\n    data = json.loads(path.read_text(encoding=\"utf-8\"))\n    for entry in data[\"entries\"]:",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 128,
+              "context": "\n\ndef _stage_fixture_root(fixture_root: Path, tmp: Path) -> None:\n    \"\"\"Materialize a fixture case as a mini-repo (test_prompt_regression layout):\n    source/** at the root, symbols/facts sidecars under .osoji/. expected.json",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 170,
+              "context": "                ctx = fixture_ctxs.get(fixture_root)\n                if ctx is None:\n                    tmp = Path(stack.enter_context(tempfile.TemporaryDirectory(\n                        prefix=\"osoji-bootstrap-\"\n                    )))",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 570,
+              "context": "        p = sub.add_parser(name)\n        p.set_defaults(mode=mode)\n        p.add_argument(\"--manifest\", type=Path, default=DEFAULT_MANIFEST)\n        p.add_argument(\"--out\", type=Path, default=DEFAULT_TRACE_DIR)\n        p.add_argument(\"--provider\", default=None, help=\"LLM provider (e.g. claude-code)\")",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 571,
+              "context": "        p.set_defaults(mode=mode)\n        p.add_argument(\"--manifest\", type=Path, default=DEFAULT_MANIFEST)\n        p.add_argument(\"--out\", type=Path, default=DEFAULT_TRACE_DIR)\n        p.add_argument(\"--provider\", default=None, help=\"LLM provider (e.g. claude-code)\")\n        p.add_argument(\"--model\", default=None)",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 574,
+              "context": "        p.add_argument(\"--provider\", default=None, help=\"LLM provider (e.g. claude-code)\")\n        p.add_argument(\"--model\", default=None)\n        p.add_argument(\"--baseline\", type=Path, default=None,\n                       help=\"explore-summary.json to measure verdict-disagreement against\")\n        p.add_argument(\"--only\", nargs=\"*\", default=None, help=\"restrict to these slugs\")",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/conftest.py",
+              "kind": "text_match",
+              "line": 5,
+              "context": "import shutil\nimport tempfile\nfrom pathlib import Path\n\nimport pytest",
+              "needle": "Path",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/measure_debris_cutover.py",
+              "kind": "text_match",
+              "line": 21,
+              "context": "import json\nimport sys\nfrom pathlib import Path\n\nREPO_ROOT = Path(__file__).resolve().parent.parent",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 46,
+              "context": "import sys\nfrom collections import Counter\nfrom pathlib import Path\nfrom typing import Any\n",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 54,
+              "context": "from contextlib import ExitStack\nfrom dataclasses import replace\nfrom pathlib import Path\nfrom typing import Any\n",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/conftest.py",
+              "kind": "text_match",
+              "line": 5,
+              "context": "import shutil\nimport tempfile\nfrom pathlib import Path\n\nimport pytest",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 3,
+              "context": "\"\"\"Tests for audit result formatting, serialization, and scorecard construction.\"\"\"\n\nfrom pathlib import Path\n\nimport pytest",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit_debris_cutover.py",
+              "kind": "text_match",
+              "line": 13,
+              "context": "\nimport asyncio\nfrom pathlib import Path\nfrom unittest.mock import MagicMock, patch\n",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_claude_code_provider.py",
+              "kind": "text_match",
+              "line": 6,
+              "context": "import json\nimport os\nfrom pathlib import Path\nfrom unittest.mock import AsyncMock, MagicMock, patch\n",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_doc_refs.py",
+              "kind": "text_match",
+              "line": 4,
+              "context": "\nimport json\nfrom pathlib import Path\nfrom unittest.mock import patch\n",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_extract_js_integration.py",
+              "kind": "text_match",
+              "line": 13,
+              "context": "import shutil\nimport subprocess\nfrom pathlib import Path\n\nimport pytest",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_facts.py",
+              "kind": "text_match",
+              "line": 4,
+              "context": "\nimport json\nfrom pathlib import Path\n\nimport pytest",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_findings_adapter.py",
+              "kind": "text_match",
+              "line": 3,
+              "context": "\"\"\"Tests for the legacy-detector -> Finding bridge (osoji.findings_adapter).\"\"\"\n\nfrom pathlib import Path\n\nimport pytest",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_hasher.py",
+              "kind": "text_match",
+              "line": 3,
+              "context": "\"\"\"Tests for hasher utilities — impl hash auto-discovery and findings validation.\"\"\"\n\nfrom pathlib import Path\n\nfrom osoji.hasher import (",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_ignore_patterns.py",
+              "kind": "text_match",
+              "line": 3,
+              "context": "\"\"\"Tests for .osojiignore pattern handling.\"\"\"\n\nfrom pathlib import Path\n\nfrom osoji.config import Config",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_impl_hash.py",
+              "kind": "text_match",
+              "line": 4,
+              "context": "\nimport re\nfrom pathlib import Path\n\nimport pytest",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_init.py",
+              "kind": "text_match",
+              "line": 4,
+              "context": "\nimport tomllib\nfrom pathlib import Path\nfrom unittest.mock import patch, call\n",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_junk.py",
+              "kind": "text_match",
+              "line": 4,
+              "context": "\nimport json\nfrom pathlib import Path\nfrom unittest.mock import AsyncMock\n",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_junk_cicd.py",
+              "kind": "text_match",
+              "line": 4,
+              "context": "\nimport textwrap\nfrom pathlib import Path\nfrom unittest.mock import AsyncMock\n",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_junk_orphan.py",
+              "kind": "text_match",
+              "line": 4,
+              "context": "\nimport json\nfrom pathlib import Path\nfrom unittest.mock import AsyncMock\n",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 4,
+              "context": "\nimport json\nfrom pathlib import Path\n\nfrom osoji.config import Config",
+              "needle": "pathlib",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_observatory.py",
+              "kind": "text_match",
+              "line": 4,
+              "context": "\nimport json\nfrom pathlib import Path\n\nimport jsonschema",
+              "needle": "pathlib",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {
+            "scripts/triage_bootstrap.py": "# scripts\\triage_bootstrap.py\n@source-hash: 584f5c75957dfc87\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:52:04Z\n\n## Purpose\n\nCLI bootstrap harness for the V1-4 Claim Builder (osojicode/work#27). Runs `osoji.triage.Triage` over a curated fixture set (`tests/fixtures/bootstrap/manifest.json`) in two modes — `explore` (evidence stripped, LLM uses tools to gather context) and `claim` (full evidence included) — measuring verdict accuracy vs. adjudicated labels and optionally computing baseline disagreement rate between runs.\n\n## Path Constants (L54–63)\n\n```\nREPO_ROOT       = <repo root>          # scripts/../\nBOOTSTRAP_DIR   = REPO_ROOT/tests/fixtures/bootstrap\nDEFAULT_MANIFEST = BOOTSTRAP_DIR/manifest.json\nDEFAULT_TRACE_DIR = BOOTSTRAP_DIR/traces\n```\n\n`REPO_ROOT` is inserted into `sys.path` at L55 so `osoji.*` imports work without installation.\n\n## Key Functions\n\n### `load_manifest(path)` (L66–72)\nReads and validates `manifest.json`. Raises `ValueError` if any entry lacks `slug`, `category`, `adjudicated_verdict`, or `finding`. Returns raw `dict` with top-level `commit` and `entries` list.\n\n### `entries_to_claims(entries, *, strip_evidence)` (L75–84)\nConverts manifest entries to `Claim` objects via `Finding.from_dict(entry[\"finding\"])`. When `strip_evidence=True` (explore mode), uses `dataclasses.replace` to zero out `finding.evidence` before wrapping in `Claim`. This ensures explore traces reflect LLM-driven retrieval rather than pre-assembled evidence.\n\n### `summarize(entries, findings)` (L87–116)\nZips manifest entries with triage-output `Finding` objects (must be same order). Builds per-category `{n, agree, uncertain}` stats and per-row rows. Returns summary dict with `n`, `accuracy`, `per_category`, `rows`. Uses `finding.verdict == entry[\"adjudicated_verdict\"]` for agreement; `finding.verdict == \"uncertain\"` counts uncertain verdicts separately.\n\n### `run(args)` (L119–180) — async\nMain orchestration:\n1. Loads manifest, optionally filters by `args.only` sl",
+            "tests/conftest.py": "# tests\\conftest.py\n@source-hash: 8a12e677de9afca2\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:29:41Z\n\n## `tests/conftest.py` — Shared Pytest Fixtures\n\nProvides project-wide pytest infrastructure: a CLI flag for baseline establishment, an autouse cache-clearing fixture, and a temp directory factory.\n\n### Fixtures\n\n**`_clear_repo_files_cache`** (L26–31) — `autouse=True`, scope=function. Calls `clear_repo_files_cache()` from `osoji.walker` both before the test starts and after it completes (teardown via `yield`). Ensures the git `ls-files` cache never leaks between tests regardless of test isolation failures.\n\n**`temp_dir`** (L34–39) — Yields a `pathlib.Path` pointing to a fresh directory created via `tempfile.mkdtemp()`. Deletes the directory tree on teardown (`shutil.rmtree(..., ignore_errors=True)`). Tests requesting this fixture get a unique directory per invocation. Per project convention this fixture is preferred over pytest's built-in `tmp_path` in this codebase (both exist; project uses `temp_dir`).\n\n**`establish_baseline`** (L22–23) — Reads the `--establish-baseline` CLI flag from the pytest config and returns its boolean value. Consumed by prompt regression tests to switch between assertion mode and baseline-writing mode.\n\n### CLI Hook\n\n**`pytest_addoption`** (L12–18) — Registers `--establish-baseline` (store_true, default False) with the pytest argument parser. This is a pytest hook, not a fixture, so it runs at collection time.\n\n### Key Dependency\n\n- `osoji.walker.clear_repo_files_cache` — imported and called in the autouse fixture. Any test that indirectly populates the walker cache will have it cleared automatically.\n\n### Design Notes\n\n- `_clear_repo_files_cache` is underscore-prefixed but still a pytest fixture (visible to pytest via `autouse=True`); the underscore signals it is not intended for direct injection in test signatures.\n- `temp_dir` uses manual `mkdtemp` + `rmtree` rather than pytest's `tmp_path` — this is an intentional project c"
+          },
+          "scan_scope": {
+            "files_scanned": 464,
+            "needles": [
+              "Path",
+              "pathlib"
+            ],
+            "needle_totals": {
+              "Path": 1913,
+              "pathlib": 475
+            },
+            "same_file_swept": true
+          },
+          "export_surface": {
+            "symbol": "Path",
+            "exported_from_flagged_file": false
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/claim_builder.py",
+          "line_start": 15,
+          "line_end": 35,
+          "snippet": "15: ``concepts/incremental-audit.md``). An **empty** bundle keeps the fingerprint\n16: ``None`` (cache-ineligible): symbol-less findings can collide on ``finding.id``\n17: and an empty-bundle fingerprint would let two distinct findings share a cached\n18: verdict (decision 0014).\n19: \n20: ``build_debris_claims`` remains the audit Phase-3 entry point with its V1-3\n21: contract intact; it now runs on the generalized builders with the legacy\n22: sufficiency semantics (refs OR type definitions) encoded as ``require_any``\n23: overrides in :data:`DEBRIS_SCHEMA`.\n24: \"\"\"\n25: \n26: from __future__ import annotations\n27: \n28: import json\n29: from dataclasses import dataclass, replace\n30: from typing import Any, Mapping, Sequence\n31: \n32: from .config import Config\n33: from .evidence import BUILDERS, Evidence, EvidenceKind\n34: from .evidence_builders import (  # noqa: F401  (re-exported: legacy import sites)\n35:     BuildContext,",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "0922e4d1ce2aeb1c",
+    "verdict": null,
+    "confidence": null,
+    "triage_reasoning": null,
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "ff296392c75d20c3"
+  },
+  "trace": null
+}

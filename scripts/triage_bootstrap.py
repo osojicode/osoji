@@ -438,6 +438,20 @@ async def run(args: argparse.Namespace) -> int:
                     )
                 except Exception as exc:  # noqa: BLE001 — transient CLI/API errors
                     print(f"  {label} attempt {attempt + 1} failed: {exc}")
+                    if "too long" in str(exc).lower() and len(chunk) > 1:
+                        # Deterministic size failure: bisect instead of retrying.
+                        mid = len(chunk) // 2
+                        left = await decide_chunk(chunk[:mid], f"{label}a")
+                        right = await decide_chunk(chunk[mid:], f"{label}b")
+                        if left is None or right is None:
+                            return None
+                        left.findings.extend(right.findings)
+                        left.exploration_traces.extend(right.exploration_traces)
+                        return replace(
+                            left,
+                            input_tokens=left.input_tokens + right.input_tokens,
+                            output_tokens=left.output_tokens + right.output_tokens,
+                        )
                     if attempt < 2:
                         await asyncio.sleep(10 * (attempt + 1))
             return None

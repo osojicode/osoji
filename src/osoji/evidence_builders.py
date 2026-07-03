@@ -47,8 +47,11 @@ from .triage_exec import _SKIP_DIRS
 
 _MAX_SCAN_FILES = 5000
 _MAX_HITS_PER_NEEDLE = 20
+_MAX_HITS_PER_FILE = 3  # diversity: one noisy file must not fill the budget
+_MAX_SCAN_ENTRIES_PER_CLAIM = 40  # bounds the rendered claim payload
 _MAX_NEEDLES = 5
 _CONTEXT_LINES = 2
+_MAX_CONTEXT_LINE_CHARS = 200  # mirrors ExplorationExecutor's grep truncation
 _REGION_PAD = 10
 _ENCLOSING_HEAD_LINES = 15
 _SHADOW_EXCERPT_CHARS = 2000
@@ -325,11 +328,14 @@ def _enclosing_symbol(
 
 
 def _numbered(lines: list[str], start: int, end: int) -> str:
-    """1-based inclusive numbered snippet, clamped to the file."""
+    """1-based inclusive numbered snippet, clamped to the file; long lines
+    truncated so a minified one-liner cannot balloon the claim payload."""
 
     lo = max(1, start)
     hi = min(len(lines), end)
-    return "\n".join(f"{i}: {lines[i - 1]}" for i in range(lo, hi + 1))
+    return "\n".join(
+        f"{i}: {lines[i - 1][:_MAX_CONTEXT_LINE_CHARS * 2]}" for i in range(lo, hi + 1)
+    )
 
 
 # --- builders ----------------------------------------------------------------
@@ -400,25 +406,33 @@ class CrossFileReferenceBuilder(EvidenceBuilder):
             rest, key=lambda f: 0 if Path(f).suffix in extensions else 1
         )
         needle_totals: dict[str, int] = {}
+        scan_entries = 0
         for needle, pattern in needles:
             regex = re.compile(pattern)
             hits = 0
             total = 0
             for rel in ordered:
                 same_file = rel == source
+                named_file = rel in named
                 lines = ctx.read_lines(rel)
                 if lines is None:
                     continue
+                file_hits = 0
                 for lineno, line in enumerate(lines, start=1):
                     if same_file and flagged_lo <= lineno <= flagged_hi:
                         continue  # the declaration itself is not a reference
                     if not regex.search(line):
                         continue
                     total += 1
-                    if hits >= _MAX_HITS_PER_NEEDLE:
+                    if hits >= _MAX_HITS_PER_NEEDLE or scan_entries >= _MAX_SCAN_ENTRIES_PER_CLAIM:
                         continue  # keep counting for honest totals
+                    if file_hits >= _MAX_HITS_PER_FILE and not named_file:
+                        continue  # diversity: cap per file, honest total still counts
                     context = "\n".join(
-                        lines[max(0, lineno - 1 - _CONTEXT_LINES): lineno + _CONTEXT_LINES]
+                        raw[:_MAX_CONTEXT_LINE_CHARS]
+                        for raw in lines[
+                            max(0, lineno - 1 - _CONTEXT_LINES): lineno + _CONTEXT_LINES
+                        ]
                     )
                     entry = {
                         "file": rel,
@@ -432,6 +446,8 @@ class CrossFileReferenceBuilder(EvidenceBuilder):
                         entry["same_file"] = True
                     references.append(entry)
                     hits += 1
+                    file_hits += 1
+                    scan_entries += 1
             needle_totals[needle] = total
 
         # Export surface: is the flagged symbol part of the file's public
@@ -558,7 +574,10 @@ class DeclaredIntentBuilder(EvidenceBuilder):
                 {
                     "label": "preceding_lines",
                     "line_start": preceding_start,
-                    "text": "\n".join(lines[preceding_start - 1: anchor - 1]),
+                    "text": "\n".join(
+                        raw[:_MAX_CONTEXT_LINE_CHARS * 2]
+                        for raw in lines[preceding_start - 1: anchor - 1]
+                    ),
                 }
             )
         enclosing = _enclosing_symbol(ctx.symbols(), rel, anchor)
@@ -570,7 +589,10 @@ class DeclaredIntentBuilder(EvidenceBuilder):
                     "label": "enclosing_head",
                     "line_start": head_start,
                     "symbol": enclosing["name"],
-                    "text": "\n".join(lines[head_start - 1: head_end]),
+                    "text": "\n".join(
+                        raw[:_MAX_CONTEXT_LINE_CHARS * 2]
+                        for raw in lines[head_start - 1: head_end]
+                    ),
                 }
             )
         if not blocks:

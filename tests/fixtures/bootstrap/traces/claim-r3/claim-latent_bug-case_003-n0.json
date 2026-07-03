@@ -1,0 +1,65 @@
+{
+  "slug": "latent_bug-case_003-n0",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "debris:latent_bug",
+    "gap_type": "uncategorized",
+    "path": "metrics.ts",
+    "line_start": 17,
+    "line_end": 21,
+    "symbol": null,
+    "contract_source": "code",
+    "contract_claim": "getNodeLabel accesses node.children (line 18) and node.size/node.extension (line 21) on a value typed FsNode = FileNode | DirectoryNode, and each property exists on only one union member — accessing the wrong variant would yield undefined at runtime.",
+    "observed_behavior": "Each access is guarded by a discriminant check on node.type (line 17): the `directory` branch reads .children and the post-guard fall-through is narrowed to FileNode before reading .size/.extension.",
+    "evidence": [
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "metrics.ts",
+          "line_start": 7,
+          "line_end": 30,
+          "snippet": "7: \n8: interface DirectoryNode {\n9:   type: \"directory\";\n10:   name: string;\n11:   children: FsNode[];\n12: }\n13: \n14: type FsNode = FileNode | DirectoryNode;\n15: \n16: export function getNodeLabel(node: FsNode): string {\n17:   if (node.type === \"directory\") {\n18:     return `${node.name}/ (${node.children.length} items)`;\n19:   }\n20:   // After the discriminant check above, node is narrowed to FileNode\n21:   return `${node.name} (${node.size} bytes, .${node.extension})`;\n22: }\n23: \n24: export function collectFiles(node: FsNode): FileNode[] {\n25:   if (node.type === \"file\") {\n26:     return [node];\n27:   }\n28:   // node is narrowed to DirectoryNode here\n29:   return node.children.flatMap(collectFiles);\n30: }",
+          "anchor": "lines"
+        }
+      },
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "metrics.ts",
+              "kind": "text_match",
+              "line": 9,
+              "context": "\ninterface DirectoryNode {\n  type: \"directory\";\n  name: string;\n  children: FsNode[];",
+              "needle": "directory",
+              "source": "text_scan",
+              "same_file": true
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 1,
+            "needles": [
+              "directory"
+            ],
+            "needle_totals": {
+              "directory": 1
+            },
+            "same_file_swept": true
+          }
+        }
+      }
+    ],
+    "id": "44bfbe29552cff88",
+    "verdict": "dismissed",
+    "confidence": 0.98,
+    "triage_reasoning": "The code correctly uses TypeScript's discriminated union narrowing. The `if (node.type === \"directory\")` check on line 17 narrows the type to `DirectoryNode` inside the branch (allowing `.children`). After that branch returns, TypeScript narrows the remaining code path to `FileNode`, making `.size` and `.extension` safe. This is proper use of discriminant types. No latent bug exists; the claim's premise is refuted by the guard structure shown in lines 17-21.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "098a2a69279e341e"
+  },
+  "trace": null
+}
