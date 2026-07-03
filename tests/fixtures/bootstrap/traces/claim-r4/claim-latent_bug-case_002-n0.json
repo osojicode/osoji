@@ -1,0 +1,74 @@
+{
+  "slug": "latent_bug-case_002-n0",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "debris:latent_bug",
+    "gap_type": "uncategorized",
+    "path": "main.ts",
+    "line_start": 8,
+    "line_end": 8,
+    "symbol": null,
+    "contract_source": "code",
+    "contract_claim": "document.getElementById(\"root\") returns HTMLElement | null, so the non-null assertion `document.getElementById(\"root\")!` passed to ReactDOM.createRoot will raise at runtime if the element is missing.",
+    "observed_behavior": "The code asserts non-null with `!` instead of a runtime check; the accompanying comment states the element is known to exist in index.html (standard React 18 bootstrapping pattern).",
+    "evidence": [
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "main.ts",
+          "line_start": 1,
+          "line_end": 15,
+          "snippet": "1: import React from \"react\";\n2: import ReactDOM from \"react-dom/client\";\n3: import { App } from \"./App\";\n4: \n5: // Standard React 18 bootstrapping pattern — getElementById returns\n6: // HTMLElement | null, but we know the element exists in index.html.\n7: const root = ReactDOM.createRoot(\n8:   document.getElementById(\"root\")!\n9: );\n10: \n11: root.render(\n12:   <React.StrictMode>\n13:     <App />\n14:   </React.StrictMode>\n15: );",
+          "anchor": "lines"
+        }
+      },
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "main.ts",
+              "kind": "text_match",
+              "line": 7,
+              "context": "// Standard React 18 bootstrapping pattern — getElementById returns\n// HTMLElement | null, but we know the element exists in index.html.\nconst root = ReactDOM.createRoot(\n  document.getElementById(\"root\")!\n);",
+              "needle": "root",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "main.ts",
+              "kind": "text_match",
+              "line": 11,
+              "context": ");\n\nroot.render(\n  <React.StrictMode>\n    <App />",
+              "needle": "root",
+              "source": "text_scan",
+              "same_file": true
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 1,
+            "needles": [
+              "root"
+            ],
+            "needle_totals": {
+              "root": 2
+            },
+            "same_file_swept": true
+          }
+        }
+      }
+    ],
+    "id": "35dcb00d997833cb",
+    "verdict": "dismissed",
+    "confidence": 0.95,
+    "triage_reasoning": "The non-null assertion `!` is the canonical React 18 bootstrapping idiom; the accompanying comment on lines 5–6 explicitly acknowledges the null type and explains why the assertion is safe ('we know the element exists in index.html'). The element `id=\"root\"` is a hard requirement of any Create-React-App / Vite template — if it were absent the whole app would already be broken. No real latent bug exists; this is intentional, documented, and idiomatic TypeScript. Significance predicate fails.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "b582b6672e4b535b"
+  },
+  "trace": null
+}

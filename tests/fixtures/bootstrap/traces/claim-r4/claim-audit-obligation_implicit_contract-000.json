@@ -1,0 +1,385 @@
+{
+  "slug": "audit-obligation_implicit_contract-000",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "src/osoji/audit.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "2 implicit contracts between src/osoji/obligations.py and src/osoji/audit.py: \"implicit_contract\", \"violation\"",
+    "observed_behavior": "Extract shared constants to a module in src/osoji/ so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "src/osoji/obligations.py",
+              "kind": "text_match",
+              "line": 47,
+              "context": "@dataclass\nclass ContractFinding:\n    finding_type: str          # \"violation\" or \"implicit_contract\"\n    contract_type: str         # \"string_contract\", etc.\n    value: str | None          # single value, or None for grouped findings",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/obligations.py",
+              "kind": "text_match",
+              "line": 500,
+              "context": "\n                    raw_findings.append(ContractFinding(\n                        finding_type=\"implicit_contract\",\n                        contract_type=\"string_contract\",\n                        value=value,",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/obligations.py",
+              "kind": "text_match",
+              "line": 581,
+              "context": "\n            grouped.append(ContractFinding(\n                finding_type=\"implicit_contract\",\n                contract_type=\"string_contract\",\n                value=None,",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 506,
+              "context": "        )\n        scorecard.obligation_implicit_contracts = sum(\n            1 for f in obligation_findings if f.finding_type == \"implicit_contract\"\n        )\n    _serialize_json(config.scorecard_path, asdict(scorecard))",
+              "needle": "implicit_contract",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 691,
+              "context": "    if verbose:\n        n_violations = sum(1 for f in obligation_findings if f.finding_type == \"violation\")\n        n_implicit = sum(1 for f in obligation_findings if f.finding_type == \"implicit_contract\")\n        elapsed = time_module.monotonic() - phase_start\n        _emit(config, f\"  [phase 3.5 obligations: {elapsed:.1f}s] {n_violations} violation(s), {n_implicit} implicit contract(s)\")",
+              "needle": "implicit_contract",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_findings_adapter.py",
+              "kind": "text_match",
+              "line": 148,
+              "context": "\n    def test_implicit_contract_to_contract(self):\n        f = finding_from_contract(_contract(finding_type=\"implicit_contract\"))\n        assert f.detector == \"obligations:implicit_contract\"\n        assert f.gap_type == \"contract\"",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_findings_adapter.py",
+              "kind": "text_match",
+              "line": 149,
+              "context": "    def test_implicit_contract_to_contract(self):\n        f = finding_from_contract(_contract(finding_type=\"implicit_contract\"))\n        assert f.detector == \"obligations:implicit_contract\"\n        assert f.gap_type == \"contract\"\n",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 322,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 1\n        assert implicit[0].severity == \"info\"",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 352,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 0\n",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 378,
+              "context": "        checker = StringContractChecker(db)\n        findings = checker.find_contracts()\n        implicit = [f for f in findings if f.finding_type == \"implicit_contract\"]\n        assert len(implicit) == 1\n",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 26,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"2 implicit contracts between src/osoji/obligations.py and src/osoji/audit.py: \\\"implicit_contract\\\", \\\"violation\\\"\",\n        \"observed_behavior\": \"Extract shared constants to a module in src/osoji/ so a rename triggers an import error instead of a silent mismatch\",\n        \"evidence\": [],",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 568,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"2 implicit contracts between src/osoji/obligations.py and src/osoji/audit.py: \\\"implicit_contract\\\", \\\"violation\\\"\",\n        \"observed_behavior\": \"Extract shared constants to a module in src/osoji/ so a rename triggers an import error instead of a silent mismatch\",\n        \"evidence\": [],",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 1507,
+              "context": "          \"turn\": 0,\n          \"name\": \"grep\",\n          \"pattern\": \"implicit_contract|violation\",\n          \"shape\": \"regex\",\n          \"breadth\": \"scoped\",",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 1536,
+              "context": "          \"turn\": 4,\n          \"name\": \"grep\",\n          \"pattern\": \"implicit_contract|[\\\"\\\\']violation[\\\"\\\\']\",\n          \"shape\": \"regex\",\n          \"breadth\": \"scoped\",",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 1560,
+              "context": "          \"turn\": 7,\n          \"name\": \"grep\",\n          \"pattern\": \"finding_type|ContractFinding|implicit_contract|violation\",\n          \"shape\": \"regex\",\n          \"breadth\": \"scoped\",",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"2 implicit contracts between src/osoji/obligations.py and src/osoji/audit.py: \\\"implicit_contract\\\", \\\"violation\\\"\",\n    \"observed_behavior\": \"Extract shared constants to a module in src/osoji/ so a rename triggers an import error instead of a silent mismatch\",\n    \"evidence\": [],",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-000.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"confirmed\",\n    \"confidence\": 0.97,\n    \"triage_reasoning\": \"**Evidence gathered:**\\n\\n- `obligations.py` is the *producer*: `ContractFinding.finding_type` is set to the bare string literals `\\\"violation\\\"` (line 371) and `\\\"implicit_co\n    \"suggested_fix\": \"In `obligations.py`, add two module-level constants immediately above (or below) the `ContractFinding` dataclass:\\n\\n```python\\nFINDING_TYPE_VIOLATION = \\\"violation\\\"\\nFINDING_TY\n    \"severity\": \"warning\",",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-000.json",
+              "kind": "text_match",
+              "line": 20,
+              "context": "    \"confidence\": 0.97,\n    \"triage_reasoning\": \"**Evidence gathered:**\\n\\n- `obligations.py` is the *producer*: `ContractFinding.finding_type` is set to the bare string literals `\\\"violation\\\"` (line 371) and `\\\"implicit_co\n    \"suggested_fix\": \"In `obligations.py`, add two module-level constants immediately above (or below) the `ContractFinding` dataclass:\\n\\n```python\\nFINDING_TYPE_VIOLATION = \\\"violation\\\"\\nFINDING_TY\n    \"severity\": \"warning\",\n    \"evidence_fingerprint\": null",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_violation-000.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"dismissed\",\n    \"confidence\": 0.97,\n    \"triage_reasoning\": \"The claim asserts that `\\\"obligation_implicit_contract\\\"` is checked but never produced in the project. The evidence refutes this:\\n\\n**Producer (dynamic assembly):**\\n- `src/\n    \"suggested_fix\": null,\n    \"severity\": null,",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_violation-000.json",
+              "kind": "text_match",
+              "line": 63,
+              "context": "        \"name\": \"grep\",\n        \"input\": {\n          \"pattern\": \"finding_type.*implicit_contract|implicit_contract.*finding_type\"\n        }\n      },",
+              "needle": "implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/obligations.py",
+              "kind": "text_match",
+              "line": 18,
+              "context": "@dataclass\nclass ObligationViolation:\n    \"\"\"A detected cross-file contract violation (backward-compatible model).\"\"\"\n\n    obligation_type: str       # \"string_contract\"",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/obligations.py",
+              "kind": "text_match",
+              "line": 47,
+              "context": "@dataclass\nclass ContractFinding:\n    finding_type: str          # \"violation\" or \"implicit_contract\"\n    contract_type: str         # \"string_contract\", etc.\n    value: str | None          # single value, or None for grouped findings",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/obligations.py",
+              "kind": "text_match",
+              "line": 316,
+              "context": "\n    def _check_violations(self, data: StringContractData) -> list[ContractFinding]:\n        \"\"\"Ratio-based violation detection. Reimplements check() using StringContractData.\"\"\"\n        findings: list[ContractFinding] = []\n",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/obligations.py",
+              "kind": "text_match",
+              "line": 371,
+              "context": "                checker_context = entry.get(\"context\")\n                findings.append(ContractFinding(\n                    finding_type=\"violation\",\n                    contract_type=\"string_contract\",\n                    value=entry[\"value\"],",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/obligations.py",
+              "kind": "text_match",
+              "line": 625,
+              "context": "        violations: list[ObligationViolation] = []\n        for f in findings:\n            if f.finding_type != \"violation\":\n                continue\n            violations.append(ObligationViolation(",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 503,
+              "context": "    if obligations and obligation_findings:\n        scorecard.obligation_violations = sum(\n            1 for f in obligation_findings if f.finding_type == \"violation\"\n        )\n        scorecard.obligation_implicit_contracts = sum(",
+              "needle": "violation",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 690,
+              "context": "    obligation_findings = run_all_contract_checks(facts_db)\n    if verbose:\n        n_violations = sum(1 for f in obligation_findings if f.finding_type == \"violation\")\n        n_implicit = sum(1 for f in obligation_findings if f.finding_type == \"implicit_contract\")\n        elapsed = time_module.monotonic() - phase_start",
+              "needle": "violation",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 693,
+              "context": "        n_implicit = sum(1 for f in obligation_findings if f.finding_type == \"implicit_contract\")\n        elapsed = time_module.monotonic() - phase_start\n        _emit(config, f\"  [phase 3.5 obligations: {elapsed:.1f}s] {n_violations} violation(s), {n_implicit} implicit contract(s)\")\n    return obligation_findings\n",
+              "needle": "violation",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_facts.py",
+              "kind": "text_match",
+              "line": 232,
+              "context": "\n    def test_string_contract_match(self, tmp_path):\n        \"\"\"A produces 'dead_code', B checks 'dead_code' -> no violation expected.\"\"\"\n        _write_facts(tmp_path, \"src/a.py\", {\n            \"imports\": [],",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_findings_adapter.py",
+              "kind": "text_match",
+              "line": 42,
+              "context": "\n\ndef _contract(finding_type=\"violation\", **over) -> ContractFinding:\n    kwargs = dict(\n        finding_type=finding_type,",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_findings_adapter.py",
+              "kind": "text_match",
+              "line": 143,
+              "context": "class TestContractAdapter:\n    def test_violation_to_contract(self):\n        f = finding_from_contract(_contract(finding_type=\"violation\"))\n        assert f.detector == \"obligations:violation\"\n        assert f.gap_type == \"contract\"",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_findings_adapter.py",
+              "kind": "text_match",
+              "line": 144,
+              "context": "    def test_violation_to_contract(self):\n        f = finding_from_contract(_contract(finding_type=\"violation\"))\n        assert f.detector == \"obligations:violation\"\n        assert f.gap_type == \"contract\"\n",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_prompt_regression.py",
+              "kind": "text_match",
+              "line": 478,
+              "context": "\nasync def _run_trial_latent_bug_004(provider, config, file_path, numbered_content, expected) -> bool:\n    \"\"\"Run one trial for latent_bug case_004. Returns True if hooks violation IS detected.\"\"\"\n    from osoji.shadow import generate_file_shadow_doc_async\n",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 26,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"2 implicit contracts between src/osoji/obligations.py and src/osoji/audit.py: \\\"implicit_contract\\\", \\\"violation\\\"\",\n        \"observed_behavior\": \"Extract shared constants to a module in src/osoji/ so a rename triggers an import error instead of a silent mismatch\",\n        \"evidence\": [],",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 568,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"2 implicit contracts between src/osoji/obligations.py and src/osoji/audit.py: \\\"implicit_contract\\\", \\\"violation\\\"\",\n        \"observed_behavior\": \"Extract shared constants to a module in src/osoji/ so a rename triggers an import error instead of a silent mismatch\",\n        \"evidence\": [],",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 1507,
+              "context": "          \"turn\": 0,\n          \"name\": \"grep\",\n          \"pattern\": \"implicit_contract|violation\",\n          \"shape\": \"regex\",\n          \"breadth\": \"scoped\",",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 1536,
+              "context": "          \"turn\": 4,\n          \"name\": \"grep\",\n          \"pattern\": \"implicit_contract|[\\\"\\\\']violation[\\\"\\\\']\",\n          \"shape\": \"regex\",\n          \"breadth\": \"scoped\",",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 1560,
+              "context": "          \"turn\": 7,\n          \"name\": \"grep\",\n          \"pattern\": \"finding_type|ContractFinding|implicit_contract|violation\",\n          \"shape\": \"regex\",\n          \"breadth\": \"scoped\",",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"2 implicit contracts between src/osoji/obligations.py and src/osoji/audit.py: \\\"implicit_contract\\\", \\\"violation\\\"\",\n    \"observed_behavior\": \"Extract shared constants to a module in src/osoji/ so a rename triggers an import error instead of a silent mismatch\",\n    \"evidence\": [],",
+              "needle": "violation",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-000.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"confirmed\",\n    \"confidence\": 0.97,\n    \"triage_reasoning\": \"**Evidence gathered:**\\n\\n- `obligations.py` is the *producer*: `ContractFinding.finding_type` is set to the bare string literals `\\\"violation\\\"` (line 371) and `\\\"implicit_co\n    \"suggested_fix\": \"In `obligations.py`, add two module-level constants immediately above (or below) the `ContractFinding` dataclass:\\n\\n```python\\nFINDING_TYPE_VIOLATION = \\\"violation\\\"\\nFINDING_TY\n    \"severity\": \"warning\",",
+              "needle": "violation",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {
+            "src/osoji/obligations.py": "# src\\osoji\\obligations.py\n@source-hash: 30d849ccddddce75\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:29:07Z\n\n## obligations.py — Cross-File String Contract Checker\n\n**Purpose:** Detects cross-file string contract violations (strings checked in one file but never produced/defined in any project file) and fragile implicit contracts (values produced and checked across files with no shared constant definition linking them).\n\n---\n\n### Architecture Overview\n\nTwo-phase analysis driven by `run_all_contract_checks(facts_db)` (L685):\n1. **Violation detection** (`_check_violations`, L315): ratio-based algorithm — a file's checked strings are flagged only when *some* match global producers (partial overlap), so fully-external checker files are automatically skipped. Unmatched, non-noise strings become `\"violation\"` findings.\n2. **Fragility detection** (`_check_fragility`, L447): finds values that appear in both producers and checkers across different files but have no shared `\"defined\"` occurrence linking them. Grouped by (producer_file, consumer_file) pair via `_group_findings` (L543).\n\n---\n\n### Data Models (L16–57)\n\n| Class | Role |\n|---|---|\n| `ObligationViolation` (L17) | Legacy backward-compat model; wraps `ContractFinding` violations for callers that predate `ContractFinding` |\n| `StringOccurrence` (L30) | Per-occurrence record: file, line, context string, optional `comparison_source` expression |\n| `StringContractData` (L38) | Aggregated per-value maps: `producers`, `checked`, `defined` + `all_produced_values` set union |\n| `ContractFinding` (L46) | Unified finding model; `finding_type` is `\"violation\"` or `\"implicit_contract\"` |\n\n---\n\n### Key Classes\n\n#### `ContractChecker` ABC (L202–221)\nAbstract base requiring subclasses to implement:\n- `contract_type` (property)\n- `description` (property)\n- `find_contracts() -> list[ContractFinding]`\n\n#### `StringContractChecker` (L228–673)\nPrimary implementation. Constructed with a `FactsDB` instance. Caches `StringContr"
+          },
+          "scan_scope": {
+            "files_scanned": 519,
+            "needles": [
+              "implicit_contract",
+              "violation"
+            ],
+            "needle_totals": {
+              "implicit_contract": 290,
+              "violation": 141
+            },
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/audit.py",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: \"\"\"Documentation audit orchestration.\"\"\"\n2: \n3: import asyncio\n4: import html as _html_mod\n5: import json\n6: import shutil\n7: import time as time_module\n8: from dataclasses import dataclass, field, asdict\n9: from datetime import datetime, timezone\n10: from pathlib import Path\n11: from typing import Any",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "e1a2b39bd275b679",
+    "verdict": "confirmed",
+    "confidence": 0.95,
+    "triage_reasoning": "Reality: `obligations.py` sets `ContractFinding(finding_type=\"violation\", ...)` and `ContractFinding(finding_type=\"implicit_contract\", ...)` as bare string literals. `audit.py` filters on `f.finding_type == \"violation\"` and `f.finding_type == \"implicit_contract\"` with the same bare literals. No shared constant links the producer and consumer. If the string values are renamed in `obligations.py`, `audit.py` silently stops counting findings instead of raising an ImportError or NameError. Significance: silent mismatch is a fragile contract. Actionability: define `FINDING_TYPE_VIOLATION = \"violation\"` and `FINDING_TYPE_IMPLICIT_CONTRACT = \"implicit_contract\"` in `obligations.py` and import them in `audit.py` and tests.",
+    "suggested_fix": "In `obligations.py`, add module-level constants `FINDING_TYPE_VIOLATION = \"violation\"` and `FINDING_TYPE_IMPLICIT_CONTRACT = \"implicit_contract\"` immediately above `ContractFinding`, then replace all bare string literals in `obligations.py`, `audit.py`, and `tests/test_findings_adapter.py` with these constants.",
+    "severity": "warning",
+    "evidence_fingerprint": "0f654c252090f0da"
+  },
+  "trace": null
+}

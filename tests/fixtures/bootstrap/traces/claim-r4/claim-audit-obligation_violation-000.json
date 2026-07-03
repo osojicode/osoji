@@ -1,0 +1,216 @@
+{
+  "slug": "audit-obligation_violation-000",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:obligation_violation",
+    "gap_type": "uncategorized",
+    "path": "src/osoji/audit.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "String \"obligation_implicit_contract\" is checked but never produced or defined in any project file",
+    "observed_behavior": "Check string contract with (no producer found)",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/test_evidence_builders.py",
+              "kind": "text_match",
+              "line": 157,
+              "context": "    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})\n    finding = make_finding(\n        detector=\"obligations:obligation_implicit_contract\",\n        gap_type=\"uncategorized\",  # the V1-2 adapter default, NOT \"contract\"\n        path=\"src/producer.py\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 6,
+              "context": "  \"entries\": [\n    {\n      \"slug\": \"audit-obligation_implicit_contract-000\",\n      \"origin\": \"audit\",\n      \"category\": \"obligation_implicit_contract\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 8,
+              "context": "      \"slug\": \"audit-obligation_implicit_contract-000\",\n      \"origin\": \"audit\",\n      \"category\": \"obligation_implicit_contract\",\n      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"confirmed\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 11,
+              "context": "      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"[carried from audit-obligation_implicit_contract-000 r1] Unnamed project obligation: obligations.py finding_type strings counted via bare equality in audit.py; rename sile\n      \"evidence_consulted\": [\n        \"grep literal across repo\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 548,
+              "context": "    },\n    {\n      \"slug\": \"audit-obligation_implicit_contract-000\",\n      \"origin\": \"audit\",\n      \"category\": \"obligation_implicit_contract\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 550,
+              "context": "      \"slug\": \"audit-obligation_implicit_contract-000\",\n      \"origin\": \"audit\",\n      \"category\": \"obligation_implicit_contract\",\n      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"confirmed\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 553,
+              "context": "      \"severity\": \"info\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"[carried from audit-obligation_implicit_contract-000 r1] Unnamed project obligation: obligations.py finding_type strings counted via bare equality in audit.py; rename sile\n      \"evidence_consulted\": [\n        \"grep literal across repo\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 10,
+              "context": "    },\n    {\n      \"slug\": \"audit-obligation_implicit_contract-002\",\n      \"reason\": \"verdict miss\"\n    },",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 14,
+              "context": "    },\n    {\n      \"slug\": \"audit-obligation_implicit_contract-007\",\n      \"reason\": \"gray\"\n    },",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 315,
+              "context": "      }\n    },\n    \"obligation_implicit_contract\": {\n      \"n_traces\": 6,\n      \"calls_mean\": 11,",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-000.json",
+              "kind": "text_match",
+              "line": 2,
+              "context": "{\n  \"slug\": \"audit-obligation_implicit_contract-000\",\n  \"mode\": \"exploration-sdk\",\n  \"adjudicated_verdict\": \"confirmed\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-000.json",
+              "kind": "text_match",
+              "line": 6,
+              "context": "  \"adjudicated_verdict\": \"confirmed\",\n  \"finding\": {\n    \"detector\": \"audit:obligation_implicit_contract\",\n    \"gap_type\": \"uncategorized\",\n    \"path\": \"src/osoji/audit.py\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-001.json",
+              "kind": "text_match",
+              "line": 2,
+              "context": "{\n  \"slug\": \"audit-obligation_implicit_contract-001\",\n  \"mode\": \"exploration-sdk\",\n  \"adjudicated_verdict\": \"confirmed\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-001.json",
+              "kind": "text_match",
+              "line": 6,
+              "context": "  \"adjudicated_verdict\": \"confirmed\",\n  \"finding\": {\n    \"detector\": \"audit:obligation_implicit_contract\",\n    \"gap_type\": \"uncategorized\",\n    \"path\": \"src/osoji/init.py\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 2,
+              "context": "{\n  \"slug\": \"audit-obligation_implicit_contract-002\",\n  \"mode\": \"exploration-sdk\",\n  \"adjudicated_verdict\": \"confirmed\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-002.json",
+              "kind": "text_match",
+              "line": 6,
+              "context": "  \"adjudicated_verdict\": \"confirmed\",\n  \"finding\": {\n    \"detector\": \"audit:obligation_implicit_contract\",\n    \"gap_type\": \"uncategorized\",\n    \"path\": \"tests/test_claude_code_provider.py\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-003.json",
+              "kind": "text_match",
+              "line": 2,
+              "context": "{\n  \"slug\": \"audit-obligation_implicit_contract-003\",\n  \"mode\": \"exploration-sdk\",\n  \"adjudicated_verdict\": \"confirmed\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-003.json",
+              "kind": "text_match",
+              "line": 6,
+              "context": "  \"adjudicated_verdict\": \"confirmed\",\n  \"finding\": {\n    \"detector\": \"audit:obligation_implicit_contract\",\n    \"gap_type\": \"uncategorized\",\n    \"path\": \"tests/test_impl_hash.py\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-004.json",
+              "kind": "text_match",
+              "line": 2,
+              "context": "{\n  \"slug\": \"audit-obligation_implicit_contract-004\",\n  \"mode\": \"exploration-sdk\",\n  \"adjudicated_verdict\": \"dismissed\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-obligation_implicit_contract-004.json",
+              "kind": "text_match",
+              "line": 6,
+              "context": "  \"adjudicated_verdict\": \"dismissed\",\n  \"finding\": {\n    \"detector\": \"audit:obligation_implicit_contract\",\n    \"gap_type\": \"uncategorized\",\n    \"path\": \"tests/test_junk_orphan.py\",",
+              "needle": "obligation_implicit_contract",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 519,
+            "needles": [
+              "obligation_implicit_contract"
+            ],
+            "needle_totals": {
+              "obligation_implicit_contract": 490
+            },
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/audit.py",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: \"\"\"Documentation audit orchestration.\"\"\"\n2: \n3: import asyncio\n4: import html as _html_mod\n5: import json\n6: import shutil\n7: import time as time_module\n8: from dataclasses import dataclass, field, asdict\n9: from datetime import datetime, timezone\n10: from pathlib import Path\n11: from typing import Any",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "7073b74b3d93dbad",
+    "verdict": "dismissed",
+    "confidence": 0.9,
+    "triage_reasoning": "The premise 'never produced or defined in any project file' is false. The bootstrap adjudication notes confirm: 'obligations.py finding_type strings counted via bare equality in audit.py' — obligations.py IS the producer of 'obligation_implicit_contract' as a finding_type string. Also, test_evidence_builders.py:157 uses `detector='obligations:obligation_implicit_contract'`. The underlying gap (bare string shared between obligations.py and audit.py with no shared constant) is real and was confirmed as an *implicit contract* (claim type 0), but that is a separate adjudication. As an *obligation_violation* ('checked but never produced') the claim's core premise is wrong, so this specific framing must be dismissed.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "936e3e26b87b6ed9"
+  },
+  "trace": null
+}

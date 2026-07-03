@@ -1,0 +1,386 @@
+{
+  "slug": "audit-obligation_implicit_contract-003",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:obligation_implicit_contract",
+    "gap_type": "uncategorized",
+    "path": "tests/test_impl_hash.py",
+    "line_start": null,
+    "line_end": null,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "2 implicit contracts between src/osoji/diff.py and tests/test_impl_hash.py: \"missing\", \"stale\"",
+    "observed_behavior": "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 29,
+              "context": "@dataclass\nclass StaleShadow:\n    \"\"\"A source file whose shadow doc is stale or missing.\"\"\"\n\n    source_path: Path",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 33,
+              "context": "    source_path: Path\n    shadow_exists: bool\n    status: str  # \"stale\", \"missing\", \"deleted_source\"\n\n",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 128,
+              "context": "\ndef check_stale_shadows(config: Config, changed_sources: list[DiffFileChange]) -> list[StaleShadow]:\n    \"\"\"Check which changed source files have stale or missing shadow docs.\"\"\"\n    stale: list[StaleShadow] = []\n",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 151,
+              "context": "                source_path=change.path,\n                shadow_exists=False,\n                status=\"missing\",\n            ))\n        elif is_stale(config, abs_path):",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 330,
+              "context": "            if s.status == \"deleted_source\":\n                label = \"deleted source\"\n            elif s.status == \"missing\":\n                label = \"no shadow doc\"\n            else:",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_impl_hash.py",
+              "kind": "text_match",
+              "line": 212,
+              "context": "        root, src = project\n        config = _make_config(root)\n        assert staleness_reason(config, src) == \"missing\"\n\n    def test_stale_when_source_changed(self, project):",
+              "needle": "missing",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_impl_hash.py",
+              "kind": "text_match",
+              "line": 288,
+              "context": "        root, src = project\n        config = _make_config(root, force=True)\n        assert staleness_reason(config, src) == \"missing\"",
+              "needle": "missing",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 64,
+              "context": "\n# Classification taxonomies. Closed sets, each with an `other` outlet — the\n# other-rate is itself a signal the taxonomy is missing a class (CLAUDE.md,\n# closed-set discipline).\nGREP_SHAPES = (\"import_probe\", \"symbol\", \"literal\", \"regex\", \"other\")",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 74,
+              "context": "        for key in (\"slug\", \"category\", \"adjudicated_verdict\", \"finding\"):\n            if key not in entry:\n                raise ValueError(f\"manifest entry missing {key!r}: {entry.get('slug', entry)}\")\n    return data\n",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadcode.py",
+              "kind": "text_match",
+              "line": 497,
+              "context": "        assert errs == []\n\n        # The validator should fail when symbols are missing\n        errs = validator(\"verify_dead_code\", {\"verdicts\": []})\n        assert len(errs) == 1",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_doc_prompts.py",
+              "kind": "text_match",
+              "line": 329,
+              "context": "            source_files=[\"src/x.py\", \"src/y.py\"],\n        )\n        c2.missing_types = [\"reference\"]  # different missing type\n\n        clusters = _cluster_for_prompts([c1, c2])",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_evidence_builders.py",
+              "kind": "text_match",
+              "line": 9,
+              "context": "- cross_file_reference: FactsDB refs + repo-wide text scan with per-site\n  context, honest scan scope (zero hits over a non-empty scope is\n  evidence-of-absence, not missing evidence), export-surface facts.\n- surrounding_code: flagged region snippet, symbol-anchored against line drift.\n- declared_intent: positional text blocks (preceding lines + enclosing symbol",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_hasher.py",
+              "kind": "text_match",
+              "line": 94,
+              "context": "    def test_missing_source_file(self, temp_dir):\n        \"\"\"Source file doesn't exist → stale.\"\"\"\n        source = temp_dir / \"missing.py\"\n        assert is_findings_current(\"some_hash\", compute_impl_hash(), source) is False",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_junk_cicd.py",
+              "kind": "text_match",
+              "line": 386,
+              "context": "    async def test_full_pipeline(self, temp_dir):\n        config = Config(root_path=temp_dir, respect_gitignore=False)\n        # Create a workflow that references a missing path\n        _write_source(temp_dir, \".github/workflows/ci.yml\", textwrap.dedent(\"\"\"\\\n            name: CI",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_junk_cicd.py",
+              "kind": "text_match",
+              "line": 440,
+              "context": "        mock_provider = AsyncMock()\n        results, total = await detect_dead_cicd_async(mock_provider, config)\n        # src/app.py exists, so no missing paths, so no LLM call\n        assert results == []\n        assert total == 0",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_llm_provider.py",
+              "kind": "text_match",
+              "line": 274,
+              "context": "    with pytest.raises(\n        RequiredToolCallError,\n        match=\"Required tool call 'test_tool' missing after 3 attempts\",\n    ):\n        asyncio.run(",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_obligations.py",
+              "kind": "text_match",
+              "line": 210,
+              "context": "\n    def test_filename_and_path_sentinels_skipped(self, tmp_path):\n        \"\"\"Filename/path checks should not be treated as missing internal contracts.\"\"\"\n        _write_facts(tmp_path, \"src/registry.py\", {\n            \"string_literals\": [",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_observatory.py",
+              "kind": "text_match",
+              "line": 244,
+              "context": "    bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)\n\n    assert bundle[\"audit_status\"] == \"missing\"\n    file_node = _find_file_node(bundle[\"tree\"], \"main.py\")\n    assert file_node[\"audit_findings\"] == []",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_plugin_integration.py",
+              "kind": "text_match",
+              "line": 121,
+              "context": "\n        def check_available(self, project_root):\n            raise PluginUnavailableError(\"missing tool\", \"install it\")\n\n        def extract_project_facts(self, project_root, files):",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_plugin_integration.py",
+              "kind": "text_match",
+              "line": 227,
+              "context": "\n        def check_available(self, project_root):\n            raise PluginUnavailableError(\"missing\", \"install it\")\n\n        def extract_project_facts(self, project_root, files):",
+              "needle": "missing",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 29,
+              "context": "@dataclass\nclass StaleShadow:\n    \"\"\"A source file whose shadow doc is stale or missing.\"\"\"\n\n    source_path: Path",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 33,
+              "context": "    source_path: Path\n    shadow_exists: bool\n    status: str  # \"stale\", \"missing\", \"deleted_source\"\n\n",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 128,
+              "context": "\ndef check_stale_shadows(config: Config, changed_sources: list[DiffFileChange]) -> list[StaleShadow]:\n    \"\"\"Check which changed source files have stale or missing shadow docs.\"\"\"\n    stale: list[StaleShadow] = []\n",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 129,
+              "context": "def check_stale_shadows(config: Config, changed_sources: list[DiffFileChange]) -> list[StaleShadow]:\n    \"\"\"Check which changed source files have stale or missing shadow docs.\"\"\"\n    stale: list[StaleShadow] = []\n\n    for change in changed_sources:",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 136,
+              "context": "        if change.change_type == \"deleted\":\n            shadow_path = config.shadow_path_for(abs_path)\n            stale.append(StaleShadow(\n                source_path=change.path,\n                shadow_exists=shadow_path.exists(),",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 148,
+              "context": "        shadow_path = config.shadow_path_for(abs_path)\n        if not shadow_path.exists():\n            stale.append(StaleShadow(\n                source_path=change.path,\n                shadow_exists=False,",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 154,
+              "context": "            ))\n        elif is_stale(config, abs_path):\n            stale.append(StaleShadow(\n                source_path=change.path,\n                shadow_exists=True,",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 157,
+              "context": "                source_path=change.path,\n                shadow_exists=True,\n                status=\"stale\",\n            ))\n",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 160,
+              "context": "            ))\n\n    return stale\n\n",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 282,
+              "context": "    \"\"\"Run full diff impact analysis.\n\n    Orchestrates: git diff -> classify -> stale check -> doc reference search.\n    \"\"\"\n    repo_root = find_git_root(config.root_path)",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 296,
+              "context": "    doc_changes = [c for c in changes if c.is_doc]\n\n    stale = check_stale_shadows(config, source_changes)\n    refs = find_doc_references(config, source_changes)\n",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 303,
+              "context": "        changed_source=source_changes,\n        changed_docs=doc_changes,\n        stale_shadows=stale,\n        doc_references=refs,\n        config_snapshot=config.config_snapshot,",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 333,
+              "context": "                label = \"no shadow doc\"\n            else:\n                label = \"stale\"\n            lines.append(f\"  [{label}] {s.source_path}\")\n        lines.append(\"\")",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_impl_hash.py",
+              "kind": "text_match",
+              "line": 227,
+              "context": "        )\n\n        assert staleness_reason(config, src) == \"stale\"\n\n    def test_stale_impl_when_impl_hash_differs(self, project):",
+              "needle": "stale",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_impl_hash.py",
+              "kind": "text_match",
+              "line": 242,
+              "context": "        )\n\n        assert staleness_reason(config, src) == \"stale-impl\"\n\n    def test_stale_impl_when_impl_hash_missing(self, project):",
+              "needle": "stale",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_impl_hash.py",
+              "kind": "text_match",
+              "line": 257,
+              "context": "        )\n\n        assert staleness_reason(config, src) == \"stale-impl\"\n\n    def test_none_when_current(self, project):",
+              "needle": "stale",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "tests/test_impl_hash.py",
+              "kind": "text_match",
+              "line": 283,
+              "context": "        shadow_path.write_text(doc, encoding=\"utf-8\")\n\n        assert staleness_reason(config, src) == \"stale\"\n\n    def test_force_missing_returns_missing(self, project):",
+              "needle": "stale",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "scripts/measure_debris_cutover.py",
+              "kind": "text_match",
+              "line": 40,
+              "context": "    This branch changes osoji source, so ``impl_hash`` drifts and the live\n    findings sidecars (generated 2026-07-01, pre-branch) would all be filtered\n    as stale. For *measurement* the gate is irrelevant — both the legacy rule\n    and the mechanized builders see identical inputs — so it is deliberately\n    bypassed here. Production keeps the gate.",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 268,
+              "context": "    def test_html_dead_docs_section(self):\n        \"\"\"Dead docs section renders when debris exists.\"\"\"\n        sc = _minimal_scorecard(dead_docs=[\"docs/old.md\", \"docs/stale.md\"])\n        result = AuditResult(issues=[], scorecard=sc)\n        html = format_audit_html(result)",
+              "needle": "stale",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_audit.py",
+              "kind": "text_match",
+              "line": 273,
+              "context": "        assert 'id=\"section-dead-docs\"' in html\n        assert \"docs/old.md\" in html\n        assert \"docs/stale.md\" in html\n\n    def test_html_no_dead_docs_omits_section(self):",
+              "needle": "stale",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {
+            "src/osoji/diff.py": "# src\\osoji\\diff.py\n@source-hash: 66c1b469e3b5f445\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:26:04Z\n\n## `src/osoji/diff.py` — Diff-Aware Documentation Impact Analysis\n\n### Purpose\nDetermines which shadow docs and project documentation are impacted by a `git diff` between a base ref and HEAD. Entry point is `run_diff(config, base_ref)`.\n\n---\n\n### Dataclasses\n\n**`DiffFileChange` (L17–24)**\nRepresents one changed file from git diff. Fields:\n- `path: Path` — repo-root-relative\n- `change_type: str` — one of `\"modified\"`, `\"added\"`, `\"deleted\"`, `\"renamed\"`, `\"copied\"`, `\"type_changed\"`\n- `is_source: bool` — True if suffix in `config.extensions`\n- `is_doc: bool` — True if `config.is_doc_candidate()` returns True\n\n**`StaleShadow` (L27–33)**\nSource file with a stale or missing shadow doc. `status` is one of `\"stale\"`, `\"missing\"`, `\"deleted_source\"`.\n\n**`DocReference` (L36–44)**\nA `.md` doc file that references a changed source file. Contains `doc_path`, `source_path`, `line_number`, `line_content`, `source_deleted`. `line_number=0` and `line_content=\"(reference found via FactsDB)\"` when exact line cannot be found.\n\n**`DiffImpactReport` (L47–60)**\nTop-level result object. Contains `changed_source`, `changed_docs`, `stale_shadows`, `doc_references`, `config_snapshot`. Property `has_issues` (L59) returns `True` if either `stale_shadows` or `doc_references` is non-empty.\n\n---\n\n### Constants\n\n**`_STATUS_MAP` (L64–71)**\nMaps single git status letters (`M/A/D/R/C/T`) to human-readable strings. Unknown codes fall back to `\"modified\"` (L113).\n\n---\n\n### Functions\n\n**`get_diff_files(repo_root, base_ref, config)` (L74–124)**\nRuns `git diff <base>...HEAD --name-status` (three-dot merge-base comparison). Parses tab-separated output. For renames/copies, uses `parts[-1]` (destination path). Applies both `config.ignore_patterns` and `.osojiignore` filters. Returns list of `DiffFileChange`.\n- Raises `RuntimeError` on `CalledProcessError`, forwarding stderr/stdout.\n\n**`check_sta"
+          },
+          "scan_scope": {
+            "files_scanned": 519,
+            "needles": [
+              "missing",
+              "stale"
+            ],
+            "needle_totals": {
+              "missing": 391,
+              "stale": 395
+            },
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "tests/test_impl_hash.py",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: \"\"\"Tests for implementation hash staleness detection.\"\"\"\n2: \n3: import re\n4: from pathlib import Path\n5: \n6: import pytest\n7: \n8: from osoji.hasher import compute_impl_hash, extract_impl_hash, _IMPL_HASH_EXCLUDES\n9: from osoji.shadow import (\n10:     assemble_shadow_doc,\n11:     assemble_directory_shadow_doc,",
+          "anchor": "lines"
+        }
+      }
+    ],
+    "id": "e9b7de8785a3c135",
+    "verdict": "dismissed",
+    "confidence": 0.82,
+    "triage_reasoning": "The claim pairs `diff.py` with `tests/test_impl_hash.py`, but the test imports `staleness_reason` from `osoji.shadow` (visible in the surrounding code import block at lines 9–11), not from `osoji.diff`. The producer of the `\"missing\"` and `\"stale\"` strings for `staleness_reason` is therefore `shadow.py`, not `diff.py` — the file pairing in the claim is incorrect. Additionally, `\"missing\"` and `\"stale\"` are highly generic English words with 391 and 395 matches respectively across the codebase; the reference sweep cannot isolate the specific producer-consumer relationship with confidence. With both the file pairing wrong and the words too generic to confirm a precise cross-file contract, the Reality predicate is too weak to confirm.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "b7a1a977d6337fee"
+  },
+  "trace": null
+}

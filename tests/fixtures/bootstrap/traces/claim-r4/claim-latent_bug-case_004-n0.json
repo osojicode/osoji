@@ -1,0 +1,65 @@
+{
+  "slug": "latent_bug-case_004-n0",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "debris:latent_bug",
+    "gap_type": "uncategorized",
+    "path": "component.tsx",
+    "line_start": 8,
+    "line_end": 9,
+    "symbol": null,
+    "contract_source": "code",
+    "contract_claim": "React's Rules of Hooks require every hook to be called unconditionally, in the same order, on every render of a component.",
+    "observed_behavior": "OnboardingPage calls useState at lines 8-9 after two conditional early returns (loading at line 5, hasOrgs at line 6), so the hooks are skipped on some renders and hook state is corrupted once the conditions change between renders.",
+    "evidence": [
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "component.tsx",
+          "line_start": 1,
+          "line_end": 11,
+          "snippet": "1: import { useState } from \"react\";\n2: import { Navigate } from \"react-router-dom\";\n3: \n4: export function OnboardingPage({ loading, hasOrgs }: { loading: boolean; hasOrgs: boolean }) {\n5:   if (loading) return <div>Loading...</div>;\n6:   if (hasOrgs) return <Navigate to=\"/home\" replace />;\n7: \n8:   const [name, setName] = useState(\"\");      // useState AFTER conditional returns\n9:   const [slug, setSlug] = useState(\"\");      // useState AFTER conditional returns\n10:   return <div>{name}{slug}</div>;\n11: }",
+          "anchor": "lines"
+        }
+      },
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "component.tsx",
+              "kind": "text_match",
+              "line": 4,
+              "context": "import { Navigate } from \"react-router-dom\";\n\nexport function OnboardingPage({ loading, hasOrgs }: { loading: boolean; hasOrgs: boolean }) {\n  if (loading) return <div>Loading...</div>;\n  if (hasOrgs) return <Navigate to=\"/home\" replace />;",
+              "needle": "OnboardingPage",
+              "source": "text_scan",
+              "same_file": true
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 1,
+            "needles": [
+              "OnboardingPage"
+            ],
+            "needle_totals": {
+              "OnboardingPage": 1
+            },
+            "same_file_swept": true
+          }
+        }
+      }
+    ],
+    "id": "31adec8e6cda5161",
+    "verdict": "confirmed",
+    "confidence": 0.99,
+    "triage_reasoning": "Reality: React's Rules of Hooks require hooks to be called unconditionally at the top level. Lines 5–6 are early returns that execute before the `useState` calls at lines 8–9. On renders where `loading` or `hasOrgs` is true, the hooks are skipped entirely. When those props change to false in a subsequent render, React's internal hook index mismatches, corrupting state. Significance: this is a hard violation that can cause unpredictable state bugs and will be caught by ESLint's react-hooks/rules-of-hooks lint rule. Actionability: move both `useState` calls to the top of `OnboardingPage`, before any conditional returns.",
+    "suggested_fix": "Move `const [name, setName] = useState(\"\")` and `const [slug, setSlug] = useState(\"\")` to the top of `OnboardingPage`, before the `if (loading)` and `if (hasOrgs)` early-return guards.",
+    "severity": "error",
+    "evidence_fingerprint": "20832b4804c2d92a"
+  },
+  "trace": null
+}
