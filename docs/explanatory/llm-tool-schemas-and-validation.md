@@ -48,14 +48,14 @@ The directory-level equivalent, `SUBMIT_DIRECTORY_SHADOW_DOC_TOOL`, captures a `
 
 ### Phase 4 -- Junk Detection Tools
 
-Each junk analyzer has corresponding tool schemas:
+Junk analyzers that still own a private verification step have corresponding tool schemas:
 
-- Dead code verification -- `get_dead_code_tool_definitions()` provides schemas for LLM-based confirmation of unused symbols
-- Dead parameter verification -- `get_dead_parameter_tool_definitions()` for confirming function parameters no caller passes
 - Dead plumbing verification -- schemas for confirming unactuated configuration obligations
 - Dead CI/CD verification -- `get_dead_cicd_tool_definitions()` for stale pipeline element confirmation
 - Dead dependency verification -- `get_dead_deps_tool_definitions()` for unused package dependency confirmation
 - Orphan file verification -- schemas for confirming files with no reachable purpose
+
+Dead code and dead parameter verification migrated to the unified Triage stage in V1-5a: those analyzers now emit `Finding`s whose claims are decided via `get_triage_claim_tool_definitions()` (`submit_triage_verdicts`), so their per-detector schemas (`VERIFY_DEAD_CODE_TOOL`, `VERIFY_DEAD_PARAMETERS_TOOL`) were deleted. The remaining analyzers follow in the rest of the V1-5 wave.
 
 ### Phase 5.5 -- Doc Prompts
 
