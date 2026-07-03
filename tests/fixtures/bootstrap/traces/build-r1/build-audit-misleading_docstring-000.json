@@ -1,0 +1,177 @@
+{
+  "slug": "audit-misleading_docstring-000",
+  "mode": "build",
+  "insufficient": false,
+  "finding": {
+    "detector": "audit:misleading_docstring",
+    "gap_type": "description",
+    "path": "src/osoji/deadparam.py",
+    "line_start": 1,
+    "line_end": 9,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.",
+    "observed_behavior": "Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'",
+    "evidence": [
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/deadparam.py",
+          "line_start": 1,
+          "line_end": 19,
+          "snippet": "1: \"\"\"Dead parameter detection: find function parameters no caller ever passes.\n2: \n3: Two-phase architecture matching DeadCodeAnalyzer:\n4:   Phase 1 — Candidate scanning (pure Python, no LLM): find exported functions\n5:             with optional parameters that have callers but no call site passes\n6:             those optional params.\n7:   Phase 2 — LLM verification (batched, async): confirm dead params with full\n8:             call-site context and identify gated branches.\n9: \"\"\"\n10: \n11: import asyncio\n12: import re\n13: from collections import defaultdict\n14: from dataclasses import dataclass, field\n15: from pathlib import Path\n16: from typing import Callable\n17: \n18: from .async_utils import gather_with_buffer\n19: from .config import Config, SHADOW_DIR",
+          "anchor": "lines"
+        }
+      },
+      {
+        "kind": "shadow_doc_claim",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/deadparam.py",
+          "scope": "file",
+          "excerpt": "# src\\osoji\\deadparam.py\n@source-hash: d8ecf1f293b464b2\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:32:12Z\n\n## Purpose\nTwo-phase dead parameter detector: Phase 1 (pure Python) scans all symbols to find public functions with optional parameters that have known call sites; Phase 2 (async LLM) verifies whether any call site actually passes each optional param and identifies gated branches that would become dead code upon removal.\n\n## Data Types (L33–68)\n\n- **`CallSite`** (L36–42): Represents one grep-found call site — `file_path` (relative), `line_number`, `context` (±10 lines of surrounding code).\n- **`DeadParamCandidate`** (L44–53): One per `(function, param)` pair. **Key invariant**: all candidates for the same function share the same `call_sites` list. `_build_call_site_chunks` and `_verify_chunk_async` both access `candidates[0].call_sites` to retrieve the full call site list for a function.\n- **`DeadParamVerification`** (L56–68): LLM output — `is_dead`, `confidence`, `reason`, `remediation`, `param_line`, `gated_line_ranges: list[tuple[int, int]]`. Default `param_line=0`.\n\n## Phase 1 — Candidate Scanning: `scan_dead_param_candidates(config)` (L116–278)\n\n1. Calls `load_all_symbols(config)` for symbol metadata.\n2. Builds `FactsDB(config)` and calls `facts_db.importers_of(source_norm)` per source file; **skips functions with no importers** (no importers → dead symbol, handled by `deadcode.py`).\n3. Filters to `visibility != \"internal\"` functions with at least one optional param (`p.get(\"optional\")` is truthy) (L182–193).\n4. Builds `class_for_method` map (L160–169) by line-range containment; for class members, adds a `\\bClassName\\s*\\(` grep pattern in addition to `\\bmethod_name\\s*\\(` (L207–211).\n5. Greps `[source_file] + sorted(importers)`, skipping shadow dir, ignore patterns, doc candidates, and call sites inside the function's own definition range (L218–261).\n6. Deduplicates call sites via `_dedupe_call_sites` (keyed on `(file_path, line_number, context)"
+        }
+      },
+      {
+        "kind": "shadow_doc_claim",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/deadparam.py",
+          "scope": "directory",
+          "excerpt": "# src\\osoji/\n@children-hash: 01e0c48013067d10\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:36:49Z\n\n## `src/osoji` — Core Package\n\nThe `osoji` package is a shadow documentation engine and multi-phase code quality audit system. It generates LLM-driven \"shadow docs\" (concise machine-readable summaries of source files), then runs a 5.5-phase audit pipeline that cross-references those docs against live code to surface dead code, stale documentation, string-contract violations, dead dependencies, dead CI/CD elements, orphaned files, and doc accuracy errors.\n\n---\n\n## Architectural Layers\n\n### 1 — Configuration & Discovery\n**`config.py`** is the root of all path resolution. `Config` (the central dataclass) encodes a 5-level provider/model precedence chain (CLI → env → project TOML → global TOML → builtin defaults). Every other module receives a `Config` and derives its paths from it (shadow root, findings dir, symbols dir, analysis root, etc.).\n\n**`walker.py`** discovers source files (`discover_files`) and directories (`discover_directories`) with git-aware or rglob traversal, applying ignore patterns and `.osojiignore`. Results are sorted deepest-first (children before parents) to support bottom-up directory processing.\n\n**`hasher.py`** provides SHA-256 hashing, binary-safe file reading, and the staleness primitives (`@source-hash`, `@impl-hash`, `@children-hash`) embedded in shadow doc headers. `is_findings_current()` gates whether cached findings JSON is still valid.\n\n---\n\n### 2 — Shadow Doc Generation (`shadow.py`)\nThe generative core. Orchestrates the full shadow doc pipeline:\n- File staleness detection (source hash + implementation hash)\n- LLM calls via `generate_file_shadow_doc_async` (forced `submit_shadow_doc` tool call)\n- Large-file chunking (> 150K tokens → per-chunk generation + `_generate_chunk_rollup_async`)\n- Sidecar JSON writes: `.findings.json`, `.symbols.json`, `.signature.json`, `.facts.json`\n- AST plugin fact merging (via `plugins/`) — when ava"
+        }
+      },
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 865,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' is a PR-submission artifact. Whether the adapter is now wired into audit.py's live path cannot be confirmed from this file alone.\",\n        \"observed_behavior\": \"Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has since been integrated.\",\n        \"evidence\": [],",
+              "needle": "Module",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 930,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\",\n        \"observed_behavior\": \"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\",\n        \"evidence\": [],",
+              "needle": "Module",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1413,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' is a PR-submission artifact. Whether the adapter is now wired into audit.py's live path cannot be confirmed from this file alone.\",\n        \"observed_behavior\": \"Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has since been integrated.\",\n        \"evidence\": [],",
+              "needle": "Module",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1480,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\",\n        \"observed_behavior\": \"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\",\n        \"evidence\": [],",
+              "needle": "Module",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/dead_code/case_001_wrapper_pattern/source/src/osoji/debris.py",
+              "kind": "text_match",
+              "line": 112,
+              "context": "    - Relative paths (src/osoji/config.py)\n    - Filenames with source extensions (config.py)\n    - Module-style references (osoji.config)\n    \"\"\"\n    referenced: list[Path] = []",
+              "needle": "Module",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/dead_code/case_001_wrapper_pattern/source/src/osoji/debris.py",
+              "kind": "text_match",
+              "line": 138,
+              "context": "        # Filename only\n        source_files[source_path.name] = source_path\n        # Module-style (Python)\n        if source_path.suffix == \".py\":\n            parts = list(source_path.with_suffix(\"\").parts)",
+              "needle": "Module",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-misleading_docstring-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L1-9: Module docstring states Phase 1 finds functions 'with callers but no call site passes those optional params.' Phase 1 does NOT check whether call sites pass optional params — it only collects call sites for candidates. The determination of whether params are actually passed is done exclusively in Phase 2 by the LLM. An AI agent reading this may incorrectly assume Phase 1 has filtering logic for param-passing.\",\n    \"observed_behavior\": \"Update Phase 1 description to: 'find exported functions with optional parameters that have callers — collecting all call sites for LLM verification in Phase 2.'\",\n    \"evidence\": [],",
+              "needle": "Module",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-stale_comment-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L6-8: Module docstring contains PR-era language: 'It is **not** wired into `audit.py`'s live path in this PR — it is exercised by unit tests only'. The phrase 'in this PR' is a PR-submission artifact. Whether the adapter is now wired into audit.py's live path cannot be confirmed from this file alone.\",\n    \"observed_behavior\": \"Update to describe current wiring status without PR-relative language, e.g. 'It is not currently wired into `audit.py`'s live path' or confirm and remove/update if it has since been integrated.\",\n    \"evidence\": [],",
+              "needle": "Module",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/shadow.py",
+              "kind": "text_match",
+              "line": 1494,
+              "context": "        if len(source_path.name) >= 4:\n            source_files[source_path.name] = source_str\n        # Module-style (Python)\n        if source_path.suffix == \".py\":\n            parts = list(source_path.with_suffix(\"\").parts)",
+              "needle": "Module",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/walker.py",
+              "kind": "text_match",
+              "line": 11,
+              "context": "from .hooks import find_git_root\n\n# Module-level cache: (root_path, respect_gitignore) → (file list, used_git flag)\n_repo_files_cache: dict[tuple[Path, bool], tuple[list[Path], bool]] = {}\n",
+              "needle": "Module",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/plugins/python_plugin.py",
+              "kind": "text_match",
+              "line": 98,
+              "context": "\n\ndef _get_all_members(node: ast.Module) -> list[str] | None:\n    \"\"\"Extract __all__ from a module if it's a simple list/tuple of strings.\"\"\"\n    for stmt in node.body:",
+              "needle": "Module",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/plugins/ts_runner/extract.js",
+              "kind": "text_match",
+              "line": 35,
+              "context": "const FRAMEWORK_DECORATORS = new Set([\n  \"Controller\", \"Injectable\", \"Get\", \"Post\", \"Put\", \"Delete\", \"Patch\",\n  \"Module\", \"Component\", \"Directive\", \"Pipe\", \"Entity\", \"Column\",\n  \"Guard\", \"Interceptor\", \"Resolver\", \"EventPattern\", \"MessagePattern\",\n  \"Cron\", \"Interval\", \"Timeout\",",
+              "needle": "Module",
+              "source": "text_scan"
+            },
+            {
+              "file": "docs/explanatory/language-plugin-system.md",
+              "kind": "text_match",
+              "line": 137,
+              "context": "On `pip install osoji-rust-plugin`, the `RustPlugin` class would be auto-discovered and registered on the next Osoji run.\n\n### Module-level side effects\n\nBoth registration steps happen at module level -- importing `osoji.plugins` triggers `_register_first_party_plugins()` and `_discover_entry_point_plugins()`. This means plugins are available before any file processing begins, which is necessary because the walker needs to know supported extensions early in the pipeline.",
+              "needle": "Module",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 297,
+            "needles": [
+              "Module"
+            ]
+          },
+          "export_surface": {
+            "symbol": "Module",
+            "exported_from_flagged_file": false
+          }
+        }
+      }
+    ],
+    "id": "347be1cb319fbde5",
+    "verdict": null,
+    "confidence": null,
+    "triage_reasoning": null,
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "91145bace1cc94d0"
+  }
+}

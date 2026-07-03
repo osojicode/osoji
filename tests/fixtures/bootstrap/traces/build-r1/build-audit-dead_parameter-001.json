@@ -1,0 +1,893 @@
+{
+  "slug": "audit-dead_parameter-001",
+  "mode": "build",
+  "insufficient": false,
+  "finding": {
+    "detector": "audit:dead_parameter",
+    "gap_type": "reachability",
+    "path": "src/osoji/triage.py",
+    "line_start": 162,
+    "line_end": 162,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate_limiter` (call site 2), or passes only `provider` (call sites 5–16). The parameter's only use in the body is the inline expression `executor or ExplorationExecutor(config)`, which always resolves to `ExplorationExecutor(config)` because `executor` is always `None`.",
+    "observed_behavior": "Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or` expression simplifies.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/test_deadparam.py",
+              "kind": "member_write",
+              "context": "writes config.provider at line 512",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_tool_retry.py",
+              "kind": "export",
+              "context": "exports provider",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/config.py",
+              "kind": "member_write",
+              "context": "writes self.provider at line 640",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/config.py",
+              "kind": "member_write",
+              "context": "writes self.provider at line 662",
+              "source": "facts"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 191,
+              "context": "        finding.get(\"contract_claim\", \"\"), finding.get(\"observed_behavior\", \"\")\n    )\n    executor = executor_for(entry)\n\n    grep_hits: dict[str, set[int]] = {}  # accumulated across PRIOR greps only",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 206,
+              "context": "                row[\"glob\"] = tool_input.get(\"glob\")\n            for path, lines in parse_grep_hits(\n                executor.run(\"grep\", tool_input)\n            ).items():\n                grep_hits.setdefault(path, set()).update(lines)",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 274,
+              "context": "        if fixture_root:\n            source_root = REPO_ROOT / fixture_root / \"source\"\n            executor = ExplorationExecutor(Config(root_path=source_root))\n            prefix = f\"{fixture_root}/source/\"\n            if finding.path.startswith(prefix):",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 279,
+              "context": "                finding = replace(finding, path=finding.path[len(prefix):])\n        else:\n            executor = repo_executor\n        trace: dict[str, Any] = {\"finding_id\": finding.id, \"calls\": []}\n        verdict: dict[str, Any] = {}",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 289,
+              "context": "                    {\"turn\": len(trace[\"calls\"]), \"name\": _name, \"input\": tool_args}\n                )\n                return {\"content\": [{\"type\": \"text\", \"text\": executor.run(_name, tool_args)}]}\n            return _t\n",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 277,
+              "context": "    names = [c[\"name\"] for c in result.exploration_traces[0][\"calls\"]]\n    assert names == [\"read_file\", \"submit_triage_verdict\"]\n    # two provider turns, and the executor output was fed back as a tool_result\n    assert len(provider.calls) == 2\n    second_turn_msgs = provider.calls[1][\"messages\"]",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "text_match",
+              "line": 1,
+              "context": "\"\"\"Tests for the read-only, repo-confined exploration executor (V1-3).\n\nThe executor backs Triage exploration mode: it runs read_file/grep/list_dir",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "text_match",
+              "line": 3,
+              "context": "\"\"\"Tests for the read-only, repo-confined exploration executor (V1-3).\n\nThe executor backs Triage exploration mode: it runs read_file/grep/list_dir\nagainst the repository root only, never writes, never escapes root, and bounds\nits output so a runaway tool call can't blow the context window.",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 516,
+              "context": "      \"severity\": \"warning\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"Nobody - not even tests - injects executor; docstring declares injection intent for provider only. Unexercised DI seam on a central class. BORDERLINE: defensible either way (DI affordance vs YAGNI).\",\n      \"evidence_consulted\": [\n        \"grep constructor calls repo-wide\",",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 530,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate_limiter` (call site 2), or passes only `provider` (call sites 5–16). The parameter's only use in the body is the inline expression `executor or ExplorationExecutor(config)`, which always resolves to `ExplorationExecutor(config)` because `executor` is always `None`.\",\n        \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or` expression simplifies.\",\n        \"evidence\": [],",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 531,
+              "context": "        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate_limiter` (call site 2), or passes only `provider` (call sites 5–16). The parameter's only use in the body is the inline expression `executor or ExplorationExecutor(config)`, which always resolves to `ExplorationExecutor(config)` because `executor` is always `None`.\",\n        \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or` expression simplifies.\",\n        \"evidence\": [],\n        \"id\": \"365a3ba84781389c\",",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 1094,
+              "context": "        \"contract_source\": \"audit\",\n        \"contract_claim\": \"The Key architecture section omits all V1 unified Finding/Triage architecture modules (claim_builder.py, evidence.py, findings.py, findings_adapter.py, triage.py, triage_exec.py) which are significant parts of the codebase as documented in the root shadow doc and individual module shadows. [evidence: _root — \\\"`src/osoji/findings.py` + `evidence.py` + `triage.py` + `triage_exec.py` + `claim_builder.py` define the canonical v1 types\\\"]\",\n        \"observed_behavior\": \"Add entries for the V1 architecture modules to the Key architecture list: findings.py (Unified Finding schema), evidence.py (Evidence schema), triage.py (Unified finding triage), triage_exec.py (Exploration tool executor), claim_builder.py (Debris claim builder), findings_adapter.py (Legacy-to-V1 finding adapter).\",\n        \"evidence\": [],\n        \"id\": \"9e54c4945cc457ee\",",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1060,
+              "context": "      \"severity\": \"warning\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"Nobody - not even tests - injects executor; docstring declares injection intent for provider only. Unexercised DI seam on a central class. BORDERLINE: defensible either way (DI affordance vs YAGNI).\",\n      \"evidence_consulted\": [\n        \"grep constructor calls repo-wide\",",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1074,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate_limiter` (call site 2), or passes only `provider` (call sites 5–16). The parameter's only use in the body is the inline expression `executor or ExplorationExecutor(config)`, which always resolves to `ExplorationExecutor(config)` because `executor` is always `None`.\",\n        \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or` expression simplifies.\",\n        \"evidence\": [],",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1075,
+              "context": "        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate_limiter` (call site 2), or passes only `provider` (call sites 5–16). The parameter's only use in the body is the inline expression `executor or ExplorationExecutor(config)`, which always resolves to `ExplorationExecutor(config)` because `executor` is always `None`.\",\n        \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or` expression simplifies.\",\n        \"evidence\": [],\n        \"id\": \"365a3ba84781389c\",",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1644,
+              "context": "        \"contract_source\": \"audit\",\n        \"contract_claim\": \"The Key architecture section omits all V1 unified Finding/Triage architecture modules (claim_builder.py, evidence.py, findings.py, findings_adapter.py, triage.py, triage_exec.py) which are significant parts of the codebase as documented in the root shadow doc and individual module shadows. [evidence: _root — \\\"`src/osoji/findings.py` + `evidence.py` + `triage.py` + `triage_exec.py` + `claim_builder.py` define the canonical v1 types\\\"]\",\n        \"observed_behavior\": \"Add entries for the V1 architecture modules to the Key architecture list: findings.py (Unified Finding schema), evidence.py (Evidence schema), triage.py (Unified finding triage), triage_exec.py (Exploration tool executor), claim_builder.py (Debris claim builder), findings_adapter.py (Legacy-to-V1 finding adapter).\",\n        \"evidence\": [],\n        \"id\": \"9e54c4945cc457ee\",",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 2402,
+              "context": "          \"turn\": 2,\n          \"name\": \"grep\",\n          \"pattern\": \"executor\\\\s*=\",\n          \"shape\": \"regex\",\n          \"breadth\": \"scoped\",",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate_limiter` (call site 2), or passes only `provider` (call sites 5–16). The parameter's only use in the body is the inline expression `executor or ExplorationExecutor(config)`, which always resolves to `ExplorationExecutor(config)` because `executor` is always `None`.\",\n    \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or` expression simplifies.\",\n    \"evidence\": [],",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 14,
+              "context": "    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate_limiter` (call site 2), or passes only `provider` (call sites 5–16). The parameter's only use in the body is the inline expression `executor or ExplorationExecutor(config)`, which always resolves to `ExplorationExecutor(config)` because `executor` is always `None`.\",\n    \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or` expression simplifies.\",\n    \"evidence\": [],\n    \"id\": \"365a3ba84781389c\",",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 19,
+              "context": "    \"verdict\": \"confirmed\",\n    \"confidence\": 0.98,\n    \"triage_reasoning\": \"Examined all 14 call sites of Triage(...) across src/osoji/audit.py, scripts/triage_bootstrap.py, and tests/test_triage.py. Every invocation uses only positional `config`, optional `rate_limiter`, and/or keyword `provider`. The keyword `executor` is never passed at any call site.\\n\\nThe `executor` locals in triage_bootstrap.py (lines 168/173) are scoped entirely inside the `explore_one()` async closure and drive the SDK tool-wrapping logic there; they are never forwarded to a Triage constructor.\\n\\nAt L172 the body reads `self.executor = executor or ExplorationExecutor(config)`. Because `executor` is invariably `None`, the right-hand branch always executes. The parameter is unreachable dead code.\\n\\nAll three predicates hold:\\n- Reality: confirmed — zero call sites supply the argument.\\n- Significance: the dead parameter exposes a misleading injection surface (implies testability via executor injection, but no test uses it), and leaves dead code in the hot-path constructor.\\n- Actionability: straightforward one-liner fix.\",\n    \"suggested_fix\": \"Remove the `executor` keyword parameter from `Triage.__init__` and replace the conditional assignment with an unconditional one:\\n\\n```python\\n# Before\\ndef __init__(\\n    self,\\n    config: Config,\\n    rate_limiter: Any | None = None,\\n    *,\\n    executor: ExplorationExecutor | None = None,\\n    provider: Any | None = None,\\n) -> None:\\n    ...\\n    self.executor = executor or ExplorationExecutor(config)\\n\\n# After\\ndef __init__(\\n    self,\\n    config: Config,\\n    rate_limiter: Any | None = None,\\n    *,\\n    provider: Any | None = None,\\n) -> None:\\n    ...\\n    self.executor = ExplorationExecutor(config)\\n```\\n\\nNo call sites need updating.\",\n    \"severity\": \"warning\",",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 89,
+              "context": "- `src/osoji/audit.py` — Multi-phase audit orchestration\n- `src/osoji/llm/` — LLM provider abstraction (Anthropic, OpenAI, Google, OpenRouter via LiteLLM; Claude Code via CLI), validation, token counting\n- `src/osoji/rate_limiter.py` — Reservation-based async rate limiter (RPM + input/output TPM)\n- `src/osoji/facts.py` — Structured facts database and queries\n- `src/osoji/symbols.py` — Symbol loading and querying from `.osoji/symbols/`",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadparam.py",
+              "kind": "text_match",
+              "line": 225,
+              "context": "        _write_source(temp_dir, \"src/analyzer.py\", \"\\n\".join([\n            \"class MyAnalyzer:\",\n            \"    def analyze(self, data, rate_limiter=None):\",\n            \"        pass\",\n        ]))",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadparam.py",
+              "kind": "text_match",
+              "line": 236,
+              "context": "             \"parameters\": [\n                 {\"name\": \"data\", \"optional\": False},\n                 {\"name\": \"rate_limiter\", \"optional\": True},\n             ]},\n        ])",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadparam.py",
+              "kind": "text_match",
+              "line": 263,
+              "context": "        assert len(candidates) >= 1\n        param_names = [c.param_name for c in candidates]\n        assert \"rate_limiter\" in param_names\n        # Should have found the call site via instance call\n        rl_candidate = [c for c in candidates if c.param_name == \"rate_limiter\"][0]",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_deadparam.py",
+              "kind": "text_match",
+              "line": 265,
+              "context": "        assert \"rate_limiter\" in param_names\n        # Should have found the call site via instance call\n        rl_candidate = [c for c in candidates if c.param_name == \"rate_limiter\"][0]\n        assert len(rl_candidate.call_sites) >= 1\n",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_facts.py",
+              "kind": "text_match",
+              "line": 398,
+              "context": "    def test_instance_dispatch_match(self, tmp_path):\n        \"\"\"Instance method call (self.obj.bar) matches ClassName.bar when file imports source.\"\"\"\n        _write_facts(tmp_path, \"src/rate_limiter.py\", {\n            \"imports\": [],\n            \"exports\": [{\"name\": \"RateLimiter\", \"kind\": \"class\", \"line\": 1}],",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_facts.py",
+              "kind": "text_match",
+              "line": 405,
+              "context": "        })\n        _write_facts(tmp_path, \"src/engine.py\", {\n            \"imports\": [{\"source\": \".rate_limiter\", \"names\": [\"RateLimiter\"], \"is_reexport\": False}],\n            \"exports\": [],\n            \"calls\": [{\"to\": \"self._limiter.acquire\", \"line\": 50}],",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_facts.py",
+              "kind": "text_match",
+              "line": 411,
+              "context": "        })\n        db = FactsDB(_make_config(tmp_path))\n        refs = db.cross_file_references(\"RateLimiter.acquire\", \"src/rate_limiter.py\")\n        call_refs = [r for r in refs if r[\"kind\"] == \"call\"]\n        assert len(call_refs) == 1",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_facts.py",
+              "kind": "text_match",
+              "line": 419,
+              "context": "    def test_instance_dispatch_no_match_without_import(self, tmp_path):\n        \"\"\"Instance method call does NOT match when calling file has no import from source.\"\"\"\n        _write_facts(tmp_path, \"src/rate_limiter.py\", {\n            \"imports\": [],\n            \"exports\": [{\"name\": \"RateLimiter\", \"kind\": \"class\", \"line\": 1}],",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_facts.py",
+              "kind": "text_match",
+              "line": 432,
+              "context": "        })\n        db = FactsDB(_make_config(tmp_path))\n        refs = db.cross_file_references(\"RateLimiter.acquire\", \"src/rate_limiter.py\")\n        call_refs = [r for r in refs if r[\"kind\"] == \"call\"]\n        assert len(call_refs) == 0",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_llm_provider.py",
+              "kind": "text_match",
+              "line": 105,
+              "context": "    config = Config(root_path=tmp_path, provider=\"openai\", model=\"gpt-4.1-mini\")\n\n    logging_provider, rate_limiter = create_runtime(config)\n    try:\n        assert isinstance(logging_provider, LoggingProvider)",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_llm_provider.py",
+              "kind": "text_match",
+              "line": 110,
+              "context": "        assert isinstance(logging_provider._provider, RateLimitedProvider)\n        assert logging_provider.name == \"openai\"\n        assert logging_provider._provider._rate_limiter is rate_limiter\n        assert logging_provider._provider._provider._interaction_log_path == config.llm_interactions_log_path\n    finally:",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_prompt_regression.py",
+              "kind": "text_match",
+              "line": 208,
+              "context": "    \"\"\"Run n trials in parallel. Returns (passes, total).\n\n    No concurrency limit here — rate limiting is handled by the rate_limiter module.\n    \"\"\"\n    outcomes = await asyncio.gather(*[trial_fn() for _ in range(n)])",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_rate_limiter.py",
+              "kind": "text_match",
+              "line": 16,
+              "context": "from osoji.llm.rate_limited import RateLimitedProvider\nfrom osoji.llm.types import CompletionOptions, CompletionResult, Message, MessageRole\nfrom osoji.rate_limiter import (\n    ANTHROPIC_DEFAULTS,\n    GOOGLE_DEFAULTS,",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 530,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate_limiter` (call site 2), or passes only `provider` (call sites 5–16). The parameter's only use in the body is the inline expression `executor or ExplorationExecutor(config)`, which always resolves to `ExplorationExecutor(config)` because `executor` is always `None`.\",\n        \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or` expression simplifies.\",\n        \"evidence\": [],",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1074,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate_limiter` (call site 2), or passes only `provider` (call sites 5–16). The parameter's only use in the body is the inline expression `executor or ExplorationExecutor(config)`, which always resolves to `ExplorationExecutor(config)` because `executor` is always `None`.\",\n        \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or` expression simplifies.\",\n        \"evidence\": [],",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/dead_code/case_002_internal_dataclass/source/src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 10,
+              "context": "\nfrom .config import Config\nfrom .rate_limiter import RateLimiter, get_config_with_overrides\nfrom .shadow import check_shadow_docs, generate_shadow_docs\nfrom .debris import analyze_docs",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/dead_code/case_002_internal_dataclass/source/src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 112,
+              "context": "\n    # Shared rate limiter across all phases so token budgets are tracked globally\n    rate_limiter = RateLimiter(get_config_with_overrides(\"anthropic\"))\n\n    # Clean stale analysis directory (fresh each run)",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/dead_code/case_002_internal_dataclass/source/src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 126,
+              "context": "        print(f\"Osoji: Auto-updating {len(shadow_issues)} shadow doc(s)...\", flush=True)\n        phase_start = time_module.monotonic()\n        generate_shadow_docs(config, verbose=verbose, rate_limiter=rate_limiter)\n        shadow_issues = []  # Cleared by regeneration\n        if verbose:",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/prompt_regression/dead_code/case_002_internal_dataclass/source/src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 144,
+              "context": "    print(\"Osoji: Analyzing documentation...\", flush=True)\n    phase_start = time_module.monotonic()\n    analysis_results = analyze_docs(config, on_progress=progress_cb, rate_limiter=rate_limiter)\n    if verbose:\n        elapsed = time_module.monotonic() - phase_start",
+              "needle": "rate_limiter",
+              "source": "text_scan"
+            },
+            {
+              "file": ".env.example",
+              "kind": "text_match",
+              "line": 7,
+              "context": "# OSOJI_TOKEN=\n\n# Override provider from config file (default: anthropic).\n# Supported: anthropic, openai, google, openrouter, claude-code\n# OSOJI_PROVIDER=anthropic",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": ".env.example",
+              "kind": "text_match",
+              "line": 17,
+              "context": "# OSOJI_MODEL_LARGE=\n\n# Required for `osoji shadow`, `osoji audit`, etc. -- your LLM provider API key\nANTHROPIC_API_KEY=\nOPENAI_API_KEY=",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 2,
+              "context": "# Local overrides -- copy to .osoji.local.toml\n# .osoji.local.toml is gitignored; use it to override LLM provider/model\n# settings and push config on your machine.\n#",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 7,
+              "context": "# For secrets (API keys, tokens), use .env instead.\n\n# Override the default LLM provider (default: anthropic)\n# Options: anthropic, openai, google, openrouter, claude-code\n# default_provider = \"openai\"",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 11,
+              "context": "# default_provider = \"openai\"\n\n# Per-provider model overrides (small = fast/cheap, medium = balanced, large = most capable)\n# [providers.anthropic]\n# small  = \"claude-haiku-4-5-20251001\"",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": ".osoji.local.toml.example",
+              "kind": "text_match",
+              "line": 22,
+              "context": "# large  = \"gpt-5.4\"\n\n# claude-code provider routes through the locally installed Claude Code CLI.\n# Model overrides are passed via --model flag to the CLI.\n# [providers.claude-code]",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "CHANGELOG.md",
+              "kind": "text_match",
+              "line": 32,
+              "context": "- `osoji skills list/show` — bundled AI agent skill files (`osoji-sweep`,\n  `osoji-triage`)\n- Multi-provider LLM support: Anthropic, OpenAI, Google Gemini, OpenRouter\n  (all via LiteLLM), Claude Code (via CLI subprocess)\n- Tiered model configuration (small / medium / large) via TOML config files",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "CHANGELOG.md",
+              "kind": "text_match",
+              "line": 35,
+              "context": "  (all via LiteLLM), Claude Code (via CLI subprocess)\n- Tiered model configuration (small / medium / large) via TOML config files\n- Reservation-based async rate limiter with provider-specific defaults and\n  environment variable overrides\n- Python and TypeScript AST extraction plugins (`src/osoji/plugins/`)",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 88,
+              "context": "- `src/osoji/shadow.py` — Core shadow doc generation engine\n- `src/osoji/audit.py` — Multi-phase audit orchestration\n- `src/osoji/llm/` — LLM provider abstraction (Anthropic, OpenAI, Google, OpenRouter via LiteLLM; Claude Code via CLI), validation, token counting\n- `src/osoji/rate_limiter.py` — Reservation-based async rate limiter (RPM + input/output TPM)\n- `src/osoji/facts.py` — Structured facts database and queries",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 140,
+              "context": "\n- **Temperature**: `CompletionOptions.temperature` defaults to `None` (omit from request,\n  letting each provider use its own default). Do NOT set `temperature=0.0` — it breaks\n  models that reject explicit zero (e.g. gpt-5) and provides no benefit for structured\n  tool-use outputs where the JSON schema constrains the response. If a call site needs",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "CONTRIBUTING.md",
+              "kind": "text_match",
+              "line": 98,
+              "context": "\nPlease use the [bug report template](https://github.com/osojicode/osoji/issues/new?template=bug_report.yml).\nInclude your `osoji --version` output, Python version, and the LLM provider/model\nyou were using.\n",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "pyproject.toml",
+              "kind": "text_match",
+              "line": 52,
+              "context": "markers = [\n    \"prompt_regression: tests that make real LLM API calls to verify prompt behavior\",\n    \"live_smoke: optional live provider smoke tests\",\n]\n",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 24,
+              "context": "```\n\nBYOK — you pay your LLM provider directly. No data leaves your machine except API calls.\n\n## Agent workflow",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 110,
+              "context": "\n```bash\nosoji audit . --provider openai --model gpt-5.2\nosoji audit . --provider google --model gemini-2.0-flash\n```",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 111,
+              "context": "```bash\nosoji audit . --provider openai --model gpt-5.2\nosoji audit . --provider google --model gemini-2.0-flash\n```\n",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 128,
+              "context": "```\n\nSupported provider credentials: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY`\n\nConfig precedence (highest to lowest):",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "README.md",
+              "kind": "text_match",
+              "line": 132,
+              "context": "Config precedence (highest to lowest):\n\n1. CLI flags (`--provider`, `--model`)\n2. Environment variables (`OSOJI_PROVIDER`, `OSOJI_MODEL`)\n3. `.osoji.local.toml` (per-project)",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 34,
+              "context": "Usage:\n\n    python scripts/triage_bootstrap.py explore --provider claude-code\n    python scripts/triage_bootstrap.py claim --provider claude-code \\\n        --baseline tests/fixtures/bootstrap/traces/explore-summary.json",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 35,
+              "context": "\n    python scripts/triage_bootstrap.py explore --provider claude-code\n    python scripts/triage_bootstrap.py claim --provider claude-code \\\n        --baseline tests/fixtures/bootstrap/traces/explore-summary.json\n",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 235,
+              "context": "\n    `claude -p` cannot round-trip custom tool calls, so the in-process\n    Triage exploration loop has no transport on the claude-code provider.\n    The Agent SDK wraps the same CLI (Max OAuth auth carries over) and\n    dispatches MCP tool calls to in-process callbacks — ExplorationExecutor",
+              "needle": "provider",
+              "source": "text_scan"
+            },
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 139,
+              "context": "## LLM parameters\n\n- **Temperature**: `CompletionOptions.temperature` defaults to `None` (omit from request,\n  letting each provider use its own default). Do NOT set `temperature=0.0` — it breaks\n  models that reject explicit zero (e.g. gpt-5) and provides no benefit for structured",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 140,
+              "context": "\ndef _ranges_overlap(\n    lo: int, hi: int, target_lo: int | None, target_hi: int | None\n) -> bool:\n    if target_lo is None and target_hi is None:",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 142,
+              "context": "    lo: int, hi: int, target_lo: int | None, target_hi: int | None\n) -> bool:\n    if target_lo is None and target_hi is None:\n        return True\n    t_lo = (target_lo or target_hi or 1) - _REGION_TOLERANCE",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 157,
+              "context": "    start = call_input.get(\"start\")\n    end = call_input.get(\"end\")\n    lo = int(start) if start is not None else 1\n    hi = int(end) if end is not None else 10**9\n",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 158,
+              "context": "    end = call_input.get(\"end\")\n    lo = int(start) if start is not None else 1\n    hi = int(end) if end is not None else 10**9\n\n    if path == str(finding.get(\"path\", \"\")).replace(\"\\\\\", \"/\"):",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 168,
+              "context": "    hit_lines = grep_hits.get(path)\n    if hit_lines and (\n        start is None\n        or any(lo - _REGION_TOLERANCE <= line <= hi + _REGION_TOLERANCE for line in hit_lines)\n    ):",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 358,
+              "context": "        consulted = entry.get(\"evidence_consulted\") or []\n        mined = mined_by_slug.get(entry[\"slug\"])\n        if not consulted or mined is None:\n            continue\n        observed_tools = {c[\"name\"] for c in mined[\"calls\"]}",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 128,
+              "context": "\n\ndef _stage_fixture_root(fixture_root: Path, tmp: Path) -> None:\n    \"\"\"Materialize a fixture case as a mini-repo (test_prompt_regression layout):\n    source/** at the root, symbols/facts sidecars under .osoji/. expected.json",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 162,
+              "context": "    meta: list[dict[str, Any]] = []\n    with ExitStack() as stack:\n        repo_ctx: BuildContext | None = None\n        fixture_ctxs: dict[str, BuildContext] = {}\n        for entry in entries:",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 169,
+              "context": "            if fixture_root:\n                ctx = fixture_ctxs.get(fixture_root)\n                if ctx is None:\n                    tmp = Path(stack.enter_context(tempfile.TemporaryDirectory(\n                        prefix=\"osoji-bootstrap-\"",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 180,
+              "context": "                    finding = replace(finding, path=finding.path[len(prefix):])\n            else:\n                if repo_ctx is None:\n                    repo_ctx = BuildContext(Config(root_path=REPO_ROOT))\n                ctx = repo_ctx",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 228,
+              "context": "    entries: list[dict[str, Any]],\n    *,\n    model: str | None,\n    max_turns: int,\n    concurrency: int,",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 333,
+              "context": "            try:\n                async for message in query(prompt=prompt, options=options):\n                    usage = getattr(message, \"usage\", None)\n                    if isinstance(usage, dict):\n                        in_tok += usage.get(\"input_tokens\", 0) or 0",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 338,
+              "context": "                        out_tok += usage.get(\"output_tokens\", 0) or 0\n                    if type(message).__name__ == \"ResultMessage\":\n                        cost_usd += getattr(message, \"total_cost_usd\", None) or 0.0\n            except Exception as exc:  # noqa: BLE001 — one claim must not kill the batch\n                # The SDK raises on the CLI's max-turns error result; a verdict",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 379,
+              "context": "    mode = args.mode\n\n    build_meta: list[dict[str, Any]] | None = None\n\n    if mode == \"build\":",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 465,
+              "context": "    summary[\"input_tokens\"] = in_tokens\n    summary[\"output_tokens\"] = out_tokens\n    if build_meta is not None:\n        summary[\"build\"] = build_summary(build_meta)\n        summary[\"no_verdict\"] = [",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 468,
+              "context": "        summary[\"build\"] = build_summary(build_meta)\n        summary[\"no_verdict\"] = [\n            r[\"slug\"] for r in summary[\"rows\"] if r[\"verdict\"] is None\n        ]\n",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 534,
+              "context": "        p.add_argument(\"--manifest\", type=Path, default=DEFAULT_MANIFEST)\n        p.add_argument(\"--out\", type=Path, default=DEFAULT_TRACE_DIR)\n        p.add_argument(\"--provider\", default=None, help=\"LLM provider (e.g. claude-code)\")\n        p.add_argument(\"--model\", default=None)\n        p.add_argument(\"--baseline\", type=Path, default=None,",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 535,
+              "context": "        p.add_argument(\"--out\", type=Path, default=DEFAULT_TRACE_DIR)\n        p.add_argument(\"--provider\", default=None, help=\"LLM provider (e.g. claude-code)\")\n        p.add_argument(\"--model\", default=None)\n        p.add_argument(\"--baseline\", type=Path, default=None,\n                       help=\"explore-summary.json to measure verdict-disagreement against\")",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 536,
+              "context": "        p.add_argument(\"--provider\", default=None, help=\"LLM provider (e.g. claude-code)\")\n        p.add_argument(\"--model\", default=None)\n        p.add_argument(\"--baseline\", type=Path, default=None,\n                       help=\"explore-summary.json to measure verdict-disagreement against\")\n        p.add_argument(\"--only\", nargs=\"*\", default=None, help=\"restrict to these slugs\")",
+              "needle": "None",
+              "source": "text_scan"
+            },
+            {
+              "file": ".env.example",
+              "kind": "text_match",
+              "line": 11,
+              "context": "# OSOJI_PROVIDER=anthropic\n\n# Set one model for every tier, or override tiers individually.\n# OSOJI_MODEL=\n# OSOJI_MODEL_SMALL=",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CHANGELOG.md",
+              "kind": "text_match",
+              "line": 15,
+              "context": "  accuracy validation, and code debris detection\n- Optional audit phases: `--dead-code`, `--dead-params`, `--dead-plumbing`,\n  `--dead-deps`, `--dead-cicd`, `--orphaned-files` (or `--junk` for all)\n- `--obligations` — cross-file implicit string contract detection\n- `--doc-prompts` — concept-centric documentation coverage and writing prompts",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CHANGELOG.md",
+              "kind": "text_match",
+              "line": 23,
+              "context": "- `osoji diff` — git diff documentation impact analysis\n- `osoji stats` — token compression statistics\n- `osoji report` — re-render audit results in text, JSON, or HTML\n- `osoji export` — stable observatory bundle export (JSON Schema Draft 2020-12)\n- `osoji push` — push observatory bundle to osoji-teams ingest API",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 29,
+              "context": "\nDo NOT auto-merge. The project owner reviews PR summaries and merges manually\n(`gh pr merge <number> --squash` or via the GitHub UI). Releases are also\nmanual — the owner creates a GitHub Release, which triggers the publish\nworkflow.",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 119,
+              "context": "the bundle shape produced by `osoji export`. It uses JSON Schema Draft 2020-12.\n\n- **Updating**: when `observatory.py` adds or changes bundle fields, mirror\n  the change in the schema file and add a schema validation test.\n- **osoji-teams**: the ingest API and dashboard consume this schema. Coordinate",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 152,
+              "context": "  (e.g. `test_` prefix for test files, `__init__.py` for packages, decorators for\n  framework registration). When dogfooding osoji on itself, be especially vigilant —\n  solutions that fix a Python false positive may break detection for Go, Rust, or Java.\n\n- **Principles over catalogs in LLM prompts.** When instructing the LLM what to",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 155,
+              "context": "\n- **Principles over catalogs in LLM prompts.** When instructing the LLM what to\n  extract, skip, or classify, describe the *principle* (e.g. \"skip ecosystem convention\n  strings that couldn't form project-specific contracts\") rather than enumerating\n  specific items (e.g. \"skip python, javascript, .py, node_modules\"). The LLM already",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 172,
+              "context": "\n- **Facts DB is noisy — use LLM reasoning to filter.** LLM-extracted `.facts.json`\n  data may contain malformed entries, misclassified strings, or missing references.\n  Never use facts mechanically to suppress findings (e.g. \"if referenced anywhere,\n  dismiss\"). Instead, present facts as evidence to the LLM and let it reason about",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 176,
+              "context": "  dismiss\"). Instead, present facts as evidence to the LLM and let it reason about\n  whether the references represent genuine usage. The LLM can distinguish real imports\n  from name collisions, comments, or string literals — a mechanical filter cannot.\n\n- **Implicit contracts: surface silent failures.** When two files share a string",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CLAUDE.md",
+              "kind": "text_match",
+              "line": 181,
+              "context": "  literal (e.g. a dict key), renaming in one silently breaks the other at runtime\n  (a value-level error). When both import a shared constant, a rename causes an\n  ImportError or NameError at load time (a name-level error). The obligation checker\n  exists to find these implicit string contracts. Remediation text should explain\n  this distinction — the goal is to convert silent value-level mismatches into loud",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CODE_OF_CONDUCT.md",
+              "kind": "text_match",
+              "line": 6,
+              "context": "## Our Pledge\n\nWe as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, caste, color, religion, or sexual identity and orientation.\n\nWe pledge to act and interact in ways that contribute to an open, welcoming, diverse, inclusive, and healthy community.",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CODE_OF_CONDUCT.md",
+              "kind": "text_match",
+              "line": 22,
+              "context": "Examples of unacceptable behavior include:\n\n* The use of sexualized language or imagery, and sexual attention or advances of any kind\n* Trolling, insulting or derogatory comments, and personal or political attacks\n* Public or private harassment",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CODE_OF_CONDUCT.md",
+              "kind": "text_match",
+              "line": 23,
+              "context": "\n* The use of sexualized language or imagery, and sexual attention or advances of any kind\n* Trolling, insulting or derogatory comments, and personal or political attacks\n* Public or private harassment\n* Publishing others' private information, such as a physical or email address, without their explicit permission",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CODE_OF_CONDUCT.md",
+              "kind": "text_match",
+              "line": 24,
+              "context": "* The use of sexualized language or imagery, and sexual attention or advances of any kind\n* Trolling, insulting or derogatory comments, and personal or political attacks\n* Public or private harassment\n* Publishing others' private information, such as a physical or email address, without their explicit permission\n* Other conduct which could reasonably be considered inappropriate in a professional setting",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CODE_OF_CONDUCT.md",
+              "kind": "text_match",
+              "line": 25,
+              "context": "* Trolling, insulting or derogatory comments, and personal or political attacks\n* Public or private harassment\n* Publishing others' private information, such as a physical or email address, without their explicit permission\n* Other conduct which could reasonably be considered inappropriate in a professional setting\n",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CODE_OF_CONDUCT.md",
+              "kind": "text_match",
+              "line": 30,
+              "context": "## Enforcement Responsibilities\n\nCommunity leaders are responsible for clarifying and enforcing our standards of acceptable behavior and will take appropriate and fair corrective action in response to any behavior that they deem inappropriate, threatening, offensive, or harmful.\n\nCommunity leaders have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct, and will communicate reasons for moderation decisions when appropriate.",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CODE_OF_CONDUCT.md",
+              "kind": "text_match",
+              "line": 32,
+              "context": "Community leaders are responsible for clarifying and enforcing our standards of acceptable behavior and will take appropriate and fair corrective action in response to any behavior that they deem inappropriate, threatening, offensive, or harmful.\n\nCommunity leaders have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct, and will communicate reasons for moderation decisions when appropriate.\n\n## Scope",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CODE_OF_CONDUCT.md",
+              "kind": "text_match",
+              "line": 36,
+              "context": "## Scope\n\nThis Code of Conduct applies within all community spaces, and also applies when an individual is officially representing the community in public spaces. Examples of representing our community include using an official e-mail address, posting via an official social media account, or acting as an appointed representative at an online or offline event.\n\n## Enforcement",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CODE_OF_CONDUCT.md",
+              "kind": "text_match",
+              "line": 40,
+              "context": "## Enforcement\n\nInstances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at conduct@osojicode.ai. All complaints will be reviewed and investigated promptly and fairly.\n\nAll community leaders are obligated to respect the privacy and security of the reporter of any incident.",
+              "needle": "or",
+              "source": "text_scan"
+            },
+            {
+              "file": "CODE_OF_CONDUCT.md",
+              "kind": "text_match",
+              "line": 50,
+              "context": "### 1. Correction\n\n**Community Impact**: Use of inappropriate language or other behavior deemed unprofessional or unwelcome in the community.\n\n**Consequence**: A private, written warning from community leaders, providing clarity around the nature of the violation and an explanation of why the behavior was inappropriate. A public apology may be requested.",
+              "needle": "or",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {
+            "tests/test_deadparam.py": "# tests\\test_deadparam.py\n@source-hash: 8f71e2e6ff6c9c0f\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:28:21Z\n\n## Purpose\n\nTest suite for `osoji.deadparam` — dead parameter detection. Covers the three-phase pipeline: static candidate scanning (`scan_dead_param_candidates`), LLM verification (`_verify_batch_async`), and the `DeadParameterAnalyzer` junk analyzer class. All LLM calls are fully mocked; file system interactions use the `temp_dir` pytest fixture.\n\n---\n\n## File Organization\n\n### Helper Fixtures (L21–59)\n\nFour helper functions build the `.osoji/` artifact tree inside `temp_dir`:\n\n| Helper | Writes | Path pattern |\n|--------|--------|--------------|\n| `_write_shadow` | Shadow markdown with `@source-hash: abc` | `.osoji/shadow/<source>.shadow.md` |\n| `_write_source` | Python source (placeholder or custom) | `<path>` relative to root |\n| `_write_symbols` | JSON with `source`, `source_hash`, `file_role`, `symbols[]` | `.osoji/symbols/<source>.symbols.json` |\n| `_write_facts` | JSON with `imports`, `exports`, `calls`, `string_literals` | `.osoji/facts/<source>.facts.json` |\n\nAll tests mock `osoji.deadparam.list_repo_files` to return only the files written in the test, keeping tests hermetic.\n\n---\n\n## Test Classes\n\n### `TestScanCandidates` (L64–312)\n\nTests `scan_dead_param_candidates(config)` — Phase 1, pure static analysis over symbols + facts.\n\n**Inclusion criteria tested:**\n- `test_function_with_optional_params_and_callers` (L65): Optional params + ≥1 importer → produces `DeadParamCandidate`. Required params (`config`, `results`) are excluded.\n- `test_dotted_method_name_matches_instance_calls` (L218): `MyAnalyzer.analyze` dotted symbol name matches `analyzer.analyze(...)` instance-call pattern in caller files.\n- `test_same_file_caller_outside_definition_is_visible` (via `TestSameFileCaller`, L620): Same-file call outside the function's own line range counts as a call site.\n- `test_common_name_scan_only_checks_importers` (L268): Candidate call-site col",
+            "tests/test_tool_retry.py": "# tests\\test_tool_retry.py\n@source-hash: 039bd6614d4b5331\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:28:46Z\n\n## `tests/test_tool_retry.py`\n\nTests for `AnthropicProvider.complete()` covering tool-input JSON Schema validation and the retry loop. The file uses `SimpleNamespace` to fake Anthropic API responses without hitting the real SDK.\n\n### Key Fixtures & Helpers\n\n- **`_make_response(content_blocks, input_tokens, output_tokens)` (L20-30):** Builds a `SimpleNamespace` mimicking an Anthropic SDK response object. `content` is a list of `SimpleNamespace` blocks; `usage` has `input_tokens`/`output_tokens`; hardcodes `model=\"claude-test\"` and `stop_reason=\"tool_use\"`.\n- **`_tool_use_block(tool_id, name, tool_input)` (L33-34):** Returns a dict with `type=\"tool_use\"`, `id`, `name`, `input`.\n- **`_text_block(text)` (L37-38):** Returns a dict with `type=\"text\"`, `text`.\n- **`provider` fixture (L58-64):** Creates `AnthropicProvider` with `ANTHROPIC_API_KEY=\"test-key\"` injected and `anthropic.AsyncAnthropic` patched out. Tests then assign `provider._client.messages.create = AsyncMock(...)`.\n\n### Module-Level Constants\n\n- **`SIMPLE_SCHEMA` (L41-47):** JSON Schema requiring `value` → object with required string property `x`.\n- **`TOOL_DEF` (L49-53):** `ToolDefinition(name=\"test_tool\", ...)` using `SIMPLE_SCHEMA`.\n- **`FORCED_CHOICE` (L55):** `{\"type\": \"tool\", \"name\": \"test_tool\"}` — forces tool use, which triggers validation/retry logic.\n\n### Test Classes\n\n| Class | Lines | What it covers |\n|---|---|---|\n| `TestValidInputSkipsRetry` | L67-116 | Valid input → single API call; multiple text blocks concatenated into `result.content` |\n| `TestInvalidInputTriggersRetry` | L119-227 | Bad input → retry on second call; text concat on retry; retry call's `messages` arg has 3 entries: original user + assistant (tool_use) + user (tool_result with `is_error=True` and error text `\"expected object\"`) |\n| `TestTokenSumming` | L230-259 | Tokens from both attempts accumulate: `result.",
+            "src/osoji/config.py": "# src\\osoji\\config.py\n@source-hash: a676189706fb3bb2\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:28:59Z\n\n## Purpose\nCentral configuration module for Osoji: defines all path constants, provider/model defaults, and the `Config` dataclass that resolves model policy from a 5-level precedence chain (CLI > env > project > global > builtin).\n\n---\n\n## Module-Level Constants\n\n### Path & Directory Constants (L13–140)\n| Constant | Value | Role |\n|---|---|---|\n| `SHADOW_DIR` | `\".osoji\"` | Root metadata directory; used in all path helpers |\n| `SHADOW_SUBDIR` | `\"shadow\"` | Subdirectory under `.osoji` for shadow docs |\n| `DIRECTORY_SHADOW_FILENAME` | `\"_directory.shadow.md\"` | Filename for directory roll-up shadow docs |\n| `GLOBAL_CONFIG_FILENAME` | `\"config.toml\"` | Filename within `~/.config/osoji/` |\n| `LOCAL_CONFIG_FILENAME` | `\".osoji.local.toml\"` | Project-local policy file (used by `project_config_path`) |\n| `PROJECT_CONFIG_FILENAME` | `\".osoji.toml\"` | Defined but **not used** within this file (see findings) |\n\n### Extension & Ignore Sets (L16–126)\n- `DEFAULT_IGNORE_PATTERNS`: 40+ directory/file names including VCS dirs, caches, lock files, build outputs, vendored deps. Includes `SHADOW_DIR` itself.\n- `DEFAULT_EXTENSIONS`: 40+ source/config file extensions (`.py`, `.ts`, `.rs`, `.go`, `.toml`, `.yaml`, etc.)\n- `DOC_EXTENSIONS`, `DOC_FILENAMES`, `DOC_DIRECTORIES`: Used by `Config.is_doc_candidate()`.\n\n### Provider & Model Constants (L131–184)\n- `DEFAULT_PROVIDER = \"anthropic\"` — fallback when no provider configured\n- `ENV_PROVIDER`, `ENV_MODEL`, `ENV_MODEL_SMALL/MEDIUM/LARGE` — environment variable names read at `Config.__post_init__`\n- Per-provider model name constants for anthropic, openai, google, openrouter (small/medium/large tiers)\n- `BUILTIN_PROVIDER_MODELS`: nested dict `{provider → {tier → model_id}}` for 5 providers: `\"anthropic\"`, `\"claude-code\"`, `\"google\"`, `\"openai\"`, `\"openrouter\"`; `\"claude-code\"` mirrors anthropic models\n- `RESOLUTION_ORDER = ("
+          },
+          "scan_scope": {
+            "files_scanned": 297,
+            "needles": [
+              "executor",
+              "rate_limiter",
+              "provider",
+              "None",
+              "or"
+            ]
+          },
+          "export_surface": {
+            "symbol": "executor",
+            "exported_from_flagged_file": false
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/triage.py",
+          "line_start": 152,
+          "line_end": 172,
+          "snippet": "152: _MAX_EXPLORATION_TURNS = 8\n153: \n154: \n155: class Triage:\n156:     \"\"\"The unified Triage stage.\n157: \n158:     A provider may be injected (tests); otherwise one is created per\n159:     ``decide_batch`` call via :func:`create_runtime` and closed afterwards.\n160:     \"\"\"\n161: \n162:     def __init__(\n163:         self,\n164:         config: Config,\n165:         rate_limiter: Any | None = None,\n166:         *,\n167:         executor: ExplorationExecutor | None = None,\n168:         provider: Any | None = None,\n169:     ) -> None:\n170:         self.config = config\n171:         self.rate_limiter = rate_limiter\n172:         self.executor = executor or ExplorationExecutor(config)",
+          "anchor": "lines",
+          "enclosing_symbol": {
+            "name": "Triage.__init__",
+            "kind": "function",
+            "line_start": 162,
+            "line_end": 173
+          }
+        }
+      }
+    ],
+    "id": "365a3ba84781389c",
+    "verdict": null,
+    "confidence": null,
+    "triage_reasoning": null,
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "8fbfd92730d665f4"
+  }
+}

@@ -46,7 +46,10 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import shutil
 import sys
+import tempfile
+from contextlib import ExitStack
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
@@ -104,15 +107,118 @@ def summarize(
                 "verdict": finding.verdict,
                 "confidence": finding.confidence,
                 "agree": agree,
+                "gray": bool(entry.get("gray")),
             }
         )
     total = len(rows)
     agree_total = sum(1 for r in rows if r["agree"])
+    nongray = [r for r in rows if not r["gray"]]
     return {
         "n": total,
         "accuracy": agree_total / total if total else 0.0,
+        "accuracy_nongray": (
+            sum(1 for r in nongray if r["agree"]) / len(nongray) if nongray else 0.0
+        ),
+        "gray_count": total - len(nongray),
         "per_category": per_category,
         "rows": rows,
+    }
+
+
+def _stage_fixture_root(fixture_root: Path, tmp: Path) -> None:
+    """Materialize a fixture case as a mini-repo (test_prompt_regression layout):
+    source/** at the root, symbols/facts sidecars under .osoji/. expected.json
+    (the answer key) stays behind — same isolation rule as exploration."""
+
+    for sub, dest in (("source", tmp), ("symbols", tmp / ".osoji" / "symbols"),
+                      ("facts", tmp / ".osoji" / "facts")):
+        src_dir = fixture_root / sub
+        if not src_dir.exists():
+            continue
+        for src_file in src_dir.rglob("*"):
+            if src_file.is_file():
+                target = dest / src_file.relative_to(src_dir)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src_file, target)
+
+
+def build_claims_for_entries(
+    entries: list[dict[str, Any]],
+) -> tuple[list[Claim], list[dict[str, Any]]]:
+    """Run the mechanized Claim Builder over manifest entries (zero LLM).
+
+    Fixture entries build against a temp mini-repo staged from their snapshot
+    (path prefix stripped exactly as ``run_sdk_exploration`` does); audit
+    entries build against the live repo root. Returns claims aligned 1:1 with
+    ``entries`` plus per-entry build metadata.
+    """
+
+    from osoji.claim_builder import build_claims  # noqa: PLC0415
+    from osoji.evidence_builders import BuildContext  # noqa: PLC0415
+
+    claims: list[Claim] = []
+    meta: list[dict[str, Any]] = []
+    with ExitStack() as stack:
+        repo_ctx: BuildContext | None = None
+        fixture_ctxs: dict[str, BuildContext] = {}
+        for entry in entries:
+            finding = replace(Finding.from_dict(entry["finding"]), evidence=[])
+            fixture_root = entry.get("fixture_root")
+            if fixture_root:
+                ctx = fixture_ctxs.get(fixture_root)
+                if ctx is None:
+                    tmp = Path(stack.enter_context(tempfile.TemporaryDirectory(
+                        prefix="osoji-bootstrap-"
+                    )))
+                    _stage_fixture_root(REPO_ROOT / fixture_root, tmp)
+                    ctx = BuildContext(Config(root_path=tmp, respect_gitignore=False))
+                    fixture_ctxs[fixture_root] = ctx
+                prefix = f"{fixture_root}/source/"
+                if finding.path.startswith(prefix):
+                    finding = replace(finding, path=finding.path[len(prefix):])
+            else:
+                if repo_ctx is None:
+                    repo_ctx = BuildContext(Config(root_path=REPO_ROOT))
+                ctx = repo_ctx
+            claim = build_claims([finding], ctx)[0]
+            claims.append(claim)
+            meta.append(
+                {
+                    "slug": entry["slug"],
+                    "category": entry["category"],
+                    "origin": entry.get("origin"),
+                    "gap_type": claim.finding.gap_type,
+                    "kinds": sorted({e.kind for e in claim.finding.evidence}),
+                    "n_evidence": len(claim.finding.evidence),
+                    "insufficient": claim.insufficient_evidence,
+                    "evidence_fingerprint": claim.finding.evidence_fingerprint,
+                }
+            )
+    return claims, meta
+
+
+def build_summary(meta: list[dict[str, Any]]) -> dict[str, Any]:
+    """Aggregate build metadata: fill matrix + the V1-4 falsifiability metrics."""
+
+    per_category: dict[str, dict[str, Any]] = {}
+    for m in meta:
+        stats = per_category.setdefault(
+            m["category"], {"n": 0, "insufficient": 0, "kind_fill": {}}
+        )
+        stats["n"] += 1
+        stats["insufficient"] += int(m["insufficient"])
+        for kind in m["kinds"]:
+            stats["kind_fill"][kind] = stats["kind_fill"].get(kind, 0) + 1
+    n = len(meta)
+    insufficient = [m["slug"] for m in meta if m["insufficient"]]
+    return {
+        "n": n,
+        "insufficient_slugs": insufficient,
+        "escalation_rate": len(insufficient) / n if n else 0.0,
+        "ce_gap_rate": (
+            sum(1 for m in meta if m["gap_type"] == "uncategorized") / n if n else 0.0
+        ),
+        "per_category": per_category,
     }
 
 
@@ -270,21 +376,72 @@ async def run(args: argparse.Namespace) -> int:
         entries = [e for e in entries if e["slug"] in wanted]
     mode = args.mode
 
+    build_meta: list[dict[str, Any]] | None = None
+
+    if mode == "build":
+        # Zero-LLM dry run: the Phase D early gate. Verifies the mechanized
+        # builders can fill every fixture entry before any tokens are spent.
+        claims, build_meta = build_claims_for_entries(entries)
+        summary = build_summary(build_meta)
+        args.out.mkdir(parents=True, exist_ok=True)
+        for entry, claim, m in zip(entries, claims, build_meta):
+            record = {
+                "slug": entry["slug"],
+                "mode": mode,
+                "insufficient": m["insufficient"],
+                "finding": claim.finding.to_dict(),
+            }
+            (args.out / f"build-{entry['slug']}.json").write_text(
+                json.dumps(record, indent=2, ensure_ascii=False, default=str) + "\n",
+                encoding="utf-8",
+            )
+        (args.out / "build-summary.json").write_text(
+            json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+        print(
+            f"mode=build n={summary['n']} "
+            f"escalation_rate={summary['escalation_rate']:.2%} "
+            f"ce_gap_rate={summary['ce_gap_rate']:.2%}"
+        )
+        for cat, stats in sorted(summary["per_category"].items()):
+            fill = ", ".join(f"{k}:{v}" for k, v in sorted(stats["kind_fill"].items()))
+            print(f"  {cat}: n={stats['n']} insufficient={stats['insufficient']} [{fill}]")
+        if summary["insufficient_slugs"]:
+            print(f"  insufficient: {', '.join(summary['insufficient_slugs'])}")
+        print(f"artifacts: {args.out}")
+        return 0
+
     if mode == "exploration-sdk":
         findings, traces_by_id, in_tokens, out_tokens = await run_sdk_exploration(
             entries, model=args.model, max_turns=args.max_turns,
             concurrency=args.concurrency,
         )
     else:
-        claims = entries_to_claims(entries, strip_evidence=(mode == "exploration"))
+        if mode == "claim" and not args.no_build:
+            # Phase D wiring: manifest findings carry empty evidence; the
+            # mechanized Claim Builder populates it before triage.
+            claims, build_meta = build_claims_for_entries(entries)
+        else:
+            claims = entries_to_claims(entries, strip_evidence=(mode == "exploration"))
         config = Config(root_path=REPO_ROOT, provider=args.provider, model=args.model)
         triage = Triage(config)
-        result = await triage.decide_batch(
-            claims, mode=mode, system_prompt=TRIAGE_SYSTEM_PROMPT
-        )
-        findings = result.findings
-        traces_by_id = {t["finding_id"]: t for t in result.exploration_traces}
-        in_tokens, out_tokens = result.input_tokens, result.output_tokens
+        findings = []
+        traces_by_id = {}
+        in_tokens = out_tokens = 0
+        batch_size = args.batch_size if mode == "claim" else len(claims) or 1
+        for lo in range(0, len(claims), batch_size):
+            chunk = claims[lo: lo + batch_size]
+            result = await triage.decide_batch(
+                chunk, mode=mode, system_prompt=TRIAGE_SYSTEM_PROMPT
+            )
+            findings.extend(result.findings)
+            traces_by_id.update(
+                {t["finding_id"]: t for t in result.exploration_traces}
+            )
+            in_tokens += result.input_tokens
+            out_tokens += result.output_tokens
+            if mode == "claim" and len(claims) > batch_size:
+                print(f"  batch {lo // batch_size + 1}: {len(chunk)} claims decided")
 
     args.out.mkdir(parents=True, exist_ok=True)
     for entry, finding in zip(entries, findings):
@@ -305,17 +462,36 @@ async def run(args: argparse.Namespace) -> int:
     summary["mode"] = mode
     summary["input_tokens"] = in_tokens
     summary["output_tokens"] = out_tokens
+    if build_meta is not None:
+        summary["build"] = build_summary(build_meta)
+        summary["no_verdict"] = [
+            r["slug"] for r in summary["rows"] if r["verdict"] is None
+        ]
 
     if args.baseline:
         baseline = json.loads(args.baseline.read_text(encoding="utf-8"))
         base_verdicts = {r["slug"]: r["verdict"] for r in baseline["rows"]}
+        gray_by_slug = {r["slug"]: r["gray"] for r in summary["rows"]}
         disagreements = [
-            {"slug": r["slug"], "baseline": base_verdicts.get(r["slug"]), "now": r["verdict"]}
+            {
+                "slug": r["slug"],
+                "baseline": base_verdicts.get(r["slug"]),
+                "now": r["verdict"],
+                "gray": gray_by_slug.get(r["slug"], False),
+            }
             for r in summary["rows"]
             if r["slug"] in base_verdicts and base_verdicts[r["slug"]] != r["verdict"]
         ]
+        compared = [r for r in summary["rows"] if r["slug"] in base_verdicts]
+        compared_nongray = [r for r in compared if not r["gray"]]
+        disagreements_nongray = [d for d in disagreements if not d["gray"]]
         summary["baseline_disagreement_rate"] = (
-            len(disagreements) / len(summary["rows"]) if summary["rows"] else 0.0
+            len(disagreements) / len(compared) if compared else 0.0
+        )
+        summary["baseline_disagreement_rate_nongray"] = (
+            len(disagreements_nongray) / len(compared_nongray)
+            if compared_nongray
+            else 0.0
         )
         summary["baseline_disagreements"] = disagreements
 
@@ -328,7 +504,15 @@ async def run(args: argparse.Namespace) -> int:
     for cat, stats in sorted(summary["per_category"].items()):
         print(f"  {cat}: {stats['agree']}/{stats['n']} agree, {stats['uncertain']} uncertain")
     if "baseline_disagreement_rate" in summary:
-        print(f"  disagreement vs baseline: {summary['baseline_disagreement_rate']:.2%}")
+        print(
+            f"  disagreement vs baseline: {summary['baseline_disagreement_rate']:.2%} "
+            f"(non-gray: {summary['baseline_disagreement_rate_nongray']:.2%})"
+        )
+        for d in summary["baseline_disagreements"]:
+            gray = " [gray]" if d["gray"] else ""
+            print(f"    {d['slug']}: {d['baseline']} -> {d['now']}{gray}")
+    if summary.get("no_verdict"):
+        print(f"  no verdict (insufficient/unmapped): {', '.join(summary['no_verdict'])}")
     print(f"tokens: in={in_tokens} out={out_tokens}")
     print(f"artifacts: {args.out}")
     return 0
@@ -341,6 +525,7 @@ def main() -> int:
         ("explore", "exploration"),
         ("explore-sdk", "exploration-sdk"),
         ("claim", "claim"),
+        ("build", "build"),
     ):
         p = sub.add_parser(name)
         p.set_defaults(mode=mode)
@@ -354,6 +539,10 @@ def main() -> int:
         p.add_argument("--max-turns", type=int, default=16)
         p.add_argument("--concurrency", type=int, default=3,
                        help="parallel claims for explore-sdk")
+        p.add_argument("--no-build", action="store_true",
+                       help="claim mode: skip the Claim Builder, use manifest evidence")
+        p.add_argument("--batch-size", type=int, default=12,
+                       help="claims per LLM call in claim mode")
     args = parser.parse_args()
     return asyncio.run(run(args))
 

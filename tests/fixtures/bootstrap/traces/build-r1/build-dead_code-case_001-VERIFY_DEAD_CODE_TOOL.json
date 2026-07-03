@@ -1,0 +1,50 @@
+{
+  "slug": "dead_code-case_001-VERIFY_DEAD_CODE_TOOL",
+  "mode": "build",
+  "insufficient": false,
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/tools.py",
+    "line_start": 327,
+    "line_end": 388,
+    "symbol": "VERIFY_DEAD_CODE_TOOL",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `VERIFY_DEAD_CODE_TOOL` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "A naive external-reference scan reported zero references for `VERIFY_DEAD_CODE_TOOL`, but the symbol participates in the live tool-definition access path.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 6,
+            "needles": [
+              "VERIFY_DEAD_CODE_TOOL"
+            ]
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/tools.py",
+          "line_start": 317,
+          "line_end": 337,
+          "snippet": "317:     \"\"\"Return tools for directory shadow doc generation.\"\"\"\n318:     return [SUBMIT_DIRECTORY_SHADOW_DOC_TOOL]\n319: \n320: \n321: def get_match_doc_topics_tools() -> list[dict]:\n322:     \"\"\"Return tools for doc topic matching.\"\"\"\n323:     return [MATCH_DOC_TOPICS_TOOL]\n324: \n325: \n326: # Tool definition for dead code verification (batch: array of verdicts)\n327: VERIFY_DEAD_CODE_TOOL = {\n328:     \"name\": \"verify_dead_code\",\n329:     \"description\": \"\"\"Determine whether each listed symbol is truly dead code or alive despite low/zero textual references.\n330: \n331: ## False positives for grep hits (hit exists but is NOT a real usage)\n332: - **Comments**: The symbol name appears only inside a comment or docstring\n333: - **String literals**: Appears in a string, log message, or error message\n334: - **Name collision**: A different module/class defines a symbol with the same name\n335: - **Similar-but-different**: Substring match on a longer identifier (e.g. `run` inside `run_tests`)\n336: - **Type annotations only**: Used only in type hints, never called at runtime\n337: ",
+          "anchor": "symbol"
+        }
+      }
+    ],
+    "id": "04a0ed80592132a2",
+    "verdict": null,
+    "confidence": null,
+    "triage_reasoning": null,
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "cb73877bdbce2b83"
+  }
+}
