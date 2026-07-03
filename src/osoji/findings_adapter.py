@@ -206,16 +206,19 @@ def finding_from_dead_param_candidate(
 
     ``symbol`` is ``function.param`` (matches the legacy ``JunkFinding.name``
     and keeps same-named params in different functions from colliding on
-    ``finding.id``). The scan needles are the *function's* grep names — never
-    the bare parameter name, which is a hopelessly noisy repo-wide needle; the
-    call-site contexts the sweep returns are what show whether callers pass the
-    parameter. ``priority_paths`` puts the defining file, the observed call-site
-    files, and the importers ahead of the hit cap.
+    ``finding.id``). The scan needles are the bare parameter name FIRST — its
+    hits carry the deciding evidence (the gated branch in the defining file;
+    a zero-hit at caller files is evidence the parameter is never passed,
+    which the V1-4 bootstrap showed drives the verdict) — then the function's
+    grep names for call-site visibility. A common param name is a noisy
+    repo-wide needle, so ``priority_paths`` (defining file, observed call-site
+    files, importers) are swept first and cap-exempt to keep the deciding
+    sites ahead of incidental matches.
     """
 
     func = c.function_name
     grep_name = func.rsplit(".", 1)[-1]
-    needles = [grep_name]
+    needles = [c.param_name, grep_name]
     if "." in func:
         needles.append(func.rsplit(".", 1)[0])  # constructor calls: ClassName(...)
     call_site_files = sorted({s.file_path for s in c.call_sites})

@@ -109,11 +109,20 @@ flagged symbol's exact name appears as a string in executable code, it may be a
 dynamic-dispatch key — reflection, name-based lookup, a registry, a command/RPC/config
 table. Examine the surrounding lines; if the string plausibly feeds a mechanism that can
 reach the symbol, the symbol is reachable — dismiss. Account for framework registration,
-re-exports, and within-file transitive liveness. And when reachability evidence is
+re-exports, and within-file transitive liveness. Do not dismiss on hypothetical outside
+consumers: "external callers might use it" counts only when an explicit export mechanism
+makes the symbol consumable beyond the scanned scope. When reachability evidence is
 positive but marginal and the flagged symbol is a small delegating member of a uniform
 interface surface, removing it is unlikely to improve the codebase — dismiss on
 Significance. (Zero-hit sweeps carry no such doubt: an honest zero over a real scan
 scope is the canonical case FOR confirming.)
+
+For parameter reachability claims specifically: the parameter is alive iff some caller
+supplies a real value (keyword, positional, or a spread/dynamic pass-through). Reads of
+the parameter inside its own function — including branches guarded by its default — do
+not refute the gap; a branch gated exclusively by a never-passed parameter is itself
+permanently dead code, which is exactly the significance of the finding. A stated
+backward-compatibility intent explains why the gap exists but does not close it.
 
 For contract gaps over hard-coded literals, classify the literal before deciding:
 - Named project obligation — a constant exists; another site duplicates its bare literal.
@@ -291,7 +300,12 @@ class Triage:
             system=system_prompt,
             options=CompletionOptions(
                 model=self.config.model_for("medium"),
-                max_tokens=max(512, n * 200),
+                # 500/claim: the rubric asks for verbatim reasoning per verdict,
+                # and API providers enforce max_tokens hard — the V1-3 200/claim
+                # allowance truncated tool JSON mid-batch on the anthropic
+                # provider (V1-5a fixture gate), which the claude-code CLI's
+                # soft handling had masked.
+                max_tokens=max(1024, n * 500),
                 reservation_key="audit.triage",
                 tools=get_triage_claim_tool_definitions(),
                 tool_choice={"type": "tool", "name": "submit_triage_verdicts"},

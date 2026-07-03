@@ -255,10 +255,11 @@ async def detect_dead_params_async(
     """Detect dead parameters through the unified Claim Builder + Triage pipeline.
 
     The scanner's candidates become reachability Findings whose scan needles
-    are the *function's* grep names (never the bare parameter name); the Claim
-    Builder's repo sweep re-derives call-site contexts with word-boundary and
-    priority-path hygiene, and Triage judges whether any caller passes the
-    parameter.
+    are the parameter name first (its same-file hits show the gated branch;
+    its absence at caller files is the never-passed signal) then the
+    function's grep names for call-site visibility; the Claim Builder's repo
+    sweep re-derives those contexts with word-boundary and priority-path
+    hygiene, and Triage judges whether any caller passes the parameter.
 
     Returns all decided Findings (every verdict); callers keep ``confirmed``.
     """

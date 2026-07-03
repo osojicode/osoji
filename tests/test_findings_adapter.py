@@ -386,20 +386,22 @@ class TestDeadParamCandidateAdapter:
         assert f.line_start == f.line_end == 40
         assert "`verbose`" in f.contract_claim
 
-    def test_needles_are_function_names_never_the_param(self):
+    def test_needles_are_param_first_then_function_names(self):
+        # The param needle carries the deciding evidence (gated branches,
+        # absence at caller files -- the V1-4 bootstrap signal); function
+        # needles add call-site visibility.
         from osoji.findings_adapter import finding_from_dead_param_candidate
 
         f = finding_from_dead_param_candidate(_dp_candidate())
         [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
-        assert meta.payload["scan_needles"] == ["render", "Widget"]
-        assert "verbose" not in meta.payload["scan_needles"]
+        assert meta.payload["scan_needles"] == ["verbose", "render", "Widget"]
 
-    def test_plain_function_gets_single_needle(self):
+    def test_plain_function_needles(self):
         from osoji.findings_adapter import finding_from_dead_param_candidate
 
         f = finding_from_dead_param_candidate(_dp_candidate(function_name="run"))
         [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
-        assert meta.payload["scan_needles"] == ["run"]
+        assert meta.payload["scan_needles"] == ["verbose", "run"]
 
     def test_priority_paths_source_then_call_sites_then_importers(self):
         from osoji.findings_adapter import finding_from_dead_param_candidate
