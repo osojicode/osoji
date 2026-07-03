@@ -464,7 +464,7 @@
               "get_rate_limit_summary"
             ],
             "needle_totals": {
-              "RateLimitedProvider.get_rate_limit_summary": 120,
+              "RateLimitedProvider.get_rate_limit_summary": 118,
               "get_rate_limit_summary": 167
             },
             "same_file_swept": true
@@ -490,10 +490,10 @@
     "id": "e189f9a33487fdeb",
     "verdict": "dismissed",
     "confidence": 0.99,
-    "triage_reasoning": "The method IS reachable via dynamic dispatch. `src/osoji/llm/logging.py` lines 133-135 contain:\n```python\nget_rate_limit_summary = getattr(self._provider, \"get_rate_limit_summary\", None)\nif callable(get_rate_limit_summary):\n    rate_summary = get_rate_limit_summary()\n```\nThe string `\"get_rate_limit_summary\"` exactly matches the method name and feeds a `getattr` lookup on `self._provider`. Since `create_runtime` always wraps the provider in `RateLimitedProvider` (confirmed by `src/osoji/llm/runtime.py` call), this dynamic call reliably reaches `RateLimitedProvider.get_rate_limit_summary` on every run. The bootstrap manifest also previously dismissed this finding with the note 'FP: getattr string-dispatch in logging.py invokes get_rate_limit_summary; create_runtime always wraps provider — executes every run.' The AST scanner correctly found no static attribute references, but the dynamic dispatch is a real and live call path. Reality predicate fails.",
+    "triage_reasoning": "Reality gap does not exist. `src/osoji/llm/logging.py:133–135` contains: `get_rate_limit_summary = getattr(self._provider, \"get_rate_limit_summary\", None)` / `if callable(get_rate_limit_summary):` / `rate_summary = get_rate_limit_summary()`. This is a real dynamic-dispatch call using the method name as a string — exactly the pattern described in the triage rules for dismissal. Since `create_runtime` always wraps the provider in a `RateLimitedProvider`, `get_rate_limit_summary` is reachable on every run. The AST scanner missed this getattr pattern because it's not a direct attribute access. The prior bootstrap triage correctly dismissed this as a false positive.",
     "suggested_fix": null,
     "severity": null,
-    "evidence_fingerprint": "3fa2b185c93a8a78"
+    "evidence_fingerprint": "3aaa603201d389eb"
   },
   "trace": null
 }

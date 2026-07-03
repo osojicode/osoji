@@ -45,11 +45,11 @@
     ],
     "id": "d8be188b6fb738c6",
     "verdict": "dismissed",
-    "confidence": 0.97,
-    "triage_reasoning": "Reality: The file is stored under `docs/` and is described as a vendored copy of the Debug Adapter Protocol reference specification. Nothing loads it at runtime — the project's actual runtime schema is `src/runtime-schema.json`. The claim treats a documentation/reference artefact as if it were runtime configuration that must be loaded and enforced.\n\nSignificance: A vendored spec document under `docs/` is not expected to be consumed by application code. The obligation is with the external DAP standard, not with internal project code. Loading it would be wrong. Removing it would lose the reference documentation.\n\nThis is an ecosystem-convention artefact, not an unactuated internal config field. Dismiss.",
-    "suggested_fix": "",
+    "confidence": 0.95,
+    "triage_reasoning": "The file `docs/debugAdapterProtocol.json` is described as a vendored copy of the Debug Adapter Protocol specification stored under `docs/`. Its placement in `docs/` strongly signals reference/documentation material, not runtime configuration that application code is obligated to load. The zero-hit sweep (covering only 2 files) found no references, but that is consistent with a vendor reference doc. The claim incorrectly categorizes this as 'config schema' requiring actuating code; it is ecosystem reference documentation. Significance fails: there is nothing to improve here — docs reference files need not be loaded at runtime. Dismiss.",
+    "suggested_fix": null,
     "severity": null,
-    "evidence_fingerprint": "6f2a0a4bef18fdfc"
+    "evidence_fingerprint": "81a20fc22d2d49b5"
   },
   "trace": null
 }

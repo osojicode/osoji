@@ -45,11 +45,11 @@
     ],
     "id": "b1face2831596afe",
     "verdict": "confirmed",
-    "confidence": 0.92,
-    "triage_reasoning": "Reality: Zero references to `get_dead_code_tools` in the 6-file sweep. The same pattern as Claim 0: the raw-dict variant was replaced by `get_dead_code_tool_definitions()`. The `get_*_tool_definitions()` functions are the live API; the `get_*_tools()` wrappers are orphaned. Significance: Dead code adds noise and can mislead future contributors. Actionability: Delete the function at L391-393.",
-    "suggested_fix": "Remove `get_dead_code_tools()` (L391-393). Callers should use `get_dead_code_tool_definitions()` instead.",
+    "confidence": 0.93,
+    "triage_reasoning": "Reality: The 6-file sweep returned zero references to `get_dead_code_tools` outside its own declaration. The parallel `get_dead_code_tool_definitions()` function exists at L427 and follows the live pattern. This raw-dict wrapper is never invoked. Significance: Same pattern as claim 0 — dead wrapper. Actionability: Delete the function.",
+    "suggested_fix": "Remove the `get_dead_code_tools()` function; use `get_dead_code_tool_definitions()` instead.",
     "severity": "warning",
-    "evidence_fingerprint": "fb9d41cf0a9a0a3d"
+    "evidence_fingerprint": "347a25b539335073"
   },
   "trace": null
 }

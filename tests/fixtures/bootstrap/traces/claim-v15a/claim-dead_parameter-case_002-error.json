@@ -67,10 +67,10 @@
     "id": "fef97c9fea95cf5c",
     "verdict": "confirmed",
     "confidence": 0.82,
-    "triage_reasoning": "Reality: The reference sweep covered 3 files and found exactly 1 match for `error` — inside the f-string `f\"{message}:{error}\"` in the function body itself (an intra-function use, not a caller supplying a value). The attributed call site `log(\"ok\")` in cli.py does not pass `error`. The parameter always takes its default `False`.\n\nSignificance: The parameter is functionally dead; every call returns `\":False\"` appended to the message. Removing it would clean up the API and the misleading return value.\n\nActionability: Remove the `error` parameter from `log(message, error=False)` and update the return to `return f\"{message}\"` (or whatever the desired format without the flag is). The mitigating note about `src/noise.py`'s unrelated `log(message)` does not affect this conclusion — the swept scope covers the project, not the noise file's callers.",
-    "suggested_fix": "Remove the `error` parameter from `log` in `src/app/launcher.py`. Update the return expression to drop `:{error}`. Confirm the single call site `log(\"ok\")` in `src/app/cli.py` requires no changes.",
+    "triage_reasoning": "Reality: The reference sweep covers 3 files and finds exactly 1 match for `error` — inside the function definition itself (same file, quoted string). The only identified external call site `log(\"ok\")` in `src/app/cli.py` does not pass `error`. No counter-evidence of any caller supplying a real value exists within the 3-file sweep scope. The function body at L2 (`return f\"{message}:{error}\"`) always uses the default `False`. Significance: The parameter advertises a supported flag that is never exercised; removing it eliminates dead API surface. Actionability: Remove the `error` parameter from the signature and simplify the f-string to `return f\"{message}\"`.",
+    "suggested_fix": "Remove the `error` parameter from `log(message, error=False)` and update the body to `return f\"{message}\"` (or `return message`). If the flag was intended for future use, document it as such rather than leaving a silently dead parameter.",
     "severity": "warning",
-    "evidence_fingerprint": "a957f9a0f43be50b"
+    "evidence_fingerprint": "a4f53e2900a1c90f"
   },
   "trace": null
 }

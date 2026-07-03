@@ -63,12 +63,12 @@
       }
     ],
     "id": "04a0ed80592132a2",
-    "verdict": "dismissed",
-    "confidence": 0.95,
-    "triage_reasoning": "Reality fails: `VERIFY_DEAD_CODE_TOOL` is used at L427 inside `get_dead_code_tool_definitions()`, which is the live `ToolDefinition`-returning variant (the same pattern as `get_file_tool_definitions()` which is confirmed live in Claim 5). Even though `get_dead_code_tools()` itself is dead (Claim 1), the constant is kept alive by the live `get_dead_code_tool_definitions()` path. The claim itself acknowledges the symbol 'participates in the live tool-definition access path.'",
-    "suggested_fix": "",
+    "verdict": "uncertain",
+    "confidence": 0.55,
+    "triage_reasoning": "The 6-file sweep found only same-file references to `VERIFY_DEAD_CODE_TOOL` — at L393 (in `get_dead_code_tools()`, which is itself dead per Claim 1) and L427 (in `get_dead_code_tool_definitions()`). The liveness of the constant therefore depends entirely on whether `get_dead_code_tool_definitions()` is called externally. No cross-file evidence for that function appears in the 6-file sweep, but the sweep is limited. The claim's own 'Observed' note asserts participation in the live tool-definition path, which would be true if `get_dead_code_tool_definitions()` has callers outside the sweep scope. Evidence is genuinely insufficient to decide.",
+    "suggested_fix": null,
     "severity": null,
-    "evidence_fingerprint": "702dc536f3ffd392"
+    "evidence_fingerprint": "68d02c7ee9f136e1"
   },
   "trace": null
 }

@@ -100,10 +100,10 @@
     "id": "ac5ed579a7a38c1c",
     "verdict": "dismissed",
     "confidence": 0.99,
-    "triage_reasoning": "Reality fails: the claim's own 'Observed' section states 'The caller run_audit in src/osoji/audit.py passes `config` on every invocation.' The evidence at `audit.py:9-10` confirms `build_scorecard(config, analysis_results=analysis_results, ...)` is called with `config` as the first positional argument. The parameter is live and actively used within `build_scorecard` (e.g., `config.shadow_root` at L118). This is a false positive.",
-    "suggested_fix": "",
+    "triage_reasoning": "The evidence clearly shows `config` is passed on every invocation of `build_scorecard` by the caller `run_audit` in `audit.py` (L9: `config` is the first positional argument). The parameter is also actively used throughout `build_scorecard` (e.g., `config.shadow_root`, `_load_signature(config, ...)`). No gap exists.",
+    "suggested_fix": null,
     "severity": null,
-    "evidence_fingerprint": "61ae83ba58181a8d"
+    "evidence_fingerprint": "f51764860a0861a8"
   },
   "trace": null
 }

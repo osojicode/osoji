@@ -76,11 +76,11 @@
     ],
     "id": "114871ab970f8e2a",
     "verdict": "dismissed",
-    "confidence": 0.95,
-    "triage_reasoning": "Reality: Technically, no application Python code reads `confidence` and re-validates it against [0.0, 1.0]. However, the `minimum`/`maximum` JSON schema annotations are the enforcement mechanism — they are passed to the LLM API as a tool_use `input_schema`, and the model (the declared consumer) respects these constraints when producing its structured output. This is exactly how LLM tool schemas are designed to work.\n\nSignificance: Adding redundant application-level bounds checking on model output would be defensive but would not close a real gap — the constraint IS actuated by the API layer. The schema field is not 'unactuated'; it is actuated by the LLM.\n\nThis is an ecosystem convention (JSON Schema + LLM tool calling protocol), not an internal unnamed obligation. The claim misframes the enforcement boundary.",
-    "suggested_fix": "",
+    "confidence": 0.97,
+    "triage_reasoning": "The `confidence` field is declared inside an LLM `tool_use` `input_schema`. In this architecture the schema is transmitted to the LLM API, which acts as the direct consumer of the `minimum`/`maximum` bounds — the model is constrained to emit a value in [0, 1]. There is no project-level obligation for application code to re-validate the LLM's output against these bounds; the contract lives at the LLM API layer. Reality of the gap fails: the schema IS consumed, just by the LLM rather than by host Python code. Dismiss.",
+    "suggested_fix": null,
     "severity": null,
-    "evidence_fingerprint": "e08f72f0d95c8d79"
+    "evidence_fingerprint": "948ca4132894f096"
   },
   "trace": null
 }

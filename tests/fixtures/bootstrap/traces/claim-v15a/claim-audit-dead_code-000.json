@@ -19,6 +19,24 @@
         "payload": {
           "references": [
             {
+              "file": "src/osoji/async_utils.py",
+              "kind": "text_match",
+              "line": 13,
+              "context": "MAX_PENDING_TASKS = 256\n\n_SENTINEL = object()\n\n",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/async_utils.py",
+              "kind": "text_match",
+              "line": 27,
+              "context": "        raise ValueError(\"max_pending must be positive\")\n\n    results: list[T | Exception | object] = [_SENTINEL] * len(factories)\n    pending: dict[asyncio.Task[T], int] = {}\n    next_index = 0",
+              "needle": "_SENTINEL",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
               "file": "tests/fixtures/bootstrap/manifest-audit.json",
               "kind": "text_match",
               "line": 596,
@@ -179,34 +197,18 @@
               "needle": "_SENTINEL",
               "source": "text_scan",
               "in_string_literal": true
-            },
-            {
-              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-latent_bug-002.json",
-              "kind": "text_match",
-              "line": 611,
-              "context": "          ],\n          \"shadow_excerpts\": {\n            \"src/osoji/async_utils.py\": \"# src\\\\osoji\\\\async_utils.py\\n@source-hash: 0e244cbdf3458c73\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:27:38Z\\n\\n## `src/osoji/async_utils.py` —\n            \"src/osoji/deadcode.py\": \"# src\\\\osoji\\\\deadcode.py\\n@source-hash: fc6f41f83fe56754\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:29:27Z\\n\\n## `src/osoji/deadcode.py` — Cross-Fi\n            \"src/osoji/deadparam.py\": \"# src\\\\osoji\\\\deadparam.py\\n@source-hash: d8ecf1f293b464b2\\n@impl-hash: 56478213dcceeeb9\\n@generated: 2026-07-01T20:32:12Z\\n\\n## Purpose\\nTwo-phase dead paramete",
-              "needle": "_SENTINEL",
-              "source": "text_scan",
-              "in_string_literal": true
-            },
-            {
-              "file": "tests/fixtures/bootstrap/traces/claim-r3/claim-audit-dead_code-000.json",
-              "kind": "text_match",
-              "line": 13,
-              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L54-54: The `_SENTINEL` filter `[result for result in results if result is not _SENTINEL]` is never triggered in practice. In the success path all slots are filled; in the excep\n    \"observed_behavior\": \"Replace with a plain `return list(results)` (after casting) or add an assertion `assert _SENTINEL not in results` for debugging. If the sentinel guard is intentionally defens\n    \"evidence\": [",
-              "needle": "_SENTINEL",
-              "source": "text_scan",
-              "in_string_literal": true
             }
           ],
-          "shadow_excerpts": {},
+          "shadow_excerpts": {
+            "src/osoji/async_utils.py": "# src\\osoji\\async_utils.py\n@source-hash: 0e244cbdf3458c73\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:27:38Z\n\n## `src/osoji/async_utils.py` — Bounded-Concurrency Async Task Runner\n\n### Purpose\nProvides `gather_with_buffer`, a drop-in alternative to `asyncio.gather` that caps the number of simultaneously-pending tasks. Designed for high-fanout analysis flows (e.g., per-file LLM calls) where naive `asyncio.gather` would spawn thousands of concurrent tasks.\n\n---\n\n### Constants\n\n| Name | Value | Role |\n|------|-------|------|\n| `MAX_PENDING_TASKS` (L11) | `256` | Default concurrency cap; importable override point |\n| `_SENTINEL` (L13) | `object()` | Unique marker for uninitialized result slots in the pre-allocated results list |\n\n---\n\n### `gather_with_buffer` (L16–52)\n\n```python\nasync def gather_with_buffer(\n    factories: Sequence[Callable[[], Awaitable[T]]],\n    *,\n    max_pending: int = MAX_PENDING_TASKS,\n    return_exceptions: bool = False,\n) -> list[T | Exception]\n```\n\n**Key contract:** Takes **zero-argument callables** (factories), not already-scheduled awaitables. This is important — callers must wrap coroutine calls in lambdas/partials rather than passing coroutines directly.\n\n**Algorithm (L28–52):**\n1. Pre-allocates `results` list filled with `_SENTINEL` (preserves original order).\n2. Maintains `pending: dict[asyncio.Task, int]` mapping tasks → original factory index.\n3. Inner fill loop (L35–38): starts new tasks until `len(pending) == max_pending` or factories exhausted.\n4. `asyncio.wait(..., FIRST_COMPLETED)` drains at least one task per iteration (L40).\n5. On exception with `return_exceptions=False`: cancels all pending tasks, awaits their cancellation (L47–50), then re-raises. Guarantees clean shutdown, no orphaned tasks.\n6. On exception with `return_exceptions=True`: stores the exception object in `results[index]` (same semantics as `asyncio.gather(return_exceptions=True)`).\n7. Final filter (L54): strips any remaining `_SENTINEL` entries before "
+          },
           "scan_scope": {
-            "files_scanned": 577,
+            "files_scanned": 604,
             "needles": [
               "_SENTINEL"
             ],
             "needle_totals": {
-              "_SENTINEL": 227
+              "_SENTINEL": 272
             },
             "same_file_swept": true
           },
@@ -236,11 +238,11 @@
     ],
     "id": "16f520141daaf396",
     "verdict": "confirmed",
-    "confidence": 0.92,
-    "triage_reasoning": "Reality: The sentinel filter is logically provable as a no-op. Tracing all paths that reach line 54: (1) Success path — `results[index] = await task` fills the slot. (2) Exception + `return_exceptions=False` — `raise` is executed before line 54; the function never reaches the return. (3) Exception + `return_exceptions=True` — `results[index] = exc` fills the slot. In all reachable paths to line 54, every slot in `results` is filled; no sentinel survives.\n\nSignificance: The filter implies sentinels could remain, misleading future maintainers about the invariants. Replacing with `return list(results)` plus an assertion makes the invariant explicit and communicates intent clearly.\n\nActionability: Replace the filter comprehension with `assert _SENTINEL not in results; return list(results)` (for debugging clarity) or simply `return list(results)` with an explaining comment. Prior expert verdict confirmed at 0.95.",
-    "suggested_fix": "In `src/osoji/async_utils.py` L54, replace `return [result for result in results if result is not _SENTINEL]` with:\n```python\n# Invariant: all slots filled — success or exception stored above, raises before here otherwise.\nassert _SENTINEL not in results\nreturn list(results)  # type: ignore[return-value]\n```",
+    "confidence": 0.93,
+    "triage_reasoning": "Reality: The filter `[result for result in results if result is not _SENTINEL]` at L54 is a no-op. Tracing all paths: (1) success path — every task's result is stored at `results[index] = await task`, filling all slots; (2) exception + `return_exceptions=False` — the function raises before reaching L54; (3) exception + `return_exceptions=True` — `results[index] = exc` fills the slot. The while-loop invariant guarantees all factories are started and all tasks are either awaited-successfully or their exception is stored. No slot can remain as `_SENTINEL` on the return line. Significance: The filter misleads readers into thinking sentinels can survive to the return, obscuring the actual invariant. An assertion would make the invariant explicit and catch real bugs if the code changes. Actionability: Replace with `assert _SENTINEL not in results, 'invariant violation'` followed by `return list(results)`, or use a plain `return list(results)` with a comment documenting the invariant.",
+    "suggested_fix": "Replace line 54 with: `assert _SENTINEL not in results, 'gather_with_buffer invariant violated: unfilled result slot'` and `return list(results)`. This makes the invariant explicit and catches regressions if the loop logic changes.",
     "severity": "info",
-    "evidence_fingerprint": "6fb32ae59d38f13f"
+    "evidence_fingerprint": "b636c23525fe7a77"
   },
   "trace": null
 }

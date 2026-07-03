@@ -73,11 +73,11 @@
     ],
     "id": "9e1ce2bca11e9782",
     "verdict": "dismissed",
-    "confidence": 0.98,
-    "triage_reasoning": "Reality fails: `AuditResult` is used at L97 as the declared return type of `run_audit()`, constructed and returned at L320, and used as a parameter type in `format_audit_report()` at L409 — all within `audit.py`. It is the primary output type of the module. Any caller of `run_audit()` receives an `AuditResult`. The 2-file sweep is too narrow to conclude it has no external consumers, and within-file usage alone makes it alive.",
-    "suggested_fix": "",
+    "confidence": 0.95,
+    "triage_reasoning": "Reality check fails. `AuditResult` is the return type of `run_audit()` (L97), is constructed at L320, and is the parameter type of `format_audit_report()` (L409). The 2-file sweep is far too limited — `run_audit` and `format_audit_report` are clearly consumed by CLI or orchestration code not in scope. The symbol is structurally live as the primary output object of the audit pipeline.",
+    "suggested_fix": null,
     "severity": null,
-    "evidence_fingerprint": "d676dc1d0a0edbd2"
+    "evidence_fingerprint": "0b7b39bd8a1f2f90"
   },
   "trace": null
 }

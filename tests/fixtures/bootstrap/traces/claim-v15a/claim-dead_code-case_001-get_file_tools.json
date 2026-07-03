@@ -45,11 +45,11 @@
     ],
     "id": "0e0ee964d3f2b5d1",
     "verdict": "confirmed",
-    "confidence": 0.92,
-    "triage_reasoning": "Reality: The evidence shows zero references to `get_file_tools` across 6 files swept. The function's raison d'être — returning raw dict wrappers around tool constants — was superseded by the `get_*_tool_definitions()` family, and specifically `get_file_tool_definitions()` is the live path used by `shadow.py`. The raw-dict variant is never called. Significance: Removing it reduces confusion about which API surface to use. Actionability: Delete the function body at L311-313.",
-    "suggested_fix": "Remove `get_file_tools()` (L311-313). Callers should use `get_file_tool_definitions()` instead.",
+    "confidence": 0.93,
+    "triage_reasoning": "Reality: The 6-file sweep returned zero references to `get_file_tools` outside its own declaration. The `get_*_tool_definitions()` variants are what callers actually use (e.g., `get_file_tool_definitions` is imported in shadow.py as confirmed in Claim 5). This wrapper returning the raw dict list is genuinely never called. Significance: Dead wrapper adds noise; removing it reduces surface area. Actionability: Delete the function.",
+    "suggested_fix": "Remove the `get_file_tools()` function; callers use `get_file_tool_definitions()` instead.",
     "severity": "warning",
-    "evidence_fingerprint": "ec96b2210a0f8d91"
+    "evidence_fingerprint": "c0b974ffe1c4bc2c"
   },
   "trace": null
 }

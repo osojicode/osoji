@@ -462,7 +462,7 @@
               "analyze"
             ],
             "needle_totals": {
-              "JunkAnalyzer.analyze": 168,
+              "JunkAnalyzer.analyze": 163,
               "analyze": 418
             },
             "same_file_swept": true
@@ -487,11 +487,11 @@
     ],
     "id": "b1e18af6a2f237f1",
     "verdict": "confirmed",
-    "confidence": 0.93,
-    "triage_reasoning": "Reality: The cross-file reference sweep finds many files importing the JunkAnalyzer *class*, but none call the `.analyze()` method. The bootstrap manifest exploration trace (exploration-sdk-audit-dead_symbol-003.json) explicitly reports: 'Zero call sites for `.analyze(` repo-wide. The grep `\\.analyze\\(` across all files returns no matches in production code — the orchestrator calls analyze_async directly.' The surrounding code confirms this is a sync wrapper whose only purpose is to run `analyze_async` via `asyncio.run`, but no caller invokes it. The text matches for `.analyze(` in other files (junk_cicd.py L826, junk_deps.py L970, junk_orphan.py L568) are all *definitions* of override methods in subclasses — not call sites. Significance: A dead sync wrapper that duplicates the async path is misleading and clutters the ABC surface. Actionability: Remove the method (and coordinate with the identical dead overrides in subclasses, see Claim 3).",
-    "suggested_fix": "Remove `JunkAnalyzer.analyze` (src/osoji/junk.py L96-115). Coordinate with removal of the parallel dead overrides in `DeadCICDAnalyzer.analyze`, `DeadDepsAnalyzer.analyze`, and `DeadOrphanAnalyzer.analyze` in a single commit.",
+    "confidence": 0.95,
+    "triage_reasoning": "Reality: Multiple files import the `JunkAnalyzer` class, but the specific method `JunkAnalyzer.analyze` (L96–115) — a sync wrapper — is never called. The orchestrator invokes `analyze_async` directly. All `.analyze(` occurrences in the evidence are method definitions in subclass overrides (`junk_cicd.py:826`, `junk_deps.py:970`, `junk_orphan.py:568`), not invocation call sites on `JunkAnalyzer` instances. The bootstrap manifest previously adjudicated this as confirmed with the explicit note 'orchestrator calls analyze_async directly; subclass overrides equally uncalled.' Significance: Removing a sync wrapper that is never called reduces maintenance burden and false-promise API surface. Actionability: Remove `JunkAnalyzer.analyze` (L96–115) along with the corresponding uncalled sync wrappers in subclasses.",
+    "suggested_fix": "Remove `JunkAnalyzer.analyze` (src/osoji/junk.py L96–115). Coordinate with the parallel removals of `DeadCICDAnalyzer.analyze` (junk_cicd.py), `DeadDepsAnalyzer.analyze` (junk_deps.py), and `JunkOrphanAnalyzer.analyze` (junk_orphan.py) in a single commit.",
     "severity": "warning",
-    "evidence_fingerprint": "16c631484fb67578"
+    "evidence_fingerprint": "51b3932ecf614773"
   },
   "trace": null
 }

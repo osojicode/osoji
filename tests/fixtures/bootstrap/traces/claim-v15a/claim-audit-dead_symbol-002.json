@@ -229,7 +229,7 @@
     "id": "e657384e5c9c81df",
     "verdict": "dismissed",
     "confidence": 0.99,
-    "triage_reasoning": "The claim that `EvidenceBuilder` has 'No cross-file references' is directly refuted by the evidence itself. `src/osoji/evidence_builders.py` line 38 explicitly imports it:\n```python\nfrom .evidence import BUILDERS, Evidence, EvidenceBuilder\n```\nAnd lines 402 and 590 define concrete subclasses:\n```python\nclass CrossFileReferenceBuilder(EvidenceBuilder):\nclass SurroundingCodeBuilder(EvidenceBuilder):\n```\nThese are genuine, live import and subclass relationships — not quoted strings, not comments. The reference sweep shows 292 matches for `EvidenceBuilder` across 604 files, and the non-fixture matches clearly include real production usage. The AST-based scanner apparently failed to pick up these cross-file import/subclass references for this specific symbol. Reality predicate fails entirely.",
+    "triage_reasoning": "Reality gap does not exist. `src/osoji/evidence_builders.py:38` imports `EvidenceBuilder` directly: `from .evidence import BUILDERS, Evidence, EvidenceBuilder`. The same file defines `CrossFileReferenceBuilder(EvidenceBuilder)` (L402) and `SurroundingCodeBuilder(EvidenceBuilder)` (L590) as concrete subclasses — real executable inheritance, not string matches. The AST scanner produced a false negative because it only checked for cross-file *call* references to the class, not subclassing (inheritance) references, which are the appropriate use of an ABC. `EvidenceBuilder` is a live abstract base class.",
     "suggested_fix": null,
     "severity": null,
     "evidence_fingerprint": "651c28c9115a6b55"

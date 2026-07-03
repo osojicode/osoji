@@ -1947,10 +1947,10 @@
               "root_path"
             ],
             "needle_totals": {
-              "Path": 3051,
-              "pathlib": 861,
-              "config.root_path": 222,
-              "root_path": 629
+              "Path": 3052,
+              "pathlib": 859,
+              "config.root_path": 225,
+              "root_path": 632
             },
             "same_file_swept": true
           },
@@ -1973,12 +1973,12 @@
       }
     ],
     "id": "0922e4d1ce2aeb1c",
-    "verdict": "dismissed",
-    "confidence": 0.91,
-    "triage_reasoning": "The claim says `Path` is imported at L25 in `src/osoji/claim_builder.py`, but the surrounding code anchor (L15-35) conclusively shows that L25 is a blank line — the last blank line after the closing `\"\"\"` of the module docstring, immediately before the imports begin at L26 with `from __future__ import annotations`. The visible import block (L26-35) contains no `from pathlib import Path`. Furthermore, the cross-file reference sweep, which found 3051+ matches for `Path` across 604 files and listed dozens of files that import `Path`, does not list `src/osoji/claim_builder.py` among them. The scanner either made a line-number error (possibly confusing the docstring with code) or the import was already removed. In either case, Reality fails: there is no evidence that this import actually exists in the file.",
-    "suggested_fix": null,
-    "severity": null,
-    "evidence_fingerprint": "2a1fdd7ce2bedb73"
+    "verdict": "confirmed",
+    "confidence": 0.82,
+    "triage_reasoning": "Reality check: The claim asserts that `Path` is imported from `pathlib` at L25 of `src/osoji/claim_builder.py` but never used in that file. The cross-file reference sweep covers 604 files with 3052 hits on `Path` — yet none of the listed call-sites are within `claim_builder.py` itself. Every reference shown is in other source files (`audit.py`, `cli.py`, `config.py`, `deadcode.py`, etc.) or test files, none in `claim_builder.py`. The visible surrounding code (L15-35) confirms the imports in scope: `json`, `dataclass/replace`, `Any/Mapping/Sequence`, `Config`, `BUILDERS/Evidence/EvidenceKind`, and re-exported symbols from `evidence_builders` — no `Path` call or constructor appears. The `from __future__ import annotations` at L26 means type annotations are lazy strings, so even annotated `Path` usage wouldn't require the name at runtime, but such usage would still appear in the scan; it does not.\n\nSignificance check: An unused import adds noise, can confuse readers into thinking paths are constructed here, and will be flagged by linters. Removing it improves clarity.\n\nActionability check: Remove `Path` from the `from pathlib import Path` line (or delete the import entirely if no other `pathlib` names are imported). Concrete and trivial.",
+    "suggested_fix": "In `src/osoji/claim_builder.py`, remove `Path` from the pathlib import. If `from pathlib import Path` is the entire import statement, delete the line; if other names are imported alongside it, remove only `Path`.",
+    "severity": "info",
+    "evidence_fingerprint": "4bb03e57cc9bd1a3"
   },
   "trace": null
 }

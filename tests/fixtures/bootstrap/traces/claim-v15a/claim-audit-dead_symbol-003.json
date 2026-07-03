@@ -410,7 +410,7 @@
               "analyze"
             ],
             "needle_totals": {
-              "DeadCICDAnalyzer.analyze": 137,
+              "DeadCICDAnalyzer.analyze": 133,
               "analyze": 418
             },
             "same_file_swept": true
@@ -435,11 +435,11 @@
     ],
     "id": "1049b9b18174bfc1",
     "verdict": "confirmed",
-    "confidence": 0.93,
-    "triage_reasoning": "Reality: The cross-file references show `DeadCICDAnalyzer` is imported (by tests and audit.py) and instantiated, but there is no call to `.analyze()`. The reference sweep's mining report confirms: 'Zero call sites for `.analyze(` repo-wide — the orchestrator calls analyze_async directly.' The surrounding code at L826-842 shows this is a sync wrapper that ultimately calls `self.analyze_async(...)` via `asyncio.run()`. This overrides `JunkAnalyzer.analyze` (the base class dead wrapper from Claim 0) but is itself equally uncalled. Significance: The dead override adds noise and implied API surface. Actionability: Remove `DeadCICDAnalyzer.analyze` as part of the same cleanup commit that removes the base `JunkAnalyzer.analyze`. (Note: parallel dead overrides exist in `junk_deps.py` and `junk_orphan.py` and should be removed together.)",
-    "suggested_fix": "Remove `DeadCICDAnalyzer.analyze` (src/osoji/junk_cicd.py L826-842) in the same commit that removes `JunkAnalyzer.analyze` and the sibling dead overrides in `junk_deps.py` and `junk_orphan.py`.",
+    "confidence": 0.95,
+    "triage_reasoning": "Reality: `DeadCICDAnalyzer.analyze` at L826–842 is a sync wrapper override. The same analysis as Claim 4 applies: no call site in production code invokes `.analyze()` on a `DeadCICDAnalyzer` instance. The `tests/test_junk_cicd.py` tests import and call `DeadCICDAnalyzer` itself (lines 473, 487), but those are class-level calls (likely constructors), not `.analyze(` method calls. The orchestrator in `audit.py` calls `analyze_async` directly. The prior bootstrap triage confirmed this (0.98 confidence, 'Zero call sites for .analyze( repo-wide'). Significance: Dead sync wrapper adds maintenance cost. Actionability: Remove as part of the same commit as Claim 4.",
+    "suggested_fix": "Remove `DeadCICDAnalyzer.analyze` (src/osoji/junk_cicd.py L826–842) together with the other uncalled sync wrappers in the same commit that removes `JunkAnalyzer.analyze`.",
     "severity": "warning",
-    "evidence_fingerprint": "bd5cb83659cfa7c8"
+    "evidence_fingerprint": "94eb95190bc152a5"
   },
   "trace": null
 }

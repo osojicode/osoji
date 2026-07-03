@@ -82,12 +82,12 @@
       }
     ],
     "id": "6cb6f9385f006e47",
-    "verdict": "confirmed",
-    "confidence": 0.85,
-    "triage_reasoning": "Reality: The only scanned caller `run_audit` in `audit.py` invokes `build_scorecard(config, analysis_results=analysis_results, junk_results=...)` — `dead_code_results` is never passed, so the parameter always holds `None` and the branches at L228-235 are permanently dead. Significance: The instructions are explicit: 'A stated backward-compatibility intent explains why the gap exists but does not close it.' The comment 'Backward compat' documents the historical reason but the code path is unreachable. The dead branch adds confusion and maintenance surface. The parameter is not in the export list. Actionability: Remove the `dead_code_results` parameter and the corresponding compat block (L225-235).",
-    "suggested_fix": "Remove the `dead_code_results` parameter from `build_scorecard` and delete the backward-compat block at approximately L225-235 that is gated on `dead_code_results is not None`. Ensure no external callers pass this argument first.",
-    "severity": "warning",
-    "evidence_fingerprint": "d980e34855f23f89"
+    "verdict": "uncertain",
+    "confidence": 0.55,
+    "triage_reasoning": "Within the 2-file sweep, the only caller (`run_audit` in `audit.py`) never passes `dead_code_results`, so the parameter always stays None and the guarded branch never executes in the scanned scope. The 'Backward compat' comment is explicitly acknowledged, but per triage rules, backward-compat intent explains the gap rather than closing it. However, the 2-file sweep is very limited. `build_scorecard` is a module-level function in a Python package and could have external callers passing this parameter — and the sweep DID capture the only known internal caller. The evidence is genuinely borderline: within scope the gap is real, but the backward-compat label combined with the narrow sweep makes a confirmed verdict uncertain.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "83160870d911c33a"
   },
   "trace": null
 }

@@ -45,11 +45,11 @@
     ],
     "id": "f8d072f6b7c80a41",
     "verdict": "confirmed",
-    "confidence": 0.92,
-    "triage_reasoning": "Reality: Zero references to `get_extract_obligations_tools` in the 6-file sweep. Same pattern as Claims 0 and 1: the raw-dict variant is unused while the sibling `get_extract_obligations_tool_definitions()` (L609) is the live path. Significance: Consistent cleanup of the dead raw-dict wrappers improves API clarity. Actionability: Delete the function at L599-601.",
-    "suggested_fix": "Remove `get_extract_obligations_tools()` (L599-601). Callers should use `get_extract_obligations_tool_definitions()` instead.",
+    "confidence": 0.93,
+    "triage_reasoning": "Reality: The 6-file sweep returned zero references to `get_extract_obligations_tools` outside its own declaration. Its twin `get_extract_obligations_tool_definitions()` exists at L609 and follows the live pattern. The raw-dict wrapper is never called. Significance: Dead code. Actionability: Delete the function.",
+    "suggested_fix": "Remove the `get_extract_obligations_tools()` function; use `get_extract_obligations_tool_definitions()` instead.",
     "severity": "warning",
-    "evidence_fingerprint": "db0d9e5a3f8e6be3"
+    "evidence_fingerprint": "27919abd7821207d"
   },
   "trace": null
 }

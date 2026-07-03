@@ -76,11 +76,11 @@
     ],
     "id": "369d61f998fdafec",
     "verdict": "dismissed",
-    "confidence": 0.95,
-    "triage_reasoning": "Same analysis as Claim 1. The `severity` enum `[\"error\", \"warning\"]` is declared inside a JSON schema passed to the LLM as a tool_use `input_schema`. The LLM model is the declared consumer of this constraint; it enforces the enum when producing structured output. No separate application-level enum validation is needed or expected — this is standard LLM tool schema practice (ecosystem convention). The constraint is actuated; the finding is a false positive.",
-    "suggested_fix": "",
+    "confidence": 0.97,
+    "triage_reasoning": "Same reasoning as Claim 1. The `severity` enum `[\"error\", \"warning\"]` is declared inside an LLM `tool_use` `input_schema`. The LLM API enforces the enum constraint when the model generates a tool-use response. Application code consuming the result can trust the value is within the declared set. The obligation is with the LLM API, not with Python runtime validation code. No gap: the schema is actuted by the correct consumer. Dismiss.",
+    "suggested_fix": null,
     "severity": null,
-    "evidence_fingerprint": "386b8292f7a87027"
+    "evidence_fingerprint": "3405d3f9ecd32130"
   },
   "trace": null
 }

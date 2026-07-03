@@ -19,6 +19,24 @@
         "payload": {
           "references": [
             {
+              "file": "src/osoji/tools.py",
+              "kind": "text_match",
+              "line": 313,
+              "context": "def get_file_tools() -> list[dict]:\n    \"\"\"Return tools for file shadow doc generation.\"\"\"\n    return [SUBMIT_SHADOW_DOC_TOOL]\n\n",
+              "needle": "SUBMIT_SHADOW_DOC_TOOL",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/tools.py",
+              "kind": "text_match",
+              "line": 407,
+              "context": "def get_file_tool_definitions() -> list[ToolDefinition]:\n    \"\"\"Return ToolDefinition objects for file shadow doc generation.\"\"\"\n    return [_dict_to_tool_definition(SUBMIT_SHADOW_DOC_TOOL)]\n\n",
+              "needle": "SUBMIT_SHADOW_DOC_TOOL",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
               "file": "tests/test_validate.py",
               "kind": "text_match",
               "line": 7,
@@ -41,24 +59,6 @@
               "context": "    def test_shadow_doc_string_topic_signature(self):\n        \"\"\"The bug that prompted this feature: topic_signature as string.\"\"\"\n        schema = SUBMIT_SHADOW_DOC_TOOL[\"input_schema\"]\n        data = {\n            \"content\": \"Some content.\",",
               "needle": "SUBMIT_SHADOW_DOC_TOOL",
               "source": "text_scan"
-            },
-            {
-              "file": "src/osoji/tools.py",
-              "kind": "text_match",
-              "line": 313,
-              "context": "def get_file_tools() -> list[dict]:\n    \"\"\"Return tools for file shadow doc generation.\"\"\"\n    return [SUBMIT_SHADOW_DOC_TOOL]\n\n",
-              "needle": "SUBMIT_SHADOW_DOC_TOOL",
-              "source": "text_scan",
-              "same_file": true
-            },
-            {
-              "file": "src/osoji/tools.py",
-              "kind": "text_match",
-              "line": 407,
-              "context": "def get_file_tool_definitions() -> list[ToolDefinition]:\n    \"\"\"Return ToolDefinition objects for file shadow doc generation.\"\"\"\n    return [_dict_to_tool_definition(SUBMIT_SHADOW_DOC_TOOL)]\n\n",
-              "needle": "SUBMIT_SHADOW_DOC_TOOL",
-              "source": "text_scan",
-              "same_file": true
             }
           ],
           "shadow_excerpts": {},
@@ -88,11 +88,11 @@
     ],
     "id": "81a973717bbda220",
     "verdict": "dismissed",
-    "confidence": 0.98,
-    "triage_reasoning": "Reality fails: the evidence is unambiguous. `SUBMIT_SHADOW_DOC_TOOL` is imported and directly used in `tests/test_validate.py` (two separate test methods at L224 and L249), and it is referenced within `tools.py` itself at L313 (inside `get_file_tools()`) and at L407 (inside the live `get_file_tool_definitions()`). The constant is clearly alive through multiple independent paths. The claim was generated from a naive external scan that missed the test file import.",
-    "suggested_fix": "",
+    "confidence": 0.99,
+    "triage_reasoning": "The evidence conclusively refutes the gap. `SUBMIT_SHADOW_DOC_TOOL` is directly imported and used in `tests/test_validate.py` (L7, L224, L249) and also used in `get_file_tool_definitions()` (L407) which is itself called from `shadow.py`. The constant is clearly alive.",
+    "suggested_fix": null,
     "severity": null,
-    "evidence_fingerprint": "d552d6c51a8eb878"
+    "evidence_fingerprint": "4244ca2e9c87ed61"
   },
   "trace": null
 }

@@ -100,10 +100,10 @@
     "id": "f13ec9b503666f27",
     "verdict": "dismissed",
     "confidence": 0.99,
-    "triage_reasoning": "Reality fails: the claim's own 'Observed' section states 'The caller run_audit in src/osoji/audit.py passes `analysis_results` on every invocation.' The evidence at `audit.py:11` confirms `analysis_results=analysis_results` is passed keyword-explicitly. The parameter is consumed extensively within `build_scorecard` (L132, L158, L172+). This is a false positive.",
-    "suggested_fix": "",
+    "triage_reasoning": "The evidence clearly shows `analysis_results` is passed keyword-positionally by the caller `run_audit` in `audit.py` (L11: `analysis_results=analysis_results`) and is used extensively inside `build_scorecard` at L130, L158, L172 and other sites. No gap exists.",
+    "suggested_fix": null,
     "severity": null,
-    "evidence_fingerprint": "e7b99cdd6f05c070"
+    "evidence_fingerprint": "09ec9da1cc14d7ba"
   },
   "trace": null
 }
