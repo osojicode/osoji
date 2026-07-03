@@ -47,6 +47,9 @@ osoji = "osoji.cli:main"
 [tool.pytest.ini_options]
 asyncio_mode = "strict"
 asyncio_default_fixture_loop_scope = "function"
+# Fixture corpora contain snapshotted repos whose embedded test files must not
+# be collected against the live package (they pin the snapshot's API).
+addopts = "--ignore=tests/fixtures"
 markers = [
     "prompt_regression: tests that make real LLM API calls to verify prompt behavior",
     "live_smoke: optional live provider smoke tests",

@@ -166,13 +166,13 @@ class TestDeadCodeAnalyzer:
         mock_provider.complete.return_value = CompletionResult(
             content=None,
             tool_calls=[ToolCall(
-                id="tc1", name="verify_dead_code",
+                id="tc1", name="submit_triage_verdicts",
                 input={
                     "verdicts": [{
-                        "symbol_name": "dead_func",
-                        "is_dead": True, "confidence": 0.9,
-                        "reason": "No references",
-                        "remediation": "Remove function",
+                        "batch_index": 0,
+                        "verdict": "confirmed", "confidence": 0.9,
+                        "reasoning": "No references",
+                        "suggested_fix": "Remove function",
                     }],
                 },
             )],

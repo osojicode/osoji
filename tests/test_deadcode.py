@@ -11,7 +11,6 @@ from osoji.deadcode import (
     GrepHit,
     _compute_transitive_liveness,
     _extract_context,
-    _verify_batch_async,
     detect_dead_code_async,
     scan_references,
 )
@@ -196,316 +195,25 @@ class TestGrepHitContext:
         assert ">>>" in ctx
 
 
-class TestVerifyBatch:
-    """Tests for LLM batch verification of dead code candidates."""
-
-    @pytest.fixture
-    def mock_provider(self):
-        provider = AsyncMock()
-        return provider
-
-    @pytest.fixture
-    def config(self, temp_dir):
-        return Config(root_path=temp_dir, respect_gitignore=False)
-
-    @pytest.mark.asyncio
-    async def test_single_zero_ref_confirmed_dead(self, mock_provider, config):
-        """LLM confirms dead for single zero-ref in a batch."""
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1", name="verify_dead_code",
-                input={
-                    "verdicts": [{
-                        "symbol_name": "old_helper",
-                        "is_dead": True, "confidence": 0.95,
-                        "reason": "No references, no decorators, not a dunder",
-                        "remediation": "Remove function",
-                    }],
-                },
-            )],
-            input_tokens=100, output_tokens=50,
-            model="test", stop_reason="tool_use",
-        )
-        candidate = DeadCodeCandidate(
-            source_path="src/utils.py", name="old_helper",
-            kind="function", line_start=10, line_end=20, ref_count=0,
-        )
-        results, in_tokens, out_tokens = await _verify_batch_async(
-            mock_provider, config, [candidate],
-            "def old_helper():\n    pass\n", "Shadow doc text", {},
-        )
-        assert len(results) == 1
-        assert results[0].is_dead is True
-        assert results[0].confidence == 0.95
-        assert in_tokens == 100
-        assert out_tokens == 50
-
-    @pytest.mark.asyncio
-    async def test_single_zero_ref_alive_with_decorator(self, mock_provider, config):
-        """LLM says alive for zero-ref with framework decorator."""
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1", name="verify_dead_code",
-                input={
-                    "verdicts": [{
-                        "symbol_name": "index",
-                        "is_dead": False, "confidence": 0.9,
-                        "reason": "Has @app.route decorator — framework dispatch",
-                        "remediation": "Keep — used by framework",
-                    }],
-                },
-            )],
-            input_tokens=100, output_tokens=50,
-            model="test", stop_reason="tool_use",
-        )
-        candidate = DeadCodeCandidate(
-            source_path="src/views.py", name="index",
-            kind="function", line_start=5, line_end=15, ref_count=0,
-        )
-        results, _, _ = await _verify_batch_async(
-            mock_provider, config, [candidate],
-            "@app.route('/')\ndef index():\n    return 'hi'\n", "", {},
-        )
-        assert len(results) == 1
-        assert results[0].is_dead is False
-
-    @pytest.mark.asyncio
-    async def test_multiple_symbols_in_batch(self, mock_provider, config):
-        """Batch with multiple symbols returns verdicts for each."""
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1", name="verify_dead_code",
-                input={
-                    "verdicts": [
-                        {
-                            "symbol_name": "dead_func",
-                            "is_dead": True, "confidence": 0.9,
-                            "reason": "No references, no alive pathway",
-                            "remediation": "Remove function",
-                        },
-                        {
-                            "symbol_name": "alive_fixture",
-                            "is_dead": False, "confidence": 0.95,
-                            "reason": "pytest fixture — used by framework",
-                            "remediation": "Keep — pytest fixture",
-                        },
-                        {
-                            "symbol_name": "cli_command",
-                            "is_dead": False, "confidence": 0.85,
-                            "reason": "Click command — convention dispatch",
-                            "remediation": "Keep — Click CLI command",
-                        },
-                    ],
-                },
-            )],
-            input_tokens=300, output_tokens=150,
-            model="test", stop_reason="tool_use",
-        )
-        candidates = [
-            DeadCodeCandidate(
-                source_path="src/lib.py", name="dead_func",
-                kind="function", line_start=1, line_end=5, ref_count=0,
-            ),
-            DeadCodeCandidate(
-                source_path="src/lib.py", name="alive_fixture",
-                kind="function", line_start=10, line_end=15, ref_count=0,
-            ),
-            DeadCodeCandidate(
-                source_path="src/lib.py", name="cli_command",
-                kind="function", line_start=20, line_end=25, ref_count=0,
-            ),
-        ]
-        results, in_tokens, out_tokens = await _verify_batch_async(
-            mock_provider, config, candidates,
-            "def dead_func(): pass\ndef alive_fixture(): pass\ndef cli_command(): pass\n",
-            "", {},
-        )
-        assert len(results) == 3
-        result_by_name = {r.name: r for r in results}
-        assert result_by_name["dead_func"].is_dead is True
-        assert result_by_name["alive_fixture"].is_dead is False
-        assert result_by_name["cli_command"].is_dead is False
-        assert in_tokens == 300
-        assert out_tokens == 150
-
-    @pytest.mark.asyncio
-    async def test_low_ref_all_comments_dead(self, mock_provider, config):
-        """LLM confirms dead when all grep hits are comments."""
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1", name="verify_dead_code",
-                input={
-                    "verdicts": [{
-                        "symbol_name": "legacy_func",
-                        "is_dead": True, "confidence": 0.85,
-                        "reason": "All references are in comments",
-                        "remediation": "Remove function and clean up comments",
-                    }],
-                },
-            )],
-            input_tokens=200, output_tokens=60,
-            model="test", stop_reason="tool_use",
-        )
-        candidate = DeadCodeCandidate(
-            source_path="src/old.py", name="legacy_func",
-            kind="function", line_start=1, line_end=5, ref_count=1,
-            grep_hits=[GrepHit(
-                file_path="src/main.py", line_number=10,
-                context="   10 | # TODO: remove legacy_func usage",
-            )],
-        )
-        results, _, _ = await _verify_batch_async(
-            mock_provider, config, [candidate],
-            "def legacy_func(): pass\n", "", {},
-        )
-        assert len(results) == 1
-        assert results[0].is_dead is True
-
-    @pytest.mark.asyncio
-    async def test_low_ref_real_import_alive(self, mock_provider, config):
-        """LLM says alive when one hit is a real import."""
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1", name="verify_dead_code",
-                input={
-                    "verdicts": [{
-                        "symbol_name": "parse_config",
-                        "is_dead": False, "confidence": 0.95,
-                        "reason": "One hit is a real import statement",
-                        "remediation": "Keep — actively imported and used",
-                    }],
-                },
-            )],
-            input_tokens=200, output_tokens=60,
-            model="test", stop_reason="tool_use",
-        )
-        candidate = DeadCodeCandidate(
-            source_path="src/utils.py", name="parse_config",
-            kind="function", line_start=1, line_end=10, ref_count=1,
-            grep_hits=[GrepHit(
-                file_path="src/app.py", line_number=3,
-                context="    3 | from utils import parse_config",
-            )],
-        )
-        results, _, _ = await _verify_batch_async(
-            mock_provider, config, [candidate],
-            "def parse_config(): pass\n", "", {},
-        )
-        assert len(results) == 1
-        assert results[0].is_dead is False
-
-    @pytest.mark.asyncio
-    async def test_no_tool_calls_raises(self, mock_provider, config):
-        """RuntimeError raised when LLM returns no verdicts."""
-        mock_provider.complete.return_value = CompletionResult(
-            content="I can't determine this.",
-            tool_calls=[],
-            input_tokens=100, output_tokens=50,
-            model="test", stop_reason="end_turn",
-        )
-        candidate = DeadCodeCandidate(
-            source_path="src/utils.py", name="mystery",
-            kind="function", line_start=1, line_end=5, ref_count=0,
-        )
-        with pytest.raises(RuntimeError, match="did not return verdicts"):
-            await _verify_batch_async(
-                mock_provider, config, [candidate],
-                "def mystery(): pass\n", "", {},
-            )
-
-    @pytest.mark.asyncio
-    async def test_max_tokens_scales_with_batch_size(self, mock_provider, config):
-        """max_tokens in CompletionOptions scales with number of candidates."""
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1", name="verify_dead_code",
-                input={
-                    "verdicts": [
-                        {
-                            "symbol_name": f"func_{i}",
-                            "is_dead": True, "confidence": 0.9,
-                            "reason": "No references",
-                            "remediation": "Remove",
-                        }
-                        for i in range(8)
-                    ],
-                },
-            )],
-            input_tokens=500, output_tokens=300,
-            model="test", stop_reason="tool_use",
-        )
-        candidates = [
-            DeadCodeCandidate(
-                source_path="src/lib.py", name=f"func_{i}",
-                kind="function", line_start=i * 10, line_end=i * 10 + 5, ref_count=0,
-            )
-            for i in range(8)
-        ]
-        await _verify_batch_async(
-            mock_provider, config, candidates,
-            "# file content", "", {},
-        )
-        # 8 candidates * 250 = 2000
-        call_args = mock_provider.complete.call_args
-        options = call_args.kwargs.get("options") or call_args[1].get("options")
-        assert options.max_tokens == 2000
-
-    @pytest.mark.asyncio
-    async def test_completeness_validator_is_passed(self, mock_provider, config):
-        """CompletionOptions includes a tool_input_validator for completeness."""
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1", name="verify_dead_code",
-                input={
-                    "verdicts": [{
-                        "symbol_name": "func_a",
-                        "is_dead": True, "confidence": 0.9,
-                        "reason": "No references",
-                        "remediation": "Remove",
-                    }],
-                },
-            )],
-            input_tokens=100, output_tokens=50,
-            model="test", stop_reason="tool_use",
-        )
-        candidate = DeadCodeCandidate(
-            source_path="src/lib.py", name="func_a",
-            kind="function", line_start=1, line_end=5, ref_count=0,
-        )
-        await _verify_batch_async(
-            mock_provider, config, [candidate],
-            "def func_a(): pass\n", "", {},
-        )
-        call_args = mock_provider.complete.call_args
-        options = call_args.kwargs.get("options") or call_args[1].get("options")
-        assert len(options.tool_input_validators) == 2
-
-        # The first validator should pass when all symbols are present
-        validator = options.tool_input_validators[0]
-        errs = validator("verify_dead_code", {
-            "verdicts": [{"symbol_name": "func_a"}],
-        })
-        assert errs == []
-
-        # The validator should fail when symbols are missing
-        errs = validator("verify_dead_code", {"verdicts": []})
-        assert len(errs) == 1
-        assert "func_a" in errs[0]
+def _triage_result(verdicts):
+    """A canned submit_triage_verdicts completion."""
+    return CompletionResult(
+        content=None,
+        tool_calls=[ToolCall(
+            id="tc1", name="submit_triage_verdicts",
+            input={"verdicts": verdicts},
+        )],
+        input_tokens=100, output_tokens=50,
+        model="test", stop_reason="tool_use",
+    )
 
 
 class TestDetectDeadCodeAsync:
-    """Integration test for full pipeline with mock LLM."""
+    """Integration tests for the unified Claim Builder + Triage pipeline."""
 
     @pytest.mark.asyncio
     async def test_full_pipeline(self, temp_dir):
-        """Full pipeline: all candidates (zero-ref + low-ref) go through LLM batch."""
+        """All candidates (zero-ref + low-ref) are decided through Triage claims."""
         config = Config(root_path=temp_dir, respect_gitignore=False)
 
         # Set up symbols: one zero-ref, one with one reference
@@ -518,50 +226,32 @@ class TestDetectDeadCodeAsync:
         # Reference maybe_dead in one file
         _write_source(temp_dir, "src/user.py", "# maybe_dead is mentioned here\n")
 
-        # Mock LLM provider — returns batch verdicts
+        # Candidate order is deterministic: zero-ref candidates precede low-ref,
+        # so dead_func is batch_index 0 and maybe_dead is batch_index 1.
         mock_provider = AsyncMock()
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1", name="verify_dead_code",
-                input={
-                    "verdicts": [
-                        {
-                            "symbol_name": "dead_func",
-                            "is_dead": True, "confidence": 0.9,
-                            "reason": "No references, no alive pathway",
-                            "remediation": "Remove function",
-                        },
-                        {
-                            "symbol_name": "maybe_dead",
-                            "is_dead": True, "confidence": 0.8,
-                            "reason": "Reference is only in a comment",
-                            "remediation": "Remove function",
-                        },
-                    ],
-                },
-            )],
-            input_tokens=100, output_tokens=50,
-            model="test", stop_reason="tool_use",
-        )
+        mock_provider.complete.return_value = _triage_result([
+            {"batch_index": 0, "verdict": "confirmed", "confidence": 0.9,
+             "reasoning": "No references, no alive pathway",
+             "suggested_fix": "Remove function"},
+            {"batch_index": 1, "verdict": "confirmed", "confidence": 0.8,
+             "reasoning": "Reference is only in a comment",
+             "suggested_fix": "Remove function"},
+        ])
 
-        results, _ast_keys = await detect_dead_code_async(
-            mock_provider, config,
-        )
+        results, mechanical_keys = await detect_dead_code_async(mock_provider, config)
 
-        # Both should be in results (both dead via LLM)
-        dead_names = [r.name for r in results if r.is_dead]
-        assert "dead_func" in dead_names
-        assert "maybe_dead" in dead_names
-
-        # dead_func now goes through LLM — confidence should be from LLM, not 1.0
-        result_by_name = {r.name: r for r in results}
-        dead_func_result = result_by_name["dead_func"]
-        assert dead_func_result.confidence == 0.9
+        confirmed = {f.symbol: f for f in results if f.verdict == "confirmed"}
+        assert set(confirmed) == {"dead_func", "maybe_dead"}
+        assert confirmed["dead_func"].confidence == 0.9
+        assert confirmed["dead_func"].triage_reasoning == "No references, no alive pathway"
+        assert confirmed["dead_func"].gap_type == "reachability"
+        assert confirmed["dead_func"].detector == "deadcode:dead_symbol"
+        # Nothing was AST-proven here — both went through the LLM
+        assert mechanical_keys == set()
 
     @pytest.mark.asyncio
     async def test_zero_ref_alive_through_llm(self, temp_dir):
-        """Zero-ref symbol correctly identified as alive by LLM (no false positive)."""
+        """Zero-ref symbol correctly dismissed by Triage (no false positive)."""
         config = Config(root_path=temp_dir, respect_gitignore=False)
 
         _write_symbols(temp_dir, "src/views.py", [
@@ -572,30 +262,18 @@ class TestDetectDeadCodeAsync:
         _write_source(temp_dir, "src/main.py", "print('hello')\n")
 
         mock_provider = AsyncMock()
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1", name="verify_dead_code",
-                input={
-                    "verdicts": [{
-                        "symbol_name": "index",
-                        "is_dead": False, "confidence": 0.95,
-                        "reason": "Has @app.route — framework dispatch",
-                        "remediation": "Keep — used by framework",
-                    }],
-                },
-            )],
-            input_tokens=100, output_tokens=50,
-            model="test", stop_reason="tool_use",
-        )
+        mock_provider.complete.return_value = _triage_result([
+            {"batch_index": 0, "verdict": "dismissed", "confidence": 0.95,
+             "reasoning": "Has @app.route — framework dispatch"},
+        ])
 
-        results, _ast_keys = await detect_dead_code_async(
-            mock_provider, config,
-        )
+        results, _mechanical_keys = await detect_dead_code_async(mock_provider, config)
 
-        # index should NOT appear in dead results
-        dead_names = [r.name for r in results if r.is_dead]
-        assert "index" not in dead_names
+        confirmed = [f.symbol for f in results if f.verdict == "confirmed"]
+        assert "index" not in confirmed
+        # The dismissal itself is recorded, not silently dropped
+        dismissed = [f.symbol for f in results if f.verdict == "dismissed"]
+        assert "index" in dismissed
 
     @pytest.mark.asyncio
     async def test_empty_symbols_returns_empty(self, temp_dir):
@@ -605,14 +283,14 @@ class TestDetectDeadCodeAsync:
 
         mock_provider = AsyncMock()
 
-        results, _ast_keys = await detect_dead_code_async(
+        results, _mechanical_keys = await detect_dead_code_async(
             mock_provider, config,
         )
         assert results == []
 
     @pytest.mark.asyncio
-    async def test_batching_groups_by_file(self, temp_dir):
-        """Candidates from the same file are batched together."""
+    async def test_small_claim_sets_pack_into_one_call(self, temp_dir):
+        """Claims from several files pack into a single Triage call (chunk <= 12)."""
         config = Config(root_path=temp_dir, respect_gitignore=False)
 
         _write_symbols(temp_dir, "src/a.py", [
@@ -626,50 +304,26 @@ class TestDetectDeadCodeAsync:
         _write_source(temp_dir, "src/b.py", "def func_b1(): pass\n")
         _write_source(temp_dir, "src/main.py", "print('hello')\n")
 
-        call_batches = []
-
+        batch_sizes = []
         mock_provider = AsyncMock()
 
         async def mock_complete(messages, system, options):
-            # Extract expected names from the validator
+            # Probe the completeness validator to learn the batch size
             validator = options.tool_input_validators[0]
-            # Probe the validator to find expected names
-            errs = validator("verify_dead_code", {"verdicts": []})
-            names = set()
-            for err in errs:
-                # "Missing verdict for symbol 'X'"
-                name = err.split("'")[1]
-                names.add(name)
-            call_batches.append(names)
-
-            verdicts = [
-                {
-                    "symbol_name": n,
-                    "is_dead": True, "confidence": 0.9,
-                    "reason": "No references",
-                    "remediation": "Remove",
-                }
-                for n in names
-            ]
-            return CompletionResult(
-                content=None,
-                tool_calls=[ToolCall(
-                    id="tc1", name="verify_dead_code",
-                    input={"verdicts": verdicts},
-                )],
-                input_tokens=100, output_tokens=50,
-                model="test", stop_reason="tool_use",
-            )
+            n = len(validator("submit_triage_verdicts", {"verdicts": []}))
+            batch_sizes.append(n)
+            return _triage_result([
+                {"batch_index": i, "verdict": "confirmed", "confidence": 0.9,
+                 "reasoning": "No references"}
+                for i in range(n)
+            ])
 
         mock_provider.complete = mock_complete
 
-        await detect_dead_code_async(mock_provider, config)
+        results, _mechanical_keys = await detect_dead_code_async(mock_provider, config)
 
-        # Should have 2 batches: one for src/a.py (2 symbols), one for src/b.py (1 symbol)
-        assert len(call_batches) == 2
-        batch_sets = [frozenset(b) for b in call_batches]
-        assert frozenset({"func_a1", "func_a2"}) in batch_sets
-        assert frozenset({"func_b1"}) in batch_sets
+        assert batch_sizes == [3]
+        assert sum(1 for f in results if f.verdict == "confirmed") == 3
 
 
 class TestTransitiveLiveness:

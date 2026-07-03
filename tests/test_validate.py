@@ -392,18 +392,17 @@ class TestToolInputValidators:
         # sets the mock's internal _mock_name, not the .name attribute.
         first_verdicts = {
             "verdicts": [{
-                "symbol_name": "func_a",
-                "is_dead": True,
+                "batch_index": 0,
+                "verdict": "confirmed",
                 "confidence": 0.9,
-                "reason": "No refs",
-                "remediation": "Remove",
+                "reasoning": "No refs",
             }],
         }
         mock_response = MagicMock()
         mock_response.content = [
             SimpleNamespace(
                 type="tool_use", id="tc1",
-                name="verify_dead_code", input=first_verdicts,
+                name="submit_triage_verdicts", input=first_verdicts,
             ),
         ]
         mock_response.usage = MagicMock(input_tokens=100, output_tokens=50)
@@ -413,18 +412,16 @@ class TestToolInputValidators:
         retry_verdicts = {
             "verdicts": [
                 {
-                    "symbol_name": "func_a",
-                    "is_dead": True,
+                    "batch_index": 0,
+                    "verdict": "confirmed",
                     "confidence": 0.9,
-                    "reason": "No refs",
-                    "remediation": "Remove",
+                    "reasoning": "No refs",
                 },
                 {
-                    "symbol_name": "func_b",
-                    "is_dead": False,
+                    "batch_index": 1,
+                    "verdict": "dismissed",
                     "confidence": 0.8,
-                    "reason": "Used by framework",
-                    "remediation": "Keep",
+                    "reasoning": "Used by framework",
                 },
             ],
         }
@@ -432,7 +429,7 @@ class TestToolInputValidators:
         mock_retry_response.content = [
             SimpleNamespace(
                 type="tool_use", id="tc2",
-                name="verify_dead_code", input=retry_verdicts,
+                name="submit_triage_verdicts", input=retry_verdicts,
             ),
         ]
         mock_retry_response.usage = MagicMock(input_tokens=120, output_tokens=70)
@@ -448,17 +445,17 @@ class TestToolInputValidators:
         )
 
         from osoji.llm.types import Message, MessageRole
-        from osoji.tools import get_dead_code_tool_definitions
+        from osoji.tools import get_triage_claim_tool_definitions
 
-        expected_names = {"func_a", "func_b"}
+        expected_indices = {0, 1}
 
         def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
-            if tool_name != "verify_dead_code":
+            if tool_name != "submit_triage_verdicts":
                 return []
             verdicts = tool_input.get("verdicts", [])
-            got_names = {v.get("symbol_name") for v in verdicts}
-            missing = expected_names - got_names
-            return [f"Missing verdict for symbol '{name}'" for name in sorted(missing)]
+            got = {v.get("batch_index") for v in verdicts}
+            missing = expected_indices - got
+            return [f"Missing verdict for claim {index}" for index in sorted(missing)]
 
         result = await provider.complete(
             messages=[Message(role=MessageRole.USER, content="Test")],
@@ -466,8 +463,8 @@ class TestToolInputValidators:
             options=CompletionOptions(
                 model="test-model",
                 max_tokens=1024,
-                tools=get_dead_code_tool_definitions(),
-                tool_choice={"type": "tool", "name": "verify_dead_code"},
+                tools=get_triage_claim_tool_definitions(),
+                tool_choice={"type": "tool", "name": "submit_triage_verdicts"},
                 tool_input_validators=[check_completeness],
             ),
         )
@@ -475,8 +472,8 @@ class TestToolInputValidators:
         # Should have made 2 API calls (first + retry)
         assert provider._client.messages.create.call_count == 2
 
-        # Result should be from the retry (which has both symbols)
+        # Result should be from the retry (which has both claims)
         assert len(result.tool_calls) == 1
         verdicts = result.tool_calls[0].input["verdicts"]
-        got_names = {v["symbol_name"] for v in verdicts}
-        assert got_names == {"func_a", "func_b"}
+        got = {v["batch_index"] for v in verdicts}
+        assert got == {0, 1}
