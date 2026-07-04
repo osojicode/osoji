@@ -20,16 +20,31 @@ from pathlib import Path
 import pytest
 
 from osoji.config import Config
-from osoji.deadcode import DeadCodeCandidate, _verify_batch_async, scan_references
-from osoji.deadparam import (
-    DeadParamCandidate,
-    scan_dead_param_candidates,
-    _verify_batch_async as _verify_dead_params_batch_async,
+from osoji.deadcode import DeadCodeCandidate, scan_references
+from osoji.deadparam import DeadParamCandidate, scan_dead_param_candidates
+from osoji.evidence_builders import BuildContext
+from osoji.findings_adapter import (
+    finding_from_dead_code_candidate,
+    finding_from_dead_param_candidate,
 )
+from osoji.junk_triage import build_junk_claims, decide_junk_claims
 from osoji.llm.factory import create_provider
 from osoji.symbols import load_files_by_role
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "prompt_regression"
+
+
+async def _decide_candidates(provider, config, findings) -> dict:
+    """Build claims and decide them exactly as production Phase 4 does (V1-5a).
+
+    Returns decided Findings keyed by ``symbol``.
+    """
+    ctx = BuildContext(config)
+    claims = build_junk_claims(findings, ctx)
+    decided, _in_tokens, _out_tokens = await decide_junk_claims(
+        claims, config, provider,
+    )
+    return {f.symbol: f for f in decided}
 
 
 def _setup_case_dir(tmp_path: Path, case_dir: Path) -> Config:
@@ -114,22 +129,17 @@ async def _run_trial_case_001(provider, config, tmp_path, expected) -> bool:
     if not tools_candidates:
         return False
 
-    tools_path = tmp_path / "src" / "osoji" / "tools.py"
-    file_content = tools_path.read_text(errors="ignore")
-
-    verifications, _, _ = await _verify_batch_async(
-        provider, config, tools_candidates,
-        file_content, "", {},
-    )
-
-    result_by_name = {v.name: v for v in verifications}
+    findings = [finding_from_dead_code_candidate(c) for c in tools_candidates]
+    result_by_name = await _decide_candidates(provider, config, findings)
 
     for dead_name in expected["dead"]:
-        if dead_name in result_by_name and not result_by_name[dead_name].is_dead:
+        finding = result_by_name.get(dead_name)
+        if finding is not None and finding.verdict != "confirmed":
             return False
 
     for alive_name in expected["alive"]:
-        if alive_name in result_by_name and result_by_name[alive_name].is_dead:
+        finding = result_by_name.get(alive_name)
+        if finding is not None and finding.verdict == "confirmed":
             return False
 
     return True
@@ -141,9 +151,6 @@ async def _run_trial_case_001(provider, config, tmp_path, expected) -> bool:
 
 async def _run_trial_case_002(provider, config, tmp_path, expected) -> bool:
     """Run one LLM verification trial for case_002. Returns True if all pass."""
-    audit_path = tmp_path / "src" / "osoji" / "audit.py"
-    file_content = audit_path.read_text(errors="ignore")
-
     # Line numbers are coupled to the snapshotted fixture file in
     # tests/fixtures/prompt_regression/dead_code/case_002_internal_dataclass/source/,
     # NOT to the live src/osoji/audit.py. Update if the fixture changes.
@@ -159,19 +166,17 @@ async def _run_trial_case_002(provider, config, tmp_path, expected) -> bool:
         for name in expected["alive"]
     ]
 
-    verifications, _, _ = await _verify_batch_async(
-        provider, config, candidates,
-        file_content, "", {},
-    )
-
-    result_by_name = {v.name: v for v in verifications}
+    findings = [finding_from_dead_code_candidate(c) for c in candidates]
+    result_by_name = await _decide_candidates(provider, config, findings)
 
     for alive_name in expected["alive"]:
-        if alive_name in result_by_name and result_by_name[alive_name].is_dead:
+        finding = result_by_name.get(alive_name)
+        if finding is not None and finding.verdict == "confirmed":
             return False
 
     for dead_name in expected["dead"]:
-        if dead_name in result_by_name and not result_by_name[dead_name].is_dead:
+        finding = result_by_name.get(dead_name)
+        if finding is not None and finding.verdict != "confirmed":
             return False
 
     return True
@@ -358,7 +363,7 @@ async def test_plumbing_001_tool_schema(tmp_path, establish_baseline):
 
 async def _run_trial_dead_params_001(provider, config, tmp_path, expected) -> bool:
     """Run one LLM verification trial for dead_params case_001. Returns True if all pass."""
-    from osoji.junk import load_shadow_content
+    from osoji.facts import FactsDB
 
     candidates = scan_dead_param_candidates(config)
     if not candidates:
@@ -380,24 +385,29 @@ async def _run_trial_dead_params_001(provider, config, tmp_path, expected) -> bo
     if not scorecard_batch:
         return False
 
-    source_path = scorecard_batch[0].source_path
-    src_file = tmp_path / source_path
-    file_content = src_file.read_text(errors="ignore")
-    shadow_content = load_shadow_content(config, source_path)
-
-    verifications, _, _ = await _verify_dead_params_batch_async(
-        provider, config, scorecard_batch,
-        file_content, shadow_content,
+    facts_db = FactsDB(config)
+    importers = sorted(
+        facts_db.importers_of(scorecard_batch[0].source_path.replace("\\", "/"))
     )
-
-    result_by_name = {v.param_name: v for v in verifications}
+    findings = [
+        finding_from_dead_param_candidate(c, importers=importers)
+        for c in scorecard_batch
+    ]
+    decided_by_symbol = await _decide_candidates(provider, config, findings)
+    # Findings are keyed by "function.param"; expected names are bare params.
+    result_by_name = {
+        symbol.rsplit(".", 1)[-1]: finding
+        for symbol, finding in decided_by_symbol.items()
+    }
 
     for dead_name in expected["dead"]:
-        if dead_name in result_by_name and not result_by_name[dead_name].is_dead:
+        finding = result_by_name.get(dead_name)
+        if finding is not None and finding.verdict != "confirmed":
             return False
 
     for alive_name in expected["alive"]:
-        if alive_name in result_by_name and result_by_name[alive_name].is_dead:
+        finding = result_by_name.get(alive_name)
+        if finding is not None and finding.verdict == "confirmed":
             return False
 
     return True

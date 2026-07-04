@@ -1,0 +1,109 @@
+{
+  "slug": "dead_parameter-case_001-analysis_results",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "deadparam:dead_parameter",
+    "gap_type": "reachability",
+    "path": "src/osoji/scorecard.py",
+    "line_start": 108,
+    "line_end": 108,
+    "symbol": "analysis_results",
+    "contract_source": "function signature",
+    "contract_claim": "Parameter `analysis_results` is declared in the signature of build_scorecard(config, analysis_results, junk_results=None, dead_code_results=None, plumbing_result=None) (signature at lines 106-113) as an accepted input that callers may pass.",
+    "observed_behavior": "The caller run_audit in src/osoji/audit.py passes `analysis_results` on every invocation of build_scorecard.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 6,
+              "context": "\n\ndef run_audit(config, analysis_results, junk_results):\n    \"\"\"Build scorecard from audit results.\"\"\"\n    scorecard = build_scorecard(",
+              "needle": "analysis_results",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 10,
+              "context": "    scorecard = build_scorecard(\n        config,\n        analysis_results=analysis_results,\n        junk_results=junk_results if junk_results else None,\n    )",
+              "needle": "analysis_results",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/scorecard.py",
+              "kind": "text_match",
+              "line": 130,
+              "context": "    # Invert matched_shadows: source -> list of covering docs\n    source_to_docs: dict[str, list[dict]] = {s: [] for s in all_source_files}\n    for item in analysis_results:\n        if item.is_debris:\n            continue",
+              "needle": "analysis_results",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/scorecard.py",
+              "kind": "text_match",
+              "line": 158,
+              "context": "    type_covered: dict[str, int] = {}\n    type_total: dict[str, int] = {}\n    for item in analysis_results:\n        if item.is_debris:\n            continue",
+              "needle": "analysis_results",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/scorecard.py",
+              "kind": "text_match",
+              "line": 172,
+              "context": "\n    # --- Dead docs ---\n    dead_docs = [str(item.path).replace(\"\\\\\", \"/\") for item in analysis_results if item.is_debris]\n\n    # --- Accuracy ---",
+              "needle": "analysis_results",
+              "source": "text_scan",
+              "same_file": true
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 2,
+            "needles": [
+              "analysis_results"
+            ],
+            "needle_totals": {
+              "analysis_results": 6
+            },
+            "same_file_swept": true
+          },
+          "export_surface": {
+            "symbol": "analysis_results",
+            "exported_from_flagged_file": false
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/scorecard.py",
+          "line_start": 98,
+          "line_end": 118,
+          "snippet": "98:     if sig_path.exists():\n99:         try:\n100:             return json.loads(sig_path.read_text(encoding=\"utf-8\"))\n101:         except (json.JSONDecodeError, OSError):\n102:             pass\n103:     return None\n104: \n105: \n106: def build_scorecard(\n107:     config: Config,\n108:     analysis_results: list[DocAnalysisResult],\n109:     junk_results: dict[str, JunkAnalysisResult] | None = None,\n110:     # Backward compat:\n111:     dead_code_results: list[DeadCodeVerification] | None = None,\n112:     plumbing_result: PlumbingResult | None = None,\n113: ) -> Scorecard:\n114:     \"\"\"Build a scorecard from audit phase outputs. Pure Python, no LLM calls.\"\"\"\n115: \n116:     # --- Coverage ---\n117:     # Enumerate all source files from shadow inventory\n118:     shadow_root = config.shadow_root",
+          "anchor": "symbol",
+          "enclosing_symbol": {
+            "name": "build_scorecard",
+            "kind": "function",
+            "line_start": 106,
+            "line_end": 362
+          }
+        }
+      }
+    ],
+    "id": "f13ec9b503666f27",
+    "verdict": "dismissed",
+    "confidence": 0.99,
+    "triage_reasoning": "The evidence clearly shows `analysis_results` is passed keyword-positionally by the caller `run_audit` in `audit.py` (L11: `analysis_results=analysis_results`) and is used extensively inside `build_scorecard` at L130, L158, L172 and other sites. No gap exists.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "09ec9da1cc14d7ba"
+  },
+  "trace": null
+}

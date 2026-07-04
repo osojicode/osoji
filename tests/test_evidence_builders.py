@@ -424,3 +424,134 @@ def test_builders_never_raise_on_missing_file(config):
     for kind, builder in BUILDERS.items():
         result = builder.build(finding, ctx)
         assert isinstance(result, list), kind
+
+
+# --- cb-2 scanner_metadata steering (V1-5a) ----------------------------------
+
+
+def _with_scanner_meta(finding, **payload):
+    from osoji.evidence import Evidence
+
+    return make_finding(
+        **{
+            **{k: getattr(finding, k) for k in (
+                "detector", "gap_type", "path", "line_start", "line_end",
+                "symbol", "contract_source", "contract_claim", "observed_behavior",
+            )},
+            "evidence": [Evidence(kind="scanner_metadata", payload=payload)],
+        }
+    )
+
+
+def test_scanner_supplied_needles_override_symbol(config, temp_dir):
+    # A dead-parameter finding: symbol `log.error` matches nothing textually;
+    # the detector supplies the function's grep name instead.
+    write(temp_dir, "src/x.py", "def log(msg, error=None):\n    pass\n")
+    write(temp_dir, "src/y.py", "from x import log\nlog('boom')\n")
+    finding = _with_scanner_meta(
+        make_finding(symbol="log.error", line_start=1, line_end=1),
+        scan_needles=["log"],
+    )
+    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
+    evidence = BUILDERS["cross_file_reference"].build(finding, ctx)
+    assert len(evidence) == 1
+    payload = evidence[0].payload
+    assert payload["scan_scope"]["needles"] == ["log"]
+    assert any(
+        r["file"] == "src/y.py" and r["needle"] == "log"
+        for r in payload["references"]
+    )
+
+
+def test_scanner_supplied_needles_feed_facts_lookups(config):
+    facts = FakeFacts({"log": [
+        {"file": "src/y.py", "kind": "call", "context": "log('boom')"},
+    ]})
+    finding = _with_scanner_meta(
+        make_finding(symbol="log.error"), scan_needles=["log"]
+    )
+    ctx = BuildContext(config, facts_db=facts, symbols_by_file={})
+    evidence = BUILDERS["cross_file_reference"].build(finding, ctx)
+    refs = [r for r in evidence[0].payload["references"] if r["source"] == "facts"]
+    assert refs and refs[0]["file"] == "src/y.py"
+
+
+def test_priority_paths_survive_the_hit_cap(config, temp_dir):
+    # 25 one-hit files exceed _MAX_HITS_PER_NEEDLE=20; without priority the
+    # deciding call site in zzz_caller.py (swept last) would be count-only.
+    write(temp_dir, "src/x.py", "def old_helper():\n    pass\n")
+    for i in range(25):
+        write(temp_dir, f"src/mod_{i:02d}.py", "# mentions old_helper\n")
+    write(temp_dir, "src/zzz_caller.py", "from x import old_helper\nold_helper()\n")
+    finding = _with_scanner_meta(
+        make_finding(line_start=1, line_end=2),
+        scan_needles=["old_helper"],
+        priority_paths=["src/zzz_caller.py"],
+    )
+    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
+    evidence = BUILDERS["cross_file_reference"].build(finding, ctx)
+    files = {r["file"] for r in evidence[0].payload["references"]}
+    assert "src/zzz_caller.py" in files
+
+
+def test_text_hit_inside_quoted_string_is_flagged(config, temp_dir):
+    write(temp_dir, "src/x.py", "def old_helper():\n    pass\n")
+    write(temp_dir, "src/y.py", "fn = getattr(mod, 'old_helper')\n")
+    write(temp_dir, "src/z.py", "import x\nx.old_helper()\n")
+    finding = make_finding(line_start=1, line_end=2)
+    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
+    evidence = BUILDERS["cross_file_reference"].build(finding, ctx)
+    by_file = {r["file"]: r for r in evidence[0].payload["references"]}
+    assert by_file["src/y.py"].get("in_string_literal") is True
+    assert "in_string_literal" not in by_file["src/z.py"]
+
+
+def test_match_in_quotes_positional_check():
+    from osoji.evidence_builders import _match_in_quotes
+
+    line = "dispatch = {'old_helper': fn}  # old_helper"
+    assert _match_in_quotes(line, line.index("old_helper")) is True
+    assert _match_in_quotes(line, line.rindex("old_helper")) is False
+    escaped = 'msg = "say \\"old_helper\\" now"'
+    assert _match_in_quotes(escaped, escaped.index("old_helper")) is True
+    assert _match_in_quotes("old_helper()", 0) is False
+
+
+def test_backticked_dotted_names_yield_qualified_and_bare_needles(config, temp_dir):
+    # dead_symbol-001 lesson: the plain-word backtick pattern skipped dotted
+    # names entirely, so the method was never swept and its string-dispatch
+    # site stayed invisible.
+    write(temp_dir, "src/x.py", "class Widget:\n    def render(self):\n        pass\n")
+    write(temp_dir, "src/reg.py", "handler = getattr(w, 'render')\n")
+    finding = make_finding(
+        symbol=None,
+        line_start=1,
+        line_end=3,
+        contract_claim="Symbol `Widget.render` is declared but appears unused",
+        observed_behavior="no references to `Widget.render` were found",
+    )
+    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
+    evidence = BUILDERS["cross_file_reference"].build(finding, ctx)
+    scope = evidence[0].payload["scan_scope"]
+    assert "Widget.render" in scope["needles"]
+    assert "render" in scope["needles"]
+    hits = [r for r in evidence[0].payload["references"] if r["file"] == "src/reg.py"]
+    assert hits and hits[0].get("in_string_literal") is True
+
+
+def test_sweep_orders_by_proximity_to_flagged_file(config, temp_dir):
+    # V1-5a dead_symbol-002 lesson: a committed corpus's own JSON artifacts
+    # (source-ranked extensions) crowded out the flagged file's sibling-package
+    # usage sites. Proximity to the flagged file breaks the tie.
+    write(temp_dir, "src/pkg/x.py", "class Base:\n    pass\n")
+    write(temp_dir, "src/pkg/impl.py", "from x import Base\nclass Impl(Base):\n    pass\n")
+    # A far-away fixture corpus with more than enough hits to fill the cap
+    for i in range(30):
+        write(temp_dir, f"tests/fixtures/trace_{i:02d}.json", '{"note": "mentions Base"}\n')
+    finding = make_finding(
+        path="src/pkg/x.py", symbol="Base", line_start=1, line_end=2
+    )
+    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
+    evidence = BUILDERS["cross_file_reference"].build(finding, ctx)
+    files = [r["file"] for r in evidence[0].payload["references"]]
+    assert files[0] == "src/pkg/impl.py"

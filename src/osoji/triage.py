@@ -102,9 +102,27 @@ Confirm only when all three hold. Dismiss when any fails. Use 'uncertain' when t
 assembled evidence genuinely cannot decide.
 
 Weigh the assembled evidence. For reachability claims, a cross-file reference that is a
-real import/call/use refutes the gap (dismiss); a reference that is only a comment, a
-string literal, or a same-named-but-different symbol does not (confirm). Account for
-dynamic dispatch, framework registration, re-exports, and within-file transitive liveness.
+real import/call/use refutes the gap (dismiss); a reference that is only an unrelated
+comment, a doc mention, or a same-named-but-different symbol does not (confirm). A hit
+inside a quoted string (marked [match is inside a quoted string]) needs care: when the
+flagged symbol's exact name appears as a string in executable code, it may be a
+dynamic-dispatch key — reflection, name-based lookup, a registry, a command/RPC/config
+table. Examine the surrounding lines; if the string plausibly feeds a mechanism that can
+reach the symbol, the symbol is reachable — dismiss. Account for framework registration,
+re-exports, and within-file transitive liveness. Do not dismiss on hypothetical outside
+consumers: "external callers might use it" counts only when an explicit export mechanism
+makes the symbol consumable beyond the scanned scope. When reachability evidence is
+positive but marginal and the flagged symbol is a small delegating member of a uniform
+interface surface, removing it is unlikely to improve the codebase — dismiss on
+Significance. (Zero-hit sweeps carry no such doubt: an honest zero over a real scan
+scope is the canonical case FOR confirming.)
+
+For parameter reachability claims specifically: the parameter is alive iff some caller
+supplies a real value (keyword, positional, or a spread/dynamic pass-through). Reads of
+the parameter inside its own function — including branches guarded by its default — do
+not refute the gap; a branch gated exclusively by a never-passed parameter is itself
+permanently dead code, which is exactly the significance of the finding. A stated
+backward-compatibility intent explains why the gap exists but does not close it.
 
 For contract gaps over hard-coded literals, classify the literal before deciding:
 - Named project obligation — a constant exists; another site duplicates its bare literal.
@@ -274,15 +292,36 @@ class Triage:
         def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
             if tool_name != "submit_triage_verdicts":
                 return []
-            got = {v.get("batch_index") for v in tool_input.get("verdicts", [])}
-            return [f"Missing verdict for batch_index {i}" for i in range(n) if i not in got]
+            by_index = {
+                v.get("batch_index"): v for v in tool_input.get("verdicts", [])
+            }
+            errors = [
+                f"Missing verdict for batch_index {i}" for i in range(n) if i not in by_index
+            ]
+            # Symbol echo guard: sibling claims (two params of one function)
+            # are easy to cross-wire by index alone — a mismatched echo means
+            # the verdict was written about a different claim.
+            for i, claim in enumerate(claims):
+                echoed = (by_index.get(i) or {}).get("symbol")
+                expected = claim.finding.symbol
+                if echoed and expected and echoed != expected:
+                    errors.append(
+                        f"Verdict for batch_index {i} echoes symbol '{echoed}' but "
+                        f"claim {i} is `{expected}` — re-check your batch_index assignment"
+                    )
+            return errors
 
         result = await provider.complete(
             messages=[Message(role=MessageRole.USER, content=user)],
             system=system_prompt,
             options=CompletionOptions(
                 model=self.config.model_for("medium"),
-                max_tokens=max(512, n * 200),
+                # 500/claim: the rubric asks for verbatim reasoning per verdict,
+                # and API providers enforce max_tokens hard — the V1-3 200/claim
+                # allowance truncated tool JSON mid-batch on the anthropic
+                # provider (V1-5a fixture gate), which the claude-code CLI's
+                # soft handling had masked.
+                max_tokens=max(1024, n * 500),
                 reservation_key="audit.triage",
                 tools=get_triage_claim_tool_definitions(),
                 tool_choice={"type": "tool", "name": "submit_triage_verdicts"},
@@ -310,7 +349,8 @@ class Triage:
             parts.append(self._render_claim_block(i, claim.finding))
         parts.append(
             f"\nProvide a verdict for EVERY claim (batch indices 0..{len(claims) - 1}) "
-            "using the submit_triage_verdicts tool."
+            "using the submit_triage_verdicts tool, echoing each claim's Symbol line "
+            "in the verdict's symbol field."
         )
         return "\n".join(parts)
 
@@ -455,9 +495,10 @@ def _render_evidence(ev: Evidence) -> str:
             for ref in references:
                 resolves = " (resolves to source)" if ref.get("resolves_to_source") else ""
                 same_file = " (same file, outside the flagged region)" if ref.get("same_file") else ""
+                quoted = " [match is inside a quoted string]" if ref.get("in_string_literal") else ""
                 line = f":{ref['line']}" if ref.get("line") else ""
                 out.append(
-                    f"- `{ref.get('file')}{line}` [{ref.get('kind')}]{same_file}: "
+                    f"- `{ref.get('file')}{line}` [{ref.get('kind')}]{same_file}{quoted}: "
                     f"{ref.get('context')}{resolves}"
                 )
             if scope:

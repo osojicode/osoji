@@ -31,7 +31,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from .config import Config
@@ -135,10 +135,11 @@ def _extract_all_symbols_from_debris(description: str) -> list[str]:
     """Extract all plausible symbol names from a debris finding description."""
     names: list[str] = []
     seen: set[str] = set()
-    # 1. Backtick-quoted simple names
-    for m in re.finditer(r"`(\w+)`", description):
-        name = m.group(1)
-        if name.lower() not in _SYMBOL_FILLER and name not in seen:
+    # 1. Backtick-quoted names (dotted allowed — FactsDB resolves
+    #    `Class.method` including bare-method dispatch matching)
+    for m in re.finditer(r"`([\w.]+)`", description):
+        name = m.group(1).strip(".")
+        if name and name.lower() not in _SYMBOL_FILLER and name not in seen:
             names.append(name)
             seen.add(name)
     # 2. PascalCase compounds (catches type names in plain text). Linear
@@ -243,20 +244,74 @@ def _claim_text(finding: Finding) -> str:
     return f"{finding.contract_claim} {finding.observed_behavior}"
 
 
+def _scanner_meta(finding: Finding) -> dict[str, Any]:
+    """Payload of the finding's propose-time ``scanner_metadata`` Evidence, if any.
+
+    V1-5 native detectors attach one such Evidence carrying scanner-chosen
+    ``scan_needles`` and ``priority_paths`` (the detector knows its grep names
+    and where its hits were; the builder should not re-guess them from prose).
+    """
+
+    for ev in finding.evidence:
+        if ev.kind == "scanner_metadata":
+            return ev.payload
+    return {}
+
+
+def _match_in_quotes(line: str, pos: int) -> bool:
+    """Positional check: is column ``pos`` inside a quoted span on this line?
+
+    A single-line state machine over quote characters (``'``, ``"``, backtick)
+    with naive backslash-escape skipping — deliberately no language semantics
+    (which quote styles exist, multi-line strings, comment syntax). The flag is
+    rendered as a positional marker; the LLM judges what the quoting means.
+    """
+
+    quote: str | None = None
+    i = 0
+    while i < pos and i < len(line):
+        ch = line[i]
+        if quote is None:
+            if ch in "'\"`":
+                quote = ch
+        elif ch == "\\":
+            i += 1
+        elif ch == quote:
+            quote = None
+        i += 1
+    return quote is not None
+
+
 def _backticked_names(text: str) -> list[str]:
+    """Backticked identifiers, including dotted ones.
+
+    A dotted name contributes both the qualified form and its bare last
+    segment — `Class.method` reachability lives at `obj.method(` call sites
+    and string-dispatch keys that name only the method (the dead_symbol-001
+    lesson: the plain-word pattern silently skipped dotted names, so the
+    method was never swept and its dispatch string stayed invisible).
+    """
+
     seen: list[str] = []
-    for match in re.finditer(r"`(\w+)`", text):
-        name = match.group(1)
-        if name.lower() not in _SYMBOL_FILLER and name not in seen:
-            seen.append(name)
+    for match in re.finditer(r"`([\w.]+)`", text):
+        name = match.group(1).strip(".")
+        candidates = [name]
+        if "." in name:
+            candidates.append(name.rsplit(".", 1)[-1])
+        for candidate in candidates:
+            if candidate and candidate.lower() not in _SYMBOL_FILLER and candidate not in seen:
+                seen.append(candidate)
     return seen
 
 
 def _scan_needles(finding: Finding) -> tuple[list[str], list[str]]:
     """(symbol_needles, literal_needles) for the text scan.
 
-    A flagged symbol wins outright. Symbol-less findings use what the claim
-    prose explicitly marks — backticked identifiers and quoted literals —
+    A detector-supplied ``scan_needles`` list (scanner_metadata) wins outright —
+    the detector knows its grep names better than prose extraction does (e.g.
+    dead-parameter claims sweep the *function*, never the noisy bare parameter
+    name). Otherwise a flagged symbol wins. Symbol-less findings use what the
+    claim prose explicitly marks — backticked identifiers and quoted literals —
     falling back to the loose prose extractor only when neither exists
     (ablation r1 lesson: prose words like 'Implicit' make junk needles while
     the actual contract literal sits in quotes).
@@ -264,6 +319,9 @@ def _scan_needles(finding: Finding) -> tuple[list[str], list[str]]:
 
     text = _claim_text(finding)
     literals = _quoted_literals(text)
+    supplied = [str(n) for n in _scanner_meta(finding).get("scan_needles", ()) if n]
+    if supplied:
+        return supplied[:_MAX_NEEDLES], literals if finding.gap_type == "contract" else []
     if finding.symbol:
         return [finding.symbol], literals if finding.gap_type == "contract" else []
     symbols = _backticked_names(text)[:_MAX_NEEDLES]
@@ -366,12 +424,16 @@ class CrossFileReferenceBuilder(EvidenceBuilder):
 
         # FactsDB graph refs — legacy best-per-symbol selection preserved
         # (loose extractor on purpose: facts lookups are cheap and precise).
+        # Detector-supplied needles are tried too: a dead-parameter claim's
+        # deciding graph refs hang off the function name, not `func.param`.
         facts = ctx.facts()
-        facts_symbols = (
-            [finding.symbol]
-            if finding.symbol
-            else _extract_all_symbols_from_debris(_claim_text(finding))
-        )
+        supplied = [str(n) for n in _scanner_meta(finding).get("scan_needles", ()) if n]
+        if supplied:
+            facts_symbols = supplied
+        elif finding.symbol:
+            facts_symbols = [finding.symbol]
+        else:
+            facts_symbols = _extract_all_symbols_from_debris(_claim_text(finding))
         best_refs: list[dict] = []
         for sym in facts_symbols:
             try:
@@ -395,15 +457,38 @@ class CrossFileReferenceBuilder(EvidenceBuilder):
         flagged_lo = finding.line_start or 0
         flagged_hi = finding.line_end or flagged_lo
 
-        # Sweep order decides what survives the hit cap: claim-named files
-        # first, then source-extension files, then everything else (r2 lesson:
-        # alphabetical order filled the cap with LICENSE/docs junk while the
-        # deciding producer/consumer sites never made it in).
-        named = _named_paths(finding, ctx)
+        # Sweep order decides what survives the hit cap: detector-supplied
+        # priority paths (grep-hit files, importers) and claim-named files
+        # first, then by proximity to the flagged file within source-extension
+        # rank, then everything else. Two mined lessons: alphabetical order
+        # filled the cap with LICENSE/docs junk (r2), and raw glob order let a
+        # committed fixture corpus's own trace JSONs crowd out the flagged
+        # file's sibling-package usage sites (V1-5a dead_symbol-002) — the
+        # nearest files in the tree are the most probative reference sites.
+        named: list[str] = []
+        for p in _scanner_meta(finding).get("priority_paths", ()):
+            norm = str(p).replace("\\", "/")
+            if norm and norm not in named and ctx.read_lines(norm) is not None:
+                named.append(norm)
+        for p in _named_paths(finding, ctx):
+            if p not in named:
+                named.append(p)
         extensions = getattr(ctx.config, "extensions", ())
+        source_parts = PurePosixPath(source).parts
+
+        def _proximity(rel: str) -> int:
+            parts = PurePosixPath(rel).parts
+            shared = 0
+            for a, b in zip(source_parts[:-1], parts[:-1]):
+                if a != b:
+                    break
+                shared += 1
+            return shared
+
         rest = [f for f in ctx.scan_files() if f not in named]
         ordered = named + sorted(
-            rest, key=lambda f: 0 if Path(f).suffix in extensions else 1
+            rest,
+            key=lambda f: (0 if Path(f).suffix in extensions else 1, -_proximity(f)),
         )
         needle_totals: dict[str, int] = {}
         scan_entries = 0
@@ -421,7 +506,8 @@ class CrossFileReferenceBuilder(EvidenceBuilder):
                 for lineno, line in enumerate(lines, start=1):
                     if same_file and flagged_lo <= lineno <= flagged_hi:
                         continue  # the declaration itself is not a reference
-                    if not regex.search(line):
+                    match = regex.search(line)
+                    if not match:
                         continue
                     total += 1
                     if hits >= _MAX_HITS_PER_NEEDLE or scan_entries >= _MAX_SCAN_ENTRIES_PER_CLAIM:
@@ -444,6 +530,11 @@ class CrossFileReferenceBuilder(EvidenceBuilder):
                     }
                     if same_file:
                         entry["same_file"] = True
+                    if _match_in_quotes(line, match.start()):
+                        # Positional dynamic-dispatch signal: an exact-name hit
+                        # inside a quoted span may be a reflection/registry key
+                        # (the dead_symbol-001 ablation residual).
+                        entry["in_string_literal"] = True
                     references.append(entry)
                     hits += 1
                     file_hits += 1

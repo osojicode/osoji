@@ -1,0 +1,83 @@
+{
+  "slug": "dead_code-case_002-AuditResult",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/audit.py",
+    "line_start": 32,
+    "line_end": 49,
+    "symbol": "AuditResult",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `AuditResult` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "No other file imports `AuditResult` directly, so an external-reference scan reported zero references; all of its uses are within audit.py itself.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 97,
+              "context": "    dead_plumbing: bool = False,\n    verbose: bool = False,\n) -> AuditResult:\n    \"\"\"Run a complete documentation audit.\n",
+              "needle": "AuditResult",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 320,
+              "context": "    _serialize_json(config.scorecard_path, asdict(scorecard))\n\n    return AuditResult(issues=issues, scorecard=scorecard)\n\n",
+              "needle": "AuditResult",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 409,
+              "context": "\n\ndef format_audit_report(result: AuditResult, verbose: bool = False) -> str:\n    \"\"\"Format audit result as agent-ready markdown report.\"\"\"\n    if result.passed and not result.has_warnings and result.scorecard is None:",
+              "needle": "AuditResult",
+              "source": "text_scan",
+              "same_file": true
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 2,
+            "needles": [
+              "AuditResult"
+            ],
+            "needle_totals": {
+              "AuditResult": 4
+            },
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/audit.py",
+          "line_start": 23,
+          "line_end": 43,
+          "snippet": "23:     path: Path\n24:     severity: str  # \"error\" or \"warning\"\n25:     category: str  # \"debris\", \"stale_shadow\", \"missing_shadow\"\n26:     message: str\n27:     remediation: str\n28:     line_start: int | None = None\n29:     line_end: int | None = None\n30: \n31: \n32: @dataclass\n33: class AuditResult:\n34:     \"\"\"Complete audit result.\"\"\"\n35: \n36:     issues: list[AuditIssue] = field(default_factory=list)\n37:     scorecard: Scorecard | None = None\n38: \n39:     @property\n40:     def has_errors(self) -> bool:\n41:         return any(i.severity == \"error\" for i in self.issues)\n42: \n43:     @property",
+          "anchor": "symbol"
+        }
+      }
+    ],
+    "id": "9e1ce2bca11e9782",
+    "verdict": "dismissed",
+    "confidence": 0.95,
+    "triage_reasoning": "Reality check fails. `AuditResult` is the return type of `run_audit()` (L97), is constructed at L320, and is the parameter type of `format_audit_report()` (L409). The 2-file sweep is far too limited — `run_audit` and `format_audit_report` are clearly consumed by CLI or orchestration code not in scope. The symbol is structurally live as the primary output object of the audit pipeline.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "0b7b39bd8a1f2f90"
+  },
+  "trace": null
+}

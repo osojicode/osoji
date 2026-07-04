@@ -1,0 +1,646 @@
+{
+  "slug": "audit-dead_parameter-000",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "audit:dead_parameter",
+    "gap_type": "reachability",
+    "path": "src/osoji/findings_adapter.py",
+    "line_start": 105,
+    "line_end": 105,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_from_junk` with only a `JunkFinding` positional argument (via `_junk(...)`) and never pass `root` as a keyword or positional argument. The parameter always takes its default value of `None`. The `root` value is forwarded to `_norm_path`, where the branch `if root is not None and p.is_absolute()` (inside `_norm_path`) handles it, but that gating is in the helper — no conditional branch gated exclusively by `root` exists inside `finding_from_junk` itself.",
+    "observed_behavior": "Remove the `root` keyword parameter from `finding_from_junk` and replace the call `_norm_path(jf.source_path, root)` with `_norm_path(jf.source_path)` (passing `None` implicitly via `_norm_path`'s own default). If `root`-based path relativization is ever needed in the future it can be re-added then.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "import",
+              "context": "imports JunkFinding from osoji.junk",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 108",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_deadcode_ast.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 126",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_deadparam.py",
+              "kind": "import",
+              "context": "imports JunkFinding from osoji.junk",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_deadparam.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 593",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_findings_adapter.py",
+              "kind": "import",
+              "context": "imports JunkFinding from osoji.junk",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_findings_adapter.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 39",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_junk.py",
+              "kind": "import",
+              "context": "imports JunkFinding from osoji.junk",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_junk.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 59",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_junk.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 80",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_junk.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 89",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_scorecard.py",
+              "kind": "import",
+              "context": "imports JunkFinding from osoji.junk",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_scorecard.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 366",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_scorecard.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 390",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_scorecard.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 473",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_scorecard.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 506",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_scorecard.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 514",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_scorecard.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 522",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_scorecard.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 573",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_scorecard.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 597",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_scorecard.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 621",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_scorecard.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 629",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/deadcode.py",
+              "kind": "import",
+              "context": "imports JunkFinding from .junk",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/deadcode.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 911",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/deadparam.py",
+              "kind": "import",
+              "context": "imports JunkFinding from .junk",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/deadparam.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 713",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk.py",
+              "kind": "export",
+              "context": "exports JunkFinding",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_cicd.py",
+              "kind": "import",
+              "context": "imports JunkFinding from .junk",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_cicd.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 849",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_deps.py",
+              "kind": "import",
+              "context": "imports JunkFinding from .junk",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_deps.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 987",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_orphan.py",
+              "kind": "import",
+              "context": "imports JunkFinding from .junk",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/junk_orphan.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 589",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/plumbing.py",
+              "kind": "import",
+              "context": "imports JunkFinding from .junk",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/plumbing.py",
+              "kind": "call",
+              "context": "calls JunkFinding at line 588",
+              "source": "facts"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 497,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_from_junk` with only a `JunkFinding` positional argument (via `_junk(...)`) and never pass `root`\n        \"observed_behavior\": \"Remove the `root` keyword parameter from `finding_from_junk` and replace the call `_norm_path(jf.source_path, root)` with `_norm_path(jf.source_path)` (passing `None` imp\n        \"evidence\": [],",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1041,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_from_junk` with only a `JunkFinding` positional argument (via `_junk(...)`) and never pass `root`\n        \"observed_behavior\": \"Remove the `root` keyword parameter from `finding_from_junk` and replace the call `_norm_path(jf.source_path, root)` with `_norm_path(jf.source_path)` (passing `None` imp\n        \"evidence\": [],",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_from_junk` with only a `JunkFinding` positional argument (via `_junk(...)`) and never pass `root` as \n    \"observed_behavior\": \"Remove the `root` keyword parameter from `finding_from_junk` and replace the call `_norm_path(jf.source_path, root)` with `_norm_path(jf.source_path)` (passing `None` implici\n    \"evidence\": [],",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_from_junk` with only a `JunkFinding` positional argument (via `_junk(...)`) and never pass `root` as \n    \"observed_behavior\": \"Remove the `root` keyword parameter from `finding_from_junk` and replace the call `_norm_path(jf.source_path, root)` with `_norm_path(jf.source_path)` (passing `None` implici\n    \"evidence\": [",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 302,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 497,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_\n              \"needle\": \"finding_from_junk\",\n              \"source\": \"text_scan\"",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 310,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 498,\n              \"context\": \"        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_from_junk` with only a `Jun\n              \"needle\": \"finding_from_junk\",\n              \"source\": \"text_scan\"",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_from_junk` with only a `JunkFinding` positional argument (via `_junk(...)`) and never pass `root` as \n    \"observed_behavior\": \"Remove the `root` keyword parameter from `finding_from_junk` and replace the call `_norm_path(jf.source_path, root)` with `_norm_path(jf.source_path)` (passing `None` implici\n    \"evidence\": [",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 302,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 497,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_\n              \"needle\": \"finding_from_junk\",\n              \"source\": \"text_scan\"",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 310,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 498,\n              \"context\": \"        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_from_junk` with only a `Jun\n              \"needle\": \"finding_from_junk\",\n              \"source\": \"text_scan\"",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_from_junk` with only a `JunkFinding` positional argument (via `_junk(...)`) and never pass `root` as \n    \"observed_behavior\": \"Remove the `root` keyword parameter from `finding_from_junk` and replace the call `_norm_path(jf.source_path, root)` with `_norm_path(jf.source_path)` (passing `None` implici\n    \"evidence\": [",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 302,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 497,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_\n              \"needle\": \"finding_from_junk\",\n              \"source\": \"text_scan\"",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 310,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 498,\n              \"context\": \"        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_from_junk` with only a `Jun\n              \"needle\": \"finding_from_junk\",\n              \"source\": \"text_scan\"",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r3/claim-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_from_junk` with only a `JunkFinding` positional argument (via `_junk(...)`) and never pass `root` as \n    \"observed_behavior\": \"Remove the `root` keyword parameter from `finding_from_junk` and replace the call `_norm_path(jf.source_path, root)` with `_norm_path(jf.source_path)` (passing `None` implici\n    \"evidence\": [",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r3/claim-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 302,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 497,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_\n              \"needle\": \"finding_from_junk\",\n              \"source\": \"text_scan\"",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r3/claim-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 310,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 498,\n              \"context\": \"        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_from_junk` with only a `Jun\n              \"needle\": \"finding_from_junk\",\n              \"source\": \"text_scan\"",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r4/claim-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_from_junk` with only a `JunkFinding` positional argument (via `_junk(...)`) and never pass `root` as \n    \"observed_behavior\": \"Remove the `root` keyword parameter from `finding_from_junk` and replace the call `_norm_path(jf.source_path, root)` with `_norm_path(jf.source_path)` (passing `None` implici\n    \"evidence\": [",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r4/claim-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 270,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 497,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_\n              \"needle\": \"finding_from_junk\",\n              \"source\": \"text_scan\"",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r4/claim-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 278,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 498,\n              \"context\": \"        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_from_junk` with only a `Jun\n              \"needle\": \"finding_from_junk\",\n              \"source\": \"text_scan\"",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-v15a/claim-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_from_junk` with only a `JunkFinding` positional argument (via `_junk(...)`) and never pass `root` as \n    \"observed_behavior\": \"Remove the `root` keyword parameter from `finding_from_junk` and replace the call `_norm_path(jf.source_path, root)` with `_norm_path(jf.source_path)` (passing `None` implici\n    \"evidence\": [",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-v15a/claim-audit-dead_parameter-000.json",
+              "kind": "text_match",
+              "line": 270,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 497,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_\n              \"needle\": \"finding_from_junk\",\n              \"source\": \"text_scan\",",
+              "needle": "finding_from_junk.root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "src/osoji/audit.py",
+              "kind": "text_match",
+              "line": 1140,
+              "context": "@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap');\n\n:root {\n  --font-serif: 'Cormorant Garamond', Georgia, serif;\n  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;",
+              "needle": "root",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/claim_builder.py",
+              "kind": "text_match",
+              "line": 253,
+              "context": "            would_escalate += 1\n            continue\n        finding_obj = finding_from_debris(finding, root=config.root_path)\n        claim = build_claims([finding_obj], ctx, schema=DEBRIS_SCHEMA)[0]\n        if claim.insufficient_evidence:",
+              "needle": "root",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "text_match",
+              "line": 109,
+              "context": "    \"\"\"\n    run_init(\n        root=path.resolve(),\n        interactive=not non_interactive,\n        provider=provider,",
+              "needle": "root",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "text_match",
+              "line": 126,
+              "context": "    \"\"\"Generate shadow documentation (used internally by audit).\n\n    PATH is the root directory to process (defaults to current directory).\n    \"\"\"\n    state = _cli_state(ctx)",
+              "needle": "root",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/cli.py",
+              "kind": "text_match",
+              "line": 163,
+              "context": "    staleness manifest.  Use --dry-run for a read-only report.\n\n    PATH is the root directory to check (defaults to current directory).\n    \"\"\"\n    state = _cli_state(ctx)",
+              "needle": "root",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/config.py",
+              "kind": "text_match",
+              "line": 705,
+              "context": "    @property\n    def shadow_root(self) -> Path:\n        \"\"\"Return the root directory for shadow docs.\"\"\"\n\n        return self.root_path / SHADOW_DIR / SHADOW_SUBDIR",
+              "needle": "root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "src/osoji/config.py",
+              "kind": "text_match",
+              "line": 711,
+              "context": "    @property\n    def logs_root(self) -> Path:\n        \"\"\"Return the root directory for Osoji log files.\"\"\"\n\n        return self.root_path / SHADOW_DIR / \"logs\"",
+              "needle": "root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "src/osoji/config.py",
+              "kind": "text_match",
+              "line": 761,
+              "context": "    @property\n    def analysis_root(self) -> Path:\n        \"\"\"Return the root directory for analysis outputs.\"\"\"\n\n        return self.root_path / SHADOW_DIR / \"analysis\"",
+              "needle": "root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "src/osoji/diff.py",
+              "kind": "text_match",
+              "line": 21,
+              "context": "    \"\"\"A file changed between base and HEAD.\"\"\"\n\n    path: Path  # Relative to repo root\n    change_type: str  # \"modified\", \"added\", \"deleted\", \"renamed\", \"copied\", \"type_changed\"\n    is_source: bool",
+              "needle": "root",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/doc_analysis.py",
+              "kind": "text_match",
+              "line": 239,
+              "context": "    dir_to_files: dict[str, list[Path]] = {}\n    for dir_path, (summary, child_files) in dir_summaries.items():\n        display_path = dir_path or \"(root)\"\n        listing_parts.append(f\"### `{display_path}/`\\n{summary[:300]}\\n\")\n        dir_to_files[dir_path] = child_files",
+              "needle": "root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "src/osoji/doc_analysis.py",
+              "kind": "text_match",
+              "line": 283,
+              "context": "                if normalized in dir_to_files:\n                    matched_files.extend(dir_to_files[normalized])\n                # Also check empty string for root\n                elif dir_path in (\"\", \"(root)\", \"(root)/\"):\n                    if \"\" in dir_to_files:",
+              "needle": "root",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/doc_analysis.py",
+              "kind": "text_match",
+              "line": 284,
+              "context": "                    matched_files.extend(dir_to_files[normalized])\n                # Also check empty string for root\n                elif dir_path in (\"\", \"(root)\", \"(root)/\"):\n                    if \"\" in dir_to_files:\n                        matched_files.extend(dir_to_files[\"\"])",
+              "needle": "root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "src/osoji/evidence_builders.py",
+              "kind": "text_match",
+              "line": 64,
+              "context": "    \"\"\"Shared, lazily-populated context for one Claim-Builder run.\n\n    Builders are stateless singletons; everything environmental (root, facts,\n    symbols, file cache) is injected through this object so the audit path and\n    the bootstrap harness can run the same builders against different roots.",
+              "needle": "root",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/evidence_builders.py",
+              "kind": "text_match",
+              "line": 90,
+              "context": "\n    def read_lines(self, rel_path: str) -> list[str] | None:\n        \"\"\"Cached line read of a root-relative file; None if unreadable.\"\"\"\n\n        key = rel_path.replace(\"\\\\\", \"/\")",
+              "needle": "root",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "src/osoji/evidence_builders.py",
+              "kind": "text_match",
+              "line": 108,
+              "context": "        if self._scan_files is None:\n            files: list[str] = []\n            root = self.config.root_path\n            try:\n                for path in root.glob(\"**/*\"):",
+              "needle": "root",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/findings_adapter.py",
+              "kind": "text_match",
+              "line": 89,
+              "context": "\n\ndef _norm_path(path: str | Path, root: str | Path | None = None) -> str:\n    \"\"\"Normalize a path to a project-relative, forward-slash string.\n",
+              "needle": "root",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/findings_adapter.py",
+              "kind": "text_match",
+              "line": 93,
+              "context": "\n    The adapter is pure (no ``Config``); native sources are usually already\n    project-relative POSIX strings (FactsDB normalizes that way). If ``root`` is\n    given and ``path`` is absolute, the path is made relative to it first.\n    \"\"\"",
+              "needle": "root",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/findings_adapter.py",
+              "kind": "text_match",
+              "line": 98,
+              "context": "\n    p = Path(path)\n    if root is not None and p.is_absolute():\n        try:\n            p = p.relative_to(Path(root))",
+              "needle": "root",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/hasher.py",
+              "kind": "text_match",
+              "line": 145,
+              "context": "    Cached for the lifetime of the process.\n    \"\"\"\n    # Resolve package root: this file lives at src/osoji/hasher.py\n    pkg_dir = Path(__file__).resolve().parent          # src/osoji/\n",
+              "needle": "root",
+              "source": "text_scan"
+            },
+            {
+              "file": "src/osoji/hooks.py",
+              "kind": "text_match",
+              "line": 75,
+              "context": "# Installed by: osoji hooks install\n\n# Get the root of the git repository\nREPO_ROOT=$(git rev-parse --show-toplevel)\n",
+              "needle": "root",
+              "source": "text_scan"
+            }
+          ],
+          "shadow_excerpts": {
+            "tests/test_deadcode_ast.py": "# tests\\test_deadcode_ast.py\n@source-hash: d06204de5de3b52e\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:30:11Z\n\n## Purpose\nTest suite covering the AST fast-path logic in the osoji dead-code detection subsystem. Verifies three internal `deadcode` functions (`_all_importers_ast_extracted`, `_group_symbols_by_file`, `_build_interface_alive_methods`) and the `JunkFinding.confidence_source` field default/override behaviour.\n\n## File Structure\n- **Helper `_make_config` (L16–20):** Creates a `MagicMock(spec=Config)` with `root_path` and `shadow_root` set to `tmp_path`. Avoids needing a real Config on disk.\n- **Helper `_write_facts` (L23–41):** Writes a `.facts.json` file under `tmp_path / SHADOW_DIR / \"facts\"`. Accepts optional `extraction_method`, `imports`, `exports`, `calls`. Omits the `extraction_method` key entirely when `None` (simulating legacy facts). Path-encodes `/` → `__` to produce a flat filename.\n\n## Test Groups\n\n### `_all_importers_ast_extracted` (L44–166)\nTests whether a file's entire importer graph uses only AST-extracted facts:\n- **L44–55** `test_all_importers_ast_extracted_true`: Single importer with `extraction_method=\"ast\"` → returns `True`.\n- **L58–69** `test_all_importers_ast_extracted_false_when_llm`: Importer with `extraction_method=\"llm\"` → returns `False`.\n- **L72–83** `test_all_importers_ast_extracted_false_when_none`: Importer with no `extraction_method` key (legacy) → returns `False`.\n- **L86–93** `test_all_importers_ast_extracted_no_importers`: No importers → vacuously `True`.\n- **L141–166** `test_mixed_graph_only_full_ast_gets_fast_path`: Mixed graph — `lib.py` has an LLM importer (→ `False`); `standalone.py` has no importers (→ `True`).\n\n### `_group_symbols_by_file` (L96–103)\n- **L96–103** `test_group_symbols_by_file`: Verifies backslash paths (`src\\b.py`) are normalised to forward slashes (`src/b.py`) in the grouped output.\n\n### `JunkFinding.confidence_source` (L106–138)\n- **L106–121** `test_confidence_source_ast_proven`: Explic"
+          },
+          "scan_scope": {
+            "files_scanned": 604,
+            "needles": [
+              "finding_from_junk.root",
+              "root",
+              "finding_from_junk",
+              "JunkFinding",
+              "None"
+            ],
+            "needle_totals": {
+              "finding_from_junk.root": 121,
+              "root": 925,
+              "finding_from_junk": 375,
+              "JunkFinding": 683,
+              "None": 3180
+            },
+            "same_file_swept": true
+          },
+          "export_surface": {
+            "symbol": "finding_from_junk.root",
+            "exported_from_flagged_file": false
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/findings_adapter.py",
+          "line_start": 95,
+          "line_end": 115,
+          "snippet": "95:     \"\"\"\n96: \n97:     p = Path(path)\n98:     if root is not None and p.is_absolute():\n99:         try:\n100:             p = p.relative_to(Path(root))\n101:         except ValueError:\n102:             pass\n103:     posix = PurePosixPath(str(p).replace(\"\\\\\", \"/\")).as_posix()\n104:     return posix[2:] if posix.startswith(\"./\") else posix\n105: \n106: \n107: def finding_from_junk(jf: \"JunkFinding\", *, root: str | Path | None = None) -> Finding:\n108:     \"\"\"Convert a :class:`osoji.junk.JunkFinding` (reachability gaps) to a Finding.\"\"\"\n109: \n110:     category = jf.category\n111:     detector = f\"{_JUNK_PRODUCER.get(category, 'junk')}:{category}\"\n112:     evidence = Evidence(\n113:         kind=\"scanner_metadata\",\n114:         weight_hint=jf.confidence,\n115:         payload={",
+          "anchor": "lines",
+          "enclosing_symbol": {
+            "name": "finding_from_junk",
+            "kind": "function",
+            "line_start": 105,
+            "line_end": 131
+          }
+        }
+      }
+    ],
+    "id": "92c929204840dec8",
+    "verdict": "confirmed",
+    "confidence": 0.93,
+    "triage_reasoning": "Reality: The claim states all 6 call sites invoke `finding_from_junk` via `_junk(...)` without passing `root`. The cross-file evidence shows `src/osoji/claim_builder.py:253` passes `root=config.root_path` to `finding_from_debris`, not to `finding_from_junk`. No evidence shows any call site passing `root` to `finding_from_junk`. The intra-file `_norm_path` is where `root` would be used, but only in the branch `if root is not None and p.is_absolute()` — that branch never executes because `root` is always `None`. Significance: The parameter documents path-relativization capability that is silently unexercised; removing it clarifies the real contract. Actionability: Remove `root` from `finding_from_junk`'s signature and replace `_norm_path(jf.source_path, root)` with `_norm_path(jf.source_path)`.",
+    "suggested_fix": "Remove `root: str | Path | None = None` from `finding_from_junk`'s signature (src/osoji/findings_adapter.py L107) and change the call from `_norm_path(jf.source_path, root)` to `_norm_path(jf.source_path)`.",
+    "severity": "warning",
+    "evidence_fingerprint": "ba1f27df00a010f6"
+  },
+  "trace": null
+}

@@ -1,0 +1,74 @@
+{
+  "slug": "dead_code-case_001-VERIFY_DEAD_CODE_TOOL",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "debris:dead_code",
+    "gap_type": "reachability",
+    "path": "src/osoji/tools.py",
+    "line_start": 327,
+    "line_end": 388,
+    "symbol": "VERIFY_DEAD_CODE_TOOL",
+    "contract_source": "symbol declaration",
+    "contract_claim": "Symbol `VERIFY_DEAD_CODE_TOOL` is declared but appears unused — no references were found outside its own declaration.",
+    "observed_behavior": "A naive external-reference scan reported zero references for `VERIFY_DEAD_CODE_TOOL`, but the symbol participates in the live tool-definition access path.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "src/osoji/tools.py",
+              "kind": "text_match",
+              "line": 393,
+              "context": "def get_dead_code_tools() -> list[dict]:\n    \"\"\"Return tools for dead code verification.\"\"\"\n    return [VERIFY_DEAD_CODE_TOOL]\n\n",
+              "needle": "VERIFY_DEAD_CODE_TOOL",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/tools.py",
+              "kind": "text_match",
+              "line": 427,
+              "context": "def get_dead_code_tool_definitions() -> list[ToolDefinition]:\n    \"\"\"Return ToolDefinition objects for dead code verification.\"\"\"\n    return [_dict_to_tool_definition(VERIFY_DEAD_CODE_TOOL)]\n\n",
+              "needle": "VERIFY_DEAD_CODE_TOOL",
+              "source": "text_scan",
+              "same_file": true
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 6,
+            "needles": [
+              "VERIFY_DEAD_CODE_TOOL"
+            ],
+            "needle_totals": {
+              "VERIFY_DEAD_CODE_TOOL": 2
+            },
+            "same_file_swept": true
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/tools.py",
+          "line_start": 317,
+          "line_end": 337,
+          "snippet": "317:     \"\"\"Return tools for directory shadow doc generation.\"\"\"\n318:     return [SUBMIT_DIRECTORY_SHADOW_DOC_TOOL]\n319: \n320: \n321: def get_match_doc_topics_tools() -> list[dict]:\n322:     \"\"\"Return tools for doc topic matching.\"\"\"\n323:     return [MATCH_DOC_TOPICS_TOOL]\n324: \n325: \n326: # Tool definition for dead code verification (batch: array of verdicts)\n327: VERIFY_DEAD_CODE_TOOL = {\n328:     \"name\": \"verify_dead_code\",\n329:     \"description\": \"\"\"Determine whether each listed symbol is truly dead code or alive despite low/zero textual references.\n330: \n331: ## False positives for grep hits (hit exists but is NOT a real usage)\n332: - **Comments**: The symbol name appears only inside a comment or docstring\n333: - **String literals**: Appears in a string, log message, or error message\n334: - **Name collision**: A different module/class defines a symbol with the same name\n335: - **Similar-but-different**: Substring match on a longer identifier (e.g. `run` inside `run_tests`)\n336: - **Type annotations only**: Used only in type hints, never called at runtime\n337: ",
+          "anchor": "symbol"
+        }
+      }
+    ],
+    "id": "04a0ed80592132a2",
+    "verdict": "uncertain",
+    "confidence": 0.55,
+    "triage_reasoning": "The 6-file sweep found only same-file references to `VERIFY_DEAD_CODE_TOOL` — at L393 (in `get_dead_code_tools()`, which is itself dead per Claim 1) and L427 (in `get_dead_code_tool_definitions()`). The liveness of the constant therefore depends entirely on whether `get_dead_code_tool_definitions()` is called externally. No cross-file evidence for that function appears in the 6-file sweep, but the sweep is limited. The claim's own 'Observed' note asserts participation in the live tool-definition path, which would be true if `get_dead_code_tool_definitions()` has callers outside the sweep scope. Evidence is genuinely insufficient to decide.",
+    "suggested_fix": null,
+    "severity": null,
+    "evidence_fingerprint": "68d02c7ee9f136e1"
+  },
+  "trace": null
+}

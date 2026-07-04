@@ -1,0 +1,76 @@
+{
+  "slug": "dead_parameter-case_002-error",
+  "mode": "claim",
+  "adjudicated_verdict": "dismissed",
+  "finding": {
+    "detector": "deadparam:dead_parameter",
+    "gap_type": "reachability",
+    "path": "src/app/launcher.py",
+    "line_start": 1,
+    "line_end": 1,
+    "symbol": "error",
+    "contract_source": "function signature",
+    "contract_claim": "Parameter `error` is declared in the signature of log(message, error=False) (src/app/launcher.py line 1) as an accepted input that callers may pass.",
+    "observed_behavior": "The attributed call site, log(\"ok\") in src/app/cli.py, does not pass `error`, so the parameter appears to always take its default False. `log` is a common name with high fan-out: src/noise.py defines an unrelated log(message) that is called locally.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "src/app/launcher.py",
+              "kind": "text_match",
+              "line": 2,
+              "context": "def log(message, error=False):\n    return f\"{message}:{error}\"",
+              "needle": "error",
+              "source": "text_scan",
+              "same_file": true,
+              "in_string_literal": true
+            }
+          ],
+          "shadow_excerpts": {},
+          "scan_scope": {
+            "files_scanned": 3,
+            "needles": [
+              "error"
+            ],
+            "needle_totals": {
+              "error": 1
+            },
+            "same_file_swept": true
+          },
+          "export_surface": {
+            "symbol": "error",
+            "exported_from_flagged_file": false
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/app/launcher.py",
+          "line_start": 1,
+          "line_end": 2,
+          "snippet": "1: def log(message, error=False):\n2:     return f\"{message}:{error}\"",
+          "anchor": "symbol",
+          "enclosing_symbol": {
+            "name": "log",
+            "kind": "function",
+            "line_start": 1,
+            "line_end": 2
+          }
+        }
+      }
+    ],
+    "id": "fef97c9fea95cf5c",
+    "verdict": "confirmed",
+    "confidence": 0.82,
+    "triage_reasoning": "Reality: The reference sweep covers 3 files and finds exactly 1 match for `error` — inside the function definition itself (same file, quoted string). The only identified external call site `log(\"ok\")` in `src/app/cli.py` does not pass `error`. No counter-evidence of any caller supplying a real value exists within the 3-file sweep scope. The function body at L2 (`return f\"{message}:{error}\"`) always uses the default `False`. Significance: The parameter advertises a supported flag that is never exercised; removing it eliminates dead API surface. Actionability: Remove the `error` parameter from the signature and simplify the f-string to `return f\"{message}\"`.",
+    "suggested_fix": "Remove the `error` parameter from `log(message, error=False)` and update the body to `return f\"{message}\"` (or `return message`). If the flag was intended for future use, document it as such rather than leaving a silently dead parameter.",
+    "severity": "warning",
+    "evidence_fingerprint": "a4f53e2900a1c90f"
+  },
+  "trace": null
+}

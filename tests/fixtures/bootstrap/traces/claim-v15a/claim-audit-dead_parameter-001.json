@@ -1,0 +1,526 @@
+{
+  "slug": "audit-dead_parameter-001",
+  "mode": "claim",
+  "adjudicated_verdict": "confirmed",
+  "finding": {
+    "detector": "audit:dead_parameter",
+    "gap_type": "reachability",
+    "path": "src/osoji/triage.py",
+    "line_start": 162,
+    "line_end": 162,
+    "symbol": null,
+    "contract_source": "audit",
+    "contract_claim": "L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate_limiter` (call site 2), or passes only `provider` (call sites 5–16). The parameter's only use in the body is the inline expression `executor or ExplorationExecutor(config)`, which always resolves to `ExplorationExecutor(config)` because `executor` is always `None`.",
+    "observed_behavior": "Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or` expression simplifies.",
+    "evidence": [
+      {
+        "kind": "cross_file_reference",
+        "weight_hint": 0.0,
+        "payload": {
+          "references": [
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "import",
+              "context": "imports ExplorationExecutor from osoji.triage_exec",
+              "resolves_to_source": false,
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "call",
+              "context": "calls ExplorationExecutor at line 33",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "call",
+              "context": "calls ExplorationExecutor at line 39",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "call",
+              "context": "calls ExplorationExecutor at line 46",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "call",
+              "context": "calls ExplorationExecutor at line 53",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "call",
+              "context": "calls ExplorationExecutor at line 60",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "call",
+              "context": "calls ExplorationExecutor at line 66",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "call",
+              "context": "calls ExplorationExecutor at line 74",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "call",
+              "context": "calls ExplorationExecutor at line 82",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "call",
+              "context": "calls ExplorationExecutor at line 93",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "call",
+              "context": "calls ExplorationExecutor at line 99",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "call",
+              "context": "calls ExplorationExecutor at line 105",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "call",
+              "context": "calls ExplorationExecutor at line 112",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "call",
+              "context": "calls ExplorationExecutor at line 119",
+              "source": "facts"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "call",
+              "context": "calls ExplorationExecutor at line 126",
+              "source": "facts"
+            },
+            {
+              "file": "src/osoji/triage_exec.py",
+              "kind": "export",
+              "context": "exports ExplorationExecutor",
+              "source": "facts"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 530,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `\n        \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline\n        \"evidence\": [],",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1074,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `\n        \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline\n        \"evidence\": [],",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate\n    \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or\n    \"evidence\": [],",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate\n    \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or\n    \"evidence\": [",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 121,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 530,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated cal\n              \"needle\": \"executor\",\n              \"source\": \"text_scan\"",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/build-r1/build-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 129,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 531,\n              \"context\": \"        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Ev\n              \"needle\": \"executor\",\n              \"source\": \"text_scan\"",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate\n    \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or\n    \"evidence\": [",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 121,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 530,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated cal\n              \"needle\": \"executor\",\n              \"source\": \"text_scan\"",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r1/claim-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 129,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 531,\n              \"context\": \"        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Ev\n              \"needle\": \"executor\",\n              \"source\": \"text_scan\"",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate\n    \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or\n    \"evidence\": [",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 194,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 530,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated cal\n              \"needle\": \"executor\",\n              \"source\": \"text_scan\"",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r2/claim-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 202,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 531,\n              \"context\": \"        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Ev\n              \"needle\": \"executor\",\n              \"source\": \"text_scan\"",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r3/claim-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate\n    \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or\n    \"evidence\": [",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r3/claim-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 194,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 530,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated cal\n              \"needle\": \"executor\",\n              \"source\": \"text_scan\"",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r3/claim-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 202,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 531,\n              \"context\": \"        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Ev\n              \"needle\": \"executor\",\n              \"source\": \"text_scan\"",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r4/claim-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate\n    \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or\n    \"evidence\": [",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r4/claim-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 194,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 530,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated cal\n              \"needle\": \"executor\",\n              \"source\": \"text_scan\"",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-r4/claim-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 202,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 531,\n              \"context\": \"        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Ev\n              \"needle\": \"executor\",\n              \"source\": \"text_scan\"",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-v15a/claim-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate\n    \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or\n    \"evidence\": [",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/claim-v15a/claim-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 196,
+              "context": "              \"kind\": \"text_match\",\n              \"line\": 530,\n              \"context\": \"        \\\"symbol\\\": null,\\n        \\\"contract_source\\\": \\\"audit\\\",\\n        \\\"contract_claim\\\": \\\"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated cal\n              \"needle\": \"executor\",\n              \"source\": \"text_scan\",",
+              "needle": "Triage.__init__.executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "src/osoji/triage.py",
+              "kind": "text_match",
+              "line": 185,
+              "context": "        rate_limiter: Any | None = None,\n        *,\n        executor: ExplorationExecutor | None = None,\n        provider: Any | None = None,\n    ) -> None:",
+              "needle": "executor",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/triage.py",
+              "kind": "text_match",
+              "line": 190,
+              "context": "        self.config = config\n        self.rate_limiter = rate_limiter\n        self.executor = executor or ExplorationExecutor(config)\n        self._provider = provider\n",
+              "needle": "executor",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/triage.py",
+              "kind": "text_match",
+              "line": 439,
+              "context": "                    \"type\": \"tool_result\",\n                    \"tool_use_id\": tc.id,\n                    \"content\": self.executor.run(tc.name, tc.input),\n                }\n                for tc in result.tool_calls",
+              "needle": "executor",
+              "source": "text_scan",
+              "same_file": true
+            },
+            {
+              "file": "src/osoji/triage_exec.py",
+              "kind": "text_match",
+              "line": 1,
+              "context": "\"\"\"Read-only, repo-confined executor backing Triage exploration mode (V1-3).\n\nExploration mode (see :mod:`osoji.triage`) gives the LLM three retrieval tools —",
+              "needle": "executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 191,
+              "context": "        finding.get(\"contract_claim\", \"\"), finding.get(\"observed_behavior\", \"\")\n    )\n    executor = executor_for(entry)\n\n    grep_hits: dict[str, set[int]] = {}  # accumulated across PRIOR greps only",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/mine_traces.py",
+              "kind": "text_match",
+              "line": 206,
+              "context": "                row[\"glob\"] = tool_input.get(\"glob\")\n            for path, lines in parse_grep_hits(\n                executor.run(\"grep\", tool_input)\n            ).items():\n                grep_hits.setdefault(path, set()).update(lines)",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 274,
+              "context": "        if fixture_root:\n            source_root = REPO_ROOT / fixture_root / \"source\"\n            executor = ExplorationExecutor(Config(root_path=source_root))\n            prefix = f\"{fixture_root}/source/\"\n            if finding.path.startswith(prefix):",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 279,
+              "context": "                finding = replace(finding, path=finding.path[len(prefix):])\n        else:\n            executor = repo_executor\n        trace: dict[str, Any] = {\"finding_id\": finding.id, \"calls\": []}\n        verdict: dict[str, Any] = {}",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "scripts/triage_bootstrap.py",
+              "kind": "text_match",
+              "line": 289,
+              "context": "                    {\"turn\": len(trace[\"calls\"]), \"name\": _name, \"input\": tool_args}\n                )\n                return {\"content\": [{\"type\": \"text\", \"text\": executor.run(_name, tool_args)}]}\n            return _t\n",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage.py",
+              "kind": "text_match",
+              "line": 277,
+              "context": "    names = [c[\"name\"] for c in result.exploration_traces[0][\"calls\"]]\n    assert names == [\"read_file\", \"submit_triage_verdict\"]\n    # two provider turns, and the executor output was fed back as a tool_result\n    assert len(provider.calls) == 2\n    second_turn_msgs = provider.calls[1][\"messages\"]",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "text_match",
+              "line": 1,
+              "context": "\"\"\"Tests for the read-only, repo-confined exploration executor (V1-3).\n\nThe executor backs Triage exploration mode: it runs read_file/grep/list_dir",
+              "needle": "executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/test_triage_exec.py",
+              "kind": "text_match",
+              "line": 3,
+              "context": "\"\"\"Tests for the read-only, repo-confined exploration executor (V1-3).\n\nThe executor backs Triage exploration mode: it runs read_file/grep/list_dir\nagainst the repository root only, never writes, never escapes root, and bounds\nits output so a runaway tool call can't blow the context window.",
+              "needle": "executor",
+              "source": "text_scan"
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 516,
+              "context": "      \"severity\": \"warning\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"Nobody - not even tests - injects executor; docstring declares injection intent for provider only. Unexercised DI seam on a central class. BORDERLINE: defensible either wa\n      \"evidence_consulted\": [\n        \"grep constructor calls repo-wide\",",
+              "needle": "executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 530,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `\n        \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline\n        \"evidence\": [],",
+              "needle": "executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest-audit.json",
+              "kind": "text_match",
+              "line": 531,
+              "context": "        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `\n        \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline\n        \"evidence\": [],\n        \"id\": \"365a3ba84781389c\",",
+              "needle": "executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1060,
+              "context": "      \"severity\": \"warning\",\n      \"adjudicated_verdict\": \"confirmed\",\n      \"adjudication_notes\": \"Nobody - not even tests - injects executor; docstring declares injection intent for provider only. Unexercised DI seam on a central class. BORDERLINE: defensible either wa\n      \"evidence_consulted\": [\n        \"grep constructor calls repo-wide\",",
+              "needle": "executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1074,
+              "context": "        \"symbol\": null,\n        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `\n        \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline\n        \"evidence\": [],",
+              "needle": "executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/manifest.json",
+              "kind": "text_match",
+              "line": 1075,
+              "context": "        \"contract_source\": \"audit\",\n        \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `\n        \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline\n        \"evidence\": [],\n        \"id\": \"365a3ba84781389c\",",
+              "needle": "executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/mining/mining-report.json",
+              "kind": "text_match",
+              "line": 2402,
+              "context": "          \"turn\": 2,\n          \"name\": \"grep\",\n          \"pattern\": \"executor\\\\s*=\",\n          \"shape\": \"regex\",\n          \"breadth\": \"scoped\",",
+              "needle": "executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            },
+            {
+              "file": "tests/fixtures/bootstrap/traces/exploration-sdk-audit-dead_parameter-001.json",
+              "kind": "text_match",
+              "line": 13,
+              "context": "    \"symbol\": null,\n    \"contract_source\": \"audit\",\n    \"contract_claim\": \"L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate\n    \"observed_behavior\": \"Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or\n    \"evidence\": [],",
+              "needle": "executor",
+              "source": "text_scan",
+              "in_string_literal": true
+            }
+          ],
+          "shadow_excerpts": {
+            "tests/test_triage_exec.py": "# tests\\test_triage_exec.py\n@source-hash: 4fd70bbd314bac2d\n@impl-hash: 56478213dcceeeb9\n@generated: 2026-07-01T20:25:17Z\n\n## Purpose\n\nTest suite for `ExplorationExecutor` (V1-3 read-only repo exploration executor) — validates security confinement, output bounding, tool dispatch, and error handling for the three tools: `read_file`, `grep`, and `list_dir`.\n\n## Fixture: `repo` (L16–29)\n\nCreates a two-file repo tree under `temp_dir / \"repo\"`:\n- `pkg/a.py` — contains `alpha()` returning `'alpha-token'`\n- `pkg/b.py` — imports and calls `alpha()`\n- `temp_dir / \"secret.txt\"` — placed **outside** `repo/` root; never readable by the executor\n\nReturns `Config(root_path=root, respect_gitignore=False)`, which is passed directly to `ExplorationExecutor`. Depends on `temp_dir` conftest fixture (project convention per MEMORY).\n\n## Test Groups\n\n### `read_file` (L32–70)\n| Test | Verifies |\n|------|----------|\n| `test_read_file_returns_contents` (L32) | Basic content read — `\"alpha-token\"` present |\n| `test_read_file_line_slice` (L38) | `start=3, end=4` slices to lines 3–4; L1 (`import os`) excluded |\n| `test_read_file_rejects_escape_relative` (L45) | `\"../secret.txt\"` → no `\"TOP-SECRET\"`, response contains `\"error\"` |\n| `test_read_file_rejects_escape_absolute` (L52) | Absolute path outside root → same guard |\n| `test_read_file_missing` (L59) | Non-existent path → error response |\n| `test_read_file_caps_output` (L65) | `max_file_bytes=20` + 6000-byte file → output < 600 chars; note accesses `repo.root_path` directly (L67) to plant large file |\n\n### `grep` (L73–101)\n| Test | Verifies |\n|------|----------|\n| `test_grep_finds_matches_with_location` (L73) | Output is `path:line: text` format; both `pkg/a.py:` and `pkg/b.py:` appear |\n| `test_grep_bounds_matches` (L81) | `max_grep_matches=2` + 50-line file → ≤ 2 lines containing `:` and `\"alpha\"` |\n| `test_grep_bad_regex_returns_error` (L92) | `\"(unclosed\"` invalid regex → error response |\n| `test_grep_does_not_escape_root` (L98) | Grep ne"
+          },
+          "scan_scope": {
+            "files_scanned": 604,
+            "needles": [
+              "Triage.__init__.executor",
+              "executor",
+              "rate_limiter",
+              "provider",
+              "None"
+            ],
+            "needle_totals": {
+              "Triage.__init__.executor": 57,
+              "executor": 400,
+              "rate_limiter": 543,
+              "provider": 1750,
+              "None": 3180
+            },
+            "same_file_swept": true
+          },
+          "export_surface": {
+            "symbol": "Triage.__init__.executor",
+            "exported_from_flagged_file": false
+          }
+        }
+      },
+      {
+        "kind": "surrounding_code",
+        "weight_hint": 0.0,
+        "payload": {
+          "file": "src/osoji/triage.py",
+          "line_start": 152,
+          "line_end": 172,
+          "snippet": "152:     finding: Finding\n153:     insufficient_evidence: bool = False\n154: \n155: \n156: @dataclass\n157: class TriageBatchResult:\n158:     \"\"\"Outcome of a :meth:`Triage.decide_batch` call.\"\"\"\n159: \n160:     findings: list[Finding]\n161:     input_tokens: int = 0\n162:     output_tokens: int = 0\n163:     verdict_cache_hit_rate: float = 0.0\n164:     would_escalate_count: int = 0\n165:     exploration_traces: list[dict[str, Any]] = field(default_factory=list)\n166: \n167: \n168: # Hard ceiling on exploration turns per claim, so a runaway loop can't spend\n169: # unbounded tokens. Reaching it yields an 'uncertain' verdict.\n170: _MAX_EXPLORATION_TURNS = 8\n171: \n172: ",
+          "anchor": "lines",
+          "enclosing_symbol": {
+            "name": "Triage.__init__",
+            "kind": "function",
+            "line_start": 162,
+            "line_end": 173
+          }
+        }
+      }
+    ],
+    "id": "365a3ba84781389c",
+    "verdict": "confirmed",
+    "confidence": 0.9,
+    "triage_reasoning": "Reality: The `executor` parameter is a keyword-only argument (`*, executor: ExplorationExecutor | None = None`) in `Triage.__init__`. None of the 16 call sites supply it — production callers pass at most `provider`, and test callers also never pass `executor`. The body evaluates `self.executor = executor or ExplorationExecutor(config)` which always reduces to `ExplorationExecutor(config)`. Significance: Although this is a DI injection point, the fact that even tests never use it (unlike `provider` which IS injected in tests) means the seam is unexercised dead API. The bootstrap manifest adjudicated this confirmed with the note 'Nobody — not even tests — injects executor.' Actionability: Replace the conditional assignment with `self.executor = ExplorationExecutor(config)` unconditionally and remove the `executor` parameter.",
+    "suggested_fix": "Remove `executor: ExplorationExecutor | None = None` from `Triage.__init__` keyword arguments and replace `self.executor = executor or ExplorationExecutor(config)` with the unconditional `self.executor = ExplorationExecutor(config)`.",
+    "severity": "warning",
+    "evidence_fingerprint": "c330e07f45512b0b"
+  },
+  "trace": null
+}

@@ -10,10 +10,11 @@ from osoji.deadparam import (
     CallSite,
     DeadParamCandidate,
     DeadParameterAnalyzer,
-    DeadParamVerification,
+    detect_dead_params_async,
     scan_dead_param_candidates,
 )
 from osoji.junk import JunkAnalysisResult, JunkFinding
+from osoji.llm.types import CompletionResult, ToolCall
 
 
 # --- Helpers ---
@@ -312,223 +313,114 @@ class TestScanCandidates:
         assert {call_site.file_path for call_site in error_candidate.call_sites} == {"src/cli.py"}
 
 
-# --- Phase 2: LLM verification (mocked) ---
+# --- Phase 2: unified pipeline (Claim Builder + Triage, mocked provider) ---
 
-class TestVerification:
-    def test_dead_verdict_produces_finding(self):
-        """LLM returns dead verdict -> DeadParamVerification with is_dead=True."""
-        from osoji.deadparam import _verify_batch_async
-        from osoji.llm.types import CompletionResult, ToolCall
+class TestDetectDeadParams:
+    """detect_dead_params_async drives scan -> claims -> Triage."""
 
-        candidates = [
-            DeadParamCandidate(
-                source_path="src/scorecard.py",
-                function_name="build_scorecard",
-                param_name="dead_code_results",
-                param_line=6,
-                has_default=True,
-                call_sites=[
-                    CallSite("src/audit.py", 10, "    sc = build_scorecard(config, results)"),
-                ],
-            ),
-        ]
-
-        mock_result = CompletionResult(
-            content="",
-            tool_calls=[
-                ToolCall(
-                    id="tc1",
-                    name="verify_dead_parameters",
-                    input={
-                        "verdicts": [{
-                            "function_name": "build_scorecard",
-                            "parameter_name": "dead_code_results",
-                            "is_dead": True,
-                            "confidence": 0.95,
-                            "reason": "No caller passes this parameter",
-                            "remediation": "Remove parameter and gated branches",
-                            "gated_line_ranges": [
-                                {"line_start": 8, "line_end": 9},
-                            ],
-                        }],
-                    },
-                ),
-            ],
-            input_tokens=100,
-            output_tokens=50,
-            model="claude-sonnet-4-20250514",
-            stop_reason="tool_use",
-        )
-
-        provider = AsyncMock()
-        provider.complete = AsyncMock(return_value=mock_result)
-        config = MagicMock()
-        config.model_for.return_value = "claude-sonnet-4-20250514"
-
-        import asyncio
-        verifications, in_tok, out_tok = asyncio.run(
-            _verify_batch_async(provider, config, candidates, "file content", "shadow content")
-        )
-
-        assert len(verifications) == 1
-        v = verifications[0]
-        assert v.is_dead is True
-        assert v.param_name == "dead_code_results"
-        assert v.function_name == "build_scorecard"
-        assert v.confidence == 0.95
-        assert v.gated_line_ranges == [(8, 9)]
-
-    def test_alive_verdict(self):
-        """LLM returns alive verdict -> DeadParamVerification with is_dead=False."""
-        from osoji.deadparam import _verify_batch_async
-        from osoji.llm.types import CompletionResult, ToolCall
-
-        candidates = [
-            DeadParamCandidate(
-                source_path="src/module.py",
-                function_name="process",
-                param_name="verbose",
-                param_line=3,
-                has_default=True,
-                call_sites=[
-                    CallSite("src/caller.py", 5, "    process(data, verbose=True)"),
-                ],
-            ),
-        ]
-
-        mock_result = CompletionResult(
-            content="",
-            tool_calls=[
-                ToolCall(
-                    id="tc1",
-                    name="verify_dead_parameters",
-                    input={
-                        "verdicts": [{
-                            "function_name": "process",
-                            "parameter_name": "verbose",
-                            "is_dead": False,
-                            "confidence": 0.99,
-                            "reason": "Caller at src/caller.py:5 passes verbose=True",
-                            "remediation": "Keep — parameter is used",
-                        }],
-                    },
-                ),
-            ],
-            input_tokens=80,
-            output_tokens=40,
-            model="claude-sonnet-4-20250514",
-            stop_reason="tool_use",
-        )
-
-        provider = AsyncMock()
-        provider.complete = AsyncMock(return_value=mock_result)
-        config = MagicMock()
-        config.model_for.return_value = "claude-sonnet-4-20250514"
-
-        import asyncio
-        verifications, _, _ = asyncio.run(
-            _verify_batch_async(provider, config, candidates, "file content", "shadow content")
-        )
-
-        assert len(verifications) == 1
-        assert verifications[0].is_dead is False
-
-    def test_verify_batch_splits_and_merges_alive(self):
-        """A later caller chunk proving the param is passed should keep it alive."""
-        from osoji.deadparam import _verify_batch_async
-        from osoji.llm.types import CompletionResult, ToolCall
-
-        call_sites = [
-            CallSite(
-                "src/caller.py",
-                line_number=index + 1,
-                context=f"    log('message {index}')",
-            )
-            for index in range(6)
-        ]
-        candidates = [
-            DeadParamCandidate(
-                source_path="src/launcher.py",
-                function_name="log",
-                param_name="error",
-                param_line=1,
-                has_default=True,
-                call_sites=call_sites,
-            ),
-        ]
-
-        provider = AsyncMock()
-        provider.complete = AsyncMock(side_effect=[
-            CompletionResult(
-                content="",
-                tool_calls=[
-                    ToolCall(
-                        id="tc1",
-                        name="verify_dead_parameters",
-                        input={
-                            "verdicts": [{
-                                "function_name": "log",
-                                "parameter_name": "error",
-                                "is_dead": True,
-                                "confidence": 0.7,
-                                "reason": "No passing call appears in this chunk",
-                                "remediation": "Remove parameter",
-                            }],
-                        },
-                    ),
-                ],
-                input_tokens=100,
-                output_tokens=40,
-                model="claude-sonnet-4-20250514",
-                stop_reason="tool_use",
-            ),
-            CompletionResult(
-                content="",
-                tool_calls=[
-                    ToolCall(
-                        id="tc2",
-                        name="verify_dead_parameters",
-                        input={
-                            "verdicts": [{
-                                "function_name": "log",
-                                "parameter_name": "error",
-                                "is_dead": False,
-                                "confidence": 0.95,
-                                "reason": "Caller passes error=True in this chunk",
-                                "remediation": "Keep",
-                            }],
-                        },
-                    ),
-                ],
-                input_tokens=120,
-                output_tokens=50,
-                model="claude-sonnet-4-20250514",
-                stop_reason="tool_use",
-            ),
+    def _write_env(self, temp_dir):
+        _write_source(temp_dir, "src/scorecard.py", "\n".join([
+            "from .config import Config",
+            "",
+            "def build_scorecard(",
+            "    config: Config,",
+            "    results: list,",
+            "    dead_code_results: list | None = None,",
+            ") -> dict:",
+            "    if dead_code_results is not None:",
+            "        pass",
+            "    return {}",
+        ]))
+        _write_symbols(temp_dir, "src/scorecard.py", [
+            {"name": "build_scorecard", "kind": "function", "line_start": 3,
+             "line_end": 10, "visibility": "public",
+             "parameters": [
+                 {"name": "config", "optional": False},
+                 {"name": "results", "optional": False},
+                 {"name": "dead_code_results", "optional": True},
+             ]},
         ])
+        _write_source(temp_dir, "src/audit.py", "\n".join([
+            "from .scorecard import build_scorecard",
+            "",
+            "def run_audit():",
+            "    sc = build_scorecard(config, results)",
+            "    return sc",
+        ]))
+        _write_facts(temp_dir, "src/scorecard.py", exports=[{"name": "build_scorecard"}])
+        _write_facts(temp_dir, "src/audit.py", imports=[
+            {"source": ".scorecard", "names": ["build_scorecard"]},
+        ])
+        return [temp_dir / "src/scorecard.py", temp_dir / "src/audit.py"]
 
-        config = MagicMock()
-        config.model_for.return_value = "claude-sonnet-4-20250514"
-        config.provider = "anthropic"
+    @pytest.mark.asyncio
+    async def test_confirmed_param_decided_through_triage(self, temp_dir):
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        repo_files = self._write_env(temp_dir)
 
-        with patch(
-            "osoji.deadparam._estimate_deadparam_prompt_tokens",
-            side_effect=lambda prompt: 999999 if prompt.count("### Call site") > 5 else 1,
-        ):
-            import asyncio
+        mock_provider = AsyncMock()
+        mock_provider.complete.return_value = CompletionResult(
+            content=None,
+            tool_calls=[ToolCall(
+                id="tc1", name="submit_triage_verdicts",
+                input={"verdicts": [
+                    {"batch_index": 0, "verdict": "confirmed", "confidence": 0.9,
+                     "reasoning": "No caller passes it",
+                     "suggested_fix": "Remove the parameter"},
+                ]},
+            )],
+            input_tokens=10, output_tokens=5, model="test", stop_reason="tool_use",
+        )
 
-            verifications, in_tok, out_tok = asyncio.run(
-                _verify_batch_async(provider, config, candidates, "file content", "shadow content")
-            )
+        with patch("osoji.deadparam.list_repo_files") as mock_list:
+            mock_list.return_value = (repo_files, [])
+            decided = await detect_dead_params_async(mock_provider, config)
 
-        assert provider.complete.call_count == 2
-        assert len(verifications) == 1
-        assert verifications[0].is_dead is False
-        assert in_tok == 220
-        assert out_tok == 90
+        confirmed = [f for f in decided if f.verdict == "confirmed"]
+        assert len(confirmed) == 1
+        finding = confirmed[0]
+        assert finding.detector == "deadparam:dead_parameter"
+        assert finding.gap_type == "reachability"
+        assert finding.symbol == "build_scorecard.dead_code_results"
+        assert finding.triage_reasoning == "No caller passes it"
+        # The claim carried builder evidence, not just scanner metadata
+        assert {ev.kind for ev in finding.evidence} >= {"scanner_metadata"}
 
+    @pytest.mark.asyncio
+    async def test_dismissed_param_kept_with_verdict(self, temp_dir):
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        repo_files = self._write_env(temp_dir)
 
-# --- Analyzer class ---
+        mock_provider = AsyncMock()
+        mock_provider.complete.return_value = CompletionResult(
+            content=None,
+            tool_calls=[ToolCall(
+                id="tc1", name="submit_triage_verdicts",
+                input={"verdicts": [
+                    {"batch_index": 0, "verdict": "dismissed", "confidence": 0.8,
+                     "reasoning": "A caller passes it via kwargs"},
+                ]},
+            )],
+            input_tokens=10, output_tokens=5, model="test", stop_reason="tool_use",
+        )
+
+        with patch("osoji.deadparam.list_repo_files") as mock_list:
+            mock_list.return_value = (repo_files, [])
+            decided = await detect_dead_params_async(mock_provider, config)
+
+        assert [f.verdict for f in decided] == ["dismissed"]
+
+    @pytest.mark.asyncio
+    async def test_no_candidates_makes_no_llm_call(self, temp_dir):
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        # No symbols at all
+        mock_provider = AsyncMock()
+
+        decided = await detect_dead_params_async(mock_provider, config)
+
+        assert decided == []
+        mock_provider.complete.assert_not_called()
+
 
 class TestAnalyzerClass:
     def test_name(self):
@@ -545,22 +437,27 @@ class TestAnalyzerClass:
         assert "parameter" in analyzer.description.lower()
 
     def test_category_mapping(self):
-        """Analyzer produces JunkFindings with category='dead_parameter'."""
+        """Analyzer maps confirmed Findings to JunkFindings; others are dropped."""
+        from dataclasses import replace
+
+        from osoji.findings_adapter import finding_from_dead_param_candidate
+
         analyzer = DeadParameterAnalyzer()
+        base = finding_from_dead_param_candidate(DeadParamCandidate(
+            source_path="src/mod.py",
+            function_name="func",
+            param_name="unused",
+            param_line=10,
+            has_default=True,
+            call_sites=[],
+        ))
+        confirmed = replace(base, verdict="confirmed", confidence=0.9,
+                            triage_reasoning="Never passed", suggested_fix="Remove")
+        dismissed = replace(base, verdict="dismissed", confidence=0.8,
+                            triage_reasoning="A caller passes it")
 
         async def mock_detect(*args, **kwargs):
-            return [
-                DeadParamVerification(
-                    source_path="src/mod.py",
-                    function_name="func",
-                    param_name="unused",
-                    is_dead=True,
-                    confidence=0.9,
-                    reason="Never passed",
-                    remediation="Remove",
-                    gated_line_ranges=[(10, 15)],
-                ),
-            ]
+            return [confirmed, dismissed]
 
         with patch("osoji.deadparam.detect_dead_params_async", side_effect=mock_detect):
             import asyncio
@@ -571,8 +468,12 @@ class TestAnalyzerClass:
         assert len(result.findings) == 1
         assert result.findings[0].category == "dead_parameter"
         assert result.findings[0].name == "func.unused"
+        assert result.findings[0].reason == "Never passed"
+        assert result.findings[0].line_start == 10
         assert result.findings[0].metadata["function_name"] == "func"
-        assert result.findings[0].metadata["gated_lines"] == [[10, 15]]
+        # gated_lines died with the per-detector verify tool
+        assert result.findings[0].metadata["gated_lines"] == []
+        assert result.total_candidates == 2
         assert result.analyzer_name == "dead_params"
 
 

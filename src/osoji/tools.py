@@ -477,81 +477,6 @@ Report findings with evidence from shadow docs. Always include the `findings` fi
 
 
 # Tool definition for dead code verification (batch: array of verdicts)
-VERIFY_DEAD_CODE_TOOL = {
-    "name": "verify_dead_code",
-    "description": """Determine whether each listed symbol is truly dead code or alive despite low/zero textual references.
-
-## False positives for grep hits (hit exists but is NOT a real usage)
-- **Comments**: The symbol name appears only inside a comment or docstring
-- **String literals**: Appears in a string, log message, or error message
-- **Name collision**: A different module/class defines a symbol with the same name
-- **Similar-but-different**: Substring match on a longer identifier (e.g. `run` inside `run_tests`)
-- **Type annotations only**: Used only in type hints, never called at runtime
-
-## False negatives for zero-reference symbols (no hits but symbol IS alive)
-- **Decorators / framework magic**: @app.route, @pytest.fixture, @property, signal handlers
-- **Convention-based dispatch**: Django views, Flask endpoints, Click commands, test_ methods
-- **Dynamic dispatch**: getattr(), importlib, plugin registries, __getattr__
-- **Dunder / magic methods**: __init__, __str__, __enter__, __eq__ — called implicitly
-- **Explicit public API exports**: Python __all__ / __init__.py re-exports; JS/TS export in
-  barrel files; Rust pub use re-exports; Go capitalized identifiers
-- **Entry points**: setup.py/pyproject.toml console_scripts, main() functions, bin scripts
-- **Callbacks / hooks**: Registered at runtime, passed as arguments
-- **Overrides**: Abstract method implementations, interface conformance
-- **Trait implementations**: Rust impl Trait for Type — invoked implicitly
-- **FFI / generated code**: #[derive], #[no_mangle], extern "C" exports
-- **Within-file transitive liveness**: A symbol is alive if an externally-referenced symbol
-  in the same file directly or indirectly USES it — even through chains of private helper
-  functions (constant used inside a private function called by a public function; dataclass
-  returned by an exported API). Liveness flows FROM the entry point INTO what it uses —
-  a sibling function that merely references the same constant is NOT alive through this path.
-
-**Key rule**: A zero-reference wrapper function is DEAD even if it returns a constant/tool
-that IS used by other functions. "It looks like framework code" or "it wraps something used"
-are NOT valid reasons — if the function itself has zero call sites, it is dead.
-
-Set is_dead=True only if the symbol has no plausible alive pathway.
-Provide a verdict for EVERY symbol listed.""",
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "verdicts": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "symbol_name": {
-                            "type": "string",
-                            "description": "Name of the symbol being judged",
-                        },
-                        "is_dead": {
-                            "type": "boolean",
-                            "description": "True if the symbol is genuinely dead code with no alive pathway",
-                        },
-                        "confidence": {
-                            "type": "number",
-                            "minimum": 0.0,
-                            "maximum": 1.0,
-                            "description": "Confidence in the is_dead judgment (1.0 = certain)",
-                        },
-                        "reason": {
-                            "type": "string",
-                            "description": "Brief explanation of why the symbol is dead or alive",
-                        },
-                        "remediation": {
-                            "type": "string",
-                            "description": "Suggested action (e.g. 'Remove function' or 'Keep — used by framework')",
-                        },
-                    },
-                    "required": ["symbol_name", "is_dead", "confidence", "reason", "remediation"],
-                },
-            },
-        },
-        "required": ["verdicts"],
-    },
-}
-
-
 def _dict_to_tool_definition(tool_dict: dict[str, Any]) -> ToolDefinition:
     """Convert a tool dictionary to a ToolDefinition object."""
     return ToolDefinition(
@@ -581,93 +506,7 @@ def get_analyze_document_tool_definitions() -> list[ToolDefinition]:
     return [_dict_to_tool_definition(ANALYZE_DOCUMENT_TOOL)]
 
 
-def get_dead_code_tool_definitions() -> list[ToolDefinition]:
-    """Return ToolDefinition objects for dead code verification."""
-    return [_dict_to_tool_definition(VERIFY_DEAD_CODE_TOOL)]
-
-
 # Tool definition for dead parameter verification
-VERIFY_DEAD_PARAMETERS_TOOL = {
-    "name": "verify_dead_parameters",
-    "description": """Determine whether each listed optional parameter is truly dead (never passed by any caller) or alive.
-
-A parameter is ALIVE if:
-- ANY call site passes it as a keyword argument, positional argument, or via **kwargs spread
-- It is part of an interface/protocol that subclasses must implement
-- The function is a callback whose signature is constrained by a caller
-- It is required by an ABC or protocol definition
-
-A parameter is DEAD if:
-- No call site passes it AND no dynamic dispatch could provide it
-- All callers use the default value (explicitly or implicitly)
-
-For confirmed dead parameters, identify conditional branches in the function body that are
-gated EXCLUSIVELY by that parameter (e.g. `if param is not None:` blocks). Report their
-line ranges as gated_line_ranges.
-
-Provide a verdict for EVERY parameter listed.""",
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "verdicts": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "function_name": {
-                            "type": "string",
-                            "description": "Name of the function containing the parameter",
-                        },
-                        "parameter_name": {
-                            "type": "string",
-                            "description": "Name of the parameter being judged",
-                        },
-                        "is_dead": {
-                            "type": "boolean",
-                            "description": "True if no caller ever passes this parameter",
-                        },
-                        "confidence": {
-                            "type": "number",
-                            "minimum": 0.0,
-                            "maximum": 1.0,
-                            "description": "Confidence in the is_dead judgment (1.0 = certain)",
-                        },
-                        "reason": {
-                            "type": "string",
-                            "description": "Brief explanation of why the parameter is dead or alive",
-                        },
-                        "remediation": {
-                            "type": "string",
-                            "description": "Suggested action (e.g. 'Remove parameter and gated branches')",
-                        },
-                        "gated_line_ranges": {
-                            "type": "array",
-                            "description": "Line ranges of conditional branches gated exclusively by this dead parameter",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "line_start": {"type": "integer", "minimum": 1},
-                                    "line_end": {"type": "integer", "minimum": 1},
-                                },
-                                "required": ["line_start", "line_end"],
-                            },
-                        },
-                    },
-                    "required": ["function_name", "parameter_name", "is_dead", "confidence", "reason", "remediation"],
-                },
-            },
-        },
-        "required": ["verdicts"],
-    },
-}
-
-
-def get_dead_parameter_tool_definitions() -> list[ToolDefinition]:
-    """Return ToolDefinition objects for dead parameter verification."""
-    return [_dict_to_tool_definition(VERIFY_DEAD_PARAMETERS_TOOL)]
-
-
-# Tool definition for doc finding verification (Sonnet, per document with errors)
 VERIFY_DOC_FINDING_TOOL = {
     "name": "verify_doc_finding",
     "description": """Re-evaluate documentation error findings given additional project evidence.
@@ -1507,7 +1346,9 @@ assembled for you. Decide each against the three true-positive predicates:
 - Significance: does closing it improve the codebase?
 - Actionability: is there a concrete fix?
 
-Return one verdict per claim, identified by its batch_index.""",
+Return one verdict per claim, identified by its batch_index. When a claim shows a
+Symbol line, echo it in the verdict's symbol field — sibling claims (e.g. two
+parameters of the same function) are easy to cross-wire by index alone.""",
     "input_schema": {
         "type": "object",
         "properties": {
@@ -1520,6 +1361,11 @@ Return one verdict per claim, identified by its batch_index.""",
                             "type": "integer",
                             "minimum": 0,
                             "description": "0-based index of the claim being judged, as listed in the prompt.",
+                        },
+                        "symbol": {
+                            "type": "string",
+                            "description": "The claim's Symbol line, echoed exactly as shown. "
+                                           "Omit for claims without one.",
                         },
                         **_TRIAGE_VERDICT_FIELDS,
                     },
