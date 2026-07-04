@@ -148,6 +148,12 @@ literal fits none of the five classes, set `contract_class` to `other` and say w
 `other` is the taxonomy's safety valve — a request for review, never shoehorned into the
 nearest class — and its rate is a tracked signal of the taxonomy's adequacy.
 
+When a single claim bundles several shared literals for one file pair, judge the bundle by
+its strongest constituent: if any bundled literal is a genuine project obligation (named or
+unnamed), confirm the claim and set `contract_class` to that strongest class, noting in the
+reasoning which literals carry the contract and which are incidental. Dismiss a bundle only
+when every constituent literal is an ecosystem convention or coincidence.
+
 Capture your reasoning verbatim. Provide a verdict for EVERY claim."""
 
 
