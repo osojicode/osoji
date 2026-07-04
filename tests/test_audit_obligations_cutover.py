@@ -67,6 +67,50 @@ def _one_implicit_contract_env(temp_dir: Path) -> None:
     ])
 
 
+def _three_pair_cluster_env(temp_dir: Path) -> None:
+    """One literal, fragile across three producer/consumer pairs.
+
+    Detection proposes three per-pair findings; the V1-5c clustering pass
+    collapses them to a single canonical contract, so exactly ONE claim reaches
+    Triage and its verdict governs all three sites.
+    """
+    _write(temp_dir, "src/prod.py", "def emit():\n    return 'shared_kind'\n")
+    _write_facts(temp_dir, "src/prod.py", [
+        {"value": "shared_kind", "context": "returned", "line": 2,
+         "kind": "identifier", "usage": "produced"},
+    ])
+    for i in (1, 2, 3):
+        _write(temp_dir, f"src/cons{i}.py", f"def h{i}(x):\n    return x == 'shared_kind'\n")
+        _write_facts(temp_dir, f"src/cons{i}.py", [
+            {"value": "shared_kind", "context": "membership check", "line": 2,
+             "kind": "identifier", "usage": "checked"},
+        ])
+
+
+def _two_distinct_contracts_env(temp_dir: Path) -> None:
+    """Two distinct literals produced by one hub file, checked in two consumers.
+
+    They share the producer file but are two distinct contracts -> two claims.
+    """
+    _write(temp_dir, "src/hub.py", "def emit():\n    return ('alpha_kind', 'beta_kind')\n")
+    _write(temp_dir, "src/cons_a.py", "def a(x):\n    return x == 'alpha_kind'\n")
+    _write(temp_dir, "src/cons_b.py", "def b(x):\n    return x == 'beta_kind'\n")
+    _write_facts(temp_dir, "src/hub.py", [
+        {"value": "alpha_kind", "context": "returned", "line": 2,
+         "kind": "identifier", "usage": "produced"},
+        {"value": "beta_kind", "context": "returned", "line": 2,
+         "kind": "identifier", "usage": "produced"},
+    ])
+    _write_facts(temp_dir, "src/cons_a.py", [
+        {"value": "alpha_kind", "context": "membership check", "line": 2,
+         "kind": "identifier", "usage": "checked"},
+    ])
+    _write_facts(temp_dir, "src/cons_b.py", [
+        {"value": "beta_kind", "context": "membership check", "line": 2,
+         "kind": "identifier", "usage": "checked"},
+    ])
+
+
 class FakeProvider:
     """Canned submit_triage_verdicts provider; records the system prompt."""
 
@@ -181,3 +225,59 @@ def test_claim_call_uses_unified_triage_prompt(temp_dir):
 
     # Identity pin: the shared unified rubric, not a per-detector or debris prompt.
     assert provider.last_system is TRIAGE_SYSTEM_PROMPT
+
+
+# --- V1-5c deeper fix: contract-level dedup with representative guarantee ------
+
+
+def test_cluster_confirmed_ships_one_finding_naming_all_pairs(temp_dir):
+    """Three per-pair findings of one contract -> one claim; confirming it ships
+    a single finding that names every binding site."""
+    _three_pair_cluster_env(temp_dir)
+    provider = FakeProvider(verdicts=[
+        {"batch_index": 0, "verdict": "confirmed", "confidence": 0.8,
+         "reasoning": "one literal binds three sites", "contract_class": "unnamed_obligation"},
+    ])
+
+    findings, _tokens, triaged, other = _run(temp_dir, provider)
+
+    assert provider.calls == 1
+    assert triaged == 1                       # one claim represented the whole cluster
+    assert len(findings) == 1
+    f = findings[0]
+    assert f.contract_class == "unnamed_obligation"
+    assert f.evidence["site_count"] == 3
+    assert "3 sites" in f.description
+
+
+def test_cluster_dismissed_drops_the_whole_cluster(temp_dir):
+    """A single dismissal on the canonical claim drops all three sites — the
+    representative guarantee's converse."""
+    _three_pair_cluster_env(temp_dir)
+    provider = FakeProvider(verdicts=[
+        {"batch_index": 0, "verdict": "dismissed", "confidence": 0.9,
+         "reasoning": "coincidental", "contract_class": "coincidence"},
+    ])
+
+    findings, _tokens, triaged, other = _run(temp_dir, provider)
+
+    assert triaged == 1
+    assert findings == []                     # nothing survives the cluster's verdict
+
+
+def test_two_distinct_contracts_sharing_a_file_make_two_claims(temp_dir):
+    """Two distinct literals from one hub file -> two claims, not merged by the
+    shared file; confirming both ships two findings."""
+    _two_distinct_contracts_env(temp_dir)
+    provider = FakeProvider(verdicts=[
+        {"batch_index": 0, "verdict": "confirmed", "confidence": 0.7,
+         "reasoning": "alpha", "contract_class": "unnamed_obligation"},
+        {"batch_index": 1, "verdict": "confirmed", "confidence": 0.7,
+         "reasoning": "beta", "contract_class": "unnamed_obligation"},
+    ])
+
+    findings, _tokens, triaged, other = _run(temp_dir, provider)
+
+    assert triaged == 2                        # two distinct claims despite the shared file
+    assert len(findings) == 2
+    assert {f.value for f in findings} == {"alpha_kind", "beta_kind"}

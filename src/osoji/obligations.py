@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import PurePosixPath
 
 from .facts import FactsDB
@@ -555,13 +555,7 @@ class StringContractChecker(ContractChecker):
 
     def _files_are_linked(self, file_a: str, file_b: str) -> bool:
         """Check if file_a imports from file_b (directly or one hop)."""
-        imports_a = self.facts.imports_of(file_a)
-        if file_b in imports_a:
-            return True
-        for intermediate in imports_a:
-            if file_b in self.facts.imports_of(intermediate):
-                return True
-        return False
+        return _imports_link(self.facts, file_a, file_b)
 
     def _is_plausible_identifier(self, value: str) -> bool:
         """Filter out noise — strings too short or too common to be meaningful contracts."""
@@ -718,6 +712,143 @@ class StringContractChecker(ContractChecker):
 
 
 # ---------------------------------------------------------------------------
+# Cross-pair contract clustering (V1-5c deeper fix)
+# ---------------------------------------------------------------------------
+#
+# The per-pair findings above answer "which (producer, consumer) pairs share a
+# fragile literal." But the SAME distinct contract — the same shared literal, or
+# the same shared literal SET — is routinely emitted as several near-duplicate
+# pair-findings (a literal produced in one file and checked from N others yields
+# N findings). Routed to Triage independently, every instance of a genuine
+# contract can be dismissed on thin per-pair context, leaving no surviving
+# representative (the config-source Literal family; the orphaned-files /
+# orphaned_files hyphen-drift — both observed lost in the V1-5c A/B gate).
+#
+# This pass clusters findings by contract identity ACROSS file pairs and emits
+# ONE canonical finding per distinct contract, anchored at the best-attested
+# pair, carrying every other sharing site as case-FOR evidence (more sharers =
+# stronger contract). Downstream, one claim represents the whole cluster and its
+# single verdict governs it: a distinct contract is dropped only by an explicit
+# verdict on a claim that actually represents it. Detection is untouched — this
+# is grouping/claim-shaping over the per-pair findings the checkers already
+# produced (signal conservation).
+
+
+def _imports_link(facts_db: FactsDB, file_a: str, file_b: str) -> bool:
+    """Return True if ``file_a`` imports from ``file_b`` (directly or one hop)."""
+    imports_a = facts_db.imports_of(file_a)
+    if file_b in imports_a:
+        return True
+    for intermediate in imports_a:
+        if file_b in facts_db.imports_of(intermediate):
+            return True
+    return False
+
+
+def _contract_identity(f: ContractFinding) -> frozenset[str]:
+    """The distinct-contract key: the shared literal value, or a bundle's value set."""
+    if f.value is not None:
+        return frozenset((f.value,))
+    return frozenset(f.evidence.get("values", ()))
+
+
+def _sharer_files(f: ContractFinding) -> set[str]:
+    """Every file that produces/checks/defines the contract's literal(s)."""
+    files: set[str] = set()
+    for key in ("producer_files", "checker_files", "definer_files"):
+        files.update(f.evidence.get(key, ()))
+    for path in (f.producer_file, f.consumer_file, f.definer_file):
+        if path and path != "(no producer found)":
+            files.add(path)
+    return files
+
+
+def _merge_cluster(group: list[ContractFinding], facts_db: FactsDB) -> ContractFinding:
+    """Collapse several pair-findings of one distinct contract into one canonical
+    finding, anchored at the best-attested pair.
+
+    Anchor ranking reuses ``_check_fragility``'s attribution order: the pair
+    whose consumer actually imports its producer (genuine coupling) wins, then
+    heuristic confidence, then sharer breadth, then a deterministic path
+    tie-break. All co-sharers across the cluster are unioned so the adapter's
+    reference sweep still covers the full file tuple, and every site rides along
+    in ``evidence["contract_sites"]`` so Triage sees the contract's full reach.
+    """
+
+    def rank(f: ContractFinding) -> tuple:
+        return (
+            _imports_link(facts_db, f.consumer_file, f.producer_file),
+            f.confidence,
+            len(_sharer_files(f)),
+            f.producer_file,
+            f.consumer_file,
+        )
+
+    anchor = max(group, key=rank)
+
+    producer_files = sorted({p for f in group for p in f.evidence.get("producer_files", ())}
+                            | {f.producer_file for f in group
+                               if f.producer_file and f.producer_file != "(no producer found)"})
+    checker_files = sorted({c for f in group for c in f.evidence.get("checker_files", ())}
+                           | {f.consumer_file for f in group if f.consumer_file})
+    definer_files = sorted({d for f in group for d in f.evidence.get("definer_files", ())}
+                           | {f.definer_file for f in group if f.definer_file})
+
+    sites = sorted(
+        {(f.producer_file, f.consumer_file) for f in group},
+        key=lambda pc: (pc != (anchor.producer_file, anchor.consumer_file), pc),
+    )
+    other = [f"{p} -> {c}" for p, c in sites
+             if (p, c) != (anchor.producer_file, anchor.consumer_file)]
+
+    evidence = dict(anchor.evidence)
+    evidence["producer_files"] = producer_files
+    evidence["checker_files"] = checker_files
+    evidence["definer_files"] = definer_files
+    evidence["contract_sites"] = [{"producer": p, "consumer": c} for p, c in sites]
+    evidence["site_count"] = len(sites)
+
+    description = anchor.description
+    if other:
+        description += (
+            f" — the same contract binds {len(sites)} sites in total "
+            f"(also at: {'; '.join(other)})"
+        )
+
+    return replace(anchor, description=description, evidence=evidence)
+
+
+def _cluster_by_contract(
+    findings: list[ContractFinding], facts_db: FactsDB
+) -> list[ContractFinding]:
+    """Reduce per-pair findings to one canonical finding per distinct contract.
+
+    Clusters share a ``(finding_type, literal-set)`` identity; a single-member
+    cluster passes through untouched. Multi-member clusters collapse to one
+    anchored finding via :func:`_merge_cluster`.
+    """
+    if not findings:
+        return []
+
+    clusters: dict[tuple[str, frozenset[str]], list[ContractFinding]] = {}
+    order: list[tuple[str, frozenset[str]]] = []
+    for f in findings:
+        key = (f.finding_type, _contract_identity(f))
+        if key not in clusters:
+            clusters[key] = []
+            order.append(key)
+        clusters[key].append(f)
+
+    canonical: list[ContractFinding] = []
+    for key in order:
+        group = clusters[key]
+        canonical.append(group[0] if len(group) == 1 else _merge_cluster(group, facts_db))
+
+    canonical.sort(key=lambda f: (-f.confidence, f.consumer_file, f.producer_file))
+    return canonical
+
+
+# ---------------------------------------------------------------------------
 # Registry and entry point
 # ---------------------------------------------------------------------------
 
@@ -727,9 +858,15 @@ CONTRACT_CHECKERS: list[type[ContractChecker]] = [
 
 
 def run_all_contract_checks(facts_db: FactsDB) -> list[ContractFinding]:
-    """Run all registered contract checkers and return combined findings."""
+    """Run all registered contract checkers and return one finding per contract.
+
+    Each checker still proposes per-pair findings; this entry point then clusters
+    them across file pairs (:func:`_cluster_by_contract`) so every distinct
+    shared-literal contract is represented by exactly one canonical finding —
+    and, downstream, one Triage claim whose verdict governs the whole cluster.
+    """
     findings: list[ContractFinding] = []
     for checker_cls in CONTRACT_CHECKERS:
         checker = checker_cls(facts_db)
         findings.extend(checker.find_contracts())
-    return findings
+    return _cluster_by_contract(findings, facts_db)
