@@ -135,6 +135,30 @@ For contract gaps over hard-coded literals, classify the literal before deciding
   dismiss if coincidental.
 - Coincidental duplication — same literal, unrelated roles. Dismiss as coincidence.
 
+--- Description gaps in prose documentation (V1-5d) ---
+For a description gap where the claim is that a documentation file (README, guide,
+spec, or other prose that describes code behavior) contradicts what the code does,
+weigh it against these principles:
+- Shadow docs are compressed summaries, not exhaustive. A documented command, flag,
+  config key, path, or entry point that is absent from a shadow doc is NOT thereby
+  absent from the project — it may be defined in a file the summary omits (a config
+  file, build manifest, registration table, or a sibling module). If the assembled
+  cross-file evidence shows the documented thing genuinely exists, dismiss on Reality;
+  confirm only when the evidence positively shows the doc is wrong.
+- When counter-evidence is partial — the doc is imprecise but not plainly false —
+  prefer keeping the finding at lower severity (warning) over dropping it; reserve
+  dismissal for claims the evidence actively refutes.
+- Documentation that describes intended, planned, or roadmap behavior is not a
+  description gap merely because the current code does not yet implement it; dismiss
+  unless the doc presents the behavior as already current.
+- Deliberate simplification in learning-oriented material is not an inaccuracy; a
+  tutorial that omits or streamlines detail to teach is correct for its purpose —
+  confirm only when it states something false about current behavior.
+- Illustrative example code is not a normative contract; divergence between an
+  example and the implementation is not a gap unless the doc claims the example is
+  exhaustive or authoritative.
+--- end description-gap guidance ---
+
 Capture your reasoning verbatim. Provide a verdict for EVERY claim."""
 
 
