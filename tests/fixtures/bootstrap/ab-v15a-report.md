@@ -65,3 +65,27 @@ its own reasoning.
 
 Raw audit JSONs (side A, side B initial + final) retained locally; bootstrap corpus
 re-check traces committed under `traces/claim-v15a/`.
+
+## Addendum: first out-of-distribution run (mcp-debugger, 2026-07-04)
+
+Day-zero run on `osojicode/mcp-debugger` (public, TypeScript-dominant: 341 `.ts` + 26
+`.py`, no prior `.osoji`), claude-code provider: shadow generation for 489 source files,
+then `--dead-code --dead-params` through the unified pipeline.
+
+**It caught a corpus-honesty bug invisible in-distribution.** `BuildContext.scan_files`
+globbed the working tree raw: mcp-debugger's checked-out `dist/`, `dist-tarball/`,
+`coverage/` and friends made 12,219 glob entries vs 822 repo files, the
+`_MAX_SCAN_FILES=5000` cap truncated in glob order, and the flagged file itself fell
+outside the corpus — so a "zero matches" sweep mechanically confirmed
+`SWAP_SCRIPT_PATH`, a constant its own file uses four times. Fixed (commit `75f8a2a`):
+walker-based corpus (git-tracked/ignore-filtered), flagged file always swept,
+truncation flagged in `scan_scope`, rendered as a caution, and vetoing mechanical
+confirms. The raw glob had a second failure direction the fix also closes: stale build
+artifacts vouching for deleted source symbols.
+
+**Corrected result: 50 candidates proposed (12 AST-demoted + 12 grep + 26 params),
+0 confirmed.** Hand adjudication of a dismissal sample agrees: the zero-ref symbols are
+example-script locals, same-file subclass anchors (`LanguageRuntimeNotFoundError` →
+`PythonNotFoundError`), injectable same-file defaults (`listTaggedJvms`), and MCP tool
+parameters passed dynamically from protocol dispatch (`args.includeInternals ?? false`)
+— a well-kept repo, correctly reported as such. ~22.5K output tokens for the audit.

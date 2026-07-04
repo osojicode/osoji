@@ -71,6 +71,7 @@ class BuildContext:
     symbols_by_file: dict[str, list[dict]] | None = None
     _file_cache: dict[str, list[str] | None] = field(default_factory=dict, repr=False)
     _scan_files: list[str] | None = field(default=None, repr=False)
+    _scan_truncated: bool = field(default=False, repr=False)
 
     def facts(self) -> Any:
         if self.facts_db is None:
@@ -101,25 +102,49 @@ class BuildContext:
         return self._file_cache[key]
 
     def scan_files(self) -> list[str]:
-        """Root-relative POSIX paths of the text-scan corpus (cached)."""
+        """Root-relative POSIX paths of the text-scan corpus (cached).
+
+        The corpus is the walker's repo view (git-tracked / ignore-filtered),
+        NOT a raw directory glob. A raw glob dilutes the sweep with
+        git-ignored build outputs and vendored trees, and once the cap bites,
+        truncation is corpus pollution with the sign flipped: on
+        mcp-debugger (12k glob entries vs 822 repo files) the flagged file
+        itself fell outside the capped corpus and a "zero matches" sweep
+        mechanically confirmed a symbol that its own file uses four times.
+        The skip-dir filter is kept for the walker's non-git rglob fallback.
+        """
 
         if self._scan_files is None:
+            from .walker import list_repo_files
+
             files: list[str] = []
             root = self.config.root_path
             try:
-                for path in root.glob("**/*"):
-                    if not path.is_file():
+                paths, _used_git = list_repo_files(self.config)
+                for path in paths:
+                    full = path if path.is_absolute() else root / path
+                    if not full.is_file():
                         continue
-                    rel = path.relative_to(root)
+                    rel = full.relative_to(root)
                     if any(part in _SKIP_DIRS for part in rel.parts):
                         continue
-                    files.append(rel.as_posix())
                     if len(files) >= _MAX_SCAN_FILES:
+                        # Cap reached with corpus remaining: record the
+                        # truncation so downstream consumers can refuse to
+                        # treat a zero-hit sweep as evidence-of-absence.
+                        self._scan_truncated = True
                         break
+                    files.append(rel.as_posix())
             except OSError:
                 pass
             self._scan_files = files
         return self._scan_files
+
+    def scan_truncated(self) -> bool:
+        """True iff the last :meth:`scan_files` corpus hit the size cap."""
+
+        self.scan_files()
+        return self._scan_truncated
 
 
 # --- shared positional helpers (relocated verbatim from claim_builder V1-3) --
@@ -473,6 +498,10 @@ class CrossFileReferenceBuilder(EvidenceBuilder):
         for p in _named_paths(finding, ctx):
             if p not in named:
                 named.append(p)
+        # The flagged file is minimum context — sweep it regardless of
+        # whether the (possibly capped) corpus reached it.
+        if source not in named and ctx.read_lines(source) is not None:
+            named.append(source)
         extensions = getattr(ctx.config, "extensions", ())
         source_parts = PurePosixPath(source).parts
 
@@ -563,6 +592,9 @@ class CrossFileReferenceBuilder(EvidenceBuilder):
             "needle_totals": needle_totals,
             "same_file_swept": True,
         }
+        if ctx.scan_truncated():
+            # A capped corpus cannot support evidence-of-absence claims.
+            scan_scope["truncated"] = True
         if not references and not export_surface and not ordered:
             # We could not even look — no graph, no corpus. This (and only
             # this) is the insufficient-evidence case for references.

@@ -639,14 +639,19 @@ async def detect_dead_code_async(
 
 def _clean_zero_reference(claim: Claim) -> bool:
     """True iff the built evidence shows an honest zero — no graph or textual
-    references over a non-empty sweep. Anything else (any hit, or a sweep that
-    could not run) is Triage's call, not a mechanical proof."""
+    references over a non-empty, non-truncated sweep. Anything else (any hit,
+    a sweep that could not run, or a corpus cut off at its cap) is Triage's
+    call, not a mechanical proof."""
 
     for ev in claim.finding.evidence:
         if ev.kind == "cross_file_reference":
             refs = ev.payload.get("references") or []
             scope = ev.payload.get("scan_scope") or {}
-            return not refs and scope.get("files_scanned", 0) > 0
+            return (
+                not refs
+                and scope.get("files_scanned", 0) > 0
+                and not scope.get("truncated")
+            )
     return False
 
 
