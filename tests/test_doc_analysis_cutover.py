@@ -229,6 +229,42 @@ async def test_cutover_uses_unified_triage_prompt(temp_dir):
     assert "single verifier for every code-quality finding" in provider.last_system
 
 
+@pytest.mark.asyncio
+async def test_coverage_dismissed_accuracy_confirmed(temp_dir):
+    """The accuracy/coverage boundary (deeper fix, 2026-07-04).
+
+    doc_analysis owns accuracy (doc asserts X, code does Y); coverage
+    (doc "does not mention X") belongs to a different subsystem and is
+    off-mission here. Pins both directions in one batch: a canned
+    "does not mention" finding is dismissed; a canned "asserts X but the
+    code does Y" finding is confirmed.
+    """
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    coverage = _doc_finding(
+        category="stale_content", severity="warning",
+        description="README does not mention the 'osoji init' command",
+        search_terms=["init"],
+    )
+    accuracy = _doc_finding(
+        category="incorrect_content", severity="error",
+        description="README says the flag is --foo but the code uses --bar",
+        search_terms=["--foo"],
+    )
+    result = _result_with(temp_dir, [coverage, accuracy])
+    provider = FakeProvider(verdicts_per_call=[[
+        {"batch_index": 0, "verdict": "dismissed", "confidence": 0.9,
+         "reasoning": "absence of a mention is a coverage matter, off-mission"},
+        {"batch_index": 1, "verdict": "confirmed", "confidence": 0.9,
+         "reasoning": "doc asserts --foo, code contradicts with --bar"},
+    ]])
+
+    await _triage_doc_findings(provider, config, [result])
+
+    kept = [f.description for f in result.findings]
+    assert kept == ["README says the flag is --foo but the code uses --bar"]
+    assert result.findings[0].verdict == "confirmed"
+
+
 # --- smallest-sufficient shadow scope -----------------------------------------
 
 

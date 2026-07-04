@@ -139,6 +139,12 @@ For contract gaps over hard-coded literals, classify the literal before deciding
 For a description gap where the claim is that a documentation file (README, guide,
 spec, or other prose that describes code behavior) contradicts what the code does,
 weigh it against these principles:
+- A description gap requires a positive assertion in the documentation that the code
+  contradicts — the doc states something and the code does otherwise. The mere absence
+  of a mention is not such a gap: that a doc could usefully describe something it
+  currently omits is a coverage question, owned by a different subsystem, and is
+  dismissed here no matter how valuable adding the mention would be. Adjudicate only
+  what the doc affirmatively claims; never fault it for what it leaves unsaid.
 - Shadow docs are compressed summaries, not exhaustive. A documented command, flag,
   config key, path, or entry point that is absent from a shadow doc is NOT thereby
   absent from the project — it may be defined in a file the summary omits (a config
