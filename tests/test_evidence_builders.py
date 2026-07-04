@@ -555,3 +555,55 @@ def test_sweep_orders_by_proximity_to_flagged_file(config, temp_dir):
     evidence = BUILDERS["cross_file_reference"].build(finding, ctx)
     files = [r["file"] for r in evidence[0].payload["references"]]
     assert files[0] == "src/pkg/impl.py"
+
+
+def test_scan_corpus_uses_walker_and_skips_osoji_artifacts(config, temp_dir):
+    write(temp_dir, "src/x.py", "code\n")
+    write(temp_dir, ".osoji/shadow/src/x.py.shadow.md", "shadow\n")
+    ctx = BuildContext(config)
+    files = ctx.scan_files()
+    assert "src/x.py" in files
+    assert not any(f.startswith(".osoji") for f in files)
+    assert ctx.scan_truncated() is False
+
+
+def test_truncated_corpus_is_flagged_and_flagged_file_still_swept(config, temp_dir, monkeypatch):
+    # mcp-debugger lesson: a capped corpus silently excluded the flagged file,
+    # turning four same-file usages into a "zero matches" mechanical confirm.
+    import osoji.evidence_builders as eb
+
+    for i in range(6):
+        write(temp_dir, f"src/a_{i}.py", "filler\n")
+    write(temp_dir, "src/zz_flagged.py",
+          "def old_helper():\n    pass\n\nold_helper()\n")
+    monkeypatch.setattr(eb, "_MAX_SCAN_FILES", 3)
+    finding = make_finding(path="src/zz_flagged.py", line_start=1, line_end=2)
+    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
+    evidence = BUILDERS["cross_file_reference"].build(finding, ctx)
+    payload = evidence[0].payload
+    assert payload["scan_scope"].get("truncated") is True
+    # The same-file usage at L4 was found even though the corpus cap
+    # excluded src/zz_flagged.py from the walked corpus.
+    same_file = [r for r in payload["references"] if r.get("same_file")]
+    assert same_file and same_file[0]["line"] == 4
+
+
+def test_truncated_zero_sweep_is_not_a_mechanical_proof(config, temp_dir, monkeypatch):
+    from osoji.deadcode import _clean_zero_reference
+    from osoji.triage import Claim
+    import osoji.evidence_builders as eb
+
+    for i in range(6):
+        write(temp_dir, f"src/a_{i}.py", "filler\n")
+    write(temp_dir, "src/zz_flagged.py", "def lonely():\n    pass\n")
+    monkeypatch.setattr(eb, "_MAX_SCAN_FILES", 3)
+    finding = make_finding(
+        path="src/zz_flagged.py", symbol="lonely", line_start=1, line_end=2
+    )
+    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
+    [ev] = BUILDERS["cross_file_reference"].build(finding, ctx)
+    claim = Claim(finding=make_finding(
+        path="src/zz_flagged.py", symbol="lonely", line_start=1, line_end=2,
+        evidence=[ev],
+    ))
+    assert _clean_zero_reference(claim) is False

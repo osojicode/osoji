@@ -528,6 +528,11 @@ def _render_evidence(ev: Evidence) -> str:
                 f"No references found: {scope.get('files_scanned')} files swept "
                 f"for {', '.join(scope.get('needles', []))} — zero matches, {swept}."
             )
+            if scope.get("truncated"):
+                out.append(
+                    "CAUTION: the scan corpus was TRUNCATED at its size cap — "
+                    "this zero is not evidence-of-absence for the whole repository."
+                )
         surface = ev.payload.get("export_surface")
         if surface:
             exported = "IS" if surface.get("exported_from_flagged_file") else "is NOT"
