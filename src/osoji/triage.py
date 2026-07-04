@@ -154,6 +154,13 @@ unnamed), confirm the claim and set `contract_class` to that strongest class, no
 reasoning which literals carry the contract and which are incidental. Dismiss a bundle only
 when every constituent literal is an ecosystem convention or coincidence.
 
+A literal whose meaning is fixed by an external API, wire format, or protocol is an
+ecosystem convention no matter which side of the boundary emitted it: a value your code
+sends and a value it receives back are governed alike by the external contract, not by any
+project obligation. Judge such strings by the protocol that defines them, and apply that
+judgement consistently across the protocol's whole vocabulary — do not confirm one member
+of an external message/status/finish-reason vocabulary while dismissing its siblings.
+
 Capture your reasoning verbatim. Provide a verdict for EVERY claim."""
 
 
