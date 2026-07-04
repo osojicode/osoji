@@ -10,13 +10,37 @@ from osoji.config import Config
 from osoji.llm.types import CompletionResult, ToolCall
 from osoji.plumbing import (
     ConfigObligation,
-    PlumbingResult,
-    _find_field_references,
     detect_dead_plumbing_async,
     extract_obligations_async,
-    verify_actuation_async,
 )
 from osoji.symbols import load_file_roles, load_files_by_role
+
+
+def _triage_verdicts(options, verdicts_by_index):
+    """Build a submit_triage_verdicts ToolCall response for a triage batch.
+
+    ``verdicts_by_index`` maps batch_index -> (verdict, confidence, reasoning).
+    Missing indices default to confirmed so the whole batch is covered.
+    """
+    validator = options.tool_input_validators[0]
+    n = len(validator("submit_triage_verdicts", {"verdicts": []}))
+    verdicts = []
+    for i in range(n):
+        verdict, confidence, reasoning = verdicts_by_index.get(
+            i, ("confirmed", 0.9, "unreachable")
+        )
+        verdicts.append({
+            "batch_index": i, "verdict": verdict, "confidence": confidence,
+            "reasoning": reasoning,
+        })
+    return CompletionResult(
+        content=None,
+        tool_calls=[ToolCall(
+            id="triage", name="submit_triage_verdicts",
+            input={"verdicts": verdicts},
+        )],
+        input_tokens=200, output_tokens=80, model="test", stop_reason="tool_use",
+    )
 
 
 # --- Helpers ---
@@ -117,48 +141,11 @@ class TestFileRoles:
         assert load_files_by_role(config, "schema") == ["src/runtime-schema.json"]
 
 
-# --- Tests for reference scanning ---
-
-class TestFieldReferences:
-    """Tests for _find_field_references."""
-
-    def test_finds_reference_in_other_file(self, temp_dir):
-        """Field name found in another file is returned."""
-        config = Config(root_path=temp_dir, respect_gitignore=False)
-        _write_source(temp_dir, "src/schema.ts", "export const taskTimeoutMs = z.number();\n")
-        _write_source(temp_dir, "src/runner.ts", "const timeout = config.taskTimeoutMs;\n")
-
-        refs = _find_field_references(config, "taskTimeoutMs", "src/schema.ts")
-        assert "src/runner.ts" in refs
-
-    def test_excludes_defining_file(self, temp_dir):
-        """The defining file itself is excluded."""
-        config = Config(root_path=temp_dir, respect_gitignore=False)
-        _write_source(temp_dir, "src/schema.ts", "export const taskTimeoutMs = z.number();\n")
-
-        refs = _find_field_references(config, "taskTimeoutMs", "src/schema.ts")
-        assert "src/schema.ts" not in refs
-
-    def test_word_boundary(self, temp_dir):
-        """Substring matches are not counted."""
-        config = Config(root_path=temp_dir, respect_gitignore=False)
-        _write_source(temp_dir, "src/schema.ts", "export const timeout = 100;\n")
-        _write_source(temp_dir, "src/other.ts", "const timeoutHandler = () => {};\n")
-
-        refs = _find_field_references(config, "timeout", "src/schema.ts")
-        # "timeoutHandler" should not match "timeout" due to word boundary
-        assert "src/other.ts" not in refs
-
-    def test_doc_candidates_are_excluded_from_reference_scan(self, temp_dir):
-        """Dead-plumbing reference scanning should ignore documentation files."""
-        config = Config(root_path=temp_dir, respect_gitignore=False)
-        _write_source(temp_dir, "src/schema.ts", "export const taskTimeoutMs = z.number();\n")
-        _write_source(temp_dir, "docs/reference.json", '{"taskTimeoutMs": "documented"}\n')
-        _write_source(temp_dir, "src/runner.ts", "const timeout = config.taskTimeoutMs;\n")
-
-        refs = _find_field_references(config, "taskTimeoutMs", "src/schema.ts")
-        assert "src/runner.ts" in refs
-        assert "docs/reference.json" not in refs
+# NOTE: reference gathering used to live in plumbing's `_find_field_references`
+# (with its own doc-exclusion / word-boundary coverage). V1-5b routes that job
+# through `evidence_builders.CrossFileReferenceBuilder` (covered by its own
+# tests) plus the cutover module; the deleted `TestFieldReferences` class is not
+# re-created here.
 
 
 # --- Tests for obligation extraction ---
@@ -247,220 +234,79 @@ class TestExtractObligations:
         assert obligations == []
 
 
-# --- Tests for actuation verification ---
-
-class TestVerifyActuation:
-    """Tests for LLM-based actuation verification (Phase B)."""
-
-    @pytest.fixture
-    def mock_provider(self):
-        return AsyncMock()
-
-    @pytest.fixture
-    def config(self, temp_dir):
-        return Config(root_path=temp_dir, respect_gitignore=False)
-
-    @pytest.mark.asyncio
-    async def test_unactuated_field(self, mock_provider, config):
-        """Field that is only stored/passed but never enforced."""
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1",
-                name="verify_actuation",
-                input={
-                    "is_actuated": False,
-                    "confidence": 0.9,
-                    "trace": "taskTimeoutMs is parsed from YAML, stored in config, passed to trial-runner, but never used to set a timer or deadline",
-                    "remediation": "Add setTimeout with taskTimeoutMs in trial-runner.ts to enforce task-level timeout",
-                },
-            )],
-            input_tokens=800,
-            output_tokens=100,
-            model="test",
-            stop_reason="tool_use",
-        )
-
-        obligation = ConfigObligation(
-            source_path="src/trial.ts",
-            field_name="taskTimeoutMs",
-            schema_name="TrialSettingsSchema",
-            line_start=10,
-            line_end=10,
-            obligation="Enforce max elapsed time for task execution",
-            expected_actuation="timer/deadline/abort/kill",
-        )
-
-        verification, in_tok, out_tok = await verify_actuation_async(
-            mock_provider, config, obligation,
-            "Schema shadow doc", {"src/runner.ts": "Runner shadow doc"}, {},
-        )
-        assert verification.is_actuated is False
-        assert verification.confidence == 0.9
-        assert "taskTimeoutMs" in verification.trace
-        assert in_tok == 800
-
-    @pytest.mark.asyncio
-    async def test_actuated_field(self, mock_provider, config):
-        """Field that is properly enforced via setTimeout."""
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1",
-                name="verify_actuation",
-                input={
-                    "is_actuated": True,
-                    "confidence": 0.95,
-                    "trace": "turnTimeoutMs flows from schema → config → trial-bridge.ts where it is used in setTimeout to SIGTERM the agent process",
-                    "remediation": "None needed",
-                },
-            )],
-            input_tokens=800,
-            output_tokens=100,
-            model="test",
-            stop_reason="tool_use",
-        )
-
-        obligation = ConfigObligation(
-            source_path="src/trial.ts",
-            field_name="turnTimeoutMs",
-            schema_name="TrialSettingsSchema",
-            line_start=11,
-            line_end=11,
-            obligation="Enforce max elapsed time per turn",
-            expected_actuation="timer/deadline/abort/kill",
-        )
-
-        verification, _, _ = await verify_actuation_async(
-            mock_provider, config, obligation,
-            "Schema shadow doc", {"src/bridge.ts": "Bridge shadow doc"}, {},
-        )
-        assert verification.is_actuated is True
-        assert verification.confidence == 0.95
-
-
-# --- Integration test for full pipeline ---
+# --- Integration test for full pipeline (unified Triage) ---
 
 class TestDetectDeadPlumbing:
-    """Integration test for the full pipeline with mock LLM."""
+    """Integration test for the full pipeline with mock LLM.
+
+    Actuation judgment now lives in the unified Triage stage: extraction
+    proposes obligations, the Claim Builder assembles cross-file references,
+    and ``submit_triage_verdicts`` decides confirmed (unactuated) vs dismissed.
+    """
 
     @pytest.mark.asyncio
     async def test_full_pipeline(self, temp_dir):
-        """Full pipeline: extracts obligations, verifies actuation, returns unactuated."""
+        """Extract obligations, then Triage confirms the unactuated field only."""
         config = Config(root_path=temp_dir, respect_gitignore=False)
 
-        # Set up a schema file with file_role
         _write_symbols(temp_dir, "src/trial.ts", [], file_role="schema")
         _write_source(temp_dir, "src/trial.ts",
-                       "const Schema = z.object({\n  taskTimeoutMs: z.number(),\n  turnTimeoutMs: z.number(),\n});")
+                      "const Schema = z.object({\n  taskTimeoutMs: z.number(),\n"
+                      "  turnTimeoutMs: z.number(),\n});")
         _write_shadow(temp_dir, "src/trial.ts", "# src/trial.ts\nSchema with timeout fields")
+        _write_source(temp_dir, "src/runner.ts",
+                      "const timeout = config.taskTimeoutMs;\n"
+                      "const turn = config.turnTimeoutMs;\n")
 
-        # Set up a referencing file
-        _write_source(temp_dir, "src/runner.ts", "const timeout = config.taskTimeoutMs;\nconst turn = config.turnTimeoutMs;\n")
-        _write_shadow(temp_dir, "src/runner.ts", "# src/runner.ts\nRunner that reads config but only enforces turnTimeoutMs")
-
-        # Mock provider: first call extracts obligations, subsequent calls verify
         mock_provider = AsyncMock()
-        call_count = 0
 
         async def mock_complete(messages, system, options):
-            nonlocal call_count
-            call_count += 1
-            content = messages[0].content
-            if "extract_obligations" in (options.tool_choice or {}).get("name", ""):
-                # Phase A: extraction
+            tool_name = (options.tool_choice or {}).get("name", "")
+            if tool_name == "extract_obligations":
                 return CompletionResult(
                     content=None,
                     tool_calls=[ToolCall(
-                        id="tc1",
-                        name="extract_obligations",
-                        input={
-                            "obligations": [
-                                {
-                                    "field_name": "taskTimeoutMs",
-                                    "schema_name": "Schema",
-                                    "line_start": 2,
-                                    "line_end": 2,
-                                    "obligation": "Enforce task timeout",
-                                    "expected_actuation": "timer/deadline",
-                                },
-                                {
-                                    "field_name": "turnTimeoutMs",
-                                    "schema_name": "Schema",
-                                    "line_start": 3,
-                                    "line_end": 3,
-                                    "obligation": "Enforce turn timeout",
-                                    "expected_actuation": "timer/deadline",
-                                },
-                            ],
-                        },
+                        id="tc1", name="extract_obligations",
+                        input={"obligations": [
+                            {"field_name": "taskTimeoutMs", "schema_name": "Schema",
+                             "line_start": 2, "line_end": 2,
+                             "obligation": "Enforce task timeout",
+                             "expected_actuation": "timer/deadline"},
+                            {"field_name": "turnTimeoutMs", "schema_name": "Schema",
+                             "line_start": 3, "line_end": 3,
+                             "obligation": "Enforce turn timeout",
+                             "expected_actuation": "timer/deadline"},
+                        ]},
                     )],
                     input_tokens=500, output_tokens=200,
                     model="test", stop_reason="tool_use",
                 )
-            elif "**Field**: `taskTimeoutMs`" in content:
-                # Phase B: taskTimeoutMs is unactuated
-                return CompletionResult(
-                    content=None,
-                    tool_calls=[ToolCall(
-                        id="tc2",
-                        name="verify_actuation",
-                        input={
-                            "is_actuated": False,
-                            "confidence": 0.9,
-                            "trace": "taskTimeoutMs is stored but never enforced",
-                            "remediation": "Add timer enforcement",
-                        },
-                    )],
-                    input_tokens=400, output_tokens=80,
-                    model="test", stop_reason="tool_use",
-                )
-            else:
-                # Phase B: turnTimeoutMs is actuated
-                return CompletionResult(
-                    content=None,
-                    tool_calls=[ToolCall(
-                        id="tc3",
-                        name="verify_actuation",
-                        input={
-                            "is_actuated": True,
-                            "confidence": 0.95,
-                            "trace": "turnTimeoutMs is enforced via setTimeout",
-                            "remediation": "None needed",
-                        },
-                    )],
-                    input_tokens=400, output_tokens=80,
-                    model="test", stop_reason="tool_use",
-                )
+            # Triage: taskTimeoutMs (index 0) unactuated -> confirmed;
+            # turnTimeoutMs (index 1) enforced -> dismissed.
+            return _triage_verdicts(options, {
+                0: ("confirmed", 0.9, "stored but never enforced"),
+                1: ("dismissed", 0.95, "enforced via setTimeout"),
+            })
 
         mock_provider.complete = mock_complete
 
-        result = await detect_dead_plumbing_async(
-            mock_provider, config,
-        )
+        decided, total = await detect_dead_plumbing_async(mock_provider, config)
 
-        assert isinstance(result, PlumbingResult)
-        assert result.total_obligations == 2
-        # Only unactuated fields should be in verifications
-        unactuated_names = [r.field_name for r in result.verifications]
-        assert "taskTimeoutMs" in unactuated_names
-        assert "turnTimeoutMs" not in unactuated_names
+        assert total == 2
+        confirmed = [f for f in decided if f.verdict == "confirmed"]
+        assert [f.symbol for f in confirmed] == ["taskTimeoutMs"]
 
     @pytest.mark.asyncio
     async def test_no_schema_files(self, temp_dir):
-        """No schema files → empty results."""
+        """No schema files → empty results, no LLM calls."""
         config = Config(root_path=temp_dir, respect_gitignore=False)
-        # Only utility files, no schemas
         _write_symbols(temp_dir, "src/utils.ts", [], file_role="utility")
 
         mock_provider = AsyncMock()
 
-        result = await detect_dead_plumbing_async(
-            mock_provider, config,
-        )
-        assert isinstance(result, PlumbingResult)
-        assert result.verifications == []
-        assert result.total_obligations == 0
+        decided, total = await detect_dead_plumbing_async(mock_provider, config)
+        assert (decided, total) == ([], 0)
+        assert mock_provider.complete.await_count == 0
 
     @pytest.mark.asyncio
     async def test_doc_json_schema_sidecar_does_not_trigger_plumbing(self, temp_dir):
@@ -471,10 +317,7 @@ class TestDetectDeadPlumbing:
 
         mock_provider = AsyncMock()
 
-        result = await detect_dead_plumbing_async(
-            mock_provider, config,
-        )
+        decided, total = await detect_dead_plumbing_async(mock_provider, config)
 
-        assert result.verifications == []
-        assert result.total_obligations == 0
+        assert (decided, total) == ([], 0)
         assert mock_provider.complete.await_count == 0

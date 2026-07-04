@@ -124,6 +124,34 @@ not refute the gap; a branch gated exclusively by a never-passed parameter is it
 permanently dead code, which is exactly the significance of the finding. A stated
 backward-compatibility intent explains why the gap exists but does not close it.
 
+For unactuated-config reachability claims specifically: the gap is about enforcement,
+not mere reference. The field is alive only if some code uses its value to CAUSE the
+declared effect (actuation). A reference that only reads, stores, forwards, restructures,
+logs, or displays the value is NOT actuation and does not refute the gap — a value that
+is plumbed everywhere but never reaches the enforcing operation leaves the obligation
+unmet, and that unenforced obligation is the significance of the finding. Passing the
+value to a component documented to enforce it — a library call, or a cross-process
+handoff (env var → container → subprocess) — IS actuation when the receiving side
+enforces. Confirm when the assembled references show the value flowing without any site
+that enforces it.
+
+For orphaned-file reachability claims specifically: reachability can be file-level, not
+only symbol-level. A whole file may be reached by convention rather than by an import
+edge — discovered by a framework or tool (such as test, fixture, migration, or template
+discovery), loaded dynamically, named in configuration or CI, or invoked as a script or
+entry point. A missing import edge does not by itself confirm an orphan; confirm only
+when no such conventional or dynamic pathway plausibly reaches the file. An honest zero
+over a real sweep of the file's name and exported symbols is the case FOR confirming.
+
+For dead-CI/CD reachability claims specifically: a missing referenced path is the
+primary signal but not dispositive. Weigh whether the element's real work depends on the
+missing path or merely mentions it among operations that are inherently external or
+dynamically resolved (such as dependency installation, whole-repo linters, dynamic test
+discovery, external deploy or registry targets, or conventional phony targets). An
+element whose entire purpose rests on what is now gone is far more likely dead than one
+that references the missing path incidentally; decide on the balance of the element's
+dependence on what is actually missing.
+
 For contract gaps over hard-coded literals, classify the literal before deciding:
 - Named project obligation — a constant exists; another site duplicates its bare literal.
   Confirm; suggest using the existing constant.

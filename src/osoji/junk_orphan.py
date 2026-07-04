@@ -8,9 +8,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .async_utils import gather_with_buffer
 from .config import Config, SHADOW_DIR
-from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content
+from .evidence_builders import BuildContext, _scanner_meta
+from .facts import FactsDB
+from .findings import Finding
+from .findings_adapter import finding_from_orphan_candidate
+from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult
+from .junk_triage import build_junk_claims, decide_junk_claims
 from .llm.base import LLMProvider
 from .llm.runtime import create_runtime
 from .llm.types import Message, MessageRole, CompletionOptions
@@ -18,7 +22,6 @@ from .symbols import load_all_symbols, load_file_roles
 from .tools import (
     get_identify_entry_points_tool_definitions,
     get_identify_relationships_tool_definitions,
-    get_verify_orphan_files_tool_definitions,
 )
 
 
@@ -32,17 +35,6 @@ class OrphanCandidate:
     topics: list[str]
     file_role: str
     public_surface: list[str] = field(default_factory=list)
-
-
-@dataclass
-class OrphanVerification:
-    """Result of verifying whether a file is orphaned."""
-
-    source_path: str
-    is_orphaned: bool
-    confidence: float
-    reason: str
-    remediation: str
 
 
 # --- Phase 1: Import edges (deterministic, pure Python) ---
@@ -278,96 +270,6 @@ def find_orphans(adjacency: dict[str, set[str]], entry_points: set[str]) -> list
     return sorted(all_nodes - visited)
 
 
-# --- Phase 6: Medium-model orphan verification ---
-
-_VERIFY_ORPHANS_SYSTEM_PROMPT = """You are verifying whether source files are truly orphaned (unreachable and unused).
-
-Each file listed is not reachable via import edges from any entry point, and has no
-detected semantic relationship to the rest of the project. But some may still be alive:
-- Plugin/extension files loaded dynamically
-- Convention-based files (migrations, fixtures, templates)
-- Files referenced in configuration or CI/CD
-- Script files invoked from command line
-
-Set is_orphaned=True only if you're confident the file has no alive pathway.
-Provide a verdict for EVERY file listed."""
-
-
-async def _verify_orphans_batch_async(
-    provider: LLMProvider,
-    config: Config,
-    orphans: list[OrphanCandidate],
-    shadow_contents: dict[str, str],
-) -> tuple[list[OrphanVerification], int, int]:
-    """Medium-model verification of orphan candidates.
-
-    Returns (verifications, input_tokens, output_tokens).
-    """
-    user_parts: list[str] = []
-
-    user_parts.append("## Orphan candidate files\n")
-    for o in orphans:
-        user_parts.append(
-            f"### `{o.source_path}` (role: {o.file_role})\n"
-            f"Purpose: {o.purpose}\n"
-            f"Topics: {o.topics}\n"
-        )
-        shadow = shadow_contents.get(o.source_path, "")
-        if shadow:
-            user_parts.append(f"Shadow doc:\n{shadow[:3000]}\n")
-
-    names_list = ", ".join(f"`{o.source_path}`" for o in orphans)
-    user_parts.append(
-        f"Provide a verdict for EVERY file listed ({names_list}) "
-        "using the verify_orphan_files tool."
-    )
-
-    expected = {o.source_path for o in orphans}
-
-    def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
-        if tool_name != "verify_orphan_files":
-            return []
-        verdicts = tool_input.get("verdicts", [])
-        got = {v.get("source_path") for v in verdicts}
-        missing = expected - got
-        return [f"Missing verdict for '{p}'" for p in sorted(missing)]
-
-    result = await provider.complete(
-        messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
-        system=_VERIFY_ORPHANS_SYSTEM_PROMPT,
-        options=CompletionOptions(
-            model=config.model_for("medium"),
-            max_tokens=max(1024, len(orphans) * 200),
-            reservation_key="junk_orphan.verify",
-            tools=get_verify_orphan_files_tool_definitions(),
-            tool_choice={"type": "tool", "name": "verify_orphan_files"},
-            tool_input_validators=[check_completeness],
-        ),
-    )
-
-    verifications: list[OrphanVerification] = []
-    for tc in result.tool_calls:
-        if tc.name == "verify_orphan_files":
-            for v in tc.input.get("verdicts", []):
-                path = v.get("source_path", "")
-                if path in expected:
-                    verifications.append(OrphanVerification(
-                        source_path=path,
-                        is_orphaned=v.get("is_orphaned", False),
-                        confidence=v.get("confidence", 0.5),
-                        reason=v.get("reason", ""),
-                        remediation=v.get("remediation", ""),
-                    ))
-
-    if not verifications:
-        raise RuntimeError(
-            f"LLM did not return verdicts for orphan files: "
-            f"{[o.source_path for o in orphans]}"
-        )
-
-    return verifications, result.input_tokens, result.output_tokens
-
-
 # --- Signature loading ---
 
 def _load_signatures(config: Config) -> list[dict]:
@@ -397,7 +299,7 @@ async def detect_orphaned_files_async(
     provider: LLMProvider,
     config: Config,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
-) -> tuple[list[OrphanVerification], int]:
+) -> tuple[list[Finding], int]:
     """Detect orphaned source files using a purpose graph.
 
     Pipeline:
@@ -406,7 +308,10 @@ async def detect_orphaned_files_async(
     3. BFS from entry points → find disconnected files
     4. Identify semantic relationships for disconnected files (small model)
     5. BFS again with semantic edges → find orphan candidates
-    6. Verify orphans (medium model)
+    6. Build claims and decide file-level reachability through unified Triage
+
+    Returns ``(decided Findings — all verdicts; callers keep ``confirmed`` —,
+    total orphan candidates examined)``.
     """
     # Load data sources
     all_symbols = load_all_symbols(config)
@@ -500,54 +405,16 @@ async def detect_orphaned_files_async(
             public_surface=sig.get("public_surface", []),
         ))
 
-    # Pre-load shadow docs
-    shadow_contents: dict[str, str] = {}
-    for o in orphans:
-        shadow_contents[o.source_path] = load_shadow_content(config, o.source_path)
-
-    # Phase 6: Medium-model verification (batch up to 10 per call)
-    results: list[OrphanVerification] = []
-    completed = 0
-    total_batches = (len(orphans) + 9) // 10
-    lock = asyncio.Lock()
-
-    async def process_batch(batch: list[OrphanCandidate]) -> list[OrphanVerification]:
-        nonlocal completed
-
-        try:
-            verifications, _in_tok, _out_tok = await _verify_orphans_batch_async(
-                provider, config, batch, shadow_contents,
-            )
-
-            async with lock:
-                completed += 1
-                dead_count = sum(1 for v in verifications if v.is_orphaned)
-                for v in verifications:
-                    if v.is_orphaned:
-                        results.append(v)
-                if on_progress:
-                    on_progress(
-                        completed, total_batches,
-                        Path(batch[0].source_path),
-                        f"{dead_count} orphaned",
-                    )
-            return verifications
-        except Exception as e:
-            async with lock:
-                completed += 1
-                if on_progress:
-                    on_progress(
-                        completed, total_batches,
-                        Path(batch[0].source_path), "error",
-                    )
-            print(f"  [error] orphan verification: {e}", flush=True)
-            return []
-
     total = len(orphans)
-    batches = [orphans[i:i + 10] for i in range(0, len(orphans), 10)]
-    await gather_with_buffer([lambda batch=batch: process_batch(batch) for batch in batches])
 
-    return results, total
+    # Phase 6: Build claims and decide file-level reachability through Triage
+    findings = [finding_from_orphan_candidate(o) for o in orphans]
+    ctx = BuildContext(config, facts_db=FactsDB(config), symbols_by_file=all_symbols)
+    claims = build_junk_claims(findings, ctx)
+    decided, _in_tok, _out_tok = await decide_junk_claims(
+        claims, config, provider, on_progress=on_progress
+    )
+    return decided, total
 
 
 class OrphanedFilesAnalyzer(JunkAnalyzer):
@@ -584,22 +451,25 @@ class OrphanedFilesAnalyzer(JunkAnalyzer):
         return asyncio.run(_run())
 
     async def analyze_async(self, provider, config, on_progress=None):
-        results, total = await detect_orphaned_files_async(provider, config, on_progress)
-        findings = [
-            JunkFinding(
-                source_path=v.source_path,
-                name=Path(v.source_path).name,
+        decided, total = await detect_orphaned_files_async(provider, config, on_progress)
+        findings = []
+        for f in decided:
+            if f.verdict != "confirmed":
+                continue
+            name = f.symbol or Path(f.path).name
+            findings.append(JunkFinding(
+                source_path=f.path,
+                name=name,
                 kind="file",
                 category="orphaned_file",
                 line_start=1,
                 line_end=None,
-                confidence=v.confidence,
-                reason=v.reason,
-                remediation=v.remediation,
-                original_purpose=f"file `{v.source_path}`",
-            )
-            for v in results
-        ]
+                confidence=f.confidence if f.confidence is not None else 0.0,
+                reason=f.triage_reasoning or "",
+                remediation=f.suggested_fix or "Delete file",
+                original_purpose=f"file `{f.path}`",
+                confidence_source="llm_inferred",
+            ))
         return JunkAnalysisResult(
             findings=findings,
             total_candidates=total,

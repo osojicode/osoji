@@ -6,21 +6,23 @@ field in a schema that is parsed from YAML and threaded through config objects b
 never used to enforce a timeout.
 """
 
-import asyncio
-import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
 from .async_utils import gather_with_buffer
-from .config import Config, SHADOW_DIR
+from .config import Config
+from .evidence_builders import BuildContext, _scanner_meta
+from .facts import FactsDB
+from .findings import Finding
+from .findings_adapter import finding_from_config_obligation
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult, load_shadow_content
+from .junk_triage import build_junk_claims, decide_junk_claims
 from .llm.base import LLMProvider
 from .llm.budgets import input_budget_for_config
 from .llm.types import Message, MessageRole, CompletionOptions
 from .symbols import load_files_by_role
-from .tools import get_extract_obligations_tool_definitions, get_verify_actuation_tool_definitions
-from .walker import list_repo_files, _matches_ignore
+from .tools import get_extract_obligations_tool_definitions
 
 
 @dataclass
@@ -35,118 +37,6 @@ class ConfigObligation:
     obligation: str  # what the field promises
     expected_actuation: str  # what enforcement would look like
     evidence: str = ""  # direct quote from schema text grounding the obligation
-
-
-@dataclass
-class PlumbingVerification:
-    """Result of verifying whether a config obligation is actuated."""
-
-    source_path: str
-    field_name: str
-    schema_name: str
-    line_start: int
-    line_end: int | None
-    is_actuated: bool
-    confidence: float
-    trace: str  # data flow description (or gap)
-    remediation: str
-
-
-@dataclass
-class PlumbingResult:
-    """Complete result from dead plumbing detection."""
-
-    verifications: list[PlumbingVerification]  # only unactuated
-    total_obligations: int  # total fields examined
-
-
-_MAX_REFERENCING_SHADOWS = 12
-_MAX_SIBLING_SHADOWS = 6
-_MAX_SHADOW_EXCERPT_CHARS = 2_000
-_SHADOW_CONTEXT_RADIUS = 12
-
-
-def _is_test_like_path(path: str) -> bool:
-    path_lower = path.lower()
-    return (
-        "/test" in path_lower
-        or "/tests/" in path_lower
-        or path_lower.startswith("test/")
-        or path_lower.startswith("tests/")
-        or ".test." in path_lower
-        or ".spec." in path_lower
-        or "_test." in path_lower
-        or "_spec." in path_lower
-    )
-
-
-def _path_from_shadow_label(label: str) -> str:
-    match = re.search(r"in `([^`]+)`", label)
-    return match.group(1) if match else label
-
-
-def _field_from_shadow_label(label: str) -> str | None:
-    match = re.match(r"`([^`]+)`", label)
-    return match.group(1) if match else None
-
-
-def _shadow_excerpt(
-    shadow: str,
-    *,
-    needle: str | None,
-    max_chars: int = _MAX_SHADOW_EXCERPT_CHARS,
-) -> str:
-    """Trim a shadow doc to the most relevant excerpt for a field."""
-
-    normalized = shadow.strip()
-    if not normalized:
-        return ""
-
-    if needle:
-        lines = normalized.splitlines()
-        for index, line in enumerate(lines):
-            if needle.lower() not in line.lower():
-                continue
-            start = max(0, index - _SHADOW_CONTEXT_RADIUS)
-            end = min(len(lines), index + _SHADOW_CONTEXT_RADIUS + 1)
-            excerpt = "\n".join(lines[start:end]).strip()
-            if len(excerpt) > max_chars:
-                excerpt = excerpt[:max_chars].rstrip() + "\n[... truncated ...]"
-            return excerpt
-
-    if len(normalized) <= max_chars:
-        return normalized
-    return normalized[:max_chars].rstrip() + "\n[... truncated ...]"
-
-
-def _select_shadow_excerpts(
-    shadows: dict[str, str],
-    *,
-    limit: int,
-    needle: str | None = None,
-    label_path: Callable[[str], str] | None = None,
-    label_needle: Callable[[str], str | None] | None = None,
-) -> tuple[list[tuple[str, str]], int]:
-    """Select the most useful shadow excerpts, preferring non-test files."""
-
-    path_resolver = label_path or (lambda label: label)
-    ordered = sorted(
-        shadows.items(),
-        key=lambda item: (
-            _is_test_like_path(path_resolver(item[0])),
-            path_resolver(item[0]),
-            item[0],
-        ),
-    )
-    selected: list[tuple[str, str]] = []
-    for label, shadow in ordered[:limit]:
-        excerpt = _shadow_excerpt(
-            shadow,
-            needle=label_needle(label) if label_needle else needle,
-        )
-        if excerpt:
-            selected.append((label, excerpt))
-    return selected, max(0, len(ordered) - limit)
 
 
 # --- Phase A: Obligation Extraction ---
@@ -232,227 +122,30 @@ async def extract_obligations_async(
     raise RuntimeError(f"LLM did not call extract_obligations for {source_path}")
 
 
-# --- Phase B: Actuation Verification ---
-
-_VERIFY_ACTUATION_SYSTEM_PROMPT = f"""You are tracing a config field from its schema definition through the codebase to determine
-whether it is ever used to CAUSE its declared effect (actuation).
-
-You are given:
-1. The obligation: what the field promises to enforce
-2. The schema's shadow doc showing the field definition
-3. Shadow docs for up to {_MAX_REFERENCING_SHADOWS} files that reference this field
-4. Shadow docs for sibling fields from the same schema that ARE properly enforced (as positive counterexamples)
-
-Your job: trace the data flow from schema → config loading → handoff → enforcement.
-
-Key question: "Does any shadow doc describe this field being used to CAUSE the declared effect?
-Or is it only stored, passed, and restructured?"
-
-Actuation examples:
-- setTimeout(callback, field) — actuation via timer
-- if (turns >= field) break — actuation via loop guard
-- axios({{timeout: field}}) — actuation via library that enforces it
-- Passing as env var to a container whose shadow doc says it reads and enforces it — actuation
-
-NOT actuation:
-- Logging the value
-- Storing in results/metrics
-- Including in a config object that is only read by other config code
-- Displaying in a UI
-
-You MUST call the verify_actuation tool with all required fields.
-Always include `trace` and `remediation`. If the field is actuated, set remediation to `None needed`."""
-
-
-async def verify_actuation_async(
-    provider: LLMProvider,
-    config: Config,
-    obligation: ConfigObligation,
-    schema_shadow: str,
-    referencing_shadows: dict[str, str],
-    sibling_shadows: dict[str, str],
-) -> tuple[PlumbingVerification, int, int]:
-    """Verify whether a single obligation is actuated.
-
-    Returns (PlumbingVerification, input_tokens, output_tokens).
-    """
-    user_parts = []
-    user_parts.append(f"## Obligation under analysis\n")
-    user_parts.append(f"- **Field**: `{obligation.field_name}`")
-    user_parts.append(f"- **Schema**: `{obligation.schema_name}`")
-    user_parts.append(f"- **File**: `{obligation.source_path}`")
-    user_parts.append(f"- **Line**: {obligation.line_start}"
-                      + (f"-{obligation.line_end}" if obligation.line_end else ""))
-    user_parts.append(f"- **Obligation**: {obligation.obligation}")
-    user_parts.append(f"- **Expected actuation**: {obligation.expected_actuation}")
-    user_parts.append("")
-
-    # Schema shadow doc
-    if schema_shadow:
-        schema_excerpt = _shadow_excerpt(schema_shadow, needle=obligation.field_name)
-        user_parts.append(
-            f"## Schema shadow doc: `{obligation.source_path}`\n{schema_excerpt}\n"
-        )
-
-    # Referencing file shadows
-    if referencing_shadows:
-        selected_refs, omitted_refs = _select_shadow_excerpts(
-            referencing_shadows,
-            limit=_MAX_REFERENCING_SHADOWS,
-            needle=obligation.field_name,
-        )
-        user_parts.append(
-            f"## Files referencing `{obligation.field_name}` "
-            f"(showing {len(selected_refs)} of {len(referencing_shadows)} files)\n"
-        )
-        for path, shadow in selected_refs:
-            user_parts.append(f"### `{path}`\n{shadow}\n")
-        if omitted_refs:
-            user_parts.append(
-                f"[Omitted {omitted_refs} additional referencing shadow(s) after prioritizing non-test files.]\n"
-            )
-
-    # Sibling field shadows (positive counterexamples)
-    if sibling_shadows:
-        selected_siblings, omitted_siblings = _select_shadow_excerpts(
-            sibling_shadows,
-            limit=_MAX_SIBLING_SHADOWS,
-            label_path=_path_from_shadow_label,
-            label_needle=_field_from_shadow_label,
-        )
-        user_parts.append(
-            f"## Sibling fields from same schema for comparison "
-            f"(showing {len(selected_siblings)} of {len(sibling_shadows)} shadow(s))\n"
-        )
-        for label, shadow in selected_siblings:
-            user_parts.append(f"### {label}\n{shadow}\n")
-        if omitted_siblings:
-            user_parts.append(
-                f"[Omitted {omitted_siblings} additional sibling comparison shadow(s) after prioritizing non-test files.]\n"
-            )
-
-    user_parts.append(
-        "Trace this field and determine if it is actuated using the verify_actuation tool. "
-        "The tool call MUST include `is_actuated`, `confidence`, `trace`, and `remediation`."
-    )
-
-    result = await provider.complete(
-        messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
-        system=_VERIFY_ACTUATION_SYSTEM_PROMPT,
-        options=CompletionOptions(
-            model=config.model_for("medium"),
-            max_tokens=1024,
-            max_input_tokens=input_budget_for_config(config),
-            reservation_key="plumbing.verify_actuation",
-            tools=get_verify_actuation_tool_definitions(),
-            tool_choice={"type": "tool", "name": "verify_actuation"},
-        ),
-    )
-
-    for tool_call in result.tool_calls:
-        if tool_call.name == "verify_actuation":
-            return (
-                PlumbingVerification(
-                    source_path=obligation.source_path,
-                    field_name=obligation.field_name,
-                    schema_name=obligation.schema_name,
-                    line_start=obligation.line_start,
-                    line_end=obligation.line_end,
-                    is_actuated=tool_call.input["is_actuated"],
-                    confidence=tool_call.input["confidence"],
-                    trace=tool_call.input["trace"],
-                    remediation=tool_call.input["remediation"],
-                ),
-                result.input_tokens,
-                result.output_tokens,
-            )
-
-    raise RuntimeError(f"LLM did not call verify_actuation for {obligation.field_name}")
-
-
-# --- Reference scanning (no LLM) ---
-
-def _find_field_references(
-    config: Config,
-    field_name: str,
-    defining_file: str,
-    file_content_cache: dict[str, str] | None = None,
-) -> list[str]:
-    """Find all files referencing a field name (excluding the defining file).
-
-    Returns list of relative source paths.
-    When file_content_cache is provided, read_text results are cached
-    so repeated calls don't re-read the same files.
-    """
-    all_paths, _ = list_repo_files(config)
-    all_paths = list(all_paths)
-
-    osojiignore = config.load_osojiignore()
-    pattern = re.compile(r"\b" + re.escape(field_name) + r"\b")
-
-    referencing: list[str] = []
-    for path in all_paths:
-        if not path.is_absolute():
-            path = config.root_path / path
-
-        if not path.is_file():
-            continue
-
-        relative = path.relative_to(config.root_path)
-        rel_str = str(relative).replace("\\", "/")
-
-        if rel_str.startswith(SHADOW_DIR):
-            continue
-        if rel_str == defining_file:
-            continue
-        if _matches_ignore(relative, config.ignore_patterns):
-            continue
-        if osojiignore and _matches_ignore(relative, osojiignore):
-            continue
-        if config.is_doc_candidate(relative):
-            continue
-
-        # Use cache when available to avoid redundant file reads
-        if file_content_cache is not None and rel_str in file_content_cache:
-            content = file_content_cache[rel_str]
-        else:
-            try:
-                content = path.read_text(errors="ignore")
-            except OSError:
-                continue
-            if file_content_cache is not None:
-                file_content_cache[rel_str] = content
-
-        if pattern.search(content):
-            referencing.append(rel_str)
-
-    return referencing
-
-
-def _load_shadow_content(config: Config, relative_path: str) -> str:
-    """Load shadow doc content for a relative source path."""
-    return load_shadow_content(config, relative_path)
-
-
 # --- Full pipeline ---
 
 async def detect_dead_plumbing_async(
     provider: LLMProvider,
     config: Config,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
-) -> PlumbingResult:
-    """Detect unactuated config obligations across the project.
+) -> tuple[list[Finding], int]:
+    """Detect unactuated config obligations through the unified pipeline.
 
-    Phase A: Extract obligations from schema files (small model)
-    Phase B: Verify actuation for each obligation (medium model)
+    Phase A (proposal, retained): extract obligation-bearing fields from schema
+    files. Each obligation becomes a reachability Finding whose claim is framed
+    in enforcement terms; the Claim Builder assembles cross-file references and
+    Triage judges actuation (a store/pass/log reference is a real use in the
+    sweep sense but does not enforce — the unified rubric's unactuated-config
+    clause makes that distinction).
 
-    Returns PlumbingResult with unactuated verifications and total obligation count.
+    Returns ``(decided Findings — all verdicts; callers keep ``confirmed`` —,
+    total obligations examined)``.
     """
     # Step 1: Find schema files
     schema_files = load_files_by_role(config, "schema")
     if not schema_files:
         print("  [skip] No schema files found. Run 'osoji shadow . --force' to classify files.", flush=True)
-        return PlumbingResult(verifications=[], total_obligations=0)
+        return [], 0
 
     print(f"  Found {len(schema_files)} schema file(s)", flush=True)
 
@@ -467,7 +160,7 @@ async def detect_dead_plumbing_async(
         except OSError:
             return []
 
-        shadow_content = _load_shadow_content(config, source_path)
+        shadow_content = load_shadow_content(config, source_path)
 
         try:
             obligations, _in_tok, _out_tok = await extract_obligations_async(
@@ -487,84 +180,18 @@ async def detect_dead_plumbing_async(
 
     if not all_obligations:
         print("  No obligation-bearing fields found in schema files.", flush=True)
-        return PlumbingResult(verifications=[], total_obligations=0)
+        return [], 0
 
     print(f"  Found {len(all_obligations)} obligation-bearing field(s)", flush=True)
 
-    # Step 3: Verify actuation for each obligation (Phase B)
-    results: list[PlumbingVerification] = []
-    completed = 0
-    total = len(all_obligations)
-    lock = asyncio.Lock()
-
-    # Group obligations by schema for sibling lookups
-    obligations_by_schema: dict[str, list[ConfigObligation]] = {}
-    for obl in all_obligations:
-        key = f"{obl.source_path}:{obl.schema_name}"
-        if key not in obligations_by_schema:
-            obligations_by_schema[key] = []
-        obligations_by_schema[key].append(obl)
-
-    # Shared cache for file contents across all _find_field_references calls
-    file_content_cache: dict[str, str] = {}
-
-    async def verify_one(obligation: ConfigObligation) -> PlumbingVerification | None:
-        nonlocal completed
-
-        # Find referencing files
-        refs = _find_field_references(config, obligation.field_name, obligation.source_path, file_content_cache)
-
-        # Load shadow docs for referencing files
-        ref_shadows: dict[str, str] = {}
-        for ref_path in refs:
-            shadow = _load_shadow_content(config, ref_path)
-            if shadow:
-                ref_shadows[ref_path] = shadow
-
-        # Build sibling shadows (other obligations from same schema)
-        schema_key = f"{obligation.source_path}:{obligation.schema_name}"
-        siblings = obligations_by_schema.get(schema_key, [])
-        sibling_shadows: dict[str, str] = {}
-        for sibling in siblings:
-            if sibling.field_name == obligation.field_name:
-                continue
-            sib_refs = _find_field_references(config, sibling.field_name, obligation.source_path, file_content_cache)
-            for sib_ref in sib_refs:
-                shadow = _load_shadow_content(config, sib_ref)
-                if shadow:
-                    label = f"`{sibling.field_name}` in `{sib_ref}`"
-                    sibling_shadows[label] = shadow
-
-        schema_shadow = _load_shadow_content(config, obligation.source_path)
-
-        try:
-            verification, _in_tok, _out_tok = await verify_actuation_async(
-                provider, config, obligation,
-                schema_shadow, ref_shadows, sibling_shadows,
-            )
-
-            async with lock:
-                completed += 1
-                if not verification.is_actuated:
-                    results.append(verification)
-                status = "ok" if verification.is_actuated else "unactuated"
-                if on_progress:
-                    on_progress(completed, total, Path(obligation.source_path), status)
-
-            return verification
-        except Exception as e:
-            async with lock:
-                completed += 1
-                if on_progress:
-                    on_progress(completed, total, Path(obligation.source_path), "error")
-            print(f"  [error] {obligation.source_path}:{obligation.field_name}: {e}", flush=True)
-            return None
-
-    await gather_with_buffer(
-        [lambda obligation=obl: verify_one(obligation) for obl in all_obligations]
+    # Step 3: Build claims and decide actuation through unified Triage
+    findings = [finding_from_config_obligation(o) for o in all_obligations]
+    ctx = BuildContext(config, facts_db=FactsDB(config))
+    claims = build_junk_claims(findings, ctx)
+    decided, _in_tokens, _out_tokens = await decide_junk_claims(
+        claims, config, provider, on_progress=on_progress
     )
-
-    return PlumbingResult(verifications=results, total_obligations=len(all_obligations))
+    return decided, len(all_obligations)
 
 
 class DeadPlumbingAnalyzer(JunkAnalyzer):
@@ -583,25 +210,32 @@ class DeadPlumbingAnalyzer(JunkAnalyzer):
         return "dead-plumbing"
 
     async def analyze_async(self, provider, config, on_progress=None):
-        result = await detect_dead_plumbing_async(provider, config, on_progress)
-        findings = [
-            JunkFinding(
-                source_path=v.source_path,
-                name=v.field_name,
+        decided, total = await detect_dead_plumbing_async(provider, config, on_progress)
+        findings = []
+        for f in decided:
+            if f.verdict != "confirmed":
+                continue
+            meta = _scanner_meta(f)
+            field_name = meta.get("field_name", f.symbol or "")
+            schema_name = meta.get("schema_name", "")
+            findings.append(JunkFinding(
+                source_path=f.path,
+                name=field_name,
                 kind="config_field",
                 category="unactuated_config",
-                line_start=v.line_start,
-                line_end=v.line_end,
-                confidence=v.confidence,
-                reason=v.trace,
-                remediation=v.remediation,
-                original_purpose=f"field `{v.field_name}` in `{v.schema_name}`",
-                metadata={"schema_name": v.schema_name, "trace": v.trace},
-            )
-            for v in result.verifications
-        ]
+                line_start=f.line_start or 1,
+                line_end=f.line_end,
+                confidence=f.confidence if f.confidence is not None else 0.0,
+                reason=f.triage_reasoning or "",
+                remediation=f.suggested_fix or f"Add enforcement for `{field_name}`",
+                original_purpose=f"field `{field_name}` in `{schema_name}`",
+                confidence_source="llm_inferred",
+                # trace drew on the deleted verify tool's separate `trace` field;
+                # the unified verdict carries reasoning instead.
+                metadata={"schema_name": schema_name, "trace": f.triage_reasoning or ""},
+            ))
         return JunkAnalysisResult(
             findings=findings,
-            total_candidates=result.total_obligations,
+            total_candidates=total,
             analyzer_name=self.name,
         )
