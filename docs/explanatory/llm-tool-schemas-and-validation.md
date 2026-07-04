@@ -48,14 +48,14 @@ The directory-level equivalent, `SUBMIT_DIRECTORY_SHADOW_DOC_TOOL`, captures a `
 
 ### Phase 4 -- Junk Detection Tools
 
-Junk analyzers that still own a private verification step have corresponding tool schemas:
+Junk analyzers keep tool schemas only for their *proposal* stages -- the LLM steps that mine candidates before verification:
 
-- Dead plumbing verification -- schemas for confirming unactuated configuration obligations
-- Dead CI/CD verification -- `get_dead_cicd_tool_definitions()` for stale pipeline element confirmation
-- Dead dependency verification -- `get_dead_deps_tool_definitions()` for unused package dependency confirmation
-- Orphan file verification -- schemas for confirming files with no reachable purpose
+- Obligation extraction -- `get_extract_obligations_tool_definitions()` for obligation-bearing schema fields (dead plumbing)
+- Import name resolution / dependency classification -- `get_resolve_import_names_tool_definitions()` and `get_classify_deps_tool_definitions()` (dead dependencies)
+- CI/CD element extraction -- `get_extract_cicd_elements_tool_definitions()` for parsing unsupported pipeline formats (dead CI/CD)
+- Entry point / relationship identification -- `get_identify_entry_points_tool_definitions()` and `get_identify_relationships_tool_definitions()` (orphaned files)
 
-Dead code and dead parameter verification migrated to the unified Triage stage in V1-5a: those analyzers now emit `Finding`s whose claims are decided via `get_triage_claim_tool_definitions()` (`submit_triage_verdicts`), so their per-detector schemas (`VERIFY_DEAD_CODE_TOOL`, `VERIFY_DEAD_PARAMETERS_TOOL`) were deleted. The remaining analyzers follow in the rest of the V1-5 wave.
+Verification for every junk analyzer now runs through the unified Triage stage: each analyzer emits `Finding`s whose claims are decided via `get_triage_claim_tool_definitions()` (`submit_triage_verdicts`). Dead code and dead parameters migrated in V1-5a; dead plumbing, dead CI/CD, dead dependencies, and orphaned files migrated in V1-5b, deleting their per-detector verify schemas (`VERIFY_ACTUATION_TOOL`, `VERIFY_DEAD_CICD_TOOL`, `VERIFY_DEAD_DEPS_TOOL`, `VERIFY_ORPHAN_FILES_TOOL`).
 
 ### Phase 5.5 -- Doc Prompts
 
