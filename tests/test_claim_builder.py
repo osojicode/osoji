@@ -350,7 +350,9 @@ def test_schema_version_is_pinned():
     # Growing EVIDENCE_KINDS or changing the schema tables/builders bumps this.
     # cb-2 (V1-5a): CrossFileReferenceBuilder honors scanner-supplied
     # scan_needles/priority_paths and flags in-string-literal hits.
-    assert CLAIM_BUILDER_SCHEMA_VERSION == "cb-2"
+    # cb-3 (V1-5d): doc-category schema keys unprefixed (doc_* → bare) so they
+    # match category_of(finding_from_doc(...)) instead of falling to the default.
+    assert CLAIM_BUILDER_SCHEMA_VERSION == "cb-3"
 
 
 def test_every_schema_kind_has_registered_builder():

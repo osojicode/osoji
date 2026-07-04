@@ -45,7 +45,7 @@ from .triage import Claim
 #: Version tag of the Claim Builder schema (kind set + tables below). Part of
 #: every evidence_fingerprint; bump on any schema change so the V1-9 verdict
 #: cache invalidates rather than serving verdicts produced by an older schema.
-CLAIM_BUILDER_SCHEMA_VERSION = "cb-2"
+CLAIM_BUILDER_SCHEMA_VERSION = "cb-3"
 
 
 @dataclass(frozen=True)
@@ -99,13 +99,19 @@ CLAIM_BUILDER_SCHEMA: dict[str, SchemaEntry] = {
     # contract
     "obligation_implicit_contract": _CONTRACT_ENTRY,
     "obligation_violation": _CONTRACT_ENTRY,
-    # description
+    # description. Keys match ``category_of`` output — the part after ``:`` in
+    # ``Finding.detector``. Doc categories are UNPREFIXED here (``finding_from_doc``
+    # emits ``doc:stale_content`` → ``category_of`` yields ``stale_content``);
+    # obligation categories are PREFIXED (``obligation_*``) because the report
+    # layer keys off that prefix. Both forms are correct locally — the canonical
+    # rule is "the schema key equals ``category_of`` of the finding this detector
+    # actually emits", not a uniform prefix convention.
     "stale_comment": _DESCRIPTION_ENTRY,
     "misleading_docstring": _DESCRIPTION_ENTRY,
-    "doc_incorrect_content": _DESCRIPTION_ENTRY,
-    "doc_misleading_claim": _DESCRIPTION_ENTRY,
-    "doc_stale_content": _DESCRIPTION_ENTRY,
-    "doc_obsolete_reference": _DESCRIPTION_ENTRY,
+    "incorrect_content": _DESCRIPTION_ENTRY,
+    "misleading_claim": _DESCRIPTION_ENTRY,
+    "stale_content": _DESCRIPTION_ENTRY,
+    "obsolete_reference": _DESCRIPTION_ENTRY,
     # uncategorized (latent bugs)
     "latent_bug": _LATENT_BUG_ENTRY,
 }
