@@ -135,6 +135,19 @@ For contract gaps over hard-coded literals, classify the literal before deciding
   dismiss if coincidental.
 - Coincidental duplication — same literal, unrelated roles. Dismiss as coincidence.
 
+For every contract-gap claim, emit a `contract_class` alongside the verdict — one of
+named_obligation, unnamed_obligation, ecosystem_convention, magic_constant, coincidence,
+or other. Reason over the whole assembled file tuple, not only the pair named in the
+claim header: every file that produces, checks, or defines the shared literal rides along
+with its surrounding code, and a third file that independently emits the same literal is
+itself a drift risk even when the header names the best-attested coupling. Shared-literal
+drift fails SILENTLY at the value level — a mismatched string, no error — and confirming
+binds the sites to one definition so the next rename fails LOUDLY at the name level; that
+conversion, not "extract a constant" for its own sake, is the significance. When the
+literal fits none of the five classes, set `contract_class` to `other` and say why:
+`other` is the taxonomy's safety valve — a request for review, never shoehorned into the
+nearest class — and its rate is a tracked signal of the taxonomy's adequacy.
+
 Capture your reasoning verbatim. Provide a verdict for EVERY claim."""
 
 
@@ -467,6 +480,7 @@ def _apply_verdict(finding: Finding, v: dict) -> Finding:
         triage_reasoning=v.get("reasoning"),
         suggested_fix=v.get("suggested_fix"),
         severity=v.get("severity"),
+        contract_class=v.get("contract_class"),
     )
 
 
@@ -480,6 +494,7 @@ def _apply_cached(finding: Finding, cached: dict) -> Finding:
         triage_reasoning=cached.get("triage_reasoning"),
         suggested_fix=cached.get("suggested_fix"),
         severity=cached.get("severity"),
+        contract_class=cached.get("contract_class"),
     )
 
 
