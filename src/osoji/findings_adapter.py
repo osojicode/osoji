@@ -311,6 +311,11 @@ def finding_from_doc(
             "remediation": df.remediation,
             "search_terms": list(df.search_terms),
             "shadow_ref": df.shadow_ref,
+            # The propose step's search terms double as scan needles: they steer
+            # CrossFileReferenceBuilder to sweep the same identifiers the deleted
+            # verify pass grepped for — the mechanized replacement for that pass's
+            # project-wide evidence gathering.
+            "scan_needles": list(df.search_terms),
         },
     )
     return Finding(
