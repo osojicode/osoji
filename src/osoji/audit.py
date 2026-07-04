@@ -436,6 +436,11 @@ async def run_audit_async(
                     "shadow_ref": f.shadow_ref,
                     "evidence": f.evidence,
                     "remediation": f.remediation,
+                    # Unified-Triage outputs (V1-5d); additive, may be None when
+                    # a finding passed through unverified.
+                    "verdict": f.verdict,
+                    "confidence": f.confidence,
+                    "triage_reasoning": f.triage_reasoning,
                 }
                 for f in item.findings
             ],

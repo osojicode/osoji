@@ -506,58 +506,6 @@ def get_analyze_document_tool_definitions() -> list[ToolDefinition]:
     return [_dict_to_tool_definition(ANALYZE_DOCUMENT_TOOL)]
 
 
-# Tool definition for dead parameter verification
-VERIFY_DOC_FINDING_TOOL = {
-    "name": "verify_doc_finding",
-    "description": """Re-evaluate documentation error findings given additional project evidence.
-
-You are given the original error-severity findings from a documentation analysis, plus
-grep evidence gathered from project files that were NOT available during the initial analysis.
-
-For each finding, decide:
-- **upheld**: The finding is correct — the additional evidence confirms or does not contradict it.
-- **retracted**: The finding is a false positive — the additional evidence shows the documented
-  claim is actually correct (e.g. a command IS registered as an entry point, a config key DOES exist).
-- **downgraded**: The finding has some merit but the additional evidence makes it less certain.
-  Downgrade from error to warning severity.
-
-Provide a verdict for EVERY finding listed.""",
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "verdicts": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "finding_index": {
-                            "type": "integer",
-                            "description": "0-based index of the finding being judged",
-                        },
-                        "action": {
-                            "type": "string",
-                            "enum": ["upheld", "retracted", "downgraded"],
-                            "description": "Whether to keep, remove, or downgrade the finding",
-                        },
-                        "reason": {
-                            "type": "string",
-                            "description": "Brief explanation of the verdict",
-                        },
-                    },
-                    "required": ["finding_index", "action", "reason"],
-                },
-            },
-        },
-        "required": ["verdicts"],
-    },
-}
-
-
-def get_verify_doc_finding_tool_definitions() -> list[ToolDefinition]:
-    """Return ToolDefinition objects for doc finding verification."""
-    return [_dict_to_tool_definition(VERIFY_DOC_FINDING_TOOL)]
-
-
 # Tool definition for obligation extraction (Haiku, per schema file)
 EXTRACT_OBLIGATIONS_TOOL = {
     "name": "extract_obligations",

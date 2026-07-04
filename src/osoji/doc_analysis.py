@@ -1,23 +1,32 @@
-"""Unified documentation analysis: classification + accuracy validation."""
+"""Unified documentation analysis: classification + accuracy validation.
+
+Proposed :class:`DocFinding`s are verified through the unified Triage stage
+(V1-5d): each becomes a description-gap :class:`~osoji.findings.Finding`, the
+Claim Builder assembles cross-file + smallest-scope shadow evidence, and Triage
+decides the batch under :data:`~osoji.triage.TRIAGE_SYSTEM_PROMPT`. This replaced
+the private second-pass doc-verify LLM gate.
+"""
 
 import asyncio
-import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
 from .async_utils import gather_with_buffer
 from .config import Config, DIRECTORY_SHADOW_FILENAME, SHADOW_DIR
+from .evidence_builders import BuildContext
 from .facts import FactsDB
+from .findings_adapter import finding_from_doc
 from .hasher import read_file_safe
+from .junk_triage import build_junk_claims, decide_junk_claims
 from .llm.base import LLMProvider
 from .llm.budgets import input_budget_for_config
 from .llm.types import Message, MessageRole, CompletionOptions
 from .tools import (
     get_match_doc_topics_tool_definitions,
     get_analyze_document_tool_definitions,
-    get_verify_doc_finding_tool_definitions,
 )
+from .triage import TRIAGE_SYSTEM_PROMPT
 from .walker import list_repo_files, _matches_ignore
 
 
@@ -35,6 +44,12 @@ class DocFinding:
     evidence: str       # quote from shadow doc
     remediation: str
     search_terms: list[str] = field(default_factory=list)
+    # Triage outputs — None until the unified Triage stage decides (V1-5d);
+    # additive so scorecard/issue emission (which key off .category/.severity)
+    # keep working unchanged.
+    verdict: str | None = None
+    confidence: float | None = None
+    triage_reasoning: str | None = None
 
 
 @dataclass
@@ -442,245 +457,6 @@ async def _analyze_document_async(
     raise RuntimeError(f"LLM did not call analyze_document for {doc_path}")
 
 
-# --- Tier 4: Error-finding verification ---
-
-_VERIFY_SYSTEM_PROMPT = """You are a documentation accuracy verifier performing a second-pass review.
-
-You are given error-severity findings from an initial documentation analysis, along with
-additional grep evidence from project files that were NOT available during the initial analysis.
-
-The initial analysis only had access to shadow docs (AI-generated summaries of source files).
-Now you have raw grep matches from the full project — config files, build manifests, entry point
-registrations, etc. — that may confirm or contradict the original findings.
-
-For each finding, decide:
-- **upheld**: The finding is correct. The additional evidence confirms or does not contradict it.
-- **retracted**: The finding is a false positive. The grep evidence shows the documented claim
-  is actually correct (e.g. a command IS registered as an entry point, a config key DOES exist
-  in a config file, a flag IS defined somewhere the initial analysis didn't see).
-- **downgraded**: The finding has some merit but the additional evidence makes it less certain.
-  Downgrade from error to warning.
-
-Provide a verdict for EVERY finding listed."""
-
-
-def _gather_project_evidence(
-    config: Config, finding: DocFinding,
-) -> list[tuple[str, str]]:
-    """Grep non-shadowed project files for search terms from a finding.
-
-    Returns list of (relative_path, excerpt) tuples.
-    Pure Python, no LLM calls.
-    """
-    if not finding.search_terms:
-        return []
-
-    shadow_root = config.shadow_root
-    all_paths, _ = list_repo_files(config)
-    all_paths = list(all_paths)
-
-    osojiignore = config.load_osojiignore()
-
-    # Build set of files that already have shadow docs (model already saw these)
-    shadowed_files: set[str] = set()
-    if shadow_root.exists():
-        for shadow_path in shadow_root.rglob("*.shadow.md"):
-            if shadow_path.name == DIRECTORY_SHADOW_FILENAME:
-                continue
-            relative_shadow = shadow_path.relative_to(shadow_root)
-            source_str = str(relative_shadow).removesuffix(".shadow.md").replace("\\", "/")
-            shadowed_files.add(source_str)
-
-    evidence: list[tuple[str, str]] = []
-    files_found = 0
-    _MAX_FILES = 10
-    _MAX_CHARS_PER_FILE = 3000
-
-    # Build a combined regex for all search terms
-    escaped = [re.escape(term) for term in finding.search_terms]
-    pattern = re.compile("|".join(escaped), re.IGNORECASE)
-
-    for path in all_paths:
-        if files_found >= _MAX_FILES:
-            break
-
-        if not path.is_absolute():
-            path = config.root_path / path
-
-        if not path.is_file():
-            continue
-
-        relative = path.relative_to(config.root_path)
-        rel_str = str(relative).replace("\\", "/")
-
-        # Skip .osoji/
-        if rel_str.startswith(SHADOW_DIR):
-            continue
-
-        # Skip ignore patterns
-        if _matches_ignore(relative, config.ignore_patterns):
-            continue
-        if osojiignore and _matches_ignore(relative, osojiignore):
-            continue
-
-        # Skip files that have shadow docs (model already saw those)
-        if rel_str in shadowed_files:
-            continue
-
-        try:
-            content = path.read_text(errors="ignore")
-        except OSError:
-            continue
-
-        # Search for matches
-        lines = content.split("\n")
-        matching_regions: list[str] = []
-        total_chars = 0
-
-        for line_idx, line in enumerate(lines):
-            if pattern.search(line):
-                # Extract ±2 lines of context
-                start = max(0, line_idx - 2)
-                end = min(len(lines), line_idx + 3)
-                context_lines = []
-                for i in range(start, end):
-                    marker = ">>>" if i == line_idx else "   "
-                    context_lines.append(f"{marker} {i + 1:4d} | {lines[i]}")
-                region = "\n".join(context_lines)
-
-                if total_chars + len(region) > _MAX_CHARS_PER_FILE:
-                    break
-                matching_regions.append(region)
-                total_chars += len(region)
-
-        if matching_regions:
-            excerpt = "\n---\n".join(matching_regions)
-            evidence.append((rel_str, excerpt))
-            files_found += 1
-
-    return evidence
-
-
-async def _verify_error_findings_async(
-    provider: LLMProvider,
-    config: Config,
-    doc_path: Path,
-    doc_content: str,
-    error_findings: list[DocFinding],
-) -> tuple[list[DocFinding], int, int]:
-    """Verify error-severity findings by searching for contradicting evidence.
-
-    One medium-tier LLM call per document with errors. Presents original findings + grep evidence.
-    Returns (verified_findings, input_tokens, output_tokens).
-    If no additional evidence is found for ANY finding, skips the LLM call entirely.
-    """
-    # Gather evidence for all error findings
-    all_evidence: dict[int, list[tuple[str, str]]] = {}
-    has_any_evidence = False
-    for i, finding in enumerate(error_findings):
-        evidence = _gather_project_evidence(config, finding)
-        all_evidence[i] = evidence
-        if evidence:
-            has_any_evidence = True
-
-    # Skip optimization: if no additional evidence found, return findings as-is
-    if not has_any_evidence:
-        return error_findings, 0, 0
-
-    # Build user prompt
-    relative_path = doc_path.relative_to(config.root_path) if doc_path.is_absolute() else doc_path
-
-    user_parts: list[str] = []
-    user_parts.append(f"## Document: `{relative_path}`\n")
-
-    # Include truncated doc content for context
-    doc_preview = doc_content[:5000]
-    if len(doc_content) > 5000:
-        doc_preview += "\n[... truncated ...]"
-    user_parts.append(f"```\n{doc_preview}\n```\n")
-
-    user_parts.append("## Error findings to verify\n")
-    for i, finding in enumerate(error_findings):
-        user_parts.append(
-            f"### Finding {i}: [{finding.category}] {finding.description}\n"
-            f"- Evidence from: `{finding.shadow_ref}`\n"
-            f"- Evidence quote: {finding.evidence}\n"
-            f"- Search terms: {finding.search_terms}\n"
-        )
-
-    user_parts.append("## Additional project evidence (from grep)\n")
-    for i, finding in enumerate(error_findings):
-        evidence = all_evidence[i]
-        if evidence:
-            user_parts.append(f"### Evidence for Finding {i} (search terms: {finding.search_terms})\n")
-            for file_path, excerpt in evidence:
-                user_parts.append(f"**`{file_path}`:**\n```\n{excerpt}\n```\n")
-        else:
-            user_parts.append(f"### Evidence for Finding {i}: No additional evidence found.\n")
-
-    user_parts.append(
-        f"Provide a verdict for EVERY finding (indices 0 through {len(error_findings) - 1}) "
-        "using the verify_doc_finding tool."
-    )
-
-    # Build completeness validator
-    expected_indices = set(range(len(error_findings)))
-
-    def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
-        if tool_name != "verify_doc_finding":
-            return []
-        verdicts = tool_input.get("verdicts", [])
-        got_indices = {v.get("finding_index") for v in verdicts}
-        missing = expected_indices - got_indices
-        return [f"Missing verdict for finding index {idx}" for idx in sorted(missing)]
-
-    result = await provider.complete(
-        messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
-        system=_VERIFY_SYSTEM_PROMPT,
-        options=CompletionOptions(
-            model=config.model_for("medium"),
-            max_tokens=max(1024, len(error_findings) * 300),
-            max_input_tokens=input_budget_for_config(config),
-            reservation_key="doc.verify_errors",
-            tools=get_verify_doc_finding_tool_definitions(),
-            tool_choice={"type": "tool", "name": "verify_doc_finding"},
-            tool_input_validators=[check_completeness],
-        ),
-    )
-
-    # Process verdicts
-    verified: list[DocFinding | None] = list(error_findings)  # start with originals
-    for tool_call in result.tool_calls:
-        if tool_call.name == "verify_doc_finding":
-            for verdict in tool_call.input.get("verdicts", []):
-                idx = verdict.get("finding_index")
-                action = verdict.get("action", "upheld")
-                if idx is None or idx < 0 or idx >= len(error_findings):
-                    continue
-
-                if action == "retracted":
-                    verified[idx] = None
-                elif action == "downgraded":
-                    original = error_findings[idx]
-                    verified[idx] = DocFinding(
-                        category=original.category,
-                        severity="warning",
-                        description=original.description,
-                        shadow_ref=original.shadow_ref,
-                        evidence=original.evidence,
-                        remediation=original.remediation,
-                        search_terms=original.search_terms,
-                    )
-                # "upheld" -> keep as-is
-
-    # Filter out retracted (None) entries
-    return (
-        [f for f in verified if f is not None],
-        result.input_tokens,
-        result.output_tokens,
-    )
-
-
 # --- Orchestration ---
 
 # Cap total shadow doc content per document to ~300K chars (~75K tokens)
@@ -775,19 +551,12 @@ async def analyze_docs_async(
                 shadow_contexts.append((source_path, shadow_content))
                 total_chars += len(shadow_content)
 
-            # Large-model analysis (classify + validate)
+            # Large-model analysis (classify + validate). Findings are verified
+            # after all docs are analyzed, in one unified Triage post-pass
+            # (_triage_doc_findings), replacing the old per-doc verify gate.
             analysis, _analyze_in, _analyze_out = await _analyze_document_async(
                 provider, config, doc_path, content, shadow_contexts, rules_text
             )
-
-            # Tier 4: Verify error-severity findings against full project
-            error_findings = [f for f in analysis.findings if f.severity == "error"]
-            if error_findings:
-                verified, _v_in, _v_out = await _verify_error_findings_async(
-                    provider, config, doc_path, content, error_findings
-                )
-                non_errors = [f for f in analysis.findings if f.severity != "error"]
-                analysis.findings = non_errors + verified
 
             # Attach topic signature from small-model matching
             analysis.topic_signature = doc_topic_signature
@@ -816,6 +585,70 @@ async def analyze_docs_async(
 
     await gather_with_buffer([lambda path=path: process_one(path) for path in candidates])
 
+    # Unified Triage post-pass. Best-effort: an LLM failure here keeps ALL
+    # proposed findings unverified rather than dropping them.
+    try:
+        await _triage_doc_findings(provider, config, results)
+    except Exception as e:
+        if not config.quiet:
+            print(f"  [warn] doc triage failed, keeping findings unverified: {e}", flush=True)
+
     return results
+
+
+async def _triage_doc_findings(
+    provider: LLMProvider,
+    config: Config,
+    results: list[DocAnalysisResult],
+) -> tuple[int, int]:
+    """Verify proposed DocFindings through the unified Triage stage (claim mode).
+
+    Replaces the private per-doc verify pass. Each DocFinding becomes a
+    description-gap Finding, the Claim Builder assembles evidence (cross-file
+    sweep + smallest-scope shadow), and Triage decides the batch under
+    ``TRIAGE_SYSTEM_PROMPT`` following ``junk_triage``'s batching conventions
+    (batch 12, ``max_tokens = max(1024, n*500)``, completeness validation).
+
+    Verdict handling (controller decision, 2026-07-04): suppress only
+    ``dismissed``. ``uncertain`` is kept but downgraded to warning severity with
+    the triage reasoning attached (signal conservation); a ``confirmed`` verdict
+    may re-grade severity; an undecided finding (LLM/chunk failure) is kept
+    unverified. Rewrites each non-debris ``result.findings`` in place to the kept
+    subset. Returns ``(input_tokens, output_tokens)``; token accounting also
+    rides the injected logging provider's stats.
+    """
+
+    pairs: list[tuple[DocAnalysisResult, DocFinding]] = [
+        (r, f) for r in results if not r.is_debris for f in r.findings
+    ]
+    if not pairs:
+        return 0, 0
+
+    findings = [
+        finding_from_doc(f, doc_path=r.path, root=config.root_path)
+        for r, f in pairs
+    ]
+    ctx = BuildContext(config)                       # facts/symbols lazily loaded
+    claims = build_junk_claims(findings, ctx)        # default schema → description entry
+    decided, in_tok, out_tok = await decide_junk_claims(
+        claims, config, provider, system_prompt=TRIAGE_SYSTEM_PROMPT,
+    )
+
+    kept: dict[int, list[DocFinding]] = {id(r): [] for r in results}
+    for (r, df), fnd in zip(pairs, decided):
+        if fnd.verdict == "dismissed":
+            continue                                 # sole false-positive verdict, suppressed
+        df.verdict = fnd.verdict
+        df.confidence = fnd.confidence
+        df.triage_reasoning = fnd.triage_reasoning
+        if fnd.verdict == "uncertain":
+            df.severity = "warning"                  # kept, but downgraded (signal conservation)
+        elif fnd.severity:
+            df.severity = fnd.severity               # a confirmed verdict may re-grade
+        kept[id(r)].append(df)
+    for r in results:
+        if not r.is_debris:
+            r.findings = kept[id(r)]
+    return in_tok, out_tok
 
 
