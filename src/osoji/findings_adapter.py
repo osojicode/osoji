@@ -355,8 +355,12 @@ def finding_from_orphan_candidate(
     graph missed.
     """
 
-    basename = Path(c.source_path).name
-    stem = Path(c.source_path).stem
+    # Normalize to forward slashes first: a bare ``Path(...).name``/``.stem`` only
+    # splits on the host OS's separator, so a backslash-separated path surviving
+    # from a Windows-walked repo would silently fail to split on Linux/macOS.
+    norm_source_path = PurePosixPath(c.source_path.replace("\\", "/"))
+    basename = norm_source_path.name
+    stem = norm_source_path.stem
     needles = _dedup_needles([basename, stem] + list(c.public_surface))
     evidence = Evidence(
         kind="scanner_metadata",
