@@ -135,6 +135,13 @@ handoff (env var → container → subprocess) — IS actuation when the receivi
 enforces. Confirm when the assembled references show the value flowing without any site
 that enforces it.
 
+An unactuated-config gap exists only for obligations the project itself declares. A
+schema or field defined in vendored or third-party reference material — content the
+project stores or mirrors but does not consume as its own configuration — creates no
+obligation for this project to actuate; dismiss it regardless of reference counts, and
+weigh whether the containing file participates in the project's own configuration
+loading.
+
 For orphaned-file reachability claims specifically: reachability can be file-level, not
 only symbol-level. A whole file may be reached by convention rather than by an import
 edge — discovered by a framework or tool (such as test, fixture, migration, or template
