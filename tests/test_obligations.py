@@ -777,6 +777,49 @@ class TestRuntimeGlobalsSafetyNet:
         assert "some_value" in flagged
 
 
+class TestPairAttribution:
+    """Regression for audit-obligation_implicit_contract-003: when >2 files share
+    a literal, the checker couples to the producer it imports — that producer must
+    head the tuple, and the old cartesian emission (one finding per producer) must
+    collapse to one finding carrying all sharers.
+    """
+
+    def test_linked_producer_wins_and_sharers_preserved(self, tmp_path):
+        # Two independent producers of the same literal; the checker imports only
+        # the second, so p2 is the genuine data source (the residual's shadow.py).
+        _write_facts(tmp_path, "src/p1.py", {
+            "string_literals": [
+                {"value": "shared_status", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/p2.py", {
+            "exports": [{"name": "produce_status", "kind": "function", "line": 5}],
+            "string_literals": [
+                {"value": "shared_status", "context": "produced", "line": 20, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/checker.py", {
+            "imports": [{"source": ".p2", "names": ["produce_status"]}],
+            "string_literals": [
+                {"value": "shared_status", "context": "membership check", "line": 30, "kind": "identifier", "usage": "checked"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        findings = checker.find_contracts()
+        implicit = [f for f in findings if f.finding_type == "implicit_contract"]
+
+        # Old code emitted 2 findings (one per producer) with arbitrary attribution;
+        # new code emits exactly one, headed by the import-linked producer.
+        assert len(implicit) == 1
+        assert implicit[0].producer_file == "src/p2.py"
+        assert implicit[0].consumer_file == "src/checker.py"
+        # Both producers ride along as sharers so no signal is lost.
+        assert set(implicit[0].evidence["producer_files"]) == {"src/p1.py", "src/p2.py"}
+        assert implicit[0].evidence["checker_files"] == ["src/checker.py"]
+
+
 class TestContextAwareRemediation:
     """Tests for context-aware remediation text on grouped implicit contracts."""
 
