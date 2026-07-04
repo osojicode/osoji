@@ -57,6 +57,11 @@ CATEGORY_TO_GAP_TYPE: dict[str, GapType] = {
     "dead_dependency": "reachability",
     "unused_dependency": "reachability",  # forward-compat alias; not emitted today
     "dead_cicd": "reachability",
+    # contract — persisted obligations categories are prefixed
+    # ``obligation_{finding_type}`` (audit.py), so the persisted-category
+    # consumer routes them to the contract gap rather than ``uncategorized``.
+    "obligation_violation": "contract",
+    "obligation_implicit_contract": "contract",
     # description
     "stale_content": "description",
     "incorrect_content": "description",
@@ -263,9 +268,37 @@ def finding_from_dead_param_candidate(
 
 
 def finding_from_contract(cf: "ContractFinding", *, root: str | Path | None = None) -> Finding:
-    """Convert a :class:`osoji.obligations.ContractFinding` (contract gaps) to a Finding."""
+    """Convert a :class:`osoji.obligations.ContractFinding` (contract gaps) to a Finding.
+
+    The detector name is prefixed (``obligations:obligation_{finding_type}``) so
+    ``category_of`` matches both the ``CLAIM_BUILDER_SCHEMA`` obligation_* keys and
+    the persisted ``obligation_{finding_type}`` category — one canonical namespace.
+
+    ``scan_needles`` (the shared literal value(s)) and ``priority_paths`` (the
+    file tuple: consumer/producer/definer plus every co-sharer) steer the
+    :class:`~osoji.evidence_builders.CrossFileReferenceBuilder` so it sweeps both
+    sides of the contract cap-exempt — the file-tuple minimum context, mechanized
+    (previously the LLM ran this grep-set by hand).
+    """
 
     observed = "; ".join(f"{k}={v}" for k, v in cf.evidence.items()) if cf.evidence else cf.description
+    needles = [cf.value] if cf.value else list(cf.evidence.get("values", []))
+    # The full file tuple; drop the violations' "(no producer found)" sentinel
+    # and any absent definer, normalize, and dedupe (consumer first — it anchors).
+    priority_paths: list[str] = []
+    for p in (
+        cf.consumer_file,
+        cf.producer_file,
+        cf.definer_file,
+        *cf.evidence.get("producer_files", ()),
+        *cf.evidence.get("checker_files", ()),
+        *cf.evidence.get("definer_files", ()),
+    ):
+        if not p or p == "(no producer found)":
+            continue
+        norm = _norm_path(p, root)
+        if norm and norm not in priority_paths:
+            priority_paths.append(norm)
     evidence = Evidence(
         kind="scanner_metadata",
         weight_hint=cf.confidence,
@@ -276,10 +309,12 @@ def finding_from_contract(cf: "ContractFinding", *, root: str | Path | None = No
             "producer_file": cf.producer_file,
             "definer_file": cf.definer_file,
             "evidence": dict(cf.evidence),
+            "scan_needles": needles,
+            "priority_paths": priority_paths,
         },
     )
     return Finding(
-        detector=f"obligations:{cf.finding_type}",
+        detector=f"obligations:obligation_{cf.finding_type}",
         gap_type="contract",
         path=_norm_path(cf.consumer_file, root),
         line_start=None,
