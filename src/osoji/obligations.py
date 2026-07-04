@@ -55,6 +55,9 @@ class ContractFinding:
     description: str
     evidence: dict
     remediation: str
+    # Filled by unified Triage (V1-5c) when the finding is routed through
+    # Phase 3.5; one of the string-contract taxonomy classes or "other".
+    contract_class: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -445,7 +448,17 @@ class StringContractChecker(ContractChecker):
     # --- Fragility detection ---
 
     def _check_fragility(self, data: StringContractData) -> list[ContractFinding]:
-        """Detect implicit contracts: values produced and checked across files with no shared definer."""
+        """Detect implicit contracts: values produced and checked across files with no shared definer.
+
+        Emits **one finding per (checker, value)**: when several files emit the
+        same literal, the checker genuinely couples to only one of them (the
+        producer it imports/reads from). Naming that producer as the tuple head —
+        rather than emitting one arbitrary finding per producer×checker pair —
+        fixes the residual where a diff↔test pair was reported but the test
+        actually coupled to shadow.py. All co-producers/checkers ride along in
+        the evidence so no sharer is lost; the flagged SET of (checker, value)
+        pairs is unchanged (attribution/count only — see signal conservation).
+        """
         raw_findings: list[ContractFinding] = []
 
         shared_values = set(data.producers.keys()) & set(data.checked.keys())
@@ -469,54 +482,76 @@ class StringContractChecker(ContractChecker):
             checker_files = {occ.file for occ in checker_occurrences}
             definer_files = {occ.file for occ in data.defined.get(value, [])}
 
-            for producer_file in producer_files:
-                for checker_file in checker_files:
-                    if producer_file == checker_file:
-                        continue
+            for checker_file in checker_files:
+                candidates = [p for p in producer_files if p != checker_file]
+                # Trigger unchanged: the value is a fragile contract for this
+                # checker iff at least one producer forms a non-robust pair.
+                fragile = [
+                    p for p in candidates
+                    if not self._pair_robust(p, checker_file, definer_files)
+                ]
+                if not fragile:
+                    continue
 
-                    # Check if both sides link to a definer
-                    if definer_files:
-                        robust = False
-                        for definer_file in definer_files:
-                            producer_linked = (
-                                producer_file == definer_file
-                                or self._files_are_linked(producer_file, definer_file)
-                            )
-                            checker_linked = (
-                                checker_file == definer_file
-                                or self._files_are_linked(checker_file, definer_file)
-                            )
-                            if producer_linked and checker_linked:
-                                robust = True
-                                break
-                        if robust:
-                            continue
+                # Attribution: head the tuple with the fragile producer the
+                # checker actually reads from (import-linked = the genuine data
+                # source), then definer membership, occurrence count, then path
+                # for a deterministic tie-break.
+                best = max(fragile, key=lambda p: (
+                    self._files_are_linked(checker_file, p),
+                    p in definer_files,
+                    sum(1 for o in producer_occurrences if o.file == p),
+                    p,
+                ))
 
-                    # Find representative occurrences for evidence
-                    producer_occ = next(o for o in producer_occurrences if o.file == producer_file)
-                    checker_occ = next(o for o in checker_occurrences if o.file == checker_file)
+                producer_occ = next(o for o in producer_occurrences if o.file == best)
+                checker_occ = next(o for o in checker_occurrences if o.file == checker_file)
 
-                    raw_findings.append(ContractFinding(
-                        finding_type="implicit_contract",
-                        contract_type="string_contract",
-                        value=value,
-                        producer_file=producer_file,
-                        consumer_file=checker_file,
-                        definer_file=None,
-                        severity="info",
-                        confidence=0.5,
-                        description=f'Implicit contract: "{value}" is produced in {producer_file} and checked in {checker_file} with no shared definition',
-                        evidence={
-                            "value": value,
-                            "producer_context": producer_occ.context,
-                            "checker_context": checker_occ.context,
-                            "producer_line": producer_occ.line,
-                            "checker_line": checker_occ.line,
-                        },
-                        remediation=self._suggest_remediation(producer_file, checker_file),
-                    ))
+                raw_findings.append(ContractFinding(
+                    finding_type="implicit_contract",
+                    contract_type="string_contract",
+                    value=value,
+                    producer_file=best,
+                    consumer_file=checker_file,
+                    definer_file=None,
+                    severity="info",
+                    confidence=0.5,
+                    description=f'Implicit contract: "{value}" is produced in {best} and checked in {checker_file} with no shared definition',
+                    evidence={
+                        "value": value,
+                        "producer_context": producer_occ.context,
+                        "checker_context": checker_occ.context,
+                        "producer_line": producer_occ.line,
+                        "checker_line": checker_occ.line,
+                        # All co-producers/checkers/definers of the literal —
+                        # the full file tuple the Claim Builder sweeps as context.
+                        "producer_files": sorted(producer_files),
+                        "checker_files": sorted(checker_files),
+                        "definer_files": sorted(definer_files),
+                    },
+                    remediation=self._suggest_remediation(best, checker_file),
+                ))
 
         return self._group_findings(raw_findings)
+
+    def _pair_robust(self, producer_file: str, checker_file: str, definer_files: set[str]) -> bool:
+        """A (producer, checker) pair is robust iff both link to a shared definer.
+
+        With no definer the pair is fragile by definition — the shared literal
+        has no single source of truth — so the loop falls through to ``False``.
+        """
+        for definer_file in definer_files:
+            producer_linked = (
+                producer_file == definer_file
+                or self._files_are_linked(producer_file, definer_file)
+            )
+            checker_linked = (
+                checker_file == definer_file
+                or self._files_are_linked(checker_file, definer_file)
+            )
+            if producer_linked and checker_linked:
+                return True
+        return False
 
     def _files_are_linked(self, file_a: str, file_b: str) -> bool:
         """Check if file_a imports from file_b (directly or one hop)."""
@@ -577,6 +612,12 @@ class StringContractChecker(ContractChecker):
             else:
                 remediation = self._suggest_remediation(producer, consumer)
 
+            # Union the per-value sharer sets so a grouped finding still carries
+            # the full file tuple for the Claim Builder / Triage.
+            grouped_producers = sorted({pf for f in group for pf in f.evidence.get("producer_files", [])})
+            grouped_checkers = sorted({cf for f in group for cf in f.evidence.get("checker_files", [])})
+            grouped_definers = sorted({df for f in group for df in f.evidence.get("definer_files", [])})
+
             grouped.append(ContractFinding(
                 finding_type="implicit_contract",
                 contract_type="string_contract",
@@ -590,6 +631,9 @@ class StringContractChecker(ContractChecker):
                 evidence={
                     "values": values,
                     "count": count,
+                    "producer_files": grouped_producers,
+                    "checker_files": grouped_checkers,
+                    "definer_files": grouped_definers,
                 },
                 remediation=remediation,
             ))
