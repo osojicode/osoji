@@ -472,3 +472,207 @@ class TestDeadParamCandidateAdapter:
         a = finding_from_dead_param_candidate(_dp_candidate(param_line=40))
         b = finding_from_dead_param_candidate(_dp_candidate(param_line=77))
         assert a.id == b.id
+
+
+# --- V1-5b junk candidate adapters -------------------------------------------
+
+
+def _obligation(**over):
+    from osoji.plumbing import ConfigObligation
+
+    kwargs = dict(
+        source_path="src/trial.ts",
+        field_name="taskTimeoutMs",
+        schema_name="TrialSettingsSchema",
+        line_start=10,
+        line_end=12,
+        obligation="Enforce max elapsed time for task execution",
+        expected_actuation="timer/deadline/abort/kill",
+    )
+    kwargs.update(over)
+    return ConfigObligation(**kwargs)
+
+
+def _orphan_candidate(**over):
+    from osoji.junk_orphan import OrphanCandidate
+
+    kwargs = dict(
+        source_path="src/osoji/plugins/foo.py",
+        purpose="A plugin",
+        topics=["plugin"],
+        file_role="utility",
+        public_surface=["FooPlugin", "register"],
+    )
+    kwargs.update(over)
+    return OrphanCandidate(**kwargs)
+
+
+def _dep_candidate(**over):
+    from osoji.junk_deps import DependencyCandidate
+
+    kwargs = dict(
+        manifest_path="pyproject.toml",
+        package_name="pillow",
+        import_names=["PIL"],
+        is_dev=False,
+        ecosystem="python",
+        line_number=7,
+    )
+    kwargs.update(over)
+    return DependencyCandidate(**kwargs)
+
+
+def _cicd_candidate(**over):
+    from osoji.junk_cicd import CICDCandidate
+
+    kwargs = dict(
+        cicd_file=".github/workflows/ci.yml",
+        element_name="deploy",
+        element_type="workflow_job",
+        line_start=10,
+        line_end=20,
+        missing_paths=["deploy/scripts/run.sh", "infra/old.yml"],
+        element_content="  deploy:\n    run: bash deploy/scripts/run.sh\n",
+        full_file_content="name: CI\njobs:\n  deploy:\n    run: bash deploy/scripts/run.sh\n",
+    )
+    kwargs.update(over)
+    return CICDCandidate(**kwargs)
+
+
+class TestConfigObligationAdapter:
+    def test_basic_mapping(self):
+        from osoji.findings_adapter import finding_from_config_obligation
+
+        f = finding_from_config_obligation(_obligation())
+        assert f.detector == "plumbing:unactuated_config"
+        assert f.gap_type == "reachability"
+        assert f.path == "src/trial.ts"
+        assert f.symbol == "taskTimeoutMs"
+        assert f.line_start == 10 and f.line_end == 12
+        assert f.verdict is None and f.confidence is None
+        assert "must enforce" in f.contract_claim
+
+    def test_needles_field_first_then_schema(self):
+        from osoji.findings_adapter import finding_from_config_obligation
+
+        f = finding_from_config_obligation(_obligation())
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert meta.payload["scan_needles"] == ["taskTimeoutMs", "TrialSettingsSchema"]
+        assert meta.payload["priority_paths"] == []
+
+    def test_needles_omit_empty_schema(self):
+        from osoji.findings_adapter import finding_from_config_obligation
+
+        f = finding_from_config_obligation(_obligation(schema_name=""))
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert meta.payload["scan_needles"] == ["taskTimeoutMs"]
+
+    def test_scanner_metadata_roundtrip_fields(self):
+        from osoji.findings_adapter import finding_from_config_obligation
+
+        f = finding_from_config_obligation(_obligation())
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert meta.payload["schema_name"] == "TrialSettingsSchema"
+        assert meta.payload["field_name"] == "taskTimeoutMs"
+        assert meta.payload["line_start"] == 10
+        assert meta.payload["obligation"].startswith("Enforce")
+
+
+class TestOrphanCandidateAdapter:
+    def test_basic_mapping(self):
+        from osoji.findings_adapter import finding_from_orphan_candidate
+
+        f = finding_from_orphan_candidate(_orphan_candidate())
+        assert f.detector == "orphan:orphaned_file"
+        assert f.gap_type == "reachability"
+        assert f.path == "src/osoji/plugins/foo.py"
+        assert f.symbol == "foo.py"
+        assert f.line_start == 1 and f.line_end is None
+
+    def test_needles_basename_stem_then_public_surface(self):
+        from osoji.findings_adapter import finding_from_orphan_candidate
+
+        f = finding_from_orphan_candidate(_orphan_candidate())
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert meta.payload["scan_needles"] == ["foo.py", "foo", "FooPlugin", "register"]
+        assert meta.payload["priority_paths"] == []
+
+    def test_needles_capped_at_five(self):
+        from osoji.findings_adapter import finding_from_orphan_candidate
+
+        f = finding_from_orphan_candidate(_orphan_candidate(
+            public_surface=["a", "b", "c", "d", "e", "f"],
+        ))
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert meta.payload["scan_needles"] == ["foo.py", "foo", "a", "b", "c"]
+
+    def test_path_normalized(self):
+        from osoji.findings_adapter import finding_from_orphan_candidate
+
+        f = finding_from_orphan_candidate(_orphan_candidate(source_path="src\\osoji\\bar.py"))
+        assert f.path == "src/osoji/bar.py"
+        assert f.symbol == "bar.py"
+
+
+class TestDepCandidateAdapter:
+    def test_basic_mapping(self):
+        from osoji.findings_adapter import finding_from_dep_candidate
+
+        f = finding_from_dep_candidate(_dep_candidate())
+        assert f.detector == "deps:dead_dependency"
+        assert f.gap_type == "reachability"
+        assert f.path == "pyproject.toml"
+        assert f.symbol == "pillow"
+        assert f.line_start == 7 and f.line_end is None
+
+    def test_needles_package_then_import_names(self):
+        from osoji.findings_adapter import finding_from_dep_candidate
+
+        f = finding_from_dep_candidate(_dep_candidate())
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert meta.payload["scan_needles"] == ["pillow", "PIL"]
+        assert meta.payload["priority_paths"] == []
+
+    def test_dev_dependency_wording(self):
+        from osoji.findings_adapter import finding_from_dep_candidate
+
+        f = finding_from_dep_candidate(_dep_candidate(is_dev=True))
+        assert "a dev dependency" in f.contract_claim
+
+    def test_scanner_metadata_roundtrip_fields(self):
+        from osoji.findings_adapter import finding_from_dep_candidate
+
+        f = finding_from_dep_candidate(_dep_candidate())
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert meta.payload["package_name"] == "pillow"
+        assert meta.payload["import_names"] == ["PIL"]
+        assert meta.payload["is_dev"] is False
+
+
+class TestCICDCandidateAdapter:
+    def test_basic_mapping(self):
+        from osoji.findings_adapter import finding_from_cicd_candidate
+
+        f = finding_from_cicd_candidate(_cicd_candidate())
+        assert f.detector == "cicd:dead_cicd"
+        assert f.gap_type == "reachability"
+        assert f.path == ".github/workflows/ci.yml"
+        assert f.symbol == "deploy"
+        assert f.line_start == 10 and f.line_end == 20
+
+    def test_needles_element_first_then_missing_path_basenames(self):
+        from osoji.findings_adapter import finding_from_cicd_candidate
+
+        f = finding_from_cicd_candidate(_cicd_candidate())
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert meta.payload["scan_needles"] == ["deploy", "run.sh", "old.yml"]
+        assert meta.payload["priority_paths"] == []
+
+    def test_element_content_not_carried(self):
+        from osoji.findings_adapter import finding_from_cicd_candidate
+
+        f = finding_from_cicd_candidate(_cicd_candidate())
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert "element_content" not in meta.payload
+        assert "full_file_content" not in meta.payload
+        assert meta.payload["missing_paths"] == ["deploy/scripts/run.sh", "infra/old.yml"]

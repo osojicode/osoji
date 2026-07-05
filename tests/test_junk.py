@@ -235,17 +235,20 @@ class TestDeadPlumbingAnalyzer:
                     input_tokens=500, output_tokens=200,
                     model="test", stop_reason="tool_use",
                 )
-            else:
+            else:  # submit_triage_verdicts (unified Triage)
+                validator = options.tool_input_validators[0]
+                n = len(validator("submit_triage_verdicts", {"verdicts": []}))
                 return CompletionResult(
                     content=None,
                     tool_calls=[ToolCall(
-                        id="tc2", name="verify_actuation",
-                        input={
-                            "is_actuated": False,
-                            "confidence": 0.9,
-                            "trace": "taskTimeoutMs stored but never enforced",
-                            "remediation": "Add timer enforcement",
-                        },
+                        id="tc2", name="submit_triage_verdicts",
+                        input={"verdicts": [
+                            {"batch_index": i, "verdict": "confirmed",
+                             "confidence": 0.9,
+                             "reasoning": "taskTimeoutMs stored but never enforced",
+                             "suggested_fix": "Add timer enforcement"}
+                            for i in range(n)
+                        ]},
                     )],
                     input_tokens=400, output_tokens=80,
                     model="test", stop_reason="tool_use",

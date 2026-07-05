@@ -8,14 +8,12 @@ import pytest
 
 from osoji.config import Config
 from osoji.junk_orphan import (
-    OrphanCandidate,
     OrphanedFilesAnalyzer,
     _build_import_edges,
     _identify_entry_points_heuristic,
     _identify_entry_points_async,
     _identify_relationships_async,
     _load_signatures,
-    _verify_orphans_batch_async,
     detect_orphaned_files_async,
     find_orphans,
 )
@@ -257,91 +255,9 @@ class TestIdentifyRelationshipsAsync:
         mock_provider.complete.assert_not_called()
 
 
-# --- TestVerifyOrphans ---
-
-class TestVerifyOrphans:
-    @pytest.mark.asyncio
-    async def test_confirms_orphan(self):
-        mock_provider = AsyncMock()
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1", name="verify_orphan_files",
-                input={
-                    "verdicts": [{
-                        "source_path": "src/old.py",
-                        "is_orphaned": True, "confidence": 0.9,
-                        "reason": "No imports, no dynamic loading",
-                        "remediation": "Delete file",
-                    }],
-                },
-            )],
-            input_tokens=300, output_tokens=100,
-            model="test", stop_reason="tool_use",
-        )
-
-        config = Config(root_path=Path("."), respect_gitignore=False)
-        orphans = [OrphanCandidate(
-            source_path="src/old.py", purpose="Old utility", topics=["legacy"],
-            file_role="utility",
-        )]
-        results, in_tok, out_tok = await _verify_orphans_batch_async(
-            mock_provider, config, orphans, {},
-        )
-        assert len(results) == 1
-        assert results[0].is_orphaned is True
-        assert results[0].confidence == 0.9
-
-    @pytest.mark.asyncio
-    async def test_says_alive(self):
-        mock_provider = AsyncMock()
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1", name="verify_orphan_files",
-                input={
-                    "verdicts": [{
-                        "source_path": "src/plugin.py",
-                        "is_orphaned": False, "confidence": 0.95,
-                        "reason": "Loaded dynamically as pytest plugin",
-                        "remediation": "Keep — pytest plugin",
-                    }],
-                },
-            )],
-            input_tokens=300, output_tokens=100,
-            model="test", stop_reason="tool_use",
-        )
-
-        config = Config(root_path=Path("."), respect_gitignore=False)
-        orphans = [OrphanCandidate(
-            source_path="src/plugin.py", purpose="Pytest plugin", topics=["testing"],
-            file_role="utility",
-        )]
-        results, _, _ = await _verify_orphans_batch_async(
-            mock_provider, config, orphans, {},
-        )
-        assert len(results) == 1
-        assert results[0].is_orphaned is False
-
-    @pytest.mark.asyncio
-    async def test_no_tool_calls_raises(self):
-        mock_provider = AsyncMock()
-        mock_provider.complete.return_value = CompletionResult(
-            content="No tool response",
-            tool_calls=[],
-            input_tokens=100, output_tokens=50,
-            model="test", stop_reason="end_turn",
-        )
-
-        config = Config(root_path=Path("."), respect_gitignore=False)
-        orphans = [OrphanCandidate(
-            source_path="src/old.py", purpose="Old", topics=[],
-            file_role="utility",
-        )]
-        with pytest.raises(RuntimeError, match="did not return verdicts"):
-            await _verify_orphans_batch_async(
-                mock_provider, config, orphans, {},
-            )
+# NOTE: orphan verification moved from the deleted `_verify_orphans_batch_async`
+# to the unified Triage pipeline (V1-5b). The confirmed/dismissed re-wrap and
+# prompt identity are covered by tests/test_junk_project_graph_cutover.py.
 
 
 # --- TestLoadSignatures ---

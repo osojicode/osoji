@@ -18,11 +18,33 @@ from osoji.junk_cicd import (
     _parse_github_workflow,
     _parse_gitlab_ci,
     _parse_makefile,
-    _verify_batch_async,
     detect_dead_cicd_async,
     discover_cicd_files,
 )
 from osoji.llm.types import CompletionResult, ToolCall
+
+
+def _triage_verdicts(options, verdicts_by_index):
+    """Build a submit_triage_verdicts ToolCall response for a triage batch."""
+    validator = options.tool_input_validators[0]
+    n = len(validator("submit_triage_verdicts", {"verdicts": []}))
+    verdicts = []
+    for i in range(n):
+        verdict, confidence, reasoning = verdicts_by_index.get(
+            i, ("confirmed", 0.85, "referenced path removed")
+        )
+        verdicts.append({
+            "batch_index": i, "verdict": verdict, "confidence": confidence,
+            "reasoning": reasoning,
+        })
+    return CompletionResult(
+        content=None,
+        tool_calls=[ToolCall(
+            id="triage", name="submit_triage_verdicts",
+            input={"verdicts": verdicts},
+        )],
+        input_tokens=200, output_tokens=80, model="test", stop_reason="tool_use",
+    )
 
 
 # --- Helpers ---
@@ -271,110 +293,11 @@ class TestCheckPathReferences:
         assert elements[0].missing_paths == []
 
 
-# --- TestVerifyBatch ---
-
-class TestVerifyBatch:
-    @pytest.fixture
-    def config(self, temp_dir):
-        return Config(root_path=temp_dir, respect_gitignore=False)
-
-    @pytest.mark.asyncio
-    async def test_llm_confirms_dead_job(self, config):
-        mock_provider = AsyncMock()
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1", name="verify_dead_cicd",
-                input={
-                    "verdicts": [{
-                        "element_name": "old-deploy",
-                        "is_dead": True, "confidence": 0.9,
-                        "reason": "References removed deploy directory",
-                        "remediation": "Remove job from workflow",
-                    }],
-                },
-            )],
-            input_tokens=300, output_tokens=100,
-            model="test", stop_reason="tool_use",
-        )
-
-        candidate = CICDCandidate(
-            cicd_file=".github/workflows/ci.yml",
-            element_name="old-deploy",
-            element_type="workflow_job",
-            line_start=10,
-            line_end=20,
-            missing_paths=["deploy/scripts/run.sh"],
-            element_content="  old-deploy:\n    run: bash deploy/scripts/run.sh\n",
-            full_file_content="name: CI\njobs:\n  old-deploy:\n    run: bash deploy/scripts/run.sh\n",
-        )
-        results, in_tok, out_tok = await _verify_batch_async(
-            mock_provider, config, [candidate], "src/app.py\ntests/\n",
-        )
-        assert len(results) == 1
-        assert results[0].is_dead is True
-        assert in_tok == 300
-
-    @pytest.mark.asyncio
-    async def test_llm_says_alive_external_deploy(self, config):
-        mock_provider = AsyncMock()
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1", name="verify_dead_cicd",
-                input={
-                    "verdicts": [{
-                        "element_name": "deploy",
-                        "is_dead": False, "confidence": 0.95,
-                        "reason": "Deploys to external cloud service",
-                        "remediation": "Keep — active deployment",
-                    }],
-                },
-            )],
-            input_tokens=300, output_tokens=100,
-            model="test", stop_reason="tool_use",
-        )
-
-        candidate = CICDCandidate(
-            cicd_file=".github/workflows/deploy.yml",
-            element_name="deploy",
-            element_type="workflow_job",
-            line_start=5,
-            line_end=15,
-            missing_paths=["infra/config.yml"],
-            element_content="  deploy:\n    run: kubectl apply -f infra/config.yml\n",
-            full_file_content="name: Deploy\njobs:\n  deploy:\n    run: kubectl apply\n",
-        )
-        results, _, _ = await _verify_batch_async(
-            mock_provider, config, [candidate], "src/\ntests/\n",
-        )
-        assert len(results) == 1
-        assert results[0].is_dead is False
-
-    @pytest.mark.asyncio
-    async def test_no_tool_calls_raises(self, config):
-        mock_provider = AsyncMock()
-        mock_provider.complete.return_value = CompletionResult(
-            content="No tool response",
-            tool_calls=[],
-            input_tokens=100, output_tokens=50,
-            model="test", stop_reason="end_turn",
-        )
-
-        candidate = CICDCandidate(
-            cicd_file=".github/workflows/ci.yml",
-            element_name="test",
-            element_type="workflow_job",
-            line_start=1,
-            line_end=5,
-            missing_paths=["old/path"],
-            element_content="  test:\n    run: old/path/script.sh\n",
-            full_file_content="jobs:\n  test:\n    run: old/path/script.sh\n",
-        )
-        with pytest.raises(RuntimeError, match="did not return verdicts"):
-            await _verify_batch_async(
-                mock_provider, config, [candidate], "",
-            )
+# NOTE: CI/CD verification moved from the deleted `_verify_batch_async` to the
+# unified Triage pipeline (V1-5b). The still-active taxonomy (external deploy
+# tools, dynamic test discovery, phony targets) is now judged by Triage under
+# the reachability rubric's dead-CI/CD clause; see
+# tests/test_junk_project_graph_cutover.py for the confirmed/dismissed gate.
 
 
 # --- TestDetectDeadCICDAsync ---
@@ -383,7 +306,8 @@ class TestDetectDeadCICDAsync:
     @pytest.mark.asyncio
     async def test_full_pipeline(self, temp_dir):
         config = Config(root_path=temp_dir, respect_gitignore=False)
-        # Create a workflow that references a missing path
+        # Create a workflow that references a missing path. cicd_files is passed
+        # explicitly so the run is deterministic across filesystem case rules.
         _write_source(temp_dir, ".github/workflows/ci.yml", textwrap.dedent("""\
             name: CI
             on: push
@@ -397,26 +321,22 @@ class TestDetectDeadCICDAsync:
         # Don't create tests/removed_dir/
 
         mock_provider = AsyncMock()
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1", name="verify_dead_cicd",
-                input={
-                    "verdicts": [{
-                        "element_name": "test",
-                        "is_dead": True, "confidence": 0.85,
-                        "reason": "References removed test directory",
-                        "remediation": "Update or remove job",
-                    }],
-                },
-            )],
-            input_tokens=300, output_tokens=100,
-            model="test", stop_reason="tool_use",
-        )
 
-        results, total = await detect_dead_cicd_async(mock_provider, config)
-        # Smoke test: pipeline completes without error
-        assert isinstance(results, list)
+        async def mock_complete(**kwargs):
+            options = kwargs.get("options")
+            return _triage_verdicts(options, {
+                0: ("confirmed", 0.85, "references removed test directory"),
+            })
+
+        mock_provider.complete.side_effect = mock_complete
+
+        decided, total = await detect_dead_cicd_async(
+            mock_provider, config,
+            cicd_files=[(temp_dir / ".github" / "workflows" / "ci.yml", "github_workflow")],
+        )
+        assert total == 1
+        confirmed = [f for f in decided if f.verdict == "confirmed"]
+        assert [f.symbol for f in confirmed] == ["test"]
 
     @pytest.mark.asyncio
     async def test_no_cicd_files(self, temp_dir):
@@ -424,9 +344,8 @@ class TestDetectDeadCICDAsync:
         _write_source(temp_dir, "src/app.py", "print('hello')\n")
 
         mock_provider = AsyncMock()
-        results, total = await detect_dead_cicd_async(mock_provider, config)
-        assert results == []
-        assert total == 0
+        decided, total = await detect_dead_cicd_async(mock_provider, config)
+        assert (decided, total) == ([], 0)
         mock_provider.complete.assert_not_called()
 
     @pytest.mark.asyncio
@@ -436,10 +355,12 @@ class TestDetectDeadCICDAsync:
         _write_source(temp_dir, "Makefile", "test:\n\tpython src/app.py\n")
 
         mock_provider = AsyncMock()
-        results, total = await detect_dead_cicd_async(mock_provider, config)
+        decided, total = await detect_dead_cicd_async(
+            mock_provider, config,
+            cicd_files=[(temp_dir / "Makefile", "makefile")],
+        )
         # src/app.py exists, so no missing paths, so no LLM call
-        assert results == []
-        assert total == 0
+        assert (decided, total) == ([], 0)
         mock_provider.complete.assert_not_called()
 
 
@@ -453,35 +374,32 @@ class TestDeadCICDAnalyzer:
         # Don't create scripts/deploy.sh
 
         mock_provider = AsyncMock()
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1", name="verify_dead_cicd",
-                input={
-                    "verdicts": [{
-                        "element_name": "deploy",
-                        "is_dead": True, "confidence": 0.9,
-                        "reason": "Deploy script no longer exists",
-                        "remediation": "Remove target from Makefile",
-                    }],
-                },
-            )],
-            input_tokens=300, output_tokens=100,
-            model="test", stop_reason="tool_use",
-        )
+
+        async def mock_complete(**kwargs):
+            options = kwargs.get("options")
+            return _triage_verdicts(options, {
+                0: ("confirmed", 0.9, "deploy script no longer exists"),
+            })
+
+        mock_provider.complete.side_effect = mock_complete
 
         analyzer = DeadCICDAnalyzer()
-        result = await analyzer.analyze_async(mock_provider, config)
+        # cicd_files passed explicitly so discovery's case-insensitive Makefile
+        # probing does not double-count on the host filesystem.
+        result = await analyzer.analyze_async(
+            mock_provider, config,
+            cicd_files=[(temp_dir / "Makefile", "makefile")],
+        )
 
         assert isinstance(result, JunkAnalysisResult)
         assert result.analyzer_name == "dead_cicd"
+        assert result.total_candidates == 1
 
-        if result.findings:
-            finding = result.findings[0]
-            assert finding.source_path == "Makefile"
-            assert finding.name == "deploy"
-            assert finding.kind == "makefile_target"
-            assert finding.category == "dead_cicd"
+        finding = result.findings[0]
+        assert finding.source_path == "Makefile"
+        assert finding.name == "deploy"
+        assert finding.kind == "makefile_target"
+        assert finding.category == "dead_cicd"
 
     def test_analyzer_properties(self):
         analyzer = DeadCICDAnalyzer()

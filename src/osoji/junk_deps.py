@@ -7,13 +7,17 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .async_utils import gather_with_buffer
 from .config import ANTHROPIC_MODEL_SMALL, Config, SHADOW_DIR
+from .evidence_builders import BuildContext, _scanner_meta
+from .facts import FactsDB
+from .findings import Finding
+from .findings_adapter import finding_from_dep_candidate
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult
+from .junk_triage import build_junk_claims, decide_junk_claims
 from .llm.base import LLMProvider
 from .llm.runtime import create_runtime
 from .llm.types import Message, MessageRole, CompletionOptions
-from .tools import get_dead_deps_tool_definitions, get_resolve_import_names_tool_definitions, get_classify_deps_tool_definitions
+from .tools import get_resolve_import_names_tool_definitions, get_classify_deps_tool_definitions
 from .walker import list_repo_files, _matches_ignore
 
 
@@ -30,20 +34,6 @@ class DependencyCandidate:
     is_dev: bool = False
     ecosystem: str = "python"
     line_number: int = 1
-
-
-@dataclass
-class DepVerification:
-    """Result of verifying whether a dependency is dead."""
-
-    manifest_path: str
-    package_name: str
-    is_dead: bool
-    confidence: float
-    reason: str
-    remediation: str
-    usage_type: str
-    line_number: int
 
 
 # --- Known package name -> import name mismatches (zero-cost cache) ---
@@ -626,169 +616,28 @@ def _filter_zero_import(candidates: list[DependencyCandidate]) -> list[Dependenc
 
 
 
-# --- LLM verification ---
-
-_DEAD_DEPS_SYSTEM_PROMPT = """You are analyzing package dependencies to determine which are truly unused.
-
-You are given a manifest file and a list of dependencies that have zero import matches in the source code. For each dependency, determine whether it is genuinely unused or alive through non-import usage.
-
-## Non-import usage patterns (dependency is ALIVE)
-- **Build tools**: Invoked from CLI or scripts (black, ruff, pytest, eslint, prettier, webpack)
-- **Framework plugins**: Auto-discovered by a framework (pytest plugins like pytest-cov, Django apps, Babel plugins, PostCSS plugins)
-- **CLI tools**: Provide command-line binaries used in scripts or CI (alembic, celery, gunicorn, nodemon)
-- **Type stubs**: @types/* packages used by TypeScript, or typing stubs like types-requests
-- **Peer dependencies**: Required by another installed package
-- **Build system**: Required by the build backend (setuptools, wheel, hatchling, flit-core)
-- **Configuration-only**: Referenced in config files (.eslintrc, babel.config.js, pytest.ini) but not imported
-
-## When a dependency IS dead
-- No imports AND no configuration references AND not a build tool/plugin/CLI tool/type package
-- Added for a feature that was later removed
-- Superseded by another package
-
-Use the verify_dead_deps tool with a verdict for EVERY dependency."""
-
-
-async def _verify_batch_async(
-    provider: LLMProvider,
-    config: Config,
-    candidates: list[DependencyCandidate],
-    manifest_content: str,
-    config_snippets: dict[str, str],
-) -> tuple[list[DepVerification], int, int]:
-    """Verify a batch of dead dependency candidates via one LLM call per manifest.
-
-    Returns (list[DepVerification], input_tokens, output_tokens).
-    """
-    user_parts: list[str] = []
-
-    manifest_path = candidates[0].manifest_path
-    user_parts.append(f"## Manifest file: `{manifest_path}`\n```\n{manifest_content[:50000]}\n```\n")
-
-    user_parts.append("## Zero-import dependencies\n")
-    for cand in candidates:
-        dev_tag = " (dev)" if cand.is_dev else ""
-        user_parts.append(
-            f"- `{cand.package_name}`{dev_tag} — import names tried: {cand.import_names} "
-            f"(line {cand.line_number})"
-        )
-    user_parts.append("")
-
-    if config_snippets:
-        user_parts.append("## Config file snippets mentioning these packages\n")
-        for filepath, snippet in config_snippets.items():
-            user_parts.append(f"### `{filepath}`\n```\n{snippet[:5000]}\n```\n")
-
-    names_list = ", ".join(f"`{c.package_name}`" for c in candidates)
-    user_parts.append(
-        f"Provide a verdict for EVERY dependency listed ({names_list}) "
-        "using the verify_dead_deps tool."
-    )
-
-    # Build completeness validator
-    expected_names = {c.package_name for c in candidates}
-
-    def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
-        if tool_name != "verify_dead_deps":
-            return []
-        verdicts = tool_input.get("verdicts", [])
-        got_names = {v.get("package_name") for v in verdicts}
-        missing = expected_names - got_names
-        return [f"Missing verdict for dependency '{name}'" for name in sorted(missing)]
-
-    result = await provider.complete(
-        messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
-        system=_DEAD_DEPS_SYSTEM_PROMPT,
-        options=CompletionOptions(
-            model=config.model_for("medium"),
-            max_tokens=max(1024, len(candidates) * 200),
-            reservation_key="junk_deps.verify",
-            tools=get_dead_deps_tool_definitions(),
-            tool_choice={"type": "tool", "name": "verify_dead_deps"},
-            tool_input_validators=[check_completeness],
-        ),
-    )
-
-    verifications: list[DepVerification] = []
-    cand_by_name = {c.package_name: c for c in candidates}
-
-    for tool_call in result.tool_calls:
-        if tool_call.name == "verify_dead_deps":
-            for verdict in tool_call.input.get("verdicts", []):
-                pkg_name = verdict.get("package_name", "")
-                cand = cand_by_name.get(pkg_name)
-                if cand:
-                    verifications.append(DepVerification(
-                        manifest_path=cand.manifest_path,
-                        package_name=cand.package_name,
-                        is_dead=verdict.get("is_dead", False),
-                        confidence=verdict.get("confidence", 0.5),
-                        reason=verdict.get("reason", ""),
-                        remediation=verdict.get("remediation", ""),
-                        usage_type=verdict.get("usage_type", "unused"),
-                        line_number=cand.line_number,
-                    ))
-
-    if not verifications:
-        raise RuntimeError(
-            f"LLM did not return verdicts for dependencies: "
-            f"{[c.package_name for c in candidates]}"
-        )
-
-    return verifications, result.input_tokens, result.output_tokens
-
-
-def _find_config_snippets(
-    config: Config,
-    candidates: list[DependencyCandidate],
-) -> dict[str, str]:
-    """Find config files that mention candidate package names."""
-    config_patterns = [
-        ".eslintrc*", "babel.config*", "jest.config*", ".babelrc",
-        "postcss.config*", "tailwind.config*", "vite.config*",
-        "webpack.config*", "rollup.config*", "tsconfig*",
-        "pytest.ini", "setup.cfg", "tox.ini", ".flake8",
-        "mypy.ini", ".pylintrc", "pyproject.toml",
-        "Makefile", "GNUmakefile",
-    ]
-
-    pkg_names = {c.package_name.lower() for c in candidates}
-    snippets: dict[str, str] = {}
-
-    for child in config.root_path.iterdir():
-        if not child.is_file():
-            continue
-        name = child.name
-        match = any(
-            re.match(re.escape(p).replace(r"\*", ".*"), name) for p in config_patterns
-        )
-        if not match:
-            continue
-
-        try:
-            content = child.read_text(errors="ignore")
-        except OSError:
-            continue
-
-        lower_content = content.lower()
-        if any(pkg in lower_content for pkg in pkg_names):
-            snippets[name] = content[:5000]
-
-    return snippets
-
-
 # --- Full pipeline ---
 
 async def detect_dead_deps_async(
     provider: LLMProvider,
     config: Config,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
-) -> list[DepVerification]:
-    """Detect unused dependencies across the project."""
+) -> tuple[list[Finding], int]:
+    """Detect unused dependencies through the unified pipeline.
+
+    The retained propose stages (resolve import names, pre-filter build tools,
+    classify) whittle to *genuine* zero-import candidates; each becomes a
+    reachability Finding whose needles are the package name plus every resolved
+    import name. The Claim Builder gathers any non-import textual use and Triage
+    judges build-tool/plugin/CLI liveness before confirming dead.
+
+    Returns ``(decided Findings — all verdicts; callers keep ``confirmed`` —,
+    genuine candidates examined)``.
+    """
     manifests = discover_manifests(config)
     if not manifests:
         print("  [skip] No manifest files found.", flush=True)
-        return []
+        return [], 0
 
     print(f"  Found {len(manifests)} manifest file(s)", flush=True)
 
@@ -808,7 +657,7 @@ async def detect_dead_deps_async(
 
     if not all_candidates:
         print("  No dependencies found in manifests.", flush=True)
-        return []
+        return [], 0
 
     print(f"  Found {len(all_candidates)} dependency(ies) across all manifests", flush=True)
 
@@ -865,7 +714,7 @@ async def detect_dead_deps_async(
     )
 
     if not pre_filtered:
-        return []
+        return [], 0
 
     # --- LLM dependency classification ---
     # Group by manifest for classification
@@ -894,62 +743,16 @@ async def detect_dead_deps_async(
     )
 
     if not genuine_candidates:
-        return []
+        return [], 0
 
-    # Group candidates by manifest for medium-model verification
-    by_manifest: dict[str, list[DependencyCandidate]] = {}
-    for cand in genuine_candidates:
-        by_manifest.setdefault(cand.manifest_path, []).append(cand)
-
-    results: list[DepVerification] = []
-    completed_manifests = 0
-    total_manifests = len(by_manifest)
-    lock = asyncio.Lock()
-
-    async def process_manifest(
-        manifest_path: str,
-        candidates: list[DependencyCandidate],
-    ) -> list[DepVerification]:
-        nonlocal completed_manifests
-
-        try:
-            config_snippets = _find_config_snippets(config, candidates)
-            verifications, _in_tok, _out_tok = await _verify_batch_async(
-                provider, config, candidates,
-                manifest_contents.get(manifest_path, ""),
-                config_snippets,
-            )
-
-            async with lock:
-                completed_manifests += 1
-                dead_count = sum(1 for v in verifications if v.is_dead)
-                results.extend(verifications)
-                if on_progress:
-                    on_progress(
-                        completed_manifests, total_manifests,
-                        Path(manifest_path),
-                        f"{dead_count} dead",
-                    )
-            return verifications
-        except Exception as e:
-            async with lock:
-                completed_manifests += 1
-                if on_progress:
-                    on_progress(
-                        completed_manifests, total_manifests,
-                        Path(manifest_path), "error",
-                    )
-            print(f"  [error] {manifest_path}: {e}", flush=True)
-            return []
-
-    await gather_with_buffer(
-        [
-            lambda manifest_path=mp, cands=cands: process_manifest(manifest_path, cands)
-            for mp, cands in by_manifest.items()
-        ]
+    # Build claims and decide through unified Triage
+    findings = [finding_from_dep_candidate(c) for c in genuine_candidates]
+    ctx = BuildContext(config, facts_db=FactsDB(config))
+    claims = build_junk_claims(findings, ctx)
+    decided, _in_tok, _out_tok = await decide_junk_claims(
+        claims, config, provider, on_progress=on_progress
     )
-
-    return results
+    return decided, len(genuine_candidates)
 
 
 class DeadDepsAnalyzer(JunkAnalyzer):
@@ -982,25 +785,31 @@ class DeadDepsAnalyzer(JunkAnalyzer):
         return asyncio.run(_run())
 
     async def analyze_async(self, provider, config, on_progress=None):
-        results = await detect_dead_deps_async(provider, config, on_progress)
-        findings = [
-            JunkFinding(
-                source_path=v.manifest_path,
-                name=v.package_name,
+        decided, total = await detect_dead_deps_async(provider, config, on_progress)
+        findings = []
+        for f in decided:
+            if f.verdict != "confirmed":
+                continue
+            meta = _scanner_meta(f)
+            package_name = meta.get("package_name", f.symbol or "")
+            findings.append(JunkFinding(
+                source_path=f.path,
+                name=package_name,
                 kind="dependency",
                 category="dead_dependency",
-                line_start=v.line_number,
+                line_start=f.line_start or 1,
                 line_end=None,
-                confidence=v.confidence,
-                reason=v.reason,
-                remediation=v.remediation,
-                original_purpose=f"dependency `{v.package_name}`",
-                metadata={"usage_type": v.usage_type},
-            )
-            for v in results if v.is_dead
-        ]
+                confidence=f.confidence if f.confidence is not None else 0.0,
+                reason=f.triage_reasoning or "",
+                remediation=f.suggested_fix or f"Remove `{package_name}` from `{f.path}`",
+                original_purpose=f"dependency `{package_name}`",
+                confidence_source="llm_inferred",
+                # usage_type died with the verify verdict; a confirmed finding is
+                # unused by definition, preserving the downstream key.
+                metadata={"usage_type": "unused"},
+            ))
         return JunkAnalysisResult(
             findings=findings,
-            total_candidates=len(results),
+            total_candidates=total,
             analyzer_name=self.name,
         )

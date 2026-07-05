@@ -36,7 +36,16 @@ if TYPE_CHECKING:  # pragma: no cover - typing only, avoids import-time coupling
     from .deadparam import DeadParamCandidate
     from .doc_analysis import DocFinding
     from .junk import JunkFinding
+    from .junk_cicd import CICDCandidate
+    from .junk_deps import DependencyCandidate
+    from .junk_orphan import OrphanCandidate
     from .obligations import ContractFinding
+    from .plumbing import ConfigObligation
+
+# Cap on detector-supplied scan needles (matches the Claim Builder's own
+# ``_MAX_NEEDLES`` — the builder trims to the same bound, so trimming here keeps
+# the persisted metadata honest about what the sweep will actually grep for).
+_MAX_NEEDLES = 5
 
 
 # --- Category -> gap_type ---------------------------------------------------
@@ -262,6 +271,233 @@ def finding_from_dead_param_candidate(
             "across the defining file and its importers; the scanner does not "
             f"parse call arguments — whether any caller passes `{c.param_name}` "
             "must be judged from the call-site evidence."
+        ),
+        evidence=[evidence],
+    )
+
+
+def _dedup_needles(names: list[str], *, cap: int = _MAX_NEEDLES) -> list[str]:
+    """Order-preserving dedup of non-empty needle strings, capped at ``cap``."""
+
+    out: list[str] = []
+    for name in names:
+        if name and name not in out:
+            out.append(name)
+        if len(out) >= cap:
+            break
+    return out
+
+
+def finding_from_config_obligation(
+    o: "ConfigObligation",
+    *,
+    root: str | Path | None = None,
+) -> Finding:
+    """Convert a propose-time :class:`osoji.plumbing.ConfigObligation` (V1-5b).
+
+    The candidate is the hypothesis "this schema field declares an obligation the
+    system never enforces". The scan needles are the field name FIRST — its
+    same-file hit is the gated definition, and zero hits at consumer files is the
+    never-actuated signal — then the schema/class name. The claim is framed in
+    *enforcement* terms so the unified reachability rubric judges actuation
+    (a store/pass/log reference is a real use in the sweep sense but does NOT
+    enforce), not mere textual reference.
+    """
+
+    field_name = o.field_name
+    schema_name = o.schema_name
+    needles = _dedup_needles([field_name] + ([schema_name] if schema_name else []))
+    evidence = Evidence(
+        kind="scanner_metadata",
+        payload={
+            "schema_name": schema_name,
+            "field_name": field_name,
+            "line_start": o.line_start,
+            "line_end": o.line_end,
+            "obligation": o.obligation,
+            "expected_actuation": o.expected_actuation,
+            "scan_needles": needles,
+            "priority_paths": [],
+        },
+    )
+    return Finding(
+        detector="plumbing:unactuated_config",
+        gap_type="reachability",
+        path=_norm_path(o.source_path, root),
+        line_start=o.line_start,
+        line_end=o.line_end,
+        symbol=field_name,
+        contract_source="config schema field",
+        contract_claim=(
+            f"Field `{field_name}` (schema `{schema_name}`) declares an obligation "
+            f"the system must enforce at runtime: {o.obligation}. Expected "
+            f"enforcement: {o.expected_actuation}."
+        ),
+        observed_behavior=(
+            "Reference scan gathers where the field is read across the repo; a site "
+            "that only stores, passes, restructures, or logs the value does not "
+            "enforce it — actuation requires code that uses it to cause the declared "
+            "effect."
+        ),
+        evidence=[evidence],
+    )
+
+
+def finding_from_orphan_candidate(
+    c: "OrphanCandidate",
+    *,
+    root: str | Path | None = None,
+) -> Finding:
+    """Convert a propose-time :class:`osoji.junk_orphan.OrphanCandidate` (V1-5b).
+
+    ``symbol`` is the bare filename (matches the legacy ``JunkFinding.name``). The
+    scan needles are the file's basename and stem FIRST (string/import references),
+    then its exported symbol names from ``public_surface`` (secondary
+    import-reference needles). Language-agnostic: every needle is a string drawn
+    from the candidate's own data — no "looks like a module" heuristic. An orphan
+    has no known importers by construction, so ``priority_paths`` is empty; the
+    repo sweep is what catches dynamic/config/CI string references the import-edge
+    graph missed.
+    """
+
+    # Normalize to forward slashes first: a bare ``Path(...).name``/``.stem`` only
+    # splits on the host OS's separator, so a backslash-separated path surviving
+    # from a Windows-walked repo would silently fail to split on Linux/macOS.
+    norm_source_path = PurePosixPath(c.source_path.replace("\\", "/"))
+    basename = norm_source_path.name
+    stem = norm_source_path.stem
+    needles = _dedup_needles([basename, stem] + list(c.public_surface))
+    evidence = Evidence(
+        kind="scanner_metadata",
+        payload={
+            "source_path": c.source_path,
+            "file_role": c.file_role,
+            "purpose": c.purpose,
+            "topics": list(c.topics),
+            "public_surface": list(c.public_surface),
+            "scan_needles": needles,
+            "priority_paths": [],
+        },
+    )
+    return Finding(
+        detector="orphan:orphaned_file",
+        gap_type="reachability",
+        path=_norm_path(c.source_path, root),
+        line_start=1,
+        line_end=None,
+        symbol=basename,
+        contract_source="project file",
+        contract_claim=(
+            f"File `{c.source_path}` (role: {c.file_role}; purpose: {c.purpose}) is "
+            "part of the project but no entry point reaches it via the import graph."
+        ),
+        observed_behavior=(
+            "Reference scan sweeps the repo for the file's name and exported symbols; "
+            "hits (dynamic import, config/CI reference, convention loader) show it is "
+            "still reached, while zero hits over a real scan scope support the orphan "
+            "verdict."
+        ),
+        evidence=[evidence],
+    )
+
+
+def finding_from_dep_candidate(
+    c: "DependencyCandidate",
+    *,
+    root: str | Path | None = None,
+) -> Finding:
+    """Convert a propose-time :class:`osoji.junk_deps.DependencyCandidate` (V1-5b).
+
+    Adapts from a *genuine* zero-import candidate (build tools / plugins / type
+    stubs already filtered upstream by the retained classify stage). The scan
+    needles are the declared package name AND every resolved import name (the
+    resolve-imports stage output, e.g. pillow -> PIL). ``priority_paths`` is empty:
+    a genuine candidate has ``import_hits == 0`` so there are no pre-known hit
+    files; the reference sweep gathers any non-import textual use.
+    """
+
+    needles = _dedup_needles([c.package_name] + list(c.import_names))
+    evidence = Evidence(
+        kind="scanner_metadata",
+        payload={
+            "package_name": c.package_name,
+            "import_names": list(c.import_names),
+            "is_dev": c.is_dev,
+            "ecosystem": c.ecosystem,
+            "line_number": c.line_number,
+            "scan_needles": needles,
+            "priority_paths": [],
+        },
+    )
+    return Finding(
+        detector="deps:dead_dependency",
+        gap_type="reachability",
+        path=_norm_path(c.manifest_path, root),
+        line_start=c.line_number,
+        line_end=None,
+        symbol=c.package_name,
+        contract_source="dependency manifest",
+        contract_claim=(
+            f"Package `{c.package_name}` is declared as a"
+            f"{' dev' if c.is_dev else ''} dependency in `{c.manifest_path}` "
+            f"(import names: {list(c.import_names)})."
+        ),
+        observed_behavior=(
+            "Import scan found zero import matches; the reference sweep gathers any "
+            "non-import textual use (config files, scripts) so the LLM can judge "
+            "build-tool/plugin/CLI liveness before confirming dead."
+        ),
+        evidence=[evidence],
+    )
+
+
+def finding_from_cicd_candidate(
+    c: "CICDCandidate",
+    *,
+    root: str | Path | None = None,
+) -> Finding:
+    """Convert a propose-time :class:`osoji.junk_cicd.CICDCandidate` (V1-5b).
+
+    The scan needles are the element/job/target name FIRST (catches another
+    target/job that depends on this one — the "used as a dependency" alive signal),
+    then the basenames of the referenced (missing) paths the element points at.
+    ``element_content`` is not carried in the metadata: the ``SurroundingCodeBuilder``
+    re-reads the flagged region from ``cicd_file`` (which is read directly, not via
+    the corpus, so the ``.github`` exclusion does not hide it).
+    """
+
+    missing_names = [PurePosixPath(p).name for p in c.missing_paths]
+    needles = _dedup_needles([c.element_name] + missing_names)
+    evidence = Evidence(
+        kind="scanner_metadata",
+        payload={
+            "element_name": c.element_name,
+            "element_type": c.element_type,
+            "line_start": c.line_start,
+            "line_end": c.line_end,
+            "missing_paths": list(c.missing_paths),
+            "scan_needles": needles,
+            "priority_paths": [],
+        },
+    )
+    return Finding(
+        detector="cicd:dead_cicd",
+        gap_type="reachability",
+        path=_norm_path(c.cicd_file, root),
+        line_start=c.line_start,
+        line_end=c.line_end,
+        symbol=c.element_name,
+        contract_source="CI/CD element",
+        contract_claim=(
+            f"{c.element_type} `{c.element_name}` in `{c.cicd_file}` references "
+            f"path(s) {list(c.missing_paths)} that no longer exist in the repo."
+        ),
+        observed_behavior=(
+            "Path-existence check already found the referenced paths missing; the "
+            "reference sweep gathers repo mentions of the element name and script "
+            "names so the LLM can judge external-target / dynamic-discovery / "
+            "phony-target liveness (missing paths are the primary but not "
+            "dispositive signal)."
         ),
         evidence=[evidence],
     )
