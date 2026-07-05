@@ -723,16 +723,63 @@ class DeclaredIntentBuilder(EvidenceBuilder):
         return [Evidence(kind=self.kind, payload={"file": rel, "blocks": blocks})]
 
 
+def _read_text(path: Path) -> str:
+    """Best-effort text read; empty string if unreadable."""
+
+    try:
+        return path.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+
+
+def _scope_for(sources: list[str]) -> tuple[str, str | None]:
+    """Smallest shadow scope that brackets a set of referenced source paths.
+
+    Purely positional (path tokens only, no semantics): one distinct source →
+    file scope; several sharing one parent directory → that directory's scope;
+    sources spanning >=2 directories, or none at all (an unanchored/project-level
+    claim) → root scope.
+    """
+
+    distinct = list(dict.fromkeys(sources))
+    if not distinct:
+        return ("root", None)
+    if len(distinct) == 1:
+        return ("file", distinct[0])
+    parents = {PurePosixPath(s).parent.as_posix() for s in distinct}
+    if len(parents) == 1:
+        return ("directory", next(iter(parents)))
+    return ("root", None)
+
+
 class ShadowDocBuilder(EvidenceBuilder):
-    """Shadow docs as compressed-code evidence: file scope always; directory
-    scope for description gaps (the potentially-architectural case)."""
+    """Shadow docs as compressed-code evidence.
+
+    Source-anchored findings (a comment/docstring in a file that has its own
+    shadow): file scope always, plus directory scope for description gaps (the
+    potentially-architectural case).
+
+    Doc-anchored description findings (V1-5d): ``finding.path`` is a prose doc
+    with no file shadow, so the useful evidence is the shadow of the *source(s)
+    the doc makes claims about*, attached at the smallest scope that brackets the
+    claim (:func:`_scope_for`).
+    """
 
     kind = "shadow_doc_claim"
 
     def build(self, finding: Finding, ctx: BuildContext) -> list[Evidence]:
         rel = finding.path.replace("\\", "/")
-        evidence: list[Evidence] = []
         file_shadow = load_shadow_content(ctx.config, rel)
+
+        # V1-5d: the finding's own path has no file shadow (it is a prose doc) —
+        # anchor on the source(s) the doc references instead.
+        if not file_shadow and finding.gap_type == "description":
+            doc_evidence = self._doc_anchored(finding, ctx)
+            if doc_evidence:
+                return doc_evidence
+
+        # --- existing source-anchored behavior (owned by V1-5e; unchanged) ---
+        evidence: list[Evidence] = []
         if file_shadow:
             evidence.append(
                 Evidence(
@@ -748,10 +795,7 @@ class ShadowDocBuilder(EvidenceBuilder):
             dir_shadow_path = ctx.config.shadow_path_for_dir(
                 (ctx.config.root_path / rel).parent
             )
-            try:
-                dir_shadow = dir_shadow_path.read_text(encoding="utf-8")
-            except OSError:
-                dir_shadow = ""
+            dir_shadow = _read_text(dir_shadow_path)
             if dir_shadow:
                 evidence.append(
                     Evidence(
@@ -764,6 +808,57 @@ class ShadowDocBuilder(EvidenceBuilder):
                     )
                 )
         return evidence
+
+    def _doc_anchored(self, finding: Finding, ctx: BuildContext) -> list[Evidence]:
+        """Smallest-sufficient shadow scope for a description-gap DOC finding."""
+
+        sources = self._referenced_sources(finding, ctx)
+        scope, anchor = _scope_for(sources)
+        if scope == "file":
+            body = load_shadow_content(ctx.config, anchor or "")
+            label = anchor or ""
+        elif scope == "directory":
+            body = _read_text(
+                ctx.config.shadow_path_for_dir(ctx.config.root_path / (anchor or ""))
+            )
+            label = anchor or ""
+        else:  # root
+            body = _read_text(ctx.config.shadow_path_for_dir(ctx.config.root_path))
+            label = ""
+        if not body:
+            return []
+        return [
+            Evidence(
+                kind=self.kind,
+                payload={
+                    "file": label,
+                    "scope": scope,
+                    "excerpt": body[:_SHADOW_EXCERPT_CHARS],
+                },
+            )
+        ]
+
+    @staticmethod
+    def _referenced_sources(finding: Finding, ctx: BuildContext) -> list[str]:
+        """Source paths a doc finding names: the cited ``shadow_ref`` plus any
+        path-like ``search_terms`` that resolve to an existing shadow doc.
+
+        Positional only — a term counts iff it names a path (``/`` present) that
+        the shadow tree actually knows, so the scope is derived from the finding's
+        own data rather than guessed."""
+
+        meta = _scanner_meta(finding)
+        sources: list[str] = []
+        shadow_ref = meta.get("shadow_ref")
+        if shadow_ref:
+            norm = str(shadow_ref).replace("\\", "/")
+            if norm and norm not in sources:
+                sources.append(norm)
+        for term in meta.get("search_terms", ()):
+            norm = str(term).replace("\\", "/")
+            if "/" in norm and norm not in sources and load_shadow_content(ctx.config, norm):
+                sources.append(norm)
+        return sources
 
 
 class TypeSignatureBuilder(EvidenceBuilder):
