@@ -10,7 +10,7 @@ migration must preserve or deliberately change.
   reasoning attached (controller decision, 2026-07-04); an undecided finding
   (LLM/chunk failure) is kept unverified.
 - Prompt identity: the unified ``TRIAGE_SYSTEM_PROMPT`` — not the deleted
-  per-doc verify prompt, not ``DEBRIS_TRIAGE_SYSTEM_PROMPT``.
+  per-doc verify prompt, not the retired legacy debris prompt.
 - Smallest-sufficient shadow scope: a local-drift doc finding gets file-scope
   shadow evidence, not root; a cross-directory claim gets root scope.
 - Reconciliation: the four doc categories are explicit ``CLAIM_BUILDER_SCHEMA``
@@ -27,7 +27,7 @@ from osoji.doc_analysis import DocAnalysisResult, DocFinding, _triage_doc_findin
 from osoji.evidence_builders import BuildContext
 from osoji.findings_adapter import finding_from_doc, gap_type_for
 from osoji.llm.types import CompletionResult, ToolCall
-from osoji.triage import DEBRIS_TRIAGE_SYSTEM_PROMPT, TRIAGE_SYSTEM_PROMPT
+from osoji.triage import TRIAGE_SYSTEM_PROMPT
 
 
 # --- helpers ------------------------------------------------------------------
@@ -225,7 +225,6 @@ async def test_cutover_uses_unified_triage_prompt(temp_dir):
 
     assert provider.calls == 1
     assert provider.last_system == TRIAGE_SYSTEM_PROMPT
-    assert provider.last_system != DEBRIS_TRIAGE_SYSTEM_PROMPT
     assert "single verifier for every code-quality finding" in provider.last_system
 
 

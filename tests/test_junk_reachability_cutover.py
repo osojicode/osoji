@@ -12,7 +12,7 @@ migration must preserve or deliberately change (osojicode/work#28):
   string is demoted to Triage, and the rendered claim carries the positional
   ``[match is inside a quoted string]`` marker (the dead_symbol-001 residual).
 - Prompt identity: the unified ``TRIAGE_SYSTEM_PROMPT`` — not the deleted
-  per-detector prompts, not ``DEBRIS_TRIAGE_SYSTEM_PROMPT``.
+  per-detector prompts, not the retired legacy debris prompt.
 - Chunking: >12 claims split across calls; a failing chunk bisects once, then
   keeps its claims undecided rather than crashing the run.
 """
@@ -27,7 +27,7 @@ from osoji.evidence_builders import BuildContext
 from osoji.findings_adapter import finding_from_dead_code_candidate
 from osoji.junk_triage import build_junk_claims, decide_junk_claims
 from osoji.llm.types import CompletionResult, ToolCall
-from osoji.triage import DEBRIS_TRIAGE_SYSTEM_PROMPT, TRIAGE_SYSTEM_PROMPT
+from osoji.triage import TRIAGE_SYSTEM_PROMPT
 
 
 # --- environment helpers ------------------------------------------------------
@@ -176,7 +176,6 @@ async def test_unified_rubric_prompt_identity(temp_dir):
 
     assert provider.calls == 1
     assert provider.last_system == TRIAGE_SYSTEM_PROMPT
-    assert provider.last_system != DEBRIS_TRIAGE_SYSTEM_PROMPT
     assert [f.name for f in result.findings] == ["dead_func"]
     assert result.findings[0].confidence_source == "llm_inferred"
 

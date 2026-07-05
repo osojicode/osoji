@@ -2,11 +2,11 @@
 
 The legacy ``_verify_debris_findings_async`` was replaced by the unified Triage
 stage. None of the prompt_regression fixtures exercise that path (they hit the
-detector *propose* steps, which migrate in V1-5), so this deterministic test is
+detector *propose* steps, which migrated in V1-5), so this deterministic test is
 the cutover's preservation gate: given canned verdicts, the new path must
 suppress exactly the findings the old confirmed-false-positive logic did
-(verdict == "dismissed" → suppressed), and it must use the *preserved legacy
-debris prompt* (decision 2: re-plumbing, not re-rubric).
+(verdict == "dismissed" → suppressed). Since V1-5e the call is pinned to the
+unified rubric (the legacy debris prompt is retired; A/B in ab-v15e-report.md).
 """
 
 import asyncio
@@ -16,7 +16,7 @@ from unittest.mock import MagicMock, patch
 from osoji.audit import _run_phase3_async
 from osoji.config import Config
 from osoji.llm.types import CompletionResult, ToolCall
-from osoji.triage import DEBRIS_TRIAGE_SYSTEM_PROMPT
+from osoji.triage import TRIAGE_SYSTEM_PROMPT
 
 
 class FakeFacts:
@@ -109,7 +109,7 @@ def test_ineligible_only_makes_no_llm_call(temp_dir):
     assert provider.calls == 0
 
 
-def test_cutover_uses_preserved_legacy_debris_prompt(temp_dir):
+def test_debris_triage_uses_unified_rubric(temp_dir):
     config = Config(root_path=temp_dir, respect_gitignore=False)
     raw = [_debris("dead_code", "`old_helper` is defined but never used")]
     provider = FakeProvider(_verdicts_result([
@@ -118,7 +118,6 @@ def test_cutover_uses_preserved_legacy_debris_prompt(temp_dir):
 
     _run(config, raw, provider)
 
-    # Re-plumbing: the debris claim call uses the legacy prompt verbatim, NOT the
-    # unified three-gap rubric. This is what makes the mock-equivalence sufficient.
-    assert provider.last_system == DEBRIS_TRIAGE_SYSTEM_PROMPT
-    assert "code debris findings are genuine or false positives" in provider.last_system
+    # V1-5e: the last legacy-prompt holdout flipped onto the unified three-gap
+    # rubric, gated by the same-claims A/B in ab-v15e-report.md.
+    assert provider.last_system == TRIAGE_SYSTEM_PROMPT
