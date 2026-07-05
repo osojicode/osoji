@@ -777,6 +777,49 @@ class TestRuntimeGlobalsSafetyNet:
         assert "some_value" in flagged
 
 
+class TestPairAttribution:
+    """Regression for audit-obligation_implicit_contract-003: when >2 files share
+    a literal, the checker couples to the producer it imports — that producer must
+    head the tuple, and the old cartesian emission (one finding per producer) must
+    collapse to one finding carrying all sharers.
+    """
+
+    def test_linked_producer_wins_and_sharers_preserved(self, tmp_path):
+        # Two independent producers of the same literal; the checker imports only
+        # the second, so p2 is the genuine data source (the residual's shadow.py).
+        _write_facts(tmp_path, "src/p1.py", {
+            "string_literals": [
+                {"value": "shared_status", "context": "produced", "line": 10, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/p2.py", {
+            "exports": [{"name": "produce_status", "kind": "function", "line": 5}],
+            "string_literals": [
+                {"value": "shared_status", "context": "produced", "line": 20, "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/checker.py", {
+            "imports": [{"source": ".p2", "names": ["produce_status"]}],
+            "string_literals": [
+                {"value": "shared_status", "context": "membership check", "line": 30, "kind": "identifier", "usage": "checked"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        checker = StringContractChecker(db)
+        findings = checker.find_contracts()
+        implicit = [f for f in findings if f.finding_type == "implicit_contract"]
+
+        # Old code emitted 2 findings (one per producer) with arbitrary attribution;
+        # new code emits exactly one, headed by the import-linked producer.
+        assert len(implicit) == 1
+        assert implicit[0].producer_file == "src/p2.py"
+        assert implicit[0].consumer_file == "src/checker.py"
+        # Both producers ride along as sharers so no signal is lost.
+        assert set(implicit[0].evidence["producer_files"]) == {"src/p1.py", "src/p2.py"}
+        assert implicit[0].evidence["checker_files"] == ["src/checker.py"]
+
+
 class TestContextAwareRemediation:
     """Tests for context-aware remediation text on grouped implicit contracts."""
 
@@ -828,3 +871,86 @@ class TestContextAwareRemediation:
         assert len(implicit) == 1
         assert "Extract shared constants" in implicit[0].remediation
         assert "import error" in implicit[0].remediation
+
+
+class TestContractClustering:
+    """V1-5c deeper fix: run_all_contract_checks collapses near-duplicate
+    pair-findings of the SAME distinct contract into one canonical finding, so a
+    genuine contract always keeps exactly one representative.
+    """
+
+    def test_same_literal_across_pairs_collapses_to_one(self, tmp_path):
+        """One literal produced once and checked from three files -> three
+        per-pair findings, but one canonical contract finding naming all sites."""
+        _write_facts(tmp_path, "src/prod.py", {
+            "string_literals": [
+                {"value": "shared_kind", "context": "returned", "line": 2,
+                 "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        for i in (1, 2, 3):
+            _write_facts(tmp_path, f"src/cons{i}.py", {
+                "string_literals": [
+                    {"value": "shared_kind", "context": "membership check", "line": 2,
+                     "kind": "identifier", "usage": "checked"},
+                ],
+            })
+
+        db = FactsDB(_make_config(tmp_path))
+        # The checker itself still proposes one finding per (producer, consumer)
+        # pair — detection is untouched.
+        per_pair = [f for f in StringContractChecker(db).find_contracts()
+                    if f.finding_type == "implicit_contract"]
+        assert len(per_pair) == 3
+
+        # run_all_contract_checks clusters them to a single canonical finding.
+        clustered = [f for f in run_all_contract_checks(db)
+                     if f.finding_type == "implicit_contract"]
+        assert len(clustered) == 1
+        f = clustered[0]
+        assert f.value == "shared_kind"
+        assert f.evidence["site_count"] == 3
+        sites = {(s["producer"], s["consumer"]) for s in f.evidence["contract_sites"]}
+        assert sites == {
+            ("src/prod.py", "src/cons1.py"),
+            ("src/prod.py", "src/cons2.py"),
+            ("src/prod.py", "src/cons3.py"),
+        }
+        # All three checkers ride along so the reference sweep covers the tuple.
+        assert set(f.evidence["checker_files"]) == {"src/cons1.py", "src/cons2.py", "src/cons3.py"}
+        # A confirmed finding's message enumerates every binding site.
+        assert "3 sites" in f.description
+
+    def test_two_distinct_contracts_sharing_a_file_stay_separate(self, tmp_path):
+        """Two different literals produced by one hub file, each checked elsewhere,
+        are two distinct contracts even though they share the producer file."""
+        _write_facts(tmp_path, "src/hub.py", {
+            "string_literals": [
+                {"value": "alpha_kind", "context": "returned", "line": 2,
+                 "kind": "identifier", "usage": "produced"},
+                {"value": "beta_kind", "context": "returned", "line": 3,
+                 "kind": "identifier", "usage": "produced"},
+            ],
+        })
+        _write_facts(tmp_path, "src/cons_a.py", {
+            "string_literals": [
+                {"value": "alpha_kind", "context": "membership check", "line": 2,
+                 "kind": "identifier", "usage": "checked"},
+            ],
+        })
+        _write_facts(tmp_path, "src/cons_b.py", {
+            "string_literals": [
+                {"value": "beta_kind", "context": "membership check", "line": 2,
+                 "kind": "identifier", "usage": "checked"},
+            ],
+        })
+
+        db = FactsDB(_make_config(tmp_path))
+        clustered = [f for f in run_all_contract_checks(db)
+                     if f.finding_type == "implicit_contract"]
+        assert len(clustered) == 2
+        values = {f.value for f in clustered}
+        assert values == {"alpha_kind", "beta_kind"}
+        # Both contracts share the hub producer — clustering keys on the literal
+        # set, not the file, so they are not merged.
+        assert all(f.producer_file == "src/hub.py" for f in clustered)

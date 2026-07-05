@@ -1071,6 +1071,16 @@ _TRIAGE_VERDICT_FIELDS = {
         "enum": ["error", "warning", "info"],
         "description": "Severity of the confirmed finding. Omit if dismissed.",
     },
+    "contract_class": {
+        "type": "string",
+        "enum": [
+            "named_obligation", "unnamed_obligation", "ecosystem_convention",
+            "magic_constant", "coincidence", "other",
+        ],
+        "description": "CONTRACT-gap claims only: the string-contract class of the shared "
+                       "literal. Emit 'other' when no class fits — a request for review, never "
+                       "shoehorned into the nearest class. Omit for non-contract claims.",
+    },
 }
 
 

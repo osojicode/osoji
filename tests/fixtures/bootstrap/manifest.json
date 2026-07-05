@@ -608,14 +608,15 @@
         "suggested_fix": null,
         "severity": null,
         "evidence_fingerprint": null
-      }
+      },
+      "adjudication_reasoning": "Re-affirmed confirmed 2026-07-05 (JF, V1-5c gate): default_provider/OSOJI_TOKEN are project-owned names with non-test consumers (config.py reader, users' .env files). Note for V1-7: the finding's ideal anchor is the init.py<->config.py pair; the test pair is where the heuristic happened to anchor it."
     },
     {
       "slug": "audit-obligation_implicit_contract-002",
       "origin": "audit",
       "category": "obligation_implicit_contract",
       "severity": "info",
-      "adjudicated_verdict": "confirmed",
+      "adjudicated_verdict": "dismissed",
       "adjudication_notes": "[carried from audit-obligation_implicit_contract-002 r1] claude-code is osoji's own registry key (not ecosystem); bare literal in 5+ files, budgets.py tuple check fails silently on rename.",
       "evidence_consulted": [
         "read provider registry",
@@ -641,7 +642,8 @@
         "suggested_fix": null,
         "severity": null,
         "evidence_fingerprint": null
-      }
+      },
+      "adjudication_reasoning": "Re-adjudicated 2026-07-05 (JF, V1-5c gate): dismissed. claudeMdExcludes and end_turn are Anthropic CLI/API vocabulary (external protocol, not project-renameable); the claude-code pairing is a test asserting the provider's .name property - the assertion IS the loudness mechanism, so the duplication cannot drift silently. Supersedes the V1-4 'confirmed' label, which predates the protocol-vocabulary and bundle-aggregation rubric principles."
     },
     {
       "slug": "audit-obligation_implicit_contract-003",
