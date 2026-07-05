@@ -11,7 +11,9 @@ from pathlib import Path
 from typing import Any
 
 from .config import Config, SHADOW_DIR
+from .diff import get_diff_files
 from .hasher import is_findings_current
+from .hooks import find_git_root
 from .junk import JunkAnalyzer, JunkAnalysisResult, load_shadow_content
 from .deadcode import DeadCodeAnalyzer
 from .deadparam import DeadParameterAnalyzer
@@ -35,6 +37,16 @@ from .claim_builder import (  # noqa: F401  (re-exported helpers)
     _is_eligible,
     _lookup_type_definitions,
     build_debris_claims,
+)
+from .audit_manifest import (
+    IncrementalAuditError,
+    VerdictSession,
+    cache_from_verdicts,
+    current_version,
+    get_head_commit,
+    load_manifest,
+    merge_verdicts,
+    write_manifest,
 )
 from .triage import DEBRIS_TRIAGE_SYSTEM_PROMPT, TRIAGE_SYSTEM_PROMPT, Triage
 try:
@@ -72,6 +84,18 @@ EXCLUDABLE_PHASES: list[str] = [
 
 # Map junk analyzer .name → .cli_flag for exclude_key tagging and display names.
 _JUNK_NAME_TO_CLI_FLAG: dict[str, str] = {cls().name: cls().cli_flag for cls in JUNK_ANALYZERS}
+
+# Map CLI analyzer flags → the producer prefix their findings carry in
+# Finding.detector (see findings_adapter). Used for the V1-9 producer-scoped
+# manifest merge.
+_CLI_FLAG_TO_PRODUCER: dict[str, str] = {
+    "dead-code": "deadcode",
+    "dead-params": "deadparam",
+    "dead-plumbing": "plumbing",
+    "dead-deps": "deps",
+    "dead-cicd": "cicd",
+    "orphaned-files": "orphan",
+}
 
 
 @dataclass
@@ -259,6 +283,8 @@ def run_audit(
     doc_prompts: bool = False,
     verbose: bool = False,
     exclude: set[str] | None = None,
+    incremental: bool = False,
+    since: str | None = None,
 ) -> AuditResult:
     """Run a complete documentation audit (sync entry point)."""
     return asyncio.run(run_audit_async(
@@ -275,6 +301,8 @@ def run_audit(
         doc_prompts=doc_prompts,
         verbose=verbose,
         exclude=exclude,
+        incremental=incremental,
+        since=since,
     ))
 
 
@@ -292,6 +320,8 @@ async def run_audit_async(
     doc_prompts: bool = False,
     verbose: bool = False,
     exclude: set[str] | None = None,
+    incremental: bool = False,
+    since: str | None = None,
 ) -> AuditResult:
     """Run a complete documentation audit.
 
@@ -309,10 +339,45 @@ async def run_audit_async(
         doc_prompts: If True, run concept-centric coverage + writing prompt generation (LLM calls)
         verbose: If True, show detailed per-file progress and timing
         exclude: Set of phase identifiers to skip (e.g. {"shadow", "dead-code"})
+        incremental: If True, reuse cached Triage verdicts from the audit
+            manifest for findings whose evidence fingerprint is unchanged
+        since: Git ref to report changed files against; implies incremental
     """
     issues: list[AuditIssue] = []
     osojiignore = config.load_osojiignore()
     _exclude = exclude or set()
+
+    # ── V1-9: incremental verdict cache ──
+    # The fingerprint is the sole cache gate (it embeds impl_hash + the Claim
+    # Builder schema version); --since only validates the environment and
+    # reports the changed-file set. --force always wins: day-zero triage.
+    use_cache = (incremental or since is not None) and not config.force
+    if since is not None:
+        repo_root = find_git_root(config.root_path)
+        if repo_root is None:
+            raise IncrementalAuditError(
+                "--since requires the project to be inside a git repository"
+            )
+        try:
+            changed = get_diff_files(repo_root, since, config)
+        except RuntimeError as exc:
+            raise IncrementalAuditError(str(exc)) from exc
+        n_source = sum(1 for c in changed if c.is_source)
+        n_doc = sum(1 for c in changed if c.is_doc)
+        _emit(config, f"Osoji: {n_source} source / {n_doc} doc file(s) changed since {since}")
+    previous_manifest = load_manifest(config.audit_manifest_path)
+    manifest_current = (
+        previous_manifest is not None
+        and previous_manifest.get("osoji_version") == current_version()
+    )
+    verdict_cache: dict[tuple[str, str], dict] = {}
+    if use_cache:
+        if not manifest_current:
+            _emit(config, "Osoji: no valid audit manifest for this osoji version - running day-zero audit")
+        else:
+            verdict_cache = cache_from_verdicts(previous_manifest["verdicts"])
+    session = VerdictSession(cache=verdict_cache)
+    config.verdict_session = session
 
     # Shared rate limiter across all phases so token budgets are tracked globally
     rate_limiter = RateLimiter(get_config_with_overrides(config.provider or "anthropic"))
@@ -518,6 +583,10 @@ async def run_audit_async(
     if obligations and not skip_obligations:
         scorecard.contract_claims_triaged = contract_triaged
         scorecard.contract_claims_other = contract_other
+    # V1-9: cache effectiveness across every Triage seam this run
+    scorecard.verdict_cache_hit_rate = session.hit_rate
+    if use_cache and session.claims_seen:
+        _emit(config, f"Verdict cache: {session.cache_hits}/{session.claims_seen} hit(s)")
     _serialize_json(config.scorecard_path, asdict(scorecard))
 
     # ── Phase 5.5: doc prompts (optional, after scorecard) ──
@@ -590,6 +659,36 @@ async def run_audit_async(
         doc_prompts=doc_prompts_result,
     )
     serialize_audit_result(config, result)
+
+    # ── V1-9: rewrite the verdict manifest (always — reading is opt-in) ──
+    # Producer-scoped merge: entries from producers that ran are replaced
+    # wholesale (disappeared findings drop out); entries from producers that
+    # did not run this time are preserved. A previous manifest from a
+    # different osoji version contributes nothing — its fingerprints can
+    # never match again.
+    try:
+        producers: set[str] = set()
+        if not skip_doc_analysis:
+            producers.add("doc")
+        if not skip_debris:
+            producers.add("debris")
+        if obligations and not skip_obligations:
+            producers.add("obligations")
+        producers |= {
+            _CLI_FLAG_TO_PRODUCER[flag]
+            for flag in enabled_flags
+            if flag in _CLI_FLAG_TO_PRODUCER
+        }
+        prev_verdicts = previous_manifest["verdicts"] if manifest_current else {}
+        write_manifest(
+            config.audit_manifest_path,
+            merge_verdicts(prev_verdicts, session.harvested, producers),
+            commit=get_head_commit(config.root_path),
+            version=current_version(),
+        )
+    except Exception:
+        pass  # the manifest is an optimization; never fail the audit over it
+
     return result
 
 
@@ -661,10 +760,16 @@ async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
         try:
             claims, original_indices, would_escalate = build_debris_claims(config, raw_debris)
             if claims:
+                session = getattr(config, "verdict_session", None)
                 triage = Triage(config, rate_limiter)
                 result = await triage.decide_batch(
-                    claims, mode="claim", system_prompt=DEBRIS_TRIAGE_SYSTEM_PROMPT,
+                    claims,
+                    mode="claim",
+                    system_prompt=DEBRIS_TRIAGE_SYSTEM_PROMPT,
+                    verdict_cache=session.cache if session is not None else None,
                 )
+                if session is not None:
+                    session.harvest(result.findings)
                 for finding, orig_idx in zip(result.findings, original_indices):
                     if finding.verdict == "dismissed":
                         suppressed_indices.add(orig_idx)
@@ -909,6 +1014,7 @@ def load_audit_result(config: Config) -> AuditResult:
             obligation_implicit_contracts=sc.get("obligation_implicit_contracts"),
             contract_claims_triaged=sc.get("contract_claims_triaged"),
             contract_claims_other=sc.get("contract_claims_other"),
+            verdict_cache_hit_rate=sc.get("verdict_cache_hit_rate"),
             concept_total=sc.get("concept_total"),
             concept_fully_documented=sc.get("concept_fully_documented"),
             concept_partially_documented=sc.get("concept_partially_documented"),

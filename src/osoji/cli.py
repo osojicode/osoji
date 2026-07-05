@@ -322,8 +322,12 @@ def stats(ctx: click.Context, path: Path, provider: str | None, model: str | Non
          "Valid phases: shadow, doc-analysis, debris, obligations, doc-prompts, "
          "dead-code, dead-params, dead-plumbing, dead-deps, dead-cicd, orphaned-files")
 @click.option("--force", "-f", is_flag=True, help="Regenerate all shadow docs and findings from scratch")
+@click.option("--incremental", is_flag=True,
+    help="Reuse cached Triage verdicts from .osoji/audit-manifest.json for findings whose evidence is unchanged")
+@click.option("--since", "since_ref", metavar="REF", default=None,
+    help="Report files changed since REF (git); implies --incremental")
 @click.pass_context
-def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_code: bool, dead_params: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, doc_prompts: bool, provider: str | None, model: str | None, no_gitignore: bool, full: bool, exclude_phases: str, force: bool) -> None:
+def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_code: bool, dead_params: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, doc_prompts: bool, provider: str | None, model: str | None, no_gitignore: bool, full: bool, exclude_phases: str, force: bool, incremental: bool, since_ref: str | None) -> None:
     """Audit your codebase for dead code, stale docs, and semantic issues.
 
     \b
@@ -339,6 +343,12 @@ def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_co
     - --doc-prompts (concept-centric coverage + writing prompts)
     - --full (equivalent to --junk --obligations --doc-prompts)
     - --exclude to skip specific phases (e.g. --full --exclude=dead-cicd,doc-prompts)
+
+    \b
+    Incremental audit:
+    - --incremental reuses cached Triage verdicts for findings whose evidence
+      is unchanged since the last audit (--force always re-triages)
+    - --since REF also reports which files changed since a git ref
 
     Exit codes: 0 = passed, 1 = errors found
     """
@@ -374,7 +384,7 @@ def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_co
     _emit_config_banner(config)
 
     try:
-        result = run_audit(config, fix_shadow=fix, dead_code=dead_code, dead_params=dead_params, dead_plumbing=dead_plumbing, dead_deps=dead_deps, dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk, obligations=obligations, doc_prompts=doc_prompts, verbose=state.verbose, exclude=exclude)
+        result = run_audit(config, fix_shadow=fix, dead_code=dead_code, dead_params=dead_params, dead_plumbing=dead_plumbing, dead_deps=dead_deps, dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk, obligations=obligations, doc_prompts=doc_prompts, verbose=state.verbose, exclude=exclude, incremental=incremental, since=since_ref)
     except RuntimeError as e:
         raise click.ClickException(str(e)) from e
 

@@ -74,6 +74,10 @@ class Scorecard:
     contract_claims_triaged: int | None = None
     contract_claims_other: int | None = None
 
+    # V1-9: fraction of Triage claims served from the incremental verdict
+    # cache this run (None when no claims reached a Triage seam)
+    verdict_cache_hit_rate: float | None = None
+
     # Concept-centric coverage (None if --doc-prompts not run)
     concept_total: int | None = None
     concept_fully_documented: int | None = None
