@@ -140,14 +140,22 @@ class TestJunkAdapter:
 
 class TestContractAdapter:
     def test_violation_to_contract(self):
+        # V1-5c: detector is prefixed so category_of matches the CLAIM_BUILDER_SCHEMA
+        # obligation_* keys AND the persisted obligation_{finding_type} category.
         f = finding_from_contract(_contract(finding_type="violation"))
-        assert f.detector == "obligations:violation"
+        assert f.detector == "obligations:obligation_violation"
         assert f.gap_type == "contract"
 
     def test_implicit_contract_to_contract(self):
         f = finding_from_contract(_contract(finding_type="implicit_contract"))
-        assert f.detector == "obligations:implicit_contract"
+        assert f.detector == "obligations:obligation_implicit_contract"
         assert f.gap_type == "contract"
+
+    def test_persisted_categories_route_to_contract(self):
+        # The CE-gap fix: the persisted (prefixed) categories must map to the
+        # contract gap, not the uncategorized outlet.
+        assert gap_type_for("obligation_violation") == "contract"
+        assert gap_type_for("obligation_implicit_contract") == "contract"
 
     def test_path_from_consumer_file(self):
         f = finding_from_contract(_contract())
@@ -167,6 +175,43 @@ class TestContractAdapter:
         assert ev.payload["remediation"] == "extract a shared constant"
         assert ev.payload["producer_file"] == "src/osoji/a.py"
         assert ev.payload["evidence"]["value"] == "failed"
+
+    def test_scanner_metadata_carries_needles_and_priority(self):
+        # Single-value finding: needle is the literal; priority paths are the
+        # file tuple (consumer first, then producer), sentinel/None dropped.
+        f = finding_from_contract(_contract())
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert meta.payload["scan_needles"] == ["failed"]
+        assert meta.payload["priority_paths"] == ["src/osoji/b.py", "src/osoji/a.py"]
+
+    def test_grouped_needles_and_sharers(self):
+        # Grouped finding (value=None): needles come from evidence["values"] and
+        # priority_paths includes every co-sharer file, not just the header pair.
+        f = finding_from_contract(_contract(
+            value=None,
+            producer_file="src/osoji/prod.py",
+            consumer_file="src/osoji/cons.py",
+            evidence={
+                "values": ["alpha", "beta"],
+                "count": 2,
+                "producer_files": ["src/osoji/prod.py", "src/osoji/prod2.py"],
+                "checker_files": ["src/osoji/cons.py"],
+                "definer_files": [],
+            },
+        ))
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert meta.payload["scan_needles"] == ["alpha", "beta"]
+        assert "src/osoji/prod2.py" in meta.payload["priority_paths"]
+        assert meta.payload["priority_paths"][0] == "src/osoji/cons.py"
+
+    def test_violation_sentinel_producer_dropped_from_priority(self):
+        f = finding_from_contract(_contract(
+            finding_type="violation",
+            producer_file="(no producer found)",
+        ))
+        [meta] = [e for e in f.evidence if e.kind == "scanner_metadata"]
+        assert "(no producer found)" not in meta.payload["priority_paths"]
+        assert meta.payload["priority_paths"] == ["src/osoji/b.py"]
 
 
 class TestDocAdapter:

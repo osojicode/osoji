@@ -5,7 +5,7 @@ import html as _html_mod
 import json
 import shutil
 import time as time_module
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, asdict, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -36,7 +36,7 @@ from .claim_builder import (  # noqa: F401  (re-exported helpers)
     _lookup_type_definitions,
     build_debris_claims,
 )
-from .triage import DEBRIS_TRIAGE_SYSTEM_PROMPT, Triage
+from .triage import DEBRIS_TRIAGE_SYSTEM_PROMPT, TRIAGE_SYSTEM_PROMPT, Triage
 try:
     from tabulate import tabulate as _tabulate
 except ModuleNotFoundError:
@@ -87,6 +87,7 @@ class AuditIssue:
     line_end: int | None = None
     origin: dict | None = None  # {"source": "llm"|"static"|"hybrid", "plugin": str}
     exclude_key: str | None = None  # matches --exclude identifier for this phase
+    contract_class: str | None = None  # obligations only: string-contract taxonomy class (V1-5c)
 
 
 @dataclass
@@ -381,14 +382,15 @@ async def run_audit_async(
 
     phase2_coro = _noop_phase2() if skip_doc_analysis else _run_phase2_async(config, rate_limiter, progress_cb, verbose)
     phase3_coro = _noop_phase3() if skip_debris else _run_phase3_async(config, raw_debris, rate_limiter, verbose)
-    phase3_5_coro = _run_phase3_5_async(config, obligations and not skip_obligations, verbose)
+    phase3_5_coro = _run_phase3_5_async(config, obligations and not skip_obligations, rate_limiter, verbose)
     phase4_coro = _noop_phase4() if not enabled_flags else _run_phase4_async(config, rate_limiter, enabled_flags, progress_cb, verbose)
 
-    phase2_raw, phase3_raw, obligation_findings, phase4_raw = (
+    phase2_raw, phase3_raw, phase3_5_raw, phase4_raw = (
         await asyncio.gather(phase2_coro, phase3_coro, phase3_5_coro, phase4_coro)
     )
     analysis_results, phase2_tokens = phase2_raw
     debris_result, phase3_tokens = phase3_raw
+    obligation_findings, phase3_5_tokens, contract_triaged, contract_other = phase3_5_raw
     junk_results, phase4_tokens = phase4_raw
 
     suppressed_indices: set[int] = debris_result
@@ -474,6 +476,7 @@ async def run_audit_async(
             remediation=f.remediation,
             origin={"source": "hybrid", "plugin": "obligations"},
             exclude_key="obligations",
+            contract_class=f.contract_class,
         ))
 
     # Collect issues from Phase 4 (junk analyzers)
@@ -510,6 +513,11 @@ async def run_audit_async(
         scorecard.obligation_implicit_contracts = sum(
             1 for f in obligation_findings if f.finding_type == "implicit_contract"
         )
+    # CE-gap taxonomy counters (present whenever obligations ran, even if the
+    # heuristic proposed nothing — a 0/0 is still a truthful "taxonomy healthy").
+    if obligations and not skip_obligations:
+        scorecard.contract_claims_triaged = contract_triaged
+        scorecard.contract_claims_other = contract_other
     _serialize_json(config.scorecard_path, asdict(scorecard))
 
     # ── Phase 5.5: doc prompts (optional, after scorecard) ──
@@ -553,6 +561,8 @@ async def run_audit_async(
         phase_tokens["Doc analysis"] = phase2_tokens
     if phase3_tokens[0] + phase3_tokens[1] > 0:
         phase_tokens["Debris"] = phase3_tokens
+    if phase3_5_tokens[0] + phase3_5_tokens[1] > 0:
+        phase_tokens["Obligations"] = phase3_5_tokens
     for name, toks in phase4_tokens.items():
         display_name = _JUNK_NAME_TO_CLI_FLAG.get(name, name)
         if toks[0] + toks[1] > 0:
@@ -681,22 +691,86 @@ async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
     return suppressed_indices, phase_tokens
 
 
-async def _run_phase3_5_async(config, obligations_enabled, verbose):
-    """Phase 3.5: Obligation checking (pure Python, no LLM)."""
+def _overlay_verdict(cf, decided):
+    """Record the Triage verdict's string-contract class on a ContractFinding.
+
+    Only ``contract_class`` is overlaid; severity/remediation/confidence stay
+    heuristic. Two reasons: signal conservation (Triage's confirm/dismiss is the
+    single variable this migration changes — it must not *also* re-scale the
+    heuristic priors), and the heuristic remediation already carries the
+    silent-value / loud-name framing the constraint requires preserved.
+    """
+    return replace(cf, contract_class=decided.contract_class)
+
+
+async def _run_phase3_5_async(config, obligations_enabled, rate_limiter, verbose):
+    """Phase 3.5: obligations — heuristic propose -> Claim Builder -> unified Triage.
+
+    Unlike the other detector migrations, this one *adds* an LLM stage: the
+    heuristic StringContractChecker proposes contract findings (unchanged), the
+    Claim Builder assembles the file-tuple context, and unified Triage decides
+    each claim under the three-gap rubric's five-class string-contract
+    sub-rubric. A ``dismissed`` verdict suppresses the finding; confirmed and
+    unverified (LLM-failure) findings are kept. Best-effort throughout — any
+    failure keeps every finding unverified rather than dropping it (mirrors
+    Phase 3).
+
+    Returns ``(findings, tokens, triaged, other)``: ``triaged`` counts claims
+    that received a verdict, ``other`` counts those the model routed to the
+    string-contract taxonomy's ``other`` safety valve (the CE-gap numerator).
+    """
     if not obligations_enabled:
-        return []
+        return [], (0, 0), 0, 0
     _emit(config, "Osoji: Checking cross-file obligations...")
     phase_start = time_module.monotonic()
     from .facts import FactsDB
     from .obligations import run_all_contract_checks
+    from .findings_adapter import finding_from_contract
+    from .evidence_builders import BuildContext
+    from .claim_builder import build_claims
+    from .junk_triage import decide_junk_claims
+
     facts_db = FactsDB(config)
-    obligation_findings = run_all_contract_checks(facts_db)
+    contract_findings = run_all_contract_checks(facts_db)   # PROPOSE (unchanged heuristic)
+
+    kept = contract_findings
+    phase_tokens = (0, 0)
+    triaged = 0
+    other = 0
+    if contract_findings:
+        try:
+            findings = [finding_from_contract(cf, root=config.root_path) for cf in contract_findings]
+            ctx = BuildContext(config, facts_db=facts_db)
+            claims = build_claims(findings, ctx)            # -> _CONTRACT_ENTRY evidence
+            provider, _ = create_runtime(config, rate_limiter=rate_limiter)
+            try:
+                decided, in_tok, out_tok = await decide_junk_claims(
+                    claims, config, provider, system_prompt=TRIAGE_SYSTEM_PROMPT,
+                )
+            finally:
+                await provider.close()
+            phase_tokens = (in_tok, out_tok)
+            kept = []
+            for cf, df in zip(contract_findings, decided):
+                if df.verdict is not None:
+                    triaged += 1
+                if df.contract_class == "other":
+                    other += 1
+                if df.verdict == "dismissed":
+                    continue                                # dismissed = false positive -> suppress
+                kept.append(_overlay_verdict(cf, df))       # confirmed OR unverified(None) kept
+        except Exception:
+            kept = contract_findings                        # best-effort: keep all, unverified
     if verbose:
-        n_violations = sum(1 for f in obligation_findings if f.finding_type == "violation")
-        n_implicit = sum(1 for f in obligation_findings if f.finding_type == "implicit_contract")
+        n_violations = sum(1 for f in kept if f.finding_type == "violation")
+        n_implicit = sum(1 for f in kept if f.finding_type == "implicit_contract")
         elapsed = time_module.monotonic() - phase_start
         _emit(config, f"  [phase 3.5 obligations: {elapsed:.1f}s] {n_violations} violation(s), {n_implicit} implicit contract(s)")
-    return obligation_findings
+        if triaged:
+            rate = other / triaged
+            _emit(config, f"  Triaged {triaged} contract claim(s); {other} routed to 'other' "
+                          f"(CE-gap rate {rate:.1%})")
+    return kept, phase_tokens, triaged, other
 
 
 async def _run_phase4_async(config, rate_limiter, enabled_flags, progress_cb, verbose):
@@ -781,6 +855,7 @@ def load_audit_result(config: Config) -> AuditResult:
             line_end=i.get("line_end"),
             origin=i.get("origin"),
             exclude_key=i.get("exclude_key"),
+            contract_class=i.get("contract_class"),
         )
         for i in data.get("issues", [])
     ]
@@ -832,6 +907,8 @@ def load_audit_result(config: Config) -> AuditResult:
             enforcement_by_schema=sc.get("enforcement_by_schema"),
             obligation_violations=sc.get("obligation_violations"),
             obligation_implicit_contracts=sc.get("obligation_implicit_contracts"),
+            contract_claims_triaged=sc.get("contract_claims_triaged"),
+            contract_claims_other=sc.get("contract_claims_other"),
             concept_total=sc.get("concept_total"),
             concept_fully_documented=sc.get("concept_fully_documented"),
             concept_partially_documented=sc.get("concept_partially_documented"),
@@ -876,6 +953,11 @@ def _format_scorecard_section(scorecard: Scorecard) -> list[str]:
         summary_rows.append(["Concept coverage", f"{scorecard.concept_fully_documented}/{scorecard.concept_total} fully, "
                              f"{scorecard.concept_partially_documented} partial, "
                              f"{scorecard.concept_undocumented} undocumented"])
+    if scorecard.contract_claims_triaged:
+        other = scorecard.contract_claims_other or 0
+        rate = other / scorecard.contract_claims_triaged
+        summary_rows.append(["Contract taxonomy", f"{other}/{scorecard.contract_claims_triaged} 'other' "
+                             f"({rate:.0%} CE-gap rate)"])
     lines.append(_table(["Metric", "Value"], summary_rows))
     lines.append("")
 
@@ -1112,6 +1194,7 @@ def format_audit_json(result: AuditResult) -> str:
                 "line_end": issue.line_end,
                 **({"origin": issue.origin} if issue.origin else {}),
                 **({"exclude_key": issue.exclude_key} if issue.exclude_key else {}),
+                **({"contract_class": issue.contract_class} if issue.contract_class else {}),
             }
             for issue in result.issues
         ],

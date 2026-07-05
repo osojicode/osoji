@@ -96,7 +96,10 @@ CLAIM_BUILDER_SCHEMA: dict[str, SchemaEntry] = {
     "dead_symbol": _REACHABILITY_ENTRY,
     "dead_parameter": _REACHABILITY_ENTRY,
     "unactuated_config": _REACHABILITY_ENTRY,
-    # contract
+    # contract — reachable as of V1-5c: the adapter now emits the prefixed
+    # ``obligation_{finding_type}`` category, matching these keys (and the
+    # persisted category), so contract claims resolve here rather than falling
+    # back to DEFAULT_SCHEMA_BY_GAP_TYPE["contract"] (same entry either way).
     "obligation_implicit_contract": _CONTRACT_ENTRY,
     "obligation_violation": _CONTRACT_ENTRY,
     # description. Keys match ``category_of`` output — the part after ``:`` in

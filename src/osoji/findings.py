@@ -99,6 +99,12 @@ class Finding:
     suggested_fix: str | None = None
     severity: Severity | None = None
 
+    # CONTRACT-gap only (V1-5c): the string-contract taxonomy class the Triage
+    # stage assigned. Stays None for every non-contract detector, so this is
+    # additive for all other consumers. The proportion of contract claims
+    # classified ``other`` is the CE-gap rate on the taxonomy's adequacy.
+    contract_class: str | None = None
+
     # Incremental-audit hook (V1-9): the Claim Builder fills this in V1-4. It is
     # excluded from ``id`` — id and evidence_fingerprint are orthogonal cache
     # dimensions. Stays None in V1-2.
@@ -151,5 +157,6 @@ class Finding:
             triage_reasoning=data.get("triage_reasoning"),
             suggested_fix=data.get("suggested_fix"),
             severity=data.get("severity"),
+            contract_class=data.get("contract_class"),
             evidence_fingerprint=data.get("evidence_fingerprint"),
         )

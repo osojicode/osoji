@@ -67,6 +67,13 @@ class Scorecard:
     obligation_violations: int | None = None
     obligation_implicit_contracts: int | None = None
 
+    # Contract-gap Triage taxonomy (None if --obligations not run). ``other`` is
+    # the string-contract taxonomy's safety valve; its proportion of triaged
+    # contract claims is the CE-gap rate — a rising rate flags the rubric needs
+    # revision.
+    contract_claims_triaged: int | None = None
+    contract_claims_other: int | None = None
+
     # Concept-centric coverage (None if --doc-prompts not run)
     concept_total: int | None = None
     concept_fully_documented: int | None = None
