@@ -34,20 +34,13 @@ A `ConfigObligation` represents a schema field that *declares a behavioral oblig
 
 Not all config fields are obligations. Identity fields (`name`, `id`), data shape fields (`type`, `format`), descriptive fields (`status`, `result`), and position/metadata fields (`line_start`, `offset`) do not bear behavioral obligations. The extraction phase filters these out.
 
-### PlumbingVerification
+### From obligation to verdict
 
-A `PlumbingVerification` records whether an obligation is met:
-
-| Field          | Purpose                                              |
-| -------------- | ---------------------------------------------------- |
-| `is_actuated`  | Whether the field value reaches an enforcement point  |
-| `confidence`   | How certain the verification is (0.0-1.0)             |
-| `trace`        | Description of the data flow (or where the gap is)    |
-| `remediation`  | Suggested fix if unactuated                           |
+Since V1-5b, an obligation carries no bespoke verification dataclass. Each `ConfigObligation` is adapted into a unified `Finding` (a reachability-gap hypothesis) by `finding_from_config_obligation` in `src/osoji/findings_adapter.py`, and the unified Triage stage fills the verdict (`confirmed` / `dismissed` / `uncertain`) with reasoning, confidence, and a suggested fix. The adapter frames the claim in *enforcement* terms and supplies the field name as the primary scan needle so the Claim Builder gathers the deciding cross-file references.
 
 ## Two-phase LLM pipeline
 
-Dead plumbing detection uses a two-phase pipeline, each phase using a different LLM model tier to balance cost and reasoning depth.
+Dead plumbing detection uses a two-phase pipeline, each phase using a different LLM model tier to balance cost and reasoning depth: a cheap small-model proposal stage, then the shared medium-model Triage verdict.
 
 ```
 Schema files (role="schema")
@@ -62,21 +55,21 @@ Schema files (role="schema")
     | List of ConfigObligation
     v
 +-----------------------------------+
-|  Reference scanning (no LLM)     |
-|  _find_field_references()         |
+|  Adapter + Claim Builder (no LLM) |
+|  finding_from_config_obligation   |
+|  + cross-file reference sweep     |
 +-----------------------------------+
     |
-    | Per-obligation: referencing    |
-    | file paths + shadow docs       |
+    | Self-sufficient reachability   |
+    | claims (field-name needles)    |
     v
 +-----------------------------------+
-|  Phase B: Actuation verification  |
-|  (medium model)                   |
-|  Tool: verify_actuation           |
+|  Unified Triage (medium model)    |
+|  Tool: submit_triage_verdicts     |
 +-----------------------------------+
     |
     v
-PlumbingResult (unactuated findings)
+Confirmed JunkFindings (unactuated config)
 ```
 
 ### Phase A: Obligation extraction
@@ -92,23 +85,15 @@ The system prompt instructs the LLM to distinguish obligation-bearing fields fro
 
 This phase is cheap: the small model processes one schema file per call, extracting structured data. The expense is justified because obligation extraction is fundamentally semantic -- a field named `http_deadline` and one named `request_timeout_ms` both bear timeout obligations, but only a language model can recognize this across naming conventions.
 
-### Phase B: Actuation verification
+### Phase B: Actuation verdict (unified Triage)
 
-Phase B uses a medium model (`config.model_for("medium")`) because it requires deeper reasoning about data flow across files. For each obligation extracted in Phase A, `verify_actuation_async` provides the LLM with:
+Phase B uses the shared medium-model Triage stage. Each obligation becomes a reachability `Finding`; the mechanized Claim Builder (`src/osoji/evidence_builders.py`) assembles a self-sufficient claim by sweeping the repository for the field name (the primary needle) and the schema name, gathering the cross-file references, honest scan scope, and surrounding code that the deciding call needs. `decide_junk_claims` (`src/osoji/junk_triage.py`) then batches the claims through `Triage.decide_batch` under the unified `TRIAGE_SYSTEM_PROMPT`.
 
-1. **The obligation details** -- field name, schema name, what it promises, and what enforcement would look like.
-
-2. **Schema shadow doc** -- the shadow documentation for the file defining the schema, excerpted around the field name using `_shadow_excerpt` with a configurable context radius (`_SHADOW_CONTEXT_RADIUS = 12` lines).
-
-3. **Referencing file shadows** -- shadow docs for all files that textually reference the field name (found by `_find_field_references`, which performs a regex scan across the repository). Up to `_MAX_REFERENCING_SHADOWS = 12` are included, prioritizing non-test files via `_select_shadow_excerpts`.
-
-4. **Sibling field shadows** -- shadow docs showing how *other* obligation-bearing fields from the same schema are used. These serve as positive counterexamples: if `timeout` is actuated but `max_retries` is not, the contrast helps the LLM identify the gap. Up to `_MAX_SIBLING_SHADOWS = 6` are included.
-
-The LLM uses the `verify_actuation` tool to render its verdict: actuated, not actuated, or uncertain.
+The rubric's *unactuated-config* clause encodes the actuation distinction that the retired `verify_actuation` prompt used to carry: a reference that only stores, forwards, restructures, or logs the value is not actuation and does not refute the gap; the field is alive only if some site uses its value to cause the declared effect. A cross-process handoff (env var -> container -> subprocess) counts when the receiving side enforces. This is why the generic "a real reference refutes reachability" rule is deliberately overridden for this gap type.
 
 ## What counts as actuation?
 
-The system prompt defines a clear spectrum:
+The unified rubric's unactuated-config clause defines a clear spectrum:
 
 **Clear actuation** -- the field value is passed to a mechanism that enforces the declared behavior:
 - `setTimeout(callback, field)` -- actuation via timer
@@ -134,20 +119,21 @@ The distinction is between *observing* a value and *enforcing* it. A field that 
 | `description`| `"Detect unactuated config obligations"` |
 | `cli_flag`   | `"dead-plumbing"`                        |
 
-The `analyze_async` method delegates to `detect_dead_plumbing_async`, then converts unactuated `PlumbingVerification` objects into `JunkFinding` instances with:
+The `analyze_async` method delegates to `detect_dead_plumbing_async`, which returns all decided `Finding`s. It keeps only those with `verdict == "confirmed"` and re-wraps each into a `JunkFinding` (reading detector-specific fields such as `schema_name` back from the finding's `scanner_metadata`) with:
 
 - `category="unactuated_config"` -- the finding category
 - `kind="config_field"` -- the item kind
-- `metadata` containing `schema_name` and `trace` for downstream rendering
+- `confidence_source="llm_inferred"` -- there is no mechanical fast path
+- `metadata` containing `schema_name` and `trace` (now drawn from the Triage reasoning) for downstream rendering
 
 The analyzer is registered in `JUNK_ANALYZERS` in `src/osoji/audit.py` alongside `DeadCodeAnalyzer`, `DeadParameterAnalyzer`, and the other junk analyzers.
 
 ## Design trade-offs
 
-**Why two LLM calls instead of one?** Phase A is cheap filtering: the small model scans a schema file and produces a structured list of obligations. Phase B is expensive analysis: the medium model must reason about cross-file data flow using shadow docs from multiple files. Splitting the pipeline means the expensive Phase B only runs for genuine obligation-bearing fields, not for every field in every schema.
+**Why two LLM calls instead of one?** Phase A is cheap filtering: the small model scans a schema file and produces a structured list of obligations. Phase B is expensive analysis: the medium-model Triage stage must reason about cross-file data flow using the assembled claim. Splitting the pipeline means the expensive Triage call only runs for genuine obligation-bearing fields, not for every field in every schema.
 
 **Why LLM for obligation extraction instead of AST?** Obligations are semantic, not syntactic. A field named `request_timeout_ms` in a Python dataclass and a field named `httpDeadline` in a TypeScript interface both bear timeout obligations. AST parsing can extract field names and types, but cannot determine whether a field promises runtime enforcement. This aligns with Osoji's pipeline engineering principle of language agnosticism -- the detection works identically regardless of the schema's programming language.
 
-**False positive risk.** Some actuations happen via dynamic dispatch or framework magic that shadow docs may not capture. The confidence score on each `PlumbingVerification` reflects the LLM's certainty, allowing downstream consumers to filter findings by confidence threshold.
+**False positive risk.** Some actuations happen via dynamic dispatch or framework magic that a textual sweep may not capture. The confidence score on each confirmed `Finding` reflects the Triage stage's certainty, allowing downstream consumers to filter findings by confidence threshold.
 
-**The cost of Phase B.** Each obligation requires loading shadow docs for all referencing files plus sibling fields. The `_select_shadow_excerpts` function manages this by capping the number of included shadows and truncating each to `_MAX_SHADOW_EXCERPT_CHARS = 2000` characters, focused around the relevant field name. A shared `file_content_cache` dictionary avoids redundant file reads across obligations from the same schema.
+**The cost of Phase B.** The Claim Builder bounds each claim's payload: the repo-wide reference sweep is capped (per-needle and per-file hit limits) and records honest scan scope, and the flagged schema file is always swept as minimum context. This keeps the medium-model Triage call within a fixed token budget while still gathering the consumer-site references that decide actuation.

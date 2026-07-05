@@ -6,13 +6,17 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
-from .async_utils import gather_with_buffer
 from .config import ANTHROPIC_MODEL_SMALL, Config
+from .evidence_builders import BuildContext, _scanner_meta
+from .facts import FactsDB
+from .findings import Finding
+from .findings_adapter import finding_from_cicd_candidate
 from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult
+from .junk_triage import build_junk_claims, decide_junk_claims
 from .llm.base import LLMProvider
 from .llm.runtime import create_runtime
 from .llm.types import Message, MessageRole, CompletionOptions
-from .tools import get_dead_cicd_tool_definitions, get_extract_cicd_elements_tool_definitions
+from .tools import get_extract_cicd_elements_tool_definitions
 from .walker import list_repo_files
 
 
@@ -43,21 +47,6 @@ class CICDCandidate:
     missing_paths: list[str]
     element_content: str      # raw text of the element for LLM context
     full_file_content: str
-
-
-@dataclass
-class CICDVerification:
-    """Result of verifying whether a CI/CD element is dead."""
-
-    cicd_file: str
-    element_name: str
-    element_type: str
-    line_start: int
-    line_end: int
-    is_dead: bool
-    confidence: float
-    reason: str
-    remediation: str
 
 
 # --- CI/CD file discovery ---
@@ -509,170 +498,6 @@ def _build_candidates(
     return candidates
 
 
-# --- LLM verification ---
-
-_DEAD_CICD_SYSTEM_PROMPT = """You are analyzing CI/CD configuration files to identify stale or dead pipeline elements.
-
-You are given CI/CD file content and a list of elements (jobs, targets) that reference paths which no longer exist in the repository. For each element, determine whether it is genuinely stale or still active.
-
-## Still-active patterns (element is ALIVE despite missing paths)
-- **Dependency installation**: pip install, npm install, cargo build — these don't reference local paths
-- **Test runners**: pytest, jest, cargo test — test discovery is dynamic, doesn't need explicit paths
-- **External deploy tools**: aws, gcloud, kubectl, docker — targets are external
-- **Linters/formatters**: These operate on the whole repo, paths may be implicit
-- **External actions/images**: GitHub Actions uses:, Docker images — these are external resources
-- **Makefile phony targets**: clean, all, help — conventional targets without file outputs
-
-## Dead patterns (element IS dead)
-- References directories/files that were removed from the repo
-- Builds a subproject that no longer exists
-- Deploys to an environment that has been decommissioned
-- Runs scripts that reference deleted files
-- Test jobs targeting removed test directories
-
-Missing paths are the PRIMARY signal, but evaluate holistically. An element
-referencing one missing path among many valid operations is less likely to be dead
-than one whose entire purpose depends on a missing path.
-
-Use the verify_dead_cicd tool with a verdict for EVERY element."""
-
-
-async def _verify_batch_async(
-    provider: LLMProvider,
-    config: Config,
-    candidates: list[CICDCandidate],
-    repo_file_summary: str,
-) -> tuple[list[CICDVerification], int, int]:
-    """Verify a batch of dead CI/CD candidates via one LLM call per CI/CD file.
-
-    Returns (list[CICDVerification], input_tokens, output_tokens).
-    """
-    user_parts: list[str] = []
-
-    cicd_file = candidates[0].cicd_file
-    full_content = candidates[0].full_file_content
-    user_parts.append(f"## CI/CD file: `{cicd_file}`\n```\n{full_content[:50000]}\n```\n")
-
-    user_parts.append("## Elements with missing path references\n")
-    for cand in candidates:
-        user_parts.append(
-            f"### `{cand.element_name}` ({cand.element_type}, lines {cand.line_start}-{cand.line_end})"
-        )
-        user_parts.append(f"Missing paths: {cand.missing_paths}")
-        user_parts.append(f"```\n{cand.element_content[:5000]}\n```\n")
-
-    user_parts.append(f"## Repository file listing (summary)\n```\n{repo_file_summary[:10000]}\n```\n")
-
-    names_list = ", ".join(f"`{c.element_name}`" for c in candidates)
-    user_parts.append(
-        f"Provide a verdict for EVERY element listed ({names_list}) "
-        "using the verify_dead_cicd tool."
-    )
-
-    # Build completeness validator
-    expected_names = {c.element_name for c in candidates}
-
-    def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
-        if tool_name != "verify_dead_cicd":
-            return []
-        verdicts = tool_input.get("verdicts", [])
-        got_names = {v.get("element_name") for v in verdicts}
-        missing = expected_names - got_names
-        return [f"Missing verdict for element '{name}'" for name in sorted(missing)]
-
-    result = await provider.complete(
-        messages=[Message(role=MessageRole.USER, content="\n".join(user_parts))],
-        system=_DEAD_CICD_SYSTEM_PROMPT,
-        options=CompletionOptions(
-            model=config.model_for("medium"),
-            max_tokens=max(1024, len(candidates) * 200),
-            reservation_key="junk_cicd.verify",
-            tools=get_dead_cicd_tool_definitions(),
-            tool_choice={"type": "tool", "name": "verify_dead_cicd"},
-            tool_input_validators=[check_completeness],
-        ),
-    )
-
-    verifications: list[CICDVerification] = []
-    cand_by_key = {(c.element_name, c.line_start): c for c in candidates}
-
-    for tool_call in result.tool_calls:
-        if tool_call.name == "verify_dead_cicd":
-            for verdict in tool_call.input.get("verdicts", []):
-                elem_name = verdict.get("element_name", "")
-                line_start = verdict.get("line_start")
-                cand = cand_by_key.get((elem_name, line_start))
-                if cand is None:
-                    # Fallback: match by name only (LLM may omit line_start)
-                    cand = next((c for c in candidates if c.element_name == elem_name), None)
-                if cand:
-                    verifications.append(CICDVerification(
-                        cicd_file=cand.cicd_file,
-                        element_name=cand.element_name,
-                        element_type=cand.element_type,
-                        line_start=cand.line_start,
-                        line_end=cand.line_end,
-                        is_dead=verdict.get("is_dead", False),
-                        confidence=verdict.get("confidence", 0.5),
-                        reason=verdict.get("reason", ""),
-                        remediation=verdict.get("remediation", ""),
-                    ))
-
-    if not verifications:
-        raise RuntimeError(
-            f"LLM did not return verdicts for CI/CD elements: "
-            f"{[c.element_name for c in candidates]}"
-        )
-
-    return verifications, result.input_tokens, result.output_tokens
-
-
-def _build_repo_file_summary(config: Config) -> str:
-    """Build a summary of repository files for LLM context."""
-    all_paths, _ = list_repo_files(config)
-    dirs: set[str] = set()
-    files: list[str] = []
-
-    for p in all_paths:
-        if not p.is_absolute():
-            p = config.root_path / p
-        rel = str(p.relative_to(config.root_path)).replace("\\", "/")
-        files.append(rel)
-        # Collect directories
-        parts = rel.split("/")
-        for i in range(1, len(parts)):
-            dirs.add("/".join(parts[:i]))
-
-    # Also include .github/ contents
-    github_dir = config.root_path / ".github"
-    if github_dir.is_dir():
-        for child in github_dir.rglob("*"):
-            if child.is_file():
-                rel = str(child.relative_to(config.root_path)).replace("\\", "/")
-                files.append(rel)
-
-    # Build directory tree summary (top-level dirs + counts)
-    top_dirs: dict[str, int] = {}
-    for f in files:
-        top = f.split("/")[0] if "/" in f else f
-        top_dirs[top] = top_dirs.get(top, 0) + 1
-
-    summary_lines = ["Top-level entries:"]
-    for d in sorted(top_dirs.keys()):
-        is_dir = any(f.startswith(d + "/") for f in files)
-        label = f"{d}/" if is_dir else d
-        summary_lines.append(f"  {label} ({top_dirs[d]} files)")
-
-    # Include first ~200 file paths
-    summary_lines.append("\nFiles:")
-    for f in sorted(files)[:200]:
-        summary_lines.append(f"  {f}")
-    if len(files) > 200:
-        summary_lines.append(f"  ... and {len(files) - 200} more files")
-
-    return "\n".join(summary_lines)
-
-
 # --- Full pipeline ---
 
 _CICD_PARSERS: dict[str, Callable] = {
@@ -688,10 +513,16 @@ async def detect_dead_cicd_async(
     on_progress: Callable[[int, int, Path, str], None] | None = None,
     *,
     cicd_files: list[tuple[Path, str]] | None = None,
-) -> tuple[list[CICDVerification], int]:
-    """Detect stale CI/CD pipeline elements.
+) -> tuple[list[Finding], int]:
+    """Detect stale CI/CD pipeline elements through the unified pipeline.
 
-    Returns (list of verified dead CI/CD elements, total candidate count).
+    Elements whose referenced paths are missing become reachability Findings; the
+    Claim Builder gathers repo mentions of the element name and script names, and
+    Triage judges external-target / dynamic-discovery / phony-target liveness
+    (missing paths are the primary but not dispositive signal).
+
+    Returns ``(decided Findings — all verdicts; callers keep ``confirmed`` —,
+    total candidate count)``.
     """
     if cicd_files is None:
         cicd_files = discover_cicd_files(config)
@@ -753,59 +584,14 @@ async def detect_dead_cicd_async(
     if not candidates:
         return [], 0
 
-    # Build repo file summary for LLM context
-    repo_summary = _build_repo_file_summary(config)
-
-    # Group candidates by CI/CD file
-    by_file: dict[str, list[CICDCandidate]] = {}
-    for cand in candidates:
-        by_file.setdefault(cand.cicd_file, []).append(cand)
-
-    results: list[CICDVerification] = []
-    completed_files = 0
-    total_files = len(by_file)
-    lock = asyncio.Lock()
-
-    async def process_file(
-        cicd_file: str,
-        file_candidates: list[CICDCandidate],
-    ) -> list[CICDVerification]:
-        nonlocal completed_files
-
-        try:
-            verifications, _in_tok, _out_tok = await _verify_batch_async(
-                provider, config, file_candidates, repo_summary,
-            )
-
-            async with lock:
-                completed_files += 1
-                dead_count = sum(1 for v in verifications if v.is_dead)
-                for v in verifications:
-                    if v.is_dead:
-                        results.append(v)
-                if on_progress:
-                    on_progress(
-                        completed_files, total_files,
-                        Path(cicd_file),
-                        f"{dead_count} dead",
-                    )
-            return verifications
-        except Exception as e:
-            async with lock:
-                completed_files += 1
-                if on_progress:
-                    on_progress(
-                        completed_files, total_files,
-                        Path(cicd_file), "error",
-                    )
-            print(f"  [error] {cicd_file}: {e}", flush=True)
-            return []
-
-    await gather_with_buffer(
-        [lambda cicd_file=cf, cands=cands: process_file(cicd_file, cands) for cf, cands in by_file.items()]
+    # Build claims and decide through unified Triage
+    findings = [finding_from_cicd_candidate(c) for c in candidates]
+    ctx = BuildContext(config, facts_db=FactsDB(config))
+    claims = build_junk_claims(findings, ctx)
+    decided, _in_tok, _out_tok = await decide_junk_claims(
+        claims, config, provider, on_progress=on_progress
     )
-
-    return results, total_candidates
+    return decided, total_candidates
 
 
 class DeadCICDAnalyzer(JunkAnalyzer):
@@ -842,24 +628,29 @@ class DeadCICDAnalyzer(JunkAnalyzer):
         return asyncio.run(_run())
 
     async def analyze_async(self, provider, config, on_progress=None, cicd_files=None):
-        results, total_candidates = await detect_dead_cicd_async(
+        decided, total_candidates = await detect_dead_cicd_async(
             provider, config, on_progress, cicd_files=cicd_files
         )
-        findings = [
-            JunkFinding(
-                source_path=v.cicd_file,
-                name=v.element_name,
-                kind=v.element_type,
+        findings = []
+        for f in decided:
+            if f.verdict != "confirmed":
+                continue
+            meta = _scanner_meta(f)
+            element_name = meta.get("element_name", f.symbol or "")
+            element_type = meta.get("element_type", f.contract_source or "element")
+            findings.append(JunkFinding(
+                source_path=f.path,
+                name=element_name,
+                kind=element_type,
                 category="dead_cicd",
-                line_start=v.line_start,
-                line_end=v.line_end,
-                confidence=v.confidence,
-                reason=v.reason,
-                remediation=v.remediation,
-                original_purpose=f"{v.element_type} `{v.element_name}`",
-            )
-            for v in results
-        ]
+                line_start=f.line_start or 1,
+                line_end=f.line_end,
+                confidence=f.confidence if f.confidence is not None else 0.0,
+                reason=f.triage_reasoning or "",
+                remediation=f.suggested_fix or f"Remove {element_type} `{element_name}`",
+                original_purpose=f"{element_type} `{element_name}`",
+                confidence_source="llm_inferred",
+            ))
         return JunkAnalysisResult(
             findings=findings,
             total_candidates=total_candidates,

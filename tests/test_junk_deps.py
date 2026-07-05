@@ -19,12 +19,34 @@ from osoji.junk_deps import (
     _parse_requirements_txt,
     _resolve_import_names_batch_async,
     _resolve_import_names_heuristic,
-    _verify_batch_async,
     detect_dead_deps_async,
     discover_manifests,
     scan_imports,
 )
 from osoji.llm.types import CompletionResult, ToolCall
+
+
+def _triage_verdicts(options, verdicts_by_index):
+    """Build a submit_triage_verdicts ToolCall response for a triage batch."""
+    validator = options.tool_input_validators[0]
+    n = len(validator("submit_triage_verdicts", {"verdicts": []}))
+    verdicts = []
+    for i in range(n):
+        verdict, confidence, reasoning = verdicts_by_index.get(
+            i, ("confirmed", 0.85, "no import or config use")
+        )
+        verdicts.append({
+            "batch_index": i, "verdict": verdict, "confidence": confidence,
+            "reasoning": reasoning,
+        })
+    return CompletionResult(
+        content=None,
+        tool_calls=[ToolCall(
+            id="triage", name="submit_triage_verdicts",
+            input={"verdicts": verdicts},
+        )],
+        input_tokens=200, output_tokens=80, model="test", stop_reason="tool_use",
+    )
 
 
 # --- Helpers ---
@@ -463,99 +485,11 @@ class TestHaikuDepClassification:
         mock_provider.complete.assert_not_called()
 
 
-# --- TestVerifyBatch ---
-
-class TestVerifyBatch:
-    @pytest.fixture
-    def config(self, temp_dir):
-        return Config(root_path=temp_dir, respect_gitignore=False)
-
-    @pytest.mark.asyncio
-    async def test_llm_confirms_dead_dep(self, config):
-        mock_provider = AsyncMock()
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1", name="verify_dead_deps",
-                input={
-                    "verdicts": [{
-                        "package_name": "old-lib",
-                        "is_dead": True, "confidence": 0.9,
-                        "reason": "No imports, not a build tool",
-                        "remediation": "Remove from dependencies",
-                        "usage_type": "unused",
-                    }],
-                },
-            )],
-            input_tokens=200, output_tokens=80,
-            model="test", stop_reason="tool_use",
-        )
-
-        candidate = DependencyCandidate(
-            manifest_path="requirements.txt", package_name="old-lib",
-            import_names=["old_lib"], ecosystem="python", line_number=3,
-        )
-        results, in_tok, out_tok = await _verify_batch_async(
-            mock_provider, config, [candidate],
-            "old-lib>=1.0\n", {},
-        )
-        assert len(results) == 1
-        assert results[0].is_dead is True
-        assert results[0].confidence == 0.9
-        assert in_tok == 200
-
-    @pytest.mark.asyncio
-    async def test_llm_says_alive_plugin(self, config):
-        mock_provider = AsyncMock()
-        mock_provider.complete.return_value = CompletionResult(
-            content=None,
-            tool_calls=[ToolCall(
-                id="tc1", name="verify_dead_deps",
-                input={
-                    "verdicts": [{
-                        "package_name": "pytest-cov",
-                        "is_dead": False, "confidence": 0.95,
-                        "reason": "pytest plugin, auto-discovered",
-                        "remediation": "Keep — pytest plugin",
-                        "usage_type": "plugin",
-                    }],
-                },
-            )],
-            input_tokens=200, output_tokens=80,
-            model="test", stop_reason="tool_use",
-        )
-
-        candidate = DependencyCandidate(
-            manifest_path="requirements.txt", package_name="pytest-cov",
-            import_names=["pytest_cov"], ecosystem="python", line_number=5,
-        )
-        results, _, _ = await _verify_batch_async(
-            mock_provider, config, [candidate],
-            "pytest-cov>=3.0\n", {},
-        )
-        assert len(results) == 1
-        assert results[0].is_dead is False
-        assert results[0].usage_type == "plugin"
-
-    @pytest.mark.asyncio
-    async def test_no_tool_calls_raises(self, config):
-        mock_provider = AsyncMock()
-        mock_provider.complete.return_value = CompletionResult(
-            content="I don't have a tool response",
-            tool_calls=[],
-            input_tokens=100, output_tokens=50,
-            model="test", stop_reason="end_turn",
-        )
-
-        candidate = DependencyCandidate(
-            manifest_path="requirements.txt", package_name="old-lib",
-            import_names=["old_lib"], ecosystem="python", line_number=1,
-        )
-        with pytest.raises(RuntimeError, match="did not return verdicts"):
-            await _verify_batch_async(
-                mock_provider, config, [candidate],
-                "old-lib\n", {},
-            )
+# NOTE: dependency verification moved from the deleted `_verify_batch_async` to
+# the unified Triage pipeline (V1-5b). The "alive despite zero imports" taxonomy
+# (build tools, plugins, type stubs) is enforced by the retained
+# `_classify_deps_batch_async` pre-filter; residual liveness is judged by Triage.
+# See tests/test_junk_project_graph_cutover.py for the confirmed/dismissed gate.
 
 
 # --- TestDetectDeadDepsAsync ---
@@ -567,15 +501,9 @@ class TestDetectDeadDepsAsync:
         _write_source(temp_dir, "requirements.txt", "requests\nold-unused\n")
         _write_source(temp_dir, "src/app.py", "import requests\nrequests.get('http://example.com')\n")
 
-        # Mock provider must handle multiple tool calls:
-        # 1. resolve_import_names (Haiku) — for old-unused (requests is already imported)
-        # 2. classify_deps (Haiku) — for old-unused (zero-import)
-        # 3. verify_dead_deps (Sonnet) — for genuine candidates
-        call_count = 0
-
+        # Mock provider handles the retained proposal calls (resolve_import_names,
+        # classify_deps) then the unified triage call (submit_triage_verdicts).
         async def mock_complete(**kwargs):
-            nonlocal call_count
-            call_count += 1
             options = kwargs.get("options")
             tool_choice = options.tool_choice if options else None
             tool_name = tool_choice.get("name", "") if tool_choice else ""
@@ -605,38 +533,27 @@ class TestDetectDeadDepsAsync:
                     input_tokens=100, output_tokens=50,
                     model="test", stop_reason="tool_use",
                 )
-            else:  # verify_dead_deps
-                return CompletionResult(
-                    content=None,
-                    tool_calls=[ToolCall(
-                        id="tc3", name="verify_dead_deps",
-                        input={"verdicts": [{
-                            "package_name": "old-unused",
-                            "is_dead": True, "confidence": 0.9,
-                            "reason": "No imports found",
-                            "remediation": "Remove dependency",
-                            "usage_type": "unused",
-                        }]},
-                    )],
-                    input_tokens=200, output_tokens=80,
-                    model="test", stop_reason="tool_use",
-                )
+            else:  # submit_triage_verdicts
+                return _triage_verdicts(options, {
+                    0: ("confirmed", 0.9, "no imports found"),
+                })
 
         mock_provider = AsyncMock()
         mock_provider.complete.side_effect = mock_complete
 
-        results = await detect_dead_deps_async(mock_provider, config)
-        assert len(results) == 1
-        assert results[0].package_name == "old-unused"
-        assert results[0].is_dead is True
+        decided, total = await detect_dead_deps_async(mock_provider, config)
+        assert total == 1
+        confirmed = [f for f in decided if f.verdict == "confirmed"]
+        assert len(confirmed) == 1
+        assert confirmed[0].symbol == "old-unused"
 
     @pytest.mark.asyncio
     async def test_empty_manifests(self, temp_dir):
         config = Config(root_path=temp_dir, respect_gitignore=False)
         # No manifest files at all
         mock_provider = AsyncMock()
-        results = await detect_dead_deps_async(mock_provider, config)
-        assert results == []
+        decided, total = await detect_dead_deps_async(mock_provider, config)
+        assert (decided, total) == ([], 0)
 
     @pytest.mark.asyncio
     async def test_no_zero_import_packages(self, temp_dir):
@@ -645,8 +562,8 @@ class TestDetectDeadDepsAsync:
         _write_source(temp_dir, "src/app.py", "import requests\n")
 
         mock_provider = AsyncMock()
-        results = await detect_dead_deps_async(mock_provider, config)
-        assert results == []
+        decided, total = await detect_dead_deps_async(mock_provider, config)
+        assert (decided, total) == ([], 0)
 
 
 # --- TestDeadDepsAnalyzer ---
@@ -688,22 +605,10 @@ class TestDeadDepsAnalyzer:
                     input_tokens=100, output_tokens=50,
                     model="test", stop_reason="tool_use",
                 )
-            else:  # verify_dead_deps
-                return CompletionResult(
-                    content=None,
-                    tool_calls=[ToolCall(
-                        id="tc3", name="verify_dead_deps",
-                        input={"verdicts": [{
-                            "package_name": "old-lib",
-                            "is_dead": True, "confidence": 0.85,
-                            "reason": "No imports found",
-                            "remediation": "Remove from requirements.txt",
-                            "usage_type": "unused",
-                        }]},
-                    )],
-                    input_tokens=200, output_tokens=80,
-                    model="test", stop_reason="tool_use",
-                )
+            else:  # submit_triage_verdicts
+                return _triage_verdicts(options, {
+                    0: ("confirmed", 0.85, "No imports found"),
+                })
 
         mock_provider = AsyncMock()
         mock_provider.complete.side_effect = mock_complete
