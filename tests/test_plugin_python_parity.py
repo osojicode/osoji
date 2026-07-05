@@ -64,3 +64,20 @@ def test_syntax_error_file_is_absent_from_output():
 
     assert "broken/syntax_error.py" not in actual
     assert "broken/bad_bytes.py" in actual  # errors=replace keeps it parseable
+
+
+def test_legacy_and_tree_sitter_agree_exactly():
+    """Direct A/B, deleted with the legacy plugin after the soak.
+
+    Duplicates the golden test's guarantee but with far better failure
+    diagnostics while both implementations are in the tree.
+    """
+    from osoji.plugins._legacy_python_ast import PythonPlugin as LegacyPythonPlugin
+
+    legacy = _extract(LegacyPythonPlugin())
+    tree_sitter = _extract(PythonPlugin())
+
+    assert sorted(tree_sitter) == sorted(legacy)
+    for rel in legacy:
+        for key in ("imports", "exports", "calls", "member_writes", "string_literals"):
+            assert tree_sitter[rel][key] == legacy[rel][key], f"{rel} :: {key}"
