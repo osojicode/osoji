@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import ast
 import logging
-from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
 from .base import ExtractedFacts, LanguagePlugin
+from .python_resolution import annotate_call_sites, normalize_path
 
 logger = logging.getLogger(__name__)
 
@@ -468,82 +468,6 @@ class _FileExtractor(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def _normalize_path(path: Path, root: Path) -> str:
-    """Normalize a path to forward-slash relative string."""
-    return str(path.relative_to(root)).replace("\\", "/")
-
-
-def _resolve_python_import(
-    source: str,
-    importing_file: str,
-    file_set: set[str],
-) -> str | None:
-    """Resolve a Python import source specifier to a project-relative path.
-
-    Handles relative imports (.foo, ..bar) and absolute imports.
-    Returns normalized forward-slash path or None for external packages.
-    """
-    if source.startswith("."):
-        # Relative import
-        dots = 0
-        for ch in source:
-            if ch == ".":
-                dots += 1
-            else:
-                break
-        remainder = source[dots:]
-
-        importing_dir = Path(importing_file).parent
-        # Go up (dots - 1) directories
-        base = importing_dir
-        for _ in range(dots - 1):
-            base = base.parent
-
-        base_str = str(base).replace("\\", "/")
-        if base_str == ".":
-            base_str = ""
-
-        if remainder:
-            module_path = f"{base_str}/{remainder.replace('.', '/')}" if base_str else remainder.replace(".", "/")
-        else:
-            module_path = base_str
-
-        return _find_python_file(module_path, file_set)
-
-    # Absolute import — try direct path and src/ prefix
-    module_path = source.replace(".", "/")
-    for prefix in ("", "src/"):
-        result = _find_python_file(f"{prefix}{module_path}", file_set)
-        if result:
-            return result
-
-    return None
-
-
-def _find_python_file(candidate_base: str, file_set: set[str]) -> str | None:
-    """Try to match a module path to an actual file in the project."""
-    candidate_base = candidate_base.rstrip("/")
-    if not candidate_base:
-        return None
-
-    # Direct match
-    if candidate_base in file_set:
-        return candidate_base
-
-    # Try .py / .pyi
-    for ext in (".py", ".pyi"):
-        candidate = candidate_base + ext
-        if candidate in file_set:
-            return candidate
-
-    # Try __init__.py
-    init = f"{candidate_base}/__init__.py"
-    if init in file_set:
-        return init
-
-    return None
-
-
 class PythonPlugin(LanguagePlugin):
     """Python AST extraction plugin using stdlib ``ast``."""
 
@@ -569,13 +493,13 @@ class PythonPlugin(LanguagePlugin):
         # Build file set for import resolution
         file_set: set[str] = set()
         for f in py_files:
-            file_set.add(_normalize_path(f, project_root))
+            file_set.add(normalize_path(f, project_root))
 
         # --- First pass: per-file AST extraction ---
         per_file: dict[str, _FileExtractor] = {}
 
         for file_path in py_files:
-            rel = _normalize_path(file_path, project_root)
+            rel = normalize_path(file_path, project_root)
             try:
                 source_code = file_path.read_text(encoding="utf-8", errors="replace")
             except OSError as e:
@@ -609,63 +533,8 @@ class PythonPlugin(LanguagePlugin):
             extractor.visit(tree)
             per_file[rel] = extractor
 
-        # --- Second pass: cross-file call resolution ---
-        # Build import map: for each file, map local names to (defining_file, original_name)
-        import_maps: dict[str, dict[str, tuple[str, str]]] = {}
-        for rel, ext in per_file.items():
-            imap: dict[str, tuple[str, str]] = {}
-            for imp in ext.imports:
-                resolved = _resolve_python_import(
-                    imp["source"], rel, file_set
-                )
-                if not resolved:
-                    continue
-                alias_map = imp.get("name_map", {})
-                for name in imp.get("names", []):
-                    if name == "*":
-                        continue
-                    original = alias_map.get(name, name)
-                    imap[name] = (resolved, original)
-            import_maps[rel] = imap
-
-        # Count call sites per (defining_file, symbol_name)
-        call_site_counts: dict[tuple[str, str], int] = defaultdict(int)
-        for rel, ext in per_file.items():
-            imap = import_maps.get(rel, {})
-            for call in ext.calls:
-                callee = call["to"]
-                # Resolve root of the callee through imports
-                root = callee.split(".")[0]
-                if root in imap:
-                    def_file, orig_name = imap[root]
-                    # Reconstruct the original qualified name
-                    if "." in callee:
-                        remainder = callee[len(root):]
-                        resolved_name = orig_name + remainder
-                    else:
-                        resolved_name = orig_name
-                    call_site_counts[(def_file, resolved_name)] += 1
-                else:
-                    # Unresolved call — assume same-file or external/builtin
-                    call_site_counts[(rel, callee)] += 1
-
-        # Populate call_sites on calls records
-        for rel, ext in per_file.items():
-            imap = import_maps.get(rel, {})
-            for call in ext.calls:
-                callee = call["to"]
-                root = callee.split(".")[0]
-                if root in imap:
-                    def_file, orig_name = imap[root]
-                    if "." in callee:
-                        remainder = callee[len(root):]
-                        resolved_name = orig_name + remainder
-                    else:
-                        resolved_name = orig_name
-                    count = call_site_counts.get((def_file, resolved_name), 0)
-                else:
-                    count = call_site_counts.get((rel, callee), 0)
-                call["call_sites"] = count
+        # --- Second pass: cross-file call resolution (shared module) ---
+        annotate_call_sites(per_file, file_set)
 
         # Build result
         result: dict[str, ExtractedFacts] = {}
