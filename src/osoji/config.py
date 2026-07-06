@@ -631,6 +631,11 @@ class Config:
     doc_filenames: set[str] = field(default_factory=lambda: DOC_FILENAMES.copy())
     doc_directories: set[str] = field(default_factory=lambda: DOC_DIRECTORIES.copy())
 
+    # V1-9 runtime state, not user configuration: the audit orchestrator
+    # attaches a VerdictSession here so every Triage seam can consult the
+    # incremental verdict cache. Never serialized.
+    verdict_session: Any | None = field(default=None, repr=False, compare=False)
+
     _project_policy: PolicyFileConfig | None = field(init=False, repr=False, default=None)
     _global_policy: PolicyFileConfig | None = field(init=False, repr=False, default=None)
     _resolved_policy: ResolvedModelPolicy = field(init=False, repr=False)
@@ -811,6 +816,16 @@ class Config:
         """Return the path to the staleness manifest JSON."""
 
         return self.root_path / SHADOW_DIR / "staleness.json"
+
+    @property
+    def audit_manifest_path(self) -> Path:
+        """Return the path to the incremental-audit verdict manifest (V1-9).
+
+        Lives directly under ``.osoji/`` — NOT under ``analysis_root``, which
+        the audit wipes at the start of every run.
+        """
+
+        return self.root_path / SHADOW_DIR / "audit-manifest.json"
 
     @property
     def rules_path(self) -> Path:

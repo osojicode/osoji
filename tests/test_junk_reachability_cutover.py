@@ -290,3 +290,78 @@ async def test_symbol_echo_mismatch_is_a_validation_error(temp_dir):
     assert "re-check" in captured["crossed_errors"][0]
     assert captured["aligned_errors"] == []
     assert len(decided) == 2
+
+
+# --- decide_junk_claims: verdict-cache session (V1-9) --------------------------
+
+
+def _session_cache_for(claims):
+    return {
+        (c.finding.id, c.finding.evidence_fingerprint): {
+            "verdict": "confirmed",
+            "confidence": 0.9,
+            "triage_reasoning": "cached",
+            "suggested_fix": None,
+            "severity": "warning",
+            "contract_class": None,
+        }
+        for c in claims
+    }
+
+
+@pytest.mark.asyncio
+async def test_session_cache_hits_skip_llm_and_are_counted(temp_dir):
+    from osoji.audit_manifest import VerdictSession
+
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    _write(temp_dir, "src/anchor.py", "print('corpus is non-empty')\n")
+    claims = _trivial_claims(config, 2)
+    session = VerdictSession(cache=_session_cache_for(claims))
+    config.verdict_session = session
+    provider = FakeProvider(error=RuntimeError("LLM must not be called"))
+
+    decided, in_tok, out_tok = await decide_junk_claims(claims, config, provider)
+
+    assert provider.calls == 0
+    assert all(f.verdict == "confirmed" for f in decided)
+    assert all(f.triage_reasoning == "cached" for f in decided)
+    assert session.claims_seen == 2
+    assert session.cache_hits == 2
+    assert session.hit_rate == 1.0
+    assert (in_tok, out_tok) == (0, 0)
+
+
+@pytest.mark.asyncio
+async def test_session_harvests_fresh_verdicts(temp_dir):
+    from osoji.audit_manifest import VerdictSession
+
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    _write(temp_dir, "src/anchor.py", "print('corpus is non-empty')\n")
+    claims = _trivial_claims(config, 2)
+    session = VerdictSession()
+    config.verdict_session = session
+    provider = FakeProvider()
+
+    decided, _in_tok, _out_tok = await decide_junk_claims(claims, config, provider)
+
+    assert provider.calls == 1
+    assert session.claims_seen == 2
+    assert session.cache_hits == 0
+    assert set(session.harvested) == {c.finding.id for c in claims}
+    entry = session.harvested[claims[0].finding.id]
+    assert entry["verdict"] == "confirmed"
+    assert entry["evidence_fingerprint"] == claims[0].finding.evidence_fingerprint
+    assert entry["detector"] == "deadcode:dead_symbol"
+
+
+@pytest.mark.asyncio
+async def test_no_session_leaves_behavior_unchanged(temp_dir):
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    _write(temp_dir, "src/anchor.py", "print('corpus is non-empty')\n")
+    claims = _trivial_claims(config, 2)
+    provider = FakeProvider()
+
+    decided, _in_tok, _out_tok = await decide_junk_claims(claims, config, provider)
+
+    assert provider.calls == 1
+    assert all(f.verdict == "confirmed" for f in decided)
