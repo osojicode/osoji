@@ -36,7 +36,7 @@ from .claim_builder import (  # noqa: F401  (re-exported helpers)
     _lookup_type_definitions,
     build_debris_claims,
 )
-from .triage import DEBRIS_TRIAGE_SYSTEM_PROMPT, TRIAGE_SYSTEM_PROMPT, Triage
+from .triage import TRIAGE_SYSTEM_PROMPT, Triage
 try:
     from tabulate import tabulate as _tabulate
 except ModuleNotFoundError:
@@ -663,7 +663,7 @@ async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
             if claims:
                 triage = Triage(config, rate_limiter)
                 result = await triage.decide_batch(
-                    claims, mode="claim", system_prompt=DEBRIS_TRIAGE_SYSTEM_PROMPT,
+                    claims, mode="claim", system_prompt=TRIAGE_SYSTEM_PROMPT,
                 )
                 for finding, orig_idx in zip(result.findings, original_indices):
                     if finding.verdict == "dismissed":

@@ -11,7 +11,7 @@ preserve or deliberately change (osojicode/work#29):
 - confirmed -> reported; dismissed / uncertain -> dropped (candidates are
   hypotheses; the polarity is inverted vs debris suppression).
 - prompt identity: the unified ``TRIAGE_SYSTEM_PROMPT`` — not the deleted
-  per-detector verify prompts, not ``DEBRIS_TRIAGE_SYSTEM_PROMPT``.
+  per-detector verify prompts, not the retired legacy debris prompt.
 - no legacy verify tool: the fake never serves ``verify_actuation`` /
   ``verify_orphan_files`` / ``verify_dead_deps`` / ``verify_dead_cicd``; a
   confirmed finding re-wraps to the right ``JunkFinding`` category/kind/name.
@@ -27,7 +27,7 @@ from osoji.junk_deps import DeadDepsAnalyzer
 from osoji.junk_orphan import OrphanedFilesAnalyzer
 from osoji.llm.types import CompletionResult, ToolCall
 from osoji.plumbing import DeadPlumbingAnalyzer
-from osoji.triage import DEBRIS_TRIAGE_SYSTEM_PROMPT, TRIAGE_SYSTEM_PROMPT
+from osoji.triage import TRIAGE_SYSTEM_PROMPT
 
 
 # --- environment helpers ------------------------------------------------------
@@ -130,7 +130,6 @@ class FakeProvider:
 def _assert_unified_prompt(provider):
     assert provider.triage_calls == 1
     assert provider.last_system == TRIAGE_SYSTEM_PROMPT
-    assert provider.last_system != DEBRIS_TRIAGE_SYSTEM_PROMPT
     assert not (_LEGACY_VERIFY_TOOLS & set(provider.served_tools))
 
 
