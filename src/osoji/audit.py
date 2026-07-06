@@ -48,7 +48,7 @@ from .audit_manifest import (
     merge_verdicts,
     write_manifest,
 )
-from .triage import DEBRIS_TRIAGE_SYSTEM_PROMPT, TRIAGE_SYSTEM_PROMPT, Triage
+from .triage import TRIAGE_SYSTEM_PROMPT, Triage
 try:
     from tabulate import tabulate as _tabulate
 except ModuleNotFoundError:
@@ -765,7 +765,7 @@ async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
                 result = await triage.decide_batch(
                     claims,
                     mode="claim",
-                    system_prompt=DEBRIS_TRIAGE_SYSTEM_PROMPT,
+                    system_prompt=TRIAGE_SYSTEM_PROMPT,
                     verdict_cache=session.cache if session is not None else None,
                 )
                 if session is not None:
