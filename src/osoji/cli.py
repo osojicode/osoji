@@ -1,6 +1,7 @@
 """Click CLI for Osoji."""
 
 import asyncio
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -55,6 +56,23 @@ def _build_llm_config(
     )
 
 
+def _configure_utf8_output() -> None:
+    """Reconfigure stdout/stderr to UTF-8 with replacement fallback.
+
+    Findings contain arbitrary LLM-generated Unicode; report printing must not
+    assume the console locale (e.g. Windows cp1252) can represent it.
+    """
+
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is None:
+            continue
+        try:
+            reconfigure(encoding="utf-8", errors="replace")
+        except (OSError, ValueError):
+            continue
+
+
 def _cli_state(ctx: click.Context) -> CLIState:
     """Return the inherited CLI state for the current command."""
 
@@ -82,6 +100,7 @@ def main(ctx: click.Context, verbose: bool, quiet: bool) -> None:
     Audit your project for dead code, stale documentation, and semantic
     contradictions. Ships with agent skill files for automated triage and fixing.
     """
+    _configure_utf8_output()
     load_dotenv()  # Load .env before any subcommand (does not override existing env vars)
     if verbose and quiet:
         raise click.UsageError("Cannot use --verbose and --quiet together.")
