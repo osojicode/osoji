@@ -1,15 +1,23 @@
-"""Tests for the Python AST plugin."""
+"""Behavioral tests for the Python plugin.
+
+Parametrized over the tree-sitter implementation (the active one, V1-6a) and
+the preserved legacy ``ast`` implementation during the parity soak — both
+must satisfy the same behavioral contract.
+"""
 
 import textwrap
 
 import pytest
 
+from osoji.plugins._legacy_python_ast import PythonPlugin as LegacyPythonPlugin
 from osoji.plugins.python_plugin import PythonPlugin
 
 
-@pytest.fixture
-def plugin():
-    return PythonPlugin()
+@pytest.fixture(params=["tree_sitter", "legacy_ast"])
+def plugin(request):
+    if request.param == "tree_sitter":
+        return PythonPlugin()
+    return LegacyPythonPlugin()
 
 
 @pytest.fixture
