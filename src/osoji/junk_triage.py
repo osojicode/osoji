@@ -70,6 +70,11 @@ async def decide_junk_claims(
     if not claims:
         return [], 0, 0
 
+    # V1-9: the audit orchestrator may attach a VerdictSession to config; its
+    # cache short-circuits Triage for unchanged findings and its harvest
+    # collects decided verdicts for the audit-manifest rewrite.
+    session = getattr(config, "verdict_session", None)
+
     # Keep same-file claims adjacent (shared context reads batch better), then
     # pack greedily into bounded chunks; chunks may span files — claims are
     # self-sufficient by construction.
@@ -89,7 +94,10 @@ async def decide_junk_claims(
         chunk = [claims[i] for i in indices]
         try:
             batch = await triage.decide_batch(
-                chunk, mode="claim", system_prompt=system_prompt
+                chunk,
+                mode="claim",
+                system_prompt=system_prompt,
+                verdict_cache=session.cache if session is not None else None,
             )
         except Exception as exc:
             if allow_bisect and len(indices) > 1:
@@ -135,4 +143,6 @@ async def decide_junk_claims(
         result if result is not None else claims[i].finding
         for i, result in enumerate(results)
     ]
+    if session is not None:
+        session.harvest(findings)
     return findings, tokens["in"], tokens["out"]
