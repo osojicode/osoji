@@ -333,7 +333,7 @@ osoji safety check src/*.py docs/*.md
 
 Osoji automatically skips certain files and directories:
 
-**Checked extensions**: `.py`, `.pyi`, `.js`, `.ts`, `.jsx`, `.tsx`, `.json`, `.yaml`,
+**Checked extensions**: `.py`, `.pyi`, `.js`, `.ts`, `.mjs`, `.jsx`, `.tsx`, `.json`, `.yaml`,
 `.yml`, `.toml`, `.ini`, `.cfg`, `.md`, `.txt`, `.rst`, `.sh`, `.bash`,
 `.zsh`, `.env`, `.sql`, `.xml`, `.html`, `.htm`
 
@@ -779,15 +779,16 @@ class CheckResult:
 
     @property
     def passed(self) -> bool:
-        return not self.path_findings and not self.secret_findings
+        return not self.path_findings and not self.secret_findings and not self.errors
 
     @property
     def finding_count(self) -> int:
         return len(self.path_findings) + len(self.secret_findings)
 ```
 
-The `passed` property returns `True` only when both `path_findings` and
-`secret_findings` are empty. Any finding of either type causes failure.
+The `passed` property returns `True` only when `path_findings`,
+`secret_findings`, and `errors` are all empty. Any finding of either type —
+or any error encountered while checking — causes failure.
 
 Multiple `CheckResult` instances can be merged with the `merge()` method,
 which concatenates findings and sums file counts.
