@@ -129,7 +129,8 @@ about to happen:
 > Uploading audit results to your configured osoji-teams endpoint at ENDPOINT_URL…
 
 To resolve the endpoint for the message, read it from (in priority order):
-`OSOJI_ENDPOINT` env var, `.osoji.toml` `[push].endpoint`, or
+`OSOJI_ENDPOINT` env var, `.osoji.local.toml` `[push].endpoint`,
+`.osoji.toml` `[push].endpoint`, or
 `~/.config/osoji/config.toml` `[push].endpoint`.
 
 Then run:

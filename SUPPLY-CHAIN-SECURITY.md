@@ -110,9 +110,17 @@ PR is worth engaging with.
 
 ### Pre-commit safety
 
-The `osoji safety check` pre-commit hook blocks commits containing:
-- Personal filesystem paths (e.g. `/Users/jsmith/`, `C:\Users\`)
-- Secrets and API keys (via detect-secrets)
+The pre-commit hook installed by `osoji hooks install` runs two steps:
+
+1. `osoji safety check` — blocks the commit if staged files contain:
+   - Personal filesystem paths (e.g. `/Users/jsmith/`, `C:\Users\`)
+   - Secrets and API keys (via detect-secrets)
+2. `osoji check .` — marks stale shadow docs and stages the refreshed
+   `.osoji/shadow/` docs and staleness manifest; informational only (no LLM
+   calls, never blocks the commit)
+
+Only step 1 is a security control; step 2 is documentation hygiene that rides
+the same hook.
 
 ## Verifying package authenticity
 
