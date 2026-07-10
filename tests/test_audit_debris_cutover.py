@@ -69,7 +69,8 @@ def _debris(category, description, **over):
 def _run(config, raw, provider):
     with patch("osoji.facts.FactsDB", return_value=FakeFacts()), \
          patch("osoji.symbols.load_all_symbols", return_value={}), \
-         patch("osoji.triage.create_runtime", return_value=(provider, MagicMock())):
+         patch("osoji.triage.create_runtime", return_value=(provider, MagicMock())), \
+         patch("osoji.audit.create_runtime", return_value=(provider, MagicMock())):
         return asyncio.run(_run_phase3_async(config, raw, MagicMock(), False))
 
 
@@ -107,6 +108,31 @@ def test_ineligible_only_makes_no_llm_call(temp_dir):
     assert suppressed == set()
     assert phase_tokens == (0, 0)
     assert provider.calls == 0
+
+
+def test_debris_corpus_is_decided_in_bounded_chunks(temp_dir):
+    # work#57: the V1-5e A/B saw a whole-corpus decide_batch (62 claims) go
+    # off-by-one from ~index 5. Phase 3 must chunk like every Phase 4 analyzer
+    # (decide_junk_claims, BATCH_SIZE=12) instead of one monolithic call.
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    raw = [
+        _debris("dead_code", f"`helper_{i}` is defined but never used", line_start=i + 1, line_end=i + 1)
+        for i in range(13)
+    ]
+    # The same canned result serves every chunk: batch_index 0 dismissed, the
+    # rest confirmed. Chunk 1 (claims 0-11) suppresses raw index 0; chunk 2
+    # (claim 12 alone) sees its only claim at batch_index 0 → also dismissed.
+    provider = FakeProvider(_verdicts_result(
+        [{"batch_index": 0, "verdict": "dismissed", "confidence": 0.9, "reasoning": "alive"}]
+        + [{"batch_index": i, "verdict": "confirmed", "confidence": 0.8, "reasoning": "dead"}
+           for i in range(1, 12)]
+    ))
+
+    suppressed, phase_tokens = _run(config, raw, provider)
+
+    assert provider.calls == 2  # 13 claims → chunks of 12 + 1
+    assert suppressed == {0, 12}
+    assert phase_tokens == (240, 120)
 
 
 def test_debris_triage_uses_unified_rubric(temp_dir):
