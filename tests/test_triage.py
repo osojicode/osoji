@@ -166,6 +166,57 @@ async def test_claim_mode_uses_supplied_system_prompt(config):
     assert provider.calls[0]["system"] == "CUSTOM-RUBRIC"
 
 
+# --- cross-wiring guard for symbol-less claims (work#57) --------------------
+
+
+@pytest.mark.asyncio
+async def test_symbolless_claim_renders_location_echo(config):
+    # Debris claims routinely carry symbol=None; without a rendered identity
+    # there is nothing for the verdict to echo and misalignment survives.
+    finding = make_finding(symbol=None, path="src/x.py", line_start=10)
+    provider = FakeProvider([
+        verdicts_result([{"batch_index": 0, "verdict": "confirmed", "confidence": 0.9, "reasoning": "dead"}])
+    ])
+    triage = Triage(config, provider=provider)
+
+    await triage.decide_batch([Claim(finding)], mode="claim")
+
+    user_msg = provider.calls[0]["messages"][0].content
+    assert "Symbol: `src/x.py:10`" in user_msg
+
+
+@pytest.mark.asyncio
+async def test_completeness_validator_catches_cross_wired_symbolless_claims(config):
+    # The V1-5e A/B observed off-by-one verdicts surviving validation because
+    # the symbol-echo guard has nothing to compare on symbol=None claims. The
+    # path:line fallback echo must make cross-wiring a validation error.
+    claims = [
+        Claim(make_finding(symbol=None, path="src/a.py", line_start=3, line_end=3)),
+        Claim(make_finding(symbol=None, path="src/b.py", line_start=7, line_end=7)),
+    ]
+    provider = FakeProvider([
+        verdicts_result([
+            {"batch_index": 0, "verdict": "confirmed", "confidence": 0.9, "reasoning": "x"},
+            {"batch_index": 1, "verdict": "dismissed", "confidence": 0.8, "reasoning": "y"},
+        ])
+    ])
+    triage = Triage(config, provider=provider)
+    await triage.decide_batch(claims, mode="claim")
+    validator = provider.calls[0]["options"].tool_input_validators[0]
+
+    cross_wired = validator("submit_triage_verdicts", {"verdicts": [
+        {"batch_index": 0, "symbol": "src/b.py:7", "verdict": "confirmed", "confidence": 0.9, "reasoning": "x"},
+        {"batch_index": 1, "symbol": "src/a.py:3", "verdict": "dismissed", "confidence": 0.8, "reasoning": "y"},
+    ]})
+    assert len(cross_wired) == 2
+
+    aligned = validator("submit_triage_verdicts", {"verdicts": [
+        {"batch_index": 0, "symbol": "src/a.py:3", "verdict": "confirmed", "confidence": 0.9, "reasoning": "x"},
+        {"batch_index": 1, "symbol": "src/b.py:7", "verdict": "dismissed", "confidence": 0.8, "reasoning": "y"},
+    ]})
+    assert aligned == []
+
+
 # --- evidence rendering (V1-4 kinds) ----------------------------------------
 
 
