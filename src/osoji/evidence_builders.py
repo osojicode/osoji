@@ -161,8 +161,9 @@ def _extract_all_symbols_from_debris(description: str) -> list[str]:
     names: list[str] = []
     seen: set[str] = set()
     # 1. Backtick-quoted names (dotted allowed — FactsDB resolves
-    #    `Class.method` including bare-method dispatch matching)
-    for m in re.finditer(r"`([\w.]+)`", description):
+    #    `Class.method` including bare-method dispatch matching; a trailing
+    #    `()` call form contributes the callable's name — work#58)
+    for m in re.finditer(r"`([\w.]+)(?:\(\))?`", description):
         name = m.group(1).strip(".")
         if name and name.lower() not in _SYMBOL_FILLER and name not in seen:
             names.append(name)
@@ -308,21 +309,29 @@ def _match_in_quotes(line: str, pos: int) -> bool:
 
 
 def _backticked_names(text: str) -> list[str]:
-    """Backticked identifiers, including dotted ones.
+    """Backticked identifiers, including dotted ones and `name()` call forms.
 
     A dotted name contributes both the qualified form and its bare last
     segment — `Class.method` reachability lives at `obj.method(` call sites
     and string-dispatch keys that name only the method (the dead_symbol-001
     lesson: the plain-word pattern silently skipped dotted names, so the
-    method was never swept and its dispatch string stayed invisible).
+    method was never swept and its dispatch string stayed invisible). Call
+    forms contribute the callable's name (the work#58 lesson: `name()` never
+    matched, so the sweep ran on junk needles and produced false
+    evidence-of-absence under an honest-looking scope). Derived bare segments
+    of <=2 chars are skipped — `__init__.py` must not derive a `py` needle
+    whose extreme hit count fills the cap with noise; the explicit qualified
+    token always stays.
     """
 
     seen: list[str] = []
-    for match in re.finditer(r"`([\w.]+)`", text):
+    for match in re.finditer(r"`([\w.]+)(?:\(\))?`", text):
         name = match.group(1).strip(".")
         candidates = [name]
         if "." in name:
-            candidates.append(name.rsplit(".", 1)[-1])
+            segment = name.rsplit(".", 1)[-1]
+            if len(segment) > 2:
+                candidates.append(segment)
         for candidate in candidates:
             if candidate and candidate.lower() not in _SYMBOL_FILLER and candidate not in seen:
                 seen.append(candidate)

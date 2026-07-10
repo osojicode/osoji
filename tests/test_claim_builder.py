@@ -70,6 +70,15 @@ def test_all_caps_is_not_pascalcase():
     assert "ABCDEF" not in _extract_all_symbols_from_debris("token ABCDEF here Aa")
 
 
+def test_backticked_call_form_extracts_function_name():
+    # work#58: `name()` never matched the backtick pattern, so the FactsDB
+    # lookup (and the text sweep) ran without the one symbol the claim is about.
+    names = _extract_all_symbols_from_debris(
+        "`_discover_entry_point_plugins()` is defined but never called"
+    )
+    assert "_discover_entry_point_plugins" in names
+
+
 @pytest.fixture
 def config(temp_dir):
     return Config(root_path=temp_dir, respect_gitignore=False)
