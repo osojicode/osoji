@@ -415,6 +415,23 @@ def test_schema_file_is_valid_json():
     jsonschema.Draft202012Validator.check_schema(schema)
 
 
+@pytest.mark.parametrize("def_name", ["Scorecard", "CoverageEntry", "JunkCodeEntry"])
+def test_bundle_dataclass_defs_match_schema(def_name):
+    # The bundle embeds these dataclasses via asdict, so each schema def must
+    # carry exactly the dataclass's fields. The schema has no closed objects,
+    # so a missing property does not fail validation — it silently drops the
+    # field out of the contract osoji-teams codes against. This gate is what
+    # makes that drift loud (three Scorecard fields drifted V1-4..V1-9).
+    import dataclasses
+
+    from osoji import scorecard as scorecard_mod
+
+    dc = getattr(scorecard_mod, def_name)
+    schema_props = set(_load_schema()["$defs"][def_name]["properties"])
+    dataclass_fields = {f.name for f in dataclasses.fields(dc)}
+    assert schema_props == dataclass_fields
+
+
 def test_minimal_bundle_validates_against_schema(temp_dir):
     _write_source(temp_dir, "main.py", "x = 1\n")
 

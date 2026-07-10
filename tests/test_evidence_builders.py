@@ -539,6 +539,61 @@ def test_backticked_dotted_names_yield_qualified_and_bare_needles(config, temp_d
     assert hits and hits[0].get("in_string_literal") is True
 
 
+def test_backticked_call_forms_yield_the_function_needle():
+    # work#58: `name()` never matched the backtick pattern (the trailing
+    # parentheses are outside the character class), so the sweep ran on junk
+    # needles and produced false evidence-of-absence with an honest-looking
+    # scope. The rubric then confirmed a ground-truth false positive.
+    from osoji.evidence_builders import _backticked_names
+
+    names = _backticked_names(
+        "`_discover_entry_point_plugins()` is defined but never called"
+    )
+    assert "_discover_entry_point_plugins" in names
+
+    dotted = _backticked_names("`Widget.render()` appears unused")
+    assert "Widget.render" in dotted
+    assert "render" in dotted
+
+
+def test_dotted_name_does_not_derive_degenerate_bare_segment():
+    # `__init__.py` is a dotted token; its derived bare segment `py` was a
+    # 71K-hit junk needle in the work#58 incident. The qualified token stays;
+    # the degenerate derivation goes.
+    from osoji.evidence_builders import _backticked_names
+
+    names = _backticked_names("referenced only from `__init__.py`")
+    assert "__init__.py" in names
+    assert "py" not in names
+
+
+def test_call_form_function_referenced_only_in_package_init_is_found(config, temp_dir):
+    # The work#58 ground truth, as a fixture: a debris description carrying a
+    # backticked call-form private function whose only reference is a call in
+    # the package `__init__.py`. The function must be swept and the call found.
+    write(temp_dir, "src/pkg/registry.py",
+          "def _discover_entry_point_plugins():\n    pass\n")
+    write(temp_dir, "src/pkg/__init__.py",
+          "from .registry import _discover_entry_point_plugins\n"
+          "PLUGINS = _discover_entry_point_plugins()\n")
+    finding = make_finding(
+        path="src/pkg/registry.py",
+        symbol=None,
+        line_start=1,
+        line_end=2,
+        contract_claim="`_discover_entry_point_plugins()` is defined but never called",
+        observed_behavior="only `__init__.py` mentions the module",
+    )
+    ctx = BuildContext(config, facts_db=FakeFacts(), symbols_by_file={})
+    evidence = BUILDERS["cross_file_reference"].build(finding, ctx)
+    scope = evidence[0].payload["scan_scope"]
+    assert "_discover_entry_point_plugins" in scope["needles"]
+    assert "py" not in scope["needles"]
+    hits = [r for r in evidence[0].payload["references"]
+            if r["file"] == "src/pkg/__init__.py"]
+    assert hits  # the call site was swept and found
+
+
 def test_sweep_orders_by_proximity_to_flagged_file(config, temp_dir):
     # V1-5a dead_symbol-002 lesson: a committed corpus's own JSON artifacts
     # (source-ranked extensions) crowded out the flagged file's sibling-package
