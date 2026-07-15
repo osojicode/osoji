@@ -48,7 +48,7 @@ from .audit_manifest import (
     merge_verdicts,
     write_manifest,
 )
-from .triage import TRIAGE_SYSTEM_PROMPT, Triage
+from .triage import TRIAGE_SYSTEM_PROMPT
 try:
     from tabulate import tabulate as _tabulate
 except ModuleNotFoundError:
@@ -746,11 +746,14 @@ async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
     """Phase 3: Triage debris findings against cross-file evidence.
 
     Builds self-sufficient claims for the eligible debris subset (the same subset
-    the legacy verify step gated on) and decides them in one claim-mode Triage
-    call. A ``dismissed`` verdict suppresses the finding — preserving the prior
-    behavior where a confirmed-false-positive was dropped. Best-effort: on any
-    failure all findings are kept.
+    the legacy verify step gated on) and decides them through the shared chunked
+    decide loop (work#57: the V1-5e A/B saw a whole-corpus single call go
+    off-by-one from ~index 5; bounded chunks match every Phase 4 analyzer). A
+    ``dismissed`` verdict suppresses the finding — preserving the prior behavior
+    where a confirmed-false-positive was dropped. Best-effort: on any failure
+    all findings are kept.
     """
+    from .junk_triage import decide_junk_claims
     _emit(config, "Osoji: Checking code debris findings...")
     phase_start = time_module.monotonic()
     suppressed_indices: set[int] = set()
@@ -760,20 +763,19 @@ async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
         try:
             claims, original_indices, would_escalate = build_debris_claims(config, raw_debris)
             if claims:
-                session = getattr(config, "verdict_session", None)
-                triage = Triage(config, rate_limiter)
-                result = await triage.decide_batch(
-                    claims,
-                    mode="claim",
-                    system_prompt=TRIAGE_SYSTEM_PROMPT,
-                    verdict_cache=session.cache if session is not None else None,
-                )
-                if session is not None:
-                    session.harvest(result.findings)
-                for finding, orig_idx in zip(result.findings, original_indices):
+                # decide_junk_claims handles the verdict-session cache and
+                # harvest itself (V1-9), so no manual session plumbing here.
+                provider, _ = create_runtime(config, rate_limiter=rate_limiter)
+                try:
+                    decided, in_tok, out_tok = await decide_junk_claims(
+                        claims, config, provider, system_prompt=TRIAGE_SYSTEM_PROMPT,
+                    )
+                finally:
+                    await provider.close()
+                for finding, orig_idx in zip(decided, original_indices):
                     if finding.verdict == "dismissed":
                         suppressed_indices.add(orig_idx)
-                phase_tokens = (result.input_tokens, result.output_tokens)
+                phase_tokens = (in_tok, out_tok)
             if suppressed_indices and verbose:
                 _emit(config, f"  Dismissed {len(suppressed_indices)} false positive debris finding(s)")
             # Dormant escalation tally (decision 0014): eligible findings whose

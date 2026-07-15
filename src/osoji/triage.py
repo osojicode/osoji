@@ -245,6 +245,21 @@ class TriageBatchResult:
 _MAX_EXPLORATION_TURNS = 8
 
 
+def _claim_echo(finding: Finding) -> str:
+    """Identity token a batch verdict must echo back (cross-wiring guard).
+
+    The claim's symbol when it has one; otherwise a ``path:line`` fallback so
+    symbol-less claims (debris) still carry an identity the completeness
+    validator can check (work#57 — the V1-5e A/B saw off-by-one verdicts
+    survive validation because ``symbol=None`` left nothing to compare).
+    """
+    if finding.symbol:
+        return finding.symbol
+    if finding.line_start:
+        return f"{finding.path}:{finding.line_start}"
+    return finding.path
+
+
 class Triage:
     """The unified Triage stage.
 
@@ -375,10 +390,11 @@ class Triage:
             ]
             # Symbol echo guard: sibling claims (two params of one function)
             # are easy to cross-wire by index alone — a mismatched echo means
-            # the verdict was written about a different claim.
+            # the verdict was written about a different claim. Symbol-less
+            # claims (debris) are guarded by their path:line fallback echo.
             for i, claim in enumerate(claims):
                 echoed = (by_index.get(i) or {}).get("symbol")
-                expected = claim.finding.symbol
+                expected = _claim_echo(claim.finding)
                 if echoed and expected and echoed != expected:
                     errors.append(
                         f"Verdict for batch_index {i} echoes symbol '{echoed}' but "
@@ -435,8 +451,7 @@ class Triage:
         if finding.line_start:
             loc += f":L{finding.line_start}-{finding.line_end}"
         lines = [f"### Claim {index}: {finding.detector} [{finding.gap_type}] — {loc}"]
-        if finding.symbol:
-            lines.append(f"Symbol: `{finding.symbol}`")
+        lines.append(f"Symbol: `{_claim_echo(finding)}`")
         lines.append(f"Claim ({finding.contract_source}): {finding.contract_claim}")
         lines.append(f"Observed: {finding.observed_behavior}")
         if finding.evidence:
