@@ -983,7 +983,8 @@ def get_writing_prompts_tool_definitions() -> list[ToolDefinition]:
 # --- V1-3: Unified Triage stage tools ---
 #
 # The Triage stage verifies a batch of self-sufficient claims against the
-# three-gap TP predicates (reality / significance / actionability). Two output
+# TP predicates (reality / actionability; significance grades severity,
+# never the verdict — work#59). Two output
 # tools: a batch tool for claim mode and a single-verdict terminal tool for
 # exploration mode. Plus three read-only retrieval tools for exploration mode,
 # executed by ``osoji.triage_exec.ExplorationExecutor``.
@@ -995,8 +996,9 @@ _TRIAGE_VERDICT_FIELDS = {
     "verdict": {
         "type": "string",
         "enum": ["confirmed", "dismissed", "uncertain"],
-        "description": "confirmed = the gap is real, significant, and actionable; "
-                       "dismissed = false positive; uncertain = evidence insufficient to decide.",
+        "description": "confirmed = the gap is real and actionable (grade how much it "
+                       "matters via severity); dismissed = false positive; "
+                       "uncertain = evidence insufficient to decide.",
     },
     "confidence": {
         "type": "number",
@@ -1007,7 +1009,7 @@ _TRIAGE_VERDICT_FIELDS = {
     "reasoning": {
         "type": "string",
         "description": "The reasoning trace for this verdict — captured verbatim onto the "
-                       "finding. Weigh the evidence against reality, significance, and actionability.",
+                       "finding. Weigh the evidence against reality and actionability.",
     },
     "suggested_fix": {
         "type": "string",
@@ -1017,7 +1019,9 @@ _TRIAGE_VERDICT_FIELDS = {
     "severity": {
         "type": "string",
         "enum": ["error", "warning", "info"],
-        "description": "Severity of the confirmed finding. Omit if dismissed.",
+        "description": "Severity of the confirmed finding — this is where significance "
+                       "lives: 'info' marks a real-but-minor finding (demoted, never "
+                       "dismissed, for insignificance). Omit if dismissed.",
     },
     "contract_class": {
         "type": "string",
@@ -1041,10 +1045,11 @@ SUBMIT_TRIAGE_VERDICTS_TOOL = {
     "description": """Submit a triage verdict for EVERY claim in the batch.
 
 Each claim is a gap hypothesis (reachability / description / contract) with evidence
-assembled for you. Decide each against the three true-positive predicates:
-- Reality: does the gap actually exist in the code?
-- Significance: does closing it improve the codebase?
+assembled for you. Decide each against the two true-positive predicates:
+- Reality: does the gap actually exist in the code, now?
 - Actionability: is there a concrete fix?
+Significance grades the confirmed finding's severity (real-but-minor = 'info');
+it is never grounds for dismissal.
 
 Return one verdict per claim, identified by its batch_index. When a claim shows a
 Symbol line, echo it in the verdict's symbol field — sibling claims (e.g. two
@@ -1084,7 +1089,8 @@ SUBMIT_TRIAGE_VERDICT_TOOL = {
     "description": """Submit the final verdict for the single claim under exploration.
 
 Call this once you have gathered enough evidence with read_file / grep / list_dir to
-decide the claim against the three predicates (reality / significance / actionability).""",
+decide the claim against the two predicates (reality / actionability); significance
+grades the confirmed finding's severity, never the verdict.""",
     "input_schema": {
         "type": "object",
         "properties": dict(_TRIAGE_VERDICT_FIELDS),
