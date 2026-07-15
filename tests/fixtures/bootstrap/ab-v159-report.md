@@ -60,6 +60,9 @@ info, labeled future-fragility") measurable with this same harness.
 
 ## Recommendation (pending JF adjudication)
 
+> **Resolved 2026-07-15:** JF ratified both conversion rows; #124 merged as
+> measured (no post-A/B prompt edits). See the ruling addendum below.
+
 Merge the rubric change. The delta is exactly the ruled shape: target-class
 conversions occur (2), carry correct mechanisms, and nothing else moves
 beyond the control floor; uncertainty drops without confirm-side loss;
@@ -71,3 +74,50 @@ cost is neutral-to-cheaper. Rows 1–2 are the items to ratify or veto; rows
 Anthropic API (not Max quota): control ≈ 1.10M in / 55K out; A/B ≈ 1.06M in /
 53K out. Raw JSONs in the session scratchpad; this report is the evidence of
 record.
+
+## Ruling addendum — 2026-07-15 (JF adjudication)
+
+Both conversion rows **RATIFIED confirmed@info**; the rubric change merges
+as measured.
+
+**Row 1 (`llm/tokens.py:102`) — ratified, with two boundary rulings:**
+
+1. **The intent boundary is declared-vs-derived, not human-vs-machine.**
+   Intent-documented behavior fails Reality only when the intent is
+   *declared* in the artifact — comments, docstrings, identifier names,
+   human-maintained docs, referenced external contracts. Who (or what)
+   typed the declaration is irrelevant; most of this artifact is
+   machine-authored, and a generated docstring is still a declaration by
+   the author-of-record. Two dismissal routes are invalid — both
+   self-referential ("self-licking ice cream cones", JF):
+   - **Derived artifacts never constitute intent.** Shadow docs are
+     produced by observing the code and cannot, by construction, contradict
+     it — that is the point of shadow docs. They may *relay* a declaration
+     (quote a docstring, point at an external contract) but their own
+     description of behavior is not documentation of design intent.
+     (ab-v15e items 3/4 show the old rubric using "shadow-doc-documented"
+     as dismissal grounds — the observed failure mode.)
+   - **Code shape is not a declaration.** "Someone typed `< 10_000`, so
+     someone meant it" never fails Reality. Code is not documentation.
+
+   Rubric clarification filed as osojicode/work#64 (one-variable prompt
+   change + A/B when scheduled; note side B produced the correct verdict on
+   this row without such language — the hazard was only observed under the
+   old rubric).
+
+2. **Grade severity against the tool's deployment context, not the dogfood
+   repo.** The cap binds at ~5K files (stats counts source + shadow text
+   per file) — well inside the target repo population even though osoji
+   itself never gets there. JF: "clearly a flaw." Remediation (named
+   constant + LRU eviction) ships as a separate PR.
+
+**Row 2 (`tests/test_prompt_regression.py:457`) — ratified.**
+Character-identical helper bodies are a falsifiable redundancy observation,
+inside decisions/0018's consistency boundary; surfaces at info.
+
+Byproduct: osojicode/work#65 (parked) — name-as-claim contradiction
+candidates (`upper_limit` used as a lower bound): commission-class, the
+identifier-scope cousin of work#60's declared-principles idea.
+
+The unruled boundary (rows 3–5, whether future-fragility notes surface at
+info) remains unruled and untouched.
