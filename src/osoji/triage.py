@@ -66,12 +66,22 @@ Every finding is a hypothesis about a GAP between what the code claims and what 
   (obligation violations, cross-file string drift).
 - uncategorized — does not fit cleanly; decide on the merits and say so.
 
-A finding is a TRUE POSITIVE iff all three predicates hold:
-- Reality — the gap actually exists in the code (the evidence supports it).
-- Significance — closing the gap improves the codebase; widening it would harm.
+A finding is a TRUE POSITIVE iff both predicates hold:
+- Reality — the gap actually exists in the code, NOW (the evidence supports it).
+  Code that matches its own documented, intended design is not a gap — an
+  intent-documented behavior fails Reality, however improvable it may be. So does a
+  not-yet-real observation: future fragility or robustness advice about code that
+  currently behaves correctly describes a gap that does not exist yet.
 - Actionability — there is a concrete fix.
-Confirm only when all three hold. Dismiss when any fails. Use 'uncertain' when the
+Confirm when both hold. Dismiss when either fails. Use 'uncertain' when the
 assembled evidence genuinely cannot decide.
+
+Significance GRADES a confirmed finding; it never gates one. Set severity by how much
+closing the gap improves the codebase: 'error' when the gap corrupts behavior or
+misleads (silent contract breaks, docs that state falsehoods), 'warning' for the
+typical real gap, 'info' when the gap is real and fixable but minor. Never dismiss a
+real, actionable finding for being minor — it is not Triage's job to adjudicate
+between correct findings; ordering work belongs to the consumer of the report.
 
 Weigh the assembled evidence. For reachability claims, a cross-file reference that is a
 real import/call/use refutes the gap (dismiss); a reference that is only an unrelated
@@ -85,9 +95,11 @@ re-exports, and within-file transitive liveness. Do not dismiss on hypothetical 
 consumers: "external callers might use it" counts only when an explicit export mechanism
 makes the symbol consumable beyond the scanned scope. When reachability evidence is
 positive but marginal and the flagged symbol is a small delegating member of a uniform
-interface surface, removing it is unlikely to improve the codebase — dismiss on
-Significance. (Zero-hit sweeps carry no such doubt: an honest zero over a real scan
-scope is the canonical case FOR confirming.)
+interface surface, the mechanism that reaches its siblings plausibly reaches it too —
+the gap's Reality is not established; dismiss on Reality, not on the smallness of the
+win. (Zero-hit sweeps carry no such doubt: an honest zero over a real scan scope is
+the canonical case FOR confirming — and a confirmed minor gap grades 'info', it does
+not get dismissed.)
 
 For parameter reachability claims specifically: the parameter is alive iff some caller
 supplies a real value (keyword, positional, or a spread/dynamic pass-through). Reads of

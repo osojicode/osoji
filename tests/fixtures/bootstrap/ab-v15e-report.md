@@ -110,7 +110,15 @@ unified rubric — everywhere, not just debris — dismisses. If demotion is
 wanted it should be a rubric change measured across all detectors, not a
 debris carve-out.
 
+> **RULED 2026-07-06 (work#59), addendum below.** Demote, never dismiss:
+> Significance is a grade, not a gate, across all detectors. See the
+> 2026-07-07 addendum for the vocabulary corrections this ruling forces on
+> the class-S rows above.
+
 ## Recommendation (pending JF ruling)
+
+> **Resolved 2026-07-06:** JF ratified the flip; #120 merged. The class-S
+> pattern produced the work#59 ruling recorded in the addendum below.
 
 Ship the flip. Supporting reads:
 
@@ -141,3 +149,33 @@ and the two B-worse reads; the flip PR stays draft until then.
 
 Anthropic API (not Max quota): run 1 ≈ 1.14M in / 32K out; run 2 ≈ 1.28M in /
 57K out. Both raw JSONs preserved in the session scratchpad.
+
+## Addendum 2026-07-07: the work#59 ruling and what it corrects here
+
+JF's ruling (2026-07-06, work#59): **Significance is a grade, never a gate.**
+TP = Reality + Actionability; a real, actionable, minor finding is confirmed
+at severity=info, not dismissed. Dismissal is legitimate only on Reality or
+Actionability failure. Rationale recorded on the ticket: with agentic
+remediation the marginal cost of fixing true-but-minor findings is ~zero, so
+adjudicating between correct findings is the consumer's job, not Triage's.
+
+Vocabulary corrections this forces on the adjudication table (the *verdicts*
+mostly stand; the *grounds* change):
+
+- **Items 3 and 6 (intent-documented non-gaps)** — dismissed correctly, but on
+  **Reality**, not Significance: code matching its own documented, intended
+  design has no gap to close. Item 3's "B dismisses on Significance" was the
+  wrong ground for the right verdict.
+- **Item 4 (bounded-memory cache cap)** — same class: documented design
+  intent → Reality dismissal.
+- **Items 7 and 11–13 (future-fragility notes)** — dismissed correctly on
+  **Reality-now**: the gap does not exist yet. **Unruled boundary** (JF has
+  explicitly not decided): whether such not-yet-real robustness observations
+  should *surface* at info grade instead of dismissing. Do not implement
+  either way without his ruling.
+- **Item 10 (fixture hygiene, speculative harm)** — Reality-now dismissal.
+
+Under the ruled rubric, a class-S item whose gap IS real and actionable but
+minor would now confirm at info instead of dismissing — that is the measured
+delta the work#59 A/B (scripts/ab_v159_significance_grade.py) exists to
+observe before the rubric change merges.
