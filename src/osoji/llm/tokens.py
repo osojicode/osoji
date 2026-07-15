@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections import OrderedDict
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -11,6 +12,10 @@ if TYPE_CHECKING:
 from ..config import ANTHROPIC_MODEL_MEDIUM, DEFAULT_PROVIDER
 from .registry import normalize_provider_name, strip_provider_prefix
 from .types import Message, MessageRole, ToolDefinition
+
+# Bounds memory growth of the per-text count cache in long-lived counters;
+# least-recently-used entries are evicted once the bound is reached.
+_MAX_CACHE_ENTRIES = 10_000
 
 
 class TokenCounter:
@@ -25,7 +30,7 @@ class TokenCounter:
         self._provider = normalize_provider_name(provider)
         self._default_model = default_model
         self._client: AsyncAnthropic | None = None
-        self._cache: dict[str, int] = {}
+        self._cache: OrderedDict[str, int] = OrderedDict()
 
     @property
     def label(self) -> str:
@@ -91,16 +96,23 @@ class TokenCounter:
         return int(response.input_tokens)
 
     async def count_text_async(self, text: str) -> int:
+        """Count tokens for a single text, memoized in a bounded LRU cache.
+
+        The cache holds at most ``_MAX_CACHE_ENTRIES`` entries; the least
+        recently used entry is evicted when the bound is exceeded.
+        """
         resolved_model = self._resolved_model(None)
         cache_key = f"{self.cache_key_prefix}:{resolved_model}:{hash(text)}"
         if cache_key in self._cache:
+            self._cache.move_to_end(cache_key)
             return self._cache[cache_key]
 
         messages = [Message(role=MessageRole.USER, content=text)]
         count = await self.count_tokens_async(messages, model=resolved_model)
 
-        if len(self._cache) < 10_000:
-            self._cache[cache_key] = count
+        self._cache[cache_key] = count
+        if len(self._cache) > _MAX_CACHE_ENTRIES:
+            self._cache.popitem(last=False)
 
         return count
 
