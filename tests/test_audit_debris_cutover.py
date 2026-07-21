@@ -147,3 +147,26 @@ def test_debris_triage_uses_unified_rubric(temp_dir):
     # V1-5e: the last legacy-prompt holdout flipped onto the unified three-gap
     # rubric, gated by the same-claims A/B in ab-v15e-report.md.
     assert provider.last_system == TRIAGE_SYSTEM_PROMPT
+
+
+def test_provider_failure_records_debris_triage_degradation(temp_dir):
+    """Track 2 PR-A: a Triage-seam failure keeps all findings AND is recorded.
+
+    ``decide_junk_claims`` retries/bisects and swallows a per-chunk provider
+    failure internally (findings come back undecided, verdict=None — see
+    junk_triage.py) so it never raises. To exercise the seam's own
+    ``except Exception`` at the ``_run_phase3_async`` level, the failure has
+    to happen one step earlier: obtaining the runtime itself.
+    """
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    config.audit_degradations = []
+    raw = [_debris("dead_code", "`old_helper` is defined but never used")]
+
+    with patch("osoji.facts.FactsDB", return_value=FakeFacts()), \
+         patch("osoji.symbols.load_all_symbols", return_value={}), \
+         patch("osoji.audit.create_runtime", side_effect=RuntimeError("boom")):
+        suppressed, phase_tokens = asyncio.run(_run_phase3_async(config, raw, MagicMock(), False))
+
+    assert suppressed == set()  # best-effort: nothing suppressed, all kept
+    assert phase_tokens == (0, 0)
+    assert config.audit_degradations == [{"phase": "debris-triage", "error": "boom"}]
