@@ -1,0 +1,20 @@
+{
+  "detector": "audit:misleading_docstring",
+  "gap_type": "description",
+  "path": "src/osoji/scorecard.py",
+  "line_start": 79,
+  "line_end": 79,
+  "symbol": null,
+  "contract_source": "audit",
+  "contract_claim": "L79-79: Docstring says 'Merge overlapping integer ranges' but the implementation also merges adjacent ranges (condition `start <= prev_end + 1` at L86, not `start <= prev_end`). Adjacent ranges like (1,5) and (6,10) are merged into (1,10) even though they do not overlap.",
+  "observed_behavior": "Update docstring to: 'Merge overlapping and adjacent integer ranges. Returns sorted, non-overlapping ranges.'",
+  "evidence": [],
+  "id": "4dd05e1ffac0f5ec",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

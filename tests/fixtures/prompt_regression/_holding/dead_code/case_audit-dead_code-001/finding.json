@@ -1,0 +1,20 @@
+{
+  "detector": "audit:dead_code",
+  "gap_type": "reachability",
+  "path": "src/osoji/audit.py",
+  "line_start": 1894,
+  "line_end": 1895,
+  "symbol": null,
+  "contract_source": "audit",
+  "contract_claim": "L1894-1895: In `_html_file_health_section`, rows are filtered at L1874 to exclude `r[1] is not None`, guaranteeing all remaining rows have non-None health. The `h_val = health if health is not None else 0.0` guard at L1895 is therefore unreachable as written.",
+  "observed_behavior": "Simplify to `h_val = health` since None values are already filtered out at L1874. Or keep for defensive coding clarity.",
+  "evidence": [],
+  "id": "b75136cda2513d18",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

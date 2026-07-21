@@ -1,0 +1,1006 @@
+{
+  "source": "src/osoji/llm/google.py",
+  "source_hash": "e070a3ead62f6d95",
+  "generated": "2026-07-01T00:00:00Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "os",
+      "names": [
+        "os"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Any"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "google",
+      "names": [
+        "genai"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "google.genai",
+      "names": [
+        "genai_types"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "name_map": {
+        "genai_types": "types"
+      }
+    },
+    {
+      "source": "._provider_base",
+      "names": [
+        "DirectProvider",
+        "_ParsedResponse"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": ".registry",
+      "names": [
+        "get_provider_spec"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": ".types",
+      "names": [
+        "CompletionOptions",
+        "CompletionResult",
+        "Message",
+        "MessageRole",
+        "ToolCall",
+        "ToolDefinition"
+      ],
+      "line": 13,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "GoogleProvider",
+      "kind": "class",
+      "line": 36,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "DirectProvider"
+      ]
+    },
+    {
+      "name": "GoogleProvider.__init__",
+      "kind": "function",
+      "line": 39,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoogleProvider.name",
+      "kind": "function",
+      "line": 51,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "GoogleProvider._call_api",
+      "kind": "function",
+      "line": 54,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoogleProvider._build_request_kwargs",
+      "kind": "function",
+      "line": 67,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoogleProvider._convert_tools_google",
+      "kind": "function",
+      "line": 105,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoogleProvider._json_schema_to_google",
+      "kind": "function",
+      "line": 118,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoogleProvider._raw_messages_to_contents",
+      "kind": "function",
+      "line": 139,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoogleProvider._parse_sdk_response",
+      "kind": "function",
+      "line": 183,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoogleProvider.close",
+      "kind": "function",
+      "line": 242,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "GoogleProvider.__init__",
+      "to": "__init__",
+      "line": 40,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider.__init__",
+      "to": "super",
+      "line": 40,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider.__init__",
+      "to": "get_provider_spec",
+      "line": 41,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider.__init__",
+      "to": "os.environ.get",
+      "line": 42,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider.__init__",
+      "to": "RuntimeError",
+      "line": 44,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider.__init__",
+      "to": "genai.Client",
+      "line": 48,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._call_api",
+      "to": "kwargs.pop",
+      "line": 55,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoogleProvider._call_api",
+      "to": "kwargs.pop",
+      "line": 58,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoogleProvider._call_api",
+      "to": "kwargs.pop",
+      "line": 59,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoogleProvider._call_api",
+      "to": "self._raw_messages_to_contents",
+      "line": 60,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._call_api",
+      "to": "self._genai_client.aio.models.generate_content",
+      "line": 61,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._build_request_kwargs",
+      "to": "isinstance",
+      "line": 76,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoogleProvider._build_request_kwargs",
+      "to": "str",
+      "line": 76,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoogleProvider._build_request_kwargs",
+      "to": "self._convert_tools_google",
+      "line": 88,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._build_request_kwargs",
+      "to": "options.tool_choice.get",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._build_request_kwargs",
+      "to": "genai_types.ToolConfig",
+      "line": 90,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._build_request_kwargs",
+      "to": "genai_types.FunctionCallingConfig",
+      "line": 91,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._build_request_kwargs",
+      "to": "genai_types.GenerateContentConfig",
+      "line": 100,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._convert_tools_google",
+      "to": "genai_types.FunctionDeclaration",
+      "line": 107,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._convert_tools_google",
+      "to": "genai_types.Schema",
+      "line": 110,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoogleProvider._convert_tools_google",
+      "to": "self._json_schema_to_google",
+      "line": 111,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoogleProvider._convert_tools_google",
+      "to": "genai_types.Tool",
+      "line": 116,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._json_schema_to_google",
+      "to": "schema.get",
+      "line": 121,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._json_schema_to_google",
+      "to": "schema_type.upper",
+      "line": 123,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._json_schema_to_google",
+      "to": "genai_types.Schema",
+      "line": 128,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoogleProvider._json_schema_to_google",
+      "to": "self._json_schema_to_google",
+      "line": 128,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoogleProvider._json_schema_to_google",
+      "to": "items",
+      "line": 129,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._json_schema_to_google",
+      "to": "list",
+      "line": 132,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoogleProvider._json_schema_to_google",
+      "to": "genai_types.Schema",
+      "line": 134,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoogleProvider._json_schema_to_google",
+      "to": "self._json_schema_to_google",
+      "line": 134,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoogleProvider._json_schema_to_google",
+      "to": "list",
+      "line": 136,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "msg.get",
+      "line": 145,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "msg.get",
+      "line": 148,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "isinstance",
+      "line": 151,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "parts.append",
+      "line": 153,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "genai_types.Part",
+      "line": 153,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "isinstance",
+      "line": 154,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "isinstance",
+      "line": 156,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "block.get",
+      "line": 158,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "block.get",
+      "line": 160,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "parts.append",
+      "line": 162,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "genai_types.Part",
+      "line": 162,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "parts.append",
+      "line": 164,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "genai_types.Part",
+      "line": 164,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "genai_types.FunctionCall",
+      "line": 165,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "block.get",
+      "line": 166,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "block.get",
+      "line": 167,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "parts.append",
+      "line": 171,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "genai_types.Part",
+      "line": 171,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "genai_types.FunctionResponse",
+      "line": 172,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "block.get",
+      "line": 173,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "block.get",
+      "line": 173,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "block.get",
+      "line": 174,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "contents.append",
+      "line": 179,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._raw_messages_to_contents",
+      "to": "genai_types.Content",
+      "line": 179,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "getattr",
+      "line": 188,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "getattr",
+      "line": 192,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "getattr",
+      "line": 193,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "getattr",
+      "line": 195,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "getattr",
+      "line": 196,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "text_blocks.append",
+      "line": 198,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "assistant_blocks.append",
+      "line": 199,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "getattr",
+      "line": 201,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "dict",
+      "line": 202,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "getattr",
+      "line": 202,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "tool_calls.append",
+      "line": 204,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "ToolCall",
+      "line": 204,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "assistant_blocks.append",
+      "line": 205,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "getattr",
+      "line": 214,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "getattr",
+      "line": 215,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "str",
+      "line": 215,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "_FINISH_REASON_MAP.get",
+      "line": 216,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "getattr",
+      "line": 218,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "int",
+      "line": 219,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "getattr",
+      "line": 219,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "int",
+      "line": 220,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "getattr",
+      "line": 220,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "str",
+      "line": 221,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "getattr",
+      "line": 221,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "CompletionResult",
+      "line": 223,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "join",
+      "line": 224,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoogleProvider._parse_sdk_response",
+      "to": "_ParsedResponse",
+      "line": 236,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "self",
+      "member": "_genai_client",
+      "line": 48
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "end_turn",
+      "line": 23,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "length",
+      "line": 24,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "stop",
+      "line": 25,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "stop",
+      "line": 26,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "stop",
+      "line": 27,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "stop",
+      "line": 28,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "stop",
+      "line": 29,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "stop",
+      "line": 30,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "stop",
+      "line": 31,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "stop",
+      "line": 32,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "google",
+      "line": 41,
+      "usage": "produced",
+      "context": "argument to get_provider_spec"
+    },
+    {
+      "value": "google",
+      "line": 52,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "model",
+      "line": 55,
+      "usage": "produced",
+      "context": "argument to kwargs.pop"
+    },
+    {
+      "value": "messages",
+      "line": 58,
+      "usage": "produced",
+      "context": "argument to kwargs.pop"
+    },
+    {
+      "value": "config",
+      "line": 59,
+      "usage": "produced",
+      "context": "argument to kwargs.pop"
+    },
+    {
+      "value": "type",
+      "line": 89,
+      "usage": "produced",
+      "context": "argument to options.tool_choice.get"
+    },
+    {
+      "value": "tool",
+      "line": 89,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "ANY",
+      "line": 92,
+      "usage": "produced",
+      "context": "keyword argument to genai_types.FunctionCallingConfig"
+    },
+    {
+      "value": "type",
+      "line": 121,
+      "usage": "produced",
+      "context": "argument to schema.get"
+    },
+    {
+      "value": "description",
+      "line": 124,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "schema"
+    },
+    {
+      "value": "properties",
+      "line": 126,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "schema"
+    },
+    {
+      "value": "required",
+      "line": 131,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "schema"
+    },
+    {
+      "value": "items",
+      "line": 133,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "schema"
+    },
+    {
+      "value": "enum",
+      "line": 135,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "schema"
+    },
+    {
+      "value": "role",
+      "line": 145,
+      "usage": "produced",
+      "context": "argument to msg.get"
+    },
+    {
+      "value": "user",
+      "line": 145,
+      "usage": "produced",
+      "context": "argument to msg.get"
+    },
+    {
+      "value": "assistant",
+      "line": 147,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "role"
+    },
+    {
+      "value": "content",
+      "line": 148,
+      "usage": "produced",
+      "context": "argument to msg.get"
+    },
+    {
+      "value": "type",
+      "line": 158,
+      "usage": "produced",
+      "context": "argument to block.get"
+    },
+    {
+      "value": "text",
+      "line": 159,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "btype"
+    },
+    {
+      "value": "text",
+      "line": 160,
+      "usage": "produced",
+      "context": "argument to block.get"
+    },
+    {
+      "value": "tool_use",
+      "line": 163,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "btype"
+    },
+    {
+      "value": "name",
+      "line": 166,
+      "usage": "produced",
+      "context": "argument to block.get"
+    },
+    {
+      "value": "input",
+      "line": 167,
+      "usage": "produced",
+      "context": "argument to block.get"
+    },
+    {
+      "value": "tool_result",
+      "line": 170,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "btype"
+    },
+    {
+      "value": "name",
+      "line": 173,
+      "usage": "produced",
+      "context": "argument to block.get"
+    },
+    {
+      "value": "tool_use_id",
+      "line": 173,
+      "usage": "produced",
+      "context": "argument to block.get"
+    },
+    {
+      "value": "content",
+      "line": 174,
+      "usage": "produced",
+      "context": "argument to block.get"
+    },
+    {
+      "value": "candidates",
+      "line": 188,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "content",
+      "line": 192,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "parts",
+      "line": 193,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "text",
+      "line": 195,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "function_call",
+      "line": 196,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "text",
+      "line": 199,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "name",
+      "line": 201,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "args",
+      "line": 202,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "tool_use",
+      "line": 206,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "finish_reason",
+      "line": 214,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "name",
+      "line": 215,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "stop",
+      "line": 216,
+      "usage": "produced",
+      "context": "argument to _FINISH_REASON_MAP.get"
+    },
+    {
+      "value": "usage_metadata",
+      "line": 218,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "prompt_token_count",
+      "line": 219,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "candidates_token_count",
+      "line": 220,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "model_version",
+      "line": 221,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "assistant",
+      "line": 232,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "anthropic",
+      "line": 239,
+      "usage": "produced",
+      "context": "keyword argument to _ParsedResponse"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,6954 @@
+{
+  "source": "src/osoji/audit.py",
+  "source_hash": "bd77838c952eab28",
+  "generated": "2026-07-01T00:00:00Z",
+  "imports": [
+    {
+      "source": "asyncio",
+      "names": [
+        "asyncio"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "html",
+      "names": [
+        "_html_mod"
+      ],
+      "line": 4,
+      "is_reexport": false,
+      "name_map": {
+        "_html_mod": "html"
+      }
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "shutil",
+      "names": [
+        "shutil"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "time",
+      "names": [
+        "time_module"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "name_map": {
+        "time_module": "time"
+      }
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "field",
+        "asdict"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "datetime",
+      "names": [
+        "datetime",
+        "timezone"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Any"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config",
+        "SHADOW_DIR"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": ".hasher",
+      "names": [
+        "is_findings_current"
+      ],
+      "line": 14,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk",
+      "names": [
+        "JunkAnalyzer",
+        "JunkAnalysisResult",
+        "load_shadow_content"
+      ],
+      "line": 15,
+      "is_reexport": false
+    },
+    {
+      "source": ".deadcode",
+      "names": [
+        "DeadCodeAnalyzer"
+      ],
+      "line": 16,
+      "is_reexport": false
+    },
+    {
+      "source": ".deadparam",
+      "names": [
+        "DeadParameterAnalyzer"
+      ],
+      "line": 17,
+      "is_reexport": false
+    },
+    {
+      "source": ".plumbing",
+      "names": [
+        "DeadPlumbingAnalyzer"
+      ],
+      "line": 18,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk_deps",
+      "names": [
+        "DeadDepsAnalyzer"
+      ],
+      "line": 19,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk_cicd",
+      "names": [
+        "DeadCICDAnalyzer"
+      ],
+      "line": 20,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk_orphan",
+      "names": [
+        "OrphanedFilesAnalyzer"
+      ],
+      "line": 21,
+      "is_reexport": false
+    },
+    {
+      "source": ".rate_limiter",
+      "names": [
+        "RateLimiter",
+        "get_config_with_overrides"
+      ],
+      "line": 22,
+      "is_reexport": false
+    },
+    {
+      "source": ".shadow",
+      "names": [
+        "check_shadow_docs",
+        "generate_shadow_docs_async"
+      ],
+      "line": 23,
+      "is_reexport": false
+    },
+    {
+      "source": ".doc_analysis",
+      "names": [
+        "analyze_docs_async"
+      ],
+      "line": 24,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk_cicd",
+      "names": [
+        "discover_cicd_files"
+      ],
+      "line": 25,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.runtime",
+      "names": [
+        "create_runtime"
+      ],
+      "line": 26,
+      "is_reexport": false
+    },
+    {
+      "source": ".scorecard",
+      "names": [
+        "CoverageEntry",
+        "JunkCodeEntry",
+        "Scorecard",
+        "build_scorecard"
+      ],
+      "line": 27,
+      "is_reexport": false
+    },
+    {
+      "source": ".walker",
+      "names": [
+        "_matches_ignore"
+      ],
+      "line": 28,
+      "is_reexport": false
+    },
+    {
+      "source": ".claim_builder",
+      "names": [
+        "_extract_all_symbols_from_debris",
+        "_infer_variable_type",
+        "_is_eligible",
+        "_lookup_type_definitions",
+        "build_debris_claims"
+      ],
+      "line": 32,
+      "is_reexport": false
+    },
+    {
+      "source": ".triage",
+      "names": [
+        "DEBRIS_TRIAGE_SYSTEM_PROMPT",
+        "Triage"
+      ],
+      "line": 39,
+      "is_reexport": false
+    },
+    {
+      "source": "tabulate",
+      "names": [
+        "_tabulate"
+      ],
+      "line": 41,
+      "is_reexport": false,
+      "name_map": {
+        "_tabulate": "tabulate"
+      }
+    },
+    {
+      "source": ".doc_prompts",
+      "names": [
+        "build_doc_prompts_async"
+      ],
+      "line": 516,
+      "is_reexport": false
+    },
+    {
+      "source": ".facts",
+      "names": [
+        "FactsDB"
+      ],
+      "line": 683,
+      "is_reexport": false
+    },
+    {
+      "source": ".obligations",
+      "names": [
+        "run_all_contract_checks"
+      ],
+      "line": 684,
+      "is_reexport": false
+    },
+    {
+      "source": ".doc_prompts",
+      "names": [
+        "Concept",
+        "WritingPrompt",
+        "DocPromptsResult",
+        "_compute_priority"
+      ],
+      "line": 1489,
+      "is_reexport": false
+    },
+    {
+      "source": ".observatory",
+      "names": [
+        "_compute_file_health"
+      ],
+      "line": 1833,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "JUNK_ANALYZERS",
+      "kind": "constant",
+      "line": 59,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "EXCLUDABLE_PHASES",
+      "kind": "constant",
+      "line": 69,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "AuditIssue",
+      "kind": "class",
+      "line": 78,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "AuditResult",
+      "kind": "class",
+      "line": 93,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "AuditResult.has_errors",
+      "kind": "function",
+      "line": 102,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "AuditResult.has_warnings",
+      "kind": "function",
+      "line": 106,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "AuditResult.passed",
+      "kind": "function",
+      "line": 110,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "run_audit",
+      "kind": "function",
+      "line": 247,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "run_audit_async",
+      "kind": "function",
+      "line": 280,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "serialize_audit_result",
+      "kind": "function",
+      "line": 753,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "load_audit_result",
+      "kind": "function",
+      "line": 761,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "format_audit_report",
+      "kind": "function",
+      "line": 1001,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "format_audit_json",
+      "kind": "function",
+      "line": 1090,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "format_audit_html",
+      "kind": "function",
+      "line": 2072,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "_tabulate",
+      "to": "len",
+      "line": 44,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_tabulate",
+      "to": "str",
+      "line": 44,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_tabulate",
+      "to": "enumerate",
+      "line": 46,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_tabulate",
+      "to": "max",
+      "line": 47,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_tabulate",
+      "to": "len",
+      "line": 47,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_tabulate",
+      "to": "str",
+      "line": 47,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_tabulate.format_row",
+      "to": "join",
+      "line": 50,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_tabulate.format_row",
+      "to": "ljust",
+      "line": 50,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_tabulate.format_row",
+      "to": "str",
+      "line": 50,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_tabulate.format_row",
+      "to": "enumerate",
+      "line": 50,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_tabulate",
+      "to": "format_row",
+      "line": 52,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_tabulate",
+      "to": "join",
+      "line": 53,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_tabulate",
+      "to": "format_row",
+      "line": 54,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_tabulate",
+      "to": "join",
+      "line": 55,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "cls",
+      "line": 71,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "cls",
+      "line": 74,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "cls",
+      "line": 74,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "AuditResult",
+      "to": "field",
+      "line": 96,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AuditResult.has_errors",
+      "to": "any",
+      "line": 103,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "AuditResult.has_warnings",
+      "to": "any",
+      "line": 107,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_format_tokens_short._fmt",
+      "to": "str",
+      "line": 123,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_format_tokens_short",
+      "to": "_fmt",
+      "line": 124,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_format_tokens_short",
+      "to": "_fmt",
+      "line": 124,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_serialize_json",
+      "to": "path.parent.mkdir",
+      "line": 129,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_serialize_json",
+      "to": "path.write_text",
+      "line": 130,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_serialize_json",
+      "to": "json.dumps",
+      "line": 130,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_emit",
+      "to": "print",
+      "line": 138,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_make_progress_default.progress",
+      "to": "symbols.get",
+      "line": 153,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_make_progress_default.progress",
+      "to": "path.is_absolute",
+      "line": 154,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_make_progress_default.progress",
+      "to": "path.relative_to",
+      "line": 154,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_make_progress_default.progress",
+      "to": "rate_limiter.get_cumulative_tokens",
+      "line": 157,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_make_progress_default.progress",
+      "to": "_format_tokens_short",
+      "line": 158,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_make_progress_default.progress",
+      "to": "print",
+      "line": 161,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_make_progress_default.progress",
+      "to": "print",
+      "line": 163,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_make_progress_verbose.progress",
+      "to": "symbols.get",
+      "line": 178,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_make_progress_verbose.progress",
+      "to": "path.is_absolute",
+      "line": 179,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_make_progress_verbose.progress",
+      "to": "path.relative_to",
+      "line": 179,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_make_progress_verbose.progress",
+      "to": "rate_limiter.get_cumulative_tokens",
+      "line": 182,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_make_progress_verbose.progress",
+      "to": "_format_tokens_short",
+      "line": 183,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_make_progress_verbose.progress",
+      "to": "print",
+      "line": 186,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_resolve_enabled_flags",
+      "to": "a",
+      "line": 204,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_resolve_enabled_flags",
+      "to": "set",
+      "line": 205,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_resolve_enabled_flags",
+      "to": "flags.add",
+      "line": 207,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_resolve_enabled_flags",
+      "to": "flags.add",
+      "line": 209,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_resolve_enabled_flags",
+      "to": "flags.add",
+      "line": 211,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_resolve_enabled_flags",
+      "to": "flags.add",
+      "line": 213,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_resolve_enabled_flags",
+      "to": "flags.add",
+      "line": 215,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_resolve_enabled_flags",
+      "to": "flags.add",
+      "line": 217,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_serialize_junk_results",
+      "to": "item.source_path.replace",
+      "line": 225,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_serialize_junk_results",
+      "to": "append",
+      "line": 226,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_serialize_junk_results",
+      "to": "by_source.setdefault",
+      "line": 226,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_serialize_junk_results",
+      "to": "by_source.items",
+      "line": 238,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_serialize_junk_results",
+      "to": "config.analysis_junk_path_for",
+      "line": 239,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_serialize_junk_results",
+      "to": "Path",
+      "line": 239,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_serialize_junk_results",
+      "to": "_serialize_json",
+      "line": 240,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "run_audit",
+      "to": "asyncio.run",
+      "line": 263,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit",
+      "to": "run_audit_async",
+      "line": 263,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "config.load_osojiignore",
+      "line": 313,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "set",
+      "line": 314,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "RateLimiter",
+      "line": 317,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "get_config_with_overrides",
+      "line": 317,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_make_progress_verbose",
+      "line": 318,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_make_progress_default",
+      "line": 318,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "analysis_root.exists",
+      "line": 322,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "shutil.rmtree",
+      "line": 323,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_emit",
+      "line": 326,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "check_shadow_docs",
+      "line": 327,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "rate_limiter.get_cumulative_tokens",
+      "line": 329,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_emit",
+      "line": 332,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "len",
+      "line": 332,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_emit",
+      "line": 334,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "len",
+      "line": 334,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "time_module.monotonic",
+      "line": 335,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "generate_shadow_docs_async",
+      "line": 336,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "time_module.monotonic",
+      "line": 338,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "rate_limiter.get_cumulative_tokens",
+      "line": 339,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_format_tokens_short",
+      "line": 340,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_emit",
+      "line": 341,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "rate_limiter.get_cumulative_tokens",
+      "line": 342,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "issues.append",
+      "line": 346,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "AuditIssue",
+      "line": 346,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_load_raw_debris",
+      "line": 359,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_resolve_enabled_flags",
+      "line": 360,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async._noop_phase3",
+      "to": "set",
+      "line": 373,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_noop_phase2",
+      "line": 382,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_run_phase2_async",
+      "line": 382,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_noop_phase3",
+      "line": 383,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_run_phase3_async",
+      "line": 383,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_run_phase3_5_async",
+      "line": 384,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_noop_phase4",
+      "line": 385,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_run_phase4_async",
+      "line": 385,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "asyncio.gather",
+      "line": 388,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "issues.append",
+      "line": 399,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "AuditIssue",
+      "line": 399,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "issues.append",
+      "line": 412,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "AuditIssue",
+      "line": 412,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "config.analysis_docs_path_for",
+      "line": 424,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_serialize_json",
+      "line": 425,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "str",
+      "line": 426,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "enumerate",
+      "line": 447,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "issues.append",
+      "line": 450,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "AuditIssue",
+      "line": 450,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "finding.get",
+      "line": 455,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "issues.append",
+      "line": 464,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "AuditIssue",
+      "line": 464,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "Path",
+      "line": 465,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "junk_results.items",
+      "line": 475,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_JUNK_NAME_TO_CLI_FLAG.get",
+      "line": 476,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "issues.append",
+      "line": 480,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "AuditIssue",
+      "line": 480,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "Path",
+      "line": 481,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_serialize_junk_results",
+      "line": 491,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_emit",
+      "line": 494,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "build_scorecard",
+      "line": 495,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "sum",
+      "line": 502,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "sum",
+      "line": 505,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_serialize_json",
+      "line": 508,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "asdict",
+      "line": 508,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_emit",
+      "line": 514,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "time_module.monotonic",
+      "line": 515,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "run_audit_async._doc_prompts_progress",
+      "to": "_format_tokens_short",
+      "line": 519,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "run_audit_async._doc_prompts_progress",
+      "to": "rate_limiter.get_cumulative_tokens",
+      "line": 520,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "run_audit_async._doc_prompts_progress",
+      "to": "_format_tokens_short",
+      "line": 521,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "run_audit_async._doc_prompts_progress",
+      "to": "_emit",
+      "line": 522,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "build_doc_prompts_async",
+      "line": 524,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_serialize_json",
+      "line": 535,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "asdict",
+      "line": 535,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "time_module.monotonic",
+      "line": 536,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_format_tokens_short",
+      "line": 537,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_emit",
+      "line": 538,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "phase4_tokens.items",
+      "line": 551,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_JUNK_NAME_TO_CLI_FLAG.get",
+      "line": 552,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "rate_limiter.get_cumulative_tokens",
+      "line": 558,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_emit",
+      "line": 561,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "len",
+      "line": 562,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_emit",
+      "line": 563,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "max",
+      "line": 564,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "len",
+      "line": 564,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "phase_tokens.items",
+      "line": 565,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_emit",
+      "line": 567,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_emit",
+      "line": 568,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "_emit",
+      "line": 569,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "AuditResult",
+      "line": 571,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run_audit_async",
+      "to": "serialize_audit_result",
+      "line": 577,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_raw_debris",
+      "to": "findings_dir.exists",
+      "line": 588,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_raw_debris",
+      "to": "sorted",
+      "line": 590,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_load_raw_debris",
+      "to": "findings_dir.rglob",
+      "line": 590,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_raw_debris",
+      "to": "json.loads",
+      "line": 592,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_load_raw_debris",
+      "to": "findings_file.read_text",
+      "line": 592,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_raw_debris",
+      "to": "Path",
+      "line": 594,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_load_raw_debris",
+      "to": "is_findings_current",
+      "line": 595,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_raw_debris",
+      "to": "data.get",
+      "line": 596,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_load_raw_debris",
+      "to": "data.get",
+      "line": 596,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_load_raw_debris",
+      "to": "_matches_ignore",
+      "line": 600,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_load_raw_debris",
+      "to": "_matches_ignore",
+      "line": 602,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_load_raw_debris",
+      "to": "data.get",
+      "line": 604,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_load_raw_debris",
+      "to": "raw_debris.append",
+      "line": 605,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_phase2_async",
+      "to": "_emit",
+      "line": 617,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "_run_phase2_async",
+      "to": "time_module.monotonic",
+      "line": 618,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_run_phase2_async",
+      "to": "create_runtime",
+      "line": 619,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_run_phase2_async",
+      "to": "analyze_docs_async",
+      "line": 621,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_phase2_async",
+      "to": "logging_provider.close",
+      "line": 624,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_run_phase2_async",
+      "to": "time_module.monotonic",
+      "line": 625,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_run_phase2_async",
+      "to": "_format_tokens_short",
+      "line": 626,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_run_phase2_async",
+      "to": "_emit",
+      "line": 627,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "_run_phase3_async",
+      "to": "_emit",
+      "line": 640,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "_run_phase3_async",
+      "to": "time_module.monotonic",
+      "line": 641,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_run_phase3_async",
+      "to": "set",
+      "line": 642,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_run_phase3_async",
+      "to": "any",
+      "line": 644,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_run_phase3_async",
+      "to": "_is_eligible",
+      "line": 644,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_phase3_async",
+      "to": "build_debris_claims",
+      "line": 647,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_phase3_async",
+      "to": "Triage",
+      "line": 649,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_phase3_async",
+      "to": "triage.decide_batch",
+      "line": 650,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_phase3_async",
+      "to": "zip",
+      "line": 653,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_phase3_async",
+      "to": "suppressed_indices.add",
+      "line": 655,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_phase3_async",
+      "to": "_emit",
+      "line": 658,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "_run_phase3_async",
+      "to": "len",
+      "line": 658,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_run_phase3_async",
+      "to": "_emit",
+      "line": 664,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "_run_phase3_async",
+      "to": "time_module.monotonic",
+      "line": 668,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_run_phase3_async",
+      "to": "_format_tokens_short",
+      "line": 669,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_run_phase3_async",
+      "to": "_emit",
+      "line": 671,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "_run_phase3_async",
+      "to": "_emit",
+      "line": 673,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "_run_phase3_5_async",
+      "to": "_emit",
+      "line": 681,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "_run_phase3_5_async",
+      "to": "time_module.monotonic",
+      "line": 682,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_run_phase3_5_async",
+      "to": "FactsDB",
+      "line": 685,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_phase3_5_async",
+      "to": "run_all_contract_checks",
+      "line": 686,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_phase3_5_async",
+      "to": "sum",
+      "line": 688,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_run_phase3_5_async",
+      "to": "sum",
+      "line": 689,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_run_phase3_5_async",
+      "to": "time_module.monotonic",
+      "line": 690,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_run_phase3_5_async",
+      "to": "_emit",
+      "line": 691,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "_run_phase4_async",
+      "to": "analyzer_cls",
+      "line": 705,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_run_phase4_async",
+      "to": "isinstance",
+      "line": 709,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_run_phase4_async",
+      "to": "discover_cicd_files",
+      "line": 711,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_phase4_async",
+      "to": "print",
+      "line": 714,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_run_phase4_async",
+      "to": "tasks.append",
+      "line": 716,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_run_phase4_async",
+      "to": "symbols_dir.exists",
+      "line": 719,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_phase4_async",
+      "to": "print",
+      "line": 721,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_run_phase4_async",
+      "to": "tasks.append",
+      "line": 723,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_run_phase4_async._run_single",
+      "to": "_emit",
+      "line": 729,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "_run_phase4_async._run_single",
+      "to": "time_module.monotonic",
+      "line": 730,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_run_phase4_async._run_single",
+      "to": "create_runtime",
+      "line": 731,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_run_phase4_async._run_single",
+      "to": "analyzer.analyze_async",
+      "line": 733,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_phase4_async._run_single",
+      "to": "logging_provider.close",
+      "line": 738,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_run_phase4_async._run_single",
+      "to": "time_module.monotonic",
+      "line": 739,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_run_phase4_async._run_single",
+      "to": "_format_tokens_short",
+      "line": 740,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_run_phase4_async._run_single",
+      "to": "_emit",
+      "line": 741,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "_run_phase4_async",
+      "to": "asyncio.gather",
+      "line": 744,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_run_phase4_async",
+      "to": "_run_single",
+      "line": 745,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "serialize_audit_result",
+      "to": "json.loads",
+      "line": 755,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "serialize_audit_result",
+      "to": "format_audit_json",
+      "line": 755,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "serialize_audit_result",
+      "to": "_serialize_json",
+      "line": 757,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "json.loads",
+      "line": 764,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "path.read_text",
+      "line": 764,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "AuditIssue",
+      "line": 767,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "Path",
+      "line": 768,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "i.get",
+      "line": 773,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "i.get",
+      "line": 774,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "i.get",
+      "line": 775,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "i.get",
+      "line": 776,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "data.get",
+      "line": 778,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "Scorecard",
+      "line": 784,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "CoverageEntry",
+      "line": 786,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "JunkCodeEntry",
+      "line": 812,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "sc.get",
+      "line": 822,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "sc.get",
+      "line": 823,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "sc.get",
+      "line": 824,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "sc.get",
+      "line": 825,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "sc.get",
+      "line": 826,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "sc.get",
+      "line": 827,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "sc.get",
+      "line": 828,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "sc.get",
+      "line": 829,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "sc.get",
+      "line": 830,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "sc.get",
+      "line": 831,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "sc.get",
+      "line": 832,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "isinstance",
+      "line": 836,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "data.get",
+      "line": 836,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "_deserialize_doc_prompts",
+      "line": 837,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "AuditResult",
+      "line": 839,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "load_audit_result",
+      "to": "data.get",
+      "line": 842,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_table",
+      "to": "_tabulate",
+      "line": 849,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 855,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "str",
+      "line": 860,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "len",
+      "line": 860,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "summary_rows.append",
+      "line": 865,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "summary_rows.append",
+      "line": 867,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "summary_rows.append",
+      "line": 869,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 872,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "_table",
+      "line": 872,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 873,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 877,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 878,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "sorted",
+      "line": 880,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "scorecard.coverage_by_type.keys",
+      "line": 880,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "scorecard.type_covered_counts.get",
+      "line": 881,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "scorecard.type_total_counts.get",
+      "line": 882,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "type_rows.append",
+      "line": 884,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "str",
+      "line": 884,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "str",
+      "line": 884,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 885,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "_table",
+      "line": 885,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 886,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 891,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "entry.topic_signature.get",
+      "line": 894,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 896,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 897,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 901,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 903,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 904,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 908,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "str",
+      "line": 909,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "sorted",
+      "line": 909,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "scorecard.accuracy_by_category.items",
+      "line": 909,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 910,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "_table",
+      "line": 910,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 911,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 915,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "it.get",
+      "line": 923,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "cat_ast_counts.get",
+      "line": 925,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "cat_llm_counts.get",
+      "line": 927,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "sorted",
+      "line": 928,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "scorecard.junk_by_category.keys",
+      "line": 928,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "scorecard.junk_by_category_lines.get",
+      "line": 930,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "cat_ast_counts.get",
+      "line": 931,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "cat_llm_counts.get",
+      "line": 932,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "junk_rows.append",
+      "line": 939,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "str",
+      "line": 939,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "str",
+      "line": 939,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 940,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "_table",
+      "line": 940,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 941,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 946,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 951,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "_table",
+      "line": 951,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 952,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 956,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "sorted",
+      "line": 958,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "scorecard.enforcement_by_schema.items",
+      "line": 958,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "join",
+      "line": 959,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "enf_rows.append",
+      "line": 960,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "str",
+      "line": 960,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 961,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "_table",
+      "line": 961,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 962,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "analyzer_cls",
+      "line": 968,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "missing.append",
+      "line": 970,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "lines.append",
+      "line": 972,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "_format_scorecard_section",
+      "to": "join",
+      "line": 972,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_is_test_path",
+      "to": "split",
+      "line": 979,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_is_test_path",
+      "to": "path.replace",
+      "line": 979,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_is_test_path",
+      "to": "any",
+      "line": 980,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_is_test_path",
+      "to": "p.startswith",
+      "line": 980,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1009,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1011,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1013,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.extend",
+      "line": 1017,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "_format_scorecard_section",
+      "line": 1017,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1022,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1023,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "underdoc.sort",
+      "line": 1031,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "priority_order.get",
+      "line": 1031,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "join",
+      "line": 1033,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1034,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "c.priority.upper",
+      "line": 1034,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1035,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1041,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1044,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1045,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1046,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1047,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1048,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1051,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1054,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1055,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1063,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1066,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1067,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "any",
+      "line": 1070,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "_is_test_path",
+      "line": 1070,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "str",
+      "line": 1070,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1071,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1073,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1074,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1077,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1078,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1080,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1081,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "len",
+      "line": 1081,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "len",
+      "line": 1081,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "len",
+      "line": 1081,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1084,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "lines.append",
+      "line": 1085,
+      "call_sites": 54
+    },
+    {
+      "from_symbol": "format_audit_report",
+      "to": "join",
+      "line": 1087,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "format_audit_json",
+      "to": "sum",
+      "line": 1094,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "format_audit_json",
+      "to": "sum",
+      "line": 1095,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "format_audit_json",
+      "to": "sum",
+      "line": 1096,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "format_audit_json",
+      "to": "str",
+      "line": 1099,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "format_audit_json",
+      "to": "asdict",
+      "line": 1115,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "format_audit_json",
+      "to": "_serialize_doc_prompts",
+      "line": 1117,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_json",
+      "to": "json.dumps",
+      "line": 1118,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_h",
+      "to": "_html_mod.escape",
+      "line": 1404,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_h",
+      "to": "str",
+      "line": 1404,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_issue_loc",
+      "to": "_h",
+      "line": 1416,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_metric_card",
+      "to": "_h",
+      "line": 1431,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_metric_card",
+      "to": "_h",
+      "line": 1433,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_metric_card",
+      "to": "_h",
+      "line": 1434,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_metric_card",
+      "to": "_h",
+      "line": 1435,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "data.get",
+      "line": 1492,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "Concept",
+      "line": 1493,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "c.get",
+      "line": 1494,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "c.get",
+      "line": 1495,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "c.get",
+      "line": 1496,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "c.get",
+      "line": 1497,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "c.get",
+      "line": 1498,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "c.get",
+      "line": 1499,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "c.get",
+      "line": 1501,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "c.get",
+      "line": 1502,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "c.get",
+      "line": 1503,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "c.get",
+      "line": 1504,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "c.get",
+      "line": 1505,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "c.get",
+      "line": 1506,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "_compute_priority",
+      "line": 1508,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "concepts.append",
+      "line": 1509,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "data.get",
+      "line": 1512,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "prompts.append",
+      "line": 1513,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "WritingPrompt",
+      "line": 1513,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "p.get",
+      "line": 1514,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "p.get",
+      "line": 1515,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "p.get",
+      "line": 1516,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "p.get",
+      "line": 1517,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "p.get",
+      "line": 1518,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "p.get",
+      "line": 1519,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "p.get",
+      "line": 1520,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "p.get",
+      "line": 1521,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "p.get",
+      "line": 1522,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "p.get",
+      "line": 1523,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "data.get",
+      "line": 1526,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "DocPromptsResult",
+      "line": 1527,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "summary.get",
+      "line": 1530,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "len",
+      "line": 1530,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "summary.get",
+      "line": 1531,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "summary.get",
+      "line": 1532,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "summary.get",
+      "line": 1533,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "summary.get",
+      "line": 1534,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "summary.get",
+      "line": 1535,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "summary.get",
+      "line": 1536,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_deserialize_doc_prompts",
+      "to": "len",
+      "line": 1536,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1551,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1552,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1553,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1555,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "len",
+      "line": 1555,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1560,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "sorted",
+      "line": 1562,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "dp.coverage_by_type.keys",
+      "line": 1562,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "info.get",
+      "line": 1564,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "info.get",
+      "line": 1565,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1567,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "_h",
+      "line": 1567,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1569,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "append",
+      "line": 1575,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "prompts_by_concept.setdefault",
+      "line": 1575,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "sorted",
+      "line": 1579,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "priority_order.get",
+      "line": 1579,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "get",
+      "line": 1582,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "join",
+      "line": 1583,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1584,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1585,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "_h",
+      "line": 1590,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "concept.priority.upper",
+      "line": 1590,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "_h",
+      "line": 1591,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "_h",
+      "line": 1591,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1593,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1594,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "_h",
+      "line": 1594,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "join",
+      "line": 1598,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1602,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "_h",
+      "line": 1602,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1606,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "_h",
+      "line": 1606,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "join",
+      "line": 1606,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "prompts_by_concept.get",
+      "line": 1609,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1611,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1612,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "_h",
+      "line": 1612,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1613,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "_h",
+      "line": 1616,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1617,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1621,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1623,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "parts.append",
+      "line": 1625,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_doc_prompts_section",
+      "to": "join",
+      "line": 1626,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1632,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1633,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1634,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "replace",
+      "line": 1638,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "replace",
+      "line": 1638,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "_color_for_pct",
+      "line": 1638,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1639,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1640,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1644,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1645,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1650,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "sorted",
+      "line": 1652,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "scorecard.concept_coverage_by_type.keys",
+      "line": 1652,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "info.get",
+      "line": 1654,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "info.get",
+      "line": 1655,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1657,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "_h",
+      "line": 1657,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1659,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1663,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1664,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "sorted",
+      "line": 1665,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "scorecard.coverage_by_type.keys",
+      "line": 1665,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "scorecard.type_covered_counts.get",
+      "line": 1666,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "scorecard.type_total_counts.get",
+      "line": 1667,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1669,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "_h",
+      "line": 1669,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1670,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "sorted",
+      "line": 1674,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "len",
+      "line": 1680,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1682,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "len",
+      "line": 1682,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1684,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1685,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1687,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "_h",
+      "line": 1687,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1688,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1691,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "_h",
+      "line": 1691,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1694,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1696,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1697,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "len",
+      "line": 1701,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1702,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "_h",
+      "line": 1708,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1711,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1713,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1718,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "len",
+      "line": 1718,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1719,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "entry.topic_signature.get",
+      "line": 1722,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "_h",
+      "line": 1723,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1724,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "_h",
+      "line": 1724,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1725,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "parts.append",
+      "line": 1727,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_coverage_section",
+      "to": "join",
+      "line": 1728,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "i.category.startswith",
+      "line": 1736,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "parts.append",
+      "line": 1741,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "parts.append",
+      "line": 1742,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "parts.append",
+      "line": 1743,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "parts.append",
+      "line": 1744,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "parts.append",
+      "line": 1748,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "sorted",
+      "line": 1749,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "scorecard.accuracy_by_category.items",
+      "line": 1749,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "parts.append",
+      "line": 1750,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "_h",
+      "line": 1750,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "parts.append",
+      "line": 1751,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "append",
+      "line": 1756,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "by_cat.setdefault",
+      "line": 1756,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "sorted",
+      "line": 1758,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "by_cat.keys",
+      "line": 1758,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "parts.append",
+      "line": 1759,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "_h",
+      "line": 1759,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "parts.append",
+      "line": 1760,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "parts.append",
+      "line": 1762,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "_h",
+      "line": 1762,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "str",
+      "line": 1762,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "_issue_loc",
+      "line": 1762,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "_h",
+      "line": 1762,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "parts.append",
+      "line": 1763,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "parts.append",
+      "line": 1765,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_accuracy_section",
+      "to": "join",
+      "line": 1766,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1778,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1779,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1780,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1781,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1786,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "sorted",
+      "line": 1787,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "scorecard.junk_by_category.keys",
+      "line": 1787,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "scorecard.junk_by_category_lines.get",
+      "line": 1789,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1790,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "_h",
+      "line": 1790,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1791,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1796,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1797,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1799,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "_h",
+      "line": 1799,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1801,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "set",
+      "line": 1804,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "scorecard.junk_by_category.keys",
+      "line": 1804,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "len",
+      "line": 1807,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1809,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "len",
+      "line": 1809,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1810,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1812,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "_h",
+      "line": 1812,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "str",
+      "line": 1812,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "_issue_loc",
+      "line": 1812,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "_h",
+      "line": 1812,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1813,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1815,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "analyzer_cls",
+      "line": 1820,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "missing.append",
+      "line": 1822,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1824,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "_h",
+      "line": 1825,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "join",
+      "line": 1825,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "parts.append",
+      "line": 1827,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_junk_section",
+      "to": "join",
+      "line": 1828,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "set",
+      "line": 1841,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "covered_paths.add",
+      "line": 1844,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "replace",
+      "line": 1855,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "str",
+      "line": 1855,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "errors_map.get",
+      "line": 1857,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "warnings_map.get",
+      "line": 1859,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "junk_map.get",
+      "line": 1866,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "errors_map.get",
+      "line": 1867,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "warnings_map.get",
+      "line": 1868,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "_compute_file_health",
+      "line": 1870,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "rows.append",
+      "line": 1871,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "rows.sort",
+      "line": 1879,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "parts.append",
+      "line": 1882,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "parts.append",
+      "line": 1883,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "parts.append",
+      "line": 1884,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "len",
+      "line": 1886,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "parts.append",
+      "line": 1888,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "len",
+      "line": 1888,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "parts.append",
+      "line": 1890,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "parts.append",
+      "line": 1903,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "_h",
+      "line": 1904,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "parts.append",
+      "line": 1910,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "parts.append",
+      "line": 1912,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "parts.append",
+      "line": 1914,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_file_health_section",
+      "to": "join",
+      "line": 1915,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "parts.append",
+      "line": 1925,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "parts.append",
+      "line": 1926,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "parts.append",
+      "line": 1927,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "parts.append",
+      "line": 1929,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "config_snapshot.get",
+      "line": 1930,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "config_snapshot.get",
+      "line": 1931,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "config_snapshot.get",
+      "line": 1932,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "config_snapshot.get",
+      "line": 1933,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "parts.append",
+      "line": 1934,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "_h",
+      "line": 1934,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "str",
+      "line": 1934,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "parts.append",
+      "line": 1935,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "_h",
+      "line": 1935,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "str",
+      "line": 1935,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "parts.append",
+      "line": 1937,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "_h",
+      "line": 1937,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "join",
+      "line": 1937,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "str",
+      "line": 1937,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "parts.append",
+      "line": 1938,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "_h",
+      "line": 1938,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "str",
+      "line": 1938,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "parts.append",
+      "line": 1939,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "parts.append",
+      "line": 1941,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_config_section",
+      "to": "join",
+      "line": 1942,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_html_dead_docs_section",
+      "to": "parts.append",
+      "line": 1951,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_dead_docs_section",
+      "to": "parts.append",
+      "line": 1952,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_dead_docs_section",
+      "to": "parts.append",
+      "line": 1953,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_dead_docs_section",
+      "to": "parts.append",
+      "line": 1954,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_dead_docs_section",
+      "to": "len",
+      "line": 1954,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_html_dead_docs_section",
+      "to": "parts.append",
+      "line": 1955,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_dead_docs_section",
+      "to": "parts.append",
+      "line": 1957,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_dead_docs_section",
+      "to": "_h",
+      "line": 1957,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_dead_docs_section",
+      "to": "parts.append",
+      "line": 1958,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_dead_docs_section",
+      "to": "parts.append",
+      "line": 1959,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_dead_docs_section",
+      "to": "join",
+      "line": 1960,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_html_enforcement_section",
+      "to": "parts.append",
+      "line": 1969,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_enforcement_section",
+      "to": "parts.append",
+      "line": 1970,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_enforcement_section",
+      "to": "parts.append",
+      "line": 1971,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_enforcement_section",
+      "to": "parts.append",
+      "line": 1972,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_enforcement_section",
+      "to": "parts.append",
+      "line": 1976,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_enforcement_section",
+      "to": "sorted",
+      "line": 1977,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_html_enforcement_section",
+      "to": "scorecard.enforcement_by_schema.items",
+      "line": 1977,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_html_enforcement_section",
+      "to": "join",
+      "line": 1978,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_html_enforcement_section",
+      "to": "parts.append",
+      "line": 1979,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_enforcement_section",
+      "to": "_h",
+      "line": 1979,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_enforcement_section",
+      "to": "_h",
+      "line": 1979,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_enforcement_section",
+      "to": "parts.append",
+      "line": 1980,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_enforcement_section",
+      "to": "parts.append",
+      "line": 1982,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_enforcement_section",
+      "to": "join",
+      "line": 1983,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 1998,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 1999,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2000,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2001,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "len",
+      "line": 2001,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "len",
+      "line": 2002,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2004,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "len",
+      "line": 2004,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2005,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2007,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "_h",
+      "line": 2007,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "str",
+      "line": 2007,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "_issue_loc",
+      "line": 2007,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "_h",
+      "line": 2007,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2008,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2010,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2011,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "any",
+      "line": 2014,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "_is_test_path",
+      "line": 2014,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "str",
+      "line": 2014,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2015,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2016,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2017,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2019,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "_h",
+      "line": 2019,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2020,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "len",
+      "line": 2020,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "len",
+      "line": 2021,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2023,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "len",
+      "line": 2023,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2024,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2026,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "_h",
+      "line": 2026,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "str",
+      "line": 2026,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "_issue_loc",
+      "line": 2026,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "_h",
+      "line": 2026,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2027,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2029,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "parts.append",
+      "line": 2030,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "_html_info_section",
+      "to": "join",
+      "line": 2032,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2081,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2082,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2083,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2084,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2085,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2086,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2087,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2092,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2103,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "_color_for_pct",
+      "line": 2107,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "len",
+      "line": 2108,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2113,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2114,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "_html_metric_card",
+      "line": 2114,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2118,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "_html_metric_card",
+      "line": 2118,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "str",
+      "line": 2119,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "len",
+      "line": 2119,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2122,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "_html_metric_card",
+      "line": 2122,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2126,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "_html_metric_card",
+      "line": 2126,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2134,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "_html_metric_card",
+      "line": 2134,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "str",
+      "line": 2135,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2143,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "_html_metric_card",
+      "line": 2143,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "str",
+      "line": 2144,
+      "call_sites": 28
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2148,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2151,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "load_shadow_content",
+      "line": 2158,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2163,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "_html_coverage_section",
+      "line": 2163,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2164,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "_html_doc_prompts_section",
+      "line": 2164,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2165,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "_html_accuracy_section",
+      "line": 2165,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2166,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "_html_junk_section",
+      "line": 2166,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2167,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "_html_file_health_section",
+      "line": 2167,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2168,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "_html_dead_docs_section",
+      "line": 2168,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2169,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "_html_enforcement_section",
+      "line": 2169,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2170,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "_html_info_section",
+      "line": 2170,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2171,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "_html_config_section",
+      "line": 2171,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2173,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "strftime",
+      "line": 2176,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "datetime.now",
+      "line": 2176,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2177,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "len",
+      "line": 2177,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "len",
+      "line": 2177,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "len",
+      "line": 2178,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "_h",
+      "line": 2178,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "parts.append",
+      "line": 2181,
+      "call_sites": 167
+    },
+    {
+      "from_symbol": "format_audit_html",
+      "to": "join",
+      "line": 2182,
+      "call_sites": 23
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "scorecard",
+      "member": "obligation_violations",
+      "line": 502
+    },
+    {
+      "container": "scorecard",
+      "member": "obligation_implicit_contracts",
+      "line": 505
+    },
+    {
+      "container": "scorecard",
+      "member": "concept_total",
+      "line": 529
+    },
+    {
+      "container": "scorecard",
+      "member": "concept_fully_documented",
+      "line": 530
+    },
+    {
+      "container": "scorecard",
+      "member": "concept_partially_documented",
+      "line": 531
+    },
+    {
+      "container": "scorecard",
+      "member": "concept_undocumented",
+      "line": 532
+    },
+    {
+      "container": "scorecard",
+      "member": "concept_coverage_by_type",
+      "line": 533
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "simple",
+      "line": 43,
+      "usage": "produced",
+      "context": "default parameter"
+    },
+    {
+      "value": "shadow",
+      "line": 70,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "doc-analysis",
+      "line": 70,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "debris",
+      "line": 70,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "obligations",
+      "line": 70,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "doc-prompts",
+      "line": 70,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "error",
+      "line": 103,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "i.severity"
+    },
+    {
+      "value": "warning",
+      "line": 107,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "i.severity"
+    },
+    {
+      "value": "utf-8",
+      "line": 130,
+      "usage": "produced",
+      "context": "keyword argument to path.write_text"
+    },
+    {
+      "value": "[ok]",
+      "line": 148,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "[DEBRIS]",
+      "line": 149,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "[FAIL]",
+      "line": 150,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "[skip]",
+      "line": 151,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "[ok]",
+      "line": 173,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "[DEBRIS]",
+      "line": 174,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "[FAIL]",
+      "line": 175,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "[skip]",
+      "line": 176,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "dead-code",
+      "line": 207,
+      "usage": "produced",
+      "context": "argument to flags.add"
+    },
+    {
+      "value": "dead-params",
+      "line": 209,
+      "usage": "produced",
+      "context": "argument to flags.add"
+    },
+    {
+      "value": "dead-plumbing",
+      "line": 211,
+      "usage": "produced",
+      "context": "argument to flags.add"
+    },
+    {
+      "value": "dead-deps",
+      "line": 213,
+      "usage": "produced",
+      "context": "argument to flags.add"
+    },
+    {
+      "value": "dead-cicd",
+      "line": 215,
+      "usage": "produced",
+      "context": "argument to flags.add"
+    },
+    {
+      "value": "orphaned-files",
+      "line": 217,
+      "usage": "produced",
+      "context": "argument to flags.add"
+    },
+    {
+      "value": "Osoji: Checking shadow documentation...",
+      "line": 326,
+      "usage": "produced",
+      "context": "argument to _emit"
+    },
+    {
+      "value": "shadow",
+      "line": 330,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "_exclude"
+    },
+    {
+      "value": "warning",
+      "line": 348,
+      "usage": "produced",
+      "context": "keyword argument to AuditIssue"
+    },
+    {
+      "value": "Run 'osoji shadow .' to update",
+      "line": 351,
+      "usage": "produced",
+      "context": "keyword argument to AuditIssue"
+    },
+    {
+      "value": "static",
+      "line": 352,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "shadow_check",
+      "line": 352,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "shadow",
+      "line": 353,
+      "usage": "produced",
+      "context": "keyword argument to AuditIssue"
+    },
+    {
+      "value": "debris",
+      "line": 359,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "_exclude"
+    },
+    {
+      "value": "doc-analysis",
+      "line": 378,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "_exclude"
+    },
+    {
+      "value": "debris",
+      "line": 379,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "_exclude"
+    },
+    {
+      "value": "obligations",
+      "line": 380,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "_exclude"
+    },
+    {
+      "value": "error",
+      "line": 401,
+      "usage": "produced",
+      "context": "keyword argument to AuditIssue"
+    },
+    {
+      "value": "debris",
+      "line": 402,
+      "usage": "produced",
+      "context": "keyword argument to AuditIssue"
+    },
+    {
+      "value": "Delete this file",
+      "line": 404,
+      "usage": "produced",
+      "context": "keyword argument to AuditIssue"
+    },
+    {
+      "value": "llm",
+      "line": 405,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "doc_analysis",
+      "line": 405,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "doc-analysis",
+      "line": 406,
+      "usage": "produced",
+      "context": "keyword argument to AuditIssue"
+    },
+    {
+      "value": "llm",
+      "line": 418,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "doc_analysis",
+      "line": 418,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "doc-analysis",
+      "line": 419,
+      "usage": "produced",
+      "context": "keyword argument to AuditIssue"
+    },
+    {
+      "value": "suggestion",
+      "line": 455,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "Review and fix the identified issue",
+      "line": 455,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "llm",
+      "line": 458,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "code_debris",
+      "line": 458,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "debris",
+      "line": 459,
+      "usage": "produced",
+      "context": "keyword argument to AuditIssue"
+    },
+    {
+      "value": "hybrid",
+      "line": 470,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "obligations",
+      "line": 470,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "obligations",
+      "line": 471,
+      "usage": "produced",
+      "context": "keyword argument to AuditIssue"
+    },
+    {
+      "value": "ast_proven",
+      "line": 478,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "item.confidence_source"
+    },
+    {
+      "value": "ast_proven",
+      "line": 479,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "item.confidence_source"
+    },
+    {
+      "value": "warning",
+      "line": 482,
+      "usage": "produced",
+      "context": "keyword argument to AuditIssue"
+    },
+    {
+      "value": "Osoji: Building scorecard...",
+      "line": 494,
+      "usage": "produced",
+      "context": "argument to _emit"
+    },
+    {
+      "value": "violation",
+      "line": 503,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.finding_type"
+    },
+    {
+      "value": "implicit_contract",
+      "line": 506,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.finding_type"
+    },
+    {
+      "value": "doc-prompts",
+      "line": 513,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "_exclude"
+    },
+    {
+      "value": "Osoji: Building concept inventory and writing prompts...",
+      "line": 514,
+      "usage": "produced",
+      "context": "argument to _emit"
+    },
+    {
+      "value": "Token consumption by phase:",
+      "line": 563,
+      "usage": "produced",
+      "context": "argument to _emit"
+    },
+    {
+      "value": "*.findings.json",
+      "line": 590,
+      "usage": "produced",
+      "context": "argument to findings_dir.rglob"
+    },
+    {
+      "value": "utf-8",
+      "line": 592,
+      "usage": "produced",
+      "context": "keyword argument to findings_file.read_text"
+    },
+    {
+      "value": "source_hash",
+      "line": 596,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "impl_hash",
+      "line": 596,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "findings",
+      "line": 604,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "Osoji: Analyzing documentation...",
+      "line": 617,
+      "usage": "produced",
+      "context": "argument to _emit"
+    },
+    {
+      "value": "Osoji: Checking code debris findings...",
+      "line": 640,
+      "usage": "produced",
+      "context": "argument to _emit"
+    },
+    {
+      "value": "claim",
+      "line": 651,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch"
+    },
+    {
+      "value": "dismissed",
+      "line": 654,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.verdict"
+    },
+    {
+      "value": "Osoji: Checking cross-file obligations...",
+      "line": 681,
+      "usage": "produced",
+      "context": "argument to _emit"
+    },
+    {
+      "value": "violation",
+      "line": 688,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.finding_type"
+    },
+    {
+      "value": "implicit_contract",
+      "line": 689,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.finding_type"
+    },
+    {
+      "value": "  [skip] No CI/CD configuration files found.",
+      "line": 714,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "utf-8",
+      "line": 764,
+      "usage": "produced",
+      "context": "keyword argument to path.read_text"
+    },
+    {
+      "value": "line_start",
+      "line": 773,
+      "usage": "produced",
+      "context": "argument to i.get"
+    },
+    {
+      "value": "line_end",
+      "line": 774,
+      "usage": "produced",
+      "context": "argument to i.get"
+    },
+    {
+      "value": "origin",
+      "line": 775,
+      "usage": "produced",
+      "context": "argument to i.get"
+    },
+    {
+      "value": "exclude_key",
+      "line": 776,
+      "usage": "produced",
+      "context": "argument to i.get"
+    },
+    {
+      "value": "issues",
+      "line": 778,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "scorecard",
+      "line": 782,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "data"
+    },
+    {
+      "value": "enforcement_total_obligations",
+      "line": 822,
+      "usage": "produced",
+      "context": "argument to sc.get"
+    },
+    {
+      "value": "enforcement_unactuated",
+      "line": 823,
+      "usage": "produced",
+      "context": "argument to sc.get"
+    },
+    {
+      "value": "enforcement_pct_unactuated",
+      "line": 824,
+      "usage": "produced",
+      "context": "argument to sc.get"
+    },
+    {
+      "value": "enforcement_by_schema",
+      "line": 825,
+      "usage": "produced",
+      "context": "argument to sc.get"
+    },
+    {
+      "value": "obligation_violations",
+      "line": 826,
+      "usage": "produced",
+      "context": "argument to sc.get"
+    },
+    {
+      "value": "obligation_implicit_contracts",
+      "line": 827,
+      "usage": "produced",
+      "context": "argument to sc.get"
+    },
+    {
+      "value": "concept_total",
+      "line": 828,
+      "usage": "produced",
+      "context": "argument to sc.get"
+    },
+    {
+      "value": "concept_fully_documented",
+      "line": 829,
+      "usage": "produced",
+      "context": "argument to sc.get"
+    },
+    {
+      "value": "concept_partially_documented",
+      "line": 830,
+      "usage": "produced",
+      "context": "argument to sc.get"
+    },
+    {
+      "value": "concept_undocumented",
+      "line": 831,
+      "usage": "produced",
+      "context": "argument to sc.get"
+    },
+    {
+      "value": "concept_coverage_by_type",
+      "line": 832,
+      "usage": "produced",
+      "context": "argument to sc.get"
+    },
+    {
+      "value": "doc_prompts",
+      "line": 836,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "config",
+      "line": 842,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "simple",
+      "line": 847,
+      "usage": "produced",
+      "context": "default parameter"
+    },
+    {
+      "value": "## Scorecard\n",
+      "line": 855,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "Source file coverage",
+      "line": 859,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Dead docs (debris)",
+      "line": 860,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Accuracy errors / live doc",
+      "line": 861,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Junk code fraction",
+      "line": 862,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Unactuated config",
+      "line": 865,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Unactuated config",
+      "line": 867,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "— (not scanned)",
+      "line": 867,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Concept coverage",
+      "line": 869,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Metric",
+      "line": 872,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Value",
+      "line": 872,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "### Doc linkage by type\n",
+      "line": 877,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "*Fraction of docs of each type that link to at least one source file.*\n",
+      "line": 878,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "Type",
+      "line": 885,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Linked",
+      "line": 885,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Total",
+      "line": 885,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "### Uncovered source files\n",
+      "line": 891,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "purpose",
+      "line": 894,
+      "usage": "produced",
+      "context": "argument to entry.topic_signature.get"
+    },
+    {
+      "value": "### Dead documentation\n",
+      "line": 901,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "### Accuracy errors by category\n",
+      "line": 908,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "Category",
+      "line": 910,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Count",
+      "line": 910,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "### Junk code by category\n",
+      "line": 915,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "confidence_source",
+      "line": 923,
+      "usage": "produced",
+      "context": "argument to it.get"
+    },
+    {
+      "value": "llm_inferred",
+      "line": 923,
+      "usage": "produced",
+      "context": "argument to it.get"
+    },
+    {
+      "value": "ast_proven",
+      "line": 924,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "cs"
+    },
+    {
+      "value": "Category",
+      "line": 940,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Items",
+      "line": 940,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Lines",
+      "line": 940,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "### Worst files by junk fraction\n",
+      "line": 946,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "File",
+      "line": 951,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Junk %",
+      "line": 951,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Junk lines / Total",
+      "line": 951,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "### Enforcement by schema\n",
+      "line": 956,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "Schema",
+      "line": 961,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Unactuated",
+      "line": 961,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Fields",
+      "line": 961,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "test",
+      "line": 980,
+      "usage": "produced",
+      "context": "argument to p.startswith"
+    },
+    {
+      "value": "tests",
+      "line": 980,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "p"
+    },
+    {
+      "value": "These findings identify string literals shared between source and test files.\nThey represent coupling that is often unintentional: the test is logically\nasserting that an event occurred or an error was raised, but is mechanically\ncoupled to the exact wording of a message. If the message changes for any\nreason — clarity, internationalisation, refactoring — the test will fail\nwithout any behavioral regression occurring.\n\nThese are informational only. No action is required. If you choose to act:\n- Prefer asserting on error types, status codes, or structured fields rather\n  than message strings\n- Where string assertions are intentional (e.g. testing exact CLI output),\n  consider extracting the string to a shared constant so source and test stay\n  in sync automatically\n\nFindings below are observations, not verdicts.",
+      "line": 983,
+      "usage": "defined",
+      "context": "constant _IMPLICIT_CONTRACT_PREAMBLE"
+    },
+    {
+      "value": "# Osoji Audit Passed\n\nNo issues found.",
+      "line": 1004,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "# Osoji Audit Passed",
+      "line": 1009,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "# Osoji Audit Failed",
+      "line": 1011,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "## Documentation Opportunities\n",
+      "line": 1022,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "error",
+      "line": 1037,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "i.severity"
+    },
+    {
+      "value": "warning",
+      "line": 1038,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "i.severity"
+    },
+    {
+      "value": "## Errors (blocking)\n",
+      "line": 1041,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "## Warnings (non-blocking)\n",
+      "line": 1051,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "info",
+      "line": 1057,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "i.severity"
+    },
+    {
+      "value": "obligation_implicit_contract",
+      "line": 1059,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "i.category"
+    },
+    {
+      "value": "obligation_implicit_contract",
+      "line": 1060,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "i.category"
+    },
+    {
+      "value": "## Info (advisory)\n",
+      "line": 1063,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "## Implicit String Contracts\n",
+      "line": 1071,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "---",
+      "line": 1080,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "To override findings, add rules to `.osoji/rules`",
+      "line": 1085,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "error",
+      "line": 1094,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "i.severity"
+    },
+    {
+      "value": "warning",
+      "line": 1095,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "i.severity"
+    },
+    {
+      "value": "info",
+      "line": 1096,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "i.severity"
+    },
+    {
+      "value": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"22\" height=\"22\" viewBox=\"0 0 100 100\"><defs><mask id=\"hm\"><rect width=\"100\" height=\"100\" fill=\"white\"/><rect x=\"44\" y=\"0\" width=\"14\" height=\"30\" fill=\"black\"/></mask></defs><circle cx=\"50\" cy=\"50\" r=\"38\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"8\" stroke-dasharray=\"200 40\" mask=\"url(#hm)\"/><circle cx=\"50\" cy=\"50\" r=\"6\" fill=\"currentColor\"/></svg>",
+      "line": 1126,
+      "usage": "defined",
+      "context": "constant _HANKO_SVG"
+    },
+    {
+      "value": "@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap');\n\n:root {\n  --font-serif: 'Cormorant Garamond', Georgia, serif;\n  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;\n  --font-mono: 'DM Mono', 'SF Mono', 'Fira Code', monospace;\n  --radius-sm: 2px;\n  --amber: #c9a06e;\n}\n\n[data-theme=\"light\"] {\n  --surface-1: #fafafa;\n  --surface-2: #f5f4f0;\n  --surface-3: #edecea;\n  --surface-overlay: rgba(250,250,250,0.85);\n  --text-1: #2c2a26;\n  --text-2: #5c5850;\n  --text-3: #8a8580;\n  --border-subtle: #edecea;\n  --border-default: #dedad4;\n  --accent: #c4402f;\n  --accent-surface: #faf0ee;\n  --success: #5a8a5e;\n  --warning: #d4715e;\n  --info: #5c7a8a;\n  --shadow-sm: 0 1px 3px rgba(44,42,38,0.04);\n  --hanko-color: #2c2a26;\n  --badge-pass-bg: rgba(90,138,94,0.12);\n  --badge-pass-border: rgba(90,138,94,0.3);\n  --badge-fail-bg: rgba(196,64,47,0.10);\n  --badge-fail-border: rgba(196,64,47,0.25);\n  --hover-tint: rgba(196,64,47,0.04);\n  --bar-track: rgba(222,218,212,0.5);\n}\n\n[data-theme=\"dark\"] {\n  --surface-1: #1a1917;\n  --surface-2: #211f1d;\n  --surface-3: #2a2826;\n  --surface-overlay: rgba(26,25,23,0.88);\n  --text-1: #e0ddd6;\n  --text-2: #a8a49c;\n  --text-3: #7a766e;\n  --border-subtle: #2a2826;\n  --border-default: #3a3835;\n  --accent: #d4715e;\n  --accent-surface: #2e2220;\n  --success: #7aaa7e;\n  --warning: #d4715e;\n  --info: #7a9aaa;\n  --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);\n  --hanko-color: #fafafa;\n  --badge-pass-bg: rgba(122,170,126,0.15);\n  --badge-pass-border: rgba(122,170,126,0.3);\n  --badge-fail-bg: rgba(212,113,94,0.15);\n  --badge-fail-border: rgba(212,113,94,0.3);\n  --hover-tint: rgba(212,113,94,0.04);\n  --bar-track: rgba(58,56,53,0.5);\n}\n\n*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }\n\nbody {\n  font-family: var(--font-sans);\n  font-weight: 300;\n  background: var(--surface-1);\n  color: var(--text-1);\n  line-height: 1.65;\n  padding: 0;\n}\n\na { color: var(--accent); text-decoration: none; }\na:hover { text-decoration: underline; }\n\n.header {\n  position: sticky; top: 0; z-index: 100;\n  background: var(--surface-overlay);\n  backdrop-filter: blur(20px);\n  border-bottom: 1px solid var(--border-default);\n  padding: 14px 32px;\n  display: flex; align-items: center; gap: 16px;\n}\n.header-mark { display: flex; align-items: center; flex-shrink: 0; color: var(--hanko-color); }\n.header-wordmark {\n  font-family: var(--font-serif);\n  font-size: 1.15rem; font-weight: 400;\n  color: var(--text-1); letter-spacing: 0.04em;\n  margin-left: 10px;\n}\n.header-divider {\n  width: 1px; height: 20px;\n  background: var(--border-default); margin: 0 4px;\n}\n.header-label {\n  font-family: var(--font-mono);\n  font-size: 0.7rem; font-weight: 300;\n  color: var(--text-2);\n  letter-spacing: 0.15em; text-transform: uppercase;\n}\n.badge {\n  display: inline-block; padding: 4px 14px;\n  border-radius: var(--radius-sm);\n  font-family: var(--font-mono);\n  font-size: 0.7rem; font-weight: 300;\n  letter-spacing: 0.15em; text-transform: uppercase;\n}\n.badge-pass { background: var(--badge-pass-bg); color: var(--success); border: 1px solid var(--badge-pass-border); }\n.badge-fail { background: var(--badge-fail-bg); color: var(--warning); border: 1px solid var(--badge-fail-border); }\n.phase-tag { font-size: 0.75em; opacity: 0.6; font-family: var(--font-mono); }\n\n.theme-toggle {\n  background: none; border: 1px solid var(--border-default);\n  color: var(--text-2); cursor: pointer;\n  width: 32px; height: 32px;\n  display: flex; align-items: center; justify-content: center;\n  margin-left: 12px; padding: 0;\n}\n.theme-toggle:hover { color: var(--text-1); border-color: var(--text-2); }\n.theme-toggle .icon-sun,\n.theme-toggle .icon-moon { width: 16px; height: 16px; }\n[data-theme=\"dark\"] .theme-toggle .icon-sun { display: none; }\n[data-theme=\"dark\"] .theme-toggle .icon-moon { display: block; }\n[data-theme=\"light\"] .theme-toggle .icon-sun { display: block; }\n[data-theme=\"light\"] .theme-toggle .icon-moon { display: none; }\n\n.container { max-width: 1200px; margin: 0 auto; padding: 1.5rem 2rem 4rem; }\n\n/* Interpretive guide */\n.guide {\n  border: 1px solid var(--border-subtle);\n  padding: 16px 20px;\n  margin-bottom: 24px;\n  font-size: 0.85rem;\n  color: var(--text-2);\n}\n.guide-heading {\n  font-family: var(--font-mono);\n  font-size: 0.7rem; font-weight: 300;\n  color: var(--text-3);\n  text-transform: uppercase; letter-spacing: 0.15em;\n  margin-bottom: 8px;\n}\n\n/* Metric cards — CSS grid with hairline borders */\n.cards {\n  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));\n  gap: 1px; background: var(--border-default);\n  margin-bottom: 2rem;\n}\n.card {\n  background: var(--surface-3);\n  padding: 16px 20px;\n  text-align: center;\n  transition: background 0.2s;\n  cursor: pointer;\n  border-top: 3px solid var(--border-default);\n}\n.card:hover { background: var(--surface-2); }\n.card-green  { border-top-color: var(--success); }\n.card-amber  { border-top-color: var(--amber); }\n.card-coral  { border-top-color: var(--warning); }\n.card-label {\n  font-family: var(--font-mono);\n  font-size: 0.7rem; font-weight: 300; color: var(--text-2);\n  text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 6px;\n}\n.card-value {\n  font-family: var(--font-serif);\n  font-size: 2.5rem; font-weight: 300; color: var(--text-1);\n}\n.card-detail {\n  font-size: 12px; color: var(--text-2); margin-top: 4px;\n}\n\n/* Sections */\n@keyframes fadeUp {\n  from { opacity: 0; transform: translateY(12px); }\n  to   { opacity: 1; transform: translateY(0); }\n}\n.section {\n  background: var(--surface-2);\n  border: 1px solid var(--border-default);\n  border-radius: 0;\n  margin-bottom: 24px;\n  overflow: hidden;\n  box-shadow: var(--shadow-sm);\n  animation: fadeUp 0.4s ease both;\n}\n.section:nth-child(2) { animation-delay: 0.06s; }\n.section:nth-child(3) { animation-delay: 0.12s; }\n.section:nth-child(4) { animation-delay: 0.18s; }\n.section:nth-child(5) { animation-delay: 0.24s; }\n.section-head {\n  padding: 14px 20px;\n  font-family: var(--font-mono);\n  font-size: 0.7rem; font-weight: 300;\n  color: var(--text-1);\n  border-bottom: 1px solid var(--border-default);\n  text-transform: uppercase; letter-spacing: 0.2em;\n}\n.section-body { padding: 20px; }\n.section-body p { margin-bottom: 12px; color: var(--text-2); font-size: 14px; }\n\n/* Tables */\ntable {\n  width: 100%; border-collapse: collapse;\n  font-size: 14px; margin-bottom: 16px;\n}\nth {\n  text-align: left; padding: 8px 12px;\n  font-family: var(--font-mono);\n  font-size: 0.65rem; color: var(--text-2);\n  text-transform: uppercase; letter-spacing: 0.15em;\n  border-bottom: 1px solid var(--border-default);\n}\ntd {\n  padding: 8px 12px;\n  border-bottom: 1px solid var(--border-subtle);\n  font-family: var(--font-mono);\n  font-size: 0.75rem; font-weight: 300;\n}\ntr:last-child td { border-bottom: none; }\ntr:hover td { background: var(--hover-tint); }\n\n/* Coverage bar */\n.cov-bar-wrap {\n  background: var(--bar-track);\n  border-radius: 0; height: 4px;\n  overflow: hidden; margin-bottom: 16px;\n}\n.cov-bar-fill {\n  height: 100%; border-radius: 0;\n  transition: width 0.5s ease;\n}\n\n/* Matrix icons */\n.ok  { color: var(--success); font-weight: 600; }\n.miss { color: var(--text-3); opacity: 0.5; }\n\n/* Lists */\nul.file-list { list-style: none; padding: 0; }\nul.file-list li {\n  padding: 6px 0; font-family: var(--font-mono);\n  font-size: 0.75rem; font-weight: 300;\n  border-bottom: 1px solid var(--border-subtle);\n}\nul.file-list li:last-child { border-bottom: none; }\n.purpose { color: var(--text-2); font-family: var(--font-sans); }\n\ndetails summary {\n  cursor: pointer; color: var(--accent);\n  font-family: var(--font-mono);\n  font-size: 0.75rem; margin-bottom: 8px;\n}\n\n.footer {\n  text-align: center; padding: 24px;\n  font-family: var(--font-mono);\n  font-size: 0.7rem; color: var(--text-3);\n  border-top: 1px solid var(--border-default);\n}\n\nhtml { scroll-behavior: smooth; }\n",
+      "line": 1135,
+      "usage": "defined",
+      "context": "constant _AUDIT_CSS"
+    },
+    {
+      "value": "green",
+      "line": 1423,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "amber",
+      "line": 1425,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "coral",
+      "line": 1426,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "concept_inventory",
+      "line": 1492,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "concept_id",
+      "line": 1494,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "concept_name",
+      "line": 1495,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "concept_description",
+      "line": 1496,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "source_files",
+      "line": 1497,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "concept_role",
+      "line": 1498,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "internal_utility",
+      "line": 1498,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "appropriate_types",
+      "line": 1499,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "existing_coverage",
+      "line": 1501,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "missing_types",
+      "line": 1502,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "coverage_status",
+      "line": 1503,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "undocumented",
+      "line": 1503,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "priority",
+      "line": 1504,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "low",
+      "line": 1504,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "priority_signals",
+      "line": 1505,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "cluster_id",
+      "line": 1506,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "writing_prompts",
+      "line": 1512,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "prompt_id",
+      "line": 1514,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "target_concepts",
+      "line": 1515,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "diataxis_type",
+      "line": 1516,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "priority",
+      "line": 1517,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "low",
+      "line": 1517,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "prompt_text",
+      "line": 1518,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "shadow_doc_excerpts",
+      "line": 1519,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "related_docs",
+      "line": 1520,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "scope_constraints",
+      "line": 1521,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "output_guidance",
+      "line": 1522,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "cluster_id",
+      "line": 1523,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "coverage_summary",
+      "line": 1526,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "total_concepts",
+      "line": 1530,
+      "usage": "produced",
+      "context": "argument to summary.get"
+    },
+    {
+      "value": "fully_documented",
+      "line": 1531,
+      "usage": "produced",
+      "context": "argument to summary.get"
+    },
+    {
+      "value": "partially_documented",
+      "line": 1532,
+      "usage": "produced",
+      "context": "argument to summary.get"
+    },
+    {
+      "value": "undocumented",
+      "line": 1533,
+      "usage": "produced",
+      "context": "argument to summary.get"
+    },
+    {
+      "value": "coverage_by_type",
+      "line": 1534,
+      "usage": "produced",
+      "context": "argument to summary.get"
+    },
+    {
+      "value": "total_gaps",
+      "line": 1535,
+      "usage": "produced",
+      "context": "argument to summary.get"
+    },
+    {
+      "value": "total_prompts",
+      "line": 1536,
+      "usage": "produced",
+      "context": "argument to summary.get"
+    },
+    {
+      "value": "<div class=\"section\" id=\"section-doc-prompts\">",
+      "line": 1551,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-head\">Documentation Opportunities</div>",
+      "line": 1552,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-body\">",
+      "line": 1553,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<table><thead><tr><th>Type</th><th>Needed</th><th>Covered</th><th>%</th></tr></thead><tbody>",
+      "line": 1560,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "needed",
+      "line": 1564,
+      "usage": "produced",
+      "context": "argument to info.get"
+    },
+    {
+      "value": "covered",
+      "line": 1565,
+      "usage": "produced",
+      "context": "argument to info.get"
+    },
+    {
+      "value": "</tbody></table>",
+      "line": 1569,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "var(--warning)",
+      "line": 1582,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "var(--amber)",
+      "line": 1582,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "var(--text-3)",
+      "line": 1582,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "var(--text-3)",
+      "line": 1582,
+      "usage": "produced",
+      "context": "argument to get"
+    },
+    {
+      "value": "<details>",
+      "line": 1584,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div style=\"padding:8px 0 16px 24px\">",
+      "line": 1593,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<details style=\"margin-top:8px\">",
+      "line": 1611,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</details>",
+      "line": 1621,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</div></details>",
+      "line": 1623,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</div></div>",
+      "line": 1625,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section\" id=\"section-coverage\">",
+      "line": 1632,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-head\">Coverage</div>",
+      "line": 1633,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-body\">",
+      "line": 1634,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "green",
+      "line": 1638,
+      "usage": "produced",
+      "context": "argument to replace"
+    },
+    {
+      "value": "success",
+      "line": 1638,
+      "usage": "produced",
+      "context": "argument to replace"
+    },
+    {
+      "value": "coral",
+      "line": 1638,
+      "usage": "produced",
+      "context": "argument to replace"
+    },
+    {
+      "value": "warning",
+      "line": 1638,
+      "usage": "produced",
+      "context": "argument to replace"
+    },
+    {
+      "value": "<table><thead><tr><th>Type</th><th>Needed</th><th>Covered</th><th>%</th></tr></thead><tbody>",
+      "line": 1650,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "needed",
+      "line": 1654,
+      "usage": "produced",
+      "context": "argument to info.get"
+    },
+    {
+      "value": "covered",
+      "line": 1655,
+      "usage": "produced",
+      "context": "argument to info.get"
+    },
+    {
+      "value": "</tbody></table>",
+      "line": 1659,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<table><thead><tr><th>Type</th><th>Linked</th><th>Total</th><th>%</th></tr></thead><tbody>",
+      "line": 1664,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</tbody></table>",
+      "line": 1670,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<table><thead><tr><th>Source file</th>",
+      "line": 1685,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</tr></thead><tbody>",
+      "line": 1688,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<td style=\"text-align:center\"><span class=\"ok\">&#10003;</span></td>",
+      "line": 1694,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<td style=\"text-align:center\"><span class=\"miss\">&#10007;</span></td>",
+      "line": 1696,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</tr>",
+      "line": 1697,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</tbody></table>",
+      "line": 1711,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</details>",
+      "line": 1713,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<ul class=\"file-list\">",
+      "line": 1719,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "purpose",
+      "line": 1722,
+      "usage": "produced",
+      "context": "argument to entry.topic_signature.get"
+    },
+    {
+      "value": "</ul>",
+      "line": 1725,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</div></div>",
+      "line": 1727,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "doc_",
+      "line": 1736,
+      "usage": "produced",
+      "context": "argument to i.category.startswith"
+    },
+    {
+      "value": "error",
+      "line": 1736,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "i.severity"
+    },
+    {
+      "value": "<div class=\"section\" id=\"section-accuracy\">",
+      "line": 1741,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-head\">Accuracy</div>",
+      "line": 1742,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-body\">",
+      "line": 1743,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<table><thead><tr><th>Category</th><th>Count</th></tr></thead><tbody>",
+      "line": 1748,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</tbody></table>",
+      "line": 1751,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<ul class=\"file-list\">",
+      "line": 1760,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</ul>",
+      "line": 1763,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</div></div>",
+      "line": 1765,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section\" id=\"section-junk\">",
+      "line": 1778,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-head\">Junk Code</div>",
+      "line": 1779,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-body\">",
+      "line": 1780,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<table><thead><tr><th>Category</th><th>Items</th><th>Lines</th></tr></thead><tbody>",
+      "line": 1786,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</tbody></table>",
+      "line": 1791,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<p style=\"font-weight:400;color:var(--text-1);margin-top:12px\">Worst files</p>",
+      "line": 1796,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<table><thead><tr><th>File</th><th>Junk %</th><th>Junk / Total</th></tr></thead><tbody>",
+      "line": 1797,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</tbody></table>",
+      "line": 1801,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<ul class=\"file-list\">",
+      "line": 1810,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</ul>",
+      "line": 1813,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</details>",
+      "line": 1815,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</div></div>",
+      "line": 1827,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "error",
+      "line": 1856,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "issue.severity"
+    },
+    {
+      "value": "warning",
+      "line": 1858,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "issue.severity"
+    },
+    {
+      "value": "<div class=\"section\" id=\"section-file-health\">",
+      "line": 1882,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-head\">File Health</div>",
+      "line": 1883,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-body\">",
+      "line": 1884,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<table><thead><tr><th>File</th><th>Health</th><th>Shadow</th><th>Junk %</th><th>Errors</th><th>Warnings</th></tr></thead><tbody>",
+      "line": 1890,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "var(--success)",
+      "line": 1897,
+      "usage": "defined",
+      "context": "constant h_color"
+    },
+    {
+      "value": "var(--amber)",
+      "line": 1899,
+      "usage": "defined",
+      "context": "constant h_color"
+    },
+    {
+      "value": "var(--warning)",
+      "line": 1901,
+      "usage": "defined",
+      "context": "constant h_color"
+    },
+    {
+      "value": "</tbody></table>",
+      "line": 1910,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</details>",
+      "line": 1912,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</div></div>",
+      "line": 1914,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section\" id=\"section-config\">",
+      "line": 1925,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-head\">Audit Context</div>",
+      "line": 1926,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-body\">",
+      "line": 1927,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<table>",
+      "line": 1929,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "provider",
+      "line": 1930,
+      "usage": "produced",
+      "context": "argument to config_snapshot.get"
+    },
+    {
+      "value": "model",
+      "line": 1931,
+      "usage": "produced",
+      "context": "argument to config_snapshot.get"
+    },
+    {
+      "value": "timestamp",
+      "line": 1932,
+      "usage": "produced",
+      "context": "argument to config_snapshot.get"
+    },
+    {
+      "value": "phases_run",
+      "line": 1933,
+      "usage": "produced",
+      "context": "argument to config_snapshot.get"
+    },
+    {
+      "value": "</table>",
+      "line": 1939,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</div></div>",
+      "line": 1941,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section\" id=\"section-dead-docs\">",
+      "line": 1951,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-head\">Dead Documentation</div>",
+      "line": 1952,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-body\">",
+      "line": 1953,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<ul class=\"file-list\">",
+      "line": 1955,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</ul>",
+      "line": 1958,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</div></div>",
+      "line": 1959,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section\" id=\"section-enforcement\">",
+      "line": 1969,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-head\">Enforcement</div>",
+      "line": 1970,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-body\">",
+      "line": 1971,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<table><thead><tr><th>Schema</th><th>Unactuated</th><th>Fields</th></tr></thead><tbody>",
+      "line": 1976,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</tbody></table>",
+      "line": 1980,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</div></div>",
+      "line": 1982,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "info",
+      "line": 1988,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "i.severity"
+    },
+    {
+      "value": "obligation_implicit_contract",
+      "line": 1992,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "i.category"
+    },
+    {
+      "value": "obligation_implicit_contract",
+      "line": 1993,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "i.category"
+    },
+    {
+      "value": "<div class=\"section\" id=\"section-info\">",
+      "line": 1998,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-head\">Info</div>",
+      "line": 1999,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-body\">",
+      "line": 2000,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<ul class=\"file-list\">",
+      "line": 2005,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</ul>",
+      "line": 2008,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</details>",
+      "line": 2010,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</div></div>",
+      "line": 2011,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section\" id=\"section-implicit-contracts\">",
+      "line": 2015,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-head\">Implicit String Contracts</div>",
+      "line": 2016,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"section-body\">",
+      "line": 2017,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<ul class=\"file-list\">",
+      "line": 2024,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</ul>",
+      "line": 2027,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</details>",
+      "line": 2029,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</div></div>",
+      "line": 2030,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "var d=document.documentElement,t=d.getAttribute('data-theme')==='dark'?'light':'dark';d.setAttribute('data-theme',t);try{localStorage.setItem('osoji-theme',t);}catch(e){}",
+      "line": 2036,
+      "usage": "defined",
+      "context": "constant _THEME_TOGGLE_ONCLICK"
+    },
+    {
+      "value": "try{var t=localStorage.getItem('osoji-theme');if(t){document.documentElement.setAttribute('data-theme',t);}else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.setAttribute('data-theme','light');}}catch(e){}",
+      "line": 2042,
+      "usage": "defined",
+      "context": "constant _BODY_ONLOAD"
+    },
+    {
+      "value": "<div class=\"guide\"><p class=\"guide-heading\">How to read this report</p><p>Osoji flags; you judge. Findings are LLM-generated and will include false positives. Treat each finding as a prompt for your attention.</p></div>",
+      "line": 2064,
+      "usage": "defined",
+      "context": "constant _GUIDE_HTML"
+    },
+    {
+      "value": "error",
+      "line": 2075,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "i.severity"
+    },
+    {
+      "value": "warning",
+      "line": 2076,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "i.severity"
+    },
+    {
+      "value": "info",
+      "line": 2077,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "i.severity"
+    },
+    {
+      "value": "<!DOCTYPE html>",
+      "line": 2081,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<html lang=\"en\" data-theme=\"dark\"><head>",
+      "line": 2082,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<meta charset=\"UTF-8\">",
+      "line": 2083,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">",
+      "line": 2084,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"container\">",
+      "line": 2103,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "<div class=\"cards\">",
+      "line": 2113,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "Coverage",
+      "line": 2115,
+      "usage": "produced",
+      "context": "argument to _html_metric_card"
+    },
+    {
+      "value": "section-coverage",
+      "line": 2117,
+      "usage": "produced",
+      "context": "argument to _html_metric_card"
+    },
+    {
+      "value": "Dead Docs",
+      "line": 2119,
+      "usage": "produced",
+      "context": "argument to _html_metric_card"
+    },
+    {
+      "value": "debris files",
+      "line": 2120,
+      "usage": "produced",
+      "context": "argument to _html_metric_card"
+    },
+    {
+      "value": "section-dead-docs",
+      "line": 2121,
+      "usage": "produced",
+      "context": "argument to _html_metric_card"
+    },
+    {
+      "value": "Errors/Doc",
+      "line": 2123,
+      "usage": "produced",
+      "context": "argument to _html_metric_card"
+    },
+    {
+      "value": "section-accuracy",
+      "line": 2125,
+      "usage": "produced",
+      "context": "argument to _html_metric_card"
+    },
+    {
+      "value": "Junk",
+      "line": 2127,
+      "usage": "produced",
+      "context": "argument to _html_metric_card"
+    },
+    {
+      "value": "section-junk",
+      "line": 2129,
+      "usage": "produced",
+      "context": "argument to _html_metric_card"
+    },
+    {
+      "value": "Obligations",
+      "line": 2135,
+      "usage": "produced",
+      "context": "argument to _html_metric_card"
+    },
+    {
+      "value": "section-enforcement",
+      "line": 2137,
+      "usage": "produced",
+      "context": "argument to _html_metric_card"
+    },
+    {
+      "value": "Doc Gaps",
+      "line": 2144,
+      "usage": "produced",
+      "context": "argument to _html_metric_card"
+    },
+    {
+      "value": "section-doc-prompts",
+      "line": 2146,
+      "usage": "produced",
+      "context": "argument to _html_metric_card"
+    },
+    {
+      "value": "</div>",
+      "line": 2148,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "</div>",
+      "line": 2173,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    },
+    {
+      "value": "%Y-%m-%d %H:%M UTC",
+      "line": 2176,
+      "usage": "produced",
+      "context": "argument to strftime"
+    },
+    {
+      "value": "</body></html>",
+      "line": 2181,
+      "usage": "produced",
+      "context": "argument to parts.append"
+    }
+  ],
+  "extraction_method": "ast"
+}

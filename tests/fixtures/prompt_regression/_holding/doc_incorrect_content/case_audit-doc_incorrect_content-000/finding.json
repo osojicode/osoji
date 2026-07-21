@@ -1,0 +1,20 @@
+{
+  "detector": "audit:doc_incorrect_content",
+  "gap_type": "uncategorized",
+  "path": ".claude/skills/osoji-triage/SKILL.md",
+  "line_start": null,
+  "line_end": null,
+  "symbol": null,
+  "contract_source": "audit",
+  "contract_claim": "The skill instructs users to 'Read the system prompts and tool schemas in src/osoji/tools.py' when investigating false positives. While tool schemas are indeed in tools.py, the system prompts are located in the individual module files, not in tools.py. This misdirects investigators to the wrong file for critical context. [evidence: src\\osoji\\deadcode.py — \"_DEAD_CODE_SYSTEM_PROMPT (L373–428) encodes the full decision logic for the LLM\"]",
+  "observed_behavior": "Change the instruction to: 'Read the tool schemas in src/osoji/tools.py and the system prompts in the specific module that generates the finding (e.g., _DEAD_CODE_SYSTEM_PROMPT in deadcode.py, _ANALYZE_SYSTEM_PROMPT in doc_analysis.py, system prompts in junk_cicd.py, triage.py, plumbing.py, etc.)'",
+  "evidence": [],
+  "id": "743d06db088b6f44",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

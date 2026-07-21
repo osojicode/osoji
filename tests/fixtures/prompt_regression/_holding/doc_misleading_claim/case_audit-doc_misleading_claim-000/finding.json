@@ -1,0 +1,20 @@
+{
+  "detector": "audit:doc_misleading_claim",
+  "gap_type": "uncategorized",
+  "path": ".claude/skills/osoji-sweep/SKILL.md",
+  "line_start": null,
+  "line_end": null,
+  "symbol": null,
+  "contract_source": "audit",
+  "contract_claim": "Phase 1.5 endpoint resolution omits .osoji.local.toml, which has higher priority than .osoji.toml in the actual push config merge chain. The skill instructs the agent to resolve the endpoint from (in priority order): OSOJI_ENDPOINT env var, .osoji.toml [push].endpoint, or ~/.config/osoji/config.toml [push].endpoint. However, push.py's _merge_push_config merges global → .osoji.toml → .osoji.local.toml with last-write-wins, meaning .osoji.local.toml has the highest TOML priority. If the endpoint is configured only in .osoji.local.toml, the agent following this skill would fail to find it for the display message. [evidence: src\\osoji\\push.py — \"TOML config loaded via `_merge_push_config`: global config → `.osoji.toml` → `.osoji.local.toml` (last write wins per key)\"]",
+  "observed_behavior": "Add .osoji.local.toml to the endpoint resolution list in Phase 1.5, placed at higher priority than .osoji.toml: 'OSOJI_ENDPOINT env var, .osoji.local.toml [push].endpoint, .osoji.toml [push].endpoint, or ~/.config/osoji/config.toml [push].endpoint'.",
+  "evidence": [],
+  "id": "c8f30e1bd3eaec23",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

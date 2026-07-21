@@ -1,0 +1,1677 @@
+{
+  "source": "tests/test_llm_provider.py",
+  "source_hash": "55bce0a62242ec9a",
+  "generated": "2026-07-01T00:00:00Z",
+  "imports": [
+    {
+      "source": "asyncio",
+      "names": [
+        "asyncio"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "unittest.mock",
+      "names": [
+        "AsyncMock",
+        "MagicMock"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "pytest",
+      "names": [
+        "pytest"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.config",
+      "names": [
+        "Config"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.anthropic",
+      "names": [
+        "AnthropicProvider"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.factory",
+      "names": [
+        "create_provider"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.google",
+      "names": [
+        "GoogleProvider"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.logging",
+      "names": [
+        "LoggingProvider"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.openai",
+      "names": [
+        "OpenAIProvider"
+      ],
+      "line": 14,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.openrouter",
+      "names": [
+        "OpenRouterProvider"
+      ],
+      "line": 15,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.rate_limited",
+      "names": [
+        "RateLimitedProvider"
+      ],
+      "line": 16,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.registry",
+      "names": [
+        "get_provider_spec",
+        "normalize_provider_name",
+        "provider_names",
+        "qualify_model_name",
+        "strip_provider_prefix"
+      ],
+      "line": 17,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.runtime",
+      "names": [
+        "create_runtime"
+      ],
+      "line": 24,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.types",
+      "names": [
+        "CompletionResult",
+        "CompletionOptions",
+        "Message",
+        "MessageRole",
+        "RequiredToolCallError",
+        "ToolDefinition"
+      ],
+      "line": 25,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "SIMPLE_SCHEMA",
+      "kind": "constant",
+      "line": 34,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TOOL_DEF",
+      "kind": "constant",
+      "line": 42,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_provider_names_include_all_supported_providers",
+      "kind": "function",
+      "line": 62,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_registry_normalizes_and_reports_metadata",
+      "kind": "function",
+      "line": 66,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_model_qualification_helpers_handle_cross_provider_prefixes",
+      "kind": "function",
+      "line": 72,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_create_provider_returns_expected_wrapper",
+      "kind": "function",
+      "line": 88,
+      "decorators": [
+        "pytest.mark.parametrize"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_create_provider_rejects_unknown_name",
+      "kind": "function",
+      "line": 96,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_create_runtime_wraps_provider_with_reservation_limiter",
+      "kind": "function",
+      "line": 101,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_logging_provider_reports_length_stops_in_summary",
+      "kind": "function",
+      "line": 116,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "openai_provider",
+      "kind": "function",
+      "line": 158,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "test_openai_provider_retries_invalid_tool_input",
+      "kind": "function",
+      "line": 163,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_openai_provider_retries_missing_required_tool_call",
+      "kind": "function",
+      "line": 217,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_openai_provider_missing_required_tool_call_raises_after_three_attempts",
+      "kind": "function",
+      "line": 262,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_openai_provider_does_not_expand_retry_budget_without_length_stop",
+      "kind": "function",
+      "line": 294,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_openai_provider_logs_each_attempt",
+      "kind": "function",
+      "line": 332,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_openai_provider_forwards_explicit_temperature",
+      "kind": "function",
+      "line": 380,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_default_options_omit_temperature",
+      "kind": "function",
+      "line": 400,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_close_does_not_raise",
+      "kind": "function",
+      "line": 426,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "ToolDefinition",
+      "line": 42,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_provider_names_include_all_supported_providers",
+      "to": "provider_names",
+      "line": 63,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_registry_normalizes_and_reports_metadata",
+      "to": "normalize_provider_name",
+      "line": 67,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_registry_normalizes_and_reports_metadata",
+      "to": "get_provider_spec",
+      "line": 68,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_model_qualification_helpers_handle_cross_provider_prefixes",
+      "to": "qualify_model_name",
+      "line": 74,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_model_qualification_helpers_handle_cross_provider_prefixes",
+      "to": "qualify_model_name",
+      "line": 75,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_model_qualification_helpers_handle_cross_provider_prefixes",
+      "to": "strip_provider_prefix",
+      "line": 76,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_create_provider_returns_expected_wrapper",
+      "to": "monkeypatch.setenv",
+      "line": 89,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_create_provider_returns_expected_wrapper",
+      "to": "create_provider",
+      "line": 91,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_create_provider_returns_expected_wrapper",
+      "to": "isinstance",
+      "line": 93,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_create_provider_returns_expected_wrapper",
+      "to": "pytest.mark.parametrize",
+      "line": 79,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_create_provider_rejects_unknown_name",
+      "to": "pytest.raises",
+      "line": 97,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_create_provider_rejects_unknown_name",
+      "to": "create_provider",
+      "line": 98,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_create_runtime_wraps_provider_with_reservation_limiter",
+      "to": "monkeypatch.setenv",
+      "line": 102,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_create_runtime_wraps_provider_with_reservation_limiter",
+      "to": "Config",
+      "line": 103,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_create_runtime_wraps_provider_with_reservation_limiter",
+      "to": "create_runtime",
+      "line": 105,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_create_runtime_wraps_provider_with_reservation_limiter",
+      "to": "isinstance",
+      "line": 107,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_create_runtime_wraps_provider_with_reservation_limiter",
+      "to": "isinstance",
+      "line": 108,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_create_runtime_wraps_provider_with_reservation_limiter",
+      "to": "asyncio.run",
+      "line": 113,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_create_runtime_wraps_provider_with_reservation_limiter",
+      "to": "logging_provider.close",
+      "line": 113,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StubProvider.complete",
+      "to": "CompletionResult",
+      "line": 123,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_logging_provider_reports_length_stops_in_summary",
+      "to": "LoggingProvider",
+      "line": 135,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_logging_provider_reports_length_stops_in_summary",
+      "to": "StubProvider",
+      "line": 135,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_logging_provider_reports_length_stops_in_summary",
+      "to": "asyncio.run",
+      "line": 137,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_logging_provider_reports_length_stops_in_summary",
+      "to": "provider.complete",
+      "line": 138,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_logging_provider_reports_length_stops_in_summary",
+      "to": "Message",
+      "line": 139,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_logging_provider_reports_length_stops_in_summary",
+      "to": "CompletionOptions",
+      "line": 141,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_logging_provider_reports_length_stops_in_summary",
+      "to": "capsys.readouterr",
+      "line": 149,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_logging_provider_reports_length_stops_in_summary",
+      "to": "provider.get_token_summary",
+      "line": 152,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "openai_provider",
+      "to": "monkeypatch.setenv",
+      "line": 159,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "openai_provider",
+      "to": "OpenAIProvider",
+      "line": 160,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_openai_provider_retries_invalid_tool_input",
+      "to": "_make_openai_response",
+      "line": 164,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_openai_provider_retries_invalid_tool_input",
+      "to": "_make_openai_response",
+      "line": 174,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_openai_provider_retries_invalid_tool_input",
+      "to": "AsyncMock",
+      "line": 186,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_openai_provider_retries_invalid_tool_input",
+      "to": "asyncio.run",
+      "line": 188,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_openai_provider_retries_invalid_tool_input",
+      "to": "openai_provider.complete",
+      "line": 189,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_openai_provider_retries_invalid_tool_input",
+      "to": "Message",
+      "line": 190,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_openai_provider_retries_invalid_tool_input",
+      "to": "CompletionOptions",
+      "line": 192,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_openai_provider_retries_missing_required_tool_call",
+      "to": "_make_openai_response",
+      "line": 218,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_openai_provider_retries_missing_required_tool_call",
+      "to": "_make_openai_response",
+      "line": 223,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_openai_provider_retries_missing_required_tool_call",
+      "to": "AsyncMock",
+      "line": 234,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_openai_provider_retries_missing_required_tool_call",
+      "to": "asyncio.run",
+      "line": 238,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_openai_provider_retries_missing_required_tool_call",
+      "to": "openai_provider.complete",
+      "line": 239,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_openai_provider_retries_missing_required_tool_call",
+      "to": "Message",
+      "line": 240,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_openai_provider_retries_missing_required_tool_call",
+      "to": "CompletionOptions",
+      "line": 242,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_openai_provider_missing_required_tool_call_raises_after_three_attempts",
+      "to": "_make_openai_response",
+      "line": 263,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_openai_provider_missing_required_tool_call_raises_after_three_attempts",
+      "to": "AsyncMock",
+      "line": 268,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_openai_provider_missing_required_tool_call_raises_after_three_attempts",
+      "to": "pytest.raises",
+      "line": 272,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_openai_provider_missing_required_tool_call_raises_after_three_attempts",
+      "to": "asyncio.run",
+      "line": 276,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_openai_provider_missing_required_tool_call_raises_after_three_attempts",
+      "to": "openai_provider.complete",
+      "line": 277,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_openai_provider_missing_required_tool_call_raises_after_three_attempts",
+      "to": "Message",
+      "line": 278,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_openai_provider_missing_required_tool_call_raises_after_three_attempts",
+      "to": "CompletionOptions",
+      "line": 280,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_openai_provider_does_not_expand_retry_budget_without_length_stop",
+      "to": "_make_openai_response",
+      "line": 295,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_openai_provider_does_not_expand_retry_budget_without_length_stop",
+      "to": "_make_openai_response",
+      "line": 300,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_openai_provider_does_not_expand_retry_budget_without_length_stop",
+      "to": "AsyncMock",
+      "line": 311,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_openai_provider_does_not_expand_retry_budget_without_length_stop",
+      "to": "asyncio.run",
+      "line": 315,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_openai_provider_does_not_expand_retry_budget_without_length_stop",
+      "to": "openai_provider.complete",
+      "line": 316,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_openai_provider_does_not_expand_retry_budget_without_length_stop",
+      "to": "Message",
+      "line": 317,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_openai_provider_does_not_expand_retry_budget_without_length_stop",
+      "to": "CompletionOptions",
+      "line": 319,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_openai_provider_logs_each_attempt",
+      "to": "openai_provider.set_interaction_log_path",
+      "line": 334,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_openai_provider_logs_each_attempt",
+      "to": "_make_openai_response",
+      "line": 336,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_openai_provider_logs_each_attempt",
+      "to": "_make_openai_response",
+      "line": 341,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_openai_provider_logs_each_attempt",
+      "to": "AsyncMock",
+      "line": 352,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_openai_provider_logs_each_attempt",
+      "to": "asyncio.run",
+      "line": 356,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_openai_provider_logs_each_attempt",
+      "to": "openai_provider.complete",
+      "line": 357,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_openai_provider_logs_each_attempt",
+      "to": "Message",
+      "line": 358,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_openai_provider_logs_each_attempt",
+      "to": "CompletionOptions",
+      "line": 360,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_openai_provider_logs_each_attempt",
+      "to": "json.loads",
+      "line": 369,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_openai_provider_logs_each_attempt",
+      "to": "splitlines",
+      "line": 370,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_openai_provider_logs_each_attempt",
+      "to": "log_path.read_text",
+      "line": 370,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_openai_provider_logs_each_attempt",
+      "to": "len",
+      "line": 372,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_openai_provider_forwards_explicit_temperature",
+      "to": "_make_openai_response",
+      "line": 381,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_openai_provider_forwards_explicit_temperature",
+      "to": "AsyncMock",
+      "line": 382,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_openai_provider_forwards_explicit_temperature",
+      "to": "asyncio.run",
+      "line": 384,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_openai_provider_forwards_explicit_temperature",
+      "to": "openai_provider.complete",
+      "line": 385,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_openai_provider_forwards_explicit_temperature",
+      "to": "Message",
+      "line": 386,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_openai_provider_forwards_explicit_temperature",
+      "to": "CompletionOptions",
+      "line": 388,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_default_options_omit_temperature",
+      "to": "_make_openai_response",
+      "line": 407,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_default_options_omit_temperature",
+      "to": "AsyncMock",
+      "line": 408,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_default_options_omit_temperature",
+      "to": "asyncio.run",
+      "line": 410,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_default_options_omit_temperature",
+      "to": "openai_provider.complete",
+      "line": 411,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_default_options_omit_temperature",
+      "to": "Message",
+      "line": 412,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_default_options_omit_temperature",
+      "to": "CompletionOptions",
+      "line": 414,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_close_does_not_raise",
+      "to": "asyncio.run",
+      "line": 428,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_close_does_not_raise",
+      "to": "openai_provider.close",
+      "line": 428,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "openai_provider._client.chat.completions",
+      "member": "create",
+      "line": 186
+    },
+    {
+      "container": "openai_provider._client.chat.completions",
+      "member": "create",
+      "line": 234
+    },
+    {
+      "container": "openai_provider._client.chat.completions",
+      "member": "create",
+      "line": 268
+    },
+    {
+      "container": "openai_provider._client.chat.completions",
+      "member": "create",
+      "line": 311
+    },
+    {
+      "container": "openai_provider._client.chat.completions",
+      "member": "create",
+      "line": 352
+    },
+    {
+      "container": "openai_provider._client.chat.completions",
+      "member": "create",
+      "line": 382
+    },
+    {
+      "container": "openai_provider._client.chat.completions",
+      "member": "create",
+      "line": 408
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "object",
+      "line": 35,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 37,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 37,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "value",
+      "line": 39,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "test_tool",
+      "line": 43,
+      "usage": "produced",
+      "context": "keyword argument to ToolDefinition"
+    },
+    {
+      "value": "A test tool",
+      "line": 44,
+      "usage": "produced",
+      "context": "keyword argument to ToolDefinition"
+    },
+    {
+      "value": "tool_calls",
+      "line": 49,
+      "usage": "produced",
+      "context": "default parameter"
+    },
+    {
+      "value": "gpt-test",
+      "line": 58,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "anthropic",
+      "line": 63,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "claude-code",
+      "line": 63,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "google",
+      "line": 63,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "openai",
+      "line": 63,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "openrouter",
+      "line": 63,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "OPENROUTER",
+      "line": 67,
+      "usage": "produced",
+      "context": "argument to normalize_provider_name"
+    },
+    {
+      "value": "openrouter",
+      "line": 67,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "google",
+      "line": 68,
+      "usage": "produced",
+      "context": "argument to get_provider_spec"
+    },
+    {
+      "value": "GEMINI_API_KEY",
+      "line": 69,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "google.api_key_env"
+    },
+    {
+      "value": "openai",
+      "line": 74,
+      "usage": "produced",
+      "context": "argument to qualify_model_name"
+    },
+    {
+      "value": "gpt-4.1-mini",
+      "line": 74,
+      "usage": "produced",
+      "context": "argument to qualify_model_name"
+    },
+    {
+      "value": "gpt-4.1-mini",
+      "line": 74,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "openrouter",
+      "line": 75,
+      "usage": "produced",
+      "context": "argument to qualify_model_name"
+    },
+    {
+      "value": "openai/gpt-4.1-mini",
+      "line": 75,
+      "usage": "produced",
+      "context": "argument to qualify_model_name"
+    },
+    {
+      "value": "gpt-4.1-mini",
+      "line": 75,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "google",
+      "line": 76,
+      "usage": "produced",
+      "context": "argument to strip_provider_prefix"
+    },
+    {
+      "value": "gemini/gemini-2.0-flash",
+      "line": 76,
+      "usage": "produced",
+      "context": "argument to strip_provider_prefix"
+    },
+    {
+      "value": "gemini-2.0-flash",
+      "line": 76,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "test-key",
+      "line": 89,
+      "usage": "produced",
+      "context": "argument to monkeypatch.setenv"
+    },
+    {
+      "value": "provider_name",
+      "line": 80,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "env_var",
+      "line": 80,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "provider_type",
+      "line": 80,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "anthropic",
+      "line": 82,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "ANTHROPIC_API_KEY",
+      "line": 82,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "openai",
+      "line": 83,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "OPENAI_API_KEY",
+      "line": 83,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "google",
+      "line": 84,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "GEMINI_API_KEY",
+      "line": 84,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "openrouter",
+      "line": 85,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "OPENROUTER_API_KEY",
+      "line": 85,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Unknown provider",
+      "line": 97,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "bogus",
+      "line": 98,
+      "usage": "produced",
+      "context": "argument to create_provider"
+    },
+    {
+      "value": "OPENAI_API_KEY",
+      "line": 102,
+      "usage": "produced",
+      "context": "argument to monkeypatch.setenv"
+    },
+    {
+      "value": "test-key",
+      "line": 102,
+      "usage": "produced",
+      "context": "argument to monkeypatch.setenv"
+    },
+    {
+      "value": "openai",
+      "line": 103,
+      "usage": "produced",
+      "context": "keyword argument to Config"
+    },
+    {
+      "value": "gpt-4.1-mini",
+      "line": 103,
+      "usage": "produced",
+      "context": "keyword argument to Config"
+    },
+    {
+      "value": "openai",
+      "line": 109,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "logging_provider.name"
+    },
+    {
+      "value": "openai",
+      "line": 120,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "gpt-test",
+      "line": 128,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "length",
+      "line": 129,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "Test",
+      "line": 139,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "Return plain text.",
+      "line": 140,
+      "usage": "produced",
+      "context": "keyword argument to provider.complete"
+    },
+    {
+      "value": "gpt-4.1-mini",
+      "line": 142,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "shadow.file",
+      "line": 144,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "[warn] stop_reason=length",
+      "line": 150,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "stdout"
+    },
+    {
+      "value": "Warnings: 1 response(s) ended with stop_reason=length",
+      "line": 153,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "summary"
+    },
+    {
+      "value": "shadow.file (model=gpt-test, max_tokens=128)",
+      "line": 154,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "summary"
+    },
+    {
+      "value": "OPENAI_API_KEY",
+      "line": 159,
+      "usage": "produced",
+      "context": "argument to monkeypatch.setenv"
+    },
+    {
+      "value": "test-key",
+      "line": 159,
+      "usage": "produced",
+      "context": "argument to monkeypatch.setenv"
+    },
+    {
+      "value": "text",
+      "line": 165,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "retry me",
+      "line": 165,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "call_1",
+      "line": 168,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 169,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test_tool",
+      "line": 170,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "{\"value\": \"bad\"}",
+      "line": 170,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "output_text",
+      "line": 175,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "fixed",
+      "line": 175,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "call_2",
+      "line": 178,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 179,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test_tool",
+      "line": 180,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "{\"value\": {\"x\": \"ok\"}}",
+      "line": 180,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Test",
+      "line": 190,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "Use the tool.",
+      "line": 191,
+      "usage": "produced",
+      "context": "keyword argument to openai_provider.complete"
+    },
+    {
+      "value": "gpt-4.1-mini",
+      "line": 193,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "tool",
+      "line": 195,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test_tool",
+      "line": 195,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "gpt-4.1-mini",
+      "line": 202,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "function",
+      "line": 203,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test_tool",
+      "line": 203,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "assistant",
+      "line": 206,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "tool",
+      "line": 207,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "call_1",
+      "line": 208,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "expected object",
+      "line": 209,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "fixed",
+      "line": 211,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.content"
+    },
+    {
+      "value": "ok",
+      "line": 212,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "length",
+      "line": 221,
+      "usage": "produced",
+      "context": "keyword argument to _make_openai_response"
+    },
+    {
+      "value": "call_2",
+      "line": 226,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 227,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test_tool",
+      "line": 228,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "{\"value\": {\"x\": \"ok\"}}",
+      "line": 228,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Test",
+      "line": 240,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "Use the tool.",
+      "line": 241,
+      "usage": "produced",
+      "context": "keyword argument to openai_provider.complete"
+    },
+    {
+      "value": "gpt-4.1-mini",
+      "line": 243,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "tool",
+      "line": 246,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test_tool",
+      "line": 246,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "user",
+      "line": 254,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "did not call the required tool `test_tool`",
+      "line": 255,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "output token limit",
+      "line": 256,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "test_tool",
+      "line": 257,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "name"
+    },
+    {
+      "value": "length",
+      "line": 266,
+      "usage": "produced",
+      "context": "keyword argument to _make_openai_response"
+    },
+    {
+      "value": "Required tool call 'test_tool' missing after 3 attempts",
+      "line": 274,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "Test",
+      "line": 278,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "Use the tool.",
+      "line": 279,
+      "usage": "produced",
+      "context": "keyword argument to openai_provider.complete"
+    },
+    {
+      "value": "gpt-4.1-mini",
+      "line": 281,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "tool",
+      "line": 284,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test_tool",
+      "line": 284,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "I forgot the tool",
+      "line": 296,
+      "usage": "produced",
+      "context": "keyword argument to _make_openai_response"
+    },
+    {
+      "value": "stop",
+      "line": 298,
+      "usage": "produced",
+      "context": "keyword argument to _make_openai_response"
+    },
+    {
+      "value": "call_2",
+      "line": 303,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 304,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test_tool",
+      "line": 305,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "{\"value\": {\"x\": \"ok\"}}",
+      "line": 305,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Test",
+      "line": 317,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "Use the tool.",
+      "line": 318,
+      "usage": "produced",
+      "context": "keyword argument to openai_provider.complete"
+    },
+    {
+      "value": "gpt-4.1-mini",
+      "line": 320,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "tool",
+      "line": 323,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test_tool",
+      "line": 323,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "length",
+      "line": 339,
+      "usage": "produced",
+      "context": "keyword argument to _make_openai_response"
+    },
+    {
+      "value": "call_2",
+      "line": 344,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 345,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test_tool",
+      "line": 346,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "{\"value\": {\"x\": \"ok\"}}",
+      "line": 346,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Test",
+      "line": 358,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "Use the tool.",
+      "line": 359,
+      "usage": "produced",
+      "context": "keyword argument to openai_provider.complete"
+    },
+    {
+      "value": "gpt-4.1-mini",
+      "line": 361,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "tool",
+      "line": 363,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test_tool",
+      "line": 363,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "utf-8",
+      "line": 370,
+      "usage": "produced",
+      "context": "keyword argument to log_path.read_text"
+    },
+    {
+      "value": "length",
+      "line": 374,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "test_tool",
+      "line": 377,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "ok",
+      "line": 381,
+      "usage": "produced",
+      "context": "keyword argument to _make_openai_response"
+    },
+    {
+      "value": "stop",
+      "line": 381,
+      "usage": "produced",
+      "context": "keyword argument to _make_openai_response"
+    },
+    {
+      "value": "Test",
+      "line": 386,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "Return plain text.",
+      "line": 387,
+      "usage": "produced",
+      "context": "keyword argument to openai_provider.complete"
+    },
+    {
+      "value": "gpt-4.1-mini",
+      "line": 389,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "ok",
+      "line": 397,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.content"
+    },
+    {
+      "value": "ok",
+      "line": 407,
+      "usage": "produced",
+      "context": "keyword argument to _make_openai_response"
+    },
+    {
+      "value": "stop",
+      "line": 407,
+      "usage": "produced",
+      "context": "keyword argument to _make_openai_response"
+    },
+    {
+      "value": "Test",
+      "line": 412,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "Return plain text.",
+      "line": 413,
+      "usage": "produced",
+      "context": "keyword argument to openai_provider.complete"
+    },
+    {
+      "value": "gpt-4.1-mini",
+      "line": 415,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "temperature",
+      "line": 422,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "kwargs"
+    },
+    {
+      "value": "ok",
+      "line": 423,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.content"
+    }
+  ],
+  "extraction_method": "ast"
+}

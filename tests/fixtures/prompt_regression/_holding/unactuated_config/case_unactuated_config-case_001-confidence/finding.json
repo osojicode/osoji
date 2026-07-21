@@ -1,0 +1,20 @@
+{
+  "detector": "plumbing:unactuated_config",
+  "gap_type": "reachability",
+  "path": "tools.py",
+  "line_start": 329,
+  "line_end": 333,
+  "symbol": "confidence",
+  "contract_source": "config schema",
+  "contract_claim": "The schema field `confidence` declares numeric bounds (type number, minimum 0.0, maximum 1.0) — an obligation that consuming code must enforce when the value is provided.",
+  "observed_behavior": "No application code reads or validates a `confidence` configuration value against these bounds; the declaration appears only inside an LLM tool_use input_schema in tools.py, where the model itself is the consumer of the constraint.",
+  "evidence": [],
+  "id": "114871ab970f8e2a",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

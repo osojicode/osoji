@@ -1,0 +1,20 @@
+{
+  "detector": "audit:latent_bug",
+  "gap_type": "uncategorized",
+  "path": "src/osoji/audit.py",
+  "line_start": 1031,
+  "line_end": 1031,
+  "symbol": null,
+  "contract_source": "audit",
+  "contract_claim": "L1031-1031: `c.priority_score` is accessed in `format_audit_report` when sorting underdocumented concepts, but `priority_score` is not visible as a standard field of `Concept` from this file. It may be set by `_compute_priority()` which is imported only in `_deserialize_doc_prompts`. If live-run `Concept` objects don't have this attribute, sorting will raise AttributeError.",
+  "observed_behavior": "Verify that `Concept` dataclass in `doc_prompts.py` always initializes `priority_score`, or that `_compute_priority` is called before any sort in the live code path.",
+  "evidence": [],
+  "id": "ba45c073276242d3",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

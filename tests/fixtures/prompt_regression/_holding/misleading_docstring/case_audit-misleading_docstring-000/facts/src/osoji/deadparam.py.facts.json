@@ -1,0 +1,1549 @@
+{
+  "source": "src/osoji/deadparam.py",
+  "source_hash": "d8ecf1f293b464b2",
+  "generated": "2026-07-01T00:00:00Z",
+  "imports": [
+    {
+      "source": "asyncio",
+      "names": [
+        "asyncio"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": "re",
+      "names": [
+        "re"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": "collections",
+      "names": [
+        "defaultdict"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "field"
+      ],
+      "line": 14,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 15,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Callable"
+      ],
+      "line": 16,
+      "is_reexport": false
+    },
+    {
+      "source": ".async_utils",
+      "names": [
+        "gather_with_buffer"
+      ],
+      "line": 18,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config",
+        "SHADOW_DIR"
+      ],
+      "line": 19,
+      "is_reexport": false
+    },
+    {
+      "source": ".facts",
+      "names": [
+        "FactsDB"
+      ],
+      "line": 20,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk",
+      "names": [
+        "JunkAnalyzer",
+        "JunkFinding",
+        "JunkAnalysisResult",
+        "load_shadow_content",
+        "validate_line_ranges"
+      ],
+      "line": 21,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.base",
+      "names": [
+        "LLMProvider"
+      ],
+      "line": 22,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.budgets",
+      "names": [
+        "input_budget_for_config"
+      ],
+      "line": 23,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.tokens",
+      "names": [
+        "estimate_completion_input_tokens_offline"
+      ],
+      "line": 24,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.types",
+      "names": [
+        "Message",
+        "MessageRole",
+        "CompletionOptions"
+      ],
+      "line": 25,
+      "is_reexport": false
+    },
+    {
+      "source": ".symbols",
+      "names": [
+        "load_all_symbols"
+      ],
+      "line": 26,
+      "is_reexport": false
+    },
+    {
+      "source": ".tools",
+      "names": [
+        "get_dead_parameter_tool_definitions"
+      ],
+      "line": 27,
+      "is_reexport": false
+    },
+    {
+      "source": ".walker",
+      "names": [
+        "list_repo_files",
+        "_matches_ignore"
+      ],
+      "line": 28,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "CallSite",
+      "kind": "class",
+      "line": 36,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DeadParamCandidate",
+      "kind": "class",
+      "line": 45,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DeadParamVerification",
+      "kind": "class",
+      "line": 57,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "scan_dead_param_candidates",
+      "kind": "function",
+      "line": 116,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "detect_dead_params_async",
+      "kind": "function",
+      "line": 598,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DeadParameterAnalyzer",
+      "kind": "class",
+      "line": 685,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "JunkAnalyzer"
+      ]
+    },
+    {
+      "name": "DeadParameterAnalyzer.name",
+      "kind": "function",
+      "line": 689,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DeadParameterAnalyzer.description",
+      "kind": "function",
+      "line": 693,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DeadParameterAnalyzer.cli_flag",
+      "kind": "function",
+      "line": 697,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DeadParameterAnalyzer.analyze_async",
+      "kind": "function",
+      "line": 700,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "DeadParamCandidate",
+      "to": "field",
+      "line": 53,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DeadParamVerification",
+      "to": "field",
+      "line": 68,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_extract_context",
+      "to": "max",
+      "line": 82,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_extract_context",
+      "to": "min",
+      "line": 83,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_extract_context",
+      "to": "len",
+      "line": 83,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_extract_context",
+      "to": "range",
+      "line": 85,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_extract_context",
+      "to": "context_lines.append",
+      "line": 87,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_context",
+      "to": "join",
+      "line": 88,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_dedupe_call_sites",
+      "to": "set",
+      "line": 92,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_dedupe_call_sites",
+      "to": "sorted",
+      "line": 94,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_dedupe_call_sites",
+      "to": "seen.add",
+      "line": 98,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_dedupe_call_sites",
+      "to": "deduped.append",
+      "line": 99,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_partition_call_sites_by_file",
+      "to": "defaultdict",
+      "line": 104,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_partition_call_sites_by_file",
+      "to": "append",
+      "line": 106,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_partition_call_sites_by_file",
+      "to": "sorted",
+      "line": 109,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_partition_call_sites_by_file",
+      "to": "sorted",
+      "line": 110,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_partition_call_sites_by_file",
+      "to": "range",
+      "line": 111,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_partition_call_sites_by_file",
+      "to": "len",
+      "line": 111,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_partition_call_sites_by_file",
+      "to": "groups.append",
+      "line": 112,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "load_all_symbols",
+      "line": 125,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "FactsDB",
+      "line": 130,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "list_repo_files",
+      "line": 136,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "list",
+      "line": 137,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "config.load_osojiignore",
+      "line": 138,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "path.is_absolute",
+      "line": 141,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "abs_path.is_file",
+      "line": 142,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "abs_path.relative_to",
+      "line": 144,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "replace",
+      "line": 145,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "str",
+      "line": 145,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "all_symbols.items",
+      "line": 151,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "source_path.replace",
+      "line": 152,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "cls.get",
+      "line": 166,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "src_file.is_file",
+      "line": 173,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "src_file.read_text",
+      "line": 176,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "content.split",
+      "line": 179,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "sym.get",
+      "line": 184,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "sym.get",
+      "line": 191,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "p.get",
+      "line": 192,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "p.get",
+      "line": 192,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "facts_db.importers_of",
+      "line": 199,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "func_name.rsplit",
+      "line": 206,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "re.compile",
+      "line": 207,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "re.escape",
+      "line": 207,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "class_for_method.get",
+      "line": 209,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "call_patterns.append",
+      "line": 211,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "re.compile",
+      "line": 211,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "re.escape",
+      "line": 211,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "sym.get",
+      "line": 216,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "candidate_paths.extend",
+      "line": 219,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "sorted",
+      "line": 219,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "set",
+      "line": 219,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "repo_files.get",
+      "line": 222,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "path.is_file",
+      "line": 223,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "path.relative_to",
+      "line": 226,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "rel_str.startswith",
+      "line": 228,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "_matches_ignore",
+      "line": 230,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "_matches_ignore",
+      "line": 232,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "config.is_doc_candidate",
+      "line": 234,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "path.read_text",
+      "line": 244,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "file_content.split",
+      "line": 247,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "enumerate",
+      "line": 250,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "any",
+      "line": 251,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "p.search",
+      "line": 251,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "_extract_context",
+      "line": 256,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "call_sites.append",
+      "line": 257,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "CallSite",
+      "line": 257,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "_dedupe_call_sites",
+      "line": 263,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "candidates.append",
+      "line": 269,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "DeadParamCandidate",
+      "line": 269,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_build_deadparam_prompt",
+      "to": "user_parts.append",
+      "line": 326,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_build_deadparam_prompt",
+      "to": "user_parts.append",
+      "line": 327,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_build_deadparam_prompt",
+      "to": "user_parts.append",
+      "line": 330,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_build_deadparam_prompt",
+      "to": "user_parts.append",
+      "line": 333,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_build_deadparam_prompt",
+      "to": "len",
+      "line": 336,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_build_deadparam_prompt",
+      "to": "user_parts.append",
+      "line": 338,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_build_deadparam_prompt",
+      "to": "user_parts.append",
+      "line": 341,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_build_deadparam_prompt",
+      "to": "user_parts.append",
+      "line": 343,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_build_deadparam_prompt",
+      "to": "len",
+      "line": 344,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_build_deadparam_prompt",
+      "to": "enumerate",
+      "line": 346,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_build_deadparam_prompt",
+      "to": "user_parts.append",
+      "line": 347,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_build_deadparam_prompt",
+      "to": "join",
+      "line": 351,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_build_deadparam_prompt",
+      "to": "user_parts.append",
+      "line": 352,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_build_deadparam_prompt",
+      "to": "join",
+      "line": 356,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_estimate_deadparam_prompt_tokens",
+      "to": "estimate_completion_input_tokens_offline",
+      "line": 360,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_estimate_deadparam_prompt_tokens",
+      "to": "Message",
+      "line": 361,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_estimate_deadparam_prompt_tokens",
+      "to": "get_dead_parameter_tool_definitions",
+      "line": 363,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_build_call_site_chunks",
+      "to": "_dedupe_call_sites",
+      "line": 374,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_build_call_site_chunks",
+      "to": "input_budget_for_config",
+      "line": 378,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_build_call_site_chunks",
+      "to": "_partition_call_sites_by_file",
+      "line": 379,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_call_site_chunks",
+      "to": "len",
+      "line": 384,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_build_call_site_chunks",
+      "to": "len",
+      "line": 384,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_build_call_site_chunks",
+      "to": "chunks.append",
+      "line": 385,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_build_call_site_chunks",
+      "to": "_build_deadparam_prompt",
+      "line": 389,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_build_call_site_chunks",
+      "to": "len",
+      "line": 394,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_build_call_site_chunks",
+      "to": "_estimate_deadparam_prompt_tokens",
+      "line": 396,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_call_site_chunks",
+      "to": "chunks.append",
+      "line": 397,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_build_call_site_chunks",
+      "to": "list",
+      "line": 398,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_build_call_site_chunks",
+      "to": "chunks.append",
+      "line": 404,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_merge_verifications",
+      "to": "defaultdict",
+      "line": 413,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_merge_verifications",
+      "to": "append",
+      "line": 416,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_merge_verifications",
+      "to": "by_param.get",
+      "line": 420,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_merge_verifications",
+      "to": "merged.append",
+      "line": 426,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_merge_verifications",
+      "to": "max",
+      "line": 426,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_merge_verifications",
+      "to": "max",
+      "line": 429,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_merge_verifications",
+      "to": "sorted",
+      "line": 430,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_merge_verifications",
+      "to": "merged.append",
+      "line": 437,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_merge_verifications",
+      "to": "DeadParamVerification",
+      "line": 438,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "_build_deadparam_prompt",
+      "line": 465,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_verify_chunk_async.check_completeness",
+      "to": "tool_input.get",
+      "line": 478,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_verify_chunk_async.check_completeness",
+      "to": "verdict.get",
+      "line": 479,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_verify_chunk_async.check_completeness",
+      "to": "verdict.get",
+      "line": 479,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_verify_chunk_async.check_completeness",
+      "to": "sorted",
+      "line": 481,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "provider.complete",
+      "line": 483,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "Message",
+      "line": 484,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "CompletionOptions",
+      "line": 486,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "config.model_for",
+      "line": 487,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "max",
+      "line": 488,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "len",
+      "line": 488,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "input_budget_for_config",
+      "line": 489,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "get_dead_parameter_tool_definitions",
+      "line": 491,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "tool_call.input.get",
+      "line": 505,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "verdict.get",
+      "line": 507,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "verdict.get",
+      "line": 508,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "candidate_by_key.get",
+      "line": 510,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "verdict.get",
+      "line": 515,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "isinstance",
+      "line": 516,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "verifications.append",
+      "line": 519,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "DeadParamVerification",
+      "line": 520,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "verdict.get",
+      "line": 524,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "verdict.get",
+      "line": 525,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "verdict.get",
+      "line": 526,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "verdict.get",
+      "line": 527,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_verify_chunk_async",
+      "to": "RuntimeError",
+      "line": 536,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_verify_batch_async",
+      "to": "_build_call_site_chunks",
+      "line": 553,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_verify_batch_async",
+      "to": "RuntimeError",
+      "line": 555,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_verify_batch_async",
+      "to": "len",
+      "line": 562,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_verify_batch_async",
+      "to": "_dedupe_call_sites",
+      "line": 562,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_verify_batch_async",
+      "to": "DeadParamCandidate",
+      "line": 566,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_verify_batch_async",
+      "to": "list",
+      "line": 572,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_verify_batch_async",
+      "to": "_verify_chunk_async",
+      "line": 576,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_verify_batch_async",
+      "to": "chunk_results.append",
+      "line": 584,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_verify_batch_async",
+      "to": "_merge_verifications",
+      "line": 588,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_verify_batch_async",
+      "to": "RuntimeError",
+      "line": 590,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "scan_dead_param_candidates",
+      "line": 607,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "append",
+      "line": 613,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "by_func.setdefault",
+      "line": 613,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "print",
+      "line": 615,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "len",
+      "line": 616,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "len",
+      "line": 617,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "src_path.read_text",
+      "line": 632,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "load_shadow_content",
+      "line": 636,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "list",
+      "line": 639,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "by_func.values",
+      "line": 639,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "len",
+      "line": 641,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "asyncio.Lock",
+      "line": 642,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_params_async.process_batch",
+      "to": "_verify_batch_async",
+      "line": 649,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_params_async.process_batch",
+      "to": "file_contents.get",
+      "line": 653,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_params_async.process_batch",
+      "to": "shadow_contents.get",
+      "line": 654,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_params_async.process_batch",
+      "to": "results.append",
+      "line": 659,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_params_async.process_batch",
+      "to": "on_progress",
+      "line": 661,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_params_async.process_batch",
+      "to": "Path",
+      "line": 663,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_params_async.process_batch",
+      "to": "sum",
+      "line": 664,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_params_async.process_batch",
+      "to": "on_progress",
+      "line": 671,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_params_async.process_batch",
+      "to": "Path",
+      "line": 673,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_params_async.process_batch",
+      "to": "print",
+      "line": 677,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "gather_with_buffer",
+      "line": 680,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "process_batch",
+      "line": 680,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadParameterAnalyzer.analyze_async",
+      "to": "detect_dead_params_async",
+      "line": 701,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadParameterAnalyzer.analyze_async",
+      "to": "min",
+      "line": 708,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DeadParameterAnalyzer.analyze_async",
+      "to": "max",
+      "line": 709,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DeadParameterAnalyzer.analyze_async",
+      "to": "findings.append",
+      "line": 713,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadParameterAnalyzer.analyze_async",
+      "to": "JunkFinding",
+      "line": 713,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadParameterAnalyzer.analyze_async",
+      "to": "list",
+      "line": 727,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DeadParameterAnalyzer.analyze_async",
+      "to": "JunkAnalysisResult",
+      "line": 730,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadParameterAnalyzer.analyze_async",
+      "to": "len",
+      "line": 732,
+      "call_sites": 13
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "function",
+      "line": 155,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "class",
+      "line": 160,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "line_end",
+      "line": 166,
+      "usage": "produced",
+      "context": "argument to cls.get"
+    },
+    {
+      "value": "ignore",
+      "line": 176,
+      "usage": "produced",
+      "context": "keyword argument to src_file.read_text"
+    },
+    {
+      "value": "visibility",
+      "line": 184,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "internal",
+      "line": 184,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "parameters",
+      "line": 191,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "has_default",
+      "line": 192,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "optional",
+      "line": 192,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "line_end",
+      "line": 216,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "ignore",
+      "line": 244,
+      "usage": "produced",
+      "context": "keyword argument to path.read_text"
+    },
+    {
+      "value": "You are a dead parameter analyst. You are given a function with optional parameters, along with a deduplicated chunk of call sites gathered from the codebase.\n\nYour job: determine whether each optional parameter is genuinely dead (never passed by any caller) or alive.\n\n## Rules for judging parameter liveness\n\nA parameter is ALIVE if:\n- ANY call site passes it (as a keyword argument, positional argument, or via **kwargs spread)\n- It is part of an interface/protocol that subclasses must implement\n- The function is a callback whose signature is constrained by a caller\n- It is required by an ABC or protocol definition\n\nA parameter is DEAD if:\n- No call site passes it AND no dynamic dispatch could provide it\n- All callers use the default value (explicitly or implicitly)\n\n## For confirmed dead parameters\n\nIdentify conditional branches in the function body that are gated EXCLUSIVELY by the dead parameter. These are branches that would become dead code if the parameter were removed, because they only execute when the parameter differs from its default value.\n\nExamples of gated branches (any language):\n- `if param is not None:` / `if (param != null)` / `if param != nil` — the entire if-block is gated\n- `if param:` / `if (param)` when default is None/False/0/null\n- `elif param is not None:` / `else if (param !== undefined)` — the elif/else-if block is gated\n- `param = param if param is not None else fallback` / `param ?? fallback` — the conditional expression\n\nReport the line ranges of these gated branches.\n\nUse the verify_dead_parameters tool with a verdict for EVERY parameter under analysis.",
+      "line": 283,
+      "usage": "defined",
+      "context": "constant _DEAD_PARAM_SYSTEM_PROMPT"
+    },
+    {
+      "value": "## Parameters under analysis\n",
+      "line": 326,
+      "usage": "produced",
+      "context": "argument to user_parts.append"
+    },
+    {
+      "value": "tool",
+      "line": 364,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "verify_dead_parameters",
+      "line": 364,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "verify_dead_parameters",
+      "line": 476,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_name"
+    },
+    {
+      "value": "verdicts",
+      "line": 478,
+      "usage": "produced",
+      "context": "argument to tool_input.get"
+    },
+    {
+      "value": "function_name",
+      "line": 479,
+      "usage": "produced",
+      "context": "argument to verdict.get"
+    },
+    {
+      "value": "parameter_name",
+      "line": 479,
+      "usage": "produced",
+      "context": "argument to verdict.get"
+    },
+    {
+      "value": "medium",
+      "line": 487,
+      "usage": "produced",
+      "context": "argument to config.model_for"
+    },
+    {
+      "value": "deadparam.verify_batch",
+      "line": 490,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "tool",
+      "line": 492,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "verify_dead_parameters",
+      "line": 492,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "verify_dead_parameters",
+      "line": 503,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_call.name"
+    },
+    {
+      "value": "verdicts",
+      "line": 505,
+      "usage": "produced",
+      "context": "argument to tool_call.input.get"
+    },
+    {
+      "value": "function_name",
+      "line": 507,
+      "usage": "produced",
+      "context": "argument to verdict.get"
+    },
+    {
+      "value": "parameter_name",
+      "line": 508,
+      "usage": "produced",
+      "context": "argument to verdict.get"
+    },
+    {
+      "value": "gated_line_ranges",
+      "line": 515,
+      "usage": "produced",
+      "context": "argument to verdict.get"
+    },
+    {
+      "value": "is_dead",
+      "line": 524,
+      "usage": "produced",
+      "context": "argument to verdict.get"
+    },
+    {
+      "value": "confidence",
+      "line": 525,
+      "usage": "produced",
+      "context": "argument to verdict.get"
+    },
+    {
+      "value": "reason",
+      "line": 526,
+      "usage": "produced",
+      "context": "argument to verdict.get"
+    },
+    {
+      "value": "LLM returned incomplete verdict",
+      "line": 526,
+      "usage": "produced",
+      "context": "argument to verdict.get"
+    },
+    {
+      "value": "remediation",
+      "line": 527,
+      "usage": "produced",
+      "context": "argument to verdict.get"
+    },
+    {
+      "value": "Review parameter usage manually",
+      "line": 527,
+      "usage": "produced",
+      "context": "argument to verdict.get"
+    },
+    {
+      "value": "ignore",
+      "line": 632,
+      "usage": "produced",
+      "context": "keyword argument to src_path.read_text"
+    },
+    {
+      "value": "error",
+      "line": 673,
+      "usage": "produced",
+      "context": "argument to on_progress"
+    },
+    {
+      "value": "dead_params",
+      "line": 690,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "Detect dead function parameters (never passed by callers)",
+      "line": 694,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "dead-params",
+      "line": 698,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "parameter",
+      "line": 716,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "dead_parameter",
+      "line": 717,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "llm_inferred",
+      "line": 724,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    }
+  ],
+  "extraction_method": "ast"
+}

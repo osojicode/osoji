@@ -1,0 +1,20 @@
+{
+  "detector": "audit:stale_comment",
+  "gap_type": "description",
+  "path": "src/osoji/junk_deps.py",
+  "line_start": 532,
+  "line_end": 533,
+  "symbol": null,
+  "contract_source": "audit",
+  "contract_claim": "L532-533: The `_PARSERS` dict maps `setup.cfg` and `Pipfile` to `_parse_requirements_txt` with comments noting the parser misses INI/TOML structure. These are accurate limitation notes, but `discover_manifests` includes both files via `_MANIFEST_FILES`, meaning callers will receive silently incomplete results for these formats without any warning at runtime.",
+  "observed_behavior": "Either implement proper parsers for `setup.cfg` (INI `[options] install_requires`) and `Pipfile` (TOML `[packages]`), or emit a warning when these manifests are parsed so callers know coverage is partial.",
+  "evidence": [],
+  "id": "66c206a892904b75",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

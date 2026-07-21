@@ -1,0 +1,20 @@
+{
+  "detector": "deadparam:dead_parameter",
+  "gap_type": "reachability",
+  "path": "src/app/launcher.py",
+  "line_start": 1,
+  "line_end": 1,
+  "symbol": "error",
+  "contract_source": "function signature",
+  "contract_claim": "Parameter `error` is declared in the signature of log(message, error=False) (src/app/launcher.py line 1) as an accepted input that callers may pass.",
+  "observed_behavior": "The attributed call site, log(\"ok\") in src/app/cli.py, does not pass `error`, so the parameter appears to always take its default False. `log` is a common name with high fan-out: src/noise.py defines an unrelated log(message) that is called locally.",
+  "evidence": [],
+  "id": "fef97c9fea95cf5c",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

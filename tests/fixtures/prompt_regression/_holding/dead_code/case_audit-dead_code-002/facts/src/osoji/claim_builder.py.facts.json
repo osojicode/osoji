@@ -1,0 +1,911 @@
+{
+  "source": "src/osoji/claim_builder.py",
+  "source_hash": "eadbae15cf3f7b70",
+  "generated": "2026-07-01T00:00:00Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 21,
+      "is_reexport": false
+    },
+    {
+      "source": "re",
+      "names": [
+        "re"
+      ],
+      "line": 23,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "replace"
+      ],
+      "line": 24,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 25,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Any"
+      ],
+      "line": 26,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config"
+      ],
+      "line": 28,
+      "is_reexport": false
+    },
+    {
+      "source": ".evidence",
+      "names": [
+        "Evidence"
+      ],
+      "line": 29,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings_adapter",
+      "names": [
+        "finding_from_debris"
+      ],
+      "line": 30,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk",
+      "names": [
+        "load_shadow_content"
+      ],
+      "line": 31,
+      "is_reexport": false
+    },
+    {
+      "source": ".triage",
+      "names": [
+        "Claim"
+      ],
+      "line": 32,
+      "is_reexport": false
+    },
+    {
+      "source": ".facts",
+      "names": [
+        "FactsDB"
+      ],
+      "line": 62,
+      "is_reexport": false
+    },
+    {
+      "source": ".symbols",
+      "names": [
+        "load_all_symbols"
+      ],
+      "line": 66,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "build_debris_claims",
+      "kind": "function",
+      "line": 46,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "_is_eligible",
+      "to": "finding.get",
+      "line": 38,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_is_eligible",
+      "to": "finding.get",
+      "line": 41,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "build_debris_claims",
+      "to": "FactsDB",
+      "line": 64,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_debris_claims",
+      "to": "load_all_symbols",
+      "line": 68,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_debris_claims",
+      "to": "enumerate",
+      "line": 74,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_debris_claims",
+      "to": "_is_eligible",
+      "line": 75,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_debris_claims",
+      "to": "_try_build_claim",
+      "line": 77,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_debris_claims",
+      "to": "claims.append",
+      "line": 81,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_debris_claims",
+      "to": "original_indices.append",
+      "line": 82,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "finding.get",
+      "line": 95,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "finding.get",
+      "line": 96,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "finding.get",
+      "line": 96,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "str",
+      "line": 99,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "_extract_all_symbols_from_debris",
+      "line": 101,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "facts_db.cross_file_references",
+      "line": 107,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "len",
+      "line": 108,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "len",
+      "line": 108,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "finding.get",
+      "line": 112,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "isupper",
+      "line": 113,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "s.isupper",
+      "line": 113,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "_infer_variable_type",
+      "line": 114,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "finding.get",
+      "line": 114,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "type_names.extend",
+      "line": 115,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "_lookup_type_definitions",
+      "line": 117,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "finding_from_debris",
+      "line": 122,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "list",
+      "line": 123,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "load_shadow_content",
+      "line": 127,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "evidence.append",
+      "line": 130,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "Evidence",
+      "line": 131,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "evidence.append",
+      "line": 137,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "Evidence",
+      "line": 137,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "Claim",
+      "line": 139,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_try_build_claim",
+      "to": "replace",
+      "line": 139,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "set",
+      "line": 154,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "re.finditer",
+      "line": 156,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "m.group",
+      "line": 157,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "name.lower",
+      "line": 158,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "names.append",
+      "line": 159,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "seen.add",
+      "line": 160,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "re.finditer",
+      "line": 169,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "m.group",
+      "line": 170,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "re.match",
+      "line": 171,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "len",
+      "line": 171,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "re.findall",
+      "line": 171,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "names.append",
+      "line": 173,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "seen.add",
+      "line": 174,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "description.split",
+      "line": 177,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "word.strip",
+      "line": 178,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "re.match",
+      "line": 179,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "word.lower",
+      "line": 179,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "names.append",
+      "line": 181,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "seen.add",
+      "line": 182,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "set",
+      "line": 197,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "set",
+      "line": 198,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "symbols_by_file.items",
+      "line": 199,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "sym.get",
+      "line": 201,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "sym.get",
+      "line": 202,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "full_path.exists",
+      "line": 204,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "splitlines",
+      "line": 207,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "full_path.read_text",
+      "line": 207,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "sym.get",
+      "line": 210,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "min",
+      "line": 211,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "sym.get",
+      "line": 211,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "join",
+      "line": 212,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "enumerate",
+      "line": 213,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "results.append",
+      "line": 215,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "seen.add",
+      "line": 216,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "full_path.exists",
+      "line": 234,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "set",
+      "line": 237,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "re.finditer",
+      "line": 238,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "var_names.add",
+      "line": 239,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "m.group",
+      "line": 239,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "splitlines",
+      "line": 244,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "full_path.read_text",
+      "line": 244,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "max",
+      "line": 247,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "range",
+      "line": 250,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "len",
+      "line": 251,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "re.search",
+      "line": 252,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "re.escape",
+      "line": 252,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "type_names.append",
+      "line": 254,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "match.group",
+      "line": 254,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "category",
+      "line": 38,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "dead_code",
+      "line": 39,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "latent_bug",
+      "line": 39,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "stale_comment",
+      "line": 41,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "category"
+    },
+    {
+      "value": "cross_file_verification_needed",
+      "line": 41,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "description",
+      "line": 95,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "source",
+      "line": 96,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "source_path",
+      "line": 96,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "category",
+      "line": 112,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "latent_bug",
+      "line": 112,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "line_start",
+      "line": 114,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 132,
+      "usage": "produced",
+      "context": "keyword argument to Evidence"
+    },
+    {
+      "value": "type_signature",
+      "line": 137,
+      "usage": "produced",
+      "context": "keyword argument to Evidence"
+    },
+    {
+      "value": "field",
+      "line": 145,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "defined",
+      "line": 145,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "never",
+      "line": 145,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "set",
+      "line": 145,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "used",
+      "line": 145,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "unused",
+      "line": 145,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dead",
+      "line": 145,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "code",
+      "line": 145,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "the",
+      "line": 146,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "and",
+      "line": 146,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "but",
+      "line": 146,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "not",
+      "line": 146,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "this",
+      "line": 146,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "that",
+      "line": 146,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "from",
+      "line": 146,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "with",
+      "line": 146,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "are",
+      "line": 146,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "was",
+      "line": 147,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "were",
+      "line": 147,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "has",
+      "line": 147,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "have",
+      "line": 147,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "been",
+      "line": 147,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "being",
+      "line": 147,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "`(\\w+)`",
+      "line": 156,
+      "usage": "produced",
+      "context": "argument to re.finditer"
+    },
+    {
+      "value": "\\w+",
+      "line": 169,
+      "usage": "produced",
+      "context": "argument to re.finditer"
+    },
+    {
+      "value": "[A-Z][a-z]",
+      "line": 171,
+      "usage": "produced",
+      "context": "argument to re.match"
+    },
+    {
+      "value": "[A-Z][a-z]",
+      "line": 171,
+      "usage": "produced",
+      "context": "argument to re.findall"
+    },
+    {
+      "value": ".,;:()",
+      "line": 178,
+      "usage": "produced",
+      "context": "argument to word.strip"
+    },
+    {
+      "value": "^[a-zA-Z_]\\w{2,}$",
+      "line": 179,
+      "usage": "produced",
+      "context": "argument to re.match"
+    },
+    {
+      "value": "name",
+      "line": 201,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "kind",
+      "line": 202,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "class",
+      "line": 202,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "type",
+      "line": 202,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "utf-8",
+      "line": 207,
+      "usage": "produced",
+      "context": "keyword argument to full_path.read_text"
+    },
+    {
+      "value": "line_start",
+      "line": 210,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "line_end",
+      "line": 211,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "`(\\w+)\\.\\w+`",
+      "line": 238,
+      "usage": "produced",
+      "context": "argument to re.finditer"
+    },
+    {
+      "value": "utf-8",
+      "line": 244,
+      "usage": "produced",
+      "context": "keyword argument to full_path.read_text"
+    }
+  ],
+  "extraction_method": "ast"
+}

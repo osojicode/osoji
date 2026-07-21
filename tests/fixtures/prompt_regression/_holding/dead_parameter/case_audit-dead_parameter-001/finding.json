@@ -1,0 +1,20 @@
+{
+  "detector": "audit:dead_parameter",
+  "gap_type": "reachability",
+  "path": "src/osoji/triage.py",
+  "line_start": 162,
+  "line_end": 162,
+  "symbol": null,
+  "contract_source": "audit",
+  "contract_claim": "L162: parameter `Triage.__init__.executor` — None of the 16 deduplicated call sites pass `executor`. Every caller either passes no optional args (call site 1), passes only `rate_limiter` (call site 2), or passes only `provider` (call sites 5–16). The parameter's only use in the body is the inline expression `executor or ExplorationExecutor(config)`, which always resolves to `ExplorationExecutor(config)` because `executor` is always `None`.",
+  "observed_behavior": "Remove the `executor` parameter and replace the assignment with `self.executor = ExplorationExecutor(config)` unconditionally. No full if-block is gated — only the inline `or` expression simplifies.",
+  "evidence": [],
+  "id": "365a3ba84781389c",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}
