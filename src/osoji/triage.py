@@ -404,6 +404,15 @@ class Triage:
                 if owns:
                     await provider.close()
 
+        # osojicode/work#35: the audit orchestrator may attach a decided-
+        # findings ledger to config (mirrors the V1-9 verdict_session attach
+        # in junk_triage.py) so `osoji corpus emit` can later snapshot any
+        # decided finding into a corpus-case stub. getattr-safe so direct
+        # decide_batch callers (most unit tests) are unaffected.
+        ledger = getattr(self.config, "decided_ledger", None)
+        if ledger is not None:
+            ledger.extend(f.to_dict() for f in findings)
+
         hit_rate = cache_hits / n if n else 0.0
         return TriageBatchResult(
             findings=findings,

@@ -236,3 +236,41 @@ def test_manifest_write_failure_recorded_without_failing_audit(temp_dir):
 
     json_payload = json.loads(format_audit_json(result))
     assert json_payload["scorecard"]["degraded_phases"] == ["manifest-write"]
+
+
+# --- V1-7 decided-findings ledger (osojicode/work#35) ---------------------------
+
+
+def test_decided_findings_ledger_is_written(temp_dir):
+    _one_implicit_contract_env(temp_dir)
+    config = Config(root_path=temp_dir, respect_gitignore=False, quiet=True)
+    provider = FakeProvider()  # obligations triage succeeds
+
+    with patch("osoji.audit.create_runtime", return_value=(provider, MagicMock())):
+        asyncio.run(run_audit_async(
+            config, fix_shadow=False, obligations=True, exclude=_OBLIGATIONS_EXCLUDE,
+        ))
+
+    ledger_path = temp_dir / ".osoji" / "analysis" / "decided-findings.json"
+    assert ledger_path.exists()
+    ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+    assert ledger["schema"] == "decided-findings/1"
+    assert "commit" in ledger
+    assert "generated_at" in ledger
+    assert len(ledger["findings"]) == 1
+    assert ledger["findings"][0]["verdict"] == "confirmed"
+
+
+def test_decided_findings_ledger_written_empty_when_nothing_decided(temp_dir):
+    config = Config(root_path=temp_dir, respect_gitignore=False, quiet=True)
+
+    asyncio.run(run_audit_async(
+        config, fix_shadow=False,
+        exclude={"shadow", "doc-analysis", "debris", "obligations"},
+    ))
+
+    ledger_path = temp_dir / ".osoji" / "analysis" / "decided-findings.json"
+    assert ledger_path.exists()
+    ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+    assert ledger["schema"] == "decided-findings/1"
+    assert ledger["findings"] == []

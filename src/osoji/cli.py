@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 from .audit import run_audit, format_audit_report, format_audit_json, format_audit_html, load_audit_result
 from .config import Config
+from .corpus_emit import CorpusEmitError, emit_case, resolve_dest
 from .diff import run_diff, format_diff_report, format_diff_json
 from .shadow import generate_shadow_docs_async, generate_shadow_docs, check_shadow_docs, mark_stale_docs, dry_run_shadow
 from .stats import gather_stats, format_stats_report
@@ -498,6 +499,70 @@ def export_bundle(path: Path, output: Path | None, no_gitignore: bool) -> None:
         respect_gitignore=not no_gitignore,
     )
     click.echo(f"Observatory bundle written to {out_path}")
+
+
+@main.group()
+def corpus() -> None:
+    """Manage the V1-7 evaluator's fixture corpus (osojicode/work#35)."""
+    pass
+
+
+@corpus.command("emit")
+@click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
+@click.option("--id", "finding_id", required=True, help="Finding id from .osoji/analysis/decided-findings.json")
+@click.option("--slug", required=True, help="Case slug for the new directory ([a-z0-9_-]+)")
+@click.option(
+    "--expected-verdict",
+    type=click.Choice(["confirmed", "dismissed"]),
+    default=None,
+    help="Ground-truth verdict (required when the decided verdict is uncertain or undecided)",
+)
+@click.option("--reasoning", default=None, help="Adjudicator reasoning (default: the decided triage_reasoning)")
+@click.option("--gray", is_flag=True, help="Mark the case gray (a genuinely debatable verdict)")
+@click.option("--include", "include", multiple=True, metavar="REL", help="Extra repo-relative file to snapshot (repeatable)")
+@click.option(
+    "--dest",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Corpus holding directory (default: $OSOJI_CORPUS_DEST or <path>/tests/fixtures/prompt_regression/_holding)",
+)
+@click.option("--language", default=None, help="Language label for case.json (default: inferred from the file extension)")
+def corpus_emit(
+    path: Path,
+    finding_id: str,
+    slug: str,
+    expected_verdict: str | None,
+    reasoning: str | None,
+    gray: bool,
+    include: tuple[str, ...],
+    dest: Path | None,
+    language: str | None,
+) -> None:
+    """Snapshot one decided finding into a corpus-case/1 stub under _holding/.
+
+    Reads the decided-findings ledger written by the most recent `osoji
+    audit` run in PATH and copies the named finding, its evidence files, and
+    any --include extras into a review-ready case directory.
+    """
+    repo_root = path.resolve()
+    try:
+        resolved_dest = resolve_dest(repo_root, dest)
+        case_dir = emit_case(
+            repo_root,
+            finding_id,
+            slug,
+            resolved_dest,
+            expected_verdict=expected_verdict,
+            reasoning=reasoning,
+            gray=gray,
+            include=include,
+            language=language,
+        )
+    except CorpusEmitError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    click.echo(f"Created {case_dir}")
+    click.echo("Review it, then `git mv` it into <category>/case_NNN_<slug>/ to accept.")
 
 
 @main.group()
