@@ -1,0 +1,20 @@
+{
+  "detector": "audit:latent_bug",
+  "gap_type": "uncategorized",
+  "path": "src/osoji/doc_prompts.py",
+  "line_start": 628,
+  "line_end": 629,
+  "symbol": null,
+  "contract_source": "audit",
+  "contract_claim": "L628-629: `Callable` is referenced in the string annotation `\"Callable[[str, int, int], None] | None\"` but is not imported anywhere in the file. With `from __future__ import annotations` active this causes no runtime error during normal execution. However, any call to `typing.get_type_hints(build_doc_prompts_async)` would raise a `NameError: name 'Callable' is not defined`.",
+  "observed_behavior": "Add `from collections.abc import Callable` (or `from typing import Callable`) to the imports, and remove the redundant inner quote wrapping since `from __future__ import annotations` already stringifies all annotations.",
+  "evidence": [],
+  "id": "4587d7d7dae13e7e",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

@@ -1,0 +1,20 @@
+{
+  "detector": "audit:doc_obsolete_reference",
+  "gap_type": "uncategorized",
+  "path": "docs/explanatory/llm-tool-schemas-and-validation.md",
+  "line_start": null,
+  "line_end": null,
+  "symbol": null,
+  "contract_source": "audit",
+  "contract_claim": "The document references `LiteLLMProvider.complete()` twice as the location of the validation/retry loop. No `LiteLLMProvider` class exists in the codebase. The retry/validation loop is implemented in `DirectProvider.complete()` in `src/osoji/llm/_provider_base.py`. The `LiteLLMProvider` name appears to be from a prior architecture when litellm was used as the provider abstraction. All current providers (AnthropicProvider, ClaudeCodeProvider, GoogleProvider, OpenAIProvider, OpenRouterProvider) extend `DirectProvider`, which implements the shared tool-call retry and schema validation logic. [evidence: src\\osoji\\llm\\_provider_base.py — \"DirectProvider(LLMProvider) ... complete(messages, system, options) (L122-213) — main public entry point. Full async retry/validation loop\"]",
+  "observed_behavior": "Replace both occurrences of `LiteLLMProvider.complete()` with `DirectProvider.complete()` (from `src/osoji/llm/_provider_base.py`). Also update any surrounding prose that implies a single LiteLLM-based provider to describe the DirectProvider base class used by all concrete SDK providers.",
+  "evidence": [],
+  "id": "513f15456e3b826f",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

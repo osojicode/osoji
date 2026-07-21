@@ -1,0 +1,668 @@
+{
+  "source": "src/osoji/scorecard.py",
+  "source_hash": "8ea821580cab39d1",
+  "generated": "2026-07-01T00:00:00Z",
+  "imports": [
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config",
+        "DIRECTORY_SHADOW_FILENAME",
+        "SHADOW_DIR"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": ".doc_analysis",
+      "names": [
+        "DocAnalysisResult"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": ".hasher",
+      "names": [
+        "is_findings_current"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk",
+      "names": [
+        "JunkAnalysisResult"
+      ],
+      "line": 10,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "CoverageEntry",
+      "kind": "class",
+      "line": 14,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JunkCodeEntry",
+      "kind": "class",
+      "line": 21,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Scorecard",
+      "kind": "class",
+      "line": 30,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "merge_ranges",
+      "kind": "function",
+      "line": 78,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "count_lines",
+      "kind": "function",
+      "line": 93,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "build_scorecard",
+      "kind": "function",
+      "line": 112,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "merge_ranges",
+      "to": "sorted",
+      "line": 82,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "merge_ranges",
+      "to": "max",
+      "line": 87,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "merge_ranges",
+      "to": "merged.append",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "count_lines",
+      "to": "len",
+      "line": 96,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "count_lines",
+      "to": "splitlines",
+      "line": 96,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "count_lines",
+      "to": "path.read_text",
+      "line": 96,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_signature",
+      "to": "config.signatures_path_for",
+      "line": 103,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_signature",
+      "to": "Path",
+      "line": 103,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_load_signature",
+      "to": "sig_path.exists",
+      "line": 104,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_signature",
+      "to": "json.loads",
+      "line": 106,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_load_signature",
+      "to": "sig_path.read_text",
+      "line": 106,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "set",
+      "line": 122,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "shadow_root.exists",
+      "line": 123,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "shadow_root.rglob",
+      "line": 124,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "shadow_file.relative_to",
+      "line": 127,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "replace",
+      "line": 128,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "removesuffix",
+      "line": 128,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "str",
+      "line": 128,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "config.is_doc_candidate",
+      "line": 129,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "Path",
+      "line": 129,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "all_source_files.add",
+      "line": 131,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "shadow_path.replace",
+      "line": 139,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "append",
+      "line": 141,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "str",
+      "line": 142,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "sorted",
+      "line": 147,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "_load_signature",
+      "line": 148,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "source_to_docs.get",
+      "line": 149,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "coverage_entries.append",
+      "line": 150,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "CoverageEntry",
+      "line": 150,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "sum",
+      "line": 156,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "len",
+      "line": 157,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "type_total.get",
+      "line": 167,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "type_covered.get",
+      "line": 169,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "type_covered.get",
+      "line": 173,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "replace",
+      "line": 177,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "str",
+      "line": 177,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "len",
+      "line": 181,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "accuracy_by_category.get",
+      "line": 189,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "findings_dir.exists",
+      "line": 199,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_sources.append",
+      "line": 200,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "findings_dir.rglob",
+      "line": 201,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "json.loads",
+      "line": 203,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "findings_file.read_text",
+      "line": 203,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "data.get",
+      "line": 204,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "is_findings_current",
+      "line": 205,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "data.get",
+      "line": 206,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "data.get",
+      "line": 206,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "data.get",
+      "line": 210,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "append",
+      "line": 213,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_results.items",
+      "line": 224,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_sources.append",
+      "line": 225,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "item.source_path.replace",
+      "line": 227,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "append",
+      "line": 228,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_items_by_file.setdefault",
+      "line": 228,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "count_lines",
+      "line": 252,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_items_by_file.items",
+      "line": 255,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "count_lines",
+      "line": 257,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "merge_ranges",
+      "line": 261,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "sum",
+      "line": 262,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "len",
+      "line": 265,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_by_category.get",
+      "line": 270,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "append",
+      "line": 271,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "file_cat_ranges.setdefault",
+      "line": 271,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "file_cat_ranges.items",
+      "line": 272,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "merge_ranges",
+      "line": 273,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_by_category_lines.get",
+      "line": 274,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "sum",
+      "line": 274,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_entries.append",
+      "line": 279,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "JunkCodeEntry",
+      "line": 279,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_entries.sort",
+      "line": 287,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "len",
+      "line": 289,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_results.get",
+      "line": 292,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "len",
+      "line": 296,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "f.metadata.get",
+      "line": 301,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "append",
+      "line": 306,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "Scorecard",
+      "line": 313,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "ignore",
+      "line": 96,
+      "usage": "produced",
+      "context": "keyword argument to path.read_text"
+    },
+    {
+      "value": "utf-8",
+      "line": 106,
+      "usage": "produced",
+      "context": "keyword argument to sig_path.read_text"
+    },
+    {
+      "value": "*.shadow.md",
+      "line": 124,
+      "usage": "produced",
+      "context": "argument to shadow_root.rglob"
+    },
+    {
+      "value": ".shadow.md",
+      "line": 128,
+      "usage": "produced",
+      "context": "argument to removesuffix"
+    },
+    {
+      "value": "error",
+      "line": 186,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.severity"
+    },
+    {
+      "value": "code_debris",
+      "line": 200,
+      "usage": "produced",
+      "context": "argument to junk_sources.append"
+    },
+    {
+      "value": "*.findings.json",
+      "line": 201,
+      "usage": "produced",
+      "context": "argument to findings_dir.rglob"
+    },
+    {
+      "value": "utf-8",
+      "line": 203,
+      "usage": "produced",
+      "context": "keyword argument to findings_file.read_text"
+    },
+    {
+      "value": "source",
+      "line": 204,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "source_hash",
+      "line": 206,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "impl_hash",
+      "line": 206,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "findings",
+      "line": 210,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "code_debris",
+      "line": 217,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "dead_plumbing",
+      "line": 292,
+      "usage": "produced",
+      "context": "argument to junk_results.get"
+    },
+    {
+      "value": "schema_name",
+      "line": 301,
+      "usage": "produced",
+      "context": "argument to f.metadata.get"
+    }
+  ],
+  "extraction_method": "ast"
+}

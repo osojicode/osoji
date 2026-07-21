@@ -1,0 +1,599 @@
+{
+  "source": "src/osoji/findings_adapter.py",
+  "source_hash": "daf6c8b42139a68d",
+  "generated": "2026-07-01T00:00:00Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 26,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path",
+        "PurePosixPath"
+      ],
+      "line": 28,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "TYPE_CHECKING",
+        "Any"
+      ],
+      "line": 29,
+      "is_reexport": false
+    },
+    {
+      "source": ".evidence",
+      "names": [
+        "Evidence"
+      ],
+      "line": 31,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings",
+      "names": [
+        "Finding",
+        "GapType"
+      ],
+      "line": 32,
+      "is_reexport": false
+    },
+    {
+      "source": ".doc_analysis",
+      "names": [
+        "DocFinding"
+      ],
+      "line": 35,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk",
+      "names": [
+        "JunkFinding"
+      ],
+      "line": 36,
+      "is_reexport": false
+    },
+    {
+      "source": ".obligations",
+      "names": [
+        "ContractFinding"
+      ],
+      "line": 37,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "CATEGORY_TO_GAP_TYPE",
+      "kind": "constant",
+      "line": 48,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "gap_type_for",
+      "kind": "function",
+      "line": 81,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "finding_from_junk",
+      "kind": "function",
+      "line": 105,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "finding_from_contract",
+      "kind": "function",
+      "line": 134,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "finding_from_doc",
+      "kind": "function",
+      "line": 164,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "finding_from_debris",
+      "kind": "function",
+      "line": 199,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "findings_from_debris",
+      "kind": "function",
+      "line": 234,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "gap_type_for",
+      "to": "CATEGORY_TO_GAP_TYPE.get",
+      "line": 84,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "Path",
+      "line": 95,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "p.is_absolute",
+      "line": 96,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "p.relative_to",
+      "line": 98,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "Path",
+      "line": 98,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "as_posix",
+      "line": 101,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "PurePosixPath",
+      "line": 101,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "replace",
+      "line": 101,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "str",
+      "line": 101,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "posix.startswith",
+      "line": 102,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "finding_from_junk",
+      "to": "_JUNK_PRODUCER.get",
+      "line": 109,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "finding_from_junk",
+      "to": "Evidence",
+      "line": 110,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_junk",
+      "to": "dict",
+      "line": 117,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "finding_from_junk",
+      "to": "Finding",
+      "line": 120,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_junk",
+      "to": "gap_type_for",
+      "line": 122,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "finding_from_junk",
+      "to": "_norm_path",
+      "line": 123,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "join",
+      "line": 137,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "cf.evidence.items",
+      "line": 137,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "Evidence",
+      "line": 138,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "dict",
+      "line": 147,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "Finding",
+      "line": 150,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "_norm_path",
+      "line": 153,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_doc",
+      "to": "Evidence",
+      "line": 175,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_doc",
+      "to": "list",
+      "line": 181,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "finding_from_doc",
+      "to": "Finding",
+      "line": 185,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_doc",
+      "to": "gap_type_for",
+      "line": 187,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "finding_from_doc",
+      "to": "_norm_path",
+      "line": 188,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "Evidence",
+      "line": 211,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "d.get",
+      "line": 215,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "d.get",
+      "line": 216,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "d.get",
+      "line": 217,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "Finding",
+      "line": 220,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "gap_type_for",
+      "line": 222,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "_norm_path",
+      "line": 223,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "str",
+      "line": 223,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "d.get",
+      "line": 223,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "d.get",
+      "line": 223,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "d.get",
+      "line": 224,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "d.get",
+      "line": 225,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "findings_from_debris",
+      "to": "finding_from_debris",
+      "line": 246,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "reachability",
+      "line": 50,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "reachability",
+      "line": 51,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "reachability",
+      "line": 52,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "reachability",
+      "line": 53,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "reachability",
+      "line": 54,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "reachability",
+      "line": 55,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "reachability",
+      "line": 56,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "reachability",
+      "line": 57,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "description",
+      "line": 59,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "description",
+      "line": 60,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "description",
+      "line": 61,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "description",
+      "line": 62,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "description",
+      "line": 63,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "description",
+      "line": 64,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "description",
+      "line": 65,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "description",
+      "line": 66,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "deadcode",
+      "line": 72,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "deadparam",
+      "line": 73,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "plumbing",
+      "line": 74,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "deps",
+      "line": 75,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "cicd",
+      "line": 76,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "orphan",
+      "line": 77,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "uncategorized",
+      "line": 84,
+      "usage": "produced",
+      "context": "argument to CATEGORY_TO_GAP_TYPE.get"
+    },
+    {
+      "value": "./",
+      "line": 102,
+      "usage": "produced",
+      "context": "argument to posix.startswith"
+    },
+    {
+      "value": "junk",
+      "line": 109,
+      "usage": "produced",
+      "context": "argument to _JUNK_PRODUCER.get"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 111,
+      "usage": "produced",
+      "context": "keyword argument to Evidence"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 139,
+      "usage": "produced",
+      "context": "keyword argument to Evidence"
+    },
+    {
+      "value": "contract",
+      "line": 152,
+      "usage": "produced",
+      "context": "keyword argument to Finding"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 176,
+      "usage": "produced",
+      "context": "keyword argument to Evidence"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 212,
+      "usage": "produced",
+      "context": "keyword argument to Evidence"
+    },
+    {
+      "value": "severity",
+      "line": 215,
+      "usage": "produced",
+      "context": "argument to d.get"
+    },
+    {
+      "value": "suggestion",
+      "line": 216,
+      "usage": "produced",
+      "context": "argument to d.get"
+    },
+    {
+      "value": "cross_file_verification_needed",
+      "line": 217,
+      "usage": "produced",
+      "context": "argument to d.get"
+    },
+    {
+      "value": "source",
+      "line": 223,
+      "usage": "produced",
+      "context": "argument to d.get"
+    },
+    {
+      "value": "source_path",
+      "line": 223,
+      "usage": "produced",
+      "context": "argument to d.get"
+    },
+    {
+      "value": "line_start",
+      "line": 224,
+      "usage": "produced",
+      "context": "argument to d.get"
+    },
+    {
+      "value": "line_end",
+      "line": 225,
+      "usage": "produced",
+      "context": "argument to d.get"
+    },
+    {
+      "value": "code",
+      "line": 227,
+      "usage": "produced",
+      "context": "keyword argument to Finding"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,20 @@
+{
+  "detector": "audit:stale_comment",
+  "gap_type": "description",
+  "path": "src/osoji/deadparam.py",
+  "line_start": 208,
+  "line_end": 211,
+  "symbol": null,
+  "contract_source": "audit",
+  "contract_claim": "L208-211: Comment says 'For constructors nested inside a class, also grep for ClassName(' but the code adds the ClassName( grep pattern for ALL methods whose function name appears in class_for_method — not only __init__/constructors. For non-constructor methods this adds a spurious constructor-call grep pattern, potentially introducing false call sites.",
+  "observed_behavior": "Change comment to 'For methods inside a class, also grep for ClassName( to catch constructor calls and direct class invocations' or restrict the pattern addition to only __init__-style constructors if that was the original intent.",
+  "evidence": [],
+  "id": "72ee1fe94df9c71c",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

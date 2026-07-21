@@ -1,0 +1,2218 @@
+{
+  "source": "tests/test_plugin_python.py",
+  "source_hash": "85b683f6b9d3d9dd",
+  "generated": "2026-07-01T00:00:00Z",
+  "imports": [
+    {
+      "source": "textwrap",
+      "names": [
+        "textwrap"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "pytest",
+      "names": [
+        "pytest"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.plugins.python_plugin",
+      "names": [
+        "PythonPlugin"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.plugins.base",
+      "names": [
+        "ExtractedFacts"
+      ],
+      "line": 492,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "plugin",
+      "kind": "function",
+      "line": 11,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "project",
+      "kind": "function",
+      "line": 16,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "test_basic_extraction",
+      "kind": "function",
+      "line": 33,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_cross_file_call_sites",
+      "kind": "function",
+      "line": 71,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_syntax_error_skips_file",
+      "kind": "function",
+      "line": 93,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_underscore_excluded_from_exports",
+      "kind": "function",
+      "line": 102,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_all_overrides_underscore_exclusion",
+      "kind": "function",
+      "line": 124,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_decorator_exclusion",
+      "kind": "function",
+      "line": 140,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_relative_import_resolution",
+      "kind": "function",
+      "line": 165,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_double_dot_relative_import",
+      "kind": "function",
+      "line": 183,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_reexport_detection_in_init",
+      "kind": "function",
+      "line": 199,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_empty_file",
+      "kind": "function",
+      "line": 223,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_member_writes",
+      "kind": "function",
+      "line": 234,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_to_file_facts_dict",
+      "kind": "function",
+      "line": 250,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_filters_to_python_extensions",
+      "kind": "function",
+      "line": 265,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_framework_decorator_suffix_match",
+      "kind": "function",
+      "line": 274,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_pyi_files_supported",
+      "kind": "function",
+      "line": 293,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_class_method_exports",
+      "kind": "function",
+      "line": 304,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_annotated_assignment",
+      "kind": "function",
+      "line": 321,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_dict_value_extracted_as_produced",
+      "kind": "function",
+      "line": 341,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_equality_comparison_extracted_as_checked",
+      "kind": "function",
+      "line": 355,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_constant_assignment_extracted_as_defined",
+      "kind": "function",
+      "line": 375,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_return_value_extracted_as_produced",
+      "kind": "function",
+      "line": 386,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_default_param_extracted_as_produced",
+      "kind": "function",
+      "line": 396,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_collection_element_extracted_as_produced",
+      "kind": "function",
+      "line": 407,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_docstring_skipped",
+      "kind": "function",
+      "line": 416,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_single_char_skipped",
+      "kind": "function",
+      "line": 431,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_in_operator_extracted_as_checked",
+      "kind": "function",
+      "line": 442,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_dict_values_and_checks_both_extracted",
+      "kind": "function",
+      "line": 456,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_to_file_facts_dict_includes_string_literals",
+      "kind": "function",
+      "line": 481,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_to_file_facts_dict_omits_none_string_literals",
+      "kind": "function",
+      "line": 491,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_class_bases_extracted",
+      "kind": "function",
+      "line": 501,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_class_dotted_base_extracted",
+      "kind": "function",
+      "line": 521,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_class_no_bases_omits_field",
+      "kind": "function",
+      "line": 536,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_nested_function_not_exported",
+      "kind": "function",
+      "line": 549,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_class_method_still_exported",
+      "kind": "function",
+      "line": 565,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "plugin",
+      "to": "PythonPlugin",
+      "line": 12,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProjectHelper.add",
+      "to": "path.parent.mkdir",
+      "line": 25,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProjectHelper.add",
+      "to": "path.write_text",
+      "line": 26,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProjectHelper.add",
+      "to": "textwrap.dedent",
+      "line": 26,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProjectHelper.add",
+      "to": "self.files.append",
+      "line": 27,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "project",
+      "to": "ProjectHelper",
+      "line": 30,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_basic_extraction",
+      "to": "project.add",
+      "line": 34,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_basic_extraction",
+      "to": "plugin.extract_project_facts",
+      "line": 48,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_basic_extraction",
+      "to": "len",
+      "line": 53,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_cross_file_call_sites",
+      "to": "project.add",
+      "line": 72,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_cross_file_call_sites",
+      "to": "project.add",
+      "line": 76,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_cross_file_call_sites",
+      "to": "plugin.extract_project_facts",
+      "line": 84,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_cross_file_call_sites",
+      "to": "len",
+      "line": 88,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_cross_file_call_sites",
+      "to": "all",
+      "line": 90,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_syntax_error_skips_file",
+      "to": "project.add",
+      "line": 94,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_syntax_error_skips_file",
+      "to": "project.add",
+      "line": 95,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_syntax_error_skips_file",
+      "to": "plugin.extract_project_facts",
+      "line": 97,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_underscore_excluded_from_exports",
+      "to": "project.add",
+      "line": 103,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_underscore_excluded_from_exports",
+      "to": "plugin.extract_project_facts",
+      "line": 115,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_all_overrides_underscore_exclusion",
+      "to": "project.add",
+      "line": 125,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_all_overrides_underscore_exclusion",
+      "to": "plugin.extract_project_facts",
+      "line": 133,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_decorator_exclusion",
+      "to": "project.add",
+      "line": 141,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_decorator_exclusion",
+      "to": "plugin.extract_project_facts",
+      "line": 157,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_relative_import_resolution",
+      "to": "project.add",
+      "line": 166,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_relative_import_resolution",
+      "to": "project.add",
+      "line": 167,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_relative_import_resolution",
+      "to": "project.add",
+      "line": 171,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_relative_import_resolution",
+      "to": "plugin.extract_project_facts",
+      "line": 178,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_relative_import_resolution",
+      "to": "any",
+      "line": 180,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_double_dot_relative_import",
+      "to": "project.add",
+      "line": 184,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_double_dot_relative_import",
+      "to": "project.add",
+      "line": 185,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_double_dot_relative_import",
+      "to": "project.add",
+      "line": 186,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_double_dot_relative_import",
+      "to": "project.add",
+      "line": 190,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_double_dot_relative_import",
+      "to": "plugin.extract_project_facts",
+      "line": 194,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_double_dot_relative_import",
+      "to": "any",
+      "line": 196,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_reexport_detection_in_init",
+      "to": "project.add",
+      "line": 200,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_reexport_detection_in_init",
+      "to": "project.add",
+      "line": 204,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_reexport_detection_in_init",
+      "to": "project.add",
+      "line": 208,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_reexport_detection_in_init",
+      "to": "plugin.extract_project_facts",
+      "line": 213,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_reexport_detection_in_init",
+      "to": "reexport_names.extend",
+      "line": 219,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_empty_file",
+      "to": "project.add",
+      "line": 224,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_empty_file",
+      "to": "plugin.extract_project_facts",
+      "line": 226,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_member_writes",
+      "to": "project.add",
+      "line": 235,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_member_writes",
+      "to": "plugin.extract_project_facts",
+      "line": 244,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_member_writes",
+      "to": "any",
+      "line": 246,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_member_writes",
+      "to": "any",
+      "line": 247,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_to_file_facts_dict",
+      "to": "project.add",
+      "line": 251,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_to_file_facts_dict",
+      "to": "plugin.extract_project_facts",
+      "line": 253,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_to_file_facts_dict",
+      "to": "to_file_facts_dict",
+      "line": 254,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_filters_to_python_extensions",
+      "to": "project.add",
+      "line": 266,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_filters_to_python_extensions",
+      "to": "project.add",
+      "line": 267,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_filters_to_python_extensions",
+      "to": "plugin.extract_project_facts",
+      "line": 269,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_framework_decorator_suffix_match",
+      "to": "project.add",
+      "line": 275,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_framework_decorator_suffix_match",
+      "to": "plugin.extract_project_facts",
+      "line": 288,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_pyi_files_supported",
+      "to": "project.add",
+      "line": 294,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_pyi_files_supported",
+      "to": "plugin.extract_project_facts",
+      "line": 298,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_class_method_exports",
+      "to": "project.add",
+      "line": 305,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_class_method_exports",
+      "to": "plugin.extract_project_facts",
+      "line": 314,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_annotated_assignment",
+      "to": "project.add",
+      "line": 322,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_annotated_assignment",
+      "to": "plugin.extract_project_facts",
+      "line": 327,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "_strings_by_usage",
+      "to": "s.get",
+      "line": 338,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_dict_value_extracted_as_produced",
+      "to": "project.add",
+      "line": 342,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_dict_value_extracted_as_produced",
+      "to": "plugin.extract_project_facts",
+      "line": 350,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_dict_value_extracted_as_produced",
+      "to": "_strings_by_usage",
+      "line": 351,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_equality_comparison_extracted_as_checked",
+      "to": "project.add",
+      "line": 356,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_equality_comparison_extracted_as_checked",
+      "to": "plugin.extract_project_facts",
+      "line": 363,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_equality_comparison_extracted_as_checked",
+      "to": "s.get",
+      "line": 365,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_equality_comparison_extracted_as_checked",
+      "to": "s.get",
+      "line": 372,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_constant_assignment_extracted_as_defined",
+      "to": "project.add",
+      "line": 376,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_constant_assignment_extracted_as_defined",
+      "to": "plugin.extract_project_facts",
+      "line": 380,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_constant_assignment_extracted_as_defined",
+      "to": "_strings_by_usage",
+      "line": 381,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_return_value_extracted_as_produced",
+      "to": "project.add",
+      "line": 387,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_return_value_extracted_as_produced",
+      "to": "plugin.extract_project_facts",
+      "line": 391,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_return_value_extracted_as_produced",
+      "to": "_strings_by_usage",
+      "line": 392,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_default_param_extracted_as_produced",
+      "to": "project.add",
+      "line": 397,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_default_param_extracted_as_produced",
+      "to": "plugin.extract_project_facts",
+      "line": 401,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_default_param_extracted_as_produced",
+      "to": "_strings_by_usage",
+      "line": 402,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_collection_element_extracted_as_produced",
+      "to": "project.add",
+      "line": 408,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_collection_element_extracted_as_produced",
+      "to": "plugin.extract_project_facts",
+      "line": 411,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_collection_element_extracted_as_produced",
+      "to": "_strings_by_usage",
+      "line": 412,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_docstring_skipped",
+      "to": "project.add",
+      "line": 417,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_docstring_skipped",
+      "to": "plugin.extract_project_facts",
+      "line": 424,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_single_char_skipped",
+      "to": "project.add",
+      "line": 432,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_single_char_skipped",
+      "to": "plugin.extract_project_facts",
+      "line": 436,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_in_operator_extracted_as_checked",
+      "to": "project.add",
+      "line": 443,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_in_operator_extracted_as_checked",
+      "to": "plugin.extract_project_facts",
+      "line": 448,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_in_operator_extracted_as_checked",
+      "to": "s.get",
+      "line": 449,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_in_operator_extracted_as_checked",
+      "to": "any",
+      "line": 450,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_in_operator_extracted_as_checked",
+      "to": "s.get",
+      "line": 453,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_dict_values_and_checks_both_extracted",
+      "to": "project.add",
+      "line": 458,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_dict_values_and_checks_both_extracted",
+      "to": "plugin.extract_project_facts",
+      "line": 470,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_dict_values_and_checks_both_extracted",
+      "to": "_strings_by_usage",
+      "line": 472,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_dict_values_and_checks_both_extracted",
+      "to": "_strings_by_usage",
+      "line": 473,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_to_file_facts_dict_includes_string_literals",
+      "to": "project.add",
+      "line": 482,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_to_file_facts_dict_includes_string_literals",
+      "to": "plugin.extract_project_facts",
+      "line": 485,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_to_file_facts_dict_includes_string_literals",
+      "to": "to_file_facts_dict",
+      "line": 486,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_to_file_facts_dict_includes_string_literals",
+      "to": "any",
+      "line": 488,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_to_file_facts_dict_omits_none_string_literals",
+      "to": "ExtractedFacts",
+      "line": 493,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_to_file_facts_dict_omits_none_string_literals",
+      "to": "ef.to_file_facts_dict",
+      "line": 494,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_class_bases_extracted",
+      "to": "project.add",
+      "line": 503,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_class_bases_extracted",
+      "to": "plugin.extract_project_facts",
+      "line": 512,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_class_bases_extracted",
+      "to": "next",
+      "line": 514,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_class_bases_extracted",
+      "to": "next",
+      "line": 515,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_class_bases_extracted",
+      "to": "base_export.get",
+      "line": 517,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_class_bases_extracted",
+      "to": "child_export.get",
+      "line": 518,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_class_dotted_base_extracted",
+      "to": "project.add",
+      "line": 523,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_class_dotted_base_extracted",
+      "to": "plugin.extract_project_facts",
+      "line": 529,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_class_dotted_base_extracted",
+      "to": "next",
+      "line": 531,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_class_dotted_base_extracted",
+      "to": "cls_export.get",
+      "line": 533,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_class_no_bases_omits_field",
+      "to": "project.add",
+      "line": 538,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_class_no_bases_omits_field",
+      "to": "plugin.extract_project_facts",
+      "line": 542,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_class_no_bases_omits_field",
+      "to": "next",
+      "line": 544,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_nested_function_not_exported",
+      "to": "project.add",
+      "line": 551,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_nested_function_not_exported",
+      "to": "plugin.extract_project_facts",
+      "line": 557,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_class_method_still_exported",
+      "to": "project.add",
+      "line": 567,
+      "call_sites": 43
+    },
+    {
+      "from_symbol": "test_class_method_still_exported",
+      "to": "plugin.extract_project_facts",
+      "line": 572,
+      "call_sites": 33
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "self",
+      "member": "root",
+      "line": 20
+    },
+    {
+      "container": "self",
+      "member": "files",
+      "line": 21
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "utf-8",
+      "line": 26,
+      "usage": "produced",
+      "context": "keyword argument to path.write_text"
+    },
+    {
+      "value": "main.py",
+      "line": 34,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        import os\n        from pathlib import Path\n\n        MY_CONST = 42\n\n        def greet(name):\n            print(f\"Hello {name}\")\n\n        class Greeter:\n            def say_hi(self):\n                greet(\"world\")\n    ",
+      "line": 34,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "main.py",
+      "line": 49,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "os",
+      "line": 55,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "sources"
+    },
+    {
+      "value": "pathlib",
+      "line": 56,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "sources"
+    },
+    {
+      "value": "MY_CONST",
+      "line": 60,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "greet",
+      "line": 61,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "Greeter",
+      "line": 62,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "Greeter.say_hi",
+      "line": 63,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "print",
+      "line": 67,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "call_targets"
+    },
+    {
+      "value": "greet",
+      "line": 68,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "call_targets"
+    },
+    {
+      "value": "lib.py",
+      "line": 72,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        def helper():\n            pass\n    ",
+      "line": 72,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "app.py",
+      "line": 76,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        from lib import helper\n\n        def main():\n            helper()\n            helper()\n    ",
+      "line": 76,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "helper",
+      "line": 87,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "good.py",
+      "line": 94,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "x = 1\n",
+      "line": 94,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "bad.py",
+      "line": 95,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "def broken(\n",
+      "line": 95,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "good.py",
+      "line": 98,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "bad.py",
+      "line": 99,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "mod.py",
+      "line": 103,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        _private = 1\n        public = 2\n        __dunder__ = 3\n\n        def _helper():\n            pass\n\n        def public_func():\n            pass\n    ",
+      "line": 103,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "public",
+      "line": 117,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "public_func",
+      "line": 118,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "_private",
+      "line": 119,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "_helper",
+      "line": 120,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "__dunder__",
+      "line": 121,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "mod.py",
+      "line": 125,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        __all__ = [\"_special\", \"public\"]\n\n        _special = 1\n        _other = 2\n        public = 3\n    ",
+      "line": 125,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "_special",
+      "line": 135,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "public",
+      "line": 136,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "_other",
+      "line": 137,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "mod.py",
+      "line": 141,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        from abc import abstractmethod\n\n        class Base:\n            @abstractmethod\n            def must_implement(self):\n                pass\n\n            @property\n            def value(self):\n                return 42\n\n            def normal_method(self):\n                pass\n    ",
+      "line": 141,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "pkg/__init__.py",
+      "line": 166,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "pkg/foo.py",
+      "line": 167,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        def foo_func():\n            pass\n    ",
+      "line": 167,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "pkg/bar.py",
+      "line": 171,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        from .foo import foo_func\n\n        def bar_func():\n            foo_func()\n    ",
+      "line": 171,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": ".foo",
+      "line": 180,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "pkg/__init__.py",
+      "line": 184,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "pkg/sub/__init__.py",
+      "line": 185,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "pkg/utils.py",
+      "line": 186,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        def util_func():\n            pass\n    ",
+      "line": 186,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "pkg/sub/deep.py",
+      "line": 190,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        from ..utils import util_func\n    ",
+      "line": 190,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "..utils",
+      "line": 196,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "pkg/__init__.py",
+      "line": 200,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        from .foo import public_func\n        from .bar import _private\n    ",
+      "line": 200,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "pkg/foo.py",
+      "line": 204,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        def public_func():\n            pass\n    ",
+      "line": 204,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "pkg/bar.py",
+      "line": 208,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        def _private():\n            pass\n    ",
+      "line": 208,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "public_func",
+      "line": 220,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "reexport_names"
+    },
+    {
+      "value": "empty.py",
+      "line": 224,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "mod.py",
+      "line": 235,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        class Config:\n            pass\n\n        cfg = Config()\n        cfg.name = \"test\"\n        cfg.value = 42\n    ",
+      "line": 235,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "cfg",
+      "line": 246,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "name",
+      "line": 246,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "cfg",
+      "line": 247,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "value",
+      "line": 247,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "mod.py",
+      "line": 251,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "x = 1\n",
+      "line": 251,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "mod.py",
+      "line": 254,
+      "usage": "produced",
+      "context": "argument to to_file_facts_dict"
+    },
+    {
+      "value": "abc123",
+      "line": 254,
+      "usage": "produced",
+      "context": "argument to to_file_facts_dict"
+    },
+    {
+      "value": "mod.py",
+      "line": 256,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "abc123",
+      "line": 257,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "ast",
+      "line": 258,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "imports",
+      "line": 259,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "facts_dict"
+    },
+    {
+      "value": "exports",
+      "line": 260,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "facts_dict"
+    },
+    {
+      "value": "calls",
+      "line": 261,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "facts_dict"
+    },
+    {
+      "value": "member_writes",
+      "line": 262,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "facts_dict"
+    },
+    {
+      "value": "code.py",
+      "line": 266,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "x = 1\n",
+      "line": 266,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "code.js",
+      "line": 267,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "const x = 1;\n",
+      "line": 267,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "code.py",
+      "line": 270,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "code.js",
+      "line": 271,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "views.py",
+      "line": 275,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        class router:\n            @staticmethod\n            def get(path):\n                def decorator(fn):\n                    return fn\n                return decorator\n\n        @router.get(\"/items\")\n        def list_items():\n            return []\n    ",
+      "line": 275,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "types.pyi",
+      "line": 294,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        def typed_func(x: int) -> str: ...\n    ",
+      "line": 294,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "types.pyi",
+      "line": 299,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "typed_func",
+      "line": 301,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "mod.py",
+      "line": 305,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        class MyClass:\n            def method_a(self):\n                pass\n\n            async def method_b(self):\n                pass\n    ",
+      "line": 305,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "MyClass",
+      "line": 316,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "MyClass.method_a",
+      "line": 317,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "MyClass.method_b",
+      "line": 318,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "mod.py",
+      "line": 322,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        count: int = 0\n        _internal: str = \"x\"\n    ",
+      "line": 322,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "count",
+      "line": 329,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "_internal",
+      "line": 330,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "usage",
+      "line": 338,
+      "usage": "produced",
+      "context": "argument to s.get"
+    },
+    {
+      "value": "config.py",
+      "line": 342,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        _MANIFEST_FILES = {\n            \"pyproject.toml\": \"python\",\n            \"package.json\": \"node\",\n            \"Cargo.toml\": \"rust\",\n            \"go.mod\": \"go\",\n        }\n    ",
+      "line": 342,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "produced",
+      "line": 351,
+      "usage": "produced",
+      "context": "argument to _strings_by_usage"
+    },
+    {
+      "value": "python",
+      "line": 352,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "node",
+      "line": 352,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "rust",
+      "line": 352,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "go",
+      "line": 352,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "handler.py",
+      "line": 356,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        def handle(ecosystem):\n            if ecosystem == \"python\":\n                return True\n            if ecosystem == \"node\":\n                return True\n    ",
+      "line": 356,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "usage",
+      "line": 365,
+      "usage": "produced",
+      "context": "argument to s.get"
+    },
+    {
+      "value": "checked",
+      "line": 365,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "python",
+      "line": 367,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "checked_values"
+    },
+    {
+      "value": "node",
+      "line": 368,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "checked_values"
+    },
+    {
+      "value": "python",
+      "line": 371,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "node",
+      "line": 371,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "comparison_source",
+      "line": 372,
+      "usage": "produced",
+      "context": "argument to s.get"
+    },
+    {
+      "value": "ecosystem",
+      "line": 372,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "constants.py",
+      "line": 376,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        MODE = \"production\"\n        DEBUG_LEVEL = \"verbose\"\n    ",
+      "line": 376,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "defined",
+      "line": 381,
+      "usage": "produced",
+      "context": "argument to _strings_by_usage"
+    },
+    {
+      "value": "production",
+      "line": 382,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "defined"
+    },
+    {
+      "value": "verbose",
+      "line": 383,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "defined"
+    },
+    {
+      "value": "util.py",
+      "line": 387,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        def status():\n            return \"success\"\n    ",
+      "line": 387,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "produced",
+      "line": 392,
+      "usage": "produced",
+      "context": "argument to _strings_by_usage"
+    },
+    {
+      "value": "success",
+      "line": 393,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "produced"
+    },
+    {
+      "value": "api.py",
+      "line": 397,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        def connect(mode=\"auto\", host=\"localhost\"):\n            pass\n    ",
+      "line": 397,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "produced",
+      "line": 402,
+      "usage": "produced",
+      "context": "argument to _strings_by_usage"
+    },
+    {
+      "value": "auto",
+      "line": 403,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "produced"
+    },
+    {
+      "value": "localhost",
+      "line": 404,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "produced"
+    },
+    {
+      "value": "choices.py",
+      "line": 408,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        MODES = [\"fast\", \"slow\", \"balanced\"]\n    ",
+      "line": 408,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "produced",
+      "line": 412,
+      "usage": "produced",
+      "context": "argument to _strings_by_usage"
+    },
+    {
+      "value": "fast",
+      "line": 413,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "slow",
+      "line": 413,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "balanced",
+      "line": 413,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "mod.py",
+      "line": 417,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        \"\"\"This is a module docstring.\"\"\"\n\n        def func():\n            \"\"\"This is a function docstring.\"\"\"\n            return \"real_value\"\n    ",
+      "line": 417,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "This is a module docstring.",
+      "line": 426,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "all_values"
+    },
+    {
+      "value": "This is a function docstring.",
+      "line": 427,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "all_values"
+    },
+    {
+      "value": "real_value",
+      "line": 428,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "all_values"
+    },
+    {
+      "value": "mod.py",
+      "line": 432,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        x = \"a\"\n        y = \"ab\"\n    ",
+      "line": 432,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "ab",
+      "line": 439,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "all_values"
+    },
+    {
+      "value": "checker.py",
+      "line": 443,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        def check(data):\n            if \"key_name\" in data:\n                return True\n    ",
+      "line": 443,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "usage",
+      "line": 449,
+      "usage": "produced",
+      "context": "argument to s.get"
+    },
+    {
+      "value": "checked",
+      "line": 449,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "key_name",
+      "line": 450,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "key_name",
+      "line": 452,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "comparison_source",
+      "line": 453,
+      "usage": "produced",
+      "context": "argument to s.get"
+    },
+    {
+      "value": "data",
+      "line": 453,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "junk_deps.py",
+      "line": 458,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        _MANIFEST_FILES = {\n            \"pyproject.toml\": \"python\",\n            \"package.json\": \"node\",\n        }\n\n        def resolve(ecosystem):\n            if ecosystem == \"python\":\n                return [\"pip\"]\n            if ecosystem == \"node\":\n                return [\"npm\"]\n    ",
+      "line": 458,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "produced",
+      "line": 472,
+      "usage": "produced",
+      "context": "argument to _strings_by_usage"
+    },
+    {
+      "value": "checked",
+      "line": 473,
+      "usage": "produced",
+      "context": "argument to _strings_by_usage"
+    },
+    {
+      "value": "python",
+      "line": 475,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "produced"
+    },
+    {
+      "value": "python",
+      "line": 476,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "checked"
+    },
+    {
+      "value": "node",
+      "line": 477,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "produced"
+    },
+    {
+      "value": "node",
+      "line": 478,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "checked"
+    },
+    {
+      "value": "mod.py",
+      "line": 482,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        STATUS = \"active\"\n    ",
+      "line": 482,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "mod.py",
+      "line": 486,
+      "usage": "produced",
+      "context": "argument to to_file_facts_dict"
+    },
+    {
+      "value": "hash123",
+      "line": 486,
+      "usage": "produced",
+      "context": "argument to to_file_facts_dict"
+    },
+    {
+      "value": "string_literals",
+      "line": 487,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "d"
+    },
+    {
+      "value": "active",
+      "line": 488,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "x.ts",
+      "line": 494,
+      "usage": "produced",
+      "context": "argument to ef.to_file_facts_dict"
+    },
+    {
+      "value": "hash",
+      "line": 494,
+      "usage": "produced",
+      "context": "argument to ef.to_file_facts_dict"
+    },
+    {
+      "value": "string_literals",
+      "line": 495,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "d"
+    },
+    {
+      "value": "mod.py",
+      "line": 503,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        from abc import ABC\n\n        class Base(ABC):\n            pass\n\n        class Child(Base):\n            pass\n    ",
+      "line": 503,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "Base",
+      "line": 514,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "Child",
+      "line": 515,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "bases",
+      "line": 517,
+      "usage": "produced",
+      "context": "argument to base_export.get"
+    },
+    {
+      "value": "ABC",
+      "line": 517,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "bases",
+      "line": 518,
+      "usage": "produced",
+      "context": "argument to child_export.get"
+    },
+    {
+      "value": "Base",
+      "line": 518,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "mod.py",
+      "line": 523,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        import abc\n\n        class MyABC(abc.ABC):\n            pass\n    ",
+      "line": 523,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "MyABC",
+      "line": 531,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "bases",
+      "line": 533,
+      "usage": "produced",
+      "context": "argument to cls_export.get"
+    },
+    {
+      "value": "abc.ABC",
+      "line": 533,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "mod.py",
+      "line": 538,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        class Plain:\n            pass\n    ",
+      "line": 538,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "Plain",
+      "line": 544,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "bases",
+      "line": 546,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "cls_export"
+    },
+    {
+      "value": "mod.py",
+      "line": 551,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        def outer():\n            def inner():\n                pass\n            return inner()\n    ",
+      "line": 551,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "outer",
+      "line": 560,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "inner",
+      "line": 561,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "outer.inner",
+      "line": 562,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "mod.py",
+      "line": 567,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "        class MyClass:\n            def method(self):\n                pass\n    ",
+      "line": 567,
+      "usage": "produced",
+      "context": "argument to project.add"
+    },
+    {
+      "value": "MyClass",
+      "line": 575,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    },
+    {
+      "value": "MyClass.method",
+      "line": 576,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "export_names"
+    }
+  ],
+  "extraction_method": "ast"
+}

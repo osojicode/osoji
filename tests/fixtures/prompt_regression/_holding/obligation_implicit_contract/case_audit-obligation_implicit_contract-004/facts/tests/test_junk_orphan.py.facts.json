@@ -1,0 +1,1914 @@
+{
+  "source": "tests/test_junk_orphan.py",
+  "source_hash": "cbd5a580d1b7a35e",
+  "generated": "2026-07-01T00:00:00Z",
+  "imports": [
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "unittest.mock",
+      "names": [
+        "AsyncMock"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "pytest",
+      "names": [
+        "pytest"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.config",
+      "names": [
+        "Config"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.junk_orphan",
+      "names": [
+        "OrphanCandidate",
+        "OrphanedFilesAnalyzer",
+        "_build_import_edges",
+        "_identify_entry_points_heuristic",
+        "_identify_entry_points_async",
+        "_identify_relationships_async",
+        "_load_signatures",
+        "_verify_orphans_batch_async",
+        "detect_orphaned_files_async",
+        "find_orphans"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.types",
+      "names": [
+        "CompletionResult",
+        "ToolCall"
+      ],
+      "line": 22,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.junk",
+      "names": [
+        "JunkAnalyzer"
+      ],
+      "line": 382,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "TestBuildImportEdges",
+      "kind": "class",
+      "line": 47,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestBuildImportEdges.test_finds_cross_file_references",
+      "kind": "function",
+      "line": 48,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestBuildImportEdges.test_no_self_edges",
+      "kind": "function",
+      "line": 63,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestBuildImportEdges.test_empty_symbols",
+      "kind": "function",
+      "line": 75,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestBuildImportEdges.test_bidirectional_edges",
+      "kind": "function",
+      "line": 80,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindOrphans",
+      "kind": "class",
+      "line": 97,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindOrphans.test_simple_graph",
+      "kind": "function",
+      "line": 98,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindOrphans.test_all_reachable",
+      "kind": "function",
+      "line": 112,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindOrphans.test_all_orphaned",
+      "kind": "function",
+      "line": 121,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindOrphans.test_multiple_entry_points",
+      "kind": "function",
+      "line": 130,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindOrphans.test_transitive_reachability",
+      "kind": "function",
+      "line": 141,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestIdentifyEntryPointsHeuristic",
+      "kind": "class",
+      "line": 157,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestIdentifyEntryPointsHeuristic.test_identifies_entry_role",
+      "kind": "function",
+      "line": 158,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestIdentifyEntryPointsHeuristic.test_identifies_test_role",
+      "kind": "function",
+      "line": 163,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestIdentifyEntryPointsHeuristic.test_identifies_init",
+      "kind": "function",
+      "line": 168,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestIdentifyEntryPointsHeuristic.test_identifies_conftest",
+      "kind": "function",
+      "line": 173,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestIdentifyEntryPointsHeuristic.test_identifies_test_prefix",
+      "kind": "function",
+      "line": 178,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestIdentifyEntryPointsHeuristic.test_skips_regular_service",
+      "kind": "function",
+      "line": 183,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestIdentifyEntryPointsAsync",
+      "kind": "class",
+      "line": 191,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestIdentifyEntryPointsAsync.test_identifies_entry_points",
+      "kind": "function",
+      "line": 193,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestIdentifyRelationshipsAsync",
+      "kind": "class",
+      "line": 222,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestIdentifyRelationshipsAsync.test_identifies_relationships",
+      "kind": "function",
+      "line": 224,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestIdentifyRelationshipsAsync.test_empty_disconnected",
+      "kind": "function",
+      "line": 250,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestVerifyOrphans",
+      "kind": "class",
+      "line": 262,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestVerifyOrphans.test_confirms_orphan",
+      "kind": "function",
+      "line": 264,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestVerifyOrphans.test_says_alive",
+      "kind": "function",
+      "line": 296,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestVerifyOrphans.test_no_tool_calls_raises",
+      "kind": "function",
+      "line": 327,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestLoadSignatures",
+      "kind": "class",
+      "line": 349,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestLoadSignatures.test_loads_signatures",
+      "kind": "function",
+      "line": 350,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestLoadSignatures.test_skips_directory_signatures",
+      "kind": "function",
+      "line": 358,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestLoadSignatures.test_empty_dir",
+      "kind": "function",
+      "line": 366,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestOrphanedFilesAnalyzer",
+      "kind": "class",
+      "line": 374,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestOrphanedFilesAnalyzer.test_analyzer_properties",
+      "kind": "function",
+      "line": 375,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestOrphanedFilesAnalyzer.test_is_junk_analyzer_subclass",
+      "kind": "function",
+      "line": 381,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestOrphanedFilesAnalyzer.test_skips_without_symbols",
+      "kind": "function",
+      "line": 386,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "_write_source",
+      "to": "full.parent.mkdir",
+      "line": 30,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_source",
+      "to": "full.write_text",
+      "line": 31,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_signature",
+      "to": "sig_path.parent.mkdir",
+      "line": 37,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_write_signature",
+      "to": "sig_path.write_text",
+      "line": 38,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_write_signature",
+      "to": "json.dumps",
+      "line": 38,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_finds_cross_file_references",
+      "to": "Config",
+      "line": 49,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_finds_cross_file_references",
+      "to": "_write_source",
+      "line": 50,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_finds_cross_file_references",
+      "to": "_write_source",
+      "line": 51,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_finds_cross_file_references",
+      "to": "_build_import_edges",
+      "line": 57,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_finds_cross_file_references",
+      "to": "adjacency.get",
+      "line": 60,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_finds_cross_file_references",
+      "to": "set",
+      "line": 60,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_finds_cross_file_references",
+      "to": "adjacency.get",
+      "line": 61,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_finds_cross_file_references",
+      "to": "set",
+      "line": 61,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_no_self_edges",
+      "to": "Config",
+      "line": 64,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_no_self_edges",
+      "to": "_write_source",
+      "line": 65,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_no_self_edges",
+      "to": "_build_import_edges",
+      "line": 70,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_no_self_edges",
+      "to": "adjacency.get",
+      "line": 73,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_no_self_edges",
+      "to": "set",
+      "line": 73,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_empty_symbols",
+      "to": "Config",
+      "line": 76,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_empty_symbols",
+      "to": "_build_import_edges",
+      "line": 77,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_bidirectional_edges",
+      "to": "Config",
+      "line": 81,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_bidirectional_edges",
+      "to": "_write_source",
+      "line": 82,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_bidirectional_edges",
+      "to": "_write_source",
+      "line": 83,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_bidirectional_edges",
+      "to": "_build_import_edges",
+      "line": 89,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_bidirectional_edges",
+      "to": "adjacency.get",
+      "line": 91,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_bidirectional_edges",
+      "to": "set",
+      "line": 91,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_bidirectional_edges",
+      "to": "adjacency.get",
+      "line": 92,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestBuildImportEdges.test_bidirectional_edges",
+      "to": "set",
+      "line": 92,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestFindOrphans.test_simple_graph",
+      "to": "set",
+      "line": 103,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestFindOrphans.test_simple_graph",
+      "to": "find_orphans",
+      "line": 106,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestFindOrphans.test_all_reachable",
+      "to": "find_orphans",
+      "line": 118,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestFindOrphans.test_all_orphaned",
+      "to": "set",
+      "line": 123,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestFindOrphans.test_all_orphaned",
+      "to": "set",
+      "line": 124,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestFindOrphans.test_all_orphaned",
+      "to": "set",
+      "line": 126,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestFindOrphans.test_all_orphaned",
+      "to": "find_orphans",
+      "line": 127,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestFindOrphans.test_all_orphaned",
+      "to": "set",
+      "line": 128,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestFindOrphans.test_multiple_entry_points",
+      "to": "set",
+      "line": 135,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestFindOrphans.test_multiple_entry_points",
+      "to": "find_orphans",
+      "line": 138,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestFindOrphans.test_transitive_reachability",
+      "to": "set",
+      "line": 147,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestFindOrphans.test_transitive_reachability",
+      "to": "find_orphans",
+      "line": 150,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestIdentifyEntryPointsHeuristic.test_identifies_entry_role",
+      "to": "_identify_entry_points_heuristic",
+      "line": 160,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestIdentifyEntryPointsHeuristic.test_identifies_test_role",
+      "to": "_identify_entry_points_heuristic",
+      "line": 165,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestIdentifyEntryPointsHeuristic.test_identifies_init",
+      "to": "_identify_entry_points_heuristic",
+      "line": 170,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestIdentifyEntryPointsHeuristic.test_identifies_conftest",
+      "to": "_identify_entry_points_heuristic",
+      "line": 175,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestIdentifyEntryPointsHeuristic.test_identifies_test_prefix",
+      "to": "_identify_entry_points_heuristic",
+      "line": 180,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestIdentifyEntryPointsHeuristic.test_skips_regular_service",
+      "to": "_identify_entry_points_heuristic",
+      "line": 185,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestIdentifyEntryPointsAsync.test_identifies_entry_points",
+      "to": "AsyncMock",
+      "line": 194,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestIdentifyEntryPointsAsync.test_identifies_entry_points",
+      "to": "CompletionResult",
+      "line": 195,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestIdentifyEntryPointsAsync.test_identifies_entry_points",
+      "to": "ToolCall",
+      "line": 197,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestIdentifyEntryPointsAsync.test_identifies_entry_points",
+      "to": "Config",
+      "line": 210,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "TestIdentifyEntryPointsAsync.test_identifies_entry_points",
+      "to": "Path",
+      "line": 210,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestIdentifyEntryPointsAsync.test_identifies_entry_points",
+      "to": "_identify_entry_points_async",
+      "line": 215,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestIdentifyRelationshipsAsync.test_identifies_relationships",
+      "to": "AsyncMock",
+      "line": 225,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestIdentifyRelationshipsAsync.test_identifies_relationships",
+      "to": "CompletionResult",
+      "line": 226,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestIdentifyRelationshipsAsync.test_identifies_relationships",
+      "to": "ToolCall",
+      "line": 228,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestIdentifyRelationshipsAsync.test_identifies_relationships",
+      "to": "Config",
+      "line": 241,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "TestIdentifyRelationshipsAsync.test_identifies_relationships",
+      "to": "Path",
+      "line": 241,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestIdentifyRelationshipsAsync.test_identifies_relationships",
+      "to": "_identify_relationships_async",
+      "line": 244,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestIdentifyRelationshipsAsync.test_empty_disconnected",
+      "to": "AsyncMock",
+      "line": 251,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestIdentifyRelationshipsAsync.test_empty_disconnected",
+      "to": "Config",
+      "line": 252,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "TestIdentifyRelationshipsAsync.test_empty_disconnected",
+      "to": "Path",
+      "line": 252,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestIdentifyRelationshipsAsync.test_empty_disconnected",
+      "to": "_identify_relationships_async",
+      "line": 253,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestIdentifyRelationshipsAsync.test_empty_disconnected",
+      "to": "mock_provider.complete.assert_not_called",
+      "line": 257,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_confirms_orphan",
+      "to": "AsyncMock",
+      "line": 265,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_confirms_orphan",
+      "to": "CompletionResult",
+      "line": 266,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_confirms_orphan",
+      "to": "ToolCall",
+      "line": 268,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_confirms_orphan",
+      "to": "Config",
+      "line": 283,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_confirms_orphan",
+      "to": "Path",
+      "line": 283,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_confirms_orphan",
+      "to": "OrphanCandidate",
+      "line": 284,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_confirms_orphan",
+      "to": "_verify_orphans_batch_async",
+      "line": 288,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_confirms_orphan",
+      "to": "len",
+      "line": 291,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_says_alive",
+      "to": "AsyncMock",
+      "line": 297,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_says_alive",
+      "to": "CompletionResult",
+      "line": 298,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_says_alive",
+      "to": "ToolCall",
+      "line": 300,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_says_alive",
+      "to": "Config",
+      "line": 315,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_says_alive",
+      "to": "Path",
+      "line": 315,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_says_alive",
+      "to": "OrphanCandidate",
+      "line": 316,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_says_alive",
+      "to": "_verify_orphans_batch_async",
+      "line": 320,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_says_alive",
+      "to": "len",
+      "line": 323,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_no_tool_calls_raises",
+      "to": "AsyncMock",
+      "line": 328,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_no_tool_calls_raises",
+      "to": "CompletionResult",
+      "line": 329,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_no_tool_calls_raises",
+      "to": "Config",
+      "line": 336,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_no_tool_calls_raises",
+      "to": "Path",
+      "line": 336,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_no_tool_calls_raises",
+      "to": "OrphanCandidate",
+      "line": 337,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_no_tool_calls_raises",
+      "to": "pytest.raises",
+      "line": 341,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestVerifyOrphans.test_no_tool_calls_raises",
+      "to": "_verify_orphans_batch_async",
+      "line": 342,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestLoadSignatures.test_loads_signatures",
+      "to": "Config",
+      "line": 351,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "TestLoadSignatures.test_loads_signatures",
+      "to": "_write_signature",
+      "line": 352,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestLoadSignatures.test_loads_signatures",
+      "to": "_load_signatures",
+      "line": 353,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestLoadSignatures.test_loads_signatures",
+      "to": "len",
+      "line": 354,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestLoadSignatures.test_skips_directory_signatures",
+      "to": "Config",
+      "line": 359,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "TestLoadSignatures.test_skips_directory_signatures",
+      "to": "sig_path.parent.mkdir",
+      "line": 361,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestLoadSignatures.test_skips_directory_signatures",
+      "to": "sig_path.write_text",
+      "line": 362,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestLoadSignatures.test_skips_directory_signatures",
+      "to": "json.dumps",
+      "line": 362,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestLoadSignatures.test_skips_directory_signatures",
+      "to": "_load_signatures",
+      "line": 363,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestLoadSignatures.test_skips_directory_signatures",
+      "to": "len",
+      "line": 364,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestLoadSignatures.test_empty_dir",
+      "to": "Config",
+      "line": 367,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "TestLoadSignatures.test_empty_dir",
+      "to": "_load_signatures",
+      "line": 368,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestOrphanedFilesAnalyzer.test_analyzer_properties",
+      "to": "OrphanedFilesAnalyzer",
+      "line": 376,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestOrphanedFilesAnalyzer.test_analyzer_properties",
+      "to": "analyzer.description.lower",
+      "line": 379,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestOrphanedFilesAnalyzer.test_is_junk_analyzer_subclass",
+      "to": "issubclass",
+      "line": 383,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestOrphanedFilesAnalyzer.test_skips_without_symbols",
+      "to": "Config",
+      "line": 387,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "TestOrphanedFilesAnalyzer.test_skips_without_symbols",
+      "to": "AsyncMock",
+      "line": 388,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestOrphanedFilesAnalyzer.test_skips_without_symbols",
+      "to": "detect_orphaned_files_async",
+      "line": 389,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestOrphanedFilesAnalyzer.test_skips_without_symbols",
+      "to": "mock_provider.complete.assert_not_called",
+      "line": 392,
+      "call_sites": 2
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "mock_provider.complete",
+      "member": "return_value",
+      "line": 195
+    },
+    {
+      "container": "mock_provider.complete",
+      "member": "return_value",
+      "line": 226
+    },
+    {
+      "container": "mock_provider.complete",
+      "member": "return_value",
+      "line": 266
+    },
+    {
+      "container": "mock_provider.complete",
+      "member": "return_value",
+      "line": 298
+    },
+    {
+      "container": "mock_provider.complete",
+      "member": "return_value",
+      "line": 329
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "src/a.py",
+      "line": 50,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "from b import helper\nhelper()\n",
+      "line": 50,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "src/b.py",
+      "line": 51,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "def helper(): pass\n",
+      "line": 51,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "main",
+      "line": 54,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 54,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "helper",
+      "line": 55,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 55,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/b.py",
+      "line": 60,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/a.py",
+      "line": 60,
+      "usage": "produced",
+      "context": "argument to adjacency.get"
+    },
+    {
+      "value": "src/a.py",
+      "line": 61,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/b.py",
+      "line": 61,
+      "usage": "produced",
+      "context": "argument to adjacency.get"
+    },
+    {
+      "value": "src/a.py",
+      "line": 65,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "def foo(): pass\nfoo()\n",
+      "line": 65,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "foo",
+      "line": 68,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 68,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/a.py",
+      "line": 73,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/a.py",
+      "line": 73,
+      "usage": "produced",
+      "context": "argument to adjacency.get"
+    },
+    {
+      "value": "src/a.py",
+      "line": 82,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "import b_func\n",
+      "line": 82,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "src/b.py",
+      "line": 83,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "def b_func(): pass\nimport a_func\n",
+      "line": 83,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "a_func",
+      "line": 86,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 86,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "b_func",
+      "line": 87,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 87,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/b.py",
+      "line": 91,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/a.py",
+      "line": 91,
+      "usage": "produced",
+      "context": "argument to adjacency.get"
+    },
+    {
+      "value": "src/a.py",
+      "line": 92,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/b.py",
+      "line": 92,
+      "usage": "produced",
+      "context": "argument to adjacency.get"
+    },
+    {
+      "value": "b.py",
+      "line": 100,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "a.py",
+      "line": 101,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "c.py",
+      "line": 101,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "b.py",
+      "line": 102,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "a.py",
+      "line": 105,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "orphan.py",
+      "line": 107,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "orphans"
+    },
+    {
+      "value": "a.py",
+      "line": 108,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "orphans"
+    },
+    {
+      "value": "b.py",
+      "line": 109,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "orphans"
+    },
+    {
+      "value": "c.py",
+      "line": 110,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "orphans"
+    },
+    {
+      "value": "b.py",
+      "line": 114,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "a.py",
+      "line": 115,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "a.py",
+      "line": 117,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "a.py",
+      "line": 128,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "b.py",
+      "line": 128,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "lib.py",
+      "line": 132,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "lib.py",
+      "line": 133,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "main.py",
+      "line": 134,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "test.py",
+      "line": 134,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "main.py",
+      "line": 137,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "test.py",
+      "line": 137,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "orphan.py",
+      "line": 139,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "a.py",
+      "line": 143,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "entry.py",
+      "line": 144,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "b.py",
+      "line": 144,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "a.py",
+      "line": 145,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "c.py",
+      "line": 145,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "b.py",
+      "line": 146,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "entry.py",
+      "line": 149,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "orphan.py",
+      "line": 151,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "orphans"
+    },
+    {
+      "value": "c.py",
+      "line": 152,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "orphans"
+    },
+    {
+      "value": "src/main.py",
+      "line": 159,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "entry",
+      "line": 159,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/main.py",
+      "line": 161,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "tests/test_foo.py",
+      "line": 164,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test",
+      "line": 164,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "tests/test_foo.py",
+      "line": 166,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "src/__init__.py",
+      "line": 169,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "utility",
+      "line": 169,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/__init__.py",
+      "line": 171,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "tests/conftest.py",
+      "line": 174,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "config",
+      "line": 174,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "tests/conftest.py",
+      "line": 176,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "test_something.py",
+      "line": 179,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "service",
+      "line": 179,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test_something.py",
+      "line": 181,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "src/service.py",
+      "line": 184,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "service",
+      "line": 184,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/service.py",
+      "line": 186,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "tc1",
+      "line": 198,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "identify_entry_points",
+      "line": 198,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "src/main.py",
+      "line": 201,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "CLI entry",
+      "line": 201,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/lib.py",
+      "line": 202,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Library module",
+      "line": 202,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test",
+      "line": 207,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 207,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "src/main.py",
+      "line": 212,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "entry",
+      "line": 212,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "CLI",
+      "line": 212,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/lib.py",
+      "line": 213,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "utility",
+      "line": 213,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Helpers",
+      "line": 213,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/main.py",
+      "line": 216,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "src/lib.py",
+      "line": 217,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "tc1",
+      "line": 229,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "identify_relationships",
+      "line": 229,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "src/plugin.py",
+      "line": 232,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/app.py",
+      "line": 232,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Plugin loaded by app framework",
+      "line": 233,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test",
+      "line": 238,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 238,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "src/plugin.py",
+      "line": 242,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Plugin",
+      "line": 242,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "plugin",
+      "line": 242,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/app.py",
+      "line": 243,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Main app",
+      "line": 243,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "app",
+      "line": 243,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/plugin.py",
+      "line": 247,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/app.py",
+      "line": 247,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "a.py",
+      "line": 254,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "tc1",
+      "line": 269,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "verify_orphan_files",
+      "line": 269,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "src/old.py",
+      "line": 272,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "No imports, no dynamic loading",
+      "line": 274,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Delete file",
+      "line": 275,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test",
+      "line": 280,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 280,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "src/old.py",
+      "line": 285,
+      "usage": "produced",
+      "context": "keyword argument to OrphanCandidate"
+    },
+    {
+      "value": "Old utility",
+      "line": 285,
+      "usage": "produced",
+      "context": "keyword argument to OrphanCandidate"
+    },
+    {
+      "value": "legacy",
+      "line": 285,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "utility",
+      "line": 286,
+      "usage": "produced",
+      "context": "keyword argument to OrphanCandidate"
+    },
+    {
+      "value": "tc1",
+      "line": 301,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "verify_orphan_files",
+      "line": 301,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "src/plugin.py",
+      "line": 304,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Loaded dynamically as pytest plugin",
+      "line": 306,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Keep — pytest plugin",
+      "line": 307,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test",
+      "line": 312,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 312,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "src/plugin.py",
+      "line": 317,
+      "usage": "produced",
+      "context": "keyword argument to OrphanCandidate"
+    },
+    {
+      "value": "Pytest plugin",
+      "line": 317,
+      "usage": "produced",
+      "context": "keyword argument to OrphanCandidate"
+    },
+    {
+      "value": "testing",
+      "line": 317,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "utility",
+      "line": 318,
+      "usage": "produced",
+      "context": "keyword argument to OrphanCandidate"
+    },
+    {
+      "value": "No tool response",
+      "line": 330,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "test",
+      "line": 333,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "end_turn",
+      "line": 333,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "src/old.py",
+      "line": 338,
+      "usage": "produced",
+      "context": "keyword argument to OrphanCandidate"
+    },
+    {
+      "value": "Old",
+      "line": 338,
+      "usage": "produced",
+      "context": "keyword argument to OrphanCandidate"
+    },
+    {
+      "value": "utility",
+      "line": 339,
+      "usage": "produced",
+      "context": "keyword argument to OrphanCandidate"
+    },
+    {
+      "value": "did not return verdicts",
+      "line": 341,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "src/app.py",
+      "line": 352,
+      "usage": "produced",
+      "context": "argument to _write_signature"
+    },
+    {
+      "value": "Main application",
+      "line": 352,
+      "usage": "produced",
+      "context": "argument to _write_signature"
+    },
+    {
+      "value": "app",
+      "line": 352,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "server",
+      "line": 352,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/app.py",
+      "line": 355,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "Main application",
+      "line": 356,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "Root",
+      "line": 362,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "orphaned_files",
+      "line": 377,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "analyzer.name"
+    },
+    {
+      "value": "orphaned-files",
+      "line": 378,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "analyzer.cli_flag"
+    },
+    {
+      "value": "orphan",
+      "line": 379,
+      "usage": "checked",
+      "context": "equality comparison"
+    }
+  ],
+  "extraction_method": "ast"
+}

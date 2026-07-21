@@ -1,0 +1,1652 @@
+{
+  "source": "src/osoji/doc_prompts.py",
+  "source_hash": "506b279bb4cc4149",
+  "generated": "2026-07-01T00:00:00Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "field"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config",
+        "SHADOW_DIR"
+      ],
+      "line": 15,
+      "is_reexport": false
+    },
+    {
+      "source": ".facts",
+      "names": [
+        "FactsDB"
+      ],
+      "line": 16,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk",
+      "names": [
+        "load_shadow_content"
+      ],
+      "line": 17,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.base",
+      "names": [
+        "LLMProvider"
+      ],
+      "line": 18,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.runtime",
+      "names": [
+        "create_runtime"
+      ],
+      "line": 19,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.types",
+      "names": [
+        "CompletionOptions",
+        "Message",
+        "MessageRole"
+      ],
+      "line": 20,
+      "is_reexport": false
+    },
+    {
+      "source": ".rate_limiter",
+      "names": [
+        "RateLimiter"
+      ],
+      "line": 21,
+      "is_reexport": false
+    },
+    {
+      "source": ".scorecard",
+      "names": [
+        "Scorecard"
+      ],
+      "line": 22,
+      "is_reexport": false
+    },
+    {
+      "source": ".symbols",
+      "names": [
+        "load_all_symbols",
+        "load_file_roles"
+      ],
+      "line": 23,
+      "is_reexport": false
+    },
+    {
+      "source": ".tools",
+      "names": [
+        "get_concept_inventory_tool_definitions",
+        "get_writing_prompts_tool_definitions"
+      ],
+      "line": 24,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "Concept",
+      "kind": "class",
+      "line": 35,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "WritingPrompt",
+      "kind": "class",
+      "line": 60,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DocPromptsResult",
+      "kind": "class",
+      "line": 76,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "build_doc_prompts_async",
+      "kind": "function",
+      "line": 624,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "Concept",
+      "to": "field",
+      "line": 46,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "Concept",
+      "to": "field",
+      "line": 47,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "Concept",
+      "to": "field",
+      "line": 52,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "WritingPrompt",
+      "to": "field",
+      "line": 68,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "WritingPrompt",
+      "to": "field",
+      "line": 69,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "WritingPrompt",
+      "to": "field",
+      "line": 71,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DocPromptsResult",
+      "to": "field",
+      "line": 85,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "load_file_roles",
+      "line": 108,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "load_all_symbols",
+      "line": 109,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "facts_dir.exists",
+      "line": 114,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "FactsDB",
+      "line": 116,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "len",
+      "line": 118,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "facts_db.importers_of",
+      "line": 118,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "sig_dir.exists",
+      "line": 125,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "sig_dir.rglob",
+      "line": 126,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "json.loads",
+      "line": 130,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "sig_file.read_text",
+      "line": 130,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "data.get",
+      "line": 131,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "file_roles.items",
+      "line": 138,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "signatures.get",
+      "line": 139,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "sum",
+      "line": 140,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "all_symbols.get",
+      "line": 141,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "s.get",
+      "line": 142,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "result.append",
+      "line": 144,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "_FileMetadata",
+      "line": 144,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "sig.get",
+      "line": 146,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "sig.get",
+      "line": 147,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_load_file_metadata",
+      "to": "fan_in_map.get",
+      "line": 150,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_format_file_listing",
+      "to": "lines.append",
+      "line": 214,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_file_listing",
+      "to": "lines.append",
+      "line": 215,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_file_listing",
+      "to": "lines.append",
+      "line": 216,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_file_listing",
+      "to": "lines.append",
+      "line": 217,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_file_listing",
+      "to": "lines.append",
+      "line": 218,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_file_listing",
+      "to": "lines.append",
+      "line": 219,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_file_listing",
+      "to": "lines.append",
+      "line": 220,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_file_listing",
+      "to": "join",
+      "line": 221,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "_format_file_listing",
+      "line": 233,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "provider.complete",
+      "line": 239,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "Message",
+      "line": 240,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "CompletionOptions",
+      "line": 242,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "config.model_for",
+      "line": 243,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "max",
+      "line": 244,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "len",
+      "line": 244,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "get_concept_inventory_tool_definitions",
+      "line": 246,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "tc.input.get",
+      "line": 254,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "c.get",
+      "line": 255,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "Concept",
+      "line": 256,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "c.get",
+      "line": 257,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "c.get",
+      "line": 258,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "c.get",
+      "line": 259,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "c.get",
+      "line": 261,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "c.get",
+      "line": 262,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "c.get",
+      "line": 263,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "sum",
+      "line": 264,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "fan_in_map.get",
+      "line": 264,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "sum",
+      "line": 265,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "public_count_map.get",
+      "line": 265,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_concept_inventory_async",
+      "to": "concepts.append",
+      "line": 267,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_map_coverage",
+      "to": "set",
+      "line": 283,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_map_coverage",
+      "to": "source_to_docs.get",
+      "line": 285,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_map_coverage",
+      "to": "seen.add",
+      "line": 288,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_map_coverage",
+      "to": "concept.existing_coverage.append",
+      "line": 289,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_compute_coverage_summary",
+      "to": "type_needed.get",
+      "line": 315,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_compute_coverage_summary",
+      "to": "type_covered.get",
+      "line": 319,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_compute_coverage_summary",
+      "to": "type_covered.get",
+      "line": 325,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_compute_priority",
+      "to": "signals.append",
+      "line": 345,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_compute_priority",
+      "to": "signals.append",
+      "line": 348,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_compute_priority",
+      "to": "signals.append",
+      "line": 351,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_compute_priority",
+      "to": "signals.append",
+      "line": 356,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_compute_priority",
+      "to": "signals.append",
+      "line": 359,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_compute_priority",
+      "to": "signals.append",
+      "line": 364,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_compute_priority",
+      "to": "signals.append",
+      "line": 369,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_compute_priority",
+      "to": "signals.append",
+      "line": 374,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "set",
+      "line": 394,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "set",
+      "line": 395,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "enumerate",
+      "line": 398,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "clustered.add",
+      "line": 402,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "len",
+      "line": 409,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "len",
+      "line": 409,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "len",
+      "line": 410,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "min",
+      "line": 411,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "len",
+      "line": 411,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "len",
+      "line": 411,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "set",
+      "line": 414,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "set",
+      "line": 414,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "cluster.append",
+      "line": 416,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "clustered.add",
+      "line": 417,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "len",
+      "line": 418,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "join",
+      "line": 419,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "sorted",
+      "line": 419,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_cluster_for_prompts",
+      "to": "clusters.append",
+      "line": 422,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_prepare_prompt_context",
+      "to": "load_shadow_content",
+      "line": 467,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_prepare_prompt_context",
+      "to": "excerpts.append",
+      "line": 469,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 485,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "set",
+      "line": 488,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "clustered_ids.add",
+      "line": 491,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 498,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 499,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "set",
+      "line": 500,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "set",
+      "line": 502,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "_prepare_prompt_context",
+      "line": 505,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 506,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 507,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 508,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 509,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 510,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 511,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 514,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 515,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 516,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "sorted",
+      "line": 516,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 517,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "_prepare_prompt_context",
+      "line": 526,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 527,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 528,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 529,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 530,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 531,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 532,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 533,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "join",
+      "line": 533,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 536,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 537,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 539,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 540,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "lines.append",
+      "line": 543,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "_format_gaps_for_prompt",
+      "to": "join",
+      "line": 544,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "_format_gaps_for_prompt",
+      "line": 558,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "provider.complete",
+      "line": 560,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "Message",
+      "line": 561,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "CompletionOptions",
+      "line": 563,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "config.model_for",
+      "line": 564,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "max",
+      "line": 565,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "len",
+      "line": 565,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "get_writing_prompts_tool_definitions",
+      "line": 567,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "tc.input.get",
+      "line": 577,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "p.get",
+      "line": 578,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "concept_map.get",
+      "line": 582,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "_PRIORITY_RANK.get",
+      "line": 583,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "_PRIORITY_RANK.get",
+      "line": 583,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "concept_map.get",
+      "line": 590,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "_prepare_prompt_context",
+      "line": 592,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "excerpts.extend",
+      "line": 593,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "related.extend",
+      "line": 594,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "p.get",
+      "line": 596,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "len",
+      "line": 598,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "join",
+      "line": 599,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "sorted",
+      "line": 599,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "prompts.append",
+      "line": 601,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "WritingPrompt",
+      "line": 601,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "p.get",
+      "line": 602,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "p.get",
+      "line": 604,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "p.get",
+      "line": 606,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "list",
+      "line": 608,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "set",
+      "line": 608,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "p.get",
+      "line": 609,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "output_guidance.get",
+      "line": 611,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_generate_writing_prompts_async",
+      "to": "output_guidance.get",
+      "line": 612,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "create_runtime",
+      "line": 640,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "_load_file_metadata",
+      "line": 644,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "DocPromptsResult",
+      "line": 646,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "_build_concept_inventory_async",
+      "line": 649,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "on_stage_complete",
+      "line": 653,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "DocPromptsResult",
+      "line": 660,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "_map_coverage",
+      "line": 663,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "_compute_priority",
+      "line": 667,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "_cluster_for_prompts",
+      "line": 670,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "_generate_writing_prompts_async",
+      "line": 673,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "on_stage_complete",
+      "line": 677,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "_compute_coverage_summary",
+      "line": 684,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "sum",
+      "line": 685,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "sum",
+      "line": 686,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "sum",
+      "line": 687,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "sum",
+      "line": 688,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "len",
+      "line": 688,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "DocPromptsResult",
+      "line": 690,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "len",
+      "line": 693,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "len",
+      "line": 699,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "build_doc_prompts_async",
+      "to": "logging_provider.close",
+      "line": 703,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "concept",
+      "member": "missing_types",
+      "line": 295
+    },
+    {
+      "container": "concept",
+      "member": "coverage_status",
+      "line": 299
+    },
+    {
+      "container": "concept",
+      "member": "coverage_status",
+      "line": 301
+    },
+    {
+      "container": "concept",
+      "member": "coverage_status",
+      "line": 303
+    },
+    {
+      "container": "concept",
+      "member": "priority_score",
+      "line": 376
+    },
+    {
+      "container": "concept",
+      "member": "priority_signals",
+      "line": 377
+    },
+    {
+      "container": "concept",
+      "member": "priority",
+      "line": 380
+    },
+    {
+      "container": "concept",
+      "member": "priority",
+      "line": 382
+    },
+    {
+      "container": "concept",
+      "member": "priority",
+      "line": 384
+    },
+    {
+      "container": "c",
+      "member": "cluster_id",
+      "line": 421
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "undocumented",
+      "line": 48,
+      "usage": "defined",
+      "context": "constant coverage_status"
+    },
+    {
+      "value": "low",
+      "line": 50,
+      "usage": "defined",
+      "context": "constant priority"
+    },
+    {
+      "value": "*.signature.json",
+      "line": 126,
+      "usage": "produced",
+      "context": "argument to sig_dir.rglob"
+    },
+    {
+      "value": "_directory.signature.json",
+      "line": 127,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "sig_file.name"
+    },
+    {
+      "value": "utf-8",
+      "line": 130,
+      "usage": "produced",
+      "context": "keyword argument to sig_file.read_text"
+    },
+    {
+      "value": "path",
+      "line": 131,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "visibility",
+      "line": 142,
+      "usage": "produced",
+      "context": "argument to s.get"
+    },
+    {
+      "value": "public",
+      "line": 142,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "purpose",
+      "line": 146,
+      "usage": "produced",
+      "context": "argument to sig.get"
+    },
+    {
+      "value": "topics",
+      "line": 147,
+      "usage": "produced",
+      "context": "argument to sig.get"
+    },
+    {
+      "value": "You are a documentation architect analyzing a codebase to build a concept inventory.\n\nYour task: consolidate file-level topic summaries into a codebase-level concept inventory. Each concept should represent a coherent, documentable unit — roughly what you'd see as a chapter heading in a developer guide.\n\nCLUSTERING GUIDELINES:\n- Merge related file-level topics into higher-level concepts when files collaborate on a single capability (e.g., breakpoints.ts + conditions.ts + hit_counts.ts → \"Breakpoint Lifecycle\")\n- Keep concepts separate when files serve genuinely distinct purposes, even if they're in the same directory\n- Target 15-25 concepts for a medium-sized project. Better to have well-defined concepts than granular ones that mirror the file list\n- Every source file must belong to at least one concept. Files may belong to multiple concepts if they serve multiple concerns.\n\nCONCEPT ROLES:\nFor each concept, classify its primary role. This determines what documentation types are appropriate:\n- public_api: Exported functions, classes, or interfaces consumed by external users\n- cli_command: Command-line interface entry points\n- configuration: Config loading, env vars, settings management\n- architectural_pattern: Design patterns, cross-cutting concerns, system structure\n- internal_utility: Private helpers, shared formatters, internal plumbing\n- integration_point: External system connectors (APIs, databases, file I/O)\n- data_model: Core data structures, schemas, type definitions\n- error_handling: Error types, recovery strategies, validation\n- testing_infrastructure: Test utilities, fixtures, helpers (NOT the tests themselves)\n\nAPPROPRIATE DOCUMENTATION TYPES:\nFor each concept, determine which Diataxis types are genuinely useful:\n- public_api → reference + tutorial + how-to\n- cli_command → reference + how-to\n- configuration → reference + how-to\n- architectural_pattern → explanatory + reference\n- internal_utility → reference only\n- integration_point → how-to + reference\n- data_model → reference (+ explanatory if complex)\n- error_handling → how-to + reference\n- testing_infrastructure → how-to + reference\n\nYou may override these defaults with justification. A complex internal utility may warrant an explanatory doc. A trivial public API may need only reference.\n\nUse the provided metadata (file_role, public_count, fan_in) as signals, but make your own judgment from the topic signatures and file purposes.",
+      "line": 160,
+      "usage": "defined",
+      "context": "constant _CONCEPT_INVENTORY_SYSTEM_PROMPT"
+    },
+    {
+      "value": "Source files with metadata:\n",
+      "line": 212,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "---",
+      "line": 214,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "medium",
+      "line": 243,
+      "usage": "produced",
+      "context": "argument to config.model_for"
+    },
+    {
+      "value": "doc_prompts.concept_inventory",
+      "line": 245,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "tool",
+      "line": 247,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "build_concept_inventory",
+      "line": 247,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "build_concept_inventory",
+      "line": 253,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tc.name"
+    },
+    {
+      "value": "concepts",
+      "line": 254,
+      "usage": "produced",
+      "context": "argument to tc.input.get"
+    },
+    {
+      "value": "source_files",
+      "line": 255,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "concept_id",
+      "line": 257,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "concept_name",
+      "line": 258,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "concept_description",
+      "line": 259,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "concept_role",
+      "line": 261,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "internal_utility",
+      "line": 261,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "appropriate_doc_types",
+      "line": 262,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "appropriateness_rationale",
+      "line": 263,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "public_api",
+      "line": 343,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cli_command",
+      "line": 343,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "configuration",
+      "line": 346,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "integration_point",
+      "line": 346,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "architectural_pattern",
+      "line": 349,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "data_model",
+      "line": 349,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "undocumented",
+      "line": 367,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "concept.coverage_status"
+    },
+    {
+      "value": "completely undocumented",
+      "line": 369,
+      "usage": "produced",
+      "context": "argument to signals.append"
+    },
+    {
+      "value": "testing_infrastructure",
+      "line": 372,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "concept.concept_role"
+    },
+    {
+      "value": "testing infrastructure (low priority)",
+      "line": 374,
+      "usage": "produced",
+      "context": "argument to signals.append"
+    },
+    {
+      "value": "You are a technical writing strategist. Generate self-contained documentation writing prompts that another agent can execute without re-auditing the codebase.\n\nFor each documentation gap (concept × missing Diataxis type), produce a prompt that includes:\n1. TASK: \"Write a [type] covering [concept]\" — clear, actionable\n2. AUDIENCE: Who will read this doc, inferred from concept role\n3. SCOPE: What to cover, what's explicitly out of bounds, what adjacent concepts to reference but not explain\n4. QUALITY CRITERIA: What \"done\" looks like for this specific type and concept\n5. CONSISTENCY: Reference existing related docs so the agent maintains consistency\n\nFor TUTORIALS: structure as a learning path with prerequisites, steps, and verification points. Focus on \"follow along and learn.\"\n\nFor HOW-TO GUIDES: structure as goal-oriented steps. Focus on \"accomplish this specific task.\" Assume the reader already understands the concepts.\n\nFor REFERENCE: structure as precise, complete, scannable information. Cover all public API surface, parameters, return values, error conditions.\n\nFor EXPLANATORY: structure as a discussion of why things work the way they do. Connect concepts, explain trade-offs, provide mental models.\n\nWhen concepts are clustered, generate a single combined prompt covering all concepts in the cluster rather than separate prompts.\n\nOutput guidance should follow the project's existing doc structure and naming conventions.",
+      "line": 429,
+      "usage": "defined",
+      "context": "constant _WRITING_PROMPTS_SYSTEM_PROMPT"
+    },
+    {
+      "value": "Generate writing prompts for the following documentation gaps:\n",
+      "line": 485,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "medium",
+      "line": 564,
+      "usage": "produced",
+      "context": "argument to config.model_for"
+    },
+    {
+      "value": "doc_prompts.writing_prompts",
+      "line": 566,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "tool",
+      "line": 568,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "generate_writing_prompts",
+      "line": 568,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "generate_writing_prompts",
+      "line": 576,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tc.name"
+    },
+    {
+      "value": "prompts",
+      "line": 577,
+      "usage": "produced",
+      "context": "argument to tc.input.get"
+    },
+    {
+      "value": "target_concept_ids",
+      "line": 578,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "low",
+      "line": 580,
+      "usage": "defined",
+      "context": "constant priority"
+    },
+    {
+      "value": "output_guidance",
+      "line": 596,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "prompt_id",
+      "line": 602,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "diataxis_type",
+      "line": 604,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "prompt_text",
+      "line": 606,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "scope_constraints",
+      "line": 609,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "suggested_filename",
+      "line": 611,
+      "usage": "produced",
+      "context": "argument to output_guidance.get"
+    },
+    {
+      "value": "suggested_directory",
+      "line": 612,
+      "usage": "produced",
+      "context": "argument to output_guidance.get"
+    },
+    {
+      "value": "concept inventory",
+      "line": 654,
+      "usage": "produced",
+      "context": "argument to on_stage_complete"
+    },
+    {
+      "value": "writing prompts",
+      "line": 678,
+      "usage": "produced",
+      "context": "argument to on_stage_complete"
+    },
+    {
+      "value": "fully_documented",
+      "line": 685,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "c.coverage_status"
+    },
+    {
+      "value": "partially_documented",
+      "line": 686,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "c.coverage_status"
+    },
+    {
+      "value": "undocumented",
+      "line": 687,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "c.coverage_status"
+    },
+    {
+      "value": "DocPromptsResult",
+      "line": 629,
+      "usage": "produced",
+      "context": "collection element"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,20 @@
+{
+  "detector": "audit:dead_parameter",
+  "gap_type": "reachability",
+  "path": "src/osoji/findings_adapter.py",
+  "line_start": 105,
+  "line_end": 105,
+  "symbol": null,
+  "contract_source": "audit",
+  "contract_claim": "L105: parameter `finding_from_junk.root` — All 6 call sites invoke `finding_from_junk` with only a `JunkFinding` positional argument (via `_junk(...)`) and never pass `root` as a keyword or positional argument. The parameter always takes its default value of `None`. The `root` value is forwarded to `_norm_path`, where the branch `if root is not None and p.is_absolute()` (inside `_norm_path`) handles it, but that gating is in the helper — no conditional branch gated exclusively by `root` exists inside `finding_from_junk` itself.",
+  "observed_behavior": "Remove the `root` keyword parameter from `finding_from_junk` and replace the call `_norm_path(jf.source_path, root)` with `_norm_path(jf.source_path)` (passing `None` implicitly via `_norm_path`'s own default). If `root`-based path relativization is ever needed in the future it can be re-added then.",
+  "evidence": [],
+  "id": "92c929204840dec8",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

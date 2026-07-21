@@ -1,0 +1,670 @@
+{
+  "source": "src/osoji/llm/rate_limited.py",
+  "source_hash": "41bd32f882b1afb2",
+  "generated": "2026-07-01T00:00:00Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "math",
+      "names": [
+        "math"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "datetime",
+      "names": [
+        "datetime",
+        "timezone"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "email.utils",
+      "names": [
+        "parsedate_to_datetime"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "..rate_limiter",
+      "names": [
+        "RateLimiter"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": ".base",
+      "names": [
+        "LLMProvider"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": ".tokens",
+      "names": [
+        "TokenCounter",
+        "estimate_tokens_offline"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": ".types",
+      "names": [
+        "CompletionOptions",
+        "CompletionResult",
+        "Message",
+        "RateLimitMetadata"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": "anthropic",
+      "names": [
+        "_a"
+      ],
+      "line": 181,
+      "is_reexport": false,
+      "name_map": {
+        "_a": "anthropic"
+      }
+    },
+    {
+      "source": "openai",
+      "names": [
+        "_o"
+      ],
+      "line": 191,
+      "is_reexport": false,
+      "name_map": {
+        "_o": "openai"
+      }
+    },
+    {
+      "source": "google.api_core",
+      "names": [
+        "_g"
+      ],
+      "line": 201,
+      "is_reexport": false,
+      "name_map": {
+        "_g": "exceptions"
+      }
+    }
+  ],
+  "exports": [
+    {
+      "name": "RateLimitedProvider",
+      "kind": "class",
+      "line": 28,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "LLMProvider"
+      ]
+    },
+    {
+      "name": "RateLimitedProvider.__init__",
+      "kind": "function",
+      "line": 31,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RateLimitedProvider.name",
+      "kind": "function",
+      "line": 43,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "RateLimitedProvider.complete",
+      "kind": "function",
+      "line": 46,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RateLimitedProvider.close",
+      "kind": "function",
+      "line": 109,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RateLimitedProvider.get_rate_limit_summary",
+      "kind": "function",
+      "line": 114,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RateLimitedProvider._auto_tune_from_headers",
+      "kind": "function",
+      "line": 117,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RateLimitedProvider._estimate_input_tokens",
+      "kind": "function",
+      "line": 135,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RateLimitedProvider._is_retryable_error",
+      "kind": "function",
+      "line": 178,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RateLimitedProvider._extract_retry_after",
+      "kind": "function",
+      "line": 214,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RateLimitedProvider._status_code",
+      "kind": "function",
+      "line": 242,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "_parse_header_int",
+      "to": "headers.get",
+      "line": 18,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_header_int",
+      "to": "int",
+      "line": 22,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider.complete",
+      "to": "self._estimate_input_tokens",
+      "line": 56,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider.complete",
+      "to": "math.ceil",
+      "line": 62,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider.complete",
+      "to": "self._rate_limiter.acquire",
+      "line": 66,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider.complete",
+      "to": "self._provider.complete",
+      "line": 74,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider.complete",
+      "to": "self._is_retryable_error",
+      "line": 76,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider.complete",
+      "to": "self._rate_limiter.finalize_failure",
+      "line": 77,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RateLimitedProvider.complete",
+      "to": "self._extract_retry_after",
+      "line": 79,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider.complete",
+      "to": "min",
+      "line": 79,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider.complete",
+      "to": "float",
+      "line": 79,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RateLimitedProvider.complete",
+      "to": "self._rate_limiter.finalize_failure",
+      "line": 80,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RateLimitedProvider.complete",
+      "to": "self._rate_limiter.finalize_success",
+      "line": 90,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider.complete",
+      "to": "RateLimitMetadata",
+      "line": 95,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider.complete",
+      "to": "self._auto_tune_from_headers",
+      "line": 106,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider.close",
+      "to": "self._provider.close",
+      "line": 110,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider.close",
+      "to": "self._token_counter.close",
+      "line": 112,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider.get_rate_limit_summary",
+      "to": "self._rate_limiter.get_summary",
+      "line": 115,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider._auto_tune_from_headers",
+      "to": "_parse_header_int",
+      "line": 119,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RateLimitedProvider._auto_tune_from_headers",
+      "to": "_parse_header_int",
+      "line": 121,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RateLimitedProvider._auto_tune_from_headers",
+      "to": "_parse_header_int",
+      "line": 123,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RateLimitedProvider._auto_tune_from_headers",
+      "to": "_parse_header_int",
+      "line": 125,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RateLimitedProvider._auto_tune_from_headers",
+      "to": "self._rate_limiter.update_limits",
+      "line": 130,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "max",
+      "line": 142,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "max",
+      "line": 146,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "self._token_counter.count_tokens_async",
+      "line": 148,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "parts.append",
+      "line": 159,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "parts.append",
+      "line": 162,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "str",
+      "line": 162,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "isinstance",
+      "line": 163,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "parts.append",
+      "line": 164,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "parts.append",
+      "line": 166,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "str",
+      "line": 166,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "parts.extend",
+      "line": 169,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "parts.extend",
+      "line": 170,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "parts.extend",
+      "line": 171,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "str",
+      "line": 171,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "parts.append",
+      "line": 174,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "str",
+      "line": 174,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "estimate_tokens_offline",
+      "line": 176,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider._estimate_input_tokens",
+      "to": "join",
+      "line": 176,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider._is_retryable_error",
+      "to": "isinstance",
+      "line": 182,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RateLimitedProvider._is_retryable_error",
+      "to": "isinstance",
+      "line": 184,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RateLimitedProvider._is_retryable_error",
+      "to": "isinstance",
+      "line": 192,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RateLimitedProvider._is_retryable_error",
+      "to": "isinstance",
+      "line": 194,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RateLimitedProvider._is_retryable_error",
+      "to": "isinstance",
+      "line": 202,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RateLimitedProvider._extract_retry_after",
+      "to": "getattr",
+      "line": 215,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RateLimitedProvider._extract_retry_after",
+      "to": "getattr",
+      "line": 216,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RateLimitedProvider._extract_retry_after",
+      "to": "headers.get",
+      "line": 220,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RateLimitedProvider._extract_retry_after",
+      "to": "max",
+      "line": 223,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RateLimitedProvider._extract_retry_after",
+      "to": "float",
+      "line": 223,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RateLimitedProvider._extract_retry_after",
+      "to": "headers.get",
+      "line": 227,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RateLimitedProvider._extract_retry_after",
+      "to": "max",
+      "line": 230,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RateLimitedProvider._extract_retry_after",
+      "to": "float",
+      "line": 230,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RateLimitedProvider._extract_retry_after",
+      "to": "parsedate_to_datetime",
+      "line": 233,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider._extract_retry_after",
+      "to": "retry_time.replace",
+      "line": 237,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider._extract_retry_after",
+      "to": "max",
+      "line": 238,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RateLimitedProvider._extract_retry_after",
+      "to": "total_seconds",
+      "line": 238,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider._extract_retry_after",
+      "to": "datetime.now",
+      "line": 238,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RateLimitedProvider._status_code",
+      "to": "getattr",
+      "line": 243,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RateLimitedProvider._status_code",
+      "to": "isinstance",
+      "line": 244,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RateLimitedProvider._status_code",
+      "to": "getattr",
+      "line": 246,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RateLimitedProvider._status_code",
+      "to": "getattr",
+      "line": 247,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RateLimitedProvider._status_code",
+      "to": "isinstance",
+      "line": 248,
+      "call_sites": 8
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "self",
+      "member": "_provider",
+      "line": 38
+    },
+    {
+      "container": "self",
+      "member": "_rate_limiter",
+      "line": 39
+    },
+    {
+      "container": "self",
+      "member": "_token_counter",
+      "line": 40
+    },
+    {
+      "container": "result",
+      "member": "rate_limit",
+      "line": 95
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "anthropic-ratelimit-requests-limit",
+      "line": 119,
+      "usage": "produced",
+      "context": "argument to _parse_header_int"
+    },
+    {
+      "value": "x-ratelimit-limit-requests",
+      "line": 121,
+      "usage": "produced",
+      "context": "argument to _parse_header_int"
+    },
+    {
+      "value": "anthropic-ratelimit-tokens-limit",
+      "line": 123,
+      "usage": "produced",
+      "context": "argument to _parse_header_int"
+    },
+    {
+      "value": "x-ratelimit-limit-tokens",
+      "line": 125,
+      "usage": "produced",
+      "context": "argument to _parse_header_int"
+    },
+    {
+      "value": "response",
+      "line": 215,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "headers",
+      "line": 216,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "retry-after-ms",
+      "line": 220,
+      "usage": "produced",
+      "context": "argument to headers.get"
+    },
+    {
+      "value": "retry-after",
+      "line": 227,
+      "usage": "produced",
+      "context": "argument to headers.get"
+    },
+    {
+      "value": "status_code",
+      "line": 243,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "response",
+      "line": 246,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "status_code",
+      "line": 247,
+      "usage": "produced",
+      "context": "argument to getattr"
+    }
+  ],
+  "extraction_method": "ast"
+}

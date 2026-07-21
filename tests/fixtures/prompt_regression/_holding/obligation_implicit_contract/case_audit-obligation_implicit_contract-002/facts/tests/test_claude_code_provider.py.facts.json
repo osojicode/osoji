@@ -1,0 +1,2633 @@
+{
+  "source": "tests/test_claude_code_provider.py",
+  "source_hash": "23a55d9b64429fbf",
+  "generated": "2026-07-01T00:00:00Z",
+  "imports": [
+    {
+      "source": "asyncio",
+      "names": [
+        "asyncio"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "os",
+      "names": [
+        "os"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "unittest.mock",
+      "names": [
+        "AsyncMock",
+        "MagicMock",
+        "patch"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "pytest",
+      "names": [
+        "pytest"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.claude_code",
+      "names": [
+        "ClaudeCodeCLIError",
+        "ClaudeCodeProvider"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.types",
+      "names": [
+        "CompletionOptions",
+        "Message",
+        "MessageRole",
+        "RequiredToolCallError",
+        "ToolDefinition",
+        "ToolSchemaValidationError"
+      ],
+      "line": 11,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "SIMPLE_SCHEMA",
+      "kind": "constant",
+      "line": 21,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TOOL_DEF",
+      "kind": "constant",
+      "line": 30,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_provider_name",
+      "kind": "function",
+      "line": 80,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_provider_raises_when_cli_not_found",
+      "kind": "function",
+      "line": 85,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_provider_uses_env_path",
+      "kind": "function",
+      "line": 91,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_basic_text_completion",
+      "kind": "function",
+      "line": 105,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_forced_tool_structured_output",
+      "kind": "function",
+      "line": 131,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_tool_description_in_prompt",
+      "kind": "function",
+      "line": 170,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_validation_retry_then_success",
+      "kind": "function",
+      "line": 201,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_missing_structured_output_raises_after_max_retries",
+      "kind": "function",
+      "line": 234,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_validation_exhaustion_raises",
+      "kind": "function",
+      "line": 262,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_serialize_single_user_message",
+      "kind": "function",
+      "line": 288,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_serialize_multi_turn",
+      "kind": "function",
+      "line": 296,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_serialize_list_content",
+      "kind": "function",
+      "line": 310,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_model_mapping_strips_prefix",
+      "kind": "function",
+      "line": 330,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_model_mapping_passthrough",
+      "kind": "function",
+      "line": 335,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_cli_error_raises_exception",
+      "kind": "function",
+      "line": 346,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_cli_error_extracts_stdout_when_stderr_empty",
+      "kind": "function",
+      "line": 360,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_cli_error_extracts_raw_stdout_when_not_json",
+      "kind": "function",
+      "line": 378,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_is_error_response_raises",
+      "kind": "function",
+      "line": 393,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_invalid_json_raises",
+      "kind": "function",
+      "line": 408,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_anthropic_api_key_stripped_from_subprocess_env",
+      "kind": "function",
+      "line": 427,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_prompt_piped_via_stdin",
+      "kind": "function",
+      "line": 451,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_token_counts_from_model_usage",
+      "kind": "function",
+      "line": 482,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_no_tools_no_json_schema",
+      "kind": "function",
+      "line": 508,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_custom_validators_applied",
+      "kind": "function",
+      "line": 530,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_close_is_noop",
+      "kind": "function",
+      "line": 565,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_context_isolation_flags",
+      "kind": "function",
+      "line": 577,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_auto_tool_choice_no_forced_tool",
+      "kind": "function",
+      "line": 607,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "ToolDefinition",
+      "line": 30,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_make_process",
+      "to": "AsyncMock",
+      "line": 63,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_make_process",
+      "to": "AsyncMock",
+      "line": 65,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_make_process",
+      "to": "MagicMock",
+      "line": 66,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_provider",
+      "to": "patch",
+      "line": 71,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_provider",
+      "to": "ClaudeCodeProvider",
+      "line": 72,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_provider_name",
+      "to": "_provider",
+      "line": 81,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_provider_raises_when_cli_not_found",
+      "to": "patch",
+      "line": 86,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_provider_raises_when_cli_not_found",
+      "to": "pytest.raises",
+      "line": 87,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_provider_raises_when_cli_not_found",
+      "to": "ClaudeCodeProvider",
+      "line": 88,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_provider_uses_env_path",
+      "to": "patch.dict",
+      "line": 92,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_provider_uses_env_path",
+      "to": "patch",
+      "line": 93,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_provider_uses_env_path",
+      "to": "ClaudeCodeProvider",
+      "line": 94,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_provider_uses_env_path",
+      "to": "mock_which.assert_not_called",
+      "line": 96,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_basic_text_completion",
+      "to": "_provider",
+      "line": 106,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_basic_text_completion",
+      "to": "_cli_response",
+      "line": 107,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_basic_text_completion",
+      "to": "_make_process",
+      "line": 108,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_basic_text_completion",
+      "to": "encode",
+      "line": 108,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_basic_text_completion",
+      "to": "json.dumps",
+      "line": 108,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_basic_text_completion",
+      "to": "patch",
+      "line": 110,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_basic_text_completion",
+      "to": "p.complete",
+      "line": 111,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_basic_text_completion",
+      "to": "Message",
+      "line": 112,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_basic_text_completion",
+      "to": "CompletionOptions",
+      "line": 114,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_forced_tool_structured_output",
+      "to": "_provider",
+      "line": 132,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_forced_tool_structured_output",
+      "to": "_cli_response",
+      "line": 134,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_forced_tool_structured_output",
+      "to": "_make_process",
+      "line": 135,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_forced_tool_structured_output",
+      "to": "encode",
+      "line": 135,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_forced_tool_structured_output",
+      "to": "json.dumps",
+      "line": 135,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_forced_tool_structured_output",
+      "to": "patch",
+      "line": 137,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_forced_tool_structured_output",
+      "to": "p.complete",
+      "line": 138,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_forced_tool_structured_output",
+      "to": "Message",
+      "line": 139,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_forced_tool_structured_output",
+      "to": "CompletionOptions",
+      "line": 141,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_forced_tool_structured_output",
+      "to": "len",
+      "line": 148,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_forced_tool_structured_output",
+      "to": "id.startswith",
+      "line": 151,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_forced_tool_structured_output",
+      "to": "index",
+      "line": 157,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_forced_tool_structured_output",
+      "to": "list",
+      "line": 157,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_forced_tool_structured_output",
+      "to": "json.loads",
+      "line": 158,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_tool_description_in_prompt",
+      "to": "_provider",
+      "line": 171,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_tool_description_in_prompt",
+      "to": "_cli_response",
+      "line": 173,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_tool_description_in_prompt",
+      "to": "_make_process",
+      "line": 174,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_tool_description_in_prompt",
+      "to": "encode",
+      "line": 174,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_tool_description_in_prompt",
+      "to": "json.dumps",
+      "line": 174,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_tool_description_in_prompt",
+      "to": "patch",
+      "line": 176,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_tool_description_in_prompt",
+      "to": "p.complete",
+      "line": 177,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_tool_description_in_prompt",
+      "to": "Message",
+      "line": 178,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_tool_description_in_prompt",
+      "to": "CompletionOptions",
+      "line": 180,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_tool_description_in_prompt",
+      "to": "get",
+      "line": 189,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_tool_description_in_prompt",
+      "to": "stdin_data.decode",
+      "line": 190,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_validation_retry_then_success",
+      "to": "_provider",
+      "line": 202,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_validation_retry_then_success",
+      "to": "_make_process",
+      "line": 208,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_validation_retry_then_success",
+      "to": "encode",
+      "line": 208,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_validation_retry_then_success",
+      "to": "json.dumps",
+      "line": 208,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_validation_retry_then_success",
+      "to": "_cli_response",
+      "line": 208,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_validation_retry_then_success",
+      "to": "_make_process",
+      "line": 209,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_validation_retry_then_success",
+      "to": "encode",
+      "line": 209,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_validation_retry_then_success",
+      "to": "json.dumps",
+      "line": 209,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_validation_retry_then_success",
+      "to": "_cli_response",
+      "line": 209,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_validation_retry_then_success",
+      "to": "patch",
+      "line": 211,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_validation_retry_then_success",
+      "to": "p.complete",
+      "line": 212,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_validation_retry_then_success",
+      "to": "Message",
+      "line": 213,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_validation_retry_then_success",
+      "to": "CompletionOptions",
+      "line": 215,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_missing_structured_output_raises_after_max_retries",
+      "to": "_provider",
+      "line": 235,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_missing_structured_output_raises_after_max_retries",
+      "to": "_cli_response",
+      "line": 237,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_missing_structured_output_raises_after_max_retries",
+      "to": "_make_process",
+      "line": 239,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_missing_structured_output_raises_after_max_retries",
+      "to": "encode",
+      "line": 239,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_missing_structured_output_raises_after_max_retries",
+      "to": "json.dumps",
+      "line": 239,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_missing_structured_output_raises_after_max_retries",
+      "to": "range",
+      "line": 240,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_missing_structured_output_raises_after_max_retries",
+      "to": "patch",
+      "line": 243,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_missing_structured_output_raises_after_max_retries",
+      "to": "pytest.raises",
+      "line": 244,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_missing_structured_output_raises_after_max_retries",
+      "to": "p.complete",
+      "line": 245,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_missing_structured_output_raises_after_max_retries",
+      "to": "Message",
+      "line": 246,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_missing_structured_output_raises_after_max_retries",
+      "to": "CompletionOptions",
+      "line": 248,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_validation_exhaustion_raises",
+      "to": "_provider",
+      "line": 263,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_validation_exhaustion_raises",
+      "to": "_make_process",
+      "line": 266,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_validation_exhaustion_raises",
+      "to": "encode",
+      "line": 266,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_validation_exhaustion_raises",
+      "to": "json.dumps",
+      "line": 266,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_validation_exhaustion_raises",
+      "to": "_cli_response",
+      "line": 266,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_validation_exhaustion_raises",
+      "to": "range",
+      "line": 267,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_validation_exhaustion_raises",
+      "to": "patch",
+      "line": 270,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_validation_exhaustion_raises",
+      "to": "pytest.raises",
+      "line": 271,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_validation_exhaustion_raises",
+      "to": "p.complete",
+      "line": 272,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_validation_exhaustion_raises",
+      "to": "Message",
+      "line": 273,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_validation_exhaustion_raises",
+      "to": "CompletionOptions",
+      "line": 275,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_serialize_single_user_message",
+      "to": "_provider",
+      "line": 289,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_serialize_single_user_message",
+      "to": "p._serialize_messages",
+      "line": 290,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_serialize_single_user_message",
+      "to": "Message",
+      "line": 291,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_serialize_multi_turn",
+      "to": "_provider",
+      "line": 297,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_serialize_multi_turn",
+      "to": "p._serialize_messages",
+      "line": 298,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_serialize_multi_turn",
+      "to": "Message",
+      "line": 299,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_serialize_multi_turn",
+      "to": "Message",
+      "line": 300,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_serialize_multi_turn",
+      "to": "Message",
+      "line": 301,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_serialize_list_content",
+      "to": "_provider",
+      "line": 311,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_serialize_list_content",
+      "to": "p._serialize_messages",
+      "line": 312,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_serialize_list_content",
+      "to": "Message",
+      "line": 313,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_model_mapping_strips_prefix",
+      "to": "ClaudeCodeProvider._map_model",
+      "line": 331,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_model_mapping_strips_prefix",
+      "to": "ClaudeCodeProvider._map_model",
+      "line": 332,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_model_mapping_passthrough",
+      "to": "ClaudeCodeProvider._map_model",
+      "line": 336,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_model_mapping_passthrough",
+      "to": "ClaudeCodeProvider._map_model",
+      "line": 337,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_cli_error_raises_exception",
+      "to": "_provider",
+      "line": 347,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_cli_error_raises_exception",
+      "to": "_make_process",
+      "line": 348,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_cli_error_raises_exception",
+      "to": "patch",
+      "line": 350,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_cli_error_raises_exception",
+      "to": "pytest.raises",
+      "line": 351,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_cli_error_raises_exception",
+      "to": "p.complete",
+      "line": 352,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_cli_error_raises_exception",
+      "to": "Message",
+      "line": 353,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_cli_error_raises_exception",
+      "to": "CompletionOptions",
+      "line": 355,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_cli_error_extracts_stdout_when_stderr_empty",
+      "to": "_provider",
+      "line": 362,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_cli_error_extracts_stdout_when_stderr_empty",
+      "to": "encode",
+      "line": 363,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_cli_error_extracts_stdout_when_stderr_empty",
+      "to": "json.dumps",
+      "line": 363,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_cli_error_extracts_stdout_when_stderr_empty",
+      "to": "_make_process",
+      "line": 366,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_cli_error_extracts_stdout_when_stderr_empty",
+      "to": "patch",
+      "line": 368,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_cli_error_extracts_stdout_when_stderr_empty",
+      "to": "pytest.raises",
+      "line": 369,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_cli_error_extracts_stdout_when_stderr_empty",
+      "to": "p.complete",
+      "line": 370,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_cli_error_extracts_stdout_when_stderr_empty",
+      "to": "Message",
+      "line": 371,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_cli_error_extracts_stdout_when_stderr_empty",
+      "to": "CompletionOptions",
+      "line": 373,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_cli_error_extracts_raw_stdout_when_not_json",
+      "to": "_provider",
+      "line": 380,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_cli_error_extracts_raw_stdout_when_not_json",
+      "to": "_make_process",
+      "line": 381,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_cli_error_extracts_raw_stdout_when_not_json",
+      "to": "patch",
+      "line": 383,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_cli_error_extracts_raw_stdout_when_not_json",
+      "to": "pytest.raises",
+      "line": 384,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_cli_error_extracts_raw_stdout_when_not_json",
+      "to": "p.complete",
+      "line": 385,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_cli_error_extracts_raw_stdout_when_not_json",
+      "to": "Message",
+      "line": 386,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_cli_error_extracts_raw_stdout_when_not_json",
+      "to": "CompletionOptions",
+      "line": 388,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_is_error_response_raises",
+      "to": "_provider",
+      "line": 394,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_is_error_response_raises",
+      "to": "_cli_response",
+      "line": 395,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_is_error_response_raises",
+      "to": "_make_process",
+      "line": 396,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_is_error_response_raises",
+      "to": "encode",
+      "line": 396,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_is_error_response_raises",
+      "to": "json.dumps",
+      "line": 396,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_is_error_response_raises",
+      "to": "patch",
+      "line": 398,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_is_error_response_raises",
+      "to": "pytest.raises",
+      "line": 399,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_is_error_response_raises",
+      "to": "p.complete",
+      "line": 400,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_is_error_response_raises",
+      "to": "Message",
+      "line": 401,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_is_error_response_raises",
+      "to": "CompletionOptions",
+      "line": 403,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_invalid_json_raises",
+      "to": "_provider",
+      "line": 409,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_invalid_json_raises",
+      "to": "_make_process",
+      "line": 410,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_invalid_json_raises",
+      "to": "patch",
+      "line": 412,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_invalid_json_raises",
+      "to": "pytest.raises",
+      "line": 413,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_invalid_json_raises",
+      "to": "p.complete",
+      "line": 414,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_invalid_json_raises",
+      "to": "Message",
+      "line": 415,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_invalid_json_raises",
+      "to": "CompletionOptions",
+      "line": 417,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_anthropic_api_key_stripped_from_subprocess_env",
+      "to": "_provider",
+      "line": 429,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_anthropic_api_key_stripped_from_subprocess_env",
+      "to": "_cli_response",
+      "line": 430,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_anthropic_api_key_stripped_from_subprocess_env",
+      "to": "_make_process",
+      "line": 431,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_anthropic_api_key_stripped_from_subprocess_env",
+      "to": "encode",
+      "line": 431,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_anthropic_api_key_stripped_from_subprocess_env",
+      "to": "json.dumps",
+      "line": 431,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_anthropic_api_key_stripped_from_subprocess_env",
+      "to": "patch.dict",
+      "line": 433,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_anthropic_api_key_stripped_from_subprocess_env",
+      "to": "patch",
+      "line": 434,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_anthropic_api_key_stripped_from_subprocess_env",
+      "to": "p.complete",
+      "line": 435,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_anthropic_api_key_stripped_from_subprocess_env",
+      "to": "Message",
+      "line": 436,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_anthropic_api_key_stripped_from_subprocess_env",
+      "to": "CompletionOptions",
+      "line": 438,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_prompt_piped_via_stdin",
+      "to": "_provider",
+      "line": 452,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_prompt_piped_via_stdin",
+      "to": "_cli_response",
+      "line": 453,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_prompt_piped_via_stdin",
+      "to": "_make_process",
+      "line": 454,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_prompt_piped_via_stdin",
+      "to": "encode",
+      "line": 454,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_prompt_piped_via_stdin",
+      "to": "json.dumps",
+      "line": 454,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_prompt_piped_via_stdin",
+      "to": "patch",
+      "line": 456,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_prompt_piped_via_stdin",
+      "to": "p.complete",
+      "line": 457,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_prompt_piped_via_stdin",
+      "to": "Message",
+      "line": 458,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_prompt_piped_via_stdin",
+      "to": "CompletionOptions",
+      "line": 460,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_prompt_piped_via_stdin",
+      "to": "call_kwargs.get",
+      "line": 468,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_prompt_piped_via_stdin",
+      "to": "proc.communicate.assert_awaited_once",
+      "line": 470,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_prompt_piped_via_stdin",
+      "to": "get",
+      "line": 472,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_token_counts_from_model_usage",
+      "to": "_provider",
+      "line": 483,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_token_counts_from_model_usage",
+      "to": "_cli_response",
+      "line": 484,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_token_counts_from_model_usage",
+      "to": "_make_process",
+      "line": 489,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_token_counts_from_model_usage",
+      "to": "encode",
+      "line": 489,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_token_counts_from_model_usage",
+      "to": "json.dumps",
+      "line": 489,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_token_counts_from_model_usage",
+      "to": "patch",
+      "line": 491,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_token_counts_from_model_usage",
+      "to": "p.complete",
+      "line": 492,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_token_counts_from_model_usage",
+      "to": "Message",
+      "line": 493,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_token_counts_from_model_usage",
+      "to": "CompletionOptions",
+      "line": 495,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_no_tools_no_json_schema",
+      "to": "_provider",
+      "line": 509,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_no_tools_no_json_schema",
+      "to": "_cli_response",
+      "line": 510,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_no_tools_no_json_schema",
+      "to": "_make_process",
+      "line": 511,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_no_tools_no_json_schema",
+      "to": "encode",
+      "line": 511,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_no_tools_no_json_schema",
+      "to": "json.dumps",
+      "line": 511,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_no_tools_no_json_schema",
+      "to": "patch",
+      "line": 513,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_no_tools_no_json_schema",
+      "to": "p.complete",
+      "line": 514,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_no_tools_no_json_schema",
+      "to": "Message",
+      "line": 515,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_no_tools_no_json_schema",
+      "to": "CompletionOptions",
+      "line": 517,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_custom_validators_applied",
+      "to": "_provider",
+      "line": 531,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_custom_validators_applied.reject_low_scores",
+      "to": "inputs.get",
+      "line": 534,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_custom_validators_applied",
+      "to": "_make_process",
+      "line": 541,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_custom_validators_applied",
+      "to": "encode",
+      "line": 541,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_custom_validators_applied",
+      "to": "json.dumps",
+      "line": 541,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_custom_validators_applied",
+      "to": "_cli_response",
+      "line": 541,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_custom_validators_applied",
+      "to": "_make_process",
+      "line": 542,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_custom_validators_applied",
+      "to": "encode",
+      "line": 542,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_custom_validators_applied",
+      "to": "json.dumps",
+      "line": 542,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_custom_validators_applied",
+      "to": "_cli_response",
+      "line": 542,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_custom_validators_applied",
+      "to": "patch",
+      "line": 544,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_custom_validators_applied",
+      "to": "p.complete",
+      "line": 545,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_custom_validators_applied",
+      "to": "Message",
+      "line": 546,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_custom_validators_applied",
+      "to": "CompletionOptions",
+      "line": 548,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_close_is_noop",
+      "to": "_provider",
+      "line": 566,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_close_is_noop",
+      "to": "p.close",
+      "line": 567,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_context_isolation_flags",
+      "to": "_provider",
+      "line": 578,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_context_isolation_flags",
+      "to": "_cli_response",
+      "line": 579,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_context_isolation_flags",
+      "to": "_make_process",
+      "line": 580,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_context_isolation_flags",
+      "to": "encode",
+      "line": 580,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_context_isolation_flags",
+      "to": "json.dumps",
+      "line": 580,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_context_isolation_flags",
+      "to": "patch",
+      "line": 582,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_context_isolation_flags",
+      "to": "p.complete",
+      "line": 583,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_context_isolation_flags",
+      "to": "Message",
+      "line": 584,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_context_isolation_flags",
+      "to": "CompletionOptions",
+      "line": 586,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_context_isolation_flags",
+      "to": "call_args.index",
+      "line": 596,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_auto_tool_choice_no_forced_tool",
+      "to": "_provider",
+      "line": 608,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_auto_tool_choice_no_forced_tool",
+      "to": "_cli_response",
+      "line": 609,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_auto_tool_choice_no_forced_tool",
+      "to": "_make_process",
+      "line": 610,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_auto_tool_choice_no_forced_tool",
+      "to": "encode",
+      "line": 610,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_auto_tool_choice_no_forced_tool",
+      "to": "json.dumps",
+      "line": 610,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_auto_tool_choice_no_forced_tool",
+      "to": "patch",
+      "line": 612,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "test_auto_tool_choice_no_forced_tool",
+      "to": "p.complete",
+      "line": 613,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_auto_tool_choice_no_forced_tool",
+      "to": "Message",
+      "line": 614,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_auto_tool_choice_no_forced_tool",
+      "to": "CompletionOptions",
+      "line": 616,
+      "call_sites": 18
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "proc",
+      "member": "returncode",
+      "line": 64
+    },
+    {
+      "container": "proc",
+      "member": "communicate",
+      "line": 65
+    },
+    {
+      "container": "proc",
+      "member": "kill",
+      "line": 66
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "object",
+      "line": 22,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 24,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "integer",
+      "line": 25,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "summary",
+      "line": 27,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "score",
+      "line": 27,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "submit_result",
+      "line": 31,
+      "usage": "produced",
+      "context": "keyword argument to ToolDefinition"
+    },
+    {
+      "value": "Submit the analysis result",
+      "line": 32,
+      "usage": "produced",
+      "context": "keyword argument to ToolDefinition"
+    },
+    {
+      "value": "ok",
+      "line": 39,
+      "usage": "produced",
+      "context": "default parameter"
+    },
+    {
+      "value": "claude-sonnet-4-6-20250514",
+      "line": 43,
+      "usage": "produced",
+      "context": "default parameter"
+    },
+    {
+      "value": "result",
+      "line": 47,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "shutil.which",
+      "line": 71,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "/usr/bin/claude",
+      "line": 71,
+      "usage": "produced",
+      "context": "keyword argument to patch"
+    },
+    {
+      "value": "claude-code",
+      "line": 82,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "p.name"
+    },
+    {
+      "value": "shutil.which",
+      "line": 86,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "Claude Code CLI not found",
+      "line": 87,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "os.environ",
+      "line": 92,
+      "usage": "produced",
+      "context": "argument to patch.dict"
+    },
+    {
+      "value": "/custom/claude",
+      "line": 92,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "shutil.which",
+      "line": 93,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "/custom/claude",
+      "line": 95,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "p._claude_path"
+    },
+    {
+      "value": "Hello world",
+      "line": 107,
+      "usage": "produced",
+      "context": "keyword argument to _cli_response"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 110,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "Say hello",
+      "line": 112,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "claude-sonnet-4-6",
+      "line": 114,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "Hello world",
+      "line": 117,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.content"
+    },
+    {
+      "value": "claude-sonnet-4-6-20250514",
+      "line": 121,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.model"
+    },
+    {
+      "value": "end_turn",
+      "line": 122,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.stop_reason"
+    },
+    {
+      "value": "looks good",
+      "line": 133,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 137,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "Analyze this",
+      "line": 139,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "You are an analyzer",
+      "line": 140,
+      "usage": "produced",
+      "context": "keyword argument to p.complete"
+    },
+    {
+      "value": "claude-sonnet-4-6",
+      "line": 142,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "tool",
+      "line": 144,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "submit_result",
+      "line": 144,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "submit_result",
+      "line": 149,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "name"
+    },
+    {
+      "value": "cc_",
+      "line": 151,
+      "usage": "produced",
+      "context": "argument to id.startswith"
+    },
+    {
+      "value": "--json-schema",
+      "line": 156,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "call_args"
+    },
+    {
+      "value": "--json-schema",
+      "line": 157,
+      "usage": "produced",
+      "context": "argument to index"
+    },
+    {
+      "value": "--system-prompt",
+      "line": 161,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "call_args"
+    },
+    {
+      "value": "ok",
+      "line": 172,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 176,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "Analyze",
+      "line": 178,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "sonnet",
+      "line": 181,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "tool",
+      "line": 183,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "submit_result",
+      "line": 183,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "input",
+      "line": 189,
+      "usage": "produced",
+      "context": "argument to get"
+    },
+    {
+      "value": "utf-8",
+      "line": 190,
+      "usage": "produced",
+      "context": "argument to stdin_data.decode"
+    },
+    {
+      "value": "submit_result",
+      "line": 191,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "prompt"
+    },
+    {
+      "value": "Submit the analysis result",
+      "line": 192,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "prompt"
+    },
+    {
+      "value": "ok",
+      "line": 204,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "not-a-number",
+      "line": 204,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "ok",
+      "line": 206,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 211,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "Analyze",
+      "line": 213,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "sonnet",
+      "line": 216,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "tool",
+      "line": 218,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "submit_result",
+      "line": 218,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "I don't know",
+      "line": 237,
+      "usage": "produced",
+      "context": "keyword argument to _cli_response"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 243,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "submit_result",
+      "line": 244,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "Analyze",
+      "line": 246,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "sonnet",
+      "line": 249,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "tool",
+      "line": 251,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "submit_result",
+      "line": 251,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "ok",
+      "line": 264,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "nope",
+      "line": 264,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 270,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "Analyze",
+      "line": 273,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "sonnet",
+      "line": 276,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "tool",
+      "line": 278,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "submit_result",
+      "line": 278,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Hello",
+      "line": 291,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "Hello",
+      "line": 293,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "First",
+      "line": 299,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "Response",
+      "line": 300,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "Second",
+      "line": 301,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "[User]",
+      "line": 303,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "[Assistant]",
+      "line": 304,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "First",
+      "line": 305,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "Response",
+      "line": 306,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "Second",
+      "line": 307,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "text",
+      "line": 316,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Part 1",
+      "line": 316,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "text",
+      "line": 317,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Part 2",
+      "line": 317,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Part 1",
+      "line": 321,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "Part 2",
+      "line": 322,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "anthropic/claude-sonnet-4-6",
+      "line": 331,
+      "usage": "produced",
+      "context": "argument to ClaudeCodeProvider._map_model"
+    },
+    {
+      "value": "claude-sonnet-4-6",
+      "line": 331,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "claude-code/sonnet",
+      "line": 332,
+      "usage": "produced",
+      "context": "argument to ClaudeCodeProvider._map_model"
+    },
+    {
+      "value": "sonnet",
+      "line": 332,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "claude-sonnet-4-6",
+      "line": 336,
+      "usage": "produced",
+      "context": "argument to ClaudeCodeProvider._map_model"
+    },
+    {
+      "value": "claude-sonnet-4-6",
+      "line": 336,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "sonnet",
+      "line": 337,
+      "usage": "produced",
+      "context": "argument to ClaudeCodeProvider._map_model"
+    },
+    {
+      "value": "sonnet",
+      "line": 337,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 350,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "auth failed",
+      "line": 351,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "Hi",
+      "line": 353,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "sonnet",
+      "line": 355,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "Rate limit exceeded",
+      "line": 364,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 368,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "Rate limit exceeded",
+      "line": 369,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "Hi",
+      "line": 371,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "sonnet",
+      "line": 373,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 383,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "some raw error text",
+      "line": 384,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "Hi",
+      "line": 386,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "sonnet",
+      "line": 388,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "Something went wrong",
+      "line": 395,
+      "usage": "produced",
+      "context": "keyword argument to _cli_response"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 398,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "Something went wrong",
+      "line": 399,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "Hi",
+      "line": 401,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "sonnet",
+      "line": 403,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 412,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "invalid JSON",
+      "line": 413,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "Hi",
+      "line": 415,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "sonnet",
+      "line": 417,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "ok",
+      "line": 430,
+      "usage": "produced",
+      "context": "keyword argument to _cli_response"
+    },
+    {
+      "value": "sk-test-key",
+      "line": 433,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 434,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "Hi",
+      "line": 436,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "sonnet",
+      "line": 438,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "ANTHROPIC_API_KEY",
+      "line": 442,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "env"
+    },
+    {
+      "value": "ok",
+      "line": 453,
+      "usage": "produced",
+      "context": "keyword argument to _cli_response"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 456,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "short prompt",
+      "line": 458,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "sonnet",
+      "line": 460,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "short prompt",
+      "line": 465,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "call_args"
+    },
+    {
+      "value": "stdin",
+      "line": 468,
+      "usage": "produced",
+      "context": "argument to call_kwargs.get"
+    },
+    {
+      "value": "input",
+      "line": 472,
+      "usage": "produced",
+      "context": "argument to get"
+    },
+    {
+      "value": "hi",
+      "line": 485,
+      "usage": "produced",
+      "context": "keyword argument to _cli_response"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 491,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "Hi",
+      "line": 493,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "sonnet",
+      "line": 495,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "text only",
+      "line": 510,
+      "usage": "produced",
+      "context": "keyword argument to _cli_response"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 513,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "Hi",
+      "line": 515,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "sonnet",
+      "line": 517,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "--json-schema",
+      "line": 521,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "call_args"
+    },
+    {
+      "value": "score",
+      "line": 534,
+      "usage": "produced",
+      "context": "argument to inputs.get"
+    },
+    {
+      "value": "score must be >= 10",
+      "line": 535,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "ok",
+      "line": 539,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "ok",
+      "line": 540,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 544,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "Analyze",
+      "line": 546,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "sonnet",
+      "line": 549,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "tool",
+      "line": 551,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "submit_result",
+      "line": 551,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "ok",
+      "line": 579,
+      "usage": "produced",
+      "context": "keyword argument to _cli_response"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 582,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "Hi",
+      "line": 584,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "sonnet",
+      "line": 586,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "--bare",
+      "line": 590,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "call_args"
+    },
+    {
+      "value": "--no-session-persistence",
+      "line": 591,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "call_args"
+    },
+    {
+      "value": "--strict-mcp-config",
+      "line": 592,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "call_args"
+    },
+    {
+      "value": "--disable-slash-commands",
+      "line": 593,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "call_args"
+    },
+    {
+      "value": "--settings",
+      "line": 594,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "call_args"
+    },
+    {
+      "value": "--settings",
+      "line": 596,
+      "usage": "produced",
+      "context": "argument to call_args.index"
+    },
+    {
+      "value": "claudeMdExcludes",
+      "line": 598,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "settings_val"
+    },
+    {
+      "value": "I used no tools",
+      "line": 609,
+      "usage": "produced",
+      "context": "keyword argument to _cli_response"
+    },
+    {
+      "value": "asyncio.create_subprocess_exec",
+      "line": 612,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "Hi",
+      "line": 614,
+      "usage": "produced",
+      "context": "keyword argument to Message"
+    },
+    {
+      "value": "sonnet",
+      "line": 617,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "auto",
+      "line": 619,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "I used no tools",
+      "line": 624,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.content"
+    },
+    {
+      "value": "--json-schema",
+      "line": 626,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "call_args"
+    }
+  ],
+  "extraction_method": "ast"
+}

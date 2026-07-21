@@ -1,0 +1,1072 @@
+{
+  "source": "src/osoji/triage.py",
+  "source_hash": "f88cf1baa7c63dcf",
+  "generated": "2026-07-01T00:00:00Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 36,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 38,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "field",
+        "replace"
+      ],
+      "line": 39,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Any"
+      ],
+      "line": 40,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config"
+      ],
+      "line": 42,
+      "is_reexport": false
+    },
+    {
+      "source": ".evidence",
+      "names": [
+        "Evidence"
+      ],
+      "line": 43,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 44,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.runtime",
+      "names": [
+        "create_runtime"
+      ],
+      "line": 45,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.types",
+      "names": [
+        "CompletionOptions",
+        "Message",
+        "MessageRole"
+      ],
+      "line": 46,
+      "is_reexport": false
+    },
+    {
+      "source": ".tools",
+      "names": [
+        "get_triage_claim_tool_definitions",
+        "get_triage_exploration_tool_definitions"
+      ],
+      "line": 47,
+      "is_reexport": false
+    },
+    {
+      "source": ".triage_exec",
+      "names": [
+        "ExplorationExecutor"
+      ],
+      "line": 51,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "DEBRIS_TRIAGE_SYSTEM_PROMPT",
+      "kind": "constant",
+      "line": 55,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TRIAGE_SYSTEM_PROMPT",
+      "kind": "constant",
+      "line": 85,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Claim",
+      "kind": "class",
+      "line": 124,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TriageBatchResult",
+      "kind": "class",
+      "line": 139,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Triage",
+      "kind": "class",
+      "line": 155,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Triage.__init__",
+      "kind": "function",
+      "line": 162,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Triage.decide_batch",
+      "kind": "function",
+      "line": 175,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Triage._get_provider",
+      "kind": "function",
+      "line": 258,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Triage._run_claim_batch",
+      "kind": "function",
+      "line": 268,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Triage._render_claim_batch",
+      "kind": "function",
+      "line": 307,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Triage._render_claim_block",
+      "kind": "function",
+      "line": 318,
+      "decorators": [
+        "staticmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "Triage._run_exploration",
+      "kind": "function",
+      "line": 336,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "TriageBatchResult",
+      "to": "field",
+      "line": 147,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.__init__",
+      "to": "ExplorationExecutor",
+      "line": 172,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "len",
+      "line": 197,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "sum",
+      "line": 199,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "enumerate",
+      "line": 205,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "_apply_cached",
+      "line": 208,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "explore_route.append",
+      "line": 212,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "explore_route.append",
+      "line": 215,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "claim_route.append",
+      "line": 218,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "self._get_provider",
+      "line": 224,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "self._run_claim_batch",
+      "line": 227,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "zip",
+      "line": 230,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "self._run_exploration",
+      "line": 235,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "traces.append",
+      "line": 241,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "provider.close",
+      "line": 244,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "TriageBatchResult",
+      "line": 247,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._get_provider",
+      "to": "create_runtime",
+      "line": 263,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "len",
+      "line": 271,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "self._render_claim_batch",
+      "line": 272,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch.check_completeness",
+      "to": "v.get",
+      "line": 277,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch.check_completeness",
+      "to": "tool_input.get",
+      "line": 277,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch.check_completeness",
+      "to": "range",
+      "line": 278,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "provider.complete",
+      "line": 280,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "Message",
+      "line": 281,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "CompletionOptions",
+      "line": 283,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "self.config.model_for",
+      "line": 284,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "max",
+      "line": 285,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "get_triage_claim_tool_definitions",
+      "line": 287,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "tc.input.get",
+      "line": 296,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "v.get",
+      "line": 297,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "_apply_verdict",
+      "line": 302,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "enumerate",
+      "line": 303,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "Triage._render_claim_batch",
+      "to": "enumerate",
+      "line": 309,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "Triage._render_claim_batch",
+      "to": "parts.append",
+      "line": 310,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._render_claim_batch",
+      "to": "self._render_claim_block",
+      "line": 310,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._render_claim_batch",
+      "to": "parts.append",
+      "line": 311,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._render_claim_batch",
+      "to": "len",
+      "line": 312,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "Triage._render_claim_batch",
+      "to": "join",
+      "line": 315,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "Triage._render_claim_block",
+      "to": "lines.append",
+      "line": 324,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "Triage._render_claim_block",
+      "to": "lines.append",
+      "line": 325,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "Triage._render_claim_block",
+      "to": "lines.append",
+      "line": 326,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "Triage._render_claim_block",
+      "to": "lines.append",
+      "line": 328,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "Triage._render_claim_block",
+      "to": "lines.append",
+      "line": 330,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "Triage._render_claim_block",
+      "to": "_render_evidence",
+      "line": 330,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._render_claim_block",
+      "to": "lines.append",
+      "line": 331,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "Triage._render_claim_block",
+      "to": "join",
+      "line": 332,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "self._render_claim_block",
+      "line": 352,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "Message",
+      "line": 356,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "get_triage_exploration_tool_definitions",
+      "line": 358,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "range",
+      "line": 362,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "provider.complete",
+      "line": 363,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "CompletionOptions",
+      "line": 366,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "self.config.model_for",
+      "line": 367,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "assistant_content.append",
+      "line": 381,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "assistant_content.append",
+      "line": 383,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "messages.append",
+      "line": 386,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "Message",
+      "line": 386,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "append",
+      "line": 389,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "self.executor.run",
+      "line": 399,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "messages.append",
+      "line": 403,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "Message",
+      "line": 403,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "_apply_verdict",
+      "line": 406,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "replace",
+      "line": 408,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_apply_verdict",
+      "to": "replace",
+      "line": 423,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_apply_verdict",
+      "to": "v.get",
+      "line": 425,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_apply_verdict",
+      "to": "v.get",
+      "line": 426,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_apply_verdict",
+      "to": "v.get",
+      "line": 427,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_apply_verdict",
+      "to": "v.get",
+      "line": 428,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_apply_verdict",
+      "to": "v.get",
+      "line": 429,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_apply_cached",
+      "to": "replace",
+      "line": 436,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_apply_cached",
+      "to": "cached.get",
+      "line": 438,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_apply_cached",
+      "to": "cached.get",
+      "line": 439,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_apply_cached",
+      "to": "cached.get",
+      "line": 440,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_apply_cached",
+      "to": "cached.get",
+      "line": 441,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_apply_cached",
+      "to": "cached.get",
+      "line": 442,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ev.payload.get",
+      "line": 451,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ref.get",
+      "line": 452,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "out.append",
+      "line": 453,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ref.get",
+      "line": 453,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ref.get",
+      "line": 453,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ref.get",
+      "line": 453,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "items",
+      "line": 454,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ev.payload.get",
+      "line": 454,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "out.append",
+      "line": 455,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "join",
+      "line": 456,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 459,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 459,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 459,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 462,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 462,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "json.dumps",
+      "line": 463,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "self",
+      "member": "config",
+      "line": 170
+    },
+    {
+      "container": "self",
+      "member": "rate_limiter",
+      "line": 171
+    },
+    {
+      "container": "self",
+      "member": "executor",
+      "line": 172
+    },
+    {
+      "container": "self",
+      "member": "_provider",
+      "line": 173
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "You are a code quality auditor verifying whether code debris findings are genuine or false positives.\n\nEach finding was generated by analyzing a single file in isolation. You are now given cross-file\nevidence from the project's facts database. Your job is to determine whether the cross-file\nreferences represent genuine usage of the flagged symbol/field.\n\nGuidelines:\n- An import that accesses or sets the flagged field/symbol = genuine usage → DISMISS\n- A call to the flagged function from another module = genuine usage → DISMISS\n- A comment mentioning the name, a string literal with the same text, or a different\n  symbol that happens to share the name = NOT genuine usage → CONFIRM the finding\n- If references are ambiguous, lean toward CONFIRMING (keep the finding)\n- For latent_bug findings: check whether cross-file evidence shows the type actually HAS\n  the accessed attribute/method. If evidence confirms the attribute exists, DISMISS.\n  If evidence is absent or ambiguous, CONFIRM.\n- For union/sum types (e.g., TypeScript `A | B`, Python `Union[A, B]`), check whether\n  the NARROWED variant (after a discriminant guard or early return) has the attribute —\n  not whether the full union type has it. If the code checks a discriminant field and\n  then accesses a member specific to the narrowed variant, DISMISS the finding.\n- When type/class definition source code is provided, use it as authoritative\n  evidence of the type's fields, methods, and default values.\n\nProvide a verdict for EVERY finding listed.",
+      "line": 55,
+      "usage": "defined",
+      "context": "constant DEBRIS_TRIAGE_SYSTEM_PROMPT"
+    },
+    {
+      "value": "You are osoji's Triage stage: the single verifier for every code-quality finding.\n\nEvery finding is a hypothesis about a GAP between what the code claims and what it does:\n- reachability — declared/claimed to be used, but actually unreachable\n  (dead code, dead parameters, unactuated config, orphaned files, unused deps).\n- description — described one way (comment, docstring, name, type), behaves another\n  (stale comments, misleading docstrings, latent bugs that violate a stated contract).\n- contract — an implicit cross-component agreement (shared string, schema, ABI) is broken\n  (obligation violations, cross-file string drift).\n- uncategorized — does not fit cleanly; decide on the merits and say so.\n\nA finding is a TRUE POSITIVE iff all three predicates hold:\n- Reality — the gap actually exists in the code (the evidence supports it).\n- Significance — closing the gap improves the codebase; widening it would harm.\n- Actionability — there is a concrete fix.\nConfirm only when all three hold. Dismiss when any fails. Use 'uncertain' when the\nassembled evidence genuinely cannot decide.\n\nWeigh the assembled evidence. For reachability claims, a cross-file reference that is a\nreal import/call/use refutes the gap (dismiss); a reference that is only a comment, a\nstring literal, or a same-named-but-different symbol does not (confirm). Account for\ndynamic dispatch, framework registration, re-exports, and within-file transitive liveness.\n\nFor contract gaps over hard-coded literals, classify the literal before deciding:\n- Named project obligation — a constant exists; another site duplicates its bare literal.\n  Confirm; suggest using the existing constant.\n- Unnamed project obligation — two sites share a bare literal in clearly-related roles, no\n  constant yet. Confirm; suggest extracting a shared constant.\n- Ecosystem convention — meaning defined outside the project (HTTP codes, file modes,\n  MIME types, RFC strings). Dismiss; the contract is with the external standard.\n- Magic-constant duplication (ambiguous) — examine: confirm if the sites should agree,\n  dismiss if coincidental.\n- Coincidental duplication — same literal, unrelated roles. Dismiss as coincidence.\n\nCapture your reasoning verbatim. Provide a verdict for EVERY claim.",
+      "line": 85,
+      "usage": "defined",
+      "context": "constant TRIAGE_SYSTEM_PROMPT"
+    },
+    {
+      "value": "claim",
+      "line": 179,
+      "usage": "produced",
+      "context": "default parameter"
+    },
+    {
+      "value": "exploration",
+      "line": 211,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "mode"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 275,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_name"
+    },
+    {
+      "value": "batch_index",
+      "line": 277,
+      "usage": "produced",
+      "context": "argument to v.get"
+    },
+    {
+      "value": "verdicts",
+      "line": 277,
+      "usage": "produced",
+      "context": "argument to tool_input.get"
+    },
+    {
+      "value": "medium",
+      "line": 284,
+      "usage": "produced",
+      "context": "argument to self.config.model_for"
+    },
+    {
+      "value": "audit.triage",
+      "line": 286,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "tool",
+      "line": 288,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 288,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 295,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tc.name"
+    },
+    {
+      "value": "verdicts",
+      "line": 296,
+      "usage": "produced",
+      "context": "argument to tc.input.get"
+    },
+    {
+      "value": "batch_index",
+      "line": 297,
+      "usage": "produced",
+      "context": "argument to v.get"
+    },
+    {
+      "value": "## Claims to triage\n",
+      "line": 308,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Evidence:",
+      "line": 328,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "medium",
+      "line": 367,
+      "usage": "produced",
+      "context": "argument to self.config.model_for"
+    },
+    {
+      "value": "audit.triage.explore",
+      "line": 369,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions"
+    },
+    {
+      "value": "auto",
+      "line": 371,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "text",
+      "line": 381,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "tool_use",
+      "line": 384,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "submit_triage_verdict",
+      "line": 390,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tc.name"
+    },
+    {
+      "value": "tool_result",
+      "line": 397,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "uncertain",
+      "line": 410,
+      "usage": "produced",
+      "context": "keyword argument to replace"
+    },
+    {
+      "value": "Exploration did not produce a verdict within the turn limit.",
+      "line": 412,
+      "usage": "produced",
+      "context": "keyword argument to replace"
+    },
+    {
+      "value": "verdict",
+      "line": 425,
+      "usage": "produced",
+      "context": "argument to v.get"
+    },
+    {
+      "value": "confidence",
+      "line": 426,
+      "usage": "produced",
+      "context": "argument to v.get"
+    },
+    {
+      "value": "reasoning",
+      "line": 427,
+      "usage": "produced",
+      "context": "argument to v.get"
+    },
+    {
+      "value": "suggested_fix",
+      "line": 428,
+      "usage": "produced",
+      "context": "argument to v.get"
+    },
+    {
+      "value": "severity",
+      "line": 429,
+      "usage": "produced",
+      "context": "argument to v.get"
+    },
+    {
+      "value": "verdict",
+      "line": 438,
+      "usage": "produced",
+      "context": "argument to cached.get"
+    },
+    {
+      "value": "confidence",
+      "line": 439,
+      "usage": "produced",
+      "context": "argument to cached.get"
+    },
+    {
+      "value": "triage_reasoning",
+      "line": 440,
+      "usage": "produced",
+      "context": "argument to cached.get"
+    },
+    {
+      "value": "suggested_fix",
+      "line": 441,
+      "usage": "produced",
+      "context": "argument to cached.get"
+    },
+    {
+      "value": "severity",
+      "line": 442,
+      "usage": "produced",
+      "context": "argument to cached.get"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 449,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ev.kind"
+    },
+    {
+      "value": "Cross-file references:",
+      "line": 450,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "references",
+      "line": 451,
+      "usage": "produced",
+      "context": "argument to ev.payload.get"
+    },
+    {
+      "value": "resolves_to_source",
+      "line": 452,
+      "usage": "produced",
+      "context": "argument to ref.get"
+    },
+    {
+      "value": "file",
+      "line": 453,
+      "usage": "produced",
+      "context": "argument to ref.get"
+    },
+    {
+      "value": "kind",
+      "line": 453,
+      "usage": "produced",
+      "context": "argument to ref.get"
+    },
+    {
+      "value": "context",
+      "line": 453,
+      "usage": "produced",
+      "context": "argument to ref.get"
+    },
+    {
+      "value": "shadow_excerpts",
+      "line": 454,
+      "usage": "produced",
+      "context": "argument to ev.payload.get"
+    },
+    {
+      "value": "type_signature",
+      "line": 457,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ev.kind"
+    },
+    {
+      "value": "type_name",
+      "line": 459,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "file",
+      "line": 459,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "source",
+      "line": 459,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "shadow_doc_claim",
+      "line": 460,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ev.kind"
+    },
+    {
+      "value": "file",
+      "line": 462,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "content",
+      "line": 462,
+      "usage": "produced",
+      "context": "argument to p.get"
+    }
+  ],
+  "extraction_method": "ast"
+}

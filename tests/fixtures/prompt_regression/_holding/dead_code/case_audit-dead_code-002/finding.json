@@ -1,0 +1,20 @@
+{
+  "detector": "audit:dead_code",
+  "gap_type": "reachability",
+  "path": "src/osoji/claim_builder.py",
+  "line_start": 25,
+  "line_end": 25,
+  "symbol": null,
+  "contract_source": "audit",
+  "contract_claim": "L25-25: `Path` is imported from `pathlib` (L25) but is never directly used anywhere in the file. All path construction uses `config.root_path / ...` where `config.root_path` is already a `Path` object — the `Path` constructor itself is never called.",
+  "observed_behavior": "Remove `Path` from the import: change `from pathlib import Path` to remove that name, or delete the import entirely if no other pathlib names are needed.",
+  "evidence": [],
+  "id": "0922e4d1ce2aeb1c",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

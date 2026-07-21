@@ -1,0 +1,20 @@
+{
+  "detector": "audit:dead_parameter",
+  "gap_type": "reachability",
+  "path": "src/osoji/triage_exec.py",
+  "line_start": 40,
+  "line_end": 40,
+  "symbol": null,
+  "contract_source": "audit",
+  "contract_claim": "L40: parameter `ExplorationExecutor.__init__.max_list_entries` — None of the 16 call sites pass `max_list_entries`. The production call site (triage.py:172) uses `ExplorationExecutor(config)` with no optional args, and all 14 test call sites either pass no optional args or pass only `max_file_bytes` or `max_grep_matches`. The parameter always takes its default value of 200.",
+  "observed_behavior": "Consider hardcoding 200 as a module-level constant (e.g. `_MAX_LIST_ENTRIES = 200`) and removing the constructor parameter, or leave it as a tunable but document that no caller currently overrides it. No conditional branches are exclusively gated by this parameter — `self.max_list_entries` is used as a loop cap threshold that always runs, not as a guard for an optional code path.",
+  "evidence": [],
+  "id": "e48fc447d6af8bf1",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

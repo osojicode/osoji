@@ -1,0 +1,20 @@
+{
+  "detector": "audit:dead_code",
+  "gap_type": "reachability",
+  "path": "src/osoji/async_utils.py",
+  "line_start": 54,
+  "line_end": 54,
+  "symbol": null,
+  "contract_source": "audit",
+  "contract_claim": "L54-54: The `_SENTINEL` filter `[result for result in results if result is not _SENTINEL]` is never triggered in practice. In the success path all slots are filled; in the exception + `return_exceptions=False` path the function raises before reaching this line; in the `return_exceptions=True` path exceptions are stored directly so all slots are also filled. The filter is an always-no-op guard.",
+  "observed_behavior": "Replace with a plain `return list(results)` (after casting) or add an assertion `assert _SENTINEL not in results` for debugging. If the sentinel guard is intentionally defensive, document why residual sentinels could occur.",
+  "evidence": [],
+  "id": "16f520141daaf396",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

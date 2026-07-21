@@ -1,0 +1,20 @@
+{
+  "detector": "debris:latent_bug",
+  "gap_type": "uncategorized",
+  "path": "example.py",
+  "line_start": 18,
+  "line_end": 19,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "record_token_usage reads result.usage.get(\"input_tokens\") and result.usage.get(\"output_tokens\"), implying CompletionResult exposes a `usage` mapping attribute.",
+  "observed_behavior": "The CompletionResult dataclass defines only content, input_tokens, output_tokens, model and stop_reason — there is no `usage` attribute, so lines 18-19 raise AttributeError the first time record_token_usage is called.",
+  "evidence": [],
+  "id": "b61c51e5e6f31e00",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

@@ -1,0 +1,20 @@
+{
+  "detector": "debris:latent_bug",
+  "gap_type": "uncategorized",
+  "path": "metrics.ts",
+  "line_start": 17,
+  "line_end": 21,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "getNodeLabel accesses node.children (line 18) and node.size/node.extension (line 21) on a value typed FsNode = FileNode | DirectoryNode, and each property exists on only one union member — accessing the wrong variant would yield undefined at runtime.",
+  "observed_behavior": "Each access is guarded by a discriminant check on node.type (line 17): the `directory` branch reads .children and the post-guard fall-through is narrowed to FileNode before reading .size/.extension.",
+  "evidence": [],
+  "id": "44bfbe29552cff88",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}
