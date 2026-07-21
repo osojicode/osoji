@@ -433,10 +433,15 @@ def emit_case(
     layout documented in ``tests/fixtures/prompt_regression/README.md``.
 
     Every input is validated before any file is written -- a rejected slug,
-    missing finding, oversized file set, missing ``--include`` file, or an
-    undecided verdict without ``--expected-verdict`` all raise
-    :class:`CorpusEmitError` before the destination directory is even
-    checked, so a failed call never leaves a half-written case behind.
+    missing finding, oversized file set, missing ``--include`` file, a
+    finding path that is missing or escapes the repo, or an undecided verdict
+    without ``--expected-verdict`` all raise :class:`CorpusEmitError` before
+    ``case_dir`` is even checked for existence, so a failed call never leaves
+    a half-written case behind. As a second line of defense against a
+    residual race between that pre-flight check and the actual copy (a file
+    disappearing, a permission error, a full disk), the write phase below is
+    wrapped in a cleanup-on-failure block that removes any partially written
+    ``case_dir`` before re-raising.
     """
 
     _validate_slug(slug)
@@ -470,6 +475,26 @@ def emit_case(
             "narrowing the selection."
         )
 
+    # Pre-flight: every path in `relevant` must resolve to an existing,
+    # repo-contained file BEFORE case_dir is created. Evidence and --include
+    # paths are already guaranteed by _evidence_paths / the --include loop
+    # above; finding_path is the one path added unconditionally at
+    # collection time (deliverable 2, point 2) that is not yet validated.
+    # Checking every path here -- mirroring how --include and the file cap
+    # are validated before any write -- means a rejected finding_path can
+    # never leave a half-written case_dir behind (task-6 review round 3): the
+    # earlier version deferred this check into the copy loop itself, where an
+    # alphabetically-earlier file could already have been copied by the time
+    # a later one failed.
+    resolved_sources: dict[str, Path] = {}
+    for rel in sorted(relevant):
+        src = _resolve_within_repo(repo_root, rel)
+        if src is None:
+            raise CorpusEmitError(
+                f"cannot snapshot {rel!r}: {_snapshot_failure_reason(repo_root, rel)}"
+            )
+        resolved_sources[rel] = src
+
     resolved_verdict = _resolve_expected_verdict(finding, expected_verdict)
     resolved_reasoning = (
         reasoning if reasoning is not None else (finding.get("triage_reasoning") or "")
@@ -484,69 +509,70 @@ def emit_case(
 
     now_iso = datetime.now(timezone.utc).isoformat()
 
-    # -- filesystem writes from here on -------------------------------
-    source_root = case_dir / "source"
-    for rel in sorted(relevant):
-        # Re-resolved (not just re-checked) here, including for the finding's
-        # own path, which -- unlike evidence/--include paths -- is included
-        # in `relevant` unconditionally at collection time (deliverable 2,
-        # point 2): this is where a missing or repo-escaping finding.path
-        # finally gets a clear error instead of a silent skip.
-        src = _resolve_within_repo(repo_root, rel)
-        if src is None:
-            raise CorpusEmitError(
-                f"cannot snapshot {rel!r}: {_snapshot_failure_reason(repo_root, rel)}"
-            )
-        dest_file = _posix_join(source_root, rel)
-        dest_file.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(src, dest_file)
+    # Belt and suspenders: pre-flight above rules out the ordinary failure
+    # modes, but a file can still vanish, lose permissions, or hit a full
+    # disk between that check and the copy below (a genuine, if narrow, race
+    # -- not something pre-flight can rule out). Any write-phase exception
+    # removes whatever was written under case_dir before propagating, so a
+    # failed call -- pre-flight rejection or this residual race alike --
+    # never leaves a retry blocked on a stale "already exists" error.
+    try:
+        source_root = case_dir / "source"
+        for rel in sorted(relevant):
+            src = resolved_sources[rel]
+            dest_file = _posix_join(source_root, rel)
+            dest_file.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, dest_file)
 
-        for subdir, suffix in _SIDECARS:
-            sidecar_rel = f"{SHADOW_DIR}/{subdir}/{rel}{suffix}"
-            sidecar_src = _posix_join(repo_root, sidecar_rel)
-            if sidecar_src.is_file():
-                sidecar_dest = _posix_join(case_dir, f"{subdir}/{rel}{suffix}")
-                sidecar_dest.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(sidecar_src, sidecar_dest)
+            for subdir, suffix in _SIDECARS:
+                sidecar_rel = f"{SHADOW_DIR}/{subdir}/{rel}{suffix}"
+                sidecar_src = _posix_join(repo_root, sidecar_rel)
+                if sidecar_src.is_file():
+                    sidecar_dest = _posix_join(case_dir, f"{subdir}/{rel}{suffix}")
+                    sidecar_dest.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(sidecar_src, sidecar_dest)
 
-    finding_out = dict(finding)
-    finding_out["path"] = finding_path
-    for key in (
-        "verdict", "confidence", "triage_reasoning", "suggested_fix",
-        "severity", "contract_class", "evidence_fingerprint",
-    ):
-        finding_out[key] = None
-    finding_out["evidence"] = []
+        finding_out = dict(finding)
+        finding_out["path"] = finding_path
+        for key in (
+            "verdict", "confidence", "triage_reasoning", "suggested_fix",
+            "severity", "contract_class", "evidence_fingerprint",
+        ):
+            finding_out[key] = None
+        finding_out["evidence"] = []
 
-    _write_json(case_dir / "case.json", {
-        "schema": CORPUS_CASE_SCHEMA,
-        "slug": slug,
-        "category": category,
-        "detector": producer,
-        "gap_type": finding.get("gap_type"),
-        "language": resolved_language,
-        "origin": {
-            "repo": repo_root.name,
-            "remote": _git(["remote", "get-url", "origin"], repo_root),
-            "commit": _git(["rev-parse", "HEAD"], repo_root) or "unknown",
-            "swept_at": now_iso,
-            "osoji_version": __version__,
-            "sweep_run": None,
-        },
-        "snapshot_ref": None,
-        "evidence_policy": "rebuild",
-    })
-    _write_json(case_dir / "finding.json", finding_out)
-    _write_json(case_dir / "expected.json", {
-        "schema": CORPUS_EXPECTED_SCHEMA,
-        "verdict": resolved_verdict,
-        "reasoning": resolved_reasoning,
-        "gray": bool(gray),
-        "gray_reason": None,
-        "expected_contract_class": None,
-        "adjudicated_by": "sweep-proposed",
-        "adjudicated_at": now_iso,
-        "accepted": False,
-    })
+        _write_json(case_dir / "case.json", {
+            "schema": CORPUS_CASE_SCHEMA,
+            "slug": slug,
+            "category": category,
+            "detector": producer,
+            "gap_type": finding.get("gap_type"),
+            "language": resolved_language,
+            "origin": {
+                "repo": repo_root.name,
+                "remote": _git(["remote", "get-url", "origin"], repo_root),
+                "commit": _git(["rev-parse", "HEAD"], repo_root) or "unknown",
+                "swept_at": now_iso,
+                "osoji_version": __version__,
+                "sweep_run": None,
+            },
+            "snapshot_ref": None,
+            "evidence_policy": "rebuild",
+        })
+        _write_json(case_dir / "finding.json", finding_out)
+        _write_json(case_dir / "expected.json", {
+            "schema": CORPUS_EXPECTED_SCHEMA,
+            "verdict": resolved_verdict,
+            "reasoning": resolved_reasoning,
+            "gray": bool(gray),
+            "gray_reason": None,
+            "expected_contract_class": None,
+            "adjudicated_by": "sweep-proposed",
+            "adjudicated_at": now_iso,
+            "accepted": False,
+        })
+    except Exception:
+        shutil.rmtree(case_dir, ignore_errors=True)
+        raise
 
     return case_dir

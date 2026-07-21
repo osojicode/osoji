@@ -358,6 +358,12 @@ def test_emit_case_missing_finding_path_file_names_no_such_file(tmp_path):
         emit_case(repo, confirmed.id, "missing-file", dest)
 
     assert "outside the repo" not in str(excinfo.value)
+    # task-6 review round 3: the finding-path check used to live inside the
+    # copy loop, so an alphabetically-earlier file (caller.py, from
+    # confirmed's evidence) was already copied under case_dir by the time
+    # util.py's absence raised -- leaving a half-written case directory
+    # behind. Now validated pre-flight, before case_dir is created at all.
+    assert not (dest / "dead_code" / "case_missing-file").exists()
 
 
 def test_emit_case_finding_path_escaping_repo_names_outside_repo(tmp_path):
@@ -374,6 +380,36 @@ def test_emit_case_finding_path_escaping_repo_names_outside_repo(tmp_path):
         emit_case(repo, confirmed.id, "escaping-path", dest)
 
     assert "no such file" not in str(excinfo.value)
+    assert not (dest / "dead_code" / "case_escaping-path").exists()
+
+
+def test_emit_case_mid_copy_failure_removes_partial_case_dir(tmp_path, monkeypatch):
+    # Belt-and-suspenders coverage: pre-flight validation passes (every path
+    # genuinely exists at that moment), but the second file's copy raises
+    # anyway -- simulating the residual race pre-flight cannot rule out (a
+    # file vanishing, a permission error, a full disk between the check and
+    # the write). The cleanup-on-failure wrapper must remove case_dir rather
+    # than leave the first file's copy behind.
+    repo, confirmed, _ = _build_repo(tmp_path)
+    dest = tmp_path / "corpus" / "_holding"
+
+    import osoji.corpus_emit as corpus_emit_module
+
+    real_copy2 = shutil.copy2
+    call_count = {"n": 0}
+
+    def flaky_copy2(src, dst, *args, **kwargs):
+        call_count["n"] += 1
+        if call_count["n"] == 2:
+            raise OSError("simulated mid-copy failure")
+        return real_copy2(src, dst, *args, **kwargs)
+
+    monkeypatch.setattr(corpus_emit_module.shutil, "copy2", flaky_copy2)
+
+    with pytest.raises(OSError, match="simulated mid-copy failure"):
+        emit_case(repo, confirmed.id, "mid-copy-fail", dest)
+
+    assert not (dest / "dead_code" / "case_mid-copy-fail").exists()
 
 
 # ---------------------------------------------------------------------------
