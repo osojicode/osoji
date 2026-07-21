@@ -9,6 +9,8 @@ no network.
 
 from __future__ import annotations
 
+import hashlib
+import io
 import json
 import sys
 import warnings
@@ -23,16 +25,58 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 import eval_lib  # noqa: E402
 from eval_lib import (  # noqa: E402
     CorpusCase,
+    GateReport,
+    Variant,
     build_case_claim,
+    cases_from_bootstrap_manifest,
+    check_gepa_gate,
     compute_metrics,
+    evaluate_corpus,
     load_corpus,
     load_splits,
     read_verdict_ndjson,
+    resolve_variant,
+    select_cases,
     stage_case,
     suggest_split,
     write_verdict_ndjson,
 )
+from osoji.config import Config  # noqa: E402
 from osoji.findings import Finding  # noqa: E402
+from osoji.llm.types import CompletionResult, ToolCall  # noqa: E402
+from osoji.triage import TRIAGE_SYSTEM_PROMPT  # noqa: E402
+
+
+# ---------------------------------------------------------------------------
+# Fake provider (adapted from tests/test_triage.py:43-70)
+# ---------------------------------------------------------------------------
+
+
+class FakeProvider:
+    """Minimal async provider returning queued CompletionResults in order."""
+
+    def __init__(self, results):
+        self._results = list(results)
+        self.calls = []
+
+    async def complete(self, messages, system, options):
+        self.calls.append({"messages": messages, "system": system, "options": options})
+        return self._results.pop(0)
+
+    async def close(self):
+        pass
+
+
+def verdicts_result(verdicts, *, in_tok=100, out_tok=40) -> CompletionResult:
+    """A claim-mode batch result: one submit_triage_verdicts tool call."""
+    return CompletionResult(
+        content=None,
+        tool_calls=[ToolCall(id="tc1", name="submit_triage_verdicts", input={"verdicts": verdicts})],
+        input_tokens=in_tok,
+        output_tokens=out_tok,
+        model="test",
+        stop_reason="tool_use",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -367,6 +411,35 @@ def test_stage_case_sanitizes_key_for_dirname(tmp_path):
     assert "\\" not in config.root_path.name
 
 
+def test_stage_case_rebuild_missing_source_raises(tmp_path):
+    corpus_root = tmp_path / "corpus"
+    make_case(
+        corpus_root, "dead_code", "case_101_basic",
+        evidence_policy="rebuild", write_source=False,
+    )
+
+    [case] = load_corpus(corpus_root)
+
+    with pytest.raises(ValueError, match="case_101_basic"):
+        stage_case(case, tmp_path / "work")
+
+
+def test_stage_case_frozen_missing_source_does_not_raise(tmp_path):
+    corpus_root = tmp_path / "corpus"
+    make_case(
+        corpus_root, "dead_code", "case_101_basic",
+        evidence_policy="frozen", write_source=False,
+    )
+
+    [case] = load_corpus(corpus_root)
+
+    config = stage_case(case, tmp_path / "work")
+
+    # No exception, and nothing was staged (no source/ or sidecars existed to copy).
+    assert config.root_path == tmp_path / "work" / "dead_code__case_101_basic"
+    assert not (config.root_path / "src").exists()
+
+
 # ---------------------------------------------------------------------------
 # build_case_claim
 # ---------------------------------------------------------------------------
@@ -434,6 +507,113 @@ def test_build_case_claim_unknown_policy_raises(tmp_path):
 
     with pytest.raises(ValueError, match="bogus"):
         build_case_claim(case, config)
+
+
+# ---------------------------------------------------------------------------
+# resolve_variant
+# ---------------------------------------------------------------------------
+
+
+def test_resolve_variant_default_matches_triage_system_prompt():
+    variant = resolve_variant("baseline=@default")
+
+    assert variant.name == "baseline"
+    assert variant.system_prompt == TRIAGE_SYSTEM_PROMPT
+    assert variant.prompt_source == "@default"
+    assert variant.prompt_sha256 == hashlib.sha256(
+        TRIAGE_SYSTEM_PROMPT.encode("utf-8")
+    ).hexdigest()
+
+
+def test_resolve_variant_omit_produces_different_prompt_and_hash():
+    variant = resolve_variant("no_closing=@omit:closing")
+
+    assert variant.name == "no_closing"
+    assert variant.prompt_source == "@omit:closing"
+    assert variant.system_prompt != TRIAGE_SYSTEM_PROMPT
+    assert variant.prompt_sha256 != hashlib.sha256(
+        TRIAGE_SYSTEM_PROMPT.encode("utf-8")
+    ).hexdigest()
+
+
+def test_resolve_variant_omit_unknown_section_raises():
+    with pytest.raises(ValueError, match="unknown rubric sections"):
+        resolve_variant("bad=@omit:not_a_real_section")
+
+
+def test_resolve_variant_file_path_reads_text(tmp_path):
+    prompt_path = tmp_path / "custom_prompt.txt"
+    prompt_path.write_text("Custom system prompt text.", encoding="utf-8")
+
+    variant = resolve_variant(f"custom={prompt_path}")
+
+    assert variant.name == "custom"
+    assert variant.system_prompt == "Custom system prompt text."
+    assert variant.prompt_source == str(prompt_path)
+
+
+def test_resolve_variant_missing_equals_raises():
+    with pytest.raises(ValueError, match="name=value"):
+        resolve_variant("bare_name_no_equals")
+
+
+def test_resolve_variant_empty_name_raises():
+    with pytest.raises(ValueError, match="empty variant name"):
+        resolve_variant("=@default")
+
+
+# ---------------------------------------------------------------------------
+# cases_from_bootstrap_manifest
+# ---------------------------------------------------------------------------
+
+
+def _bootstrap_manifest_entry(**overrides) -> dict:
+    base = {
+        "slug": "boot-1",
+        "origin": "fixture",
+        "category": "dead_code",
+        "adjudicated_verdict": "confirmed",
+        "adjudication_notes": "notes go here",
+        "finding": _finding_dict(symbol="boot_symbol_1", path="scripts/eval_lib.py"),
+    }
+    base.update(overrides)
+    return base
+
+
+def test_cases_from_bootstrap_manifest_wraps_entries(tmp_path):
+    manifest = {
+        "commit": "abc123",
+        "entries": [
+            _bootstrap_manifest_entry(slug="boot-1"),
+            _bootstrap_manifest_entry(
+                slug="boot-2",
+                origin="audit",
+                category="plumbing",
+                adjudicated_verdict="dismissed",
+                adjudication_notes="",
+                gray=True,
+                finding=_finding_dict(symbol="boot_symbol_2", path="scripts/eval_lib.py"),
+            ),
+        ],
+    }
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    cases = cases_from_bootstrap_manifest(manifest_path)
+
+    assert [c.key for c in cases] == ["boot-1", "boot-2"]
+    assert all(c.source == "bootstrap" for c in cases)
+    assert all(c.evidence_policy == "rebuild" for c in cases)
+    assert all(c.snapshot_root == eval_lib.REPO_ROOT for c in cases)
+    assert cases[0].category == "dead_code"
+    assert cases[0].expected_verdict == "confirmed"
+    assert cases[0].expected_reasoning == "notes go here"
+    assert cases[0].gray is False
+    assert isinstance(cases[0].finding, Finding)
+    assert cases[0].finding.symbol == "boot_symbol_1"
+    assert cases[1].category == "plumbing"
+    assert cases[1].expected_verdict == "dismissed"
+    assert cases[1].gray is True
 
 
 # ---------------------------------------------------------------------------
@@ -737,6 +917,43 @@ def test_write_verdict_ndjson_uses_lf_and_no_bom(tmp_path):
     assert not raw.startswith(b"\xef\xbb\xbf")
 
 
+def test_write_verdict_ndjson_writes_to_open_stream():
+    stream = io.StringIO()
+    records = [_rec(case="c1"), _rec(case="c2")]
+    run_meta = {"schema": "osoji-verdict/1", "record": "run_meta", "run_id": "run-1"}
+
+    write_verdict_ndjson(records, run_meta, stream)
+
+    content = stream.getvalue()
+    assert "\r\n" not in content
+    lines = content.splitlines()
+    assert len(lines) == 3
+    assert json.loads(lines[0])["case"] == "c1"
+    assert json.loads(lines[1])["case"] == "c2"
+    assert json.loads(lines[2])["record"] == "run_meta"
+
+
+def test_write_verdict_ndjson_writes_to_open_file_object(tmp_path):
+    path = tmp_path / "run.ndjson"
+    records = [_rec(case="c1")]
+    run_meta = {"schema": "osoji-verdict/1", "record": "run_meta", "run_id": "run-1"}
+
+    with open(path, "w", encoding="utf-8", newline="\n") as fh:
+        write_verdict_ndjson(records, run_meta, fh)
+
+    read_records, read_meta = read_verdict_ndjson(path)
+    assert read_records == records
+    assert read_meta == run_meta
+
+
+def test_read_verdict_ndjson_empty_file_raises(tmp_path):
+    path = tmp_path / "empty.ndjson"
+    path.write_text("", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="empty"):
+        read_verdict_ndjson(path)
+
+
 def test_read_verdict_ndjson_rejects_stream_with_no_run_meta(tmp_path):
     out_path = tmp_path / "bad.ndjson"
     lines = [json.dumps(_rec(case="c1")), json.dumps(_rec(case="c2"))]
@@ -822,3 +1039,352 @@ def test_suggest_split_respects_ratios_roughly(tmp_path):
     assert counts["train"] / total == pytest.approx(0.5, abs=0.05)
     assert counts["val"] / total == pytest.approx(0.25, abs=0.05)
     assert counts["holdout"] / total == pytest.approx(0.25, abs=0.05)
+
+
+# ---------------------------------------------------------------------------
+# check_gepa_gate
+# ---------------------------------------------------------------------------
+
+
+def test_check_gepa_gate_passes_when_covered_and_enough_nongray_cases():
+    cases = [_case(f"dead_code/c{i}") for i in range(90)]
+    splits = {"assignments": {c.key: "train" for c in cases}}
+
+    report = check_gepa_gate(cases, splits, required=90)
+
+    assert report.nongray_count == 90
+    assert report.splits_nonempty is True
+    assert report.coverage_ok is True
+    assert report.missing_from_splits == []
+    assert report.extra_in_splits == []
+    assert report.passed is True
+
+
+def test_check_gepa_gate_fails_when_nongray_count_short():
+    cases = [_case(f"dead_code/c{i}") for i in range(50)]
+    splits = {"assignments": {c.key: "train" for c in cases}}
+
+    report = check_gepa_gate(cases, splits, required=90)
+
+    assert report.nongray_count == 50
+    assert report.coverage_ok is True
+    assert report.passed is False
+
+
+def test_check_gepa_gate_fails_on_empty_splits():
+    cases = [_case(f"dead_code/c{i}") for i in range(90)]
+    splits = {"assignments": {}}
+
+    report = check_gepa_gate(cases, splits, required=90)
+
+    assert report.splits_nonempty is False
+    assert report.passed is False
+
+
+def test_check_gepa_gate_fails_on_missing_from_splits():
+    cases = [_case(f"dead_code/c{i}") for i in range(90)]
+    assignments = {c.key: "train" for c in cases[:-1]}  # last case has no assignment
+    splits = {"assignments": assignments}
+
+    report = check_gepa_gate(cases, splits, required=90)
+
+    assert report.coverage_ok is False
+    assert report.missing_from_splits == ["dead_code/c89"]
+    assert report.extra_in_splits == []
+    assert report.passed is False
+
+
+def test_check_gepa_gate_fails_on_extra_in_splits():
+    cases = [_case(f"dead_code/c{i}") for i in range(90)]
+    assignments = {c.key: "train" for c in cases}
+    assignments["dead_code/stale_no_longer_exists"] = "val"
+    splits = {"assignments": assignments}
+
+    report = check_gepa_gate(cases, splits, required=90)
+
+    assert report.coverage_ok is False
+    assert report.extra_in_splits == ["dead_code/stale_no_longer_exists"]
+    assert report.missing_from_splits == []
+    assert report.passed is False
+
+
+# ---------------------------------------------------------------------------
+# evaluate_corpus
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_evaluate_corpus_fake_provider_e2e(tmp_path):
+    corpus_root = tmp_path / "corpus"
+    make_case(
+        corpus_root, "dead_code", "case_101_a",
+        verdict="confirmed",
+        source_files={"src/app/a.py": "def unused_a():\n    pass\n"},
+        finding_overrides={
+            "path": "src/app/a.py", "symbol": "unused_a",
+            "contract_claim": "unused_a is defined at module scope",
+        },
+    )
+    make_case(
+        corpus_root, "dead_code", "case_102_b",
+        verdict="dismissed",
+        source_files={"src/app/b.py": "def unused_b():\n    pass\n"},
+        finding_overrides={
+            "path": "src/app/b.py", "symbol": "unused_b",
+            "contract_claim": "unused_b is defined at module scope",
+        },
+    )
+    cases = load_corpus(corpus_root)
+    assert len(cases) == 2
+
+    variants = [
+        Variant(name="baseline", system_prompt="BASELINE PROMPT", prompt_source="@default"),
+        Variant(name="no_closing", system_prompt="ALT PROMPT", prompt_source="@omit:closing"),
+    ]
+
+    # 2 variants x 2 repeats = 4 decide_junk_claims calls; both claims fit in
+    # one BATCH_SIZE chunk each time, so each call is exactly 1 provider.complete().
+    full_verdicts = [
+        {"batch_index": 0, "verdict": "confirmed", "confidence": 0.9, "reasoning": "r0"},
+        {"batch_index": 1, "verdict": "dismissed", "confidence": 0.8, "reasoning": "r1"},
+    ]
+    # Only batch_index 0 decided: claim 1 (case_102_b) stays undecided (verdict=None).
+    partial_verdicts = [
+        {"batch_index": 0, "verdict": "confirmed", "confidence": 0.9, "reasoning": "r0-partial"},
+    ]
+    provider = FakeProvider([
+        verdicts_result(full_verdicts, in_tok=100, out_tok=40),     # baseline, repeat 0
+        verdicts_result(partial_verdicts, in_tok=50, out_tok=20),   # baseline, repeat 1 (null case)
+        verdicts_result(full_verdicts, in_tok=100, out_tok=40),     # no_closing, repeat 0
+        verdicts_result(full_verdicts, in_tok=100, out_tok=40),     # no_closing, repeat 1
+    ])
+
+    run = await evaluate_corpus(
+        cases,
+        variants,
+        repeats=2,
+        repeat_offset=10,
+        run_id="test-run",
+        provider=provider,
+        config_factory=lambda: Config(
+            root_path=tmp_path, provider="anthropic", model="test-model", respect_gitignore=False
+        ),
+        workdir=tmp_path / "work",
+        corpus_root=corpus_root,
+    )
+
+    assert len(provider.calls) == 4
+    assert len(run.records) == 8
+
+    # repeat numbering with offset: k in range(2) + repeat_offset=10 -> {10, 11}
+    reps_by_variant: dict[str, set[int]] = {}
+    for r in run.records:
+        reps_by_variant.setdefault(r["variant"], set()).add(r["repeat"])
+    assert reps_by_variant == {"baseline": {10, 11}, "no_closing": {10, 11}}
+
+    # The null-verdict case: baseline/repeat 11, case_102_b -> verdict None, correct None.
+    null_records = [r for r in run.records if r["verdict"] is None]
+    assert len(null_records) == 1
+    (null_record,) = null_records
+    assert null_record["variant"] == "baseline"
+    assert null_record["repeat"] == 11
+    assert null_record["case"] == "dead_code/case_102_b"
+    assert null_record["correct"] is None
+    assert null_record["source"] == "corpus"
+
+    # correctness: case_101_a expects "confirmed", case_102_b expects "dismissed"
+    for r in run.records:
+        if r["verdict"] is None:
+            continue
+        if r["case"] == "dead_code/case_101_a":
+            assert r["verdict"] == "confirmed"
+            assert r["correct"] is True
+        elif r["case"] == "dead_code/case_102_b":
+            assert r["verdict"] == "dismissed"
+            assert r["correct"] is True
+
+    assert run.run_meta["tokens"]["input"] == 100 + 50 + 100 + 100
+    assert run.run_meta["tokens"]["output"] == 40 + 20 + 40 + 40
+
+    meta = run.run_meta
+    for key in (
+        "schema", "record", "run_id", "started_at", "finished_at", "duration_s",
+        "variants", "provider", "model", "osoji_commit", "claim_builder_schema_version",
+        "corpus", "repeats", "repeat_offset", "batch_size", "tokens", "metrics",
+    ):
+        assert key in meta, f"run_meta missing {key!r}"
+    assert meta["schema"] == "osoji-verdict/1"
+    assert meta["record"] == "run_meta"
+    assert meta["run_id"] == "test-run"
+    assert meta["provider"] == "anthropic"
+    assert meta["model"] == "test-model"
+    assert meta["repeats"] == 2
+    assert meta["repeat_offset"] == 10
+    assert meta["batch_size"] == eval_lib.JUNK_BATCH_SIZE
+    assert meta["variants"] == {
+        "baseline": {
+            "prompt_sha256": hashlib.sha256(b"BASELINE PROMPT").hexdigest(),
+            "prompt_source": "@default",
+        },
+        "no_closing": {
+            "prompt_sha256": hashlib.sha256(b"ALT PROMPT").hexdigest(),
+            "prompt_source": "@omit:closing",
+        },
+    }
+    assert meta["corpus"]["n_cases"] == 2
+    assert meta["corpus"]["n_gray"] == 0
+    assert meta["corpus"]["root"] == str(corpus_root)
+
+    # records-then-trailer ordering via write_verdict_ndjson, full round trip.
+    out_path = tmp_path / "run.ndjson"
+    write_verdict_ndjson(run.records, run.run_meta, out_path)
+    lines = out_path.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 9
+    for line in lines[:-1]:
+        assert json.loads(line)["record"] == "verdict"
+    assert json.loads(lines[-1])["record"] == "run_meta"
+
+    read_records, read_meta = read_verdict_ndjson(out_path)
+    assert read_records == run.records
+    assert read_meta == run.run_meta
+
+
+@pytest.mark.asyncio
+async def test_evaluate_corpus_mixes_corpus_and_bootstrap_sources(tmp_path):
+    corpus_root = tmp_path / "corpus"
+    make_case(corpus_root, "dead_code", "case_101_a", verdict="confirmed")
+    [corpus_case] = load_corpus(corpus_root)
+
+    bootstrap_case = CorpusCase(
+        key="bootstrap-slug-1",
+        case_dir=eval_lib.REPO_ROOT,
+        category="dead_code",
+        finding=Finding(
+            detector="debris:dead_code",
+            gap_type="reachability",
+            path="scripts/eval_lib.py",
+            line_start=1,
+            line_end=1,
+            symbol="CORPUS_ROOT",
+            contract_source="symbol declaration",
+            contract_claim="CORPUS_ROOT is declared but appears unused",
+            observed_behavior="synthetic bootstrap case for the mixed-source test",
+        ),
+        expected_verdict="dismissed",
+        expected_reasoning="",
+        gray=False,
+        evidence_policy="rebuild",
+        snapshot_root=eval_lib.REPO_ROOT,
+        origin={},
+        source="bootstrap",
+    )
+
+    cases = [corpus_case, bootstrap_case]
+    variants = [Variant(name="baseline", system_prompt="P", prompt_source="@default")]
+    provider = FakeProvider([
+        verdicts_result([
+            {"batch_index": 0, "verdict": "confirmed", "confidence": 0.9, "reasoning": "r0"},
+            {"batch_index": 1, "verdict": "dismissed", "confidence": 0.8, "reasoning": "r1"},
+        ]),
+    ])
+
+    run = await evaluate_corpus(
+        cases,
+        variants,
+        provider=provider,
+        config_factory=lambda: Config(
+            root_path=tmp_path, provider="anthropic", model="m", respect_gitignore=False
+        ),
+        workdir=tmp_path / "work",
+    )
+
+    # Claims from both sources are self-sufficient and decided in ONE pass.
+    assert len(provider.calls) == 1
+    assert len(run.records) == 2
+    by_case = {r["case"]: r for r in run.records}
+    assert by_case["dead_code/case_101_a"]["source"] == "corpus"
+    assert by_case["bootstrap-slug-1"]["source"] == "bootstrap"
+    assert by_case["bootstrap-slug-1"]["evidence_policy"] == "rebuild"
+
+
+@pytest.mark.asyncio
+async def test_evaluate_corpus_empty_cases_raises():
+    with pytest.raises(ValueError, match="cases is empty"):
+        await evaluate_corpus(
+            [], [Variant(name="baseline", system_prompt="P", prompt_source="@default")],
+            provider=FakeProvider([]), workdir=Path("."),
+        )
+
+
+@pytest.mark.asyncio
+async def test_evaluate_corpus_empty_variants_raises(tmp_path):
+    corpus_root = tmp_path / "corpus"
+    make_case(corpus_root, "dead_code", "case_101_a")
+    cases = load_corpus(corpus_root)
+
+    with pytest.raises(ValueError, match="variants is empty"):
+        await evaluate_corpus(cases, [], provider=FakeProvider([]), workdir=Path("."))
+
+
+# ---------------------------------------------------------------------------
+# select_cases
+# ---------------------------------------------------------------------------
+
+
+def test_select_cases_corpus_source(tmp_path):
+    corpus_root = tmp_path / "corpus"
+    make_case(corpus_root, "dead_code", "case_101_a")
+
+    cases = select_cases(source="corpus", corpus_root=corpus_root)
+
+    assert [c.key for c in cases] == ["dead_code/case_101_a"]
+
+
+def test_select_cases_bootstrap_source(tmp_path):
+    manifest = {"commit": "abc", "entries": [_bootstrap_manifest_entry(slug="boot-1")]}
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    cases = select_cases(source="bootstrap", bootstrap_manifest=manifest_path)
+
+    assert [c.key for c in cases] == ["boot-1"]
+
+
+def test_select_cases_both_sources_merged(tmp_path):
+    corpus_root = tmp_path / "corpus"
+    make_case(corpus_root, "dead_code", "case_101_a")
+    manifest = {"commit": "abc", "entries": [_bootstrap_manifest_entry(slug="boot-1")]}
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    cases = select_cases(
+        source="both", corpus_root=corpus_root, bootstrap_manifest=manifest_path
+    )
+
+    assert {c.key for c in cases} == {"dead_code/case_101_a", "boot-1"}
+
+
+def test_select_cases_only_filters_both_sources(tmp_path):
+    corpus_root = tmp_path / "corpus"
+    make_case(corpus_root, "dead_code", "case_101_a")
+    manifest = {
+        "commit": "abc",
+        "entries": [
+            _bootstrap_manifest_entry(slug="boot-1"),
+            _bootstrap_manifest_entry(slug="boot-2"),
+        ],
+    }
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    cases = select_cases(
+        source="both", corpus_root=corpus_root, bootstrap_manifest=manifest_path,
+        only=["boot-1"],
+    )
+
+    assert [c.key for c in cases] == ["boot-1"]
+
+
+def test_select_cases_bootstrap_without_manifest_raises(tmp_path):
+    with pytest.raises(ValueError, match="bootstrap_manifest"):
+        select_cases(source="bootstrap", bootstrap_manifest=None)
