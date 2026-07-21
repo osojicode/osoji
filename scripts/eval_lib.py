@@ -822,7 +822,12 @@ async def evaluate_corpus(
     (the same factory the prompt-regression tests call directly) against the
     runtime config's resolved provider name, and closes it when the run
     finishes; an injected ``provider`` (always the case in tests) is never
-    closed here — the caller owns it. ``config_factory`` defaults to
+    closed here — the caller owns it. Staging happens BEFORE this
+    construction: a provider we own opens an async client on construction, so
+    a staging failure (e.g. :func:`stage_case`'s ``ValueError`` for a
+    rebuild-policy case with no ``source/``) must not have anything open yet
+    to leak; the owned provider's try/finally then covers its entire
+    lifetime, from construction to close. ``config_factory`` defaults to
     ``Config(root_path=REPO_ROOT, respect_gitignore=False)``.
 
     Token totals: ``decide_junk_claims`` returns ``(findings, input_tokens,
@@ -854,15 +859,21 @@ async def evaluate_corpus(
         if config_factory is not None
         else Config(root_path=REPO_ROOT, respect_gitignore=False)
     )
+
+    started_at = datetime.now(timezone.utc)
+    # Stage BEFORE constructing a provider: a provider (when we own it) opens
+    # an async client on construction, so if staging raises — e.g. stage_case's
+    # ValueError for a rebuild-policy case with no source/ — nothing has been
+    # opened yet and there is nothing to leak. The provider's try/finally below
+    # starts immediately at construction, covering its entire owned lifetime.
+    claims = _stage_and_build_claims(cases, workdir)
+
     owns_provider = provider is None
     active_provider = (
         provider
         if provider is not None
         else create_provider(runtime_config.provider or "anthropic")
     )
-
-    started_at = datetime.now(timezone.utc)
-    claims = _stage_and_build_claims(cases, workdir)
 
     records: list[dict] = []
     total_input_tokens = 0

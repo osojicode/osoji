@@ -58,13 +58,14 @@ class FakeProvider:
     def __init__(self, results):
         self._results = list(results)
         self.calls = []
+        self.closed = False
 
     async def complete(self, messages, system, options):
         self.calls.append({"messages": messages, "system": system, "options": options})
         return self._results.pop(0)
 
     async def close(self):
-        pass
+        self.closed = True
 
 
 def verdicts_result(verdicts, *, in_tok=100, out_tok=40) -> CompletionResult:
@@ -1324,6 +1325,82 @@ async def test_evaluate_corpus_empty_variants_raises(tmp_path):
 
     with pytest.raises(ValueError, match="variants is empty"):
         await evaluate_corpus(cases, [], provider=FakeProvider([]), workdir=Path("."))
+
+
+# ---------------------------------------------------------------------------
+# evaluate_corpus: owned-provider lifecycle (review Important 3)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_evaluate_corpus_staging_failure_never_constructs_provider(tmp_path, monkeypatch):
+    """A staging failure must happen before any provider is constructed —
+    otherwise an owned provider's async client would be opened and never
+    closed (the try/finally only wraps the decide loop, not staging)."""
+
+    corpus_root = tmp_path / "corpus"
+    make_case(
+        corpus_root, "dead_code", "case_101_bad",
+        evidence_policy="rebuild", write_source=False,
+    )
+    cases = load_corpus(corpus_root)
+
+    constructed: list[str] = []
+
+    def spy_create_provider(name):
+        constructed.append(name)
+        return FakeProvider([])
+
+    monkeypatch.setattr(eval_lib, "create_provider", spy_create_provider)
+    variants = [Variant(name="baseline", system_prompt="P", prompt_source="@default")]
+
+    with pytest.raises(ValueError, match="case_101_bad"):
+        await evaluate_corpus(
+            cases,
+            variants,
+            provider=None,  # not injected: evaluate_corpus would own/construct one
+            config_factory=lambda: Config(
+                root_path=tmp_path, provider="anthropic", model="m", respect_gitignore=False
+            ),
+            workdir=tmp_path / "work",
+        )
+
+    assert constructed == []
+
+
+@pytest.mark.asyncio
+async def test_evaluate_corpus_constructs_and_closes_owned_provider(tmp_path, monkeypatch):
+    corpus_root = tmp_path / "corpus"
+    make_case(corpus_root, "dead_code", "case_101_a", verdict="confirmed")
+    cases = load_corpus(corpus_root)
+
+    fake = FakeProvider([
+        verdicts_result(
+            [{"batch_index": 0, "verdict": "confirmed", "confidence": 0.9, "reasoning": "r"}]
+        ),
+    ])
+    constructed: list[str] = []
+
+    def spy_create_provider(name):
+        constructed.append(name)
+        return fake
+
+    monkeypatch.setattr(eval_lib, "create_provider", spy_create_provider)
+    variants = [Variant(name="baseline", system_prompt="P", prompt_source="@default")]
+
+    run = await evaluate_corpus(
+        cases,
+        variants,
+        provider=None,
+        config_factory=lambda: Config(
+            root_path=tmp_path, provider="anthropic", model="m", respect_gitignore=False
+        ),
+        workdir=tmp_path / "work",
+    )
+
+    assert constructed == ["anthropic"]
+    assert fake.closed is True
+    assert len(run.records) == 1
 
 
 # ---------------------------------------------------------------------------

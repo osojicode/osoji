@@ -121,9 +121,51 @@ def _load_splits_for(corpus_root: Path) -> dict:
     return load_splits(splits_path)
 
 
+class _Utf8BytesWriter:
+    """Adapts a binary buffer (``sys.stdout.buffer``) to a text ``.write()``.
+
+    ``write_verdict_ndjson``'s stream branch does a plain ``out.write(str)``.
+    Passing ``sys.stdout`` itself is unsafe on Windows: a real console/pipe
+    stdout is a ``TextIOWrapper`` in universal-newlines mode, which silently
+    translates every ``\\n`` to ``\\r\\n`` on write, corrupting the
+    ``osoji-verdict/1`` bare-``\\n`` guarantee. Encoding to UTF-8 bytes
+    ourselves and writing straight to the binary buffer bypasses that text
+    layer entirely, so stdout output is byte-identical to file output.
+    """
+
+    def __init__(self, buffer) -> None:
+        self._buffer = buffer
+
+    def write(self, text: str) -> None:
+        self._buffer.write(text.encode("utf-8"))
+        self._buffer.flush()
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_arg_parser()
     args = parser.parse_args(argv)
+
+    # The GEPA gate is a whole-corpus property: a filtered selection compared
+    # against the WHOLE splits.json makes every unselected case read as a
+    # stale assignment (false FAILED). Reject the combination outright rather
+    # than silently mis-scoring it.
+    if args.gate_check and (args.split is not None or args.only is not None or args.exclude_gray):
+        print(
+            "error: --gate-check evaluates the entire corpus; "
+            "remove --split/--only/--exclude-gray",
+            file=sys.stderr,
+        )
+        return 2
+
+    # splits.json only ever assigns corpus-source case keys — a bootstrap-only
+    # selection would have every case read as "missing from splits.json".
+    if args.split is not None and args.source == "bootstrap":
+        print(
+            "error: --split only applies to the corpus source (splits.json has "
+            "no bootstrap assignments); drop --split or use --source corpus/both",
+            file=sys.stderr,
+        )
+        return 2
 
     only = _parse_only(args.only)
 
@@ -172,13 +214,14 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     if args.gate_check:
-        gate_splits = splits
-        if gate_splits is None:
-            try:
-                gate_splits = _load_splits_for(args.corpus)
-            except (OSError, ValueError) as exc:
-                print(f"error: cannot load splits.json for --gate-check: {exc}", file=sys.stderr)
-                return 2
+        # --split/--only/--exclude-gray are rejected above, so `cases` here is
+        # always the FULL --source selection: safe to compare against the
+        # whole splits.json (never the filtered-vs-unfiltered mismatch).
+        try:
+            gate_splits = _load_splits_for(args.corpus)
+        except (OSError, ValueError) as exc:
+            print(f"error: cannot load splits.json for --gate-check: {exc}", file=sys.stderr)
+            return 2
         report = check_gepa_gate(cases, gate_splits)
         _print_gate_report(report)
         return 0 if report.passed else 1
@@ -193,25 +236,31 @@ def main(argv: list[str] | None = None) -> int:
             respect_gitignore=False,
         )
 
-    with tempfile.TemporaryDirectory(prefix="osoji-corpus-replay-") as tmp:
-        run = asyncio.run(
-            evaluate_corpus(
-                cases,
-                variants,
-                repeats=args.repeats,
-                repeat_offset=args.repeat_offset,
-                run_id=run_id,
-                config_factory=_config_factory,
-                workdir=Path(tmp),
-                corpus_root=args.corpus,
-                split=args.split,
-                only=only,
-                exclude_gray=args.exclude_gray,
+    try:
+        with tempfile.TemporaryDirectory(prefix="osoji-corpus-replay-") as tmp:
+            run = asyncio.run(
+                evaluate_corpus(
+                    cases,
+                    variants,
+                    repeats=args.repeats,
+                    repeat_offset=args.repeat_offset,
+                    run_id=run_id,
+                    config_factory=_config_factory,
+                    workdir=Path(tmp),
+                    corpus_root=args.corpus,
+                    split=args.split,
+                    only=only,
+                    exclude_gray=args.exclude_gray,
+                )
             )
-        )
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
 
-    out = sys.stdout if args.out == "-" else Path(args.out)
-    write_verdict_ndjson(run.records, run.run_meta, out)
+    if args.out == "-":
+        write_verdict_ndjson(run.records, run.run_meta, _Utf8BytesWriter(sys.stdout.buffer))
+    else:
+        write_verdict_ndjson(run.records, run.run_meta, Path(args.out))
     return 0
 
 
