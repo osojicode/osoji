@@ -29,6 +29,7 @@ from osoji.corpus_emit import (  # noqa: E402
     ENV_CORPUS_DEST,
     MAX_FILES,
     CorpusEmitError,
+    _category_of,
     emit_case,
     resolve_dest,
 )
@@ -332,10 +333,99 @@ def test_emit_case_file_cap_exceeded_raises(tmp_path):
     ledger_path.write_text(json.dumps(ledger), encoding="utf-8")
 
     dest = tmp_path / "corpus" / "_holding"
-    with pytest.raises(CorpusEmitError, match="exceeds the corpus-emit cap"):
+    with pytest.raises(CorpusEmitError, match="exceeds the corpus-emit cap") as excinfo:
         emit_case(repo, big.id, "too-big", dest)
 
+    # --include is additive-only -- it can never narrow the file set below
+    # the cap, so the error must not suggest it as a fix (task-6 review
+    # MINOR 1). The message should instead be honest that there is no
+    # narrowing knob today.
+    message = str(excinfo.value)
+    assert "--include" not in message
+    assert "too many files" in message or "targeted evidence" in message
+
     assert not (dest / "dead_code" / "case_too-big").exists()
+
+
+def test_emit_case_missing_finding_path_file_names_no_such_file(tmp_path):
+    repo, confirmed, _ = _build_repo(tmp_path)
+    # Delete the flagged file after it was decided -- a realistic, if rare,
+    # race between an audit run and an `osoji corpus emit` call.
+    (repo / "src" / "app" / "util.py").unlink()
+    dest = tmp_path / "corpus" / "_holding"
+
+    with pytest.raises(CorpusEmitError, match="no such file") as excinfo:
+        emit_case(repo, confirmed.id, "missing-file", dest)
+
+    assert "outside the repo" not in str(excinfo.value)
+
+
+def test_emit_case_finding_path_escaping_repo_names_outside_repo(tmp_path):
+    repo, confirmed, uncertain = _build_repo(tmp_path)
+    ledger_path = repo / ".osoji" / "analysis" / "decided-findings.json"
+    ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+    for f in ledger["findings"]:
+        if f["id"] == confirmed.id:
+            f["path"] = "../outside.py"  # escapes the repo tree
+    ledger_path.write_text(json.dumps(ledger), encoding="utf-8")
+    dest = tmp_path / "corpus" / "_holding"
+
+    with pytest.raises(CorpusEmitError, match="outside the repo") as excinfo:
+        emit_case(repo, confirmed.id, "escaping-path", dest)
+
+    assert "no such file" not in str(excinfo.value)
+
+
+# ---------------------------------------------------------------------------
+# category derivation (task-6 review: plumbing/dead_plumbing collision)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("detector", "expected_category"),
+    [
+        # JunkAnalyzer-backed producers (findings_adapter.py's _JUNK_PRODUCER
+        # + each analyzer's own .name / .cli_flag).
+        ("deadcode:dead_symbol", "dead_code"),
+        ("deadparam:dead_parameter", "dead_params"),
+        # The collision the reviewer caught: DeadPlumbingAnalyzer.name is
+        # "dead_plumbing", but the corpus taxonomy (README example list) and
+        # the legacy debris:plumbing path both call this category "plumbing".
+        ("plumbing:unactuated_config", "plumbing"),
+        ("orphan:orphaned_file", "orphaned_files"),
+        ("deps:dead_dependency", "dead_deps"),
+        ("cicd:dead_cicd", "dead_cicd"),
+        # Non-JunkAnalyzer producers (findings_adapter.py: obligations.py's
+        # finding_type, doc_analysis.py's DocFinding.category).
+        ("obligations:obligation_violation", "obligations"),
+        ("obligations:obligation_implicit_contract", "obligations"),
+        ("doc:stale_content", "doc_analysis"),
+        ("doc:misleading_claim", "doc_analysis"),
+        # debris:<category> (findings_adapter.py's finding_from_debris):
+        # today's live tools.py schema enum, plus the corpus README's
+        # "legacy bespoke case dirs" names (dead_params, plumbing) that
+        # predate that schema -- both must round-trip as themselves, which
+        # is exactly what would have caught the plumbing collision above.
+        ("debris:dead_code", "dead_code"),
+        ("debris:latent_bug", "latent_bug"),
+        ("debris:stale_comment", "stale_comment"),
+        ("debris:misleading_docstring", "misleading_docstring"),
+        ("debris:commented_out_code", "commented_out_code"),
+        ("debris:expired_todo", "expired_todo"),
+        ("debris:dead_params", "dead_params"),
+        ("debris:plumbing", "plumbing"),
+    ],
+)
+def test_category_of_matches_corpus_taxonomy(detector, expected_category):
+    assert _category_of(detector) == expected_category
+
+
+def test_category_of_plumbing_producer_agrees_with_debris_producer():
+    # The two producers that can both describe an unactuated-config /
+    # plumbing-style gap must agree on the corpus directory they file into --
+    # this is the exact invariant the reviewer's plumbing/dead_plumbing
+    # collision violated.
+    assert _category_of("plumbing:unactuated_config") == _category_of("debris:plumbing")
 
 
 # ---------------------------------------------------------------------------

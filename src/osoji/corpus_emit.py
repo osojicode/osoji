@@ -162,6 +162,27 @@ def _resolve_within_repo(repo_root: Path, rel: str) -> Path | None:
         return None
 
 
+def _snapshot_failure_reason(repo_root: Path, rel: str) -> str:
+    """Distinguish "no such file" from "resolves outside the repo" for
+    ``rel`` -- ``_resolve_within_repo`` collapses both to ``None``, which is
+    the right thing for a boolean existence check but too vague for a
+    user-facing error naming the finding's own (unvalidated-at-collection)
+    path, so this re-walks the same resolution steps purely for diagnosis.
+    """
+
+    if not rel or "\x00" in rel:
+        return "empty or invalid path"
+    try:
+        candidate = _posix_join(repo_root, rel)
+        resolved = candidate.resolve()
+        resolved_root = repo_root.resolve()
+    except (OSError, ValueError) as exc:
+        return f"path could not be resolved ({exc})"
+    if not resolved.is_relative_to(resolved_root):
+        return f"resolves outside the repo ({resolved})"
+    return f"no such file under {repo_root}"
+
+
 def _walk_strings(value: Any):
     """Yield every string leaf inside a nested dict/list structure."""
 
@@ -218,6 +239,19 @@ def _language_for(path: str, override: str | None) -> str:
 _PRODUCER_TO_CLI_FLAG: dict[str, str] = {v: k for k, v in _CLI_FLAG_TO_PRODUCER.items()}
 _CLI_FLAG_TO_CATEGORY: dict[str, str] = {v: k for k, v in _JUNK_NAME_TO_CLI_FLAG.items()}
 
+# The CLI-flag registry chain above is a UI naming convention (--exclude flag
+# identifiers via JunkAnalyzer.name), not the corpus taxonomy -- it happens to
+# already agree with the corpus README's example categories and the legacy
+# debris:<category> vocabulary for five of six JunkAnalyzers, but
+# DeadPlumbingAnalyzer.name is "dead_plumbing" while the corpus taxonomy (the
+# README's own example list, and the legacy debris:plumbing path handled
+# below) calls this category "plumbing". The registry chain cannot be
+# trusted verbatim as the corpus taxonomy -- override the one confirmed
+# collision explicitly rather than silently emitting the wrong directory name.
+_CATEGORY_OVERRIDES: dict[str, str] = {
+    "dead_plumbing": "plumbing",
+}
+
 # Producers outside the JUNK_ANALYZERS registry: Phase 2 (doc analysis),
 # Phase 3 (debris), and Phase 3.5 (obligations) are not JunkAnalyzer
 # subclasses, so they carry no CLI-flag registry entry.
@@ -254,7 +288,8 @@ def _category_of(detector: str) -> str:
         return _SPECIAL_CATEGORY_PRODUCERS[producer]
     cli_flag = _PRODUCER_TO_CLI_FLAG.get(producer)
     if cli_flag is not None:
-        return _CLI_FLAG_TO_CATEGORY.get(cli_flag, producer)
+        category = _CLI_FLAG_TO_CATEGORY.get(cli_flag, producer)
+        return _CATEGORY_OVERRIDES.get(category, category)
     return producer
 
 
@@ -422,10 +457,17 @@ def emit_case(
         relevant.add(rel)
 
     if len(relevant) > MAX_FILES:
+        # --include is additive-only (it can only grow `relevant`, never
+        # narrow it), so it is never a fix here -- the finding's own evidence
+        # already references too many files for a self-contained case. There
+        # is currently no knob to narrow that automatically; the options are
+        # to emit a different (more targeted) finding, or extend this tool.
         raise CorpusEmitError(
             f"{len(relevant)} files exceeds the corpus-emit cap of {MAX_FILES} "
-            "(snapshot-bloat guard) -- narrow the selection with --include or "
-            "trim the finding's evidence"
+            "(snapshot-bloat guard): the finding's evidence references too "
+            "many files for a self-contained case. Emit a different finding "
+            "with more targeted evidence, or extend corpus_emit.py to support "
+            "narrowing the selection."
         )
 
     resolved_verdict = _resolve_expected_verdict(finding, expected_verdict)
@@ -452,7 +494,9 @@ def emit_case(
         # finally gets a clear error instead of a silent skip.
         src = _resolve_within_repo(repo_root, rel)
         if src is None:
-            raise CorpusEmitError(f"cannot snapshot {rel!r}: no such file under {repo_root}")
+            raise CorpusEmitError(
+                f"cannot snapshot {rel!r}: {_snapshot_failure_reason(repo_root, rel)}"
+            )
         dest_file = _posix_join(source_root, rel)
         dest_file.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src, dest_file)
