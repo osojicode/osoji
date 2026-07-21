@@ -12,6 +12,7 @@ from typing import Any
 
 from .config import Config, SHADOW_DIR
 from .diff import get_diff_files
+from .findings import Finding
 from .hasher import is_findings_current
 from .hooks import find_git_root
 from .junk import JunkAnalyzer, JunkAnalysisResult, load_shadow_content
@@ -112,6 +113,16 @@ class AuditIssue:
     origin: dict | None = None  # {"source": "llm"|"static"|"hybrid", "plugin": str}
     exclude_key: str | None = None  # matches --exclude identifier for this phase
     contract_class: str | None = None  # obligations only: string-contract taxonomy class (V1-5c)
+    # Triage outputs, threaded from the decided Finding when one exists.
+    # Additive: the detector's heuristic `remediation` above is unchanged; these
+    # ride alongside it. None whenever no decided Finding backs this issue
+    # (Triage never ran for this phase, or the seam degraded — see
+    # audit_manifest.py's VerdictSession for the same vocabulary).
+    finding_id: str | None = None
+    verdict: str | None = None
+    confidence: float | None = None
+    triage_reasoning: str | None = None
+    suggested_fix: str | None = None
 
 
 @dataclass
@@ -279,6 +290,8 @@ def _serialize_junk_results(config: Config, analyzer_name: str, result: JunkAnal
             "remediation": item.remediation,
             "original_purpose": item.original_purpose,
             "metadata": item.metadata,
+            "finding_id": item.finding_id,
+            "verdict": item.verdict,
         })
     for source_path, findings in by_source.items():
         out_path = config.analysis_junk_path_for(analyzer_name, Path(source_path))
@@ -459,7 +472,7 @@ async def run_audit_async(
         return [], (0, 0)
 
     async def _noop_phase3():
-        return set(), (0, 0)
+        return set(), (0, 0), {}
 
     async def _noop_phase4():
         return {}, {}
@@ -477,7 +490,7 @@ async def run_audit_async(
         await asyncio.gather(phase2_coro, phase3_coro, phase3_5_coro, phase4_coro)
     )
     analysis_results, phase2_tokens = phase2_raw
-    debris_result, phase3_tokens = phase3_raw
+    debris_result, phase3_tokens, debris_decided = phase3_raw
     obligation_findings, phase3_5_tokens, contract_triaged, contract_other = phase3_5_raw
     junk_results, phase4_tokens = phase4_raw
 
@@ -507,6 +520,11 @@ async def run_audit_async(
                 remediation=finding.remediation,
                 origin={"source": "llm", "plugin": "doc_analysis"},
                 exclude_key="doc-analysis",
+                finding_id=finding.finding_id,
+                verdict=finding.verdict,
+                confidence=finding.confidence,
+                triage_reasoning=finding.triage_reasoning,
+                suggested_fix=finding.suggested_fix,
             ))
 
     # Serialize Phase 2 results
@@ -526,11 +544,13 @@ async def run_audit_async(
                     "shadow_ref": f.shadow_ref,
                     "evidence": f.evidence,
                     "remediation": f.remediation,
-                    # Unified-Triage outputs (V1-5d); additive, may be None when
-                    # a finding passed through unverified.
+                    # Unified-Triage outputs; additive, may be None when a
+                    # finding passed through unverified.
                     "verdict": f.verdict,
                     "confidence": f.confidence,
                     "triage_reasoning": f.triage_reasoning,
+                    "suggested_fix": f.suggested_fix,
+                    "finding_id": f.finding_id,
                 }
                 for f in item.findings
             ],
@@ -542,9 +562,16 @@ async def run_audit_async(
     for i, finding in enumerate(raw_debris):
         if i in suppressed_indices:
             continue
+        # Triage overlay (additive): a decided Finding (when one exists for
+        # this raw index) contributes its verdict/confidence/reasoning/
+        # suggested-fix, plus a severity re-grade (Triage may demote a real
+        # finding to a lower severity, never drop it outright) — the heuristic
+        # severity/remediation stay the fallback, never dropped.
+        decided = debris_decided.get(i)
+        heuristic_severity = finding["severity"]
         issues.append(AuditIssue(
             path=finding["source_path"],
-            severity=finding["severity"],
+            severity=(decided.severity or heuristic_severity) if decided is not None else heuristic_severity,
             category=finding["category"],
             message=f"L{finding['line_start']}-{finding['line_end']}: {finding['description']}",
             remediation=finding.get("suggestion", "Review and fix the identified issue"),
@@ -552,6 +579,11 @@ async def run_audit_async(
             line_end=finding["line_end"],
             origin={"source": "llm", "plugin": "code_debris"},
             exclude_key="debris",
+            finding_id=decided.id if decided is not None else None,
+            verdict=decided.verdict if decided is not None else None,
+            confidence=decided.confidence if decided is not None else None,
+            triage_reasoning=decided.triage_reasoning if decided is not None else None,
+            suggested_fix=decided.suggested_fix if decided is not None else None,
         ))
 
     # Collect issues from Phase 3.5 (obligations)
@@ -565,6 +597,11 @@ async def run_audit_async(
             origin={"source": "hybrid", "plugin": "obligations"},
             exclude_key="obligations",
             contract_class=f.contract_class,
+            finding_id=f.finding_id,
+            verdict=f.verdict,
+            confidence=f.triage_confidence,
+            triage_reasoning=f.triage_reasoning,
+            suggested_fix=f.suggested_fix,
         ))
 
     # Collect issues from Phase 4 (junk analyzers)
@@ -583,6 +620,11 @@ async def run_audit_async(
                 line_end=item.line_end,
                 origin={"source": origin_source, "plugin": analyzer_name},
                 exclude_key=junk_exclude_key,
+                finding_id=item.finding_id,
+                verdict=item.verdict,
+                confidence=item.confidence,
+                triage_reasoning=item.reason,
+                suggested_fix=item.remediation,
             ))
         _serialize_junk_results(config, analyzer_name, junk_result)
 
@@ -792,11 +834,18 @@ async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
     ``dismissed`` verdict suppresses the finding — preserving the prior behavior
     where a confirmed-false-positive was dropped. Best-effort: on any failure
     all findings are kept.
+
+    Returns ``(suppressed_indices, phase_tokens, decided_by_index)``: the third
+    element maps each eligible raw-debris index to its decided ``Finding``, so
+    the caller can overlay verdict/confidence/reasoning/suggested-fix/severity
+    onto the corresponding kept ``AuditIssue`` (additive; empty on any failure
+    or when nothing needed verification).
     """
     from .junk_triage import decide_junk_claims
     _emit(config, "Osoji: Checking code debris findings...")
     phase_start = time_module.monotonic()
     suppressed_indices: set[int] = set()
+    decided_by_index: dict[int, Finding] = {}
     phase_tokens = (0, 0)
     needs_verification = any(_is_eligible(f) for f in raw_debris)
     if needs_verification:
@@ -813,6 +862,7 @@ async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
                 finally:
                     await provider.close()
                 for finding, orig_idx in zip(decided, original_indices):
+                    decided_by_index[orig_idx] = finding
                     if finding.verdict == "dismissed":
                         suppressed_indices.add(orig_idx)
                 phase_tokens = (in_tok, out_tok)
@@ -838,19 +888,32 @@ async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
         _emit(config, f"  [phase 3 debris triage: {elapsed:.1f}s] {tok_str}")
     elif verbose:
         _emit(config, f"  [phase 3 debris triage: {elapsed:.1f}s]")
-    return suppressed_indices, phase_tokens
+    return suppressed_indices, phase_tokens, decided_by_index
 
 
 def _overlay_verdict(cf, decided):
-    """Record the Triage verdict's string-contract class on a ContractFinding.
+    """Record the Triage verdict's outputs on a ContractFinding, additively.
 
-    Only ``contract_class`` is overlaid; severity/remediation/confidence stay
-    heuristic. Two reasons: signal conservation (Triage's confirm/dismiss is the
-    single variable this migration changes — it must not *also* re-scale the
-    heuristic priors), and the heuristic remediation already carries the
+    ``contract_class`` plus the raw verdict/confidence/reasoning/suggested-fix
+    and the decided Finding's id now ride along on new optional fields
+    (``verdict``, ``triage_confidence``, ``triage_reasoning``, ``suggested_fix``,
+    ``finding_id``) so the product boundary can surface what Triage decided.
+
+    ``severity``/``remediation``/``confidence`` stay heuristic — untouched by
+    this overlay. Two reasons: signal conservation (Triage's confirm/dismiss is
+    the single variable this migration changes — it must not *also* re-scale
+    the heuristic priors), and the heuristic remediation already carries the
     silent-value / loud-name framing the constraint requires preserved.
     """
-    return replace(cf, contract_class=decided.contract_class)
+    return replace(
+        cf,
+        contract_class=decided.contract_class,
+        finding_id=decided.id,
+        verdict=decided.verdict,
+        triage_confidence=decided.confidence,
+        triage_reasoning=decided.triage_reasoning,
+        suggested_fix=decided.suggested_fix,
+    )
 
 
 async def _run_phase3_5_async(config, obligations_enabled, rate_limiter, verbose):
@@ -1008,6 +1071,11 @@ def load_audit_result(config: Config) -> AuditResult:
             origin=i.get("origin"),
             exclude_key=i.get("exclude_key"),
             contract_class=i.get("contract_class"),
+            finding_id=i.get("finding_id"),
+            verdict=i.get("verdict"),
+            confidence=i.get("confidence"),
+            triage_reasoning=i.get("triage_reasoning"),
+            suggested_fix=i.get("suggested_fix"),
         )
         for i in data.get("issues", [])
     ]
@@ -1290,6 +1358,14 @@ def format_audit_report(result: AuditResult) -> str:
             lines.append(f"**Category**: {issue.category}")
             lines.append(f"**Issue**: {issue.message}")
             lines.append(f"**Remediation**: {issue.remediation}")
+            if issue.suggested_fix:
+                meta = []
+                if issue.verdict is not None:
+                    meta.append(issue.verdict)
+                if issue.confidence is not None:
+                    meta.append(f"{issue.confidence:.2f}")
+                meta_tag = f" ({', '.join(meta)})" if meta else ""
+                lines.append(f"**Suggested fix (triage)**: {issue.suggested_fix}{meta_tag}")
             lines.append("")
 
     if warnings:
@@ -1351,6 +1427,11 @@ def format_audit_json(result: AuditResult) -> str:
                 **({"origin": issue.origin} if issue.origin else {}),
                 **({"exclude_key": issue.exclude_key} if issue.exclude_key else {}),
                 **({"contract_class": issue.contract_class} if issue.contract_class else {}),
+                **({"finding_id": issue.finding_id} if issue.finding_id else {}),
+                **({"verdict": issue.verdict} if issue.verdict else {}),
+                **({"confidence": issue.confidence} if issue.confidence is not None else {}),
+                **({"triage_reasoning": issue.triage_reasoning} if issue.triage_reasoning else {}),
+                **({"suggested_fix": issue.suggested_fix} if issue.suggested_fix else {}),
             }
             for issue in result.issues
         ],
@@ -2005,7 +2086,13 @@ def _html_accuracy_section(result: "AuditResult") -> str:
         parts.append(f'<p style="font-weight:400;color:var(--text-1);margin-top:12px">{_h(cat)}</p>')
         parts.append('<ul class="file-list">')
         for issue in by_cat[cat]:
-            parts.append(f'<li>{_h(str(issue.path))}{_issue_loc(issue)}: {_h(issue.message)}</li>')
+            fix_tag = ""
+            if issue.suggested_fix:
+                fix_tag = (
+                    f'<br><span style="color:var(--text-3)">'
+                    f'Suggested fix (triage): {_h(issue.suggested_fix)}</span>'
+                )
+            parts.append(f'<li>{_h(str(issue.path))}{_issue_loc(issue)}: {_h(issue.message)}{fix_tag}</li>')
         parts.append('</ul>')
 
     parts.append('</div></div>')

@@ -341,6 +341,8 @@ class DeadParameterAnalyzer(JunkAnalyzer):
                 # gated_lines died with the per-detector verify tool: the
                 # unified verdict schema carries no detector-specific fields.
                 metadata={"function_name": function_name, "gated_lines": []},
+                finding_id=f.id,
+                verdict=f.verdict,
             ))
         return JunkAnalysisResult(
             findings=findings,

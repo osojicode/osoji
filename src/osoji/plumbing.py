@@ -233,6 +233,8 @@ class DeadPlumbingAnalyzer(JunkAnalyzer):
                 # trace drew on the deleted verify tool's separate `trace` field;
                 # the unified verdict carries reasoning instead.
                 metadata={"schema_name": schema_name, "trace": f.triage_reasoning or ""},
+                finding_id=f.id,
+                verdict=f.verdict,
             ))
         return JunkAnalysisResult(
             findings=findings,

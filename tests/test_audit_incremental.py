@@ -280,7 +280,7 @@ def test_debris_seam_serves_cache_without_llm(temp_dir):
     with patch("osoji.facts.FactsDB", return_value=_FakeFacts()), \
          patch("osoji.symbols.load_all_symbols", return_value={}), \
          patch("osoji.audit.create_runtime", return_value=(provider, MagicMock())):
-        suppressed, _tokens = asyncio.run(
+        suppressed, _tokens, _decided = asyncio.run(
             _run_phase3_async(config, raw_debris, MagicMock(), False)
         )
 

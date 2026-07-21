@@ -20,7 +20,7 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from osoji.audit import _run_phase3_5_async
+from osoji.audit import _run_phase3_5_async, run_audit_async
 from osoji.config import Config
 from osoji.llm.types import CompletionResult, ToolCall
 from osoji.triage import TRIAGE_SYSTEM_PROMPT
@@ -184,6 +184,62 @@ def test_confirmed_verdict_kept_with_contract_class(temp_dir):
     assert findings[0].contract_class == "unnamed_obligation"
     assert triaged == 1
     assert other == 0
+
+
+def test_confirmed_verdict_carries_triage_outputs_additively(temp_dir):
+    """The Triage outputs (verdict/confidence/reasoning/suggested_fix/id) ride
+    along additively; the heuristic severity/remediation/confidence are
+    untouched (still governed by the silent-value/loud-name rationale)."""
+    _one_implicit_contract_env(temp_dir)
+    provider = FakeProvider(verdicts=[
+        {"batch_index": 0, "verdict": "confirmed", "confidence": 0.8,
+         "reasoning": "two sites share a bare literal", "contract_class": "unnamed_obligation",
+         "suggested_fix": "extract a shared constant"},
+    ])
+
+    findings, _tokens, _triaged, _other = _run(temp_dir, provider)
+    f = findings[0]
+
+    assert f.verdict == "confirmed"
+    assert f.triage_confidence == 0.8
+    assert f.triage_reasoning == "two sites share a bare literal"
+    assert f.suggested_fix == "extract a shared constant"
+    assert f.finding_id
+    # heuristic fields are unchanged by the overlay (still whatever the
+    # heuristic StringContractChecker proposed, not re-scaled by Triage)
+    assert f.severity == "info"       # heuristic implicit_contract severity
+    assert f.confidence == 0.5        # heuristic confidence, untouched by 0.8 above
+    assert f.remediation              # heuristic remediation text, untouched
+
+
+def test_triage_outputs_land_on_the_audit_issue_end_to_end(temp_dir):
+    """End-to-end (run_audit_async): the ContractFinding's Triage outputs reach
+    the product-boundary AuditIssue, while severity/remediation stay heuristic."""
+    _one_implicit_contract_env(temp_dir)
+    provider = FakeProvider(verdicts=[
+        {"batch_index": 0, "verdict": "confirmed", "confidence": 0.8,
+         "reasoning": "two sites share a bare literal", "contract_class": "unnamed_obligation",
+         "suggested_fix": "extract a shared constant"},
+    ])
+    config = Config(root_path=temp_dir, respect_gitignore=False, quiet=True)
+
+    with patch("osoji.audit.create_runtime", return_value=(provider, MagicMock())):
+        result = asyncio.run(run_audit_async(
+            config, fix_shadow=False, obligations=True,
+            exclude={"shadow", "doc-analysis", "debris"},
+        ))
+
+    obligation_issues = [i for i in result.issues if i.exclude_key == "obligations"]
+    assert len(obligation_issues) == 1
+    issue = obligation_issues[0]
+    assert issue.verdict == "confirmed"
+    assert issue.confidence == 0.8
+    assert issue.triage_reasoning == "two sites share a bare literal"
+    assert issue.suggested_fix == "extract a shared constant"
+    assert issue.contract_class == "unnamed_obligation"
+    assert issue.finding_id
+    # severity/remediation stay heuristic — Triage does not re-grade obligations.
+    assert issue.severity == "info"
 
 
 def test_other_class_counts_toward_ce_gap(temp_dir):

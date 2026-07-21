@@ -650,6 +650,8 @@ class DeadCICDAnalyzer(JunkAnalyzer):
                 remediation=f.suggested_fix or f"Remove {element_type} `{element_name}`",
                 original_purpose=f"{element_type} `{element_name}`",
                 confidence_source="llm_inferred",
+                finding_id=f.id,
+                verdict=f.verdict,
             ))
         return JunkAnalysisResult(
             findings=findings,

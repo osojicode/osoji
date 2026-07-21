@@ -50,6 +50,10 @@ class DocFinding:
     verdict: str | None = None
     confidence: float | None = None
     triage_reasoning: str | None = None
+    # Also additive — the decided Finding's suggested remediation and stable
+    # id, threaded through to the product boundary alongside the above.
+    suggested_fix: str | None = None
+    finding_id: str | None = None
 
 
 @dataclass
@@ -647,6 +651,8 @@ async def _triage_doc_findings(
         df.verdict = fnd.verdict
         df.confidence = fnd.confidence
         df.triage_reasoning = fnd.triage_reasoning
+        df.suggested_fix = fnd.suggested_fix
+        df.finding_id = fnd.id
         if fnd.verdict == "uncertain":
             df.severity = "warning"                  # kept, but downgraded (signal conservation)
         elif fnd.severity:

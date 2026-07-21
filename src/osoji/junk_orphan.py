@@ -469,6 +469,8 @@ class OrphanedFilesAnalyzer(JunkAnalyzer):
                 remediation=f.suggested_fix or "Delete file",
                 original_purpose=f"file `{f.path}`",
                 confidence_source="llm_inferred",
+                finding_id=f.id,
+                verdict=f.verdict,
             ))
         return JunkAnalysisResult(
             findings=findings,

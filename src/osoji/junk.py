@@ -31,6 +31,13 @@ class JunkFinding:
     original_purpose: str     # what the item was for
     confidence_source: str = "llm_inferred"  # "ast_proven" | "llm_inferred" | "heuristic"
     metadata: dict[str, Any] = field(default_factory=dict)
+    # Triage outputs: threaded from the decided Finding, additive.
+    # ``reason``/``remediation``/``confidence`` above already carry the decided
+    # Finding's triage_reasoning/suggested_fix/confidence (see each analyzer's
+    # mapping) — these two are the only ones still missing at the product
+    # boundary.
+    finding_id: str | None = None
+    verdict: str | None = None
 
     def __post_init__(self) -> None:
         if self.line_end is not None and self.line_end < self.line_start:
