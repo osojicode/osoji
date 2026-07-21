@@ -414,6 +414,10 @@ async def run_audit_async(
     # Every best-effort Triage/manifest seam appends here on failure instead
     # of swallowing the exception silently.
     config.audit_degradations = []
+    # osojicode/work#35: every Triage.decide_batch call this run appends its
+    # decided findings here (see triage.py); serialized below as the
+    # decided-findings ledger that `osoji corpus emit` reads.
+    config.decided_ledger = []
 
     # Shared rate limiter across all phases so token budgets are tracked globally
     rate_limiter = RateLimiter(get_config_with_overrides(config.provider or "anthropic"))
@@ -770,6 +774,19 @@ async def run_audit_async(
     scorecard.degraded_phases = _degraded_phases(config)
     _serialize_json(config.scorecard_path, asdict(scorecard))
     serialize_audit_result(config, result)
+
+    # osojicode/work#35: the decided-findings ledger -- every triage verdict
+    # decided this run, in one machine-readable file `osoji corpus emit`
+    # reads to snapshot a sweep-proposed corpus case. Lives in analysis_root
+    # (wiped at the top of this function) by design: one audit, one ledger.
+    # Written even when empty so the file's mere presence signals "an audit
+    # has run here" to corpus_emit's missing-ledger error.
+    _serialize_json(config.analysis_root / "decided-findings.json", {
+        "schema": "decided-findings/1",
+        "commit": get_head_commit(config.root_path) or "unknown",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "findings": config.decided_ledger,
+    })
 
     return result
 

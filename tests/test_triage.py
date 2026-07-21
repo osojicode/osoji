@@ -441,3 +441,46 @@ async def test_insufficient_evidence_escalates_when_enabled(explore_repo):
     assert result.findings[0].verdict == "confirmed"
     assert result.would_escalate_count == 1
     assert len(result.exploration_traces) == 1
+
+
+# --- decided-findings ledger (osojicode/work#35) ----------------------------
+
+
+@pytest.mark.asyncio
+async def test_decide_batch_appends_decided_findings_to_ledger(config):
+    config.decided_ledger = []
+    claims = [Claim(make_finding(symbol="a")), Claim(make_finding(symbol="b"))]
+    provider = FakeProvider([
+        verdicts_result([
+            {"batch_index": 0, "verdict": "confirmed", "confidence": 0.9, "reasoning": "no live path"},
+            {"batch_index": 1, "verdict": "dismissed", "confidence": 0.8, "reasoning": "used via dispatch"},
+        ])
+    ])
+    triage = Triage(config, provider=provider)
+
+    result = await triage.decide_batch(claims, mode="claim")
+
+    assert len(config.decided_ledger) == 2
+    ledger_by_symbol = {e["symbol"]: e for e in config.decided_ledger}
+    assert ledger_by_symbol["a"]["verdict"] == "confirmed"
+    assert ledger_by_symbol["a"]["id"] == result.findings[0].id
+    assert ledger_by_symbol["b"]["verdict"] == "dismissed"
+
+
+@pytest.mark.asyncio
+async def test_decide_batch_without_ledger_attached_does_not_crash(config):
+    # config.decided_ledger is not set here -- mirrors every other test in
+    # this file, which calls decide_batch directly without the audit
+    # orchestrator's attach (see audit.py's run_audit_async).
+    assert not hasattr(config, "decided_ledger")
+    claims = [Claim(make_finding(symbol="a"))]
+    provider = FakeProvider([
+        verdicts_result([
+            {"batch_index": 0, "verdict": "confirmed", "confidence": 0.9, "reasoning": "no live path"},
+        ])
+    ])
+    triage = Triage(config, provider=provider)
+
+    result = await triage.decide_batch(claims, mode="claim")
+
+    assert result.findings[0].verdict == "confirmed"
