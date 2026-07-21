@@ -34,7 +34,7 @@ from osoji.symbols import load_files_by_role
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "prompt_regression"
 
-# scripts/eval_lib.py (V1-7 corpus evaluator, Tasks 3-4) backs test_corpus_evaluate
+# scripts/eval_lib.py (V1-7 corpus evaluator, osojicode/work#35) backs test_corpus_evaluate
 # below — it isn't installed as a package, so it needs scripts/ on sys.path the
 # same way scripts/corpus_replay.py and tests/test_eval_lib.py already do.
 REPO_ROOT = Path(__file__).resolve().parent.parent
