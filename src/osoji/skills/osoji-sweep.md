@@ -264,6 +264,85 @@ After triage, you should have three lists:
 
 ---
 
+## Phase 3.5: Emit Corpus Fixture Stubs
+
+Before drafting the fix plan, propose a handful of this sweep's decided
+findings as fixture stubs for the V1-7 evaluator's corpus
+(`tests/fixtures/prompt_regression/`, `osojicode/work#35`). Do this now, while
+the tree still matches exactly what was audited — Phase 5 edits the files
+these findings point at, so anything snapshotted after fixes land would no
+longer reflect what was decided.
+
+### What to emit
+
+Not every finding — be selective, using these principles:
+
+- **Every finding you classified as a false positive.** These are the
+  corpus's highest-value entries: they teach the evaluator to recognize the
+  pattern that fooled osoji.
+- **Every finding where your re-triage verdict disagrees with osoji's own
+  triage verdict**, in either direction — osoji confirmed something you
+  dismissed, or dismissed something you confirmed. Disagreement is exactly
+  the signal the corpus exists to capture.
+- **Up to 2 representative true positives per detector per sweep.** Pick
+  informative, non-redundant ones — skip near-duplicates of a case you
+  already emitted this sweep.
+- **Anything you judge genuinely gray** — a verdict that's debatable either
+  way. Emit these with `--gray`; they stay in the corpus but are excluded
+  from headline accuracy metrics.
+
+If the project under audit is not osoji itself, prefer cases drawn from
+non-Python files when the sweep produced any — the corpus is currently
+Python-heavy, and language diversity is itself a corpus goal.
+
+### How
+
+For each finding selected above, run one `osoji corpus emit`:
+
+```bash
+osoji corpus emit . \
+  --id FINDING_ID \
+  --slug CATEGORY-PROJECT-SHORT_DESC \
+  --expected-verdict confirmed|dismissed \
+  --reasoning "YOUR re-triage reasoning" \
+  [--gray] \
+  [--include EXTRA_REPO_RELATIVE_FILE ...]
+```
+
+- `FINDING_ID` comes from the audit JSON (Phase 2's `osoji report ... --format
+  json` output) or directly from `.osoji/analysis/decided-findings.json`.
+- Slug convention: `<category>-<project>-<short-desc>`, restricted to
+  `[a-z0-9_-]`.
+- `--expected-verdict` and `--reasoning` record **your** re-triage conclusion,
+  not osoji's — the stub is a proposal for human adjudication, and the whole
+  point of emitting it is to capture where your judgment landed.
+- Pass `--gray` for the genuinely gray cases from the list above.
+- Use `--include` (repeatable) when the finding's evidence depends on a file
+  the mechanical scan won't pull in on its own — e.g. a caller several hops
+  away that you had to read to reach your verdict.
+
+### Destination
+
+Inside the osoji repo itself, `osoji corpus emit` resolves its destination
+automatically. When auditing any other project, set `OSOJI_CORPUS_DEST` to
+`<local-osoji-checkout>/tests/fixtures/prompt_regression/_holding` before
+running the command.
+
+If no osoji checkout is reachable on this machine, **skip emission entirely**
+and say so in the Phase 7 summary — this is not a sweep failure.
+
+### What emission is not
+
+`osoji corpus emit` writes stubs into `_holding/` with `expected.json`'s
+`accepted: false` — these are proposals, not additions to the corpus. A human
+reviews each one, corrects the verdict/reasoning if needed, flips `accepted`
+to `true`, `git mv`s it into `<category>/case_NNN_<slug>/`, and assigns it a
+split (see the acceptance checklist in
+`tests/fixtures/prompt_regression/README.md`). The sweep never commits stubs
+itself.
+
+---
+
 ## Phase 4: Create Fix Plan
 
 Produce an ordered plan addressing 100% of true positives:
@@ -515,6 +594,11 @@ After all work is complete, produce a final report:
 
 ### Observatory Upload
 - UPLOADED to ENDPOINT at commit `HASH` / SKIPPED (--push not specified) / FAILED (reason)
+
+### Corpus Stubs Emitted (pending acceptance)
+For each stub:
+- **slug** — one-line rationale (false positive / verdict disagreement / representative TP / gray)
+(or: "emission skipped: no osoji checkout reachable")
 
 ### Fixes Applied (X true positives)
 For each fix:
