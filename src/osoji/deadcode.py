@@ -694,6 +694,8 @@ class DeadCodeAnalyzer(JunkAnalyzer):
                 confidence_source=(
                     "ast_proven" if (f.path, name) in mechanical_keys else "llm_inferred"
                 ),
+                finding_id=f.id,
+                verdict=f.verdict,
             ))
         return JunkAnalysisResult(
             findings=findings,

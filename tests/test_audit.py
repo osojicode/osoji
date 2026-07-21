@@ -1,5 +1,6 @@
 """Tests for audit result formatting, serialization, and scorecard construction."""
 
+import json
 from pathlib import Path
 
 import pytest
@@ -11,10 +12,14 @@ from osoji.audit import (
     _format_scorecard_section,
     _infer_variable_type,
     _lookup_type_definitions,
+    _serialize_junk_results,
     format_audit_html,
+    format_audit_json,
+    format_audit_report,
     serialize_audit_result,
     load_audit_result,
 )
+from osoji.junk import JunkAnalysisResult, JunkFinding
 from osoji.scorecard import CoverageEntry, JunkCodeEntry, Scorecard
 
 
@@ -642,6 +647,185 @@ class TestAuditResultRoundTrip:
         loaded = load_audit_result(config)
 
         assert loaded.scorecard.degraded_phases is None
+
+    def test_triage_fields_round_trip(self, temp_dir):
+        """The five Triage-output fields survive serialize -> load."""
+        from osoji.config import Config
+
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        original = AuditResult(
+            issues=[
+                AuditIssue(
+                    path=Path("src/x.py"),
+                    severity="error",
+                    category="debris",
+                    message="dead code",
+                    remediation="remove it",
+                    finding_id="abc123",
+                    verdict="confirmed",
+                    confidence=0.87,
+                    triage_reasoning="cross-file sweep found no references",
+                    suggested_fix="delete lines 10-12",
+                ),
+                AuditIssue(
+                    path=Path("src/y.py"),
+                    severity="warning",
+                    category="stale_shadow",
+                    message="stale",
+                    remediation="update",
+                ),
+            ],
+            scorecard=_minimal_scorecard(),
+        )
+
+        serialize_audit_result(config, original)
+        loaded = load_audit_result(config)
+
+        triaged = loaded.issues[0]
+        assert triaged.finding_id == "abc123"
+        assert triaged.verdict == "confirmed"
+        assert triaged.confidence == pytest.approx(0.87)
+        assert triaged.triage_reasoning == "cross-file sweep found no references"
+        assert triaged.suggested_fix == "delete lines 10-12"
+
+        untriaged = loaded.issues[1]
+        assert untriaged.finding_id is None
+        assert untriaged.verdict is None
+        assert untriaged.confidence is None
+        assert untriaged.triage_reasoning is None
+        assert untriaged.suggested_fix is None
+
+
+class TestTriageFieldsInJSON:
+    """format_audit_json follows the existing origin omit-if-None idiom."""
+
+    def test_present_fields_are_emitted(self):
+        result = AuditResult(issues=[
+            AuditIssue(
+                path=Path("src/x.py"), severity="error", category="debris",
+                message="dead code", remediation="remove it",
+                finding_id="abc123", verdict="confirmed", confidence=0.87,
+                triage_reasoning="no references found", suggested_fix="delete lines 10-12",
+            ),
+        ])
+
+        payload = json.loads(format_audit_json(result))
+
+        issue = payload["issues"][0]
+        assert issue["finding_id"] == "abc123"
+        assert issue["verdict"] == "confirmed"
+        assert issue["confidence"] == pytest.approx(0.87)
+        assert issue["triage_reasoning"] == "no references found"
+        assert issue["suggested_fix"] == "delete lines 10-12"
+
+    def test_absent_fields_are_omitted(self):
+        result = AuditResult(issues=[
+            AuditIssue(
+                path=Path("src/y.py"), severity="warning", category="stale_shadow",
+                message="stale", remediation="update",
+            ),
+        ])
+
+        payload = json.loads(format_audit_json(result))
+
+        issue = payload["issues"][0]
+        for key in ("finding_id", "verdict", "confidence", "triage_reasoning", "suggested_fix"):
+            assert key not in issue
+
+    def test_zero_confidence_is_not_treated_as_absent(self):
+        """A real (if unusual) 0.0 triage confidence must not be omitted like None."""
+        result = AuditResult(issues=[
+            AuditIssue(
+                path=Path("src/z.py"), severity="warning", category="debris",
+                message="m", remediation="r", verdict="uncertain", confidence=0.0,
+            ),
+        ])
+
+        payload = json.loads(format_audit_json(result))
+
+        assert payload["issues"][0]["confidence"] == 0.0
+
+
+class TestErrorReportSuggestedFix:
+    """The Errors (blocking) markdown section surfaces the Triage suggested fix."""
+
+    def test_suggested_fix_line_present_with_verdict_and_confidence(self):
+        result = AuditResult(issues=[
+            AuditIssue(
+                path=Path("src/x.py"), severity="error", category="debris",
+                message="dead code", remediation="remove it",
+                verdict="confirmed", confidence=0.87, suggested_fix="delete lines 10-12",
+            ),
+        ])
+
+        report = format_audit_report(result)
+
+        assert "**Suggested fix (triage)**: delete lines 10-12" in report
+        assert "confirmed" in report
+        assert "0.87" in report
+
+    def test_suggested_fix_line_absent_when_not_present(self):
+        result = AuditResult(issues=[
+            AuditIssue(
+                path=Path("src/x.py"), severity="error", category="debris",
+                message="dead code", remediation="remove it",
+            ),
+        ])
+
+        report = format_audit_report(result)
+
+        assert "Suggested fix (triage)" not in report
+
+    def test_html_report_shows_suggested_fix_on_doc_errors(self):
+        scorecard = _minimal_scorecard(
+            accuracy_by_category={"doc_stale_content": 1},
+            total_accuracy_errors=1, live_doc_count=1, accuracy_errors_per_doc=1.0,
+        )
+        result = AuditResult(
+            issues=[
+                AuditIssue(
+                    path=Path("README.md"), severity="error", category="doc_stale_content",
+                    message="doc says X", remediation="update the doc",
+                    suggested_fix="change X to Y in the README",
+                ),
+            ],
+            scorecard=scorecard,
+        )
+
+        html = format_audit_html(result)
+
+        assert "Suggested fix (triage)" in html
+        assert "change X to Y in the README" in html
+
+
+class TestJunkResultsSerializeFindingIdAndVerdict:
+    """_serialize_junk_results additively carries finding_id/verdict."""
+
+    def test_finding_id_and_verdict_serialized(self, temp_dir):
+        from osoji.config import Config
+
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        result = JunkAnalysisResult(
+            findings=[
+                JunkFinding(
+                    source_path="src/utils.py", name="old_func", kind="function",
+                    category="dead_symbol", line_start=10, line_end=20,
+                    confidence=0.9, reason="no references", remediation="remove it",
+                    original_purpose="function `old_func`",
+                    finding_id="abc123", verdict="confirmed",
+                ),
+            ],
+            total_candidates=1,
+            analyzer_name="dead_code",
+        )
+
+        _serialize_junk_results(config, "dead_code", result)
+
+        out_path = config.analysis_junk_path_for("dead_code", Path("src/utils.py"))
+        payload = json.loads(out_path.read_text(encoding="utf-8"))
+
+        assert payload["findings"][0]["finding_id"] == "abc123"
+        assert payload["findings"][0]["verdict"] == "confirmed"
 
 
 # --- Debris symbol extraction ---

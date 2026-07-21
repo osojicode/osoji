@@ -137,6 +137,25 @@ async def test_confirmed_findings_ship(temp_dir):
 
 
 @pytest.mark.asyncio
+async def test_confirmed_finding_carries_suggested_fix_and_finding_id(temp_dir):
+    """DocFinding.suggested_fix / finding_id flow from the decided Finding —
+    additive alongside verdict/confidence/triage_reasoning, which already did."""
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    result = _result_with(temp_dir, [_doc_finding(description="claim A")])
+    provider = FakeProvider(verdicts_per_call=[[
+        {"batch_index": 0, "verdict": "confirmed", "confidence": 0.9,
+         "reasoning": "real contradiction", "suggested_fix": "update the README flag name"},
+    ]])
+
+    await _triage_doc_findings(provider, config, [result])
+
+    f = result.findings[0]
+    assert f.verdict == "confirmed"
+    assert f.suggested_fix == "update the README flag name"
+    assert f.finding_id
+
+
+@pytest.mark.asyncio
 async def test_dismissed_suppresses(temp_dir):
     config = Config(root_path=temp_dir, respect_gitignore=False)
     result = _result_with(temp_dir, [_doc_finding()])

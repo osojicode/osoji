@@ -58,6 +58,16 @@ class ContractFinding:
     # Filled by unified Triage (V1-5c) when the finding is routed through
     # Phase 3.5; one of the string-contract taxonomy classes or "other".
     contract_class: str | None = None
+    # Triage outputs, threaded onto the product boundary additively.
+    # ``severity``/``confidence``/``remediation`` above stay heuristic (see
+    # ``_overlay_verdict``'s docstring); ``triage_confidence`` is a distinct
+    # field precisely so it does not collide with — or get sorted/weighted by
+    # — the pre-existing heuristic ``confidence``.
+    finding_id: str | None = None
+    verdict: str | None = None
+    triage_confidence: float | None = None
+    triage_reasoning: str | None = None
+    suggested_fix: str | None = None
 
 
 # ---------------------------------------------------------------------------

@@ -473,6 +473,9 @@ class TestAnalyzerClass:
         assert result.findings[0].metadata["function_name"] == "func"
         # gated_lines died with the per-detector verify tool
         assert result.findings[0].metadata["gated_lines"] == []
+        # Triage outputs: threaded onto JunkFinding additively.
+        assert result.findings[0].finding_id == confirmed.id
+        assert result.findings[0].verdict == "confirmed"
         assert result.total_candidates == 2
         assert result.analyzer_name == "dead_params"
 

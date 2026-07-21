@@ -807,6 +807,8 @@ class DeadDepsAnalyzer(JunkAnalyzer):
                 # usage_type died with the verify verdict; a confirmed finding is
                 # unused by definition, preserving the downstream key.
                 metadata={"usage_type": "unused"},
+                finding_id=f.id,
+                verdict=f.verdict,
             ))
         return JunkAnalysisResult(
             findings=findings,

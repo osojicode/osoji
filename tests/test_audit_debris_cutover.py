@@ -10,11 +10,13 @@ unified rubric (the legacy debris prompt is retired; A/B in ab-v15e-report.md).
 """
 
 import asyncio
+import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from osoji.audit import _run_phase3_async
+from osoji.audit import _run_phase3_async, run_audit_async
 from osoji.config import Config
+from osoji.hasher import compute_file_hash, compute_impl_hash
 from osoji.llm.types import CompletionResult, ToolCall
 from osoji.triage import TRIAGE_SYSTEM_PROMPT
 
@@ -86,13 +88,19 @@ def test_dismissed_verdicts_suppress_correct_indices(temp_dir):
         {"batch_index": 1, "verdict": "confirmed", "confidence": 0.8, "reasoning": "real bug"},
     ]))
 
-    suppressed, phase_tokens = _run(config, raw, provider)
+    suppressed, phase_tokens, decided = _run(config, raw, provider)
 
     # Only the dismissed dead_code finding (raw index 0) is suppressed;
     # the ineligible block (1) and the confirmed latent_bug (2) are kept.
     assert suppressed == {0}
     assert phase_tokens == (120, 60)
     assert provider.calls == 1
+    # Both eligible claims land in the decided map, keyed by raw index.
+    assert set(decided.keys()) == {0, 2}
+    assert decided[0].verdict == "dismissed"
+    assert decided[2].verdict == "confirmed"
+    assert decided[2].confidence == 0.8
+    assert decided[2].triage_reasoning == "real bug"
 
 
 def test_ineligible_only_makes_no_llm_call(temp_dir):
@@ -103,11 +111,12 @@ def test_ineligible_only_makes_no_llm_call(temp_dir):
     ]
     provider = FakeProvider(_verdicts_result([]))
 
-    suppressed, phase_tokens = _run(config, raw, provider)
+    suppressed, phase_tokens, decided = _run(config, raw, provider)
 
     assert suppressed == set()
     assert phase_tokens == (0, 0)
     assert provider.calls == 0
+    assert decided == {}
 
 
 def test_debris_corpus_is_decided_in_bounded_chunks(temp_dir):
@@ -128,11 +137,12 @@ def test_debris_corpus_is_decided_in_bounded_chunks(temp_dir):
            for i in range(1, 12)]
     ))
 
-    suppressed, phase_tokens = _run(config, raw, provider)
+    suppressed, phase_tokens, decided = _run(config, raw, provider)
 
     assert provider.calls == 2  # 13 claims → chunks of 12 + 1
     assert suppressed == {0, 12}
     assert phase_tokens == (240, 120)
+    assert len(decided) == 13
 
 
 def test_debris_triage_uses_unified_rubric(temp_dir):
@@ -147,6 +157,28 @@ def test_debris_triage_uses_unified_rubric(temp_dir):
     # V1-5e: the last legacy-prompt holdout flipped onto the unified three-gap
     # rubric, gated by the same-claims A/B in ab-v15e-report.md.
     assert provider.last_system == TRIAGE_SYSTEM_PROMPT
+
+
+def test_decided_findings_carry_suggested_fix_and_severity(temp_dir):
+    """The decided Finding map threads suggested_fix/severity — the product
+    boundary overlay (run_audit_async) reads these to grade Phase 3 issues."""
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    raw = [_debris("dead_code", "`old_helper` is defined but never used", severity="warning")]
+    provider = FakeProvider(_verdicts_result([
+        {"batch_index": 0, "verdict": "confirmed", "confidence": 0.95,
+         "reasoning": "confirmed dead", "suggested_fix": "delete `old_helper`",
+         "severity": "info"},
+    ]))
+
+    suppressed, _phase_tokens, decided = _run(config, raw, provider)
+
+    assert suppressed == set()
+    finding = decided[0]
+    assert finding.suggested_fix == "delete `old_helper`"
+    assert finding.severity == "info"  # demote-not-drop: Triage may re-grade
+    assert finding.confidence == 0.95
+    assert finding.triage_reasoning == "confirmed dead"
+    assert finding.id
 
 
 def test_provider_failure_records_debris_triage_degradation(temp_dir):
@@ -165,10 +197,11 @@ def test_provider_failure_records_debris_triage_degradation(temp_dir):
     with patch("osoji.facts.FactsDB", return_value=FakeFacts()), \
          patch("osoji.symbols.load_all_symbols", return_value={}), \
          patch("osoji.audit.create_runtime", side_effect=RuntimeError("boom")):
-        suppressed, phase_tokens = asyncio.run(_run_phase3_async(config, raw, MagicMock(), False))
+        suppressed, phase_tokens, decided = asyncio.run(_run_phase3_async(config, raw, MagicMock(), False))
 
     assert suppressed == set()  # best-effort: nothing suppressed, all kept
     assert phase_tokens == (0, 0)
+    assert decided == {}  # no decided Findings on the failure path
     assert config.audit_degradations == [{"phase": "debris-triage", "error": "boom"}]
 
 
@@ -184,8 +217,95 @@ def test_provider_failure_without_attached_degradations_list_does_not_crash(temp
     with patch("osoji.facts.FactsDB", return_value=FakeFacts()), \
          patch("osoji.symbols.load_all_symbols", return_value={}), \
          patch("osoji.audit.create_runtime", side_effect=RuntimeError("boom")):
-        suppressed, phase_tokens = asyncio.run(_run_phase3_async(config, raw, MagicMock(), False))
+        suppressed, phase_tokens, decided = asyncio.run(_run_phase3_async(config, raw, MagicMock(), False))
 
     assert suppressed == set()  # best-effort: nothing suppressed, all kept
     assert phase_tokens == (0, 0)
+    assert decided == {}
     assert not hasattr(config, "audit_degradations")  # getattr default: no crash, nothing created
+
+
+# --- product-boundary overlay (end-to-end via run_audit_async) ----------------
+
+
+def _write(temp_dir: Path, rel: str, text: str) -> None:
+    path = temp_dir / rel
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+
+
+def _write_findings(temp_dir: Path, rel_path: str, findings: list[dict]) -> None:
+    findings_file = temp_dir / ".osoji" / "findings" / (rel_path + ".findings.json")
+    findings_file.parent.mkdir(parents=True, exist_ok=True)
+    source_path = temp_dir / rel_path
+    findings_file.write_text(json.dumps({
+        "source": rel_path,
+        "source_hash": compute_file_hash(source_path),
+        "impl_hash": compute_impl_hash(),
+        "generated": "2026-01-01T00:00:00Z",
+        "findings": findings,
+    }), encoding="utf-8")
+
+
+def test_overlay_lands_on_kept_issues_end_to_end(temp_dir):
+    """End-to-end (run_audit_async): a confirmed verdict's severity/suggested-fix
+    /verdict/confidence/triage-reasoning land on the kept AuditIssue, additively
+    (the heuristic remediation is unchanged); a dismissed verdict still
+    suppresses its finding entirely, exactly as before this migration; and a
+    finding with no decided counterpart at all (ineligible for Triage, never
+    built into a claim) keeps its heuristic severity with every Triage field
+    None — the overlay must not assume every kept finding was decided."""
+    _write(temp_dir, "src/x.py",
+           "def old_helper():\n    pass\n\n\ndef also_dead():\n    pass\n# some old code\n")
+    _write_findings(temp_dir, "src/x.py", [
+        {
+            "category": "dead_code", "line_start": 1, "line_end": 2,
+            "severity": "warning", "description": "`old_helper` is defined but never used",
+        },
+        {
+            "category": "dead_code", "line_start": 5, "line_end": 6,
+            "severity": "warning", "description": "`also_dead` is defined but never used",
+        },
+        {
+            "category": "commented_out_code", "line_start": 8, "line_end": 8,
+            "severity": "warning", "description": "a commented-out code block",
+        },
+    ])
+    config = Config(root_path=temp_dir, respect_gitignore=False, quiet=True)
+    provider = FakeProvider(_verdicts_result([
+        {"batch_index": 0, "verdict": "confirmed", "confidence": 0.92,
+         "reasoning": "no references found", "suggested_fix": "delete `old_helper`",
+         "severity": "info"},
+        {"batch_index": 1, "verdict": "dismissed", "confidence": 0.9,
+         "reasoning": "actually used dynamically"},
+    ]))
+
+    with patch("osoji.facts.FactsDB", return_value=FakeFacts()), \
+         patch("osoji.symbols.load_all_symbols", return_value={}), \
+         patch("osoji.audit.create_runtime", return_value=(provider, MagicMock())):
+        result = asyncio.run(run_audit_async(
+            config, fix_shadow=False, exclude={"shadow", "doc-analysis"},
+        ))
+
+    debris_issues = [i for i in result.issues if i.exclude_key == "debris"]
+    assert len(debris_issues) == 2  # dismissed finding (also_dead) suppressed
+    issue = next(i for i in debris_issues if "old_helper" in i.message)
+    assert issue.verdict == "confirmed"
+    assert issue.confidence == 0.92
+    assert issue.triage_reasoning == "no references found"
+    assert issue.suggested_fix == "delete `old_helper`"
+    assert issue.severity == "info"  # re-graded from the heuristic "warning"
+    assert issue.finding_id
+    # The detector's heuristic remediation text stays put — additive, not replaced.
+    assert issue.remediation == "Review and fix the identified issue"
+
+    # The ineligible finding was never built into a claim, so no decided
+    # Finding exists for it: heuristic severity survives, every Triage field
+    # stays None (not crashed on, not fabricated).
+    untriaged = next(i for i in debris_issues if "commented-out" in i.message)
+    assert untriaged.severity == "warning"
+    assert untriaged.finding_id is None
+    assert untriaged.verdict is None
+    assert untriaged.confidence is None
+    assert untriaged.triage_reasoning is None
+    assert untriaged.suggested_fix is None
