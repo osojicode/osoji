@@ -198,3 +198,36 @@ A run that was actually used to make a decision commits its NDJSON to
 `tests/fixtures/prompt_regression/runs/<run_id>.ndjson`. Committed evidence is
 the default; leaving a run's output only in a scratchpad is the anti-pattern —
 nobody else can audit or replay a decision that isn't in the tree.
+
+## Running a replay
+
+`scripts/corpus_replay.py` is the CLI over `eval_lib.py`'s orchestration
+(`evaluate_corpus`): it stages cases, builds claims, decides them through
+Triage under one or more prompt variants, and writes `osoji-verdict/1`
+NDJSON. It spends real LLM tokens — `--gate-check` is the only mode that
+doesn't (no provider is constructed, no API key is needed).
+
+```bash
+# Is the corpus big enough and split-covered for a GEPA run yet?
+python scripts/corpus_replay.py --gate-check
+
+# Replay the whole corpus under the default rubric, 1 repeat, to stdout.
+python scripts/corpus_replay.py
+
+# Compare the default rubric against one with a section omitted, 3 repeats
+# each, restricted to the train split, output committed to the tree.
+python scripts/corpus_replay.py \
+  --variant baseline=@default \
+  --variant no_significance=@omit:significance \
+  --repeats 3 --split train \
+  --out tests/fixtures/prompt_regression/runs/eval-001.ndjson
+```
+
+Key flags: `--corpus`/`--bootstrap`/`--source {corpus,bootstrap,both}` select
+which cases to replay (bootstrap cases replay against the live repo tree, not
+a snapshot — see `eval_lib.cases_from_bootstrap_manifest`); `--variant
+name=value` is repeatable (`@default`, `@omit:section1,section2`, or a file
+path — see `eval_lib.resolve_variant`); `--split`/`--only`/`--exclude-gray`
+filter the corpus source; `--provider`/`--model` pick the LLM; `--out -`
+(the default) writes NDJSON to stdout, otherwise to the given path. Run
+`python scripts/corpus_replay.py --help` for the full list.
