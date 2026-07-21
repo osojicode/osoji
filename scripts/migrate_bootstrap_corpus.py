@@ -37,6 +37,20 @@ corpus README's acceptance flow. This script never modifies
 ``tests/fixtures/bootstrap/`` (manifest, legacy fixture dirs) or
 ``splits.json`` — split assignment happens at acceptance, not migration.
 
+``MIGRATION-REPORT.md``/``MIGRATION-SKIPPED.md`` are a deterministic function
+of the manifest plus a fresh re-scan of ``_holding/`` — never of what this
+particular invocation did (no "N newly migrated this run" counters, no
+timestamps). Concretely: the write pass (which respects ``--only``) and the
+report pass (which always re-validates the FULL manifest, ``--only`` or not)
+are separate; see ``_validate_fixture_entry``/``_validate_audit_entry`` (the
+shared, read-only validators both passes call) and ``_status_fixture_entry``/
+``_status_audit_entry`` (the report pass's per-entry status). This is what
+makes `git status` clean after any rerun over an unchanged tree, including a
+targeted ``--only`` rerun of an already-migrated slug. A per-run summary
+(newly migrated / already present / skipped, honoring ``--only``) prints to
+stdout only — it is never written to a file, so it carries no determinism
+obligation.
+
 Symbols sidecars: ``.osoji/symbols/*.symbols.json`` carries LLM-assigned
 ``file_role`` and per-symbol ``visibility`` (see ``shadow.py``'s
 ``generate_file_shadow_doc_async``) — there is no mechanical/AST-only
@@ -63,7 +77,7 @@ import argparse
 import shutil
 import subprocess
 import sys
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -370,6 +384,24 @@ def _write_facts_sidecars(case_dir: Path, source_root: Path, generated_at: str) 
 # ---------------------------------------------------------------------------
 # per-entry migration
 # ---------------------------------------------------------------------------
+#
+# Validation (``_validate_*``) is pure and read-only: given an entry, it
+# either returns what's needed to write a case, or a reason it can't. The
+# same validator backs two callers that must never drift apart:
+#
+# - ``migrate_*_entry`` — the write path (respects ``--only``): validates,
+#   then writes if validation succeeds and the case_dir doesn't already
+#   exist.
+# - ``_status_*_entry`` — the report path (always the FULL manifest,
+#   independent of ``--only``): validates but never writes, so a case not
+#   selected by this run's ``--only`` still gets an honest, deterministic
+#   status rather than being silently absent from the report.
+#
+# This split exists because MIGRATION-REPORT.md/MIGRATION-SKIPPED.md must be
+# a deterministic function of on-disk state + the manifest — NOT of which
+# entries this particular invocation happened to touch or create. A rerun
+# over an unchanged tree (with or without --only) must reproduce byte-
+# identical report files.
 
 
 class MigrationOutcome:
@@ -381,6 +413,47 @@ class MigrationOutcome:
         self.facts_written = facts_written
 
 
+@dataclass(frozen=True)
+class _FixtureValidation:
+    finding: Finding
+    snapshot_ref: str
+    stripped_path: str
+
+
+def _validate_fixture_entry(entry: dict[str, Any]) -> tuple[_FixtureValidation | None, str | None]:
+    """Pure/read-only: everything ``migrate_fixture_entry`` needs to know
+    whether (and how) a fixture-origin entry can be written, without
+    writing anything. Returns ``(validation, None)`` or ``(None, reason)``."""
+
+    fixture_root = entry.get("fixture_root")
+    if not fixture_root:
+        return None, "fixture-origin entry has no fixture_root field"
+
+    fixture_root_posix = _to_posix(fixture_root)
+    if not (REPO_ROOT / fixture_root).is_dir():
+        return None, f"fixture_root does not exist: {fixture_root_posix}"
+
+    prefix = CORPUS_ROOT_REL + "/"
+    if not fixture_root_posix.startswith(prefix):
+        return None, f"fixture_root {fixture_root_posix!r} is not under {CORPUS_ROOT_REL}/"
+    snapshot_ref = fixture_root_posix[len(prefix):]
+
+    finding, err = _load_finding_or_none(entry["finding"])
+    if finding is None:
+        return None, err
+
+    source_prefix = f"{fixture_root_posix}/source/"
+    raw_path = _to_posix(finding.path)
+    if not raw_path.startswith(source_prefix):
+        return None, (
+            f"finding.path {raw_path!r} does not start with {source_prefix!r} "
+            "(fixture-relative path stripping assumption failed)"
+        )
+    stripped_path = raw_path[len(source_prefix):]
+
+    return _FixtureValidation(finding, snapshot_ref, stripped_path), None
+
+
 def migrate_fixture_entry(entry: dict[str, Any], dest: Path, adjudicated_at: str) -> MigrationOutcome:
     """fixture-origin (A): point at the existing legacy fixture dir via
     ``snapshot_ref`` — no new ``source/`` is written."""
@@ -389,45 +462,20 @@ def migrate_fixture_entry(entry: dict[str, Any], dest: Path, adjudicated_at: str
     if case_dir.exists():
         return MigrationOutcome("exists", "case directory already exists (rerun) — left untouched")
 
-    fixture_root = entry.get("fixture_root")
-    if not fixture_root:
-        return MigrationOutcome("skipped", "fixture-origin entry has no fixture_root field")
-
-    fixture_root_posix = _to_posix(fixture_root)
-    if not (REPO_ROOT / fixture_root).is_dir():
-        return MigrationOutcome("skipped", f"fixture_root does not exist: {fixture_root_posix}")
-
-    prefix = CORPUS_ROOT_REL + "/"
-    if not fixture_root_posix.startswith(prefix):
-        return MigrationOutcome(
-            "skipped", f"fixture_root {fixture_root_posix!r} is not under {CORPUS_ROOT_REL}/"
-        )
-    snapshot_ref = fixture_root_posix[len(prefix):]
-
-    finding, err = _load_finding_or_none(entry["finding"])
-    if finding is None:
+    validation, err = _validate_fixture_entry(entry)
+    if validation is None:
         return MigrationOutcome("skipped", err)
-
-    source_prefix = f"{fixture_root_posix}/source/"
-    raw_path = _to_posix(finding.path)
-    if not raw_path.startswith(source_prefix):
-        return MigrationOutcome(
-            "skipped",
-            f"finding.path {raw_path!r} does not start with {source_prefix!r} "
-            "(fixture-relative path stripping assumption failed)",
-        )
-    stripped_path = raw_path[len(source_prefix):]
 
     case_data = _build_case_json(
         entry,
-        gap_type=finding.gap_type,
-        detector_producer=_producer_of(finding.detector),
-        language=_language_for(stripped_path, None),
-        snapshot_ref=snapshot_ref,
+        gap_type=validation.finding.gap_type,
+        detector_producer=_producer_of(validation.finding.detector),
+        language=_language_for(validation.stripped_path, None),
+        snapshot_ref=validation.snapshot_ref,
         commit=None,  # a fixture-origin case has no single backing commit
         swept_at=adjudicated_at,
     )
-    finding_data = _finding_for_case(finding, path=stripped_path)
+    finding_data = _finding_for_case(validation.finding, path=validation.stripped_path)
     expected_data = _build_expected_json(entry, adjudicated_at)
 
     _write_json(case_dir / "case.json", case_data)
@@ -435,6 +483,54 @@ def migrate_fixture_entry(entry: dict[str, Any], dest: Path, adjudicated_at: str
     _write_json(case_dir / "expected.json", expected_data)
 
     return MigrationOutcome("migrated")
+
+
+def _status_fixture_entry(entry: dict[str, Any], dest: Path) -> tuple[str, str | None]:
+    """Report-path status for a fixture-origin entry — never writes.
+    Returns ``("present", None)``, ``("skipped", reason)``, or
+    ``("pending", reason)`` (validation would succeed but this destination
+    has no case_dir for it yet — only possible when a prior run never
+    covered it, e.g. an earlier ``--only`` excluded it)."""
+
+    if _case_dir_for(dest, entry).exists():
+        return "present", None
+    _, err = _validate_fixture_entry(entry)
+    if err is None:
+        return "pending", "validated OK but not yet migrated to this destination"
+    return "skipped", err
+
+
+@dataclass(frozen=True)
+class _AuditValidation:
+    finding: Finding
+    finding_path: str
+    relevant: frozenset[str]
+
+
+def _validate_audit_entry(
+    entry: dict[str, Any], commit: str
+) -> tuple[_AuditValidation | None, str | None]:
+    """Pure/read-only: everything ``migrate_audit_entry`` needs to know
+    whether an audit-origin entry can be written, without fetching file
+    bytes or writing anything (only cheap existence checks via ``git
+    cat-file -e``). Returns ``(validation, None)`` or ``(None, reason)``."""
+
+    finding, err = _load_finding_or_none(entry["finding"])
+    if finding is None:
+        return None, err
+
+    finding_path = _to_posix(finding.path)
+    if not _git_show_exists(commit, finding_path):
+        return None, f"file does not exist at commit {commit}: {finding_path}"
+
+    relevant = {finding_path} | _evidence_paths_at_commit(entry["finding"], commit)
+    if len(relevant) > MAX_FILES:
+        return None, (
+            f"{len(relevant)} files exceeds the migration cap of {MAX_FILES} "
+            "(snapshot-bloat guard)"
+        )
+
+    return _AuditValidation(finding, finding_path, frozenset(relevant)), None
 
 
 def migrate_audit_entry(
@@ -447,28 +543,14 @@ def migrate_audit_entry(
     if case_dir.exists():
         return MigrationOutcome("exists", "case directory already exists (rerun) — left untouched")
 
-    finding, err = _load_finding_or_none(entry["finding"])
-    if finding is None:
+    validation, err = _validate_audit_entry(entry, commit)
+    if validation is None:
         return MigrationOutcome("skipped", err)
-
-    finding_path = _to_posix(finding.path)
-    if not _git_show_exists(commit, finding_path):
-        return MigrationOutcome(
-            "skipped", f"file does not exist at commit {commit}: {finding_path}"
-        )
-
-    relevant = {finding_path} | _evidence_paths_at_commit(entry["finding"], commit)
-    if len(relevant) > MAX_FILES:
-        return MigrationOutcome(
-            "skipped",
-            f"{len(relevant)} files exceeds the migration cap of {MAX_FILES} "
-            "(snapshot-bloat guard)",
-        )
 
     # Pre-flight: fetch every file's bytes before writing anything, so a
     # mid-way git failure never leaves a half-written case_dir behind.
     contents: dict[str, bytes] = {}
-    for rel in sorted(relevant):
+    for rel in sorted(validation.relevant):
         data = _git_show_bytes(commit, rel)
         if data is None:
             return MigrationOutcome(
@@ -485,14 +567,14 @@ def migrate_audit_entry(
 
         case_data = _build_case_json(
             entry,
-            gap_type=finding.gap_type,
-            detector_producer=_producer_of(finding.detector),
-            language=_language_for(finding_path, None),
+            gap_type=validation.finding.gap_type,
+            detector_producer=_producer_of(validation.finding.detector),
+            language=_language_for(validation.finding_path, None),
             snapshot_ref=None,
             commit=commit,
             swept_at=adjudicated_at,
         )
-        finding_data = _finding_for_case(finding, path=finding_path)
+        finding_data = _finding_for_case(validation.finding, path=validation.finding_path)
         expected_data = _build_expected_json(entry, adjudicated_at)
 
         _write_json(case_dir / "case.json", case_data)
@@ -505,6 +587,19 @@ def migrate_audit_entry(
         raise
 
     return MigrationOutcome("migrated", facts_written=len(facts_written))
+
+
+def _status_audit_entry(entry: dict[str, Any], dest: Path, commit: str) -> tuple[str, str | None]:
+    """Report-path status for an audit-origin entry — never writes, never
+    fetches file bytes (existence checks only). See ``_status_fixture_entry``
+    for the ``"pending"`` semantics."""
+
+    if _case_dir_for(dest, entry).exists():
+        return "present", None
+    _, err = _validate_audit_entry(entry, commit)
+    if err is None:
+        return "pending", "validated OK but not yet migrated to this destination"
+    return "skipped", err
 
 
 # ---------------------------------------------------------------------------
@@ -552,6 +647,38 @@ def _cross_check(manifest: dict[str, Any], split_path: Path, origin: str) -> lis
 # ---------------------------------------------------------------------------
 # report
 # ---------------------------------------------------------------------------
+#
+# Everything below is a pure function of (a) the manifest and (b) a fresh
+# re-scan of ``dest`` — never of "what this particular run did" (no counts
+# of newly-created vs pre-existing, no timestamps). That's what makes
+# MIGRATION-REPORT.md/MIGRATION-SKIPPED.md byte-identical across any number
+# of reruns over an unchanged tree, regardless of ``--only``/``--commit``
+# repetition.
+
+#: One row per manifest entry, in the report's stable sort order.
+StatusRow = tuple[str, str, str, str | None]  # (slug, class, status, reason)
+
+
+def _status_rows(
+    fixture_entries: list[dict[str, Any]],
+    audit_entries: list[dict[str, Any]],
+    fixture_status: dict[str, tuple[str, str | None]],
+    audit_status: dict[str, tuple[str, str | None]],
+) -> list[StatusRow]:
+    rows: list[StatusRow] = [
+        (e["slug"], "A", *fixture_status[e["slug"]]) for e in fixture_entries
+    ] + [
+        (e["slug"], "B", *audit_status[e["slug"]]) for e in audit_entries
+    ]
+    rows.sort(key=lambda r: r[0])
+    return rows
+
+
+def _count_facts_sidecars(dest: Path) -> int:
+    """Deterministic re-scan: how many ``facts/*.facts.json`` files currently
+    exist under ``dest`` — the current total, not "written by this run"."""
+
+    return sum(1 for _ in dest.glob("*/case_*/facts/**/*.facts.json"))
 
 
 def _render_report(
@@ -559,27 +686,32 @@ def _render_report(
     manifest: dict[str, Any],
     commit: str,
     dest: Path,
-    fixture_outcomes: dict[str, MigrationOutcome],
-    audit_outcomes: dict[str, MigrationOutcome],
+    fixture_entries: list[dict[str, Any]],
+    audit_entries: list[dict[str, Any]],
+    fixture_status: dict[str, tuple[str, str | None]],
+    audit_status: dict[str, tuple[str, str | None]],
     fixture_cross_check: list[str],
     audit_cross_check: list[str],
 ) -> str:
-    def _tally(outcomes: dict[str, MigrationOutcome]) -> tuple[int, int, int]:
-        migrated = sum(1 for o in outcomes.values() if o.status == "migrated")
-        exists = sum(1 for o in outcomes.values() if o.status == "exists")
-        skipped = sum(1 for o in outcomes.values() if o.status == "skipped")
-        return migrated, exists, skipped
+    def _tally(status: dict[str, tuple[str, str | None]]) -> tuple[int, int, int]:
+        present = sum(1 for s, _ in status.values() if s == "present")
+        skipped = sum(1 for s, _ in status.values() if s == "skipped")
+        pending = sum(1 for s, _ in status.values() if s == "pending")
+        return present, skipped, pending
 
-    fx_migrated, fx_exists, fx_skipped = _tally(fixture_outcomes)
-    au_migrated, au_exists, au_skipped = _tally(audit_outcomes)
-    total_facts = sum(o.facts_written for o in audit_outcomes.values())
+    fx_present, fx_skipped, fx_pending = _tally(fixture_status)
+    au_present, au_skipped, au_pending = _tally(audit_status)
+    total_facts = _count_facts_sidecars(dest)
 
     lines: list[str] = []
     lines.append("# Bootstrap corpus migration report")
     lines.append("")
     lines.append(
         "Generated by `scripts/migrate_bootstrap_corpus.py` "
-        "(V1-7 evaluator, Track 1 PR-6)."
+        "(V1-7 evaluator, Track 1 PR-6). This report is a deterministic "
+        "function of the manifest and the current `_holding/` contents — "
+        "not of what any one invocation did — so it is byte-identical "
+        "across any number of reruns over an unchanged tree, `--only` or not."
     )
     lines.append("")
     lines.append("- Manifest: `tests/fixtures/bootstrap/manifest.json`")
@@ -591,46 +723,58 @@ def _render_report(
         dest_display = str(dest)
     lines.append(f"- Destination: `{dest_display}`")
     lines.append("")
-    lines.append("## Summary")
+    lines.append("## Summary (current state of `_holding/`, full manifest)")
     lines.append("")
-    lines.append("| class | total | migrated | already existed (rerun) | skipped |")
+    lines.append("| class | total | present | skipped | pending |")
     lines.append("| --- | --- | --- | --- | --- |")
     lines.append(
-        f"| A (fixture-origin) | {len(fixture_outcomes)} | {fx_migrated} | {fx_exists} | {fx_skipped} |"
+        f"| A (fixture-origin) | {len(fixture_entries)} | {fx_present} | {fx_skipped} | {fx_pending} |"
     )
     lines.append(
-        f"| B (audit-origin) | {len(audit_outcomes)} | {au_migrated} | {au_exists} | {au_skipped} |"
+        f"| B (audit-origin) | {len(audit_entries)} | {au_present} | {au_skipped} | {au_pending} |"
     )
     lines.append(
-        f"| **total** | {len(fixture_outcomes) + len(audit_outcomes)} | {fx_migrated + au_migrated} "
-        f"| {fx_exists + au_exists} | {fx_skipped + au_skipped} |"
+        f"| **total** | {len(fixture_entries) + len(audit_entries)} | {fx_present + au_present} "
+        f"| {fx_skipped + au_skipped} | {fx_pending + au_pending} |"
     )
     lines.append("")
-    lines.append(f"`facts/` sidecar files written across B cases: {total_facts}")
+    lines.append(
+        "`pending` = validated OK (would migrate cleanly) but no case_dir exists "
+        "at this destination yet — only possible when a prior run's `--only` "
+        "excluded an entry that has never otherwise been migrated; 0 in steady "
+        "state. `present` cases were migrated at some point (this run or a "
+        "prior one) — not distinguished here, since that distinction is "
+        "run-history, not tree state."
+    )
+    lines.append("")
+    lines.append(f"`facts/` sidecar files currently present under B cases: {total_facts}")
+    lines.append("")
+
+    lines.append("## Per-entry status (full manifest, sorted by slug)")
+    lines.append("")
+    for slug, cls, status, reason in _status_rows(
+        fixture_entries, audit_entries, fixture_status, audit_status
+    ):
+        if status == "present":
+            lines.append(f"- `{slug}` ({cls}): migrated")
+        elif status == "pending":
+            lines.append(f"- `{slug}` ({cls}): pending — {reason}")
+        else:
+            lines.append(f"- `{slug}` ({cls}): skipped — {reason}")
     lines.append("")
 
     lines.append("## Skipped entries")
     lines.append("")
-    skipped_lines = [
-        (slug, "A", o.reason) for slug, o in sorted(fixture_outcomes.items()) if o.status == "skipped"
-    ] + [
-        (slug, "B", o.reason) for slug, o in sorted(audit_outcomes.items()) if o.status == "skipped"
+    skipped_rows = [
+        (slug, cls, reason)
+        for slug, cls, status, reason in _status_rows(
+            fixture_entries, audit_entries, fixture_status, audit_status
+        )
+        if status == "skipped"
     ]
-    if skipped_lines:
-        for slug, cls, reason in skipped_lines:
+    if skipped_rows:
+        for slug, cls, reason in skipped_rows:
             lines.append(f"- `{slug}` ({cls}): {reason}")
-    else:
-        lines.append("(none)")
-    lines.append("")
-
-    lines.append("## Already-existing cases (rerun, left untouched)")
-    lines.append("")
-    exists_lines = [
-        slug for slug, o in sorted({**fixture_outcomes, **audit_outcomes}.items()) if o.status == "exists"
-    ]
-    if exists_lines:
-        for slug in exists_lines:
-            lines.append(f"- `{slug}`")
     else:
         lines.append("(none)")
     lines.append("")
@@ -667,19 +811,55 @@ def _render_report(
     return "\n".join(lines) + "\n"
 
 
-def _render_skipped_md(fixture_outcomes: dict[str, MigrationOutcome], audit_outcomes: dict[str, MigrationOutcome]) -> str:
+def _render_skipped_md(
+    fixture_entries: list[dict[str, Any]],
+    audit_entries: list[dict[str, Any]],
+    fixture_status: dict[str, tuple[str, str | None]],
+    audit_status: dict[str, tuple[str, str | None]],
+) -> str:
     lines = ["# Skipped bootstrap-manifest entries", ""]
     rows = [
-        (slug, "A", o.reason) for slug, o in sorted(fixture_outcomes.items()) if o.status == "skipped"
-    ] + [
-        (slug, "B", o.reason) for slug, o in sorted(audit_outcomes.items()) if o.status == "skipped"
+        (slug, cls, reason)
+        for slug, cls, status, reason in _status_rows(
+            fixture_entries, audit_entries, fixture_status, audit_status
+        )
+        if status == "skipped"
     ]
     if not rows:
-        lines.append("(none — every entry either migrated or already existed from a prior run)")
+        lines.append("(none)")
     else:
         for slug, cls, reason in rows:
             lines.append(f"- `{slug}` ({cls}): {reason}")
     return "\n".join(lines) + "\n"
+
+
+def _render_run_summary(
+    *,
+    only: set[str],
+    fixture_write_outcomes: dict[str, MigrationOutcome],
+    audit_write_outcomes: dict[str, MigrationOutcome],
+) -> str:
+    """A transient, stdout-only summary of THIS invocation's write pass
+    (newly migrated vs already-present vs skipped, within ``--only``'s
+    scope if given) — never written to any file, so it carries no
+    determinism obligation. The committed reports are built from
+    ``_status_rows`` instead, which always re-scans the full manifest."""
+
+    all_outcomes = {**fixture_write_outcomes, **audit_write_outcomes}
+    new = sorted(slug for slug, o in all_outcomes.items() if o.status == "migrated")
+    existing = sorted(slug for slug, o in all_outcomes.items() if o.status == "exists")
+    skipped = sorted(slug for slug, o in all_outcomes.items() if o.status == "skipped")
+
+    lines = ["--- this run ---"]
+    if only:
+        lines.append(f"--only scope: {len(only)} slug(s)")
+    lines.append(
+        f"newly migrated: {len(new)}, already present: {len(existing)}, skipped: {len(skipped)}"
+    )
+    if new:
+        lines.append(f"  new: {', '.join(new)}")
+    lines.append("(MIGRATION-REPORT.md/MIGRATION-SKIPPED.md reflect the full manifest, not just this run)")
+    return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
@@ -720,6 +900,7 @@ def main(argv: list[str] | None = None) -> int:
     args = build_arg_parser().parse_args(argv)
 
     dest = args.dest if args.dest.is_absolute() else REPO_ROOT / args.dest
+    dest.mkdir(parents=True, exist_ok=True)
     manifest = load_manifest(args.manifest)
     commit = args.commit or manifest.get("commit")
     if not commit:
@@ -728,24 +909,45 @@ def main(argv: list[str] | None = None) -> int:
 
     adjudicated_at = _iso_from_manifest_date(manifest.get("audited"))
 
+    all_entries = manifest["entries"]
+    all_fixture_entries = [e for e in all_entries if e["origin"] == "fixture"]
+    all_audit_entries = [e for e in all_entries if e["origin"] == "audit"]
+
+    # --- write pass: respects --only, may create case dirs -----------------
     only = _parse_only(args.only)
-    entries = manifest["entries"]
+    write_entries = all_entries
     if only:
-        entries = [e for e in entries if e["slug"] in only]
-        unknown = only - {e["slug"] for e in entries}
+        write_entries = [e for e in all_entries if e["slug"] in only]
+        unknown = only - {e["slug"] for e in write_entries}
         if unknown:
             print(f"warning: --only names unknown slugs: {sorted(unknown)}", file=sys.stderr)
 
-    fixture_entries = [e for e in entries if e["origin"] == "fixture"]
-    audit_entries = [e for e in entries if e["origin"] == "audit"]
+    fixture_write_outcomes: dict[str, MigrationOutcome] = {}
+    for entry in write_entries:
+        if entry["origin"] == "fixture":
+            fixture_write_outcomes[entry["slug"]] = migrate_fixture_entry(entry, dest, adjudicated_at)
 
-    fixture_outcomes: dict[str, MigrationOutcome] = {}
-    for entry in fixture_entries:
-        fixture_outcomes[entry["slug"]] = migrate_fixture_entry(entry, dest, adjudicated_at)
+    audit_write_outcomes: dict[str, MigrationOutcome] = {}
+    for entry in write_entries:
+        if entry["origin"] == "audit":
+            audit_write_outcomes[entry["slug"]] = migrate_audit_entry(
+                entry, dest, commit, adjudicated_at
+            )
 
-    audit_outcomes: dict[str, MigrationOutcome] = {}
-    for entry in audit_entries:
-        audit_outcomes[entry["slug"]] = migrate_audit_entry(entry, dest, commit, adjudicated_at)
+    print(
+        _render_run_summary(
+            only=only,
+            fixture_write_outcomes=fixture_write_outcomes,
+            audit_write_outcomes=audit_write_outcomes,
+        )
+    )
+    print()
+
+    # --- report pass: ALWAYS the full manifest, never writes, independent
+    # of --only -- this is what makes the committed reports a deterministic
+    # function of on-disk state rather than of this invocation's write scope.
+    fixture_status = {e["slug"]: _status_fixture_entry(e, dest) for e in all_fixture_entries}
+    audit_status = {e["slug"]: _status_audit_entry(e, dest, commit) for e in all_audit_entries}
 
     fixture_cross_check = _cross_check(manifest, MANIFEST_FIXTURES, "fixture")
     audit_cross_check = _cross_check(manifest, MANIFEST_AUDIT, "audit")
@@ -754,17 +956,20 @@ def main(argv: list[str] | None = None) -> int:
         manifest=manifest,
         commit=commit,
         dest=dest,
-        fixture_outcomes=fixture_outcomes,
-        audit_outcomes=audit_outcomes,
+        fixture_entries=all_fixture_entries,
+        audit_entries=all_audit_entries,
+        fixture_status=fixture_status,
+        audit_status=audit_status,
         fixture_cross_check=fixture_cross_check,
         audit_cross_check=audit_cross_check,
     )
     print(report)
 
-    dest.mkdir(parents=True, exist_ok=True)
     (dest / "MIGRATION-REPORT.md").write_text(report, encoding="utf-8", newline="\n")
     (dest / "MIGRATION-SKIPPED.md").write_text(
-        _render_skipped_md(fixture_outcomes, audit_outcomes), encoding="utf-8", newline="\n"
+        _render_skipped_md(all_fixture_entries, all_audit_entries, fixture_status, audit_status),
+        encoding="utf-8",
+        newline="\n",
     )
 
     return 0
