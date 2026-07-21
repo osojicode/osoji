@@ -536,6 +536,44 @@ def compute_metrics(records: list[dict], cases: list[CorpusCase]) -> dict:
     }
 
 
+def check_thresholds(metrics: dict, baseline: dict) -> list[str]:
+    """Compare a ``compute_metrics``-shaped dict against a pinned baseline.
+
+    ``baseline`` is an ``evaluate-baseline.json``-shaped mapping of metric
+    name to ``{"max": <value>}`` and/or ``{"min": <value>}`` (both may be
+    given for one metric). Returns a list of human-readable violation
+    strings — empty means every bounded, comparable metric passed.
+
+    Two things are deliberately tolerant rather than raising, so this same
+    function serves both a full post-run ``metrics`` dict (every key
+    ``compute_metrics`` produces) and a partial one (e.g. the static-only
+    ``{ce_gap_gap_type, me_overlap}`` subset the structural corpus tests
+    compute without any verdict records):
+
+    - A baseline metric name absent from ``metrics`` is skipped — a
+      threshold can only be enforced against a metric that was actually
+      computed for this call.
+    - A metric whose value isn't a plain ``int``/``float`` (e.g. the nested
+      ``tp_rate_by_detector`` dict, or a ``bool`` masquerading as an int) is
+      skipped — bounds compare scalars only.
+    """
+
+    violations: list[str] = []
+    for name, bounds in baseline.items():
+        if name not in metrics:
+            continue
+        value = metrics[name]
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            continue
+
+        if "max" in bounds and value > bounds["max"]:
+            violations.append(f"{name}={value!r} exceeds max {bounds['max']!r}")
+        if "min" in bounds and value < bounds["min"]:
+            violations.append(f"{name}={value!r} below min {bounds['min']!r}")
+
+    return violations
+
+
 # ---------------------------------------------------------------------------
 # osoji-verdict/1 NDJSON
 # ---------------------------------------------------------------------------

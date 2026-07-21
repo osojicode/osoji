@@ -14,6 +14,7 @@ Statistical mode:
 import asyncio
 import json
 import shutil
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -32,6 +33,15 @@ from osoji.llm.factory import create_provider
 from osoji.symbols import load_files_by_role
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "prompt_regression"
+
+# scripts/eval_lib.py (V1-7 corpus evaluator, Tasks 3-4) backs test_corpus_evaluate
+# below — it isn't installed as a package, so it needs scripts/ on sys.path the
+# same way scripts/corpus_replay.py and tests/test_eval_lib.py already do.
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT / "scripts") not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT / "scripts"))
+
+import eval_lib  # noqa: E402
 
 
 async def _decide_candidates(provider, config, findings) -> dict:
@@ -631,3 +641,91 @@ async def test_latent_bug_004_hooks_after_conditional_return(tmp_path, establish
         )
     finally:
         await provider.close()
+
+
+# ---------------------------------------------------------------------------
+# Corpus evaluator (V1-7, osojicode/work#35): pytest --evaluate mode
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.prompt_regression
+@pytest.mark.corpus_evaluate
+@pytest.mark.asyncio
+async def test_corpus_evaluate(tmp_path, evaluate_mode, evaluate_out):
+    """Replay the full accepted corpus through Triage; gate against a pinned baseline.
+
+    Opt-in only: ``pytest tests/test_prompt_regression.py --evaluate`` (see
+    conftest.py's ``--evaluate``/``--evaluate-out`` options and the
+    collection hook that deselects every OTHER test in this file once
+    --evaluate is passed, so this is the only thing that runs). Spends real
+    LLM tokens against the whole corpus in one variant/one repeat — never
+    fires in the default suite or in CI, and skips before any provider is
+    constructed when the corpus is empty (true today) or --evaluate wasn't
+    passed, so it needs no API key in either of those cases.
+    """
+    if not evaluate_mode:
+        pytest.skip("pass --evaluate to run the corpus evaluator (opt-in, live LLM calls)")
+
+    cases = eval_lib.load_corpus()
+    if not cases:
+        pytest.skip("corpus empty")
+
+    variant = eval_lib.resolve_variant("baseline=@default")
+    provider = create_provider("anthropic")
+    try:
+        run = await eval_lib.evaluate_corpus(
+            cases,
+            [variant],
+            repeats=1,
+            provider=provider,
+            workdir=tmp_path / "work",
+            corpus_root=eval_lib.CORPUS_ROOT,
+        )
+    finally:
+        await provider.close()
+
+    # Every selected case produced exactly `repeats` (1) record.
+    counts: dict[str, int] = {}
+    for record in run.records:
+        counts[record["case"]] = counts.get(record["case"], 0) + 1
+    for case in cases:
+        assert counts.get(case.key, 0) == 1, (
+            f"expected exactly 1 record for {case.key!r}, got {counts.get(case.key, 0)}"
+        )
+
+    assert run.run_meta.get("schema") == eval_lib.VERDICT_SCHEMA
+    assert run.run_meta.get("record") == "run_meta"
+
+    out_path = evaluate_out / f"{run.run_meta['run_id']}.ndjson"
+    eval_lib.write_verdict_ndjson(run.records, run.run_meta, out_path)
+
+    # Trailer-last, schema-valid round trip of the WRITTEN file
+    # (read_verdict_ndjson raises if the last line isn't a valid run_meta trailer).
+    read_records, read_meta = eval_lib.read_verdict_ndjson(out_path)
+    assert read_meta["record"] == "run_meta"
+    assert len(read_records) == len(run.records)
+
+    metrics = run.run_meta["metrics"]
+    print(f"\ncorpus evaluate: run_id={run.run_meta['run_id']} n_cases={metrics['n_cases']}")
+    print(f"{'detector':<40s}{'tp_rate':>10s}{'fp_rate':>10s}")
+    detectors = sorted(set(metrics["tp_rate_by_detector"]) | set(metrics["fp_rate_by_detector"]))
+    for detector in detectors:
+        tp = metrics["tp_rate_by_detector"].get(detector, 0.0)
+        fp = metrics["fp_rate_by_detector"].get(detector, 0.0)
+        print(f"{detector:<40s}{tp:>10.1%}{fp:>10.1%}")
+    print(
+        f"overall: tp_rate={metrics['tp_rate']:.1%} fp_rate={metrics['fp_rate']:.1%} "
+        f"accuracy_nongray={metrics['accuracy_nongray']:.1%} "
+        f"ce_gap_gap_type={metrics['ce_gap_gap_type']:.1%} me_overlap={metrics['me_overlap']:.1%} "
+        f"uncertain_rate={metrics['uncertain_rate']:.1%} undecided_rate={metrics['undecided_rate']:.1%}"
+    )
+
+    baseline_path = eval_lib.CORPUS_ROOT / "evaluate-baseline.json"
+    if baseline_path.exists():
+        baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
+        violations = eval_lib.check_thresholds(metrics, baseline)
+        assert not violations, "evaluate-baseline.json threshold violations:\n" + "\n".join(
+            violations
+        )
+    else:
+        print("no evaluate-baseline.json; thresholds not enforced")
