@@ -85,6 +85,11 @@ class Scorecard:
     concept_undocumented: int | None = None
     concept_coverage_by_type: dict[str, dict] | None = None
 
+    # Best-effort Triage/manifest degradation this run. None when nothing
+    # degraded; otherwise the sorted, deduplicated phase labels from
+    # config.audit_degradations (audit.py).
+    degraded_phases: list[str] | None = None
+
 
 def merge_ranges(ranges: list[tuple[int, int]]) -> list[tuple[int, int]]:
     """Merge overlapping integer ranges. Returns sorted, non-overlapping ranges."""

@@ -18,12 +18,19 @@ migration must preserve or deliberately change.
 """
 
 from pathlib import Path
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from osoji import doc_analysis
 from osoji.claim_builder import CLAIM_BUILDER_SCHEMA, build_claims, category_of
 from osoji.config import Config
-from osoji.doc_analysis import DocAnalysisResult, DocFinding, _triage_doc_findings
+from osoji.doc_analysis import (
+    DocAnalysisResult,
+    DocFinding,
+    _triage_doc_findings,
+    analyze_docs_async,
+)
 from osoji.evidence_builders import BuildContext
 from osoji.findings_adapter import finding_from_doc, gap_type_for
 from osoji.llm.types import CompletionResult, ToolCall
@@ -213,6 +220,47 @@ async def test_debris_result_findings_are_not_triaged(temp_dir):
 
     assert provider.calls == 0
     assert len(result.findings) == 1  # untouched
+
+
+class _FakeAnalyzeProvider:
+    """Canned analyze_document provider. No directory shadow docs are present,
+    so the topic-matching tier short-circuits before ever calling complete()."""
+
+    async def complete(self, messages, system, options):
+        return CompletionResult(
+            content=None,
+            tool_calls=[ToolCall(
+                id="tc1", name="analyze_document",
+                input={
+                    "classification": "reference",
+                    "confidence": 0.9,
+                    "classification_reason": "doc",
+                    "findings": [],
+                },
+            )],
+            input_tokens=10, output_tokens=5, model="test", stop_reason="tool_use",
+        )
+
+    async def close(self):
+        pass
+
+
+@pytest.mark.asyncio
+async def test_triage_post_pass_failure_records_doc_triage_degradation(temp_dir):
+    """The Triage post-pass already prints a warning on failure
+    (analyze_docs_async, doc_analysis.py); it must also record the
+    degradation via config.audit_degradations so the run can surface it."""
+    _write(temp_dir, "README.md", "# Project\n")
+    (temp_dir / ".osoji" / "shadow").mkdir(parents=True, exist_ok=True)
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    config.audit_degradations = []
+    provider = _FakeAnalyzeProvider()
+
+    with patch.object(doc_analysis, "_triage_doc_findings", AsyncMock(side_effect=RuntimeError("boom"))):
+        results = await analyze_docs_async(provider, config)
+
+    assert len(results) == 1  # the per-doc analysis itself still succeeded
+    assert config.audit_degradations == [{"phase": "doc-triage", "error": "boom"}]
 
 
 @pytest.mark.asyncio

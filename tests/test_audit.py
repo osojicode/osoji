@@ -104,6 +104,33 @@ class TestConsoleTables:
         assert "Total" in text
 
 
+# --- Triage degradation summary row ---
+
+class TestDegradationSummaryRow:
+    def test_no_degradation_reports_none(self):
+        """degraded_phases is None (the Scorecard default) -> report says 'none'."""
+        sc = _minimal_scorecard()
+        assert sc.degraded_phases is None
+
+        lines = _format_scorecard_section(sc)
+        text = "\n".join(lines)
+        assert "Triage degradation" in text
+        assert "none" in text
+
+    def test_single_degraded_phase_named_in_report(self):
+        sc = _minimal_scorecard(degraded_phases=["debris-triage"])
+        lines = _format_scorecard_section(sc)
+        text = "\n".join(lines)
+        assert "Triage degradation" in text
+        assert "debris-triage" in text
+
+    def test_multiple_degraded_phases_joined_in_report(self):
+        sc = _minimal_scorecard(degraded_phases=["debris-triage", "manifest-write"])
+        lines = _format_scorecard_section(sc)
+        text = "\n".join(lines)
+        assert "debris-triage, manifest-write" in text
+
+
 # --- Uncovered files section ---
 
 class TestUncoveredFiles:
@@ -588,6 +615,33 @@ class TestAuditResultRoundTrip:
         assert loaded.has_errors is True
         assert loaded.has_warnings is True
         assert loaded.passed is False
+
+    def test_degraded_phases_round_trip(self, temp_dir):
+        """Scorecard.degraded_phases survives serialize -> load."""
+        from osoji.config import Config
+
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        original = AuditResult(
+            issues=[],
+            scorecard=_minimal_scorecard(degraded_phases=["debris-triage", "manifest-write"]),
+        )
+
+        serialize_audit_result(config, original)
+        loaded = load_audit_result(config)
+
+        assert loaded.scorecard.degraded_phases == ["debris-triage", "manifest-write"]
+
+    def test_degraded_phases_none_round_trips_as_none(self, temp_dir):
+        """The no-degradation default (None) round-trips as None, not []."""
+        from osoji.config import Config
+
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        original = AuditResult(issues=[], scorecard=_minimal_scorecard())
+
+        serialize_audit_result(config, original)
+        loaded = load_audit_result(config)
+
+        assert loaded.scorecard.degraded_phases is None
 
 
 # --- Debris symbol extraction ---

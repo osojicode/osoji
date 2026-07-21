@@ -381,12 +381,12 @@ def test_bundle_doc_analysis_empty_when_no_docs(temp_dir):
     assert bundle["doc_analysis"] == {}
 
 
-def test_bundle_schema_version_is_1_2_0(temp_dir):
+def test_bundle_schema_version_is_1_3_0(temp_dir):
     _write_source(temp_dir, "main.py", "x = 1\n")
 
     bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
 
-    assert bundle["schema_version"] == "1.2.0"
+    assert bundle["schema_version"] == "1.3.0"
 
 
 def test_export_command_writes_bundle_file(temp_dir):

@@ -214,6 +214,29 @@ def test_provider_failure_keeps_findings_unverified(temp_dir):
     assert (triaged, other) == (0, 0)
 
 
+def test_provider_failure_records_obligations_triage_degradation(temp_dir):
+    """A Triage-seam failure keeps findings AND is recorded.
+
+    Mirrors the debris-triage seam's degradation contract. ``decide_junk_claims``
+    swallows a per-chunk provider failure internally (see
+    test_audit_debris_cutover.py's equivalent test for why), so the seam's own
+    ``except Exception`` at the ``_run_phase3_5_async`` level is exercised by
+    failing one step earlier: obtaining the runtime itself.
+    """
+    _one_implicit_contract_env(temp_dir)
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    config.audit_degradations = []
+
+    with patch("osoji.audit.create_runtime", side_effect=RuntimeError("boom")):
+        findings, _tokens, triaged, other = asyncio.run(
+            _run_phase3_5_async(config, True, MagicMock(), False)
+        )
+
+    assert len(findings) == 1  # best-effort: kept, unverified
+    assert (triaged, other) == (0, 0)
+    assert config.audit_degradations == [{"phase": "obligations-triage", "error": "boom"}]
+
+
 def test_claim_call_uses_unified_triage_prompt(temp_dir):
     _one_implicit_contract_env(temp_dir)
     provider = FakeProvider(verdicts=[

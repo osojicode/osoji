@@ -163,6 +163,26 @@ def _emit(config: Config, message: str = "", *, end: str = "\n") -> None:
     print(message, end=end, flush=True)
 
 
+def _record_degradation(config: Config, phase: str, exc: Exception) -> None:
+    """Record a best-effort Triage/manifest seam failure.
+
+    Uses ``getattr`` so the seams stay safe when ``run_audit_async`` hasn't
+    attached the list (e.g. unit tests calling a phase function directly) —
+    mirrors how junk_triage.py reads the V1-9 ``verdict_session`` attach.
+    """
+    degradations = getattr(config, "audit_degradations", None)
+    if degradations is not None:
+        degradations.append({"phase": phase, "error": str(exc)})
+
+
+def _degraded_phases(config: Config) -> list[str] | None:
+    """Sorted, deduplicated phase labels for degradations recorded so far."""
+    degradations = getattr(config, "audit_degradations", None)
+    if not degradations:
+        return None
+    return sorted({d["phase"] for d in degradations})
+
+
 def _make_progress_default(config: Config, rate_limiter=None):
     """Create an inline progress bar callback (carriage return, same line)."""
     def progress(completed: int, total: int, path: Path, status: str) -> None:
@@ -378,6 +398,9 @@ async def run_audit_async(
             verdict_cache = cache_from_verdicts(previous_manifest["verdicts"])
     session = VerdictSession(cache=verdict_cache)
     config.verdict_session = session
+    # Every best-effort Triage/manifest seam appends here on failure instead
+    # of swallowing the exception silently.
+    config.audit_degradations = []
 
     # Shared rate limiter across all phases so token budgets are tracked globally
     rate_limiter = RateLimiter(get_config_with_overrides(config.provider or "anthropic"))
@@ -587,6 +610,11 @@ async def run_audit_async(
     scorecard.verdict_cache_hit_rate = session.hit_rate
     if use_cache and session.claims_seen:
         _emit(config, f"Verdict cache: {session.cache_hits}/{session.claims_seen} hit(s)")
+    # Surface any best-effort degradation recorded so far (debris-triage,
+    # obligations-triage — both run before this phase). manifest-write runs
+    # after the scorecard is first serialized below, so this gets refreshed
+    # and re-serialized once more near the end of the function.
+    scorecard.degraded_phases = _degraded_phases(config)
     _serialize_json(config.scorecard_path, asdict(scorecard))
 
     # ── Phase 5.5: doc prompts (optional, after scorecard) ──
@@ -686,8 +714,20 @@ async def run_audit_async(
             commit=get_head_commit(config.root_path),
             version=current_version(),
         )
-    except Exception:
-        pass  # the manifest is an optimization; never fail the audit over it
+    except Exception as exc:
+        # the manifest is an optimization; never fail the audit over it — but
+        # its silent death kills --incremental and future closure detection,
+        # so the degradation must still be recorded and visible.
+        _record_degradation(config, "manifest-write", exc)
+        _emit(config, f"[warn] manifest-write failed; findings kept unverified: {exc}")
+
+    # manifest-write can add a degradation after the scorecard and audit
+    # result were first serialized above; refresh and re-serialize both so
+    # this run's persisted output agrees with the in-memory result returned
+    # below (mirrors the Phase 5.5 doc-prompts re-serialize).
+    scorecard.degraded_phases = _degraded_phases(config)
+    _serialize_json(config.scorecard_path, asdict(scorecard))
+    serialize_audit_result(config, result)
 
     return result
 
@@ -787,8 +827,11 @@ async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
                 rate = would_escalate / eligible_total if eligible_total else 0.0
                 _emit(config, f"  {would_escalate} eligible finding(s) lacked gatherable evidence "
                               f"(would-escalate; kept unverified; escalation rate {rate:.1%})")
-        except Exception:
-            pass  # Triage is best-effort; on failure, keep all findings
+        except Exception as exc:
+            # Triage is best-effort; on failure, keep all findings — but the
+            # degradation must be recorded and visible.
+            _record_degradation(config, "debris-triage", exc)
+            _emit(config, f"[warn] debris-triage failed; findings kept unverified: {exc}")
     elapsed = time_module.monotonic() - phase_start
     tok_str = _format_tokens_short(phase_tokens[0], phase_tokens[1])
     if tok_str:
@@ -866,8 +909,10 @@ async def _run_phase3_5_async(config, obligations_enabled, rate_limiter, verbose
                 if df.verdict == "dismissed":
                     continue                                # dismissed = false positive -> suppress
                 kept.append(_overlay_verdict(cf, df))       # confirmed OR unverified(None) kept
-        except Exception:
+        except Exception as exc:
             kept = contract_findings                        # best-effort: keep all, unverified
+            _record_degradation(config, "obligations-triage", exc)
+            _emit(config, f"[warn] obligations-triage failed; findings kept unverified: {exc}")
     if verbose:
         n_violations = sum(1 for f in kept if f.finding_type == "violation")
         n_implicit = sum(1 for f in kept if f.finding_type == "implicit_contract")
@@ -1022,6 +1067,7 @@ def load_audit_result(config: Config) -> AuditResult:
             concept_partially_documented=sc.get("concept_partially_documented"),
             concept_undocumented=sc.get("concept_undocumented"),
             concept_coverage_by_type=sc.get("concept_coverage_by_type"),
+            degraded_phases=sc.get("degraded_phases"),
         )
 
     doc_prompts = None
@@ -1066,6 +1112,8 @@ def _format_scorecard_section(scorecard: Scorecard) -> list[str]:
         rate = other / scorecard.contract_claims_triaged
         summary_rows.append(["Contract taxonomy", f"{other}/{scorecard.contract_claims_triaged} 'other' "
                              f"({rate:.0%} CE-gap rate)"])
+    degradation_value = ", ".join(scorecard.degraded_phases) if scorecard.degraded_phases else "none"
+    summary_rows.append(["Triage degradation", degradation_value])
     lines.append(_table(["Metric", "Value"], summary_rows))
     lines.append("")
 
