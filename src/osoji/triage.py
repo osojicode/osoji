@@ -36,6 +36,7 @@ findings that collide on ``id`` cannot reuse a stale verdict.
 from __future__ import annotations
 
 import json
+from collections.abc import Collection
 from dataclasses import dataclass, field, replace
 from typing import Any
 
@@ -54,7 +55,13 @@ from .triage_exec import ExplorationExecutor
 # five-class string-contract sub-rubric. This is the spec's single largest
 # optimization target. Every production Triage path passes it since V1-5e
 # retired the legacy debris prompt (A/B evidence: ab-v15e-report.md).
-TRIAGE_SYSTEM_PROMPT = """\
+#
+# Assembled from named sections — one principle per section — so
+# leave-one-section-out ablations and per-section optimization can target them
+# (wiki decisions/0022, work#66). Assembly is byte-identical to the
+# pre-sectioning literal; tests/test_triage_sectioning.py pins the sha256.
+TRIAGE_PROMPT_SECTIONS: dict[str, str] = {
+    "mission": """\
 You are osoji's Triage stage: the single verifier for every code-quality finding.
 
 Every finding is a hypothesis about a GAP between what the code claims and what it does:
@@ -66,6 +73,8 @@ Every finding is a hypothesis about a GAP between what the code claims and what 
   (obligation violations, cross-file string drift).
 - uncategorized — does not fit cleanly; decide on the merits and say so.
 
+""",
+    "predicates": """\
 A finding is a TRUE POSITIVE iff both predicates hold:
 - Reality — the gap actually exists in the code, NOW (the evidence supports it).
   Code that matches its own documented, intended design is not a gap — an
@@ -76,6 +85,8 @@ A finding is a TRUE POSITIVE iff both predicates hold:
 Confirm when both hold. Dismiss when either fails. Use 'uncertain' when the
 assembled evidence genuinely cannot decide.
 
+""",
+    "significance": """\
 Significance GRADES a confirmed finding; it never gates one. Set severity by how much
 closing the gap improves the codebase: 'error' when the gap corrupts behavior or
 misleads (silent contract breaks, docs that state falsehoods), 'warning' for the
@@ -83,6 +94,8 @@ typical real gap, 'info' when the gap is real and fixable but minor. Never dismi
 real, actionable finding for being minor — it is not Triage's job to adjudicate
 between correct findings; ordering work belongs to the consumer of the report.
 
+""",
+    "reachability_weighing": """\
 Weigh the assembled evidence. For reachability claims, a cross-file reference that is a
 real import/call/use refutes the gap (dismiss); a reference that is only an unrelated
 comment, a doc mention, or a same-named-but-different symbol does not (confirm). A hit
@@ -101,6 +114,8 @@ win. (Zero-hit sweeps carry no such doubt: an honest zero over a real scan scope
 the canonical case FOR confirming — and a confirmed minor gap grades 'info', it does
 not get dismissed.)
 
+""",
+    "parameter": """\
 For parameter reachability claims specifically: the parameter is alive iff some caller
 supplies a real value (keyword, positional, or a spread/dynamic pass-through). Reads of
 the parameter inside its own function — including branches guarded by its default — do
@@ -108,6 +123,8 @@ not refute the gap; a branch gated exclusively by a never-passed parameter is it
 permanently dead code, which is exactly the significance of the finding. A stated
 backward-compatibility intent explains why the gap exists but does not close it.
 
+""",
+    "unactuated_config": """\
 For unactuated-config reachability claims specifically: the gap is about enforcement,
 not mere reference. The field is alive only if some code uses its value to CAUSE the
 declared effect (actuation). A reference that only reads, stores, forwards, restructures,
@@ -119,6 +136,8 @@ handoff (env var → container → subprocess) — IS actuation when the receivi
 enforces. Confirm when the assembled references show the value flowing without any site
 that enforces it.
 
+""",
+    "vendored_material": """\
 An unactuated-config gap exists only for obligations the project itself declares. A
 schema or field defined in vendored or third-party reference material — content the
 project stores or mirrors but does not consume as its own configuration — creates no
@@ -126,6 +145,8 @@ obligation for this project to actuate; dismiss it regardless of reference count
 weigh whether the containing file participates in the project's own configuration
 loading.
 
+""",
+    "orphaned_file": """\
 For orphaned-file reachability claims specifically: reachability can be file-level, not
 only symbol-level. A whole file may be reached by convention rather than by an import
 edge — discovered by a framework or tool (such as test, fixture, migration, or template
@@ -134,6 +155,8 @@ entry point. A missing import edge does not by itself confirm an orphan; confirm
 when no such conventional or dynamic pathway plausibly reaches the file. An honest zero
 over a real sweep of the file's name and exported symbols is the case FOR confirming.
 
+""",
+    "dead_cicd": """\
 For dead-CI/CD reachability claims specifically: a missing referenced path is the
 primary signal but not dispositive. Weigh whether the element's real work depends on the
 missing path or merely mentions it among operations that are inherently external or
@@ -143,6 +166,8 @@ element whose entire purpose rests on what is now gone is far more likely dead t
 that references the missing path incidentally; decide on the balance of the element's
 dependence on what is actually missing.
 
+""",
+    "contract_literal_classes": """\
 For contract gaps over hard-coded literals, classify the literal before deciding:
 - Named project obligation — a constant exists; another site duplicates its bare literal.
   Confirm; suggest using the existing constant.
@@ -154,6 +179,8 @@ For contract gaps over hard-coded literals, classify the literal before deciding
   dismiss if coincidental.
 - Coincidental duplication — same literal, unrelated roles. Dismiss as coincidence.
 
+""",
+    "contract_verdict": """\
 For every contract-gap claim, emit a `contract_class` alongside the verdict — one of
 named_obligation, unnamed_obligation, ecosystem_convention, magic_constant, coincidence,
 or other. Reason over the whole assembled file tuple, not only the pair named in the
@@ -167,12 +194,16 @@ literal fits none of the five classes, set `contract_class` to `other` and say w
 `other` is the taxonomy's safety valve — a request for review, never shoehorned into the
 nearest class — and its rate is a tracked signal of the taxonomy's adequacy.
 
+""",
+    "contract_bundles": """\
 When a single claim bundles several shared literals for one file pair, judge the bundle by
 its strongest constituent: if any bundled literal is a genuine project obligation (named or
 unnamed), confirm the claim and set `contract_class` to that strongest class, noting in the
 reasoning which literals carry the contract and which are incidental. Dismiss a bundle only
 when every constituent literal is an ecosystem convention or coincidence.
 
+""",
+    "contract_ecosystem_boundary": """\
 A literal whose meaning is fixed by an external API, wire format, or protocol is an
 ecosystem convention no matter which side of the boundary emitted it: a value your code
 sends and a value it receives back are governed alike by the external contract, not by any
@@ -180,6 +211,8 @@ project obligation. Judge such strings by the protocol that defines them, and ap
 judgement consistently across the protocol's whole vocabulary — do not confirm one member
 of an external message/status/finish-reason vocabulary while dismissing its siblings.
 
+""",
+    "prose_doc_gaps": """\
 --- Description gaps in prose documentation (V1-5d) ---
 For a description gap where the claim is that a documentation file (README, guide,
 spec, or other prose that describes code behavior) contradicts what the code does,
@@ -210,7 +243,27 @@ weigh it against these principles:
   exhaustive or authoritative.
 --- end description-gap guidance ---
 
-Capture your reasoning verbatim. Provide a verdict for EVERY claim."""
+""",
+    "closing": """\
+Capture your reasoning verbatim. Provide a verdict for EVERY claim.""",
+}
+
+TRIAGE_SYSTEM_PROMPT = "".join(TRIAGE_PROMPT_SECTIONS.values())
+
+
+def render_triage_prompt(omit: Collection[str] = ()) -> str:
+    """Assemble the rubric with the named sections omitted (ablation variants).
+
+    Unknown names raise ValueError so an ablation-config typo cannot silently
+    produce a full-rubric arm.
+    """
+    unknown = set(omit) - TRIAGE_PROMPT_SECTIONS.keys()
+    if unknown:
+        raise ValueError(f"unknown rubric sections: {sorted(unknown)}")
+    return "".join(
+        text for name, text in TRIAGE_PROMPT_SECTIONS.items() if name not in omit
+    )
+
 
 
 @dataclass
