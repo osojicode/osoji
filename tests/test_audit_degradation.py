@@ -1,4 +1,4 @@
-"""End-to-end tests for observable audit degradation (Track 2 PR-A, work#66 series).
+"""End-to-end tests for observable audit degradation.
 
 The audit orchestrator wraps three best-effort Triage/manifest seams in
 ``except Exception`` (debris-triage, obligations-triage, manifest-write); a
@@ -17,7 +17,7 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from osoji.audit import format_audit_report, run_audit_async
+from osoji.audit import format_audit_json, format_audit_report, run_audit_async
 from osoji.config import Config
 from osoji.hasher import compute_file_hash, compute_impl_hash
 from osoji.llm.types import CompletionResult, ToolCall
@@ -224,3 +224,15 @@ def test_manifest_write_failure_recorded_without_failing_audit(temp_dir):
     # The manifest is an optimization; its failure must not fail the audit.
     assert result is not None
     assert config.audit_degradations == [{"phase": "manifest-write", "error": "disk full"}]
+
+    # manifest-write runs after the scorecard/report were first built (Phase
+    # 5); its degradation must still reach this run's scorecard and rendered
+    # report, not just config.audit_degradations.
+    assert result.scorecard.degraded_phases == ["manifest-write"]
+
+    report = format_audit_report(result)
+    assert "Triage degradation" in report
+    assert "manifest-write" in report
+
+    json_payload = json.loads(format_audit_json(result))
+    assert json_payload["scorecard"]["degraded_phases"] == ["manifest-write"]

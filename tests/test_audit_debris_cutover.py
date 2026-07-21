@@ -150,7 +150,7 @@ def test_debris_triage_uses_unified_rubric(temp_dir):
 
 
 def test_provider_failure_records_debris_triage_degradation(temp_dir):
-    """Track 2 PR-A: a Triage-seam failure keeps all findings AND is recorded.
+    """A Triage-seam failure keeps all findings AND is recorded.
 
     ``decide_junk_claims`` retries/bisects and swallows a per-chunk provider
     failure internally (findings come back undecided, verdict=None — see
@@ -170,3 +170,22 @@ def test_provider_failure_records_debris_triage_degradation(temp_dir):
     assert suppressed == set()  # best-effort: nothing suppressed, all kept
     assert phase_tokens == (0, 0)
     assert config.audit_degradations == [{"phase": "debris-triage", "error": "boom"}]
+
+
+def test_provider_failure_without_attached_degradations_list_does_not_crash(temp_dir):
+    """The getattr-absent safety path: config.audit_degradations is only
+    attached by run_audit_async, so a phase called directly (as every other
+    test in this module does) must not raise merely because the attribute
+    doesn't exist — it should keep findings exactly as before, silently."""
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    assert not hasattr(config, "audit_degradations")
+    raw = [_debris("dead_code", "`old_helper` is defined but never used")]
+
+    with patch("osoji.facts.FactsDB", return_value=FakeFacts()), \
+         patch("osoji.symbols.load_all_symbols", return_value={}), \
+         patch("osoji.audit.create_runtime", side_effect=RuntimeError("boom")):
+        suppressed, phase_tokens = asyncio.run(_run_phase3_async(config, raw, MagicMock(), False))
+
+    assert suppressed == set()  # best-effort: nothing suppressed, all kept
+    assert phase_tokens == (0, 0)
+    assert not hasattr(config, "audit_degradations")  # getattr default: no crash, nothing created

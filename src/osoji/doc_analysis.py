@@ -592,9 +592,9 @@ async def analyze_docs_async(
     except Exception as e:
         if not config.quiet:
             print(f"  [warn] doc triage failed, keeping findings unverified: {e}", flush=True)
-        # Track 2 PR-A: record the degradation via the same mechanism audit.py's
-        # best-effort Triage seams use (getattr-safe: config.audit_degradations
-        # is only attached by run_audit_async).
+        # Record the degradation via the same mechanism audit.py's best-effort
+        # Triage seams use (getattr-safe: config.audit_degradations is only
+        # attached by run_audit_async).
         degradations = getattr(config, "audit_degradations", None)
         if degradations is not None:
             degradations.append({"phase": "doc-triage", "error": str(e)})

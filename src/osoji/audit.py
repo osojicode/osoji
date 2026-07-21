@@ -164,7 +164,7 @@ def _emit(config: Config, message: str = "", *, end: str = "\n") -> None:
 
 
 def _record_degradation(config: Config, phase: str, exc: Exception) -> None:
-    """Record a best-effort Triage/manifest seam failure (Track 2 PR-A).
+    """Record a best-effort Triage/manifest seam failure.
 
     Uses ``getattr`` so the seams stay safe when ``run_audit_async`` hasn't
     attached the list (e.g. unit tests calling a phase function directly) —
@@ -398,8 +398,8 @@ async def run_audit_async(
             verdict_cache = cache_from_verdicts(previous_manifest["verdicts"])
     session = VerdictSession(cache=verdict_cache)
     config.verdict_session = session
-    # Track 2 PR-A: every best-effort Triage/manifest seam appends here on
-    # failure instead of swallowing the exception silently.
+    # Every best-effort Triage/manifest seam appends here on failure instead
+    # of swallowing the exception silently.
     config.audit_degradations = []
 
     # Shared rate limiter across all phases so token budgets are tracked globally
@@ -610,8 +610,10 @@ async def run_audit_async(
     scorecard.verdict_cache_hit_rate = session.hit_rate
     if use_cache and session.claims_seen:
         _emit(config, f"Verdict cache: {session.cache_hits}/{session.claims_seen} hit(s)")
-    # Track 2 PR-A: surface any best-effort degradation recorded so far
-    # (debris-triage, obligations-triage — both run before this phase).
+    # Surface any best-effort degradation recorded so far (debris-triage,
+    # obligations-triage — both run before this phase). manifest-write runs
+    # after the scorecard is first serialized below, so this gets refreshed
+    # and re-serialized once more near the end of the function.
     scorecard.degraded_phases = _degraded_phases(config)
     _serialize_json(config.scorecard_path, asdict(scorecard))
 
@@ -718,6 +720,14 @@ async def run_audit_async(
         # so the degradation must still be recorded and visible.
         _record_degradation(config, "manifest-write", exc)
         _emit(config, f"[warn] manifest-write failed; findings kept unverified: {exc}")
+
+    # manifest-write can add a degradation after the scorecard and audit
+    # result were first serialized above; refresh and re-serialize both so
+    # this run's persisted output agrees with the in-memory result returned
+    # below (mirrors the Phase 5.5 doc-prompts re-serialize).
+    scorecard.degraded_phases = _degraded_phases(config)
+    _serialize_json(config.scorecard_path, asdict(scorecard))
+    serialize_audit_result(config, result)
 
     return result
 

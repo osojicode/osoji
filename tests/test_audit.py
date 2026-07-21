@@ -104,7 +104,7 @@ class TestConsoleTables:
         assert "Total" in text
 
 
-# --- Triage degradation summary row (Track 2 PR-A) ---
+# --- Triage degradation summary row ---
 
 class TestDegradationSummaryRow:
     def test_no_degradation_reports_none(self):
@@ -617,7 +617,7 @@ class TestAuditResultRoundTrip:
         assert loaded.passed is False
 
     def test_degraded_phases_round_trip(self, temp_dir):
-        """Scorecard.degraded_phases (Track 2 PR-A) survives serialize -> load."""
+        """Scorecard.degraded_phases survives serialize -> load."""
         from osoji.config import Config
 
         config = Config(root_path=temp_dir, respect_gitignore=False)

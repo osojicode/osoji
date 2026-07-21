@@ -247,7 +247,7 @@ class _FakeAnalyzeProvider:
 
 @pytest.mark.asyncio
 async def test_triage_post_pass_failure_records_doc_triage_degradation(temp_dir):
-    """Track 2 PR-A: the Triage post-pass already prints a warning on failure
+    """The Triage post-pass already prints a warning on failure
     (analyze_docs_async, doc_analysis.py); it must also record the
     degradation via config.audit_degradations so the run can surface it."""
     _write(temp_dir, "README.md", "# Project\n")

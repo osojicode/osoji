@@ -215,7 +215,7 @@ def test_provider_failure_keeps_findings_unverified(temp_dir):
 
 
 def test_provider_failure_records_obligations_triage_degradation(temp_dir):
-    """Track 2 PR-A: a Triage-seam failure keeps findings AND is recorded.
+    """A Triage-seam failure keeps findings AND is recorded.
 
     Mirrors the debris-triage seam's degradation contract. ``decide_junk_claims``
     swallows a per-chunk provider failure internally (see
