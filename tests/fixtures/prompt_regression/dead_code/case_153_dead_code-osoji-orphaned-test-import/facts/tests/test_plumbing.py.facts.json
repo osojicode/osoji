@@ -1,0 +1,1322 @@
+{
+  "source": "tests/test_plumbing.py",
+  "source_hash": "edabd78e9cca552f",
+  "generated": "2026-07-22T10:55:57Z",
+  "imports": [
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "unittest.mock",
+      "names": [
+        "AsyncMock"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "pytest",
+      "names": [
+        "pytest"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.config",
+      "names": [
+        "Config"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.types",
+      "names": [
+        "CompletionResult",
+        "ToolCall"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.plumbing",
+      "names": [
+        "ConfigObligation",
+        "detect_dead_plumbing_async",
+        "extract_obligations_async"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.symbols",
+      "names": [
+        "load_file_roles",
+        "load_files_by_role"
+      ],
+      "line": 16,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "TestFileRoles",
+      "kind": "class",
+      "line": 81,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFileRoles.test_load_file_roles_with_roles",
+      "kind": "function",
+      "line": 84,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFileRoles.test_load_file_roles_skips_old_cache",
+      "kind": "function",
+      "line": 98,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFileRoles.test_load_files_by_role",
+      "kind": "function",
+      "line": 108,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFileRoles.test_load_files_by_role_empty",
+      "kind": "function",
+      "line": 119,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFileRoles.test_load_file_roles_no_symbols_dir",
+      "kind": "function",
+      "line": 127,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFileRoles.test_doc_json_sidecar_is_excluded_from_schema_roles",
+      "kind": "function",
+      "line": 133,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestExtractObligations",
+      "kind": "class",
+      "line": 153,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestExtractObligations.mock_provider",
+      "kind": "function",
+      "line": 157,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "TestExtractObligations.config",
+      "kind": "function",
+      "line": 161,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "TestExtractObligations.test_extracts_obligations",
+      "kind": "function",
+      "line": 165,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestExtractObligations.test_empty_obligations",
+      "kind": "function",
+      "line": 213,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDetectDeadPlumbing",
+      "kind": "class",
+      "line": 239,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDetectDeadPlumbing.test_full_pipeline",
+      "kind": "function",
+      "line": 248,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDetectDeadPlumbing.test_no_schema_files",
+      "kind": "function",
+      "line": 300,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDetectDeadPlumbing.test_doc_json_schema_sidecar_does_not_trigger_plumbing",
+      "kind": "function",
+      "line": 312,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "_triage_verdicts",
+      "to": "len",
+      "line": 26,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_triage_verdicts",
+      "to": "validator",
+      "line": 26,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_triage_verdicts",
+      "to": "range",
+      "line": 28,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_triage_verdicts",
+      "to": "verdicts_by_index.get",
+      "line": 29,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_triage_verdicts",
+      "to": "verdicts.append",
+      "line": 32,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_triage_verdicts",
+      "to": "CompletionResult",
+      "line": 36,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_triage_verdicts",
+      "to": "ToolCall",
+      "line": 38,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "_write_symbols",
+      "to": "sidecar.parent.mkdir",
+      "line": 52,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_symbols",
+      "to": "sidecar.write_text",
+      "line": 61,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_symbols",
+      "to": "json.dumps",
+      "line": 61,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_source",
+      "to": "full.parent.mkdir",
+      "line": 67,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_source",
+      "to": "full.write_text",
+      "line": 68,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_shadow",
+      "to": "shadow_file.parent.mkdir",
+      "line": 75,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_shadow",
+      "to": "shadow_file.write_text",
+      "line": 76,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_file_roles_with_roles",
+      "to": "Config",
+      "line": 86,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_file_roles_with_roles",
+      "to": "_write_symbols",
+      "line": 87,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_file_roles_with_roles",
+      "to": "_write_symbols",
+      "line": 88,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_file_roles_with_roles",
+      "to": "_write_symbols",
+      "line": 89,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_file_roles_with_roles",
+      "to": "load_file_roles",
+      "line": 91,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_file_roles_skips_old_cache",
+      "to": "Config",
+      "line": 100,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_file_roles_skips_old_cache",
+      "to": "_write_symbols",
+      "line": 101,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_file_roles_skips_old_cache",
+      "to": "_write_symbols",
+      "line": 102,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_file_roles_skips_old_cache",
+      "to": "load_file_roles",
+      "line": 104,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_files_by_role",
+      "to": "Config",
+      "line": 110,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_files_by_role",
+      "to": "_write_symbols",
+      "line": 111,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_files_by_role",
+      "to": "_write_symbols",
+      "line": 112,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_files_by_role",
+      "to": "_write_symbols",
+      "line": 113,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_files_by_role",
+      "to": "_write_symbols",
+      "line": 114,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_files_by_role",
+      "to": "load_files_by_role",
+      "line": 116,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_files_by_role",
+      "to": "sorted",
+      "line": 117,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_files_by_role_empty",
+      "to": "Config",
+      "line": 121,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_files_by_role_empty",
+      "to": "_write_symbols",
+      "line": 122,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_files_by_role_empty",
+      "to": "load_files_by_role",
+      "line": 124,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_file_roles_no_symbols_dir",
+      "to": "Config",
+      "line": 129,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestFileRoles.test_load_file_roles_no_symbols_dir",
+      "to": "load_file_roles",
+      "line": 130,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestFileRoles.test_doc_json_sidecar_is_excluded_from_schema_roles",
+      "to": "Config",
+      "line": 135,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestFileRoles.test_doc_json_sidecar_is_excluded_from_schema_roles",
+      "to": "_write_source",
+      "line": 136,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestFileRoles.test_doc_json_sidecar_is_excluded_from_schema_roles",
+      "to": "_write_symbols",
+      "line": 137,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "TestFileRoles.test_doc_json_sidecar_is_excluded_from_schema_roles",
+      "to": "_write_symbols",
+      "line": 138,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "TestFileRoles.test_doc_json_sidecar_is_excluded_from_schema_roles",
+      "to": "config.is_doc_candidate",
+      "line": 140,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestFileRoles.test_doc_json_sidecar_is_excluded_from_schema_roles",
+      "to": "Path",
+      "line": 140,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestFileRoles.test_doc_json_sidecar_is_excluded_from_schema_roles",
+      "to": "load_files_by_role",
+      "line": 141,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestExtractObligations.mock_provider",
+      "to": "AsyncMock",
+      "line": 158,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestExtractObligations.config",
+      "to": "Config",
+      "line": 162,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestExtractObligations.test_extracts_obligations",
+      "to": "CompletionResult",
+      "line": 167,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "TestExtractObligations.test_extracts_obligations",
+      "to": "ToolCall",
+      "line": 169,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "TestExtractObligations.test_extracts_obligations",
+      "to": "extract_obligations_async",
+      "line": 199,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestExtractObligations.test_extracts_obligations",
+      "to": "len",
+      "line": 205,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestExtractObligations.test_empty_obligations",
+      "to": "CompletionResult",
+      "line": 215,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "TestExtractObligations.test_empty_obligations",
+      "to": "ToolCall",
+      "line": 217,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "TestExtractObligations.test_empty_obligations",
+      "to": "extract_obligations_async",
+      "line": 228,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_full_pipeline",
+      "to": "Config",
+      "line": 250,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_full_pipeline",
+      "to": "_write_symbols",
+      "line": 252,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_full_pipeline",
+      "to": "_write_source",
+      "line": 253,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_full_pipeline",
+      "to": "_write_shadow",
+      "line": 256,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_full_pipeline",
+      "to": "_write_source",
+      "line": 257,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_full_pipeline",
+      "to": "AsyncMock",
+      "line": 261,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_full_pipeline.mock_complete",
+      "to": "get",
+      "line": 264,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_full_pipeline.mock_complete",
+      "to": "CompletionResult",
+      "line": 266,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_full_pipeline.mock_complete",
+      "to": "ToolCall",
+      "line": 268,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_full_pipeline.mock_complete",
+      "to": "_triage_verdicts",
+      "line": 286,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_full_pipeline",
+      "to": "detect_dead_plumbing_async",
+      "line": 293,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_no_schema_files",
+      "to": "Config",
+      "line": 302,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_no_schema_files",
+      "to": "_write_symbols",
+      "line": 303,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_no_schema_files",
+      "to": "AsyncMock",
+      "line": 305,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_no_schema_files",
+      "to": "detect_dead_plumbing_async",
+      "line": 307,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_doc_json_schema_sidecar_does_not_trigger_plumbing",
+      "to": "Config",
+      "line": 314,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_doc_json_schema_sidecar_does_not_trigger_plumbing",
+      "to": "_write_source",
+      "line": 315,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_doc_json_schema_sidecar_does_not_trigger_plumbing",
+      "to": "_write_symbols",
+      "line": 316,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_doc_json_schema_sidecar_does_not_trigger_plumbing",
+      "to": "AsyncMock",
+      "line": 318,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDetectDeadPlumbing.test_doc_json_schema_sidecar_does_not_trigger_plumbing",
+      "to": "detect_dead_plumbing_async",
+      "line": 320,
+      "call_sites": 4
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "mock_provider.complete",
+      "member": "return_value",
+      "line": 167
+    },
+    {
+      "container": "mock_provider.complete",
+      "member": "return_value",
+      "line": 215
+    },
+    {
+      "container": "mock_provider",
+      "member": "complete",
+      "line": 291
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "submit_triage_verdicts",
+      "line": 26,
+      "usage": "produced",
+      "context": "argument to validator",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 30,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "unreachable",
+      "line": 30,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "triage",
+      "line": 39,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 39,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "test",
+      "line": 42,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 42,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "abc123",
+      "line": 55,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "2025-01-01T00:00:00Z",
+      "line": 56,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/schema.ts",
+      "line": 87,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "schema",
+      "line": 87,
+      "usage": "produced",
+      "context": "keyword argument to _write_symbols",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/types.ts",
+      "line": 88,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "types",
+      "line": 88,
+      "usage": "produced",
+      "context": "keyword argument to _write_symbols"
+    },
+    {
+      "value": "src/main.ts",
+      "line": 89,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "entry",
+      "line": 89,
+      "usage": "produced",
+      "context": "keyword argument to _write_symbols",
+      "kind": "identifier"
+    },
+    {
+      "value": "schema",
+      "line": 93,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "types",
+      "line": 94,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "entry",
+      "line": 95,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/old.ts",
+      "line": 101,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "foo",
+      "line": 101,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 101,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/new.ts",
+      "line": 102,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "service",
+      "line": 102,
+      "usage": "produced",
+      "context": "keyword argument to _write_symbols",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/old.ts",
+      "line": 105,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "roles"
+    },
+    {
+      "value": "service",
+      "line": 106,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/trial.ts",
+      "line": 111,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "schema",
+      "line": 111,
+      "usage": "produced",
+      "context": "keyword argument to _write_symbols",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/events.ts",
+      "line": 112,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "schema",
+      "line": 112,
+      "usage": "produced",
+      "context": "keyword argument to _write_symbols",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/utils.ts",
+      "line": 113,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "utility",
+      "line": 113,
+      "usage": "produced",
+      "context": "keyword argument to _write_symbols",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/main.ts",
+      "line": 114,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "entry",
+      "line": 114,
+      "usage": "produced",
+      "context": "keyword argument to _write_symbols",
+      "kind": "identifier"
+    },
+    {
+      "value": "schema",
+      "line": 116,
+      "usage": "produced",
+      "context": "argument to load_files_by_role",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/events.ts",
+      "line": 117,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/trial.ts",
+      "line": 117,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/utils.ts",
+      "line": 122,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "utility",
+      "line": 122,
+      "usage": "produced",
+      "context": "keyword argument to _write_symbols",
+      "kind": "identifier"
+    },
+    {
+      "value": "schema",
+      "line": 124,
+      "usage": "produced",
+      "context": "argument to load_files_by_role",
+      "kind": "identifier"
+    },
+    {
+      "value": "docs/debugAdapterProtocol.json",
+      "line": 136,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "{\"definitions\": {}}",
+      "line": 136,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "docs/debugAdapterProtocol.json",
+      "line": 137,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "schema",
+      "line": 137,
+      "usage": "produced",
+      "context": "keyword argument to _write_symbols",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/runtime-schema.json",
+      "line": 138,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "schema",
+      "line": 138,
+      "usage": "produced",
+      "context": "keyword argument to _write_symbols",
+      "kind": "identifier"
+    },
+    {
+      "value": "docs/debugAdapterProtocol.json",
+      "line": 140,
+      "usage": "produced",
+      "context": "argument to Path"
+    },
+    {
+      "value": "schema",
+      "line": 141,
+      "usage": "produced",
+      "context": "argument to load_files_by_role",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/runtime-schema.json",
+      "line": 141,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "tc1",
+      "line": 170,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "extract_obligations",
+      "line": 171,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "taskTimeoutMs",
+      "line": 175,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "TrialSettingsSchema",
+      "line": 176,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Enforce max elapsed time for task execution",
+      "line": 179,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "timer/deadline/abort/kill",
+      "line": 180,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "turnTimeoutMs",
+      "line": 183,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "TrialSettingsSchema",
+      "line": 184,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Enforce max elapsed time per turn",
+      "line": 187,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "timer/deadline/abort/kill",
+      "line": 188,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test",
+      "line": 195,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 196,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "src/trial.ts",
+      "line": 201,
+      "usage": "produced",
+      "context": "argument to extract_obligations_async"
+    },
+    {
+      "value": "const TrialSettingsSchema = z.object({\n  taskTimeoutMs: z.number(),\n  turnTimeoutMs: z.number(),\n});",
+      "line": 202,
+      "usage": "produced",
+      "context": "argument to extract_obligations_async"
+    },
+    {
+      "value": "Shadow doc content",
+      "line": 203,
+      "usage": "produced",
+      "context": "argument to extract_obligations_async"
+    },
+    {
+      "value": "taskTimeoutMs",
+      "line": 206,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "field_name"
+    },
+    {
+      "value": "TrialSettingsSchema",
+      "line": 207,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "schema_name"
+    },
+    {
+      "value": "turnTimeoutMs",
+      "line": 208,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "field_name"
+    },
+    {
+      "value": "tc1",
+      "line": 218,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "extract_obligations",
+      "line": 219,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "test",
+      "line": 224,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 225,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "src/types.ts",
+      "line": 230,
+      "usage": "produced",
+      "context": "argument to extract_obligations_async"
+    },
+    {
+      "value": "interface Config {\n  name: string;\n  description: string;\n}",
+      "line": 231,
+      "usage": "produced",
+      "context": "argument to extract_obligations_async"
+    },
+    {
+      "value": "src/trial.ts",
+      "line": 252,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "schema",
+      "line": 252,
+      "usage": "produced",
+      "context": "keyword argument to _write_symbols",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/trial.ts",
+      "line": 253,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "const Schema = z.object({\n  taskTimeoutMs: z.number(),\n  turnTimeoutMs: z.number(),\n});",
+      "line": 254,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "src/trial.ts",
+      "line": 256,
+      "usage": "produced",
+      "context": "argument to _write_shadow"
+    },
+    {
+      "value": "# src/trial.ts\nSchema with timeout fields",
+      "line": 256,
+      "usage": "produced",
+      "context": "argument to _write_shadow"
+    },
+    {
+      "value": "src/runner.ts",
+      "line": 257,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "const timeout = config.taskTimeoutMs;\nconst turn = config.turnTimeoutMs;\n",
+      "line": 258,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "name",
+      "line": 264,
+      "usage": "produced",
+      "context": "argument to get"
+    },
+    {
+      "value": "extract_obligations",
+      "line": 265,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "tc1",
+      "line": 269,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "extract_obligations",
+      "line": 269,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "taskTimeoutMs",
+      "line": 271,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Schema",
+      "line": 271,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Enforce task timeout",
+      "line": 273,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "timer/deadline",
+      "line": 274,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "turnTimeoutMs",
+      "line": 275,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Schema",
+      "line": 275,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Enforce turn timeout",
+      "line": 277,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "timer/deadline",
+      "line": 278,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test",
+      "line": 282,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 282,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "confirmed",
+      "line": 287,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "stored but never enforced",
+      "line": 287,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dismissed",
+      "line": 288,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "enforced via setTimeout",
+      "line": 288,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "confirmed",
+      "line": 296,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "taskTimeoutMs",
+      "line": 297,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/utils.ts",
+      "line": 303,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "utility",
+      "line": 303,
+      "usage": "produced",
+      "context": "keyword argument to _write_symbols",
+      "kind": "identifier"
+    },
+    {
+      "value": "docs/debugAdapterProtocol.json",
+      "line": 315,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "{\"definitions\": {}}",
+      "line": 315,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "docs/debugAdapterProtocol.json",
+      "line": 316,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "schema",
+      "line": 316,
+      "usage": "produced",
+      "context": "keyword argument to _write_symbols",
+      "kind": "identifier"
+    }
+  ],
+  "extraction_method": "ast"
+}

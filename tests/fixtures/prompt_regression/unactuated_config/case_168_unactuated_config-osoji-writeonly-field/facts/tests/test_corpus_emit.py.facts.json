@@ -1,0 +1,2556 @@
+{
+  "source": "tests/test_corpus_emit.py",
+  "source_hash": "6f8205d9e1c34689",
+  "generated": "2026-07-22T10:56:33Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": "shutil",
+      "names": [
+        "shutil"
+      ],
+      "line": 14,
+      "is_reexport": false
+    },
+    {
+      "source": "sys",
+      "names": [
+        "sys"
+      ],
+      "line": 15,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 16,
+      "is_reexport": false
+    },
+    {
+      "source": "pytest",
+      "names": [
+        "pytest"
+      ],
+      "line": 18,
+      "is_reexport": false
+    },
+    {
+      "source": "click.testing",
+      "names": [
+        "CliRunner"
+      ],
+      "line": 19,
+      "is_reexport": false
+    },
+    {
+      "source": "eval_lib",
+      "names": [
+        "load_corpus",
+        "stage_case"
+      ],
+      "line": 25,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.cli",
+      "names": [
+        "main"
+      ],
+      "line": 27,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.corpus_emit",
+      "names": [
+        "ENV_CORPUS_DEST",
+        "MAX_FILES",
+        "CorpusEmitError",
+        "_category_of",
+        "emit_case",
+        "resolve_dest"
+      ],
+      "line": 28,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.evidence",
+      "names": [
+        "Evidence"
+      ],
+      "line": 36,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 37,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.corpus_emit",
+      "names": [
+        "corpus_emit_module"
+      ],
+      "line": 396,
+      "is_reexport": false,
+      "name_map": {
+        "corpus_emit_module": "osoji.corpus_emit"
+      }
+    }
+  ],
+  "exports": [
+    {
+      "name": "REPO_ROOT",
+      "kind": "constant",
+      "line": 21,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_emit_case_creates_full_stub_layout",
+      "kind": "function",
+      "line": 136,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_emit_case_language_default_and_override",
+      "kind": "function",
+      "line": 197,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_emit_case_include_adds_extra_file",
+      "kind": "function",
+      "line": 208,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_emit_case_reasoning_and_gray_overrides_win",
+      "kind": "function",
+      "line": 218,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_emit_case_expected_verdict_override_wins_over_decided",
+      "kind": "function",
+      "line": 232,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_emit_case_missing_ledger_raises_clear_error",
+      "kind": "function",
+      "line": 247,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_emit_case_missing_id_raises_with_near_miss_listing",
+      "kind": "function",
+      "line": 256,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_emit_case_uncertain_verdict_requires_expected_verdict_override",
+      "kind": "function",
+      "line": 271,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_emit_case_bad_slug_raises",
+      "kind": "function",
+      "line": 286,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_emit_case_include_nonexistent_file_raises",
+      "kind": "function",
+      "line": 294,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_emit_case_duplicate_dir_raises",
+      "kind": "function",
+      "line": 304,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_emit_case_file_cap_exceeded_raises",
+      "kind": "function",
+      "line": 314,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_emit_case_missing_finding_path_file_names_no_such_file",
+      "kind": "function",
+      "line": 350,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_emit_case_finding_path_escaping_repo_names_outside_repo",
+      "kind": "function",
+      "line": 369,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_emit_case_mid_copy_failure_removes_partial_case_dir",
+      "kind": "function",
+      "line": 386,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_category_of_derives_category_from_detector_suffix",
+      "kind": "function",
+      "line": 460,
+      "decorators": [
+        "pytest.mark.parametrize"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_resolve_dest_prefers_explicit_override",
+      "kind": "function",
+      "line": 469,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_resolve_dest_uses_env_var",
+      "kind": "function",
+      "line": 473,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_resolve_dest_defaults_to_holding_when_corpus_present",
+      "kind": "function",
+      "line": 479,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_resolve_dest_raises_when_nothing_resolves",
+      "kind": "function",
+      "line": 488,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_emitted_case_loads_and_stages_after_acceptance",
+      "kind": "function",
+      "line": 500,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_cli_corpus_emit_help",
+      "kind": "function",
+      "line": 540,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_cli_corpus_emit_bad_slug_errors",
+      "kind": "function",
+      "line": 550,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_cli_corpus_emit_missing_dest_resolution_errors",
+      "kind": "function",
+      "line": 564,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_cli_corpus_emit_creates_case_and_prints_reminder",
+      "kind": "function",
+      "line": 579,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "resolve",
+      "line": 21,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Path",
+      "line": 21,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sys.path.insert",
+      "line": 22,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "str",
+      "line": 22,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sys.path.insert",
+      "line": 23,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "str",
+      "line": 23,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_write",
+      "to": "p.parent.mkdir",
+      "line": 47,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write",
+      "to": "p.write_text",
+      "line": 48,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_make_finding",
+      "to": "dict",
+      "line": 52,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_make_finding",
+      "to": "base.update",
+      "line": 71,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_make_finding",
+      "to": "Finding",
+      "line": 72,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_build_repo",
+      "to": "_write",
+      "line": 83,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_build_repo",
+      "to": "_write",
+      "line": 84,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_build_repo",
+      "to": "_write",
+      "line": 85,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_build_repo",
+      "to": "_make_finding",
+      "line": 87,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_build_repo",
+      "to": "Evidence",
+      "line": 95,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "_build_repo",
+      "to": "_make_finding",
+      "line": 105,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_build_repo",
+      "to": "confirmed.to_dict",
+      "line": 120,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_repo",
+      "to": "uncertain.to_dict",
+      "line": 120,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_repo",
+      "to": "_write",
+      "line": 122,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_build_repo",
+      "to": "json.dumps",
+      "line": 122,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_build_repo",
+      "to": "_write",
+      "line": 124,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_build_repo",
+      "to": "_write",
+      "line": 125,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_build_repo",
+      "to": "_write",
+      "line": 126,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "_build_repo",
+      "line": 137,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "emit_case",
+      "line": 140,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "case_dir.exists",
+      "line": 143,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "sorted",
+      "line": 146,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "as_posix",
+      "line": 147,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "p.relative_to",
+      "line": 147,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "rglob",
+      "line": 148,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "p.is_file",
+      "line": 149,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "is_file",
+      "line": 154,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "is_file",
+      "line": 155,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "is_file",
+      "line": 156,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "exists",
+      "line": 157,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "json.loads",
+      "line": 159,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "read_text",
+      "line": 159,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "json.loads",
+      "line": 174,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "read_text",
+      "line": 174,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "json.loads",
+      "line": 186,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_creates_full_stub_layout",
+      "to": "read_text",
+      "line": 186,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_emit_case_language_default_and_override",
+      "to": "_build_repo",
+      "line": 198,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_emit_case_language_default_and_override",
+      "to": "emit_case",
+      "line": 201,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_language_default_and_override",
+      "to": "json.loads",
+      "line": 202,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_language_default_and_override",
+      "to": "read_text",
+      "line": 202,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_emit_case_language_default_and_override",
+      "to": "emit_case",
+      "line": 204,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_language_default_and_override",
+      "to": "json.loads",
+      "line": 205,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_language_default_and_override",
+      "to": "read_text",
+      "line": 205,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_emit_case_include_adds_extra_file",
+      "to": "_build_repo",
+      "line": 209,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_emit_case_include_adds_extra_file",
+      "to": "_write",
+      "line": 210,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_emit_case_include_adds_extra_file",
+      "to": "emit_case",
+      "line": 213,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_include_adds_extra_file",
+      "to": "is_file",
+      "line": 215,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_emit_case_reasoning_and_gray_overrides_win",
+      "to": "_build_repo",
+      "line": 219,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_emit_case_reasoning_and_gray_overrides_win",
+      "to": "emit_case",
+      "line": 222,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_reasoning_and_gray_overrides_win",
+      "to": "json.loads",
+      "line": 227,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_reasoning_and_gray_overrides_win",
+      "to": "read_text",
+      "line": 227,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_emit_case_expected_verdict_override_wins_over_decided",
+      "to": "_build_repo",
+      "line": 233,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_emit_case_expected_verdict_override_wins_over_decided",
+      "to": "emit_case",
+      "line": 236,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_expected_verdict_override_wins_over_decided",
+      "to": "json.loads",
+      "line": 238,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_expected_verdict_override_wins_over_decided",
+      "to": "read_text",
+      "line": 238,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_emit_case_missing_ledger_raises_clear_error",
+      "to": "repo.mkdir",
+      "line": 249,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_emit_case_missing_ledger_raises_clear_error",
+      "to": "pytest.raises",
+      "line": 252,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_missing_ledger_raises_clear_error",
+      "to": "emit_case",
+      "line": 253,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_missing_id_raises_with_near_miss_listing",
+      "to": "_build_repo",
+      "line": 257,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_emit_case_missing_id_raises_with_near_miss_listing",
+      "to": "pytest.raises",
+      "line": 260,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_missing_id_raises_with_near_miss_listing",
+      "to": "emit_case",
+      "line": 261,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_missing_id_raises_with_near_miss_listing",
+      "to": "str",
+      "line": 263,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_emit_case_missing_id_raises_with_near_miss_listing",
+      "to": "exists",
+      "line": 268,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_emit_case_uncertain_verdict_requires_expected_verdict_override",
+      "to": "_build_repo",
+      "line": 272,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_emit_case_uncertain_verdict_requires_expected_verdict_override",
+      "to": "pytest.raises",
+      "line": 275,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_uncertain_verdict_requires_expected_verdict_override",
+      "to": "emit_case",
+      "line": 276,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_uncertain_verdict_requires_expected_verdict_override",
+      "to": "exists",
+      "line": 279,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_emit_case_uncertain_verdict_requires_expected_verdict_override",
+      "to": "emit_case",
+      "line": 281,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_uncertain_verdict_requires_expected_verdict_override",
+      "to": "json.loads",
+      "line": 282,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_uncertain_verdict_requires_expected_verdict_override",
+      "to": "read_text",
+      "line": 282,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_emit_case_bad_slug_raises",
+      "to": "_build_repo",
+      "line": 287,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_emit_case_bad_slug_raises",
+      "to": "pytest.raises",
+      "line": 290,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_bad_slug_raises",
+      "to": "emit_case",
+      "line": 291,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_include_nonexistent_file_raises",
+      "to": "_build_repo",
+      "line": 295,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_emit_case_include_nonexistent_file_raises",
+      "to": "pytest.raises",
+      "line": 298,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_include_nonexistent_file_raises",
+      "to": "emit_case",
+      "line": 299,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_include_nonexistent_file_raises",
+      "to": "exists",
+      "line": 301,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_emit_case_duplicate_dir_raises",
+      "to": "_build_repo",
+      "line": 305,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_emit_case_duplicate_dir_raises",
+      "to": "emit_case",
+      "line": 308,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_duplicate_dir_raises",
+      "to": "pytest.raises",
+      "line": 310,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_duplicate_dir_raises",
+      "to": "emit_case",
+      "line": 311,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_file_cap_exceeded_raises",
+      "to": "_build_repo",
+      "line": 315,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_emit_case_file_cap_exceeded_raises",
+      "to": "range",
+      "line": 318,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emit_case_file_cap_exceeded_raises",
+      "to": "_write",
+      "line": 320,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_emit_case_file_cap_exceeded_raises",
+      "to": "refs.append",
+      "line": 321,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emit_case_file_cap_exceeded_raises",
+      "to": "_make_finding",
+      "line": 323,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_emit_case_file_cap_exceeded_raises",
+      "to": "Evidence",
+      "line": 328,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_emit_case_file_cap_exceeded_raises",
+      "to": "json.loads",
+      "line": 331,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_file_cap_exceeded_raises",
+      "to": "ledger_path.read_text",
+      "line": 331,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_emit_case_file_cap_exceeded_raises",
+      "to": "append",
+      "line": 332,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emit_case_file_cap_exceeded_raises",
+      "to": "big.to_dict",
+      "line": 332,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emit_case_file_cap_exceeded_raises",
+      "to": "ledger_path.write_text",
+      "line": 333,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_emit_case_file_cap_exceeded_raises",
+      "to": "json.dumps",
+      "line": 333,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_emit_case_file_cap_exceeded_raises",
+      "to": "pytest.raises",
+      "line": 336,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_file_cap_exceeded_raises",
+      "to": "emit_case",
+      "line": 337,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_file_cap_exceeded_raises",
+      "to": "str",
+      "line": 343,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_emit_case_file_cap_exceeded_raises",
+      "to": "exists",
+      "line": 347,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_emit_case_missing_finding_path_file_names_no_such_file",
+      "to": "_build_repo",
+      "line": 351,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_emit_case_missing_finding_path_file_names_no_such_file",
+      "to": "unlink",
+      "line": 354,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emit_case_missing_finding_path_file_names_no_such_file",
+      "to": "pytest.raises",
+      "line": 357,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_missing_finding_path_file_names_no_such_file",
+      "to": "emit_case",
+      "line": 358,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_missing_finding_path_file_names_no_such_file",
+      "to": "str",
+      "line": 360,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_emit_case_missing_finding_path_file_names_no_such_file",
+      "to": "exists",
+      "line": 366,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_emit_case_finding_path_escaping_repo_names_outside_repo",
+      "to": "_build_repo",
+      "line": 370,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_emit_case_finding_path_escaping_repo_names_outside_repo",
+      "to": "json.loads",
+      "line": 372,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_finding_path_escaping_repo_names_outside_repo",
+      "to": "ledger_path.read_text",
+      "line": 372,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_emit_case_finding_path_escaping_repo_names_outside_repo",
+      "to": "ledger_path.write_text",
+      "line": 376,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_emit_case_finding_path_escaping_repo_names_outside_repo",
+      "to": "json.dumps",
+      "line": 376,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_emit_case_finding_path_escaping_repo_names_outside_repo",
+      "to": "pytest.raises",
+      "line": 379,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_finding_path_escaping_repo_names_outside_repo",
+      "to": "emit_case",
+      "line": 380,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_finding_path_escaping_repo_names_outside_repo",
+      "to": "str",
+      "line": 382,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_emit_case_finding_path_escaping_repo_names_outside_repo",
+      "to": "exists",
+      "line": 383,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_emit_case_mid_copy_failure_removes_partial_case_dir",
+      "to": "_build_repo",
+      "line": 393,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_emit_case_mid_copy_failure_removes_partial_case_dir.flaky_copy2",
+      "to": "OSError",
+      "line": 404,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emit_case_mid_copy_failure_removes_partial_case_dir.flaky_copy2",
+      "to": "real_copy2",
+      "line": 405,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emit_case_mid_copy_failure_removes_partial_case_dir",
+      "to": "monkeypatch.setattr",
+      "line": 407,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emit_case_mid_copy_failure_removes_partial_case_dir",
+      "to": "pytest.raises",
+      "line": 409,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emit_case_mid_copy_failure_removes_partial_case_dir",
+      "to": "emit_case",
+      "line": 410,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emit_case_mid_copy_failure_removes_partial_case_dir",
+      "to": "exists",
+      "line": 412,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_category_of_derives_category_from_detector_suffix",
+      "to": "_category_of",
+      "line": 461,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_category_of_derives_category_from_detector_suffix",
+      "to": "pytest.mark.parametrize",
+      "line": 421,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_resolve_dest_prefers_explicit_override",
+      "to": "resolve_dest",
+      "line": 470,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_resolve_dest_uses_env_var",
+      "to": "monkeypatch.setenv",
+      "line": 474,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_resolve_dest_uses_env_var",
+      "to": "str",
+      "line": 474,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_resolve_dest_uses_env_var",
+      "to": "resolve_dest",
+      "line": 476,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_resolve_dest_defaults_to_holding_when_corpus_present",
+      "to": "monkeypatch.delenv",
+      "line": 480,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_resolve_dest_defaults_to_holding_when_corpus_present",
+      "to": "mkdir",
+      "line": 481,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_resolve_dest_defaults_to_holding_when_corpus_present",
+      "to": "resolve_dest",
+      "line": 483,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_resolve_dest_raises_when_nothing_resolves",
+      "to": "monkeypatch.delenv",
+      "line": 489,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_resolve_dest_raises_when_nothing_resolves",
+      "to": "pytest.raises",
+      "line": 491,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_resolve_dest_raises_when_nothing_resolves",
+      "to": "resolve_dest",
+      "line": 492,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "_build_repo",
+      "line": 501,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "emit_case",
+      "line": 505,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "json.loads",
+      "line": 510,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "expected_path.read_text",
+      "line": 510,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "expected_path.write_text",
+      "line": 512,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "json.dumps",
+      "line": 512,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "accepted_dir.parent.mkdir",
+      "line": 515,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "shutil.move",
+      "line": 516,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "str",
+      "line": 516,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "str",
+      "line": 516,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "load_corpus",
+      "line": 518,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "len",
+      "line": 519,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "stage_case",
+      "line": 526,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "exists",
+      "line": 528,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "exists",
+      "line": 529,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "exists",
+      "line": 530,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "exists",
+      "line": 531,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_emitted_case_loads_and_stages_after_acceptance",
+      "to": "exists",
+      "line": 532,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_help",
+      "to": "CliRunner",
+      "line": 541,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_help",
+      "to": "runner.invoke",
+      "line": 543,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_bad_slug_errors",
+      "to": "_build_repo",
+      "line": 551,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_bad_slug_errors",
+      "to": "CliRunner",
+      "line": 552,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_bad_slug_errors",
+      "to": "runner.invoke",
+      "line": 554,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_bad_slug_errors",
+      "to": "str",
+      "line": 555,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_bad_slug_errors",
+      "to": "str",
+      "line": 557,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_bad_slug_errors",
+      "to": "result.output.lower",
+      "line": 561,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_missing_dest_resolution_errors",
+      "to": "monkeypatch.delenv",
+      "line": 565,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_missing_dest_resolution_errors",
+      "to": "repo.mkdir",
+      "line": 567,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_missing_dest_resolution_errors",
+      "to": "CliRunner",
+      "line": 568,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_missing_dest_resolution_errors",
+      "to": "runner.invoke",
+      "line": 570,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_missing_dest_resolution_errors",
+      "to": "str",
+      "line": 571,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_creates_case_and_prints_reminder",
+      "to": "_build_repo",
+      "line": 580,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_creates_case_and_prints_reminder",
+      "to": "CliRunner",
+      "line": 582,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_creates_case_and_prints_reminder",
+      "to": "runner.invoke",
+      "line": 584,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_creates_case_and_prints_reminder",
+      "to": "str",
+      "line": 585,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_creates_case_and_prints_reminder",
+      "to": "str",
+      "line": 587,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_cli_corpus_emit_creates_case_and_prints_reminder",
+      "to": "exists",
+      "line": 592,
+      "call_sites": 14
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "utf-8",
+      "line": 48,
+      "usage": "produced",
+      "context": "keyword argument to p.write_text"
+    },
+    {
+      "value": "deadcode:dead_symbol",
+      "line": 53,
+      "usage": "produced",
+      "context": "keyword argument to dict",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 54,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "src/app/util.py",
+      "line": 55,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "unused_helper",
+      "line": 58,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "declared",
+      "line": 59,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "unused_helper is defined but never used",
+      "line": 60,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "no references found in the scanned corpus",
+      "line": 61,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "src/app/util.py",
+      "line": 83,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "def unused_helper():\n    pass\n",
+      "line": 83,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "src/app/caller.py",
+      "line": 84,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "# mentions unused_helper in a comment\n",
+      "line": 84,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "README.md",
+      "line": 85,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "# demo repo\n",
+      "line": 85,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "unused_helper",
+      "line": 88,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding"
+    },
+    {
+      "value": "confirmed",
+      "line": 89,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "no live path found",
+      "line": 91,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding"
+    },
+    {
+      "value": "remove it",
+      "line": 92,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding"
+    },
+    {
+      "value": "warning",
+      "line": 93,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 96,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/app/caller.py",
+      "line": 99,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "comment",
+      "line": 99,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "mentions it",
+      "line": 99,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "other_helper",
+      "line": 106,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding"
+    },
+    {
+      "value": "other_helper is defined but never used",
+      "line": 109,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding"
+    },
+    {
+      "value": "uncertain",
+      "line": 110,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "insufficient evidence",
+      "line": 112,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding"
+    },
+    {
+      "value": "decided-findings/1",
+      "line": 117,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "abc123def456",
+      "line": 118,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "2026-07-21T00:00:00+00:00",
+      "line": 119,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": ".osoji/analysis/decided-findings.json",
+      "line": 122,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": ".osoji/symbols/src/app/util.py.symbols.json",
+      "line": 124,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "{}",
+      "line": 124,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": ".osoji/facts/src/app/util.py.facts.json",
+      "line": 125,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "{}",
+      "line": 125,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": ".osoji/shadow/src/app/util.py.shadow.md",
+      "line": 126,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "# util.py shadow\n",
+      "line": 126,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "unused-helper",
+      "line": 140,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "src/app/caller.py",
+      "line": 151,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/app/util.py",
+      "line": 151,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "utf-8",
+      "line": 159,
+      "usage": "produced",
+      "context": "keyword argument to read_text"
+    },
+    {
+      "value": "corpus-case/1",
+      "line": 160,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "unused-helper",
+      "line": 161,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "dead_symbol",
+      "line": 162,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "deadcode",
+      "line": 163,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "reachability",
+      "line": 164,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "python",
+      "line": 165,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "rebuild",
+      "line": 167,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "unknown",
+      "line": 170,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "utf-8",
+      "line": 174,
+      "usage": "produced",
+      "context": "keyword argument to read_text"
+    },
+    {
+      "value": "src/app/util.py",
+      "line": 175,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "unused_helper",
+      "line": 177,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "verdict",
+      "line": 180,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "confidence",
+      "line": 180,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "triage_reasoning",
+      "line": 180,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "suggested_fix",
+      "line": 180,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "severity",
+      "line": 181,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "contract_class",
+      "line": 181,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "evidence_fingerprint",
+      "line": 181,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "utf-8",
+      "line": 186,
+      "usage": "produced",
+      "context": "keyword argument to read_text"
+    },
+    {
+      "value": "corpus-expected/1",
+      "line": 187,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 188,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "no live path found",
+      "line": 189,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "sweep-proposed",
+      "line": 193,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "lang-default",
+      "line": 201,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "python",
+      "line": 202,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "lang-override",
+      "line": 204,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "custom-lang",
+      "line": 204,
+      "usage": "produced",
+      "context": "keyword argument to emit_case"
+    },
+    {
+      "value": "custom-lang",
+      "line": 205,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "docs/notes.md",
+      "line": 210,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "notes\n",
+      "line": 210,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "with-include",
+      "line": 213,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "docs/notes.md",
+      "line": 213,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "override-case",
+      "line": 223,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "human override reasoning",
+      "line": 224,
+      "usage": "produced",
+      "context": "keyword argument to emit_case"
+    },
+    {
+      "value": "utf-8",
+      "line": 227,
+      "usage": "produced",
+      "context": "keyword argument to read_text"
+    },
+    {
+      "value": "human override reasoning",
+      "line": 228,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "flip-verdict",
+      "line": 236,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "dismissed",
+      "line": 236,
+      "usage": "produced",
+      "context": "keyword argument to emit_case",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 238,
+      "usage": "produced",
+      "context": "keyword argument to read_text"
+    },
+    {
+      "value": "dismissed",
+      "line": 239,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "osoji audit",
+      "line": 252,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "whatever",
+      "line": 253,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "some-slug",
+      "line": 253,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "not-a-real-id",
+      "line": 261,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "whatever",
+      "line": 261,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "not-a-real-id",
+      "line": 264,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "message"
+    },
+    {
+      "value": "expected-verdict",
+      "line": 275,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "uncertain-case",
+      "line": 276,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "uncertain-case",
+      "line": 281,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "dismissed",
+      "line": 281,
+      "usage": "produced",
+      "context": "keyword argument to emit_case",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 282,
+      "usage": "produced",
+      "context": "keyword argument to read_text"
+    },
+    {
+      "value": "dismissed",
+      "line": 283,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "slug",
+      "line": 290,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "Not A Valid Slug!",
+      "line": 291,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "does not exist",
+      "line": 298,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "bad-include",
+      "line": 299,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "does/not/exist.py",
+      "line": 299,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dup-slug",
+      "line": 308,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "already exists",
+      "line": 310,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "dup-slug",
+      "line": 311,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "import",
+      "line": 321,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "referenced",
+      "line": 321,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "big_symbol",
+      "line": 324,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding"
+    },
+    {
+      "value": "big claim referencing many files",
+      "line": 325,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding"
+    },
+    {
+      "value": "confirmed",
+      "line": 326,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 328,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 331,
+      "usage": "produced",
+      "context": "keyword argument to ledger_path.read_text"
+    },
+    {
+      "value": "utf-8",
+      "line": 333,
+      "usage": "produced",
+      "context": "keyword argument to ledger_path.write_text"
+    },
+    {
+      "value": "exceeds the corpus-emit cap",
+      "line": 336,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "too-big",
+      "line": 337,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "--include",
+      "line": 344,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "message"
+    },
+    {
+      "value": "too many files",
+      "line": 345,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "message"
+    },
+    {
+      "value": "targeted evidence",
+      "line": 345,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "message"
+    },
+    {
+      "value": "no such file",
+      "line": 357,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "missing-file",
+      "line": 358,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "outside the repo",
+      "line": 360,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "utf-8",
+      "line": 372,
+      "usage": "produced",
+      "context": "keyword argument to ledger_path.read_text"
+    },
+    {
+      "value": "utf-8",
+      "line": 376,
+      "usage": "produced",
+      "context": "keyword argument to ledger_path.write_text"
+    },
+    {
+      "value": "outside the repo",
+      "line": 379,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "escaping-path",
+      "line": 380,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "no such file",
+      "line": 382,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "simulated mid-copy failure",
+      "line": 404,
+      "usage": "produced",
+      "context": "argument to OSError"
+    },
+    {
+      "value": "copy2",
+      "line": 407,
+      "usage": "produced",
+      "context": "argument to monkeypatch.setattr"
+    },
+    {
+      "value": "simulated mid-copy failure",
+      "line": 409,
+      "usage": "produced",
+      "context": "keyword argument to pytest.raises"
+    },
+    {
+      "value": "mid-copy-fail",
+      "line": 410,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "detector",
+      "line": 422,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "expected_category",
+      "line": 422,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "deadcode:dead_symbol",
+      "line": 428,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead_symbol",
+      "line": 428,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "deadparam:dead_parameter",
+      "line": 429,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dead_parameter",
+      "line": 429,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "plumbing:unactuated_config",
+      "line": 430,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "unactuated_config",
+      "line": 430,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "orphan:orphaned_file",
+      "line": 431,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "orphaned_file",
+      "line": 431,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "deps:dead_dependency",
+      "line": 432,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dead_dependency",
+      "line": 432,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cicd:dead_cicd",
+      "line": 433,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dead_cicd",
+      "line": 433,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "obligations:obligation_violation",
+      "line": 436,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "obligation_violation",
+      "line": 436,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "obligations:obligation_implicit_contract",
+      "line": 437,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "obligation_implicit_contract",
+      "line": 437,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "doc:stale_content",
+      "line": 441,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "doc_stale_content",
+      "line": 441,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "doc:misleading_claim",
+      "line": 442,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "doc_misleading_claim",
+      "line": 442,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "debris:dead_code",
+      "line": 450,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dead_code",
+      "line": 450,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "debris:latent_bug",
+      "line": 451,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "latent_bug",
+      "line": 451,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "debris:stale_comment",
+      "line": 452,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "stale_comment",
+      "line": 452,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "debris:misleading_docstring",
+      "line": 453,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "misleading_docstring",
+      "line": 453,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "debris:commented_out_code",
+      "line": 454,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "commented_out_code",
+      "line": 454,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "debris:expired_todo",
+      "line": 455,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "expired_todo",
+      "line": 455,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "debris:dead_params",
+      "line": 456,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dead_params",
+      "line": 456,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "debris:plumbing",
+      "line": 457,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "plumbing",
+      "line": 457,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "accepted-case",
+      "line": 505,
+      "usage": "produced",
+      "context": "argument to emit_case"
+    },
+    {
+      "value": "utf-8",
+      "line": 510,
+      "usage": "produced",
+      "context": "keyword argument to expected_path.read_text"
+    },
+    {
+      "value": "utf-8",
+      "line": 512,
+      "usage": "produced",
+      "context": "keyword argument to expected_path.write_text"
+    },
+    {
+      "value": "dead_symbol/case_101_accepted-case",
+      "line": 521,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "case.key",
+      "kind": "identifier"
+    },
+    {
+      "value": "unused_helper",
+      "line": 522,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "case.finding.symbol"
+    },
+    {
+      "value": "confirmed",
+      "line": 523,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "case.expected_verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "corpus",
+      "line": 543,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "emit",
+      "line": 543,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "--help",
+      "line": 543,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "--id",
+      "line": 546,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output"
+    },
+    {
+      "value": "--slug",
+      "line": 547,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output"
+    },
+    {
+      "value": "corpus",
+      "line": 555,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "emit",
+      "line": 555,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "--id",
+      "line": 556,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "--slug",
+      "line": 556,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Bad Slug!",
+      "line": 556,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "--dest",
+      "line": 557,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "slug",
+      "line": 561,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "corpus",
+      "line": 571,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "emit",
+      "line": 571,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "--id",
+      "line": 572,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "whatever",
+      "line": 572,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "--slug",
+      "line": 572,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "some-slug",
+      "line": 572,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "corpus",
+      "line": 585,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "emit",
+      "line": 585,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "--id",
+      "line": 586,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "--slug",
+      "line": 586,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cli-case",
+      "line": 586,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "--dest",
+      "line": 587,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "git mv",
+      "line": 591,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output",
+      "kind": "identifier"
+    }
+  ],
+  "extraction_method": "ast"
+}

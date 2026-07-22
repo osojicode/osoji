@@ -1,0 +1,20 @@
+{
+  "detector": "plumbing:unactuated_config",
+  "gap_type": "reachability",
+  "path": "src/osoji/evidence.py",
+  "line_start": 76,
+  "line_end": 76,
+  "symbol": "weight_hint",
+  "contract_source": "config schema field",
+  "contract_claim": "Field `weight_hint` (schema `Evidence`) declares an obligation the system must enforce at runtime: The weight_hint field declares a prior on evidence load-bearing weight constrained to the range [0, 1], with 0.0 meaning 'no prior'. The system must enforce that submitted weight_hint values remain within this valid range.. Expected enforcement: range check/validation logic: assert 0.0 <= weight_hint <= 1.0, raise ValueError if violated.",
+  "observed_behavior": "Reference scan gathers where the field is read across the repo; a site that only stores, passes, restructures, or logs the value does not enforce it — actuation requires code that uses it to cause the declared effect.",
+  "evidence": [],
+  "id": "374f584315a3ac3e",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

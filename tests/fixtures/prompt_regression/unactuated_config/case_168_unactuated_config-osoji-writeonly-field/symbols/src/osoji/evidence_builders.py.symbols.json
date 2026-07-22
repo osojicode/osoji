@@ -1,0 +1,576 @@
+{
+  "source": "src/osoji/evidence_builders.py",
+  "source_hash": "2f16116e5f1144b9",
+  "generated": "2026-07-22T10:56:15Z",
+  "file_role": "service",
+  "symbols": [
+    {
+      "name": "_MAX_SCAN_FILES",
+      "kind": "constant",
+      "line_start": 48,
+      "line_end": 48,
+      "visibility": "internal"
+    },
+    {
+      "name": "_MAX_HITS_PER_NEEDLE",
+      "kind": "constant",
+      "line_start": 49,
+      "line_end": 49,
+      "visibility": "internal"
+    },
+    {
+      "name": "_MAX_HITS_PER_FILE",
+      "kind": "constant",
+      "line_start": 50,
+      "line_end": 50,
+      "visibility": "internal"
+    },
+    {
+      "name": "_MAX_SCAN_ENTRIES_PER_CLAIM",
+      "kind": "constant",
+      "line_start": 51,
+      "line_end": 51,
+      "visibility": "internal"
+    },
+    {
+      "name": "_MAX_NEEDLES",
+      "kind": "constant",
+      "line_start": 52,
+      "line_end": 52,
+      "visibility": "internal"
+    },
+    {
+      "name": "_CONTEXT_LINES",
+      "kind": "constant",
+      "line_start": 53,
+      "line_end": 53,
+      "visibility": "internal"
+    },
+    {
+      "name": "_MAX_CONTEXT_LINE_CHARS",
+      "kind": "constant",
+      "line_start": 54,
+      "line_end": 54,
+      "visibility": "internal"
+    },
+    {
+      "name": "_REGION_PAD",
+      "kind": "constant",
+      "line_start": 55,
+      "line_end": 55,
+      "visibility": "internal"
+    },
+    {
+      "name": "_ENCLOSING_HEAD_LINES",
+      "kind": "constant",
+      "line_start": 56,
+      "line_end": 56,
+      "visibility": "internal"
+    },
+    {
+      "name": "_SHADOW_EXCERPT_CHARS",
+      "kind": "constant",
+      "line_start": 57,
+      "line_end": 57,
+      "visibility": "internal"
+    },
+    {
+      "name": "BuildContext",
+      "kind": "class",
+      "line_start": 61,
+      "line_end": 148,
+      "visibility": "public"
+    },
+    {
+      "name": "BuildContext.facts",
+      "kind": "function",
+      "line_start": 76,
+      "line_end": 81,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "BuildContext.symbols",
+      "kind": "function",
+      "line_start": 83,
+      "line_end": 88,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "BuildContext.read_lines",
+      "kind": "function",
+      "line_start": 90,
+      "line_end": 102,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "rel_path",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "BuildContext.scan_files",
+      "kind": "function",
+      "line_start": 104,
+      "line_end": 141,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "BuildContext.scan_truncated",
+      "kind": "function",
+      "line_start": 143,
+      "line_end": 147,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "_SYMBOL_FILLER",
+      "kind": "constant",
+      "line_start": 152,
+      "line_end": 156,
+      "visibility": "internal"
+    },
+    {
+      "name": "_extract_all_symbols_from_debris",
+      "kind": "function",
+      "line_start": 159,
+      "line_end": 194,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "description",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_lookup_type_definitions",
+      "kind": "function",
+      "line_start": 197,
+      "line_end": 227,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "type_names",
+          "optional": false
+        },
+        {
+          "name": "symbols_by_file",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_infer_variable_type",
+      "kind": "function",
+      "line_start": 230,
+      "line_end": 266,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "source_path",
+          "optional": false
+        },
+        {
+          "name": "line_number",
+          "optional": false
+        },
+        {
+          "name": "description",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_claim_text",
+      "kind": "function",
+      "line_start": 269,
+      "line_end": 270,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "finding",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_scanner_meta",
+      "kind": "function",
+      "line_start": 273,
+      "line_end": 284,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "finding",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_match_in_quotes",
+      "kind": "function",
+      "line_start": 287,
+      "line_end": 308,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "line",
+          "optional": false
+        },
+        {
+          "name": "pos",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_backticked_names",
+      "kind": "function",
+      "line_start": 311,
+      "line_end": 338,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "text",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_scan_needles",
+      "kind": "function",
+      "line_start": 341,
+      "line_end": 364,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "finding",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_quoted_literals",
+      "kind": "function",
+      "line_start": 367,
+      "line_end": 376,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "text",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_named_paths",
+      "kind": "function",
+      "line_start": 379,
+      "line_end": 394,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "finding",
+          "optional": false
+        },
+        {
+          "name": "ctx",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_find_symbol_entry",
+      "kind": "function",
+      "line_start": 397,
+      "line_end": 403,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "symbols_by_file",
+          "optional": false
+        },
+        {
+          "name": "rel_path",
+          "optional": false
+        },
+        {
+          "name": "name",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_enclosing_symbol",
+      "kind": "function",
+      "line_start": 406,
+      "line_end": 419,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "symbols_by_file",
+          "optional": false
+        },
+        {
+          "name": "rel_path",
+          "optional": false
+        },
+        {
+          "name": "line",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_numbered",
+      "kind": "function",
+      "line_start": 422,
+      "line_end": 430,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "lines",
+          "optional": false
+        },
+        {
+          "name": "start",
+          "optional": false
+        },
+        {
+          "name": "end",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "CrossFileReferenceBuilder",
+      "kind": "class",
+      "line_start": 436,
+      "line_end": 628,
+      "visibility": "public"
+    },
+    {
+      "name": "CrossFileReferenceBuilder.build",
+      "kind": "function",
+      "line_start": 451,
+      "line_end": 619,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "finding",
+          "optional": false
+        },
+        {
+          "name": "ctx",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "CrossFileReferenceBuilder._shadow_excerpts",
+      "kind": "function",
+      "line_start": 621,
+      "line_end": 628,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "ctx",
+          "optional": false
+        },
+        {
+          "name": "references",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "SurroundingCodeBuilder",
+      "kind": "class",
+      "line_start": 631,
+      "line_end": 681,
+      "visibility": "public"
+    },
+    {
+      "name": "SurroundingCodeBuilder.build",
+      "kind": "function",
+      "line_start": 641,
+      "line_end": 673,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "finding",
+          "optional": false
+        },
+        {
+          "name": "ctx",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "SurroundingCodeBuilder._nearest_word_line",
+      "kind": "function",
+      "line_start": 675,
+      "line_end": 681,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "lines",
+          "optional": false
+        },
+        {
+          "name": "symbol",
+          "optional": false
+        },
+        {
+          "name": "near",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "DeclaredIntentBuilder",
+      "kind": "class",
+      "line_start": 684,
+      "line_end": 732,
+      "visibility": "public"
+    },
+    {
+      "name": "DeclaredIntentBuilder.build",
+      "kind": "function",
+      "line_start": 695,
+      "line_end": 732,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "finding",
+          "optional": false
+        },
+        {
+          "name": "ctx",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_read_text",
+      "kind": "function",
+      "line_start": 735,
+      "line_end": 741,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "path",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_scope_for",
+      "kind": "function",
+      "line_start": 744,
+      "line_end": 761,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "sources",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "ShadowDocBuilder",
+      "kind": "class",
+      "line_start": 764,
+      "line_end": 870,
+      "visibility": "public"
+    },
+    {
+      "name": "ShadowDocBuilder.build",
+      "kind": "function",
+      "line_start": 779,
+      "line_end": 819,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "finding",
+          "optional": false
+        },
+        {
+          "name": "ctx",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "ShadowDocBuilder._doc_anchored",
+      "kind": "function",
+      "line_start": 821,
+      "line_end": 848,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "finding",
+          "optional": false
+        },
+        {
+          "name": "ctx",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "ShadowDocBuilder._referenced_sources",
+      "kind": "function",
+      "line_start": 850,
+      "line_end": 870,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "finding",
+          "optional": false
+        },
+        {
+          "name": "ctx",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "TypeSignatureBuilder",
+      "kind": "class",
+      "line_start": 873,
+      "line_end": 889,
+      "visibility": "public"
+    },
+    {
+      "name": "TypeSignatureBuilder.build",
+      "kind": "function",
+      "line_start": 879,
+      "line_end": 889,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "finding",
+          "optional": false
+        },
+        {
+          "name": "ctx",
+          "optional": false
+        }
+      ]
+    }
+  ]
+}

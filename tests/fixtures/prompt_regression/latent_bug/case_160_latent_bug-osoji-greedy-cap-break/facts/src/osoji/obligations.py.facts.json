@@ -1,0 +1,2609 @@
+{
+  "source": "src/osoji/obligations.py",
+  "source_hash": "508c7fb1f2f50a72",
+  "generated": "2026-07-22T10:56:53Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "abc",
+      "names": [
+        "ABC",
+        "abstractmethod"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "replace"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "PurePosixPath"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": ".facts",
+      "names": [
+        "FactsDB"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": ".",
+      "names": [
+        "tools_mod"
+      ],
+      "line": 86,
+      "is_reexport": false,
+      "name_map": {
+        "tools_mod": "tools"
+      }
+    },
+    {
+      "source": ".",
+      "names": [
+        "tools_mod"
+      ],
+      "line": 112,
+      "is_reexport": false,
+      "name_map": {
+        "tools_mod": "tools"
+      }
+    }
+  ],
+  "exports": [
+    {
+      "name": "ObligationViolation",
+      "kind": "class",
+      "line": 17,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringOccurrence",
+      "kind": "class",
+      "line": 30,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractData",
+      "kind": "class",
+      "line": 38,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ContractFinding",
+      "kind": "class",
+      "line": 46,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ContractChecker",
+      "kind": "class",
+      "line": 215,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "ABC"
+      ]
+    },
+    {
+      "name": "ContractChecker.__init__",
+      "kind": "function",
+      "line": 222,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ContractChecker.contract_type",
+      "kind": "function",
+      "line": 227,
+      "decorators": [
+        "property",
+        "abstractmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "ContractChecker.description",
+      "kind": "function",
+      "line": 231,
+      "decorators": [
+        "property",
+        "abstractmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "ContractChecker.find_contracts",
+      "kind": "function",
+      "line": 234,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "StringContractChecker",
+      "kind": "class",
+      "line": 241,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "ContractChecker"
+      ]
+    },
+    {
+      "name": "StringContractChecker.__init__",
+      "kind": "function",
+      "line": 253,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker.contract_type",
+      "kind": "function",
+      "line": 260,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "StringContractChecker.description",
+      "kind": "function",
+      "line": 264,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "StringContractChecker.find_contracts",
+      "kind": "function",
+      "line": 269,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker.check",
+      "kind": "function",
+      "line": 277,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker._collect_contract_data",
+      "kind": "function",
+      "line": 284,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker._check_violations",
+      "kind": "function",
+      "line": 328,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker._should_ignore_checked_occurrence",
+      "kind": "function",
+      "line": 404,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker._looks_like_duck_typing_or_config_access",
+      "kind": "function",
+      "line": 418,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker._should_ignore_produced_occurrence",
+      "kind": "function",
+      "line": 431,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker._looks_like_file_or_path_occurrence",
+      "kind": "function",
+      "line": 439,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker._looks_like_serialized_key_occurrence",
+      "kind": "function",
+      "line": 445,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker._looks_like_external_protocol_occurrence",
+      "kind": "function",
+      "line": 453,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker._check_fragility",
+      "kind": "function",
+      "line": 460,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker._pair_robust",
+      "kind": "function",
+      "line": 547,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker._files_are_linked",
+      "kind": "function",
+      "line": 566,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker._is_plausible_identifier",
+      "kind": "function",
+      "line": 570,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker._group_findings",
+      "kind": "function",
+      "line": 582,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker._suggest_remediation",
+      "kind": "function",
+      "line": 648,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker._violations_as_legacy",
+      "kind": "function",
+      "line": 669,
+      "decorators": [
+        "staticmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "StringContractChecker._is_external_origin",
+      "kind": "function",
+      "line": 688,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StringContractChecker._is_external_package",
+      "kind": "function",
+      "line": 714,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "CONTRACT_CHECKERS",
+      "kind": "constant",
+      "line": 865,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "run_all_contract_checks",
+      "kind": "function",
+      "line": 870,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "_is_test_file",
+      "to": "split",
+      "line": 79,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_is_test_file",
+      "to": "path.replace",
+      "line": 79,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_is_test_file",
+      "to": "any",
+      "line": 80,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_is_test_file",
+      "to": "startswith",
+      "line": 80,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_collect_tool_names",
+      "to": "set",
+      "line": 87,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_collect_tool_names",
+      "to": "dir",
+      "line": 88,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_collect_tool_names",
+      "to": "attr_name.startswith",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_collect_tool_names",
+      "to": "attr_name.endswith",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_collect_tool_names",
+      "to": "getattr",
+      "line": 90,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_collect_tool_names",
+      "to": "fn",
+      "line": 92,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_collect_tool_names",
+      "to": "hasattr",
+      "line": 93,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_collect_tool_names",
+      "to": "names.add",
+      "line": 94,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_collect_tool_names",
+      "to": "isinstance",
+      "line": 95,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_collect_tool_names",
+      "to": "names.add",
+      "line": 96,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_collect_tool_names",
+      "to": "set",
+      "line": 101,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_collect_tool_schema_keys",
+      "to": "set",
+      "line": 113,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_collect_tool_schema_keys",
+      "to": "dir",
+      "line": 114,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_collect_tool_schema_keys",
+      "to": "getattr",
+      "line": 115,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_collect_tool_schema_keys",
+      "to": "isinstance",
+      "line": 116,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_collect_tool_schema_keys",
+      "to": "keys.update",
+      "line": 117,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_collect_tool_schema_keys",
+      "to": "obj.keys",
+      "line": 117,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_collect_tool_schema_keys",
+      "to": "_extract_schema_keys",
+      "line": 118,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_collect_tool_schema_keys",
+      "to": "set",
+      "line": 121,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_extract_schema_keys",
+      "to": "isinstance",
+      "line": 126,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_extract_schema_keys",
+      "to": "items",
+      "line": 129,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_schema_keys",
+      "to": "keys.add",
+      "line": 130,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_extract_schema_keys",
+      "to": "_extract_schema_keys",
+      "line": 131,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_extract_schema_keys",
+      "to": "isinstance",
+      "line": 134,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_extract_schema_keys",
+      "to": "keys.add",
+      "line": 135,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_extract_schema_keys",
+      "to": "isinstance",
+      "line": 136,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_extract_schema_keys",
+      "to": "_extract_schema_keys",
+      "line": 137,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_comparison_root",
+      "to": "strip",
+      "line": 198,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_comparison_root",
+      "to": "split",
+      "line": 198,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_comparison_root",
+      "to": "split",
+      "line": 198,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_comparison_root",
+      "to": "expr.split",
+      "line": 198,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_occurrence_text",
+      "to": "join",
+      "line": 203,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_occurrence_text",
+      "to": "lower",
+      "line": 203,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_occurrence_text",
+      "to": "part.strip",
+      "line": 203,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_contains_any",
+      "to": "any",
+      "line": 208,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker.__init__",
+      "to": "__init__",
+      "line": 254,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker.__init__",
+      "to": "super",
+      "line": 254,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker.__init__",
+      "to": "_collect_tool_names",
+      "line": 255,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker.__init__",
+      "to": "_collect_tool_schema_keys",
+      "line": 256,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker.find_contracts",
+      "to": "self._collect_contract_data",
+      "line": 271,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker.find_contracts",
+      "to": "findings.extend",
+      "line": 273,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "StringContractChecker.find_contracts",
+      "to": "self._check_violations",
+      "line": 273,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker.find_contracts",
+      "to": "findings.extend",
+      "line": 274,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "StringContractChecker.find_contracts",
+      "to": "self._check_fragility",
+      "line": 274,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker.check",
+      "to": "self._collect_contract_data",
+      "line": 279,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker.check",
+      "to": "self._violations_as_legacy",
+      "line": 280,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker.check",
+      "to": "self._check_violations",
+      "line": 280,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "self.facts.all_files",
+      "line": 292,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "self.facts.get_file",
+      "line": 293,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "sl.get",
+      "line": 297,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "sl.get",
+      "line": 299,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "StringOccurrence",
+      "line": 302,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "sl.get",
+      "line": 304,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "sl.get",
+      "line": 305,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "sl.get",
+      "line": 306,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "sl.get",
+      "line": 308,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "append",
+      "line": 310,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "producers.setdefault",
+      "line": 310,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "append",
+      "line": 312,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "checked.setdefault",
+      "line": 312,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "append",
+      "line": 314,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "defined.setdefault",
+      "line": 314,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "set",
+      "line": 316,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "producers.keys",
+      "line": 316,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "set",
+      "line": 316,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "defined.keys",
+      "line": 316,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._collect_contract_data",
+      "to": "StringContractData",
+      "line": 318,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "self.facts.string_entries_by_usage",
+      "line": 333,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "per_file_checked.items",
+      "line": 335,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "_is_test_file",
+      "line": 336,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "self._should_ignore_checked_occurrence",
+      "line": 342,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "StringOccurrence",
+      "line": 344,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "entry.get",
+      "line": 346,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "entry.get",
+      "line": 347,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "entry.get",
+      "line": 348,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "v.lower",
+      "line": 365,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "len",
+      "line": 366,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "len",
+      "line": 373,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "len",
+      "line": 373,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "set",
+      "line": 374,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "seen_values.add",
+      "line": 380,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "entry.get",
+      "line": 382,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "findings.append",
+      "line": 383,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "ContractFinding",
+      "line": 383,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "round",
+      "line": 391,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._check_violations",
+      "to": "findings.sort",
+      "line": 401,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._should_ignore_checked_occurrence",
+      "to": "self._is_external_origin",
+      "line": 406,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._should_ignore_checked_occurrence",
+      "to": "self._looks_like_file_or_path_occurrence",
+      "line": 408,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._should_ignore_checked_occurrence",
+      "to": "self._looks_like_serialized_key_occurrence",
+      "line": 410,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._should_ignore_checked_occurrence",
+      "to": "self._looks_like_external_protocol_occurrence",
+      "line": 412,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._should_ignore_checked_occurrence",
+      "to": "self._looks_like_duck_typing_or_config_access",
+      "line": 414,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._should_ignore_produced_occurrence",
+      "to": "self._looks_like_file_or_path_occurrence",
+      "line": 433,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._should_ignore_produced_occurrence",
+      "to": "self._looks_like_external_protocol_occurrence",
+      "line": 435,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._looks_like_file_or_path_occurrence",
+      "to": "_occurrence_text",
+      "line": 441,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "StringContractChecker._looks_like_file_or_path_occurrence",
+      "to": "_comparison_root",
+      "line": 442,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._looks_like_file_or_path_occurrence",
+      "to": "_contains_any",
+      "line": 443,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "StringContractChecker._looks_like_serialized_key_occurrence",
+      "to": "_occurrence_text",
+      "line": 447,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "StringContractChecker._looks_like_serialized_key_occurrence",
+      "to": "_comparison_root",
+      "line": 448,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._looks_like_serialized_key_occurrence",
+      "to": "_contains_any",
+      "line": 451,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "StringContractChecker._looks_like_external_protocol_occurrence",
+      "to": "_occurrence_text",
+      "line": 455,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "StringContractChecker._looks_like_external_protocol_occurrence",
+      "to": "_contains_any",
+      "line": 456,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "set",
+      "line": 474,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "data.producers.keys",
+      "line": 474,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "set",
+      "line": 474,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "data.checked.keys",
+      "line": 474,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "self._is_plausible_identifier",
+      "line": 477,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "self._should_ignore_produced_occurrence",
+      "line": 482,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "self._should_ignore_checked_occurrence",
+      "line": 486,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "data.defined.get",
+      "line": 493,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "self._pair_robust",
+      "line": 501,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "max",
+      "line": 510,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "self._files_are_linked",
+      "line": 511,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "sum",
+      "line": 513,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "next",
+      "line": 517,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "next",
+      "line": 518,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "raw_findings.append",
+      "line": 520,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "ContractFinding",
+      "line": 520,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "sorted",
+      "line": 538,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "sorted",
+      "line": 539,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "sorted",
+      "line": 540,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "self._suggest_remediation",
+      "line": 542,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._check_fragility",
+      "to": "self._group_findings",
+      "line": 545,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._pair_robust",
+      "to": "self._files_are_linked",
+      "line": 556,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "StringContractChecker._pair_robust",
+      "to": "self._files_are_linked",
+      "line": 560,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "StringContractChecker._files_are_linked",
+      "to": "_imports_link",
+      "line": 568,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._is_plausible_identifier",
+      "to": "len",
+      "line": 572,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "StringContractChecker._is_plausible_identifier",
+      "to": "value.lower",
+      "line": 574,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "append",
+      "line": 594,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "groups.setdefault",
+      "line": 594,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "groups.items",
+      "line": 597,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "len",
+      "line": 598,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "grouped.append",
+      "line": 599,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "sorted",
+      "line": 602,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "len",
+      "line": 603,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "min",
+      "line": 604,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "join",
+      "line": 605,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "self._suggest_remediation",
+      "line": 617,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "sorted",
+      "line": 621,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "f.evidence.get",
+      "line": 621,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "sorted",
+      "line": 622,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "f.evidence.get",
+      "line": 622,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "sorted",
+      "line": 623,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "f.evidence.get",
+      "line": 623,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "grouped.append",
+      "line": 625,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "ContractFinding",
+      "line": 625,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "round",
+      "line": 633,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._group_findings",
+      "to": "grouped.sort",
+      "line": 645,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._suggest_remediation",
+      "to": "PurePosixPath",
+      "line": 650,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._suggest_remediation",
+      "to": "PurePosixPath",
+      "line": 651,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._suggest_remediation",
+      "to": "zip",
+      "line": 655,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._suggest_remediation",
+      "to": "common.append",
+      "line": 657,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._suggest_remediation",
+      "to": "join",
+      "line": 662,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "StringContractChecker._violations_as_legacy",
+      "to": "violations.append",
+      "line": 675,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._violations_as_legacy",
+      "to": "ObligationViolation",
+      "line": 675,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._is_external_origin",
+      "to": "strip",
+      "line": 692,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._is_external_origin",
+      "to": "split",
+      "line": 692,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "StringContractChecker._is_external_origin",
+      "to": "split",
+      "line": 692,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "StringContractChecker._is_external_origin",
+      "to": "comparison_source.split",
+      "line": 692,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._is_external_origin",
+      "to": "self.facts.get_file",
+      "line": 700,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._is_external_origin",
+      "to": "imp.get",
+      "line": 704,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._is_external_origin",
+      "to": "imp.get",
+      "line": 705,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "StringContractChecker._is_external_origin",
+      "to": "self._is_external_package",
+      "line": 706,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "StringContractChecker._is_external_origin",
+      "to": "source.split",
+      "line": 708,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._is_external_origin",
+      "to": "self._is_external_package",
+      "line": 708,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "StringContractChecker._is_external_origin",
+      "to": "self._is_external_package",
+      "line": 710,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "StringContractChecker._is_external_package",
+      "to": "source.startswith",
+      "line": 718,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "StringContractChecker._is_external_package",
+      "to": "self.facts.resolve_import_source",
+      "line": 720,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_imports_link",
+      "to": "facts_db.imports_of",
+      "line": 749,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_imports_link",
+      "to": "facts_db.imports_of",
+      "line": 753,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_contract_identity",
+      "to": "frozenset",
+      "line": 761,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_contract_identity",
+      "to": "frozenset",
+      "line": 762,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_contract_identity",
+      "to": "f.evidence.get",
+      "line": 762,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_sharer_files",
+      "to": "set",
+      "line": 767,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_sharer_files",
+      "to": "files.update",
+      "line": 769,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_sharer_files",
+      "to": "f.evidence.get",
+      "line": 769,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_sharer_files",
+      "to": "files.add",
+      "line": 772,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_merge_cluster.rank",
+      "to": "_imports_link",
+      "line": 790,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_merge_cluster.rank",
+      "to": "len",
+      "line": 792,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_merge_cluster.rank",
+      "to": "_sharer_files",
+      "line": 792,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_merge_cluster",
+      "to": "max",
+      "line": 797,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_merge_cluster",
+      "to": "sorted",
+      "line": 799,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_merge_cluster",
+      "to": "f.evidence.get",
+      "line": 799,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_merge_cluster",
+      "to": "sorted",
+      "line": 802,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_merge_cluster",
+      "to": "f.evidence.get",
+      "line": 802,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_merge_cluster",
+      "to": "sorted",
+      "line": 804,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_merge_cluster",
+      "to": "f.evidence.get",
+      "line": 804,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_merge_cluster",
+      "to": "sorted",
+      "line": 807,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_merge_cluster",
+      "to": "dict",
+      "line": 814,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_merge_cluster",
+      "to": "len",
+      "line": 819,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_merge_cluster",
+      "to": "len",
+      "line": 824,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_merge_cluster",
+      "to": "join",
+      "line": 825,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_merge_cluster",
+      "to": "replace",
+      "line": 828,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_cluster_by_contract",
+      "to": "_contract_identity",
+      "line": 846,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_cluster_by_contract",
+      "to": "order.append",
+      "line": 849,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_cluster_by_contract",
+      "to": "append",
+      "line": 850,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_cluster_by_contract",
+      "to": "canonical.append",
+      "line": 855,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_cluster_by_contract",
+      "to": "len",
+      "line": 855,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_cluster_by_contract",
+      "to": "_merge_cluster",
+      "line": 855,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_cluster_by_contract",
+      "to": "canonical.sort",
+      "line": 857,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_all_contract_checks",
+      "to": "checker_cls",
+      "line": 880,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_all_contract_checks",
+      "to": "findings.extend",
+      "line": 881,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run_all_contract_checks",
+      "to": "checker.find_contracts",
+      "line": 881,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_all_contract_checks",
+      "to": "_cluster_by_contract",
+      "line": 882,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "self",
+      "member": "facts",
+      "line": 223
+    },
+    {
+      "container": "self",
+      "member": "_tool_names",
+      "line": 255
+    },
+    {
+      "container": "self",
+      "member": "_tool_schema_keys",
+      "line": 256
+    },
+    {
+      "container": "self",
+      "member": "_data",
+      "line": 318
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "warning",
+      "line": 25,
+      "usage": "defined",
+      "context": "constant severity",
+      "kind": "identifier"
+    },
+    {
+      "value": "tests",
+      "line": 80,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "p"
+    },
+    {
+      "value": "test",
+      "line": 80,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "p"
+    },
+    {
+      "value": "test_",
+      "line": 80,
+      "usage": "produced",
+      "context": "argument to startswith"
+    },
+    {
+      "value": "get_",
+      "line": 89,
+      "usage": "produced",
+      "context": "argument to attr_name.startswith"
+    },
+    {
+      "value": "_tool_definitions",
+      "line": 89,
+      "usage": "produced",
+      "context": "argument to attr_name.endswith"
+    },
+    {
+      "value": "name",
+      "line": 93,
+      "usage": "produced",
+      "context": "argument to hasattr"
+    },
+    {
+      "value": "name",
+      "line": 95,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "td"
+    },
+    {
+      "value": "input_schema",
+      "line": 116,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "obj"
+    },
+    {
+      "value": "properties",
+      "line": 128,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "schema"
+    },
+    {
+      "value": "enum",
+      "line": 132,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "schema"
+    },
+    {
+      "value": "items",
+      "line": 136,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "schema"
+    },
+    {
+      "value": "process",
+      "line": 141,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "os",
+      "line": 142,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "sys",
+      "line": 143,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "req",
+      "line": 144,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "request",
+      "line": 145,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "res",
+      "line": 146,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "response",
+      "line": 147,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "event",
+      "line": 148,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "window",
+      "line": 150,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "document",
+      "line": 151,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "globalThis",
+      "line": 152,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "self",
+      "line": 153,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Deno",
+      "line": 154,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "id",
+      "line": 159,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "name",
+      "line": 159,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "type",
+      "line": 159,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "error",
+      "line": 159,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "status",
+      "line": 159,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "value",
+      "line": 159,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "key",
+      "line": 159,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "data",
+      "line": 159,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "result",
+      "line": 160,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "message",
+      "line": 160,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "path",
+      "line": 160,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "file",
+      "line": 160,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "url",
+      "line": 160,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "true",
+      "line": 160,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "false",
+      "line": 160,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "none",
+      "line": 160,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "null",
+      "line": 161,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "ok",
+      "line": 161,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "yes",
+      "line": 161,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "no",
+      "line": 161,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "enum",
+      "line": 163,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "minimum",
+      "line": 163,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "maximum",
+      "line": 163,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "required",
+      "line": 163,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "properties",
+      "line": 163,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "items",
+      "line": 163,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "string",
+      "line": 164,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "integer",
+      "line": 164,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "number",
+      "line": 164,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "boolean",
+      "line": 164,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "array",
+      "line": 164,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "object",
+      "line": 164,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "json",
+      "line": 166,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "html",
+      "line": 166,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "text",
+      "line": 166,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "xml",
+      "line": 166,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "csv",
+      "line": 166,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "yaml",
+      "line": 166,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "file_name",
+      "line": 170,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "filename",
+      "line": 170,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "name_lower",
+      "line": 170,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "suffix",
+      "line": 170,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "suffix_lower",
+      "line": 170,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "path",
+      "line": 171,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "file_path",
+      "line": 171,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "parts",
+      "line": 171,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "parts_lower",
+      "line": 171,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "directory",
+      "line": 175,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "filename",
+      "line": 175,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "suffix",
+      "line": 175,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "extension",
+      "line": 175,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "basename",
+      "line": 175,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "glob",
+      "line": 176,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "prefix check",
+      "line": 176,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "name prefix",
+      "line": 176,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "name check",
+      "line": 176,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "path part",
+      "line": 176,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "data",
+      "line": 180,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "item",
+      "line": 180,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "entry",
+      "line": 180,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "payload",
+      "line": 180,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "json",
+      "line": 180,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "record",
+      "line": 180,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "row",
+      "line": 180,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "obj",
+      "line": 180,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "json",
+      "line": 184,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "schema",
+      "line": 184,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "serialized",
+      "line": 184,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "payload",
+      "line": 184,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "mapping",
+      "line": 184,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dict",
+      "line": 184,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "key",
+      "line": 184,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "tool input",
+      "line": 185,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "tool output",
+      "line": 185,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "facts",
+      "line": 185,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "api",
+      "line": 189,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "protocol",
+      "line": 189,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "wire",
+      "line": 189,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "request",
+      "line": 189,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "response",
+      "line": 189,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "event",
+      "line": 189,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "role string",
+      "line": 190,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "tool use",
+      "line": 190,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "tool result",
+      "line": 190,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "anthropic",
+      "line": 190,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "string_contract",
+      "line": 261,
+      "usage": "produced",
+      "context": "return value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Cross-file string contract checking",
+      "line": 265,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "kind",
+      "line": 297,
+      "usage": "produced",
+      "context": "argument to sl.get"
+    },
+    {
+      "value": "identifier",
+      "line": 297,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "value",
+      "line": 299,
+      "usage": "produced",
+      "context": "argument to sl.get"
+    },
+    {
+      "value": "line",
+      "line": 304,
+      "usage": "produced",
+      "context": "argument to sl.get"
+    },
+    {
+      "value": "context",
+      "line": 305,
+      "usage": "produced",
+      "context": "argument to sl.get"
+    },
+    {
+      "value": "comparison_source",
+      "line": 306,
+      "usage": "produced",
+      "context": "argument to sl.get"
+    },
+    {
+      "value": "usage",
+      "line": 308,
+      "usage": "produced",
+      "context": "argument to sl.get"
+    },
+    {
+      "value": "produced",
+      "line": 309,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "usage",
+      "kind": "identifier"
+    },
+    {
+      "value": "checked",
+      "line": 311,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "usage",
+      "kind": "identifier"
+    },
+    {
+      "value": "defined",
+      "line": 313,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "usage",
+      "kind": "identifier"
+    },
+    {
+      "value": "checked",
+      "line": 333,
+      "usage": "produced",
+      "context": "argument to self.facts.string_entries_by_usage",
+      "kind": "identifier"
+    },
+    {
+      "value": "identifier",
+      "line": 333,
+      "usage": "produced",
+      "context": "keyword argument to self.facts.string_entries_by_usage",
+      "kind": "identifier"
+    },
+    {
+      "value": "line",
+      "line": 346,
+      "usage": "produced",
+      "context": "argument to entry.get"
+    },
+    {
+      "value": "context",
+      "line": 347,
+      "usage": "produced",
+      "context": "argument to entry.get"
+    },
+    {
+      "value": "comparison_source",
+      "line": 348,
+      "usage": "produced",
+      "context": "argument to entry.get"
+    },
+    {
+      "value": "context",
+      "line": 382,
+      "usage": "produced",
+      "context": "argument to entry.get"
+    },
+    {
+      "value": "violation",
+      "line": 384,
+      "usage": "produced",
+      "context": "keyword argument to ContractFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "string_contract",
+      "line": 385,
+      "usage": "produced",
+      "context": "keyword argument to ContractFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "(no producer found)",
+      "line": 387,
+      "usage": "produced",
+      "context": "keyword argument to ContractFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "warning",
+      "line": 390,
+      "usage": "produced",
+      "context": "keyword argument to ContractFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "Check string contract with (no producer found)",
+      "line": 398,
+      "usage": "produced",
+      "context": "keyword argument to ContractFinding"
+    },
+    {
+      "value": "getattr(",
+      "line": 424,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "cs"
+    },
+    {
+      "value": ".get(",
+      "line": 427,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "cs"
+    },
+    {
+      "value": "implicit_contract",
+      "line": 521,
+      "usage": "produced",
+      "context": "keyword argument to ContractFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "string_contract",
+      "line": 522,
+      "usage": "produced",
+      "context": "keyword argument to ContractFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "info",
+      "line": 527,
+      "usage": "produced",
+      "context": "keyword argument to ContractFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "producer_files",
+      "line": 621,
+      "usage": "produced",
+      "context": "argument to f.evidence.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "checker_files",
+      "line": 622,
+      "usage": "produced",
+      "context": "argument to f.evidence.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "definer_files",
+      "line": 623,
+      "usage": "produced",
+      "context": "argument to f.evidence.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "implicit_contract",
+      "line": 626,
+      "usage": "produced",
+      "context": "keyword argument to ContractFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "string_contract",
+      "line": 627,
+      "usage": "produced",
+      "context": "keyword argument to ContractFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "info",
+      "line": 632,
+      "usage": "produced",
+      "context": "keyword argument to ContractFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch",
+      "line": 664,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "violation",
+      "line": 673,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.finding_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "source",
+      "line": 704,
+      "usage": "produced",
+      "context": "argument to imp.get"
+    },
+    {
+      "value": "names",
+      "line": 705,
+      "usage": "produced",
+      "context": "argument to imp.get"
+    },
+    {
+      "value": "values",
+      "line": 762,
+      "usage": "produced",
+      "context": "argument to f.evidence.get"
+    },
+    {
+      "value": "producer_files",
+      "line": 768,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "checker_files",
+      "line": 768,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "definer_files",
+      "line": 768,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "(no producer found)",
+      "line": 771,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "path",
+      "kind": "identifier"
+    },
+    {
+      "value": "producer_files",
+      "line": 799,
+      "usage": "produced",
+      "context": "argument to f.evidence.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "(no producer found)",
+      "line": 801,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.producer_file",
+      "kind": "identifier"
+    },
+    {
+      "value": "checker_files",
+      "line": 802,
+      "usage": "produced",
+      "context": "argument to f.evidence.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "definer_files",
+      "line": 804,
+      "usage": "produced",
+      "context": "argument to f.evidence.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "contract_sites",
+      "kind": "identifier",
+      "line": 818,
+      "context": "Evidence dict key listing all (producer, consumer) pairs in a cluster",
+      "usage": "produced"
+    },
+    {
+      "value": "site_count",
+      "kind": "identifier",
+      "line": 819,
+      "context": "Evidence dict key for number of contract sites in a cluster",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

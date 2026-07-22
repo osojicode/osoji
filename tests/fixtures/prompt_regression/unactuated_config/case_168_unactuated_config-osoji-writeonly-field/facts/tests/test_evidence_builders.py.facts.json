@@ -1,0 +1,3545 @@
+{
+  "source": "tests/test_evidence_builders.py",
+  "source_hash": "23495ba65730395c",
+  "generated": "2026-07-22T10:58:09Z",
+  "imports": [
+    {
+      "source": "pytest",
+      "names": [
+        "pytest"
+      ],
+      "line": 20,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.config",
+      "names": [
+        "Config"
+      ],
+      "line": 22,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.evidence",
+      "names": [
+        "BUILDERS",
+        "EVIDENCE_KINDS"
+      ],
+      "line": 23,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.evidence_builders",
+      "names": [
+        "BuildContext"
+      ],
+      "line": 24,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 25,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.evidence",
+      "names": [
+        "Evidence"
+      ],
+      "line": 433,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.evidence_builders",
+      "names": [
+        "_match_in_quotes"
+      ],
+      "line": 510,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.evidence_builders",
+      "names": [
+        "_backticked_names"
+      ],
+      "line": 547,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.evidence_builders",
+      "names": [
+        "_backticked_names"
+      ],
+      "line": 563,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.evidence_builders",
+      "names": [
+        "eb"
+      ],
+      "line": 628,
+      "is_reexport": false,
+      "name_map": {
+        "eb": "osoji.evidence_builders"
+      }
+    },
+    {
+      "source": "osoji.deadcode",
+      "names": [
+        "_clean_zero_reference"
+      ],
+      "line": 647,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.triage",
+      "names": [
+        "Claim"
+      ],
+      "line": 648,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.evidence_builders",
+      "names": [
+        "eb"
+      ],
+      "line": 649,
+      "is_reexport": false,
+      "name_map": {
+        "eb": "osoji.evidence_builders"
+      }
+    }
+  ],
+  "exports": [
+    {
+      "name": "config",
+      "kind": "function",
+      "line": 29,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "FakeFacts",
+      "kind": "class",
+      "line": 33,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeFacts.__init__",
+      "kind": "function",
+      "line": 36,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeFacts.cross_file_references",
+      "kind": "function",
+      "line": 41,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeFacts.exported_names",
+      "kind": "function",
+      "line": 44,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeFacts.all_files",
+      "kind": "function",
+      "line": 47,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "make_finding",
+      "kind": "function",
+      "line": 51,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "write",
+      "kind": "function",
+      "line": 67,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_new_evidence_kinds_are_registered",
+      "kind": "function",
+      "line": 77,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_every_produced_kind_has_a_builder",
+      "kind": "function",
+      "line": 82,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_cross_file_reference_uses_facts_db",
+      "kind": "function",
+      "line": 97,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_cross_file_reference_text_scan_when_facts_empty",
+      "kind": "function",
+      "line": 110,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_text_scan_sweeps_beyond_flagged_file_pair",
+      "kind": "function",
+      "line": 121,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_text_scan_reports_same_file_usage_outside_flagged_region",
+      "kind": "function",
+      "line": 132,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_symbolless_finding_uses_quoted_literals_as_needles",
+      "kind": "function",
+      "line": 149,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_zero_hit_scan_is_evidence_of_absence_with_scope",
+      "kind": "function",
+      "line": 172,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_empty_scope_yields_no_evidence",
+      "kind": "function",
+      "line": 190,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_export_surface_reported_when_facts_know_the_file",
+      "kind": "function",
+      "line": 198,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_literal_needles_use_word_boundaries",
+      "kind": "function",
+      "line": 211,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_claim_named_files_are_scanned_first",
+      "kind": "function",
+      "line": 226,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_scan_scope_reports_per_needle_totals",
+      "kind": "function",
+      "line": 244,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_scan_context_lines_are_length_capped",
+      "kind": "function",
+      "line": 258,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_scan_hits_are_capped_per_file_for_diversity",
+      "kind": "function",
+      "line": 271,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_surrounding_code_extracts_flagged_region",
+      "kind": "function",
+      "line": 289,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_surrounding_code_symbol_anchor_survives_line_drift",
+      "kind": "function",
+      "line": 302,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_surrounding_code_missing_file_returns_empty",
+      "kind": "function",
+      "line": 319,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_declared_intent_captures_preceding_block_and_enclosing_head",
+      "kind": "function",
+      "line": 327,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_declared_intent_missing_file_returns_empty",
+      "kind": "function",
+      "line": 356,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_shadow_doc_builder_degrades_to_empty_without_shadow",
+      "kind": "function",
+      "line": 364,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_shadow_doc_builder_reads_file_shadow",
+      "kind": "function",
+      "line": 369,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_shadow_doc_builder_adds_directory_shadow_for_description_gaps",
+      "kind": "function",
+      "line": 378,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_type_signature_builder_matches_legacy_helpers",
+      "kind": "function",
+      "line": 393,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_builders_never_raise_on_missing_file",
+      "kind": "function",
+      "line": 421,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_scanner_supplied_needles_override_symbol",
+      "kind": "function",
+      "line": 446,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_scanner_supplied_needles_feed_facts_lookups",
+      "kind": "function",
+      "line": 466,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_priority_paths_survive_the_hit_cap",
+      "kind": "function",
+      "line": 479,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_text_hit_inside_quoted_string_is_flagged",
+      "kind": "function",
+      "line": 497,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_match_in_quotes_positional_check",
+      "kind": "function",
+      "line": 509,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_backticked_dotted_names_yield_qualified_and_bare_needles",
+      "kind": "function",
+      "line": 520,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_backticked_call_forms_yield_the_function_needle",
+      "kind": "function",
+      "line": 542,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_dotted_name_does_not_derive_degenerate_bare_segment",
+      "kind": "function",
+      "line": 559,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_call_form_function_referenced_only_in_package_init_is_found",
+      "kind": "function",
+      "line": 570,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_sweep_orders_by_proximity_to_flagged_file",
+      "kind": "function",
+      "line": 597,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_scan_corpus_uses_walker_and_skips_osoji_artifacts",
+      "kind": "function",
+      "line": 615,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_truncated_corpus_is_flagged_and_flagged_file_still_swept",
+      "kind": "function",
+      "line": 625,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_truncated_zero_sweep_is_not_a_mechanical_proof",
+      "kind": "function",
+      "line": 646,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "config",
+      "to": "Config",
+      "line": 30,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "FakeFacts.__init__",
+      "to": "list",
+      "line": 39,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FakeFacts.cross_file_references",
+      "to": "self._refs.get",
+      "line": 42,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeFacts.exported_names",
+      "to": "self._exports.get",
+      "line": 45,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeFacts.exported_names",
+      "to": "file_path.replace",
+      "line": 45,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeFacts.exported_names",
+      "to": "set",
+      "line": 45,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeFacts.all_files",
+      "to": "list",
+      "line": 48,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "make_finding",
+      "to": "dict",
+      "line": 52,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "make_finding",
+      "to": "base.update",
+      "line": 63,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "make_finding",
+      "to": "Finding",
+      "line": 64,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "write",
+      "to": "path.parent.mkdir",
+      "line": 69,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "write",
+      "to": "path.write_text",
+      "line": 70,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_cross_file_reference_uses_facts_db",
+      "to": "FakeFacts",
+      "line": 98,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_cross_file_reference_uses_facts_db",
+      "to": "BuildContext",
+      "line": 102,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_cross_file_reference_uses_facts_db",
+      "to": "build",
+      "line": 103,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_cross_file_reference_uses_facts_db",
+      "to": "make_finding",
+      "line": 103,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_cross_file_reference_uses_facts_db",
+      "to": "len",
+      "line": 104,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_cross_file_reference_text_scan_when_facts_empty",
+      "to": "write",
+      "line": 111,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_cross_file_reference_text_scan_when_facts_empty",
+      "to": "write",
+      "line": 112,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_cross_file_reference_text_scan_when_facts_empty",
+      "to": "BuildContext",
+      "line": 113,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_cross_file_reference_text_scan_when_facts_empty",
+      "to": "FakeFacts",
+      "line": 113,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_cross_file_reference_text_scan_when_facts_empty",
+      "to": "build",
+      "line": 114,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_cross_file_reference_text_scan_when_facts_empty",
+      "to": "make_finding",
+      "line": 114,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_cross_file_reference_text_scan_when_facts_empty",
+      "to": "len",
+      "line": 115,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_cross_file_reference_text_scan_when_facts_empty",
+      "to": "any",
+      "line": 117,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_cross_file_reference_text_scan_when_facts_empty",
+      "to": "any",
+      "line": 118,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_text_scan_sweeps_beyond_flagged_file_pair",
+      "to": "write",
+      "line": 123,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_text_scan_sweeps_beyond_flagged_file_pair",
+      "to": "write",
+      "line": 124,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_text_scan_sweeps_beyond_flagged_file_pair",
+      "to": "write",
+      "line": 125,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_text_scan_sweeps_beyond_flagged_file_pair",
+      "to": "BuildContext",
+      "line": 126,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_text_scan_sweeps_beyond_flagged_file_pair",
+      "to": "FakeFacts",
+      "line": 126,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_text_scan_sweeps_beyond_flagged_file_pair",
+      "to": "build",
+      "line": 127,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_text_scan_sweeps_beyond_flagged_file_pair",
+      "to": "make_finding",
+      "line": 127,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_text_scan_reports_same_file_usage_outside_flagged_region",
+      "to": "write",
+      "line": 139,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_text_scan_reports_same_file_usage_outside_flagged_region",
+      "to": "join",
+      "line": 139,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_text_scan_reports_same_file_usage_outside_flagged_region",
+      "to": "write",
+      "line": 140,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_text_scan_reports_same_file_usage_outside_flagged_region",
+      "to": "BuildContext",
+      "line": 141,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_text_scan_reports_same_file_usage_outside_flagged_region",
+      "to": "FakeFacts",
+      "line": 141,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_text_scan_reports_same_file_usage_outside_flagged_region",
+      "to": "build",
+      "line": 142,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_text_scan_reports_same_file_usage_outside_flagged_region",
+      "to": "make_finding",
+      "line": 142,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_text_scan_reports_same_file_usage_outside_flagged_region",
+      "to": "r.get",
+      "line": 144,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_text_scan_reports_same_file_usage_outside_flagged_region",
+      "to": "all",
+      "line": 146,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_symbolless_finding_uses_quoted_literals_as_needles",
+      "to": "write",
+      "line": 153,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_symbolless_finding_uses_quoted_literals_as_needles",
+      "to": "write",
+      "line": 154,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_symbolless_finding_uses_quoted_literals_as_needles",
+      "to": "BuildContext",
+      "line": 155,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_symbolless_finding_uses_quoted_literals_as_needles",
+      "to": "FakeFacts",
+      "line": 155,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_symbolless_finding_uses_quoted_literals_as_needles",
+      "to": "make_finding",
+      "line": 156,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_symbolless_finding_uses_quoted_literals_as_needles",
+      "to": "build",
+      "line": 164,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_zero_hit_scan_is_evidence_of_absence_with_scope",
+      "to": "write",
+      "line": 177,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_zero_hit_scan_is_evidence_of_absence_with_scope",
+      "to": "write",
+      "line": 178,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_zero_hit_scan_is_evidence_of_absence_with_scope",
+      "to": "BuildContext",
+      "line": 179,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_zero_hit_scan_is_evidence_of_absence_with_scope",
+      "to": "FakeFacts",
+      "line": 179,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_zero_hit_scan_is_evidence_of_absence_with_scope",
+      "to": "build",
+      "line": 180,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_zero_hit_scan_is_evidence_of_absence_with_scope",
+      "to": "make_finding",
+      "line": 181,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_zero_hit_scan_is_evidence_of_absence_with_scope",
+      "to": "len",
+      "line": 183,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_empty_scope_yields_no_evidence",
+      "to": "BuildContext",
+      "line": 193,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_empty_scope_yields_no_evidence",
+      "to": "FakeFacts",
+      "line": 193,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_empty_scope_yields_no_evidence",
+      "to": "build",
+      "line": 194,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_empty_scope_yields_no_evidence",
+      "to": "make_finding",
+      "line": 194,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_export_surface_reported_when_facts_know_the_file",
+      "to": "FakeFacts",
+      "line": 199,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_export_surface_reported_when_facts_know_the_file",
+      "to": "BuildContext",
+      "line": 203,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_export_surface_reported_when_facts_know_the_file",
+      "to": "build",
+      "line": 204,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_export_surface_reported_when_facts_know_the_file",
+      "to": "make_finding",
+      "line": 204,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_export_surface_reported_when_facts_know_the_file",
+      "to": "len",
+      "line": 205,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_literal_needles_use_word_boundaries",
+      "to": "write",
+      "line": 213,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_literal_needles_use_word_boundaries",
+      "to": "write",
+      "line": 214,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_literal_needles_use_word_boundaries",
+      "to": "BuildContext",
+      "line": 215,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_literal_needles_use_word_boundaries",
+      "to": "FakeFacts",
+      "line": 215,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_literal_needles_use_word_boundaries",
+      "to": "make_finding",
+      "line": 216,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_literal_needles_use_word_boundaries",
+      "to": "build",
+      "line": 221,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_claim_named_files_are_scanned_first",
+      "to": "range",
+      "line": 229,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_claim_named_files_are_scanned_first",
+      "to": "write",
+      "line": 230,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_claim_named_files_are_scanned_first",
+      "to": "write",
+      "line": 231,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_claim_named_files_are_scanned_first",
+      "to": "write",
+      "line": 232,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_claim_named_files_are_scanned_first",
+      "to": "BuildContext",
+      "line": 233,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_claim_named_files_are_scanned_first",
+      "to": "FakeFacts",
+      "line": 233,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_claim_named_files_are_scanned_first",
+      "to": "make_finding",
+      "line": 234,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_claim_named_files_are_scanned_first",
+      "to": "build",
+      "line": 239,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_scan_scope_reports_per_needle_totals",
+      "to": "range",
+      "line": 245,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_scan_scope_reports_per_needle_totals",
+      "to": "write",
+      "line": 246,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_scan_scope_reports_per_needle_totals",
+      "to": "write",
+      "line": 247,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_scan_scope_reports_per_needle_totals",
+      "to": "BuildContext",
+      "line": 248,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_scan_scope_reports_per_needle_totals",
+      "to": "FakeFacts",
+      "line": 248,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_scan_scope_reports_per_needle_totals",
+      "to": "build",
+      "line": 249,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_scan_scope_reports_per_needle_totals",
+      "to": "make_finding",
+      "line": 250,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_scan_scope_reports_per_needle_totals",
+      "to": "len",
+      "line": 255,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_scan_context_lines_are_length_capped",
+      "to": "write",
+      "line": 261,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_scan_context_lines_are_length_capped",
+      "to": "write",
+      "line": 262,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_scan_context_lines_are_length_capped",
+      "to": "BuildContext",
+      "line": 263,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_scan_context_lines_are_length_capped",
+      "to": "FakeFacts",
+      "line": 263,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_scan_context_lines_are_length_capped",
+      "to": "build",
+      "line": 264,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_scan_context_lines_are_length_capped",
+      "to": "make_finding",
+      "line": 265,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_scan_context_lines_are_length_capped",
+      "to": "len",
+      "line": 268,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_scan_hits_are_capped_per_file_for_diversity",
+      "to": "write",
+      "line": 274,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_scan_hits_are_capped_per_file_for_diversity",
+      "to": "write",
+      "line": 275,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_scan_hits_are_capped_per_file_for_diversity",
+      "to": "write",
+      "line": 276,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_scan_hits_are_capped_per_file_for_diversity",
+      "to": "BuildContext",
+      "line": 277,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_scan_hits_are_capped_per_file_for_diversity",
+      "to": "FakeFacts",
+      "line": 277,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_scan_hits_are_capped_per_file_for_diversity",
+      "to": "build",
+      "line": 278,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_scan_hits_are_capped_per_file_for_diversity",
+      "to": "make_finding",
+      "line": 279,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_scan_hits_are_capped_per_file_for_diversity",
+      "to": "sum",
+      "line": 282,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_scan_hits_are_capped_per_file_for_diversity",
+      "to": "any",
+      "line": 283,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_surrounding_code_extracts_flagged_region",
+      "to": "range",
+      "line": 290,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_surrounding_code_extracts_flagged_region",
+      "to": "write",
+      "line": 292,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_surrounding_code_extracts_flagged_region",
+      "to": "join",
+      "line": 292,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_surrounding_code_extracts_flagged_region",
+      "to": "BuildContext",
+      "line": 293,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_surrounding_code_extracts_flagged_region",
+      "to": "FakeFacts",
+      "line": 293,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_surrounding_code_extracts_flagged_region",
+      "to": "build",
+      "line": 294,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_surrounding_code_extracts_flagged_region",
+      "to": "make_finding",
+      "line": 294,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_surrounding_code_extracts_flagged_region",
+      "to": "len",
+      "line": 295,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_surrounding_code_symbol_anchor_survives_line_drift",
+      "to": "join",
+      "line": 305,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_surrounding_code_symbol_anchor_survives_line_drift",
+      "to": "range",
+      "line": 306,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_surrounding_code_symbol_anchor_survives_line_drift",
+      "to": "write",
+      "line": 308,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_surrounding_code_symbol_anchor_survives_line_drift",
+      "to": "BuildContext",
+      "line": 312,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_surrounding_code_symbol_anchor_survives_line_drift",
+      "to": "FakeFacts",
+      "line": 312,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_surrounding_code_symbol_anchor_survives_line_drift",
+      "to": "build",
+      "line": 313,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_surrounding_code_symbol_anchor_survives_line_drift",
+      "to": "make_finding",
+      "line": 313,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_surrounding_code_missing_file_returns_empty",
+      "to": "BuildContext",
+      "line": 320,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_surrounding_code_missing_file_returns_empty",
+      "to": "FakeFacts",
+      "line": 320,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_surrounding_code_missing_file_returns_empty",
+      "to": "build",
+      "line": 321,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_surrounding_code_missing_file_returns_empty",
+      "to": "make_finding",
+      "line": 321,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_declared_intent_captures_preceding_block_and_enclosing_head",
+      "to": "join",
+      "line": 328,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_declared_intent_captures_preceding_block_and_enclosing_head",
+      "to": "write",
+      "line": 339,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_declared_intent_captures_preceding_block_and_enclosing_head",
+      "to": "BuildContext",
+      "line": 343,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_declared_intent_captures_preceding_block_and_enclosing_head",
+      "to": "FakeFacts",
+      "line": 343,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_declared_intent_captures_preceding_block_and_enclosing_head",
+      "to": "build",
+      "line": 344,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_declared_intent_captures_preceding_block_and_enclosing_head",
+      "to": "make_finding",
+      "line": 345,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_declared_intent_captures_preceding_block_and_enclosing_head",
+      "to": "len",
+      "line": 347,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_declared_intent_captures_preceding_block_and_enclosing_head",
+      "to": "join",
+      "line": 351,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_declared_intent_missing_file_returns_empty",
+      "to": "BuildContext",
+      "line": 357,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_declared_intent_missing_file_returns_empty",
+      "to": "FakeFacts",
+      "line": 357,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_declared_intent_missing_file_returns_empty",
+      "to": "build",
+      "line": 358,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_declared_intent_missing_file_returns_empty",
+      "to": "make_finding",
+      "line": 358,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_shadow_doc_builder_degrades_to_empty_without_shadow",
+      "to": "BuildContext",
+      "line": 365,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_shadow_doc_builder_degrades_to_empty_without_shadow",
+      "to": "FakeFacts",
+      "line": 365,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_shadow_doc_builder_degrades_to_empty_without_shadow",
+      "to": "build",
+      "line": 366,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_shadow_doc_builder_degrades_to_empty_without_shadow",
+      "to": "make_finding",
+      "line": 366,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_shadow_doc_builder_reads_file_shadow",
+      "to": "write",
+      "line": 370,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_shadow_doc_builder_reads_file_shadow",
+      "to": "BuildContext",
+      "line": 371,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_shadow_doc_builder_reads_file_shadow",
+      "to": "FakeFacts",
+      "line": 371,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_shadow_doc_builder_reads_file_shadow",
+      "to": "build",
+      "line": 372,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_shadow_doc_builder_reads_file_shadow",
+      "to": "make_finding",
+      "line": 372,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_shadow_doc_builder_reads_file_shadow",
+      "to": "len",
+      "line": 373,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_shadow_doc_builder_adds_directory_shadow_for_description_gaps",
+      "to": "write",
+      "line": 379,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_shadow_doc_builder_adds_directory_shadow_for_description_gaps",
+      "to": "write",
+      "line": 380,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_shadow_doc_builder_adds_directory_shadow_for_description_gaps",
+      "to": "BuildContext",
+      "line": 381,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_shadow_doc_builder_adds_directory_shadow_for_description_gaps",
+      "to": "FakeFacts",
+      "line": 381,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_shadow_doc_builder_adds_directory_shadow_for_description_gaps",
+      "to": "make_finding",
+      "line": 382,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_shadow_doc_builder_adds_directory_shadow_for_description_gaps",
+      "to": "build",
+      "line": 385,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_type_signature_builder_matches_legacy_helpers",
+      "to": "write",
+      "line": 394,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_type_signature_builder_matches_legacy_helpers",
+      "to": "BuildContext",
+      "line": 402,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_type_signature_builder_matches_legacy_helpers",
+      "to": "FakeFacts",
+      "line": 402,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_type_signature_builder_matches_legacy_helpers",
+      "to": "make_finding",
+      "line": 403,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_type_signature_builder_matches_legacy_helpers",
+      "to": "build",
+      "line": 410,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_type_signature_builder_matches_legacy_helpers",
+      "to": "len",
+      "line": 411,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_builders_never_raise_on_missing_file",
+      "to": "BuildContext",
+      "line": 422,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_builders_never_raise_on_missing_file",
+      "to": "FakeFacts",
+      "line": 422,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_builders_never_raise_on_missing_file",
+      "to": "make_finding",
+      "line": 423,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_builders_never_raise_on_missing_file",
+      "to": "BUILDERS.items",
+      "line": 424,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_builders_never_raise_on_missing_file",
+      "to": "builder.build",
+      "line": 425,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_builders_never_raise_on_missing_file",
+      "to": "isinstance",
+      "line": 426,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_with_scanner_meta",
+      "to": "make_finding",
+      "line": 435,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "_with_scanner_meta",
+      "to": "getattr",
+      "line": 437,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_with_scanner_meta",
+      "to": "Evidence",
+      "line": 441,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_scanner_supplied_needles_override_symbol",
+      "to": "write",
+      "line": 449,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_scanner_supplied_needles_override_symbol",
+      "to": "write",
+      "line": 450,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_scanner_supplied_needles_override_symbol",
+      "to": "_with_scanner_meta",
+      "line": 451,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_scanner_supplied_needles_override_symbol",
+      "to": "make_finding",
+      "line": 452,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_scanner_supplied_needles_override_symbol",
+      "to": "BuildContext",
+      "line": 455,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_scanner_supplied_needles_override_symbol",
+      "to": "FakeFacts",
+      "line": 455,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_scanner_supplied_needles_override_symbol",
+      "to": "build",
+      "line": 456,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_scanner_supplied_needles_override_symbol",
+      "to": "len",
+      "line": 457,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_scanner_supplied_needles_override_symbol",
+      "to": "any",
+      "line": 460,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_scanner_supplied_needles_feed_facts_lookups",
+      "to": "FakeFacts",
+      "line": 467,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_scanner_supplied_needles_feed_facts_lookups",
+      "to": "_with_scanner_meta",
+      "line": 470,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_scanner_supplied_needles_feed_facts_lookups",
+      "to": "make_finding",
+      "line": 471,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_scanner_supplied_needles_feed_facts_lookups",
+      "to": "BuildContext",
+      "line": 473,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_scanner_supplied_needles_feed_facts_lookups",
+      "to": "build",
+      "line": 474,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_priority_paths_survive_the_hit_cap",
+      "to": "write",
+      "line": 482,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_priority_paths_survive_the_hit_cap",
+      "to": "range",
+      "line": 483,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_priority_paths_survive_the_hit_cap",
+      "to": "write",
+      "line": 484,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_priority_paths_survive_the_hit_cap",
+      "to": "write",
+      "line": 485,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_priority_paths_survive_the_hit_cap",
+      "to": "_with_scanner_meta",
+      "line": 486,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_priority_paths_survive_the_hit_cap",
+      "to": "make_finding",
+      "line": 487,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_priority_paths_survive_the_hit_cap",
+      "to": "BuildContext",
+      "line": 491,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_priority_paths_survive_the_hit_cap",
+      "to": "FakeFacts",
+      "line": 491,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_priority_paths_survive_the_hit_cap",
+      "to": "build",
+      "line": 492,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_text_hit_inside_quoted_string_is_flagged",
+      "to": "write",
+      "line": 498,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_text_hit_inside_quoted_string_is_flagged",
+      "to": "write",
+      "line": 499,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_text_hit_inside_quoted_string_is_flagged",
+      "to": "write",
+      "line": 500,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_text_hit_inside_quoted_string_is_flagged",
+      "to": "make_finding",
+      "line": 501,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_text_hit_inside_quoted_string_is_flagged",
+      "to": "BuildContext",
+      "line": 502,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_text_hit_inside_quoted_string_is_flagged",
+      "to": "FakeFacts",
+      "line": 502,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_text_hit_inside_quoted_string_is_flagged",
+      "to": "build",
+      "line": 503,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_text_hit_inside_quoted_string_is_flagged",
+      "to": "get",
+      "line": 505,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_match_in_quotes_positional_check",
+      "to": "_match_in_quotes",
+      "line": 513,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_match_in_quotes_positional_check",
+      "to": "line.index",
+      "line": 513,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_match_in_quotes_positional_check",
+      "to": "_match_in_quotes",
+      "line": 514,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_match_in_quotes_positional_check",
+      "to": "line.rindex",
+      "line": 514,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_match_in_quotes_positional_check",
+      "to": "_match_in_quotes",
+      "line": 516,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_match_in_quotes_positional_check",
+      "to": "escaped.index",
+      "line": 516,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_match_in_quotes_positional_check",
+      "to": "_match_in_quotes",
+      "line": 517,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_backticked_dotted_names_yield_qualified_and_bare_needles",
+      "to": "write",
+      "line": 524,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_backticked_dotted_names_yield_qualified_and_bare_needles",
+      "to": "write",
+      "line": 525,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_backticked_dotted_names_yield_qualified_and_bare_needles",
+      "to": "make_finding",
+      "line": 526,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_backticked_dotted_names_yield_qualified_and_bare_needles",
+      "to": "BuildContext",
+      "line": 533,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_backticked_dotted_names_yield_qualified_and_bare_needles",
+      "to": "FakeFacts",
+      "line": 533,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_backticked_dotted_names_yield_qualified_and_bare_needles",
+      "to": "build",
+      "line": 534,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_backticked_dotted_names_yield_qualified_and_bare_needles",
+      "to": "get",
+      "line": 539,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_backticked_call_forms_yield_the_function_needle",
+      "to": "_backticked_names",
+      "line": 549,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_backticked_call_forms_yield_the_function_needle",
+      "to": "_backticked_names",
+      "line": 554,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_dotted_name_does_not_derive_degenerate_bare_segment",
+      "to": "_backticked_names",
+      "line": 565,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_call_form_function_referenced_only_in_package_init_is_found",
+      "to": "write",
+      "line": 574,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_call_form_function_referenced_only_in_package_init_is_found",
+      "to": "write",
+      "line": 576,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_call_form_function_referenced_only_in_package_init_is_found",
+      "to": "make_finding",
+      "line": 579,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_call_form_function_referenced_only_in_package_init_is_found",
+      "to": "BuildContext",
+      "line": 587,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_call_form_function_referenced_only_in_package_init_is_found",
+      "to": "FakeFacts",
+      "line": 587,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_call_form_function_referenced_only_in_package_init_is_found",
+      "to": "build",
+      "line": 588,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_sweep_orders_by_proximity_to_flagged_file",
+      "to": "write",
+      "line": 601,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_sweep_orders_by_proximity_to_flagged_file",
+      "to": "write",
+      "line": 602,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_sweep_orders_by_proximity_to_flagged_file",
+      "to": "range",
+      "line": 604,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_sweep_orders_by_proximity_to_flagged_file",
+      "to": "write",
+      "line": 605,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_sweep_orders_by_proximity_to_flagged_file",
+      "to": "make_finding",
+      "line": 606,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_sweep_orders_by_proximity_to_flagged_file",
+      "to": "BuildContext",
+      "line": 609,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_sweep_orders_by_proximity_to_flagged_file",
+      "to": "FakeFacts",
+      "line": 609,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_sweep_orders_by_proximity_to_flagged_file",
+      "to": "build",
+      "line": 610,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_scan_corpus_uses_walker_and_skips_osoji_artifacts",
+      "to": "write",
+      "line": 616,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_scan_corpus_uses_walker_and_skips_osoji_artifacts",
+      "to": "write",
+      "line": 617,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_scan_corpus_uses_walker_and_skips_osoji_artifacts",
+      "to": "BuildContext",
+      "line": 618,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_scan_corpus_uses_walker_and_skips_osoji_artifacts",
+      "to": "ctx.scan_files",
+      "line": 619,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_scan_corpus_uses_walker_and_skips_osoji_artifacts",
+      "to": "any",
+      "line": 621,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_scan_corpus_uses_walker_and_skips_osoji_artifacts",
+      "to": "f.startswith",
+      "line": 621,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_scan_corpus_uses_walker_and_skips_osoji_artifacts",
+      "to": "ctx.scan_truncated",
+      "line": 622,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_truncated_corpus_is_flagged_and_flagged_file_still_swept",
+      "to": "range",
+      "line": 630,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_truncated_corpus_is_flagged_and_flagged_file_still_swept",
+      "to": "write",
+      "line": 631,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_truncated_corpus_is_flagged_and_flagged_file_still_swept",
+      "to": "write",
+      "line": 632,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_truncated_corpus_is_flagged_and_flagged_file_still_swept",
+      "to": "monkeypatch.setattr",
+      "line": 634,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_truncated_corpus_is_flagged_and_flagged_file_still_swept",
+      "to": "make_finding",
+      "line": 635,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_truncated_corpus_is_flagged_and_flagged_file_still_swept",
+      "to": "BuildContext",
+      "line": 636,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_truncated_corpus_is_flagged_and_flagged_file_still_swept",
+      "to": "FakeFacts",
+      "line": 636,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_truncated_corpus_is_flagged_and_flagged_file_still_swept",
+      "to": "build",
+      "line": 637,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_truncated_corpus_is_flagged_and_flagged_file_still_swept",
+      "to": "get",
+      "line": 639,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_truncated_corpus_is_flagged_and_flagged_file_still_swept",
+      "to": "r.get",
+      "line": 642,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_truncated_zero_sweep_is_not_a_mechanical_proof",
+      "to": "range",
+      "line": 651,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_truncated_zero_sweep_is_not_a_mechanical_proof",
+      "to": "write",
+      "line": 652,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_truncated_zero_sweep_is_not_a_mechanical_proof",
+      "to": "write",
+      "line": 653,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "test_truncated_zero_sweep_is_not_a_mechanical_proof",
+      "to": "monkeypatch.setattr",
+      "line": 654,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_truncated_zero_sweep_is_not_a_mechanical_proof",
+      "to": "make_finding",
+      "line": 655,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_truncated_zero_sweep_is_not_a_mechanical_proof",
+      "to": "BuildContext",
+      "line": 658,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_truncated_zero_sweep_is_not_a_mechanical_proof",
+      "to": "FakeFacts",
+      "line": 658,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "test_truncated_zero_sweep_is_not_a_mechanical_proof",
+      "to": "build",
+      "line": 659,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "test_truncated_zero_sweep_is_not_a_mechanical_proof",
+      "to": "Claim",
+      "line": 660,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_truncated_zero_sweep_is_not_a_mechanical_proof",
+      "to": "make_finding",
+      "line": 660,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "test_truncated_zero_sweep_is_not_a_mechanical_proof",
+      "to": "_clean_zero_reference",
+      "line": 664,
+      "call_sites": 2
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "self",
+      "member": "_refs",
+      "line": 37
+    },
+    {
+      "container": "self",
+      "member": "_exports",
+      "line": 38
+    },
+    {
+      "container": "self",
+      "member": "_file_list",
+      "line": 39
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "debris:dead_code",
+      "line": 53,
+      "usage": "produced",
+      "context": "keyword argument to dict",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 54,
+      "usage": "produced",
+      "context": "keyword argument to dict",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/x.py",
+      "line": 55,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "old_helper",
+      "line": 58,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "symbol declaration",
+      "line": 59,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "Symbol `old_helper` is declared but appears unused",
+      "line": 60,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "No callers or importers of `old_helper` were found",
+      "line": 61,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "utf-8",
+      "line": 70,
+      "usage": "produced",
+      "context": "keyword argument to path.write_text"
+    },
+    {
+      "value": "surrounding_code",
+      "line": 78,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "EVIDENCE_KINDS",
+      "kind": "identifier"
+    },
+    {
+      "value": "declared_intent",
+      "line": 79,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "EVIDENCE_KINDS",
+      "kind": "identifier"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 84,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "surrounding_code",
+      "line": 85,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "declared_intent",
+      "line": 86,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "shadow_doc_claim",
+      "line": 87,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "type_signature",
+      "line": 88,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/y.py",
+      "line": 99,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "import",
+      "line": 99,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "from x import old_helper",
+      "line": 100,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/y.py",
+      "line": 106,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "facts",
+      "line": 107,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/x.py",
+      "line": 111,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "def old_helper():\n    return 1\n",
+      "line": 111,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/y.py",
+      "line": 112,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "from x import old_helper\nold_helper()\n",
+      "line": 112,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "text_scan",
+      "line": 116,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/y.py",
+      "line": 117,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "old_helper",
+      "line": 118,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/x.py",
+      "line": 123,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "def old_helper():\n    pass\n",
+      "line": 123,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/y.py",
+      "line": 124,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "import x\n",
+      "line": 124,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/z.py",
+      "line": 125,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "handler = getattr(mod, 'old_helper')\n",
+      "line": 125,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/z.py",
+      "line": 129,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "files"
+    },
+    {
+      "value": "def old_helper():",
+      "line": 137,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    pass",
+      "line": 137,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "# filler",
+      "line": 137,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "def wrapper():",
+      "line": 138,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    return old_helper()",
+      "line": 138,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/x.py",
+      "line": 139,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/y.py",
+      "line": 140,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "print('unrelated')\n",
+      "line": 140,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "same_file",
+      "line": 144,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "src/producer.py",
+      "line": 153,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "result['extraction_method'] = 'ast'\n",
+      "line": 153,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/consumer.py",
+      "line": 154,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "if method == 'ast':\n    pass\n",
+      "line": 154,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "obligations:obligation_implicit_contract",
+      "line": 157,
+      "usage": "produced",
+      "context": "keyword argument to make_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "uncategorized",
+      "line": 158,
+      "usage": "produced",
+      "context": "keyword argument to make_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/producer.py",
+      "line": 159,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "Implicit contract: literal 'ast' produced here",
+      "line": 161,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "String checked in src/consumer.py with no shared constant",
+      "line": 162,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "ast",
+      "line": 166,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "needles"
+    },
+    {
+      "value": "Implicit",
+      "line": 167,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "needles"
+    },
+    {
+      "value": "src/consumer.py",
+      "line": 169,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "files"
+    },
+    {
+      "value": "src/x.py",
+      "line": 177,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "def old_helper():\n    pass\n",
+      "line": 177,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/y.py",
+      "line": 178,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "print('nothing relevant')\n",
+      "line": 178,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "old_helper",
+      "line": 187,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "old_helper",
+      "line": 200,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "other",
+      "line": 200,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/x.py",
+      "line": 201,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/y.py",
+      "line": 201,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "old_helper",
+      "line": 207,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/producer.py",
+      "line": 213,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "method = 'ast'\n",
+      "line": 213,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/noise.py",
+      "line": 214,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "speed = 'fastest'\nlast = 1\n",
+      "line": 214,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/producer.py",
+      "line": 217,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "uncategorized",
+      "line": 217,
+      "usage": "produced",
+      "context": "keyword argument to make_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "Implicit contract: 'ast' produced here",
+      "line": 218,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "checked elsewhere",
+      "line": 219,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "src/noise.py",
+      "line": 223,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "files"
+    },
+    {
+      "value": "the shared_key appears here\n",
+      "line": 230,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/consumer.py",
+      "line": 231,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "value = conf['shared_key']\n",
+      "line": 231,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/producer.py",
+      "line": 232,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "conf = {'shared_key': 1}\n",
+      "line": 232,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/producer.py",
+      "line": 235,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "uncategorized",
+      "line": 235,
+      "usage": "produced",
+      "context": "keyword argument to make_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "Implicit contract: 'shared_key' produced in src/producer.py",
+      "line": 236,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "checked in src/consumer.py with no shared constant",
+      "line": 237,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "src/consumer.py",
+      "line": 241,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "files"
+    },
+    {
+      "value": "needle_word here\n",
+      "line": 246,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/x.py",
+      "line": 247,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "def needle_word():\n    pass\n",
+      "line": 247,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "needle_word",
+      "line": 250,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "needle_word",
+      "line": 255,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/x.py",
+      "line": 261,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "def old_helper():\n    pass\n",
+      "line": 261,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "data/blob.txt",
+      "line": 262,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/x.py",
+      "line": 274,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "def old_helper():\n    pass\n",
+      "line": 274,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/noisy.py",
+      "line": 275,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/other.py",
+      "line": 276,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "from x import old_helper\n",
+      "line": 276,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/noisy.py",
+      "line": 282,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/other.py",
+      "line": 283,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/x.py",
+      "line": 292,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/x.py",
+      "line": 297,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "def old_helper():",
+      "line": 298,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "10:",
+      "line": 299,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "def old_helper():",
+      "line": 306,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    return 42",
+      "line": 306,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/x.py",
+      "line": 308,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "old_helper",
+      "line": 310,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 310,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "def old_helper():",
+      "line": 315,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "symbol",
+      "line": 316,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "def outer():",
+      "line": 330,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    \"\"\"Docstring stating intent.\"\"\"",
+      "line": 331,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    setup()",
+      "line": 332,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    # NOTE: legacy compatibility shim",
+      "line": 333,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    # kept until v2",
+      "line": 334,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    old_helper()",
+      "line": 335,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/x.py",
+      "line": 339,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "outer",
+      "line": 341,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 341,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "preceding_lines",
+      "line": 350,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "enclosing_head",
+      "line": 350,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "NOTE: legacy compatibility shim",
+      "line": 352,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "joined"
+    },
+    {
+      "value": "Docstring stating intent",
+      "line": 353,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "joined"
+    },
+    {
+      "value": ".osoji/shadow/src/x.py.shadow.md",
+      "line": 370,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "# Shadow\nPurpose: helpers.\n",
+      "line": 370,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "file",
+      "line": 374,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "Purpose: helpers.",
+      "line": 375,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": ".osoji/shadow/src/x.py.shadow.md",
+      "line": 379,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "file shadow\n",
+      "line": 379,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": ".osoji/shadow/src/_directory.shadow.md",
+      "line": 380,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "directory shadow\n",
+      "line": 380,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "debris:stale_comment",
+      "line": 383,
+      "usage": "produced",
+      "context": "keyword argument to make_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "description",
+      "line": 383,
+      "usage": "produced",
+      "context": "keyword argument to make_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "file",
+      "line": 387,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "directory",
+      "line": 387,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/models.py",
+      "line": 396,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "class CompletionOptions:\n    temperature: float | None = None\n",
+      "line": 397,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "CompletionOptions",
+      "line": 400,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "class",
+      "line": 400,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "debris:latent_bug",
+      "line": 404,
+      "usage": "produced",
+      "context": "keyword argument to make_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "uncategorized",
+      "line": 405,
+      "usage": "produced",
+      "context": "keyword argument to make_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "`CompletionOptions` has no field `top_k`",
+      "line": 406,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "access would raise AttributeError",
+      "line": 407,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "CompletionOptions",
+      "line": 413,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/models.py",
+      "line": 414,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "class CompletionOptions",
+      "line": 415,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "does/not/exist.py",
+      "line": 423,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "detector",
+      "line": 438,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "gap_type",
+      "line": 438,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "path",
+      "line": 438,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "line_start",
+      "line": 438,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "line_end",
+      "line": 438,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "symbol",
+      "line": 439,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "contract_source",
+      "line": 439,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "contract_claim",
+      "line": 439,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "observed_behavior",
+      "line": 439,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 441,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/x.py",
+      "line": 449,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "def log(msg, error=None):\n    pass\n",
+      "line": 449,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/y.py",
+      "line": 450,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "from x import log\nlog('boom')\n",
+      "line": 450,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "log.error",
+      "line": 452,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "log",
+      "line": 453,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "log",
+      "line": 459,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/y.py",
+      "line": 461,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "log",
+      "line": 461,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/y.py",
+      "line": 468,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "call",
+      "line": 468,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "log('boom')",
+      "line": 468,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "log.error",
+      "line": 471,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "log",
+      "line": 471,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "facts",
+      "line": 475,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/y.py",
+      "line": 476,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/x.py",
+      "line": 482,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "def old_helper():\n    pass\n",
+      "line": 482,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "# mentions old_helper\n",
+      "line": 484,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/zzz_caller.py",
+      "line": 485,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "from x import old_helper\nold_helper()\n",
+      "line": 485,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "old_helper",
+      "line": 488,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/zzz_caller.py",
+      "line": 489,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/zzz_caller.py",
+      "line": 494,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "files"
+    },
+    {
+      "value": "src/x.py",
+      "line": 498,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "def old_helper():\n    pass\n",
+      "line": 498,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/y.py",
+      "line": 499,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "fn = getattr(mod, 'old_helper')\n",
+      "line": 499,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/z.py",
+      "line": 500,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "import x\nx.old_helper()\n",
+      "line": 500,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "in_string_literal",
+      "line": 505,
+      "usage": "produced",
+      "context": "argument to get"
+    },
+    {
+      "value": "in_string_literal",
+      "line": 506,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "dispatch = {'old_helper': fn}  # old_helper",
+      "line": 512,
+      "usage": "defined",
+      "context": "constant line"
+    },
+    {
+      "value": "old_helper",
+      "line": 513,
+      "usage": "produced",
+      "context": "argument to line.index"
+    },
+    {
+      "value": "old_helper",
+      "line": 514,
+      "usage": "produced",
+      "context": "argument to line.rindex"
+    },
+    {
+      "value": "msg = \"say \\\"old_helper\\\" now\"",
+      "line": 515,
+      "usage": "defined",
+      "context": "constant escaped"
+    },
+    {
+      "value": "old_helper",
+      "line": 516,
+      "usage": "produced",
+      "context": "argument to escaped.index"
+    },
+    {
+      "value": "old_helper()",
+      "line": 517,
+      "usage": "produced",
+      "context": "argument to _match_in_quotes"
+    },
+    {
+      "value": "src/x.py",
+      "line": 524,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "class Widget:\n    def render(self):\n        pass\n",
+      "line": 524,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/reg.py",
+      "line": 525,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "handler = getattr(w, 'render')\n",
+      "line": 525,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "Symbol `Widget.render` is declared but appears unused",
+      "line": 530,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "no references to `Widget.render` were found",
+      "line": 531,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "Widget.render",
+      "line": 536,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "render",
+      "line": 537,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/reg.py",
+      "line": 538,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "in_string_literal",
+      "line": 539,
+      "usage": "produced",
+      "context": "argument to get"
+    },
+    {
+      "value": "`_discover_entry_point_plugins()` is defined but never called",
+      "line": 550,
+      "usage": "produced",
+      "context": "argument to _backticked_names"
+    },
+    {
+      "value": "_discover_entry_point_plugins",
+      "line": 552,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "`Widget.render()` appears unused",
+      "line": 554,
+      "usage": "produced",
+      "context": "argument to _backticked_names"
+    },
+    {
+      "value": "Widget.render",
+      "line": 555,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "dotted"
+    },
+    {
+      "value": "render",
+      "line": 556,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "dotted"
+    },
+    {
+      "value": "referenced only from `__init__.py`",
+      "line": 565,
+      "usage": "produced",
+      "context": "argument to _backticked_names"
+    },
+    {
+      "value": "__init__.py",
+      "line": 566,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "py",
+      "line": 567,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "src/pkg/registry.py",
+      "line": 574,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "def _discover_entry_point_plugins():\n    pass\n",
+      "line": 575,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/pkg/__init__.py",
+      "line": 576,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "from .registry import _discover_entry_point_plugins\nPLUGINS = _discover_entry_point_plugins()\n",
+      "line": 577,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/pkg/registry.py",
+      "line": 580,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "`_discover_entry_point_plugins()` is defined but never called",
+      "line": 584,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "only `__init__.py` mentions the module",
+      "line": 585,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "_discover_entry_point_plugins",
+      "line": 590,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "py",
+      "line": 591,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/pkg/__init__.py",
+      "line": 593,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/pkg/x.py",
+      "line": 601,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "class Base:\n    pass\n",
+      "line": 601,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/pkg/impl.py",
+      "line": 602,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "from x import Base\nclass Impl(Base):\n    pass\n",
+      "line": 602,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "{\"note\": \"mentions Base\"}\n",
+      "line": 605,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/pkg/x.py",
+      "line": 607,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "Base",
+      "line": 607,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "src/pkg/impl.py",
+      "line": 612,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/x.py",
+      "line": 616,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "code\n",
+      "line": 616,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": ".osoji/shadow/src/x.py.shadow.md",
+      "line": 617,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "shadow\n",
+      "line": 617,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/x.py",
+      "line": 620,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "files"
+    },
+    {
+      "value": ".osoji",
+      "line": 621,
+      "usage": "produced",
+      "context": "argument to f.startswith"
+    },
+    {
+      "value": "filler\n",
+      "line": 631,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/zz_flagged.py",
+      "line": 632,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "def old_helper():\n    pass\n\nold_helper()\n",
+      "line": 633,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "_MAX_SCAN_FILES",
+      "line": 634,
+      "usage": "produced",
+      "context": "argument to monkeypatch.setattr"
+    },
+    {
+      "value": "src/zz_flagged.py",
+      "line": 635,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "truncated",
+      "line": 639,
+      "usage": "produced",
+      "context": "argument to get"
+    },
+    {
+      "value": "same_file",
+      "line": 642,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "filler\n",
+      "line": 652,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "src/zz_flagged.py",
+      "line": 653,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "def lonely():\n    pass\n",
+      "line": 653,
+      "usage": "produced",
+      "context": "argument to write"
+    },
+    {
+      "value": "_MAX_SCAN_FILES",
+      "line": 654,
+      "usage": "produced",
+      "context": "argument to monkeypatch.setattr"
+    },
+    {
+      "value": "src/zz_flagged.py",
+      "line": 656,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "lonely",
+      "line": 656,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "src/zz_flagged.py",
+      "line": 661,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "lonely",
+      "line": 661,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    }
+  ],
+  "extraction_method": "ast"
+}

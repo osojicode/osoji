@@ -1,0 +1,1559 @@
+{
+  "source": "tests/test_claim_builder.py",
+  "source_hash": "2a63f3aceb61453f",
+  "generated": "2026-07-22T10:56:32Z",
+  "imports": [
+    {
+      "source": "time",
+      "names": [
+        "time"
+      ],
+      "line": 14,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "replace"
+      ],
+      "line": 15,
+      "is_reexport": false
+    },
+    {
+      "source": "pytest",
+      "names": [
+        "pytest"
+      ],
+      "line": 17,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.claim_builder",
+      "names": [
+        "CLAIM_BUILDER_SCHEMA",
+        "CLAIM_BUILDER_SCHEMA_VERSION",
+        "DEFAULT_SCHEMA_BY_GAP_TYPE",
+        "SchemaEntry",
+        "_extract_all_symbols_from_debris",
+        "build_claims",
+        "build_debris_claims",
+        "compute_evidence_fingerprint"
+      ],
+      "line": 19,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.config",
+      "names": [
+        "Config"
+      ],
+      "line": 29,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.evidence",
+      "names": [
+        "BUILDERS",
+        "Evidence"
+      ],
+      "line": 30,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.evidence_builders",
+      "names": [
+        "BuildContext"
+      ],
+      "line": 31,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 32,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.claim_builder",
+      "names": [
+        "cb"
+      ],
+      "line": 339,
+      "is_reexport": false,
+      "name_map": {
+        "cb": "osoji.claim_builder"
+      }
+    }
+  ],
+  "exports": [
+    {
+      "name": "test_pascalcase_extraction_is_redos_safe",
+      "kind": "function",
+      "line": 38,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_pascalcase_extraction_preserves_behavior",
+      "kind": "function",
+      "line": 57,
+      "decorators": [
+        "pytest.mark.parametrize"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_pascalcase_no_duplicates_preserved",
+      "kind": "function",
+      "line": 61,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_all_caps_is_not_pascalcase",
+      "kind": "function",
+      "line": 68,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_backticked_call_form_extracts_function_name",
+      "kind": "function",
+      "line": 73,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "config",
+      "kind": "function",
+      "line": 83,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "FakeFacts",
+      "kind": "class",
+      "line": 87,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeFacts.__init__",
+      "kind": "function",
+      "line": 90,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeFacts.cross_file_references",
+      "kind": "function",
+      "line": 93,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "debris",
+      "kind": "function",
+      "line": 97,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_eligible_with_refs_becomes_claim_with_evidence",
+      "kind": "function",
+      "line": 111,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_ineligible_finding_is_not_a_claim",
+      "kind": "function",
+      "line": 127,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_stale_comment_with_flag_is_eligible",
+      "kind": "function",
+      "line": 139,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_eligible_without_evidence_counts_as_would_escalate",
+      "kind": "function",
+      "line": 152,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_original_index_mapping_skips_non_candidates",
+      "kind": "function",
+      "line": 162,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_debris_wrapper_sets_fingerprint",
+      "kind": "function",
+      "line": 177,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_debris_latent_bug_type_defs_alone_suffice",
+      "kind": "function",
+      "line": 185,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "make_finding",
+      "kind": "function",
+      "line": 208,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "populate",
+      "kind": "function",
+      "line": 224,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_build_claims_sets_fingerprint_and_evidence",
+      "kind": "function",
+      "line": 234,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_build_claims_empty_bundle_leaves_fingerprint_none",
+      "kind": "function",
+      "line": 247,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_build_claims_uses_category_schema",
+      "kind": "function",
+      "line": 257,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_build_claims_falls_back_to_gap_type_default",
+      "kind": "function",
+      "line": 272,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_require_any_unmet_sets_insufficient_evidence",
+      "kind": "function",
+      "line": 282,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_preexisting_evidence_is_preserved",
+      "kind": "function",
+      "line": 294,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_fingerprint_same_bundle_same_hash",
+      "kind": "function",
+      "line": 313,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_fingerprint_is_order_insensitive",
+      "kind": "function",
+      "line": 317,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_fingerprint_changes_when_payload_changes",
+      "kind": "function",
+      "line": 324,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_fingerprint_changes_with_schema_version",
+      "kind": "function",
+      "line": 332,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_fingerprint_changes_with_impl_hash",
+      "kind": "function",
+      "line": 338,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_schema_entry_json_round_trip",
+      "kind": "function",
+      "line": 350,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_schema_version_is_pinned",
+      "kind": "function",
+      "line": 358,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_every_schema_kind_has_registered_builder",
+      "kind": "function",
+      "line": 367,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "test_pascalcase_extraction_is_redos_safe",
+      "to": "time.monotonic",
+      "line": 43,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_pascalcase_extraction_is_redos_safe",
+      "to": "_extract_all_symbols_from_debris",
+      "line": 44,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_pascalcase_extraction_is_redos_safe",
+      "to": "time.monotonic",
+      "line": 45,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_pascalcase_extraction_preserves_behavior",
+      "to": "_extract_all_symbols_from_debris",
+      "line": 58,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_pascalcase_extraction_preserves_behavior",
+      "to": "pytest.mark.parametrize",
+      "line": 49,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_pascalcase_no_duplicates_preserved",
+      "to": "_extract_all_symbols_from_debris",
+      "line": 64,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_pascalcase_no_duplicates_preserved",
+      "to": "symbols.count",
+      "line": 65,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_all_caps_is_not_pascalcase",
+      "to": "_extract_all_symbols_from_debris",
+      "line": 70,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_backticked_call_form_extracts_function_name",
+      "to": "_extract_all_symbols_from_debris",
+      "line": 76,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "config",
+      "to": "Config",
+      "line": 84,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "FakeFacts.cross_file_references",
+      "to": "self._refs.get",
+      "line": 94,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "debris",
+      "to": "dict",
+      "line": 98,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "debris",
+      "to": "d.update",
+      "line": 107,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_eligible_with_refs_becomes_claim_with_evidence",
+      "to": "FakeFacts",
+      "line": 112,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_eligible_with_refs_becomes_claim_with_evidence",
+      "to": "build_debris_claims",
+      "line": 115,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "test_eligible_with_refs_becomes_claim_with_evidence",
+      "to": "debris",
+      "line": 116,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_eligible_with_refs_becomes_claim_with_evidence",
+      "to": "len",
+      "line": 118,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_eligible_with_refs_becomes_claim_with_evidence",
+      "to": "next",
+      "line": 123,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_ineligible_finding_is_not_a_claim",
+      "to": "FakeFacts",
+      "line": 128,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_ineligible_finding_is_not_a_claim",
+      "to": "build_debris_claims",
+      "line": 130,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "test_ineligible_finding_is_not_a_claim",
+      "to": "debris",
+      "line": 131,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_stale_comment_with_flag_is_eligible",
+      "to": "FakeFacts",
+      "line": 140,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_stale_comment_with_flag_is_eligible",
+      "to": "build_debris_claims",
+      "line": 143,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "test_stale_comment_with_flag_is_eligible",
+      "to": "debris",
+      "line": 145,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_stale_comment_with_flag_is_eligible",
+      "to": "len",
+      "line": 149,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_eligible_without_evidence_counts_as_would_escalate",
+      "to": "FakeFacts",
+      "line": 153,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_eligible_without_evidence_counts_as_would_escalate",
+      "to": "build_debris_claims",
+      "line": 154,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "test_eligible_without_evidence_counts_as_would_escalate",
+      "to": "debris",
+      "line": 155,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_original_index_mapping_skips_non_candidates",
+      "to": "FakeFacts",
+      "line": 163,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_original_index_mapping_skips_non_candidates",
+      "to": "debris",
+      "line": 167,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_original_index_mapping_skips_non_candidates",
+      "to": "debris",
+      "line": 168,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_original_index_mapping_skips_non_candidates",
+      "to": "build_debris_claims",
+      "line": 170,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "test_original_index_mapping_skips_non_candidates",
+      "to": "len",
+      "line": 173,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_debris_wrapper_sets_fingerprint",
+      "to": "FakeFacts",
+      "line": 178,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_debris_wrapper_sets_fingerprint",
+      "to": "build_debris_claims",
+      "line": 181,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "test_debris_wrapper_sets_fingerprint",
+      "to": "debris",
+      "line": 181,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_debris_latent_bug_type_defs_alone_suffice",
+      "to": "models.parent.mkdir",
+      "line": 188,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_debris_latent_bug_type_defs_alone_suffice",
+      "to": "models.write_text",
+      "line": 189,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_debris_latent_bug_type_defs_alone_suffice",
+      "to": "debris",
+      "line": 193,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "test_debris_latent_bug_type_defs_alone_suffice",
+      "to": "build_debris_claims",
+      "line": 197,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "test_debris_latent_bug_type_defs_alone_suffice",
+      "to": "FakeFacts",
+      "line": 198,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_debris_latent_bug_type_defs_alone_suffice",
+      "to": "len",
+      "line": 201,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "make_finding",
+      "to": "dict",
+      "line": 209,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "make_finding",
+      "to": "base.update",
+      "line": 220,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "make_finding",
+      "to": "Finding",
+      "line": 221,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "populate",
+      "to": "mkdir",
+      "line": 225,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "populate",
+      "to": "write_text",
+      "line": 226,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "populate",
+      "to": "write_text",
+      "line": 229,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_build_claims_sets_fingerprint_and_evidence",
+      "to": "populate",
+      "line": 235,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_build_claims_sets_fingerprint_and_evidence",
+      "to": "BuildContext",
+      "line": 236,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_build_claims_sets_fingerprint_and_evidence",
+      "to": "FakeFacts",
+      "line": 236,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_build_claims_sets_fingerprint_and_evidence",
+      "to": "build_claims",
+      "line": 237,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_build_claims_sets_fingerprint_and_evidence",
+      "to": "make_finding",
+      "line": 237,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_build_claims_sets_fingerprint_and_evidence",
+      "to": "len",
+      "line": 238,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_build_claims_empty_bundle_leaves_fingerprint_none",
+      "to": "BuildContext",
+      "line": 251,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_build_claims_empty_bundle_leaves_fingerprint_none",
+      "to": "FakeFacts",
+      "line": 251,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_build_claims_empty_bundle_leaves_fingerprint_none",
+      "to": "build_claims",
+      "line": 252,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_build_claims_empty_bundle_leaves_fingerprint_none",
+      "to": "make_finding",
+      "line": 252,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_build_claims_uses_category_schema",
+      "to": "populate",
+      "line": 258,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_build_claims_uses_category_schema",
+      "to": "BuildContext",
+      "line": 259,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_build_claims_uses_category_schema",
+      "to": "FakeFacts",
+      "line": 259,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_build_claims_uses_category_schema",
+      "to": "make_finding",
+      "line": 260,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_build_claims_uses_category_schema",
+      "to": "build_claims",
+      "line": 265,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_build_claims_falls_back_to_gap_type_default",
+      "to": "populate",
+      "line": 273,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_build_claims_falls_back_to_gap_type_default",
+      "to": "BuildContext",
+      "line": 274,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_build_claims_falls_back_to_gap_type_default",
+      "to": "FakeFacts",
+      "line": 274,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_build_claims_falls_back_to_gap_type_default",
+      "to": "make_finding",
+      "line": 275,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_build_claims_falls_back_to_gap_type_default",
+      "to": "build_claims",
+      "line": 276,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_build_claims_falls_back_to_gap_type_default",
+      "to": "set",
+      "line": 279,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_require_any_unmet_sets_insufficient_evidence",
+      "to": "populate",
+      "line": 285,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_require_any_unmet_sets_insufficient_evidence",
+      "to": "BuildContext",
+      "line": 286,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_require_any_unmet_sets_insufficient_evidence",
+      "to": "FakeFacts",
+      "line": 286,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_require_any_unmet_sets_insufficient_evidence",
+      "to": "make_finding",
+      "line": 287,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_require_any_unmet_sets_insufficient_evidence",
+      "to": "build_claims",
+      "line": 290,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_preexisting_evidence_is_preserved",
+      "to": "populate",
+      "line": 295,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_preexisting_evidence_is_preserved",
+      "to": "BuildContext",
+      "line": 296,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_preexisting_evidence_is_preserved",
+      "to": "FakeFacts",
+      "line": 296,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_preexisting_evidence_is_preserved",
+      "to": "make_finding",
+      "line": 297,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_preexisting_evidence_is_preserved",
+      "to": "Evidence",
+      "line": 297,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_preexisting_evidence_is_preserved",
+      "to": "build_claims",
+      "line": 298,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_bundle",
+      "to": "Evidence",
+      "line": 308,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "_bundle",
+      "to": "Evidence",
+      "line": 309,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_fingerprint_same_bundle_same_hash",
+      "to": "compute_evidence_fingerprint",
+      "line": 314,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_fingerprint_same_bundle_same_hash",
+      "to": "_bundle",
+      "line": 314,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_fingerprint_same_bundle_same_hash",
+      "to": "compute_evidence_fingerprint",
+      "line": 314,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_fingerprint_same_bundle_same_hash",
+      "to": "_bundle",
+      "line": 314,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_fingerprint_is_order_insensitive",
+      "to": "_bundle",
+      "line": 318,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_fingerprint_is_order_insensitive",
+      "to": "compute_evidence_fingerprint",
+      "line": 319,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_fingerprint_is_order_insensitive",
+      "to": "compute_evidence_fingerprint",
+      "line": 319,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_fingerprint_is_order_insensitive",
+      "to": "list",
+      "line": 320,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_fingerprint_is_order_insensitive",
+      "to": "reversed",
+      "line": 320,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_fingerprint_changes_when_payload_changes",
+      "to": "replace",
+      "line": 326,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_fingerprint_changes_when_payload_changes",
+      "to": "_bundle",
+      "line": 326,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_fingerprint_changes_when_payload_changes",
+      "to": "_bundle",
+      "line": 327,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_fingerprint_changes_when_payload_changes",
+      "to": "compute_evidence_fingerprint",
+      "line": 329,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_fingerprint_changes_when_payload_changes",
+      "to": "_bundle",
+      "line": 329,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_fingerprint_changes_when_payload_changes",
+      "to": "compute_evidence_fingerprint",
+      "line": 329,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_fingerprint_changes_with_schema_version",
+      "to": "compute_evidence_fingerprint",
+      "line": 333,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_fingerprint_changes_with_schema_version",
+      "to": "_bundle",
+      "line": 333,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_fingerprint_changes_with_schema_version",
+      "to": "compute_evidence_fingerprint",
+      "line": 333,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_fingerprint_changes_with_schema_version",
+      "to": "_bundle",
+      "line": 334,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_fingerprint_changes_with_impl_hash",
+      "to": "compute_evidence_fingerprint",
+      "line": 341,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_fingerprint_changes_with_impl_hash",
+      "to": "_bundle",
+      "line": 341,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_fingerprint_changes_with_impl_hash",
+      "to": "monkeypatch.setattr",
+      "line": 342,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_fingerprint_changes_with_impl_hash",
+      "to": "compute_evidence_fingerprint",
+      "line": 343,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_fingerprint_changes_with_impl_hash",
+      "to": "_bundle",
+      "line": 343,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_schema_entry_json_round_trip",
+      "to": "SchemaEntry",
+      "line": 351,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_schema_entry_json_round_trip",
+      "to": "frozenset",
+      "line": 353,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_schema_entry_json_round_trip",
+      "to": "SchemaEntry.from_dict",
+      "line": 355,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_schema_entry_json_round_trip",
+      "to": "entry.to_dict",
+      "line": 355,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_every_schema_kind_has_registered_builder",
+      "to": "list",
+      "line": 368,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_every_schema_kind_has_registered_builder",
+      "to": "CLAIM_BUILDER_SCHEMA.values",
+      "line": 368,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_every_schema_kind_has_registered_builder",
+      "to": "list",
+      "line": 368,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_every_schema_kind_has_registered_builder",
+      "to": "DEFAULT_SCHEMA_BY_GAP_TYPE.values",
+      "line": 368,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_every_schema_kind_has_registered_builder",
+      "to": "set",
+      "line": 372,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_every_schema_kind_has_registered_builder",
+      "to": "set",
+      "line": 372,
+      "call_sites": 3
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "self",
+      "member": "_refs",
+      "line": 91
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "description, expected_present",
+      "line": 50,
+      "usage": "produced",
+      "context": "argument to pytest.mark.parametrize"
+    },
+    {
+      "value": "source_path attribute of JunkFinding is never read",
+      "line": 52,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "JunkFinding",
+      "line": 52,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "`source_path` may not exist on JunkAnalysisResult",
+      "line": 53,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "JunkAnalysisResult",
+      "line": 53,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "SHADOW_DIR constant is unused",
+      "line": 54,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "SHADOW_DIR",
+      "line": 54,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "`CompletionOptions` type CompletionOptions has no field",
+      "line": 63,
+      "usage": "defined",
+      "context": "constant desc"
+    },
+    {
+      "value": "CompletionOptions",
+      "line": 65,
+      "usage": "produced",
+      "context": "argument to symbols.count"
+    },
+    {
+      "value": "ABCDEF",
+      "line": 70,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "token ABCDEF here Aa",
+      "line": 70,
+      "usage": "produced",
+      "context": "argument to _extract_all_symbols_from_debris"
+    },
+    {
+      "value": "`_discover_entry_point_plugins()` is defined but never called",
+      "line": 77,
+      "usage": "produced",
+      "context": "argument to _extract_all_symbols_from_debris"
+    },
+    {
+      "value": "_discover_entry_point_plugins",
+      "line": 79,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "src/x.py",
+      "line": 99,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "dead_code",
+      "line": 100,
+      "usage": "produced",
+      "context": "keyword argument to dict",
+      "kind": "identifier"
+    },
+    {
+      "value": "warning",
+      "line": 103,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "`old_helper` is defined but never used",
+      "line": 104,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "remove it",
+      "line": 105,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "src/y.py",
+      "line": 113,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "import",
+      "line": 113,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "from x import old_helper",
+      "line": 113,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 122,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "kinds",
+      "kind": "identifier"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 123,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/y.py",
+      "line": 124,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "stale_comment",
+      "line": 131,
+      "usage": "produced",
+      "context": "keyword argument to debris",
+      "kind": "identifier"
+    },
+    {
+      "value": "comment is stale",
+      "line": 131,
+      "usage": "produced",
+      "context": "keyword argument to debris"
+    },
+    {
+      "value": "src/z.py",
+      "line": 141,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "call",
+      "line": 141,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "thing()",
+      "line": 141,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "stale_comment",
+      "line": 145,
+      "usage": "produced",
+      "context": "keyword argument to debris",
+      "kind": "identifier"
+    },
+    {
+      "value": "`thing` no longer does X",
+      "line": 145,
+      "usage": "produced",
+      "context": "keyword argument to debris"
+    },
+    {
+      "value": "src/y.py",
+      "line": 164,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "import",
+      "line": 164,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "import",
+      "line": 164,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "commented_out_code",
+      "line": 167,
+      "usage": "produced",
+      "context": "keyword argument to debris",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead block",
+      "line": 167,
+      "usage": "produced",
+      "context": "keyword argument to debris"
+    },
+    {
+      "value": "src/y.py",
+      "line": 179,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "import",
+      "line": 179,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "import",
+      "line": 179,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "class CompletionOptions:\n    temperature: float = 0.0\n",
+      "line": 189,
+      "usage": "produced",
+      "context": "argument to models.write_text"
+    },
+    {
+      "value": "utf-8",
+      "line": 189,
+      "usage": "produced",
+      "context": "keyword argument to models.write_text"
+    },
+    {
+      "value": "CompletionOptions",
+      "line": 191,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "class",
+      "line": 191,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "latent_bug",
+      "line": 194,
+      "usage": "produced",
+      "context": "keyword argument to debris",
+      "kind": "identifier"
+    },
+    {
+      "value": "`CompletionOptions` has no field `top_k`",
+      "line": 195,
+      "usage": "produced",
+      "context": "keyword argument to debris"
+    },
+    {
+      "value": "type_signature",
+      "line": 202,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "debris:dead_code",
+      "line": 210,
+      "usage": "produced",
+      "context": "keyword argument to dict",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 211,
+      "usage": "produced",
+      "context": "keyword argument to dict",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/x.py",
+      "line": 212,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "old_helper",
+      "line": 215,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "symbol declaration",
+      "line": 216,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "Symbol `old_helper` is declared but appears unused",
+      "line": 217,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "No callers or importers found",
+      "line": 218,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "def old_helper():\n    return 1\n",
+      "line": 227,
+      "usage": "produced",
+      "context": "argument to write_text"
+    },
+    {
+      "value": "utf-8",
+      "line": 227,
+      "usage": "produced",
+      "context": "keyword argument to write_text"
+    },
+    {
+      "value": "from x import old_helper\nold_helper()\n",
+      "line": 230,
+      "usage": "produced",
+      "context": "argument to write_text"
+    },
+    {
+      "value": "utf-8",
+      "line": 230,
+      "usage": "produced",
+      "context": "keyword argument to write_text"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 242,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "kinds",
+      "kind": "identifier"
+    },
+    {
+      "value": "surrounding_code",
+      "line": 243,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "kinds",
+      "kind": "identifier"
+    },
+    {
+      "value": "debris:stale_comment",
+      "line": 261,
+      "usage": "produced",
+      "context": "keyword argument to make_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "description",
+      "line": 261,
+      "usage": "produced",
+      "context": "keyword argument to make_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "comment says `old_helper` handles retries",
+      "line": 262,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "it does not",
+      "line": 263,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "surrounding_code",
+      "line": 269,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "kinds",
+      "kind": "identifier"
+    },
+    {
+      "value": "scanner:novel_check",
+      "line": 275,
+      "usage": "produced",
+      "context": "keyword argument to make_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "the and but not",
+      "line": 288,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "was were has",
+      "line": 288,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 297,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "info",
+      "line": 297,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 300,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 308,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "a.py",
+      "line": 308,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "surrounding_code",
+      "line": 309,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "b.py",
+      "line": 309,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "1: x",
+      "line": 309,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "OTHER.py",
+      "line": 326,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "cb-TEST",
+      "line": 334,
+      "usage": "produced",
+      "context": "keyword argument to compute_evidence_fingerprint",
+      "kind": "identifier"
+    },
+    {
+      "value": "compute_impl_hash",
+      "line": 342,
+      "usage": "produced",
+      "context": "argument to monkeypatch.setattr"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 352,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "surrounding_code",
+      "line": 352,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 353,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "cb-3",
+      "line": 364,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "CLAIM_BUILDER_SCHEMA_VERSION",
+      "kind": "identifier"
+    }
+  ],
+  "extraction_method": "ast"
+}

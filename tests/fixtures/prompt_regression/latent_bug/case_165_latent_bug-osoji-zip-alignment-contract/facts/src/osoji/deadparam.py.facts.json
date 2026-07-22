@@ -1,0 +1,852 @@
+{
+  "source": "src/osoji/deadparam.py",
+  "source_hash": "491508fe80182606",
+  "generated": "2026-07-22T10:55:49Z",
+  "imports": [
+    {
+      "source": "re",
+      "names": [
+        "re"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "field"
+      ],
+      "line": 14,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 15,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Callable"
+      ],
+      "line": 16,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config",
+        "SHADOW_DIR"
+      ],
+      "line": 18,
+      "is_reexport": false
+    },
+    {
+      "source": ".evidence_builders",
+      "names": [
+        "BuildContext",
+        "_scanner_meta"
+      ],
+      "line": 19,
+      "is_reexport": false
+    },
+    {
+      "source": ".facts",
+      "names": [
+        "FactsDB"
+      ],
+      "line": 20,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 21,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings_adapter",
+      "names": [
+        "finding_from_dead_param_candidate"
+      ],
+      "line": 22,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk",
+      "names": [
+        "JunkAnalyzer",
+        "JunkFinding",
+        "JunkAnalysisResult"
+      ],
+      "line": 23,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk_triage",
+      "names": [
+        "build_junk_claims",
+        "decide_junk_claims"
+      ],
+      "line": 24,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.base",
+      "names": [
+        "LLMProvider"
+      ],
+      "line": 25,
+      "is_reexport": false
+    },
+    {
+      "source": ".symbols",
+      "names": [
+        "load_all_symbols"
+      ],
+      "line": 26,
+      "is_reexport": false
+    },
+    {
+      "source": ".walker",
+      "names": [
+        "list_repo_files",
+        "_matches_ignore"
+      ],
+      "line": 27,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "CallSite",
+      "kind": "class",
+      "line": 35,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DeadParamCandidate",
+      "kind": "class",
+      "line": 44,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "scan_dead_param_candidates",
+      "kind": "function",
+      "line": 82,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "detect_dead_params_async",
+      "kind": "function",
+      "line": 250,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DeadParameterAnalyzer",
+      "kind": "class",
+      "line": 302,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "JunkAnalyzer"
+      ]
+    },
+    {
+      "name": "DeadParameterAnalyzer.name",
+      "kind": "function",
+      "line": 306,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DeadParameterAnalyzer.description",
+      "kind": "function",
+      "line": 310,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DeadParameterAnalyzer.cli_flag",
+      "kind": "function",
+      "line": 314,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DeadParameterAnalyzer.analyze_async",
+      "kind": "function",
+      "line": 317,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "DeadParamCandidate",
+      "to": "field",
+      "line": 52,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_context",
+      "to": "max",
+      "line": 61,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_context",
+      "to": "min",
+      "line": 62,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_context",
+      "to": "len",
+      "line": 62,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_extract_context",
+      "to": "range",
+      "line": 64,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_context",
+      "to": "context_lines.append",
+      "line": 66,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_context",
+      "to": "join",
+      "line": 67,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_dedupe_call_sites",
+      "to": "set",
+      "line": 71,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_dedupe_call_sites",
+      "to": "sorted",
+      "line": 73,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_dedupe_call_sites",
+      "to": "seen.add",
+      "line": 77,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_dedupe_call_sites",
+      "to": "deduped.append",
+      "line": 78,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "load_all_symbols",
+      "line": 91,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "FactsDB",
+      "line": 96,
+      "call_sites": 90
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "list_repo_files",
+      "line": 102,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "list",
+      "line": 103,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "config.load_osojiignore",
+      "line": 104,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "path.is_absolute",
+      "line": 107,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "abs_path.is_file",
+      "line": 108,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "abs_path.relative_to",
+      "line": 110,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "replace",
+      "line": 111,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "str",
+      "line": 111,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "all_symbols.items",
+      "line": 117,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "source_path.replace",
+      "line": 118,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "cls.get",
+      "line": 132,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "src_file.is_file",
+      "line": 139,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "src_file.read_text",
+      "line": 142,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "content.split",
+      "line": 145,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "sym.get",
+      "line": 150,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "sym.get",
+      "line": 157,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "p.get",
+      "line": 158,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "p.get",
+      "line": 158,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "facts_db.importers_of",
+      "line": 165,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "func_name.rsplit",
+      "line": 172,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "re.compile",
+      "line": 173,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "re.escape",
+      "line": 173,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "class_for_method.get",
+      "line": 175,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "call_patterns.append",
+      "line": 177,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "re.compile",
+      "line": 177,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "re.escape",
+      "line": 177,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "sym.get",
+      "line": 182,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "candidate_paths.extend",
+      "line": 185,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "sorted",
+      "line": 185,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "set",
+      "line": 185,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "repo_files.get",
+      "line": 188,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "path.is_file",
+      "line": 189,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "path.relative_to",
+      "line": 192,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "rel_str.startswith",
+      "line": 194,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "_matches_ignore",
+      "line": 196,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "_matches_ignore",
+      "line": 198,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "config.is_doc_candidate",
+      "line": 200,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "path.read_text",
+      "line": 210,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "file_content.split",
+      "line": 213,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "enumerate",
+      "line": 216,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "any",
+      "line": 217,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "p.search",
+      "line": 217,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "_extract_context",
+      "line": 222,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "call_sites.append",
+      "line": 223,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "CallSite",
+      "line": 223,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "_dedupe_call_sites",
+      "line": 229,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "candidates.append",
+      "line": 235,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_dead_param_candidates",
+      "to": "DeadParamCandidate",
+      "line": 235,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "scan_dead_param_candidates",
+      "line": 266,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "append",
+      "line": 270,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "by_func.setdefault",
+      "line": 270,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "print",
+      "line": 272,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "len",
+      "line": 273,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "len",
+      "line": 274,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "FactsDB",
+      "line": 281,
+      "call_sites": 90
+    },
+    {
+      "from_symbol": "detect_dead_params_async.importers_of",
+      "to": "source_path.replace",
+      "line": 285,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_params_async.importers_of",
+      "to": "sorted",
+      "line": 287,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "detect_dead_params_async.importers_of",
+      "to": "facts_db.importers_of",
+      "line": 287,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "finding_from_dead_param_candidate",
+      "line": 291,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "importers_of",
+      "line": 291,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "BuildContext",
+      "line": 294,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "build_junk_claims",
+      "line": 295,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "detect_dead_params_async",
+      "to": "decide_junk_claims",
+      "line": 296,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DeadParameterAnalyzer.analyze_async",
+      "to": "detect_dead_params_async",
+      "line": 318,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DeadParameterAnalyzer.analyze_async",
+      "to": "_scanner_meta",
+      "line": 323,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DeadParameterAnalyzer.analyze_async",
+      "to": "meta.get",
+      "line": 324,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DeadParameterAnalyzer.analyze_async",
+      "to": "meta.get",
+      "line": 325,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DeadParameterAnalyzer.analyze_async",
+      "to": "findings.append",
+      "line": 327,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadParameterAnalyzer.analyze_async",
+      "to": "JunkFinding",
+      "line": 327,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DeadParameterAnalyzer.analyze_async",
+      "to": "JunkAnalysisResult",
+      "line": 347,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "DeadParameterAnalyzer.analyze_async",
+      "to": "len",
+      "line": 349,
+      "call_sites": 4
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "function",
+      "line": 121,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "class",
+      "line": 126,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "line_end",
+      "line": 132,
+      "usage": "produced",
+      "context": "argument to cls.get"
+    },
+    {
+      "value": "ignore",
+      "line": 142,
+      "usage": "produced",
+      "context": "keyword argument to src_file.read_text"
+    },
+    {
+      "value": "visibility",
+      "line": 150,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "internal",
+      "line": 150,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "parameters",
+      "line": 157,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "has_default",
+      "line": 158,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "optional",
+      "line": 158,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "line_end",
+      "line": 182,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "ignore",
+      "line": 210,
+      "usage": "produced",
+      "context": "keyword argument to path.read_text"
+    },
+    {
+      "value": "dead_params",
+      "line": 307,
+      "usage": "produced",
+      "context": "return value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Detect dead function parameters (never passed by callers)",
+      "line": 311,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "dead-params",
+      "line": 315,
+      "usage": "produced",
+      "context": "return value",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 321,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "function_name",
+      "line": 324,
+      "usage": "produced",
+      "context": "argument to meta.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "param_name",
+      "line": 325,
+      "usage": "produced",
+      "context": "argument to meta.get"
+    },
+    {
+      "value": "parameter",
+      "line": 330,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead_parameter",
+      "line": 331,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "llm_inferred",
+      "line": 340,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "gated_lines",
+      "context": "Legacy metadata key kept for schema compat, always empty list",
+      "line": 343,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

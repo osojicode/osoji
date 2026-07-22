@@ -1,0 +1,2586 @@
+{
+  "source": "scripts/eval_lib.py",
+  "source_hash": "edc6b22e17f41e3c",
+  "generated": "2026-07-22T10:56:51Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 23,
+      "is_reexport": false
+    },
+    {
+      "source": "hashlib",
+      "names": [
+        "hashlib"
+      ],
+      "line": 25,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 26,
+      "is_reexport": false
+    },
+    {
+      "source": "secrets",
+      "names": [
+        "secrets"
+      ],
+      "line": 27,
+      "is_reexport": false
+    },
+    {
+      "source": "shutil",
+      "names": [
+        "shutil"
+      ],
+      "line": 28,
+      "is_reexport": false
+    },
+    {
+      "source": "subprocess",
+      "names": [
+        "subprocess"
+      ],
+      "line": 29,
+      "is_reexport": false
+    },
+    {
+      "source": "sys",
+      "names": [
+        "sys"
+      ],
+      "line": 30,
+      "is_reexport": false
+    },
+    {
+      "source": "warnings",
+      "names": [
+        "warnings"
+      ],
+      "line": 31,
+      "is_reexport": false
+    },
+    {
+      "source": "collections.abc",
+      "names": [
+        "Callable",
+        "Collection"
+      ],
+      "line": 32,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass"
+      ],
+      "line": 33,
+      "is_reexport": false
+    },
+    {
+      "source": "datetime",
+      "names": [
+        "datetime",
+        "timezone"
+      ],
+      "line": 34,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 35,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Any",
+        "TextIO"
+      ],
+      "line": 36,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.claim_builder",
+      "names": [
+        "CLAIM_BUILDER_SCHEMA_VERSION"
+      ],
+      "line": 41,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.config",
+      "names": [
+        "Config"
+      ],
+      "line": 42,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.evidence_builders",
+      "names": [
+        "BuildContext"
+      ],
+      "line": 43,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 44,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.junk_triage",
+      "names": [
+        "JUNK_BATCH_SIZE"
+      ],
+      "line": 45,
+      "is_reexport": false,
+      "name_map": {
+        "JUNK_BATCH_SIZE": "BATCH_SIZE"
+      }
+    },
+    {
+      "source": "osoji.junk_triage",
+      "names": [
+        "build_junk_claims",
+        "decide_junk_claims"
+      ],
+      "line": 46,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.factory",
+      "names": [
+        "create_provider"
+      ],
+      "line": 47,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.triage",
+      "names": [
+        "TRIAGE_SYSTEM_PROMPT",
+        "Claim",
+        "render_triage_prompt"
+      ],
+      "line": 48,
+      "is_reexport": false
+    },
+    {
+      "source": "triage_bootstrap",
+      "names": [
+        "load_manifest"
+      ],
+      "line": 329,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "REPO_ROOT",
+      "kind": "constant",
+      "line": 38,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "CORPUS_ROOT",
+      "kind": "constant",
+      "line": 50,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "CORPUS_CASE_SCHEMA",
+      "kind": "constant",
+      "line": 52,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "CORPUS_EXPECTED_SCHEMA",
+      "kind": "constant",
+      "line": 53,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "CORPUS_SPLITS_SCHEMA",
+      "kind": "constant",
+      "line": 54,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "VERDICT_SCHEMA",
+      "kind": "constant",
+      "line": 55,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "CorpusCase",
+      "kind": "class",
+      "line": 59,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "load_corpus",
+      "kind": "function",
+      "line": 86,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "stage_case",
+      "kind": "function",
+      "line": 195,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "build_case_claim",
+      "kind": "function",
+      "line": 230,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Variant",
+      "kind": "class",
+      "line": 256,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Variant.prompt_sha256",
+      "kind": "function",
+      "line": 264,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "resolve_variant",
+      "kind": "function",
+      "line": 270,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "cases_from_bootstrap_manifest",
+      "kind": "function",
+      "line": 313,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "compute_metrics",
+      "kind": "function",
+      "line": 433,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "check_thresholds",
+      "kind": "function",
+      "line": 539,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "write_verdict_ndjson",
+      "kind": "function",
+      "line": 582,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "read_verdict_ndjson",
+      "kind": "function",
+      "line": 602,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "load_splits",
+      "kind": "function",
+      "line": 637,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "suggest_split",
+      "kind": "function",
+      "line": 649,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GateReport",
+      "kind": "class",
+      "line": 676,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "check_gepa_gate",
+      "kind": "function",
+      "line": 689,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "EvalRun",
+      "kind": "class",
+      "line": 727,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "default_run_id",
+      "kind": "function",
+      "line": 734,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "evaluate_corpus",
+      "kind": "function",
+      "line": 821,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "select_cases",
+      "kind": "function",
+      "line": 982,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "resolve",
+      "line": 38,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Path",
+      "line": 38,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sys.path.insert",
+      "line": 39,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "str",
+      "line": 39,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "CorpusCase",
+      "to": "dataclass",
+      "line": 58,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_resolve_posix_ref",
+      "to": "base.joinpath",
+      "line": 83,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_resolve_posix_ref",
+      "to": "posix_ref.split",
+      "line": 83,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "ValueError",
+      "line": 108,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "Path",
+      "line": 110,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "set",
+      "line": 111,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "get",
+      "line": 112,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "sorted",
+      "line": 115,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "corpus_root.glob",
+      "line": 115,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "case_dir.relative_to",
+      "line": 117,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "rel_dir.as_posix",
+      "line": 122,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "json.loads",
+      "line": 126,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "case_json_path.read_text",
+      "line": 126,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "case_data.get",
+      "line": 127,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "ValueError",
+      "line": 128,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "case_data.get",
+      "line": 130,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "json.loads",
+      "line": 134,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "expected_path.read_text",
+      "line": 134,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "expected_data.get",
+      "line": 135,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "ValueError",
+      "line": 136,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "expected_data.get",
+      "line": 138,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "expected_data.get",
+      "line": 141,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "warnings.warn",
+      "line": 142,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "bool",
+      "line": 149,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "expected_data.get",
+      "line": 149,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "assignments.get",
+      "line": 153,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "Finding.from_dict",
+      "line": 157,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "json.loads",
+      "line": 157,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "finding_path.read_text",
+      "line": 157,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "case_data.get",
+      "line": 159,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "_resolve_posix_ref",
+      "line": 161,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "cases.append",
+      "line": 164,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "CorpusCase",
+      "line": 165,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "expected_data.get",
+      "line": 171,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "case_data.get",
+      "line": 173,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "load_corpus",
+      "to": "case_data.get",
+      "line": 175,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_copy_tree",
+      "to": "src_dir.exists",
+      "line": 185,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_copy_tree",
+      "to": "src_dir.rglob",
+      "line": 187,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_copy_tree",
+      "to": "src_file.is_file",
+      "line": 188,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_copy_tree",
+      "to": "src_file.relative_to",
+      "line": 189,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_copy_tree",
+      "to": "dest.parent.mkdir",
+      "line": 191,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_copy_tree",
+      "to": "shutil.copy2",
+      "line": 192,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "stage_case",
+      "to": "Path",
+      "line": 212,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "stage_case",
+      "to": "case.key.replace",
+      "line": 213,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "stage_case",
+      "to": "source_dir.exists",
+      "line": 216,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "stage_case",
+      "to": "ValueError",
+      "line": 217,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "stage_case",
+      "to": "_copy_tree",
+      "line": 223,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "stage_case",
+      "to": "_copy_tree",
+      "line": 225,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "stage_case",
+      "to": "Config",
+      "line": 227,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "build_case_claim",
+      "to": "BuildContext",
+      "line": 241,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "build_case_claim",
+      "to": "build_junk_claims",
+      "line": 242,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "build_case_claim",
+      "to": "Claim",
+      "line": 244,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "build_case_claim",
+      "to": "ValueError",
+      "line": 245,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "Variant.prompt_sha256",
+      "to": "hexdigest",
+      "line": 267,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Variant.prompt_sha256",
+      "to": "hashlib.sha256",
+      "line": 267,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Variant.prompt_sha256",
+      "to": "self.system_prompt.encode",
+      "line": 267,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Variant",
+      "to": "dataclass",
+      "line": 255,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "resolve_variant",
+      "to": "ValueError",
+      "line": 286,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "resolve_variant",
+      "to": "spec.split",
+      "line": 290,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "resolve_variant",
+      "to": "ValueError",
+      "line": 292,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "resolve_variant",
+      "to": "Variant",
+      "line": 295,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "resolve_variant",
+      "to": "value.startswith",
+      "line": 296,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "resolve_variant",
+      "to": "split",
+      "line": 297,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "resolve_variant",
+      "to": "len",
+      "line": 297,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "resolve_variant",
+      "to": "Variant",
+      "line": 298,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "resolve_variant",
+      "to": "render_triage_prompt",
+      "line": 300,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "resolve_variant",
+      "to": "read_text",
+      "line": 304,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "resolve_variant",
+      "to": "Path",
+      "line": 304,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "resolve_variant",
+      "to": "Variant",
+      "line": 305,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "cases_from_bootstrap_manifest",
+      "to": "str",
+      "line": 326,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "cases_from_bootstrap_manifest",
+      "to": "sys.path.insert",
+      "line": 328,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "cases_from_bootstrap_manifest",
+      "to": "load_manifest",
+      "line": 331,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "cases_from_bootstrap_manifest",
+      "to": "Path",
+      "line": 331,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "cases_from_bootstrap_manifest",
+      "to": "cases.append",
+      "line": 334,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "cases_from_bootstrap_manifest",
+      "to": "CorpusCase",
+      "line": 335,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "cases_from_bootstrap_manifest",
+      "to": "Finding.from_dict",
+      "line": 339,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "cases_from_bootstrap_manifest",
+      "to": "entry.get",
+      "line": 341,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "cases_from_bootstrap_manifest",
+      "to": "bool",
+      "line": 342,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "cases_from_bootstrap_manifest",
+      "to": "entry.get",
+      "line": 342,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_producer",
+      "to": "detector.split",
+      "line": 360,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_ranges_overlap",
+      "to": "max",
+      "line": 368,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_ranges_overlap",
+      "to": "min",
+      "line": 368,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "len",
+      "line": 376,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "enumerate",
+      "line": 381,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "append",
+      "line": 382,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "by_path.setdefault",
+      "line": 382,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "list",
+      "line": 384,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "range",
+      "line": 384,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_me_overlap.union",
+      "to": "find",
+      "line": 393,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_me_overlap.union",
+      "to": "find",
+      "line": 393,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "by_path.values",
+      "line": 397,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "range",
+      "line": 398,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "len",
+      "line": 398,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "range",
+      "line": 399,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "len",
+      "line": 399,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "_producer",
+      "line": 402,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "_producer",
+      "line": 402,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "_ranges_overlap",
+      "line": 405,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "union",
+      "line": 408,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "range",
+      "line": 412,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "find",
+      "line": 413,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "add",
+      "line": 414,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "group_producers.setdefault",
+      "line": 414,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "set",
+      "line": 414,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "_producer",
+      "line": 414,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "append",
+      "line": 415,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "group_members.setdefault",
+      "line": 415,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "sum",
+      "line": 417,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "len",
+      "line": 418,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "group_producers.items",
+      "line": 419,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_me_overlap",
+      "to": "len",
+      "line": 420,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_rate",
+      "to": "denom_pred",
+      "line": 426,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_rate",
+      "to": "numer_pred",
+      "line": 429,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_rate",
+      "to": "len",
+      "line": 430,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_rate",
+      "to": "len",
+      "line": 430,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 443,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics.is_confirmed",
+      "to": "r.get",
+      "line": 446,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "_rate",
+      "line": 448,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 448,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "_rate",
+      "line": 449,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 449,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "sorted",
+      "line": 451,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 451,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 451,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "_rate",
+      "line": 453,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 454,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 455,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "_rate",
+      "line": 461,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 462,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 463,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 469,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "sum",
+      "line": 471,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 471,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 471,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "len",
+      "line": 472,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "sum",
+      "line": 478,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "len",
+      "line": 478,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 484,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 484,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "sum",
+      "line": 487,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 487,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "len",
+      "line": 488,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "_me_overlap",
+      "line": 493,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 495,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "len",
+      "line": 496,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "sum",
+      "line": 498,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 498,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "len",
+      "line": 504,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "sum",
+      "line": 506,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 506,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "sum",
+      "line": 511,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "r.get",
+      "line": 511,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "sum",
+      "line": 514,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "len",
+      "line": 515,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "compute_metrics",
+      "to": "n_cases_by_category.get",
+      "line": 518,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "check_thresholds",
+      "to": "baseline.items",
+      "line": 562,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "check_thresholds",
+      "to": "isinstance",
+      "line": 566,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "check_thresholds",
+      "to": "isinstance",
+      "line": 566,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "check_thresholds",
+      "to": "violations.append",
+      "line": 570,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "check_thresholds",
+      "to": "violations.append",
+      "line": 572,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "write_verdict_ndjson",
+      "to": "json.dumps",
+      "line": 590,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "write_verdict_ndjson",
+      "to": "lines.append",
+      "line": 591,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "write_verdict_ndjson",
+      "to": "json.dumps",
+      "line": 591,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "write_verdict_ndjson",
+      "to": "join",
+      "line": 592,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "write_verdict_ndjson",
+      "to": "isinstance",
+      "line": 594,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "write_verdict_ndjson",
+      "to": "Path",
+      "line": 595,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "write_verdict_ndjson",
+      "to": "path.parent.mkdir",
+      "line": 596,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "write_verdict_ndjson",
+      "to": "path.write_text",
+      "line": 597,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "write_verdict_ndjson",
+      "to": "out.write",
+      "line": 599,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "read_verdict_ndjson",
+      "to": "Path",
+      "line": 610,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "read_verdict_ndjson",
+      "to": "splitlines",
+      "line": 611,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "read_verdict_ndjson",
+      "to": "path.read_text",
+      "line": 611,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "read_verdict_ndjson",
+      "to": "ln.strip",
+      "line": 611,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "read_verdict_ndjson",
+      "to": "ValueError",
+      "line": 613,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "read_verdict_ndjson",
+      "to": "json.loads",
+      "line": 616,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "read_verdict_ndjson",
+      "to": "trailer.get",
+      "line": 617,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "read_verdict_ndjson",
+      "to": "trailer.get",
+      "line": 617,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "read_verdict_ndjson",
+      "to": "ValueError",
+      "line": 618,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "read_verdict_ndjson",
+      "to": "enumerate",
+      "line": 623,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "read_verdict_ndjson",
+      "to": "json.loads",
+      "line": 624,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "read_verdict_ndjson",
+      "to": "record.get",
+      "line": 625,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "read_verdict_ndjson",
+      "to": "record.get",
+      "line": 625,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "read_verdict_ndjson",
+      "to": "ValueError",
+      "line": 626,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "read_verdict_ndjson",
+      "to": "records.append",
+      "line": 627,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "load_splits",
+      "to": "Path",
+      "line": 640,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "load_splits",
+      "to": "json.loads",
+      "line": 641,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "load_splits",
+      "to": "path.read_text",
+      "line": 641,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "load_splits",
+      "to": "data.get",
+      "line": 642,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "load_splits",
+      "to": "ValueError",
+      "line": 643,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "load_splits",
+      "to": "data.get",
+      "line": 644,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "suggest_split",
+      "to": "hexdigest",
+      "line": 657,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "suggest_split",
+      "to": "hashlib.sha256",
+      "line": 657,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "suggest_split",
+      "to": "encode",
+      "line": 657,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "suggest_split",
+      "to": "int",
+      "line": 658,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "suggest_split",
+      "to": "float",
+      "line": 658,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "suggest_split",
+      "to": "sum",
+      "line": 660,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "suggest_split",
+      "to": "ratios.values",
+      "line": 660,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "suggest_split",
+      "to": "list",
+      "line": 662,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "suggest_split",
+      "to": "ratios.keys",
+      "line": 662,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "check_gepa_gate",
+      "to": "sum",
+      "line": 699,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "check_gepa_gate",
+      "to": "get",
+      "line": 700,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "check_gepa_gate",
+      "to": "bool",
+      "line": 701,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "check_gepa_gate",
+      "to": "set",
+      "line": 704,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "check_gepa_gate",
+      "to": "sorted",
+      "line": 705,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "check_gepa_gate",
+      "to": "sorted",
+      "line": 706,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "check_gepa_gate",
+      "to": "GateReport",
+      "line": 710,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "default_run_id",
+      "to": "strftime",
+      "line": 737,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "default_run_id",
+      "to": "datetime.now",
+      "line": 737,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "default_run_id",
+      "to": "secrets.token_hex",
+      "line": 738,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_git_commit",
+      "to": "subprocess.run",
+      "line": 745,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_git_commit",
+      "to": "result.stdout.strip",
+      "line": 752,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_stage_and_build_claims",
+      "to": "stage_case",
+      "line": 773,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_stage_and_build_claims",
+      "to": "Config",
+      "line": 776,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "_stage_and_build_claims",
+      "to": "ValueError",
+      "line": 779,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "_stage_and_build_claims",
+      "to": "claims.append",
+      "line": 780,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_stage_and_build_claims",
+      "to": "build_case_claim",
+      "line": 780,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "ValueError",
+      "line": 887,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "ValueError",
+      "line": 889,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "default_run_id",
+      "line": 891,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "Path",
+      "line": 892,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "config_factory",
+      "line": 896,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "Config",
+      "line": 898,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "datetime.now",
+      "line": 901,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "_stage_and_build_claims",
+      "line": 907,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "create_provider",
+      "line": 913,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "range",
+      "line": 921,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "decide_junk_claims",
+      "line": 922,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "zip",
+      "line": 932,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "records.append",
+      "line": 933,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "_build_verdict_record",
+      "line": 934,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "active_provider.close",
+      "line": 945,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "datetime.now",
+      "line": 947,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "started_at.isoformat",
+      "line": 953,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "finished_at.isoformat",
+      "line": 954,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "total_seconds",
+      "line": 955,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "runtime_config.model_for",
+      "line": 961,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "_git_commit",
+      "line": 962,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "str",
+      "line": 965,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "len",
+      "line": 966,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "sum",
+      "line": 967,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "sorted",
+      "line": 969,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "compute_metrics",
+      "line": 976,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "evaluate_corpus",
+      "to": "EvalRun",
+      "line": 979,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "select_cases",
+      "to": "ValueError",
+      "line": 1003,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "select_cases",
+      "to": "cases.extend",
+      "line": 1007,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "select_cases",
+      "to": "load_corpus",
+      "line": 1008,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "select_cases",
+      "to": "ValueError",
+      "line": 1014,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "select_cases",
+      "to": "cases_from_bootstrap_manifest",
+      "line": 1015,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "select_cases",
+      "to": "set",
+      "line": 1016,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "select_cases",
+      "to": "cases.extend",
+      "line": 1021,
+      "call_sites": 2
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "corpus-case/1",
+      "line": 52,
+      "usage": "defined",
+      "context": "constant CORPUS_CASE_SCHEMA",
+      "kind": "identifier"
+    },
+    {
+      "value": "corpus-expected/1",
+      "line": 53,
+      "usage": "defined",
+      "context": "constant CORPUS_EXPECTED_SCHEMA",
+      "kind": "identifier"
+    },
+    {
+      "value": "corpus-splits/1",
+      "line": 54,
+      "usage": "defined",
+      "context": "constant CORPUS_SPLITS_SCHEMA",
+      "kind": "identifier"
+    },
+    {
+      "value": "osoji-verdict/1",
+      "line": 55,
+      "usage": "defined",
+      "context": "constant VERDICT_SCHEMA",
+      "kind": "identifier"
+    },
+    {
+      "value": "corpus",
+      "line": 72,
+      "usage": "defined",
+      "context": "constant source",
+      "kind": "identifier"
+    },
+    {
+      "value": "load_corpus: split filtering requires the splits argument",
+      "line": 108,
+      "usage": "produced",
+      "context": "argument to ValueError"
+    },
+    {
+      "value": "assignments",
+      "line": 112,
+      "usage": "produced",
+      "context": "argument to get"
+    },
+    {
+      "value": "*/case_*/case.json",
+      "line": 115,
+      "usage": "produced",
+      "context": "argument to corpus_root.glob"
+    },
+    {
+      "value": "_holding",
+      "line": 118,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "rel_dir.parts"
+    },
+    {
+      "value": "utf-8",
+      "line": 126,
+      "usage": "produced",
+      "context": "keyword argument to case_json_path.read_text"
+    },
+    {
+      "value": "schema",
+      "line": 127,
+      "usage": "produced",
+      "context": "argument to case_data.get"
+    },
+    {
+      "value": "schema",
+      "line": 130,
+      "usage": "produced",
+      "context": "argument to case_data.get"
+    },
+    {
+      "value": "utf-8",
+      "line": 134,
+      "usage": "produced",
+      "context": "keyword argument to expected_path.read_text"
+    },
+    {
+      "value": "schema",
+      "line": 135,
+      "usage": "produced",
+      "context": "argument to expected_data.get"
+    },
+    {
+      "value": "schema",
+      "line": 138,
+      "usage": "produced",
+      "context": "argument to expected_data.get"
+    },
+    {
+      "value": "accepted",
+      "line": 141,
+      "usage": "produced",
+      "context": "argument to expected_data.get"
+    },
+    {
+      "value": "gray",
+      "line": 149,
+      "usage": "produced",
+      "context": "argument to expected_data.get"
+    },
+    {
+      "value": "utf-8",
+      "line": 157,
+      "usage": "produced",
+      "context": "keyword argument to finding_path.read_text"
+    },
+    {
+      "value": "snapshot_ref",
+      "line": 159,
+      "usage": "produced",
+      "context": "argument to case_data.get"
+    },
+    {
+      "value": "reasoning",
+      "line": 171,
+      "usage": "produced",
+      "context": "argument to expected_data.get"
+    },
+    {
+      "value": "evidence_policy",
+      "line": 173,
+      "usage": "produced",
+      "context": "argument to case_data.get"
+    },
+    {
+      "value": "rebuild",
+      "line": 173,
+      "usage": "produced",
+      "context": "argument to case_data.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "origin",
+      "line": 175,
+      "usage": "produced",
+      "context": "argument to case_data.get"
+    },
+    {
+      "value": "__",
+      "line": 213,
+      "usage": "produced",
+      "context": "argument to case.key.replace"
+    },
+    {
+      "value": "rebuild",
+      "line": 216,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "case.evidence_policy",
+      "kind": "identifier"
+    },
+    {
+      "value": "symbols",
+      "line": 224,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "facts",
+      "line": 224,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "shadow",
+      "line": 224,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "rebuild",
+      "line": 240,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "case.evidence_policy",
+      "kind": "identifier"
+    },
+    {
+      "value": "frozen",
+      "line": 243,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "case.evidence_policy",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 267,
+      "usage": "produced",
+      "context": "argument to self.system_prompt.encode"
+    },
+    {
+      "value": "@default",
+      "line": 294,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "value",
+      "kind": "identifier"
+    },
+    {
+      "value": "@omit:",
+      "line": 296,
+      "usage": "produced",
+      "context": "argument to value.startswith",
+      "kind": "identifier"
+    },
+    {
+      "value": "@omit:",
+      "line": 297,
+      "usage": "produced",
+      "context": "argument to len",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 304,
+      "usage": "produced",
+      "context": "keyword argument to read_text"
+    },
+    {
+      "value": "adjudication_notes",
+      "line": 341,
+      "usage": "produced",
+      "context": "argument to entry.get"
+    },
+    {
+      "value": "gray",
+      "line": 342,
+      "usage": "produced",
+      "context": "argument to entry.get"
+    },
+    {
+      "value": "rebuild",
+      "line": 343,
+      "usage": "produced",
+      "context": "keyword argument to CorpusCase",
+      "kind": "identifier"
+    },
+    {
+      "value": "bootstrap",
+      "line": 346,
+      "usage": "produced",
+      "context": "keyword argument to CorpusCase",
+      "kind": "identifier"
+    },
+    {
+      "value": "gray",
+      "line": 443,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "verdict",
+      "line": 446,
+      "usage": "produced",
+      "context": "argument to r.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 446,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "expected_verdict",
+      "line": 448,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "confirmed",
+      "line": 448,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "expected_verdict",
+      "line": 449,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "dismissed",
+      "line": 449,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "detector",
+      "line": 451,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "detector",
+      "line": 451,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "detector",
+      "line": 454,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "expected_verdict",
+      "line": 455,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "confirmed",
+      "line": 455,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "detector",
+      "line": 462,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "expected_verdict",
+      "line": 463,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "dismissed",
+      "line": 463,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "verdict",
+      "line": 469,
+      "usage": "produced",
+      "context": "argument to r.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "verdict",
+      "line": 471,
+      "usage": "produced",
+      "context": "argument to r.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "expected_verdict",
+      "line": 471,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "uncategorized",
+      "line": 478,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "c.finding.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "gap_type",
+      "line": 484,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "contract",
+      "line": 484,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "verdict",
+      "line": 484,
+      "usage": "produced",
+      "context": "argument to r.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "contract_class",
+      "line": 487,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "other",
+      "line": 487,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "evidence_policy",
+      "line": 495,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "rebuild",
+      "line": 495,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "insufficient_evidence",
+      "line": 498,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "verdict",
+      "line": 506,
+      "usage": "produced",
+      "context": "argument to r.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "uncertain",
+      "line": 506,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "verdict",
+      "line": 511,
+      "usage": "produced",
+      "context": "argument to r.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "max",
+      "line": 569,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "bounds"
+    },
+    {
+      "value": "min",
+      "line": 571,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "bounds"
+    },
+    {
+      "value": "utf-8",
+      "line": 597,
+      "usage": "produced",
+      "context": "keyword argument to path.write_text"
+    },
+    {
+      "value": "utf-8",
+      "line": 611,
+      "usage": "produced",
+      "context": "keyword argument to path.read_text"
+    },
+    {
+      "value": "schema",
+      "line": 617,
+      "usage": "produced",
+      "context": "argument to trailer.get"
+    },
+    {
+      "value": "record",
+      "line": 617,
+      "usage": "produced",
+      "context": "argument to trailer.get"
+    },
+    {
+      "value": "run_meta",
+      "line": 617,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "schema",
+      "line": 625,
+      "usage": "produced",
+      "context": "argument to record.get"
+    },
+    {
+      "value": "record",
+      "line": 625,
+      "usage": "produced",
+      "context": "argument to record.get"
+    },
+    {
+      "value": "verdict",
+      "line": 625,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 641,
+      "usage": "produced",
+      "context": "keyword argument to path.read_text"
+    },
+    {
+      "value": "schema",
+      "line": 642,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "schema",
+      "line": 644,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "utf-8",
+      "line": 657,
+      "usage": "produced",
+      "context": "argument to encode"
+    },
+    {
+      "value": "assignments",
+      "line": 700,
+      "usage": "produced",
+      "context": "argument to get"
+    },
+    {
+      "value": "%Y%m%d",
+      "line": 737,
+      "usage": "produced",
+      "context": "argument to strftime"
+    },
+    {
+      "value": "git",
+      "line": 746,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "rev-parse",
+      "line": 746,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "HEAD",
+      "line": 746,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "unknown",
+      "line": 754,
+      "usage": "produced",
+      "context": "return value",
+      "kind": "identifier"
+    },
+    {
+      "value": "corpus",
+      "line": 772,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "case.source",
+      "kind": "identifier"
+    },
+    {
+      "value": "bootstrap",
+      "line": 774,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "case.source",
+      "kind": "identifier"
+    },
+    {
+      "value": "verdict",
+      "line": 793,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "evaluate_corpus: cases is empty",
+      "line": 887,
+      "usage": "produced",
+      "context": "argument to ValueError"
+    },
+    {
+      "value": "evaluate_corpus: variants is empty",
+      "line": 889,
+      "usage": "produced",
+      "context": "argument to ValueError"
+    },
+    {
+      "value": "run_meta",
+      "line": 951,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "medium",
+      "line": 961,
+      "usage": "produced",
+      "context": "argument to runtime_config.model_for",
+      "kind": "identifier"
+    },
+    {
+      "value": "corpus",
+      "line": 1002,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "bootstrap",
+      "line": 1002,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "both",
+      "line": 1002,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "corpus",
+      "line": 1006,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "both",
+      "line": 1006,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "bootstrap",
+      "line": 1012,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "both",
+      "line": 1012,
+      "usage": "produced",
+      "context": "collection element"
+    }
+  ],
+  "extraction_method": "ast"
+}

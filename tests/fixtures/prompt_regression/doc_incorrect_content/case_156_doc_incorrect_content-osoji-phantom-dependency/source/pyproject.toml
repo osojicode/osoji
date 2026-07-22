@@ -1,0 +1,69 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "osojicode"
+version = "0.2.0"
+description = "Shadow documentation engine - generates semantically dense summaries of codebases for AI agent consumption"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+authors = [
+    { name = "Osoji Authors" }
+]
+keywords = ["code-quality", "documentation", "dead-code", "llm", "ai",
+            "code-hygiene", "static-analysis", "developer-tools",
+            "code-review", "osoji"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Documentation",
+    "Environment :: Console",
+]
+dependencies = [
+    "anthropic>=0.39.0",
+    "click>=8.3.3",  # floor excludes PYSEC-2026-2132 (command injection in click.edit)
+    "google-genai>=1.10.0",
+    "openai>=1.75.0",
+    "pyasn1>=0.6.4",  # transitive via google-auth; floor excludes CVE-2026-59885/59886
+    "python-dotenv>=1.0.0",
+    "tabulate>=0.9.0",
+    "tree-sitter>=0.25,<0.27",
+    "tree-sitter-python>=0.23.6",
+]
+
+[project.optional-dependencies]
+safety = ["detect-secrets>=1.4.0"]
+all = ["detect-secrets>=1.4.0"]
+dev = ["pytest>=7.0.0", "pytest-mock>=3.10.0", "pytest-asyncio>=0.21.0", "scipy>=1.11.0", "jsonschema>=4.20.0", "claude-agent-sdk>=0.2.110"]
+
+[project.scripts]
+osoji = "osoji.cli:main"
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"
+# Fixture corpora contain snapshotted repos whose embedded test files must not
+# be collected against the live package (they pin the snapshot's API).
+addopts = "--ignore=tests/fixtures"
+markers = [
+    "prompt_regression: tests that make real LLM API calls to verify prompt behavior",
+    "live_smoke: optional live provider smoke tests",
+    "corpus_evaluate: opt-in V1-7 corpus evaluator run via pytest --evaluate (live LLM calls)",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/osoji"]
+
+[project.urls]
+Homepage = "https://github.com/osojicode/osoji"
+Repository = "https://github.com/osojicode/osoji"
+Issues = "https://github.com/osojicode/osoji/issues"
+Changelog = "https://github.com/osojicode/osoji/blob/main/CHANGELOG.md"

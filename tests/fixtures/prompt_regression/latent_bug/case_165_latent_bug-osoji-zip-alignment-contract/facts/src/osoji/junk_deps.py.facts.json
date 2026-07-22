@@ -1,0 +1,3151 @@
+{
+  "source": "src/osoji/junk_deps.py",
+  "source_hash": "33d1205471a0d039",
+  "generated": "2026-07-22T10:56:19Z",
+  "imports": [
+    {
+      "source": "asyncio",
+      "names": [
+        "asyncio"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "re",
+      "names": [
+        "re"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "field"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Callable"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "ANTHROPIC_MODEL_SMALL",
+        "Config",
+        "SHADOW_DIR"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": ".evidence_builders",
+      "names": [
+        "BuildContext",
+        "_scanner_meta"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": ".facts",
+      "names": [
+        "FactsDB"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings_adapter",
+      "names": [
+        "finding_from_dep_candidate"
+      ],
+      "line": 14,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk",
+      "names": [
+        "JunkAnalyzer",
+        "JunkFinding",
+        "JunkAnalysisResult"
+      ],
+      "line": 15,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk_triage",
+      "names": [
+        "build_junk_claims",
+        "decide_junk_claims"
+      ],
+      "line": 16,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.base",
+      "names": [
+        "LLMProvider"
+      ],
+      "line": 17,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.runtime",
+      "names": [
+        "create_runtime"
+      ],
+      "line": 18,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.types",
+      "names": [
+        "Message",
+        "MessageRole",
+        "CompletionOptions"
+      ],
+      "line": 19,
+      "is_reexport": false
+    },
+    {
+      "source": ".tools",
+      "names": [
+        "get_resolve_import_names_tool_definitions",
+        "get_classify_deps_tool_definitions"
+      ],
+      "line": 20,
+      "is_reexport": false
+    },
+    {
+      "source": ".walker",
+      "names": [
+        "list_repo_files",
+        "_matches_ignore"
+      ],
+      "line": 21,
+      "is_reexport": false
+    },
+    {
+      "source": "tomllib",
+      "names": [
+        "tomllib"
+      ],
+      "line": 325,
+      "is_reexport": false
+    },
+    {
+      "source": "tomli",
+      "names": [
+        "tomllib"
+      ],
+      "line": 328,
+      "is_reexport": false,
+      "name_map": {
+        "tomllib": "tomli"
+      }
+    },
+    {
+      "source": "tomllib",
+      "names": [
+        "tomllib"
+      ],
+      "line": 443,
+      "is_reexport": false
+    },
+    {
+      "source": "tomli",
+      "names": [
+        "tomllib"
+      ],
+      "line": 446,
+      "is_reexport": false,
+      "name_map": {
+        "tomllib": "tomli"
+      }
+    }
+  ],
+  "exports": [
+    {
+      "name": "DependencyCandidate",
+      "kind": "class",
+      "line": 26,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "discover_manifests",
+      "kind": "function",
+      "line": 274,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "parse_manifest",
+      "kind": "function",
+      "line": 530,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "scan_imports",
+      "kind": "function",
+      "line": 544,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "detect_dead_deps_async",
+      "kind": "function",
+      "line": 621,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DeadDepsAnalyzer",
+      "kind": "class",
+      "line": 758,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "JunkAnalyzer"
+      ]
+    },
+    {
+      "name": "DeadDepsAnalyzer.name",
+      "kind": "function",
+      "line": 762,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DeadDepsAnalyzer.description",
+      "kind": "function",
+      "line": 766,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DeadDepsAnalyzer.cli_flag",
+      "kind": "function",
+      "line": 770,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DeadDepsAnalyzer.analyze",
+      "kind": "function",
+      "line": 773,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DeadDepsAnalyzer.analyze_async",
+      "kind": "function",
+      "line": 787,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "DependencyCandidate",
+      "to": "field",
+      "line": 33,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_resolve_import_names_heuristic",
+      "to": "package_name.lower",
+      "line": 100,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_resolve_import_names_heuristic",
+      "to": "lower.replace",
+      "line": 106,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_resolve_import_names_heuristic",
+      "to": "package_name.replace",
+      "line": 112,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_resolve_import_names_heuristic",
+      "to": "package_name.rsplit",
+      "line": 116,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_resolve_import_names_heuristic",
+      "to": "lower.replace",
+      "line": 119,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_resolve_import_names_batch_async",
+      "to": "lines.append",
+      "line": 153,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_resolve_import_names_batch_async",
+      "to": "lines.append",
+      "line": 156,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_resolve_import_names_batch_async",
+      "to": "join",
+      "line": 156,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_resolve_import_names_batch_async.check_completeness",
+      "to": "tool_input.get",
+      "line": 163,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_resolve_import_names_batch_async.check_completeness",
+      "to": "r.get",
+      "line": 164,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_resolve_import_names_batch_async.check_completeness",
+      "to": "sorted",
+      "line": 166,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_resolve_import_names_batch_async",
+      "to": "provider.complete",
+      "line": 168,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_resolve_import_names_batch_async",
+      "to": "Message",
+      "line": 169,
+      "call_sites": 67
+    },
+    {
+      "from_symbol": "_resolve_import_names_batch_async",
+      "to": "join",
+      "line": 169,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_resolve_import_names_batch_async",
+      "to": "CompletionOptions",
+      "line": 171,
+      "call_sites": 60
+    },
+    {
+      "from_symbol": "_resolve_import_names_batch_async",
+      "to": "config.model_for",
+      "line": 172,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_resolve_import_names_batch_async",
+      "to": "max",
+      "line": 173,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_resolve_import_names_batch_async",
+      "to": "len",
+      "line": 173,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_resolve_import_names_batch_async",
+      "to": "get_resolve_import_names_tool_definitions",
+      "line": 175,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_resolve_import_names_batch_async",
+      "to": "tc.input.get",
+      "line": 184,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_resolve_import_names_batch_async",
+      "to": "r.get",
+      "line": 185,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_resolve_import_names_batch_async",
+      "to": "r.get",
+      "line": 186,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async",
+      "to": "lines.append",
+      "line": 216,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async",
+      "to": "lines.append",
+      "line": 219,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async",
+      "to": "lines.append",
+      "line": 222,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async",
+      "to": "join",
+      "line": 222,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async.check_completeness",
+      "to": "tool_input.get",
+      "line": 229,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async.check_completeness",
+      "to": "c.get",
+      "line": 230,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async.check_completeness",
+      "to": "sorted",
+      "line": 232,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async",
+      "to": "provider.complete",
+      "line": 234,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async",
+      "to": "Message",
+      "line": 235,
+      "call_sites": 67
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async",
+      "to": "join",
+      "line": 235,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async",
+      "to": "CompletionOptions",
+      "line": 237,
+      "call_sites": 60
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async",
+      "to": "config.model_for",
+      "line": 238,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async",
+      "to": "max",
+      "line": 239,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async",
+      "to": "len",
+      "line": 239,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async",
+      "to": "get_classify_deps_tool_definitions",
+      "line": 241,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async",
+      "to": "tc.input.get",
+      "line": 250,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async",
+      "to": "c.get",
+      "line": 251,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async",
+      "to": "c.get",
+      "line": 252,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_classify_deps_batch_async",
+      "to": "classification_map.get",
+      "line": 256,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "re.compile",
+      "line": 271,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "discover_manifests",
+      "to": "_MANIFEST_FILES.items",
+      "line": 282,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "discover_manifests",
+      "to": "is_file",
+      "line": 283,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "discover_manifests",
+      "to": "manifests.append",
+      "line": 284,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "discover_manifests",
+      "to": "config.root_path.iterdir",
+      "line": 287,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "discover_manifests",
+      "to": "child.is_file",
+      "line": 288,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "discover_manifests",
+      "to": "_REQUIREMENTS_PATTERN.match",
+      "line": 288,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "discover_manifests",
+      "to": "manifests.append",
+      "line": 289,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_requirements_txt",
+      "to": "enumerate",
+      "line": 299,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_requirements_txt",
+      "to": "content.splitlines",
+      "line": 299,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_parse_requirements_txt",
+      "to": "line.strip",
+      "line": 300,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_requirements_txt",
+      "to": "line.startswith",
+      "line": 301,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_requirements_txt",
+      "to": "line.startswith",
+      "line": 304,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_requirements_txt",
+      "to": "re.match",
+      "line": 308,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_requirements_txt",
+      "to": "strip",
+      "line": 310,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_requirements_txt",
+      "to": "match.group",
+      "line": 310,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_parse_requirements_txt",
+      "to": "candidates.append",
+      "line": 312,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_parse_requirements_txt",
+      "to": "DependencyCandidate",
+      "line": 312,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_parse_requirements_txt",
+      "to": "_resolve_import_names_heuristic",
+      "line": 315,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "tomllib.loads",
+      "line": 333,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "content.splitlines",
+      "line": 338,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml._find_line",
+      "to": "pkg_name.lower",
+      "line": 342,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml._find_line",
+      "to": "enumerate",
+      "line": 343,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml._find_line",
+      "to": "line.lower",
+      "line": 344,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml._extract_pkg_name",
+      "to": "re.match",
+      "line": 350,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml._extract_pkg_name",
+      "to": "match.group",
+      "line": 351,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "get",
+      "line": 354,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "data.get",
+      "line": 354,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "_extract_pkg_name",
+      "line": 355,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "candidates.append",
+      "line": 357,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "DependencyCandidate",
+      "line": 357,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "_resolve_import_names_heuristic",
+      "line": 359,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "_find_line",
+      "line": 360,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "items",
+      "line": 365,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "get",
+      "line": 365,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "data.get",
+      "line": 365,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "group_name.lower",
+      "line": 366,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "_extract_pkg_name",
+      "line": 368,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "candidates.append",
+      "line": 370,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "DependencyCandidate",
+      "line": 370,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "_resolve_import_names_heuristic",
+      "line": 372,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "_find_line",
+      "line": 373,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "get",
+      "line": 377,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "data.get",
+      "line": 377,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "poetry.get",
+      "line": 378,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "pkg.lower",
+      "line": 379,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "candidates.append",
+      "line": 381,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "DependencyCandidate",
+      "line": 381,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "_resolve_import_names_heuristic",
+      "line": 383,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "_find_line",
+      "line": 384,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "values",
+      "line": 386,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "poetry.get",
+      "line": 386,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "group_data.get",
+      "line": 387,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "pkg.lower",
+      "line": 388,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "candidates.append",
+      "line": 390,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "DependencyCandidate",
+      "line": 390,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "_resolve_import_names_heuristic",
+      "line": 392,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "_find_line",
+      "line": 393,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "get",
+      "line": 397,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "data.get",
+      "line": 397,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "_extract_pkg_name",
+      "line": 398,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "candidates.append",
+      "line": 400,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "DependencyCandidate",
+      "line": 400,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "_resolve_import_names_heuristic",
+      "line": 402,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_parse_pyproject_toml",
+      "to": "_find_line",
+      "line": 403,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_parse_package_json",
+      "to": "json.loads",
+      "line": 412,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_package_json",
+      "to": "content.splitlines",
+      "line": 417,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_parse_package_json._find_line",
+      "to": "enumerate",
+      "line": 420,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_package_json",
+      "to": "data.get",
+      "line": 430,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_package_json",
+      "to": "candidates.append",
+      "line": 431,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_parse_package_json",
+      "to": "DependencyCandidate",
+      "line": 431,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_parse_package_json",
+      "to": "_resolve_import_names_heuristic",
+      "line": 433,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_parse_package_json",
+      "to": "_find_line",
+      "line": 434,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_parse_cargo_toml",
+      "to": "tomllib.loads",
+      "line": 451,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_cargo_toml",
+      "to": "content.splitlines",
+      "line": 456,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_parse_cargo_toml._find_line",
+      "to": "enumerate",
+      "line": 459,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_cargo_toml",
+      "to": "items",
+      "line": 465,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_cargo_toml",
+      "to": "data.get",
+      "line": 465,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_cargo_toml",
+      "to": "isinstance",
+      "line": 468,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_cargo_toml",
+      "to": "candidates.append",
+      "line": 470,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_parse_cargo_toml",
+      "to": "DependencyCandidate",
+      "line": 470,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_parse_cargo_toml",
+      "to": "_resolve_import_names_heuristic",
+      "line": 472,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_parse_cargo_toml",
+      "to": "_find_line",
+      "line": 473,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_parse_go_mod",
+      "to": "enumerate",
+      "line": 487,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_go_mod",
+      "to": "content.splitlines",
+      "line": 487,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_parse_go_mod",
+      "to": "line.strip",
+      "line": 488,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_go_mod",
+      "to": "stripped.startswith",
+      "line": 490,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_go_mod",
+      "to": "re.match",
+      "line": 498,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_go_mod",
+      "to": "match.group",
+      "line": 500,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_parse_go_mod",
+      "to": "candidates.append",
+      "line": 501,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_parse_go_mod",
+      "to": "DependencyCandidate",
+      "line": 501,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_parse_go_mod",
+      "to": "_resolve_import_names_heuristic",
+      "line": 503,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_parse_go_mod",
+      "to": "stripped.startswith",
+      "line": 506,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_go_mod",
+      "to": "re.match",
+      "line": 507,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_go_mod",
+      "to": "match.group",
+      "line": 509,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_parse_go_mod",
+      "to": "candidates.append",
+      "line": 510,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_parse_go_mod",
+      "to": "DependencyCandidate",
+      "line": 510,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_parse_go_mod",
+      "to": "_resolve_import_names_heuristic",
+      "line": 512,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "parse_manifest",
+      "to": "Path",
+      "line": 533,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "parse_manifest",
+      "to": "_REQUIREMENTS_PATTERN.match",
+      "line": 537,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "parse_manifest",
+      "to": "_parse_requirements_txt",
+      "line": 538,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "enumerate",
+      "line": 557,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "append",
+      "line": 559,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "import_to_candidates.setdefault",
+      "line": 559,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "sorted",
+      "line": 562,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "import_to_candidates.keys",
+      "line": 562,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "re.escape",
+      "line": 566,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "re.compile",
+      "line": 567,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "join",
+      "line": 567,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "list_repo_files",
+      "line": 570,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "config.load_osojiignore",
+      "line": 571,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "path.is_absolute",
+      "line": 574,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "path.is_file",
+      "line": 577,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "path.relative_to",
+      "line": 580,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "replace",
+      "line": 581,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "str",
+      "line": 581,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "rel_str.startswith",
+      "line": 583,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "_matches_ignore",
+      "line": 585,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "_matches_ignore",
+      "line": 587,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "path.read_text",
+      "line": 595,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "set",
+      "line": 600,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "pattern.finditer",
+      "line": 601,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "found_names.add",
+      "line": 602,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "match.group",
+      "line": 602,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "import_to_candidates.get",
+      "line": 605,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "scan_imports",
+      "to": "hit_files.append",
+      "line": 607,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "discover_manifests",
+      "line": 637,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "print",
+      "line": 639,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "print",
+      "line": 642,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "len",
+      "line": 642,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "full_path.read_text",
+      "line": 651,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "parse_manifest",
+      "line": 655,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "all_candidates.extend",
+      "line": 656,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "print",
+      "line": 659,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "print",
+      "line": 662,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "len",
+      "line": 662,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "cand.package_name.lower",
+      "line": 668,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "to_resolve.append",
+      "line": 669,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "list",
+      "line": 672,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "dict.fromkeys",
+      "line": 672,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "range",
+      "line": 678,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "len",
+      "line": 678,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "_resolve_import_names_batch_async",
+      "line": 680,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "llm_resolved.update",
+      "line": 683,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "print",
+      "line": 690,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "len",
+      "line": 690,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "len",
+      "line": 690,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "print",
+      "line": 692,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "scan_imports",
+      "line": 695,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "_filter_zero_import",
+      "line": 698,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "cand.package_name.lower",
+      "line": 703,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "lower.startswith",
+      "line": 706,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "pre_filtered.append",
+      "line": 708,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "print",
+      "line": 710,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "len",
+      "line": 711,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "len",
+      "line": 712,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "len",
+      "line": 712,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "append",
+      "line": 723,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "by_manifest_classify.setdefault",
+      "line": 723,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "by_manifest_classify.items",
+      "line": 726,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "range",
+      "line": 729,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "len",
+      "line": 729,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "_classify_deps_batch_async",
+      "line": 731,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "manifest_contents.get",
+      "line": 732,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "genuine_candidates.extend",
+      "line": 734,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "print",
+      "line": 736,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "genuine_candidates.extend",
+      "line": 737,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "print",
+      "line": 739,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "len",
+      "line": 740,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "len",
+      "line": 741,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "len",
+      "line": 741,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "finding_from_dep_candidate",
+      "line": 749,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "BuildContext",
+      "line": 750,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "FactsDB",
+      "line": 750,
+      "call_sites": 90
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "build_junk_claims",
+      "line": 751,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "decide_junk_claims",
+      "line": 752,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "detect_dead_deps_async",
+      "to": "len",
+      "line": 755,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DeadDepsAnalyzer.analyze._run",
+      "to": "create_runtime",
+      "line": 777,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "DeadDepsAnalyzer.analyze._run",
+      "to": "self.analyze_async",
+      "line": 779,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadDepsAnalyzer.analyze._run",
+      "to": "logging_provider.close",
+      "line": 783,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadDepsAnalyzer.analyze",
+      "to": "asyncio.run",
+      "line": 785,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadDepsAnalyzer.analyze",
+      "to": "_run",
+      "line": 785,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadDepsAnalyzer.analyze_async",
+      "to": "detect_dead_deps_async",
+      "line": 788,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DeadDepsAnalyzer.analyze_async",
+      "to": "_scanner_meta",
+      "line": 793,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DeadDepsAnalyzer.analyze_async",
+      "to": "meta.get",
+      "line": 794,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadDepsAnalyzer.analyze_async",
+      "to": "findings.append",
+      "line": 795,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadDepsAnalyzer.analyze_async",
+      "to": "JunkFinding",
+      "line": 795,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DeadDepsAnalyzer.analyze_async",
+      "to": "JunkAnalysisResult",
+      "line": 813,
+      "call_sites": 20
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "cand",
+      "member": "import_names",
+      "line": 688
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "python",
+      "line": 35,
+      "usage": "defined",
+      "context": "constant ecosystem",
+      "kind": "identifier"
+    },
+    {
+      "value": "PIL",
+      "line": 42,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "sklearn",
+      "line": 43,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "yaml",
+      "line": 44,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "bs4",
+      "line": 45,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dateutil",
+      "line": 46,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "jwt",
+      "line": 47,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cv2",
+      "line": 48,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cv2",
+      "line": 49,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dotenv",
+      "line": 50,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "attr",
+      "line": 51,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "attrs",
+      "line": 51,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "google.protobuf",
+      "line": 52,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "google",
+      "line": 52,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "grpc",
+      "line": 53,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pymongo",
+      "line": 54,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "bson",
+      "line": 54,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "magic",
+      "line": 55,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "multipart",
+      "line": 56,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "jose",
+      "line": 57,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "ruamel",
+      "line": 58,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "msgpack",
+      "line": 59,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "zmq",
+      "line": 60,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "websocket",
+      "line": 61,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "git",
+      "line": 62,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "slugify",
+      "line": 63,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "py",
+      "line": 64,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Crypto",
+      "line": 65,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "nacl",
+      "line": 66,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "black",
+      "line": 73,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "ruff",
+      "line": 73,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "isort",
+      "line": 73,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "flake8",
+      "line": 73,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pylint",
+      "line": 73,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "mypy",
+      "line": 73,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pyright",
+      "line": 73,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pytest",
+      "line": 74,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "tox",
+      "line": 74,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "nox",
+      "line": 74,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pre-commit",
+      "line": 74,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "twine",
+      "line": 74,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "build",
+      "line": 74,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "setuptools",
+      "line": 74,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "wheel",
+      "line": 75,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pip",
+      "line": 75,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pip-tools",
+      "line": 75,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "sphinx",
+      "line": 75,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "mkdocs",
+      "line": 75,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "coverage",
+      "line": 75,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "bandit",
+      "line": 75,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "autopep8",
+      "line": 76,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "yapf",
+      "line": 76,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pyflakes",
+      "line": 76,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pycodestyle",
+      "line": 76,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pydocstyle",
+      "line": 76,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "flit",
+      "line": 77,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "hatch",
+      "line": 77,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "hatchling",
+      "line": 77,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "poetry",
+      "line": 77,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "poetry-core",
+      "line": 77,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "maturin",
+      "line": 78,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "setuptools-scm",
+      "line": 78,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "setuptools-rust",
+      "line": 78,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cython",
+      "line": 78,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "bump2version",
+      "line": 79,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "bumpversion",
+      "line": 79,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "towncrier",
+      "line": 79,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "sphinx-rtd-theme",
+      "line": 80,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "sphinx-autodoc-typehints",
+      "line": 80,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pytest-cov",
+      "line": 81,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pytest-xdist",
+      "line": 81,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pytest-asyncio",
+      "line": 81,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pytest-mock",
+      "line": 81,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pytest-timeout",
+      "line": 82,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pytest-randomly",
+      "line": 82,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pytest-sugar",
+      "line": 82,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "ipython",
+      "line": 83,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "ipdb",
+      "line": 83,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "debugpy",
+      "line": 83,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "typescript",
+      "line": 85,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "ts-node",
+      "line": 85,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "tsx",
+      "line": 85,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "esbuild",
+      "line": 85,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "webpack",
+      "line": 85,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "rollup",
+      "line": 85,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "vite",
+      "line": 85,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "parcel",
+      "line": 86,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "turbo",
+      "line": 86,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "eslint",
+      "line": 86,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "prettier",
+      "line": 86,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "jest",
+      "line": 86,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "mocha",
+      "line": 86,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "vitest",
+      "line": 86,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cypress",
+      "line": 87,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "playwright",
+      "line": 87,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "rimraf",
+      "line": 87,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "nodemon",
+      "line": 87,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "husky",
+      "line": 87,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "lint-staged",
+      "line": 87,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "concurrently",
+      "line": 88,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cross-env",
+      "line": 88,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dotenv-cli",
+      "line": 88,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "ts-jest",
+      "line": 88,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "@types/node",
+      "line": 89,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "@types/jest",
+      "line": 89,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "@types/mocha",
+      "line": 89,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "babel-jest",
+      "line": 90,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "identity-obj-proxy",
+      "line": 90,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "postcss",
+      "line": 91,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "autoprefixer",
+      "line": 91,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "tailwindcss",
+      "line": 91,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "sass",
+      "line": 91,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "less",
+      "line": 91,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "webpack-cli",
+      "line": 92,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "webpack-dev-server",
+      "line": 92,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "@babel/core",
+      "line": 93,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "@babel/cli",
+      "line": 93,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "@babel/preset-env",
+      "line": 93,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "@babel/preset-typescript",
+      "line": 93,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "terser",
+      "line": 94,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cssnano",
+      "line": 94,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "mini-css-extract-plugin",
+      "line": 94,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "python",
+      "line": 102,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ecosystem",
+      "kind": "identifier"
+    },
+    {
+      "value": "node",
+      "line": 108,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ecosystem",
+      "kind": "identifier"
+    },
+    {
+      "value": "rust",
+      "line": 111,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ecosystem",
+      "kind": "identifier"
+    },
+    {
+      "value": "go",
+      "line": 114,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ecosystem",
+      "kind": "identifier"
+    },
+    {
+      "value": "You are a package name resolution expert. For each package, return the importable module name(s) that would appear in import statements.\n\nBe precise \u2014 many packages have import names that differ from their package names:\n- Python: pillow->PIL, scikit-learn->sklearn, pyyaml->yaml, beautifulsoup4->bs4\n- Rust: hyphens become underscores (serde-json->serde_json)\n- Node: scoped packages keep their scope (@scope/pkg)\n- Go: last path segment of module path\n\nIf unsure, use the standard heuristic: lowercase, hyphens to underscores.\n\nProvide a resolution for EVERY package listed.",
+      "line": 125,
+      "usage": "defined",
+      "context": "constant _RESOLVE_IMPORTS_SYSTEM_PROMPT"
+    },
+    {
+      "value": "Resolve these packages to their importable module names:\n",
+      "line": 151,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "resolve_import_names",
+      "line": 161,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "resolutions",
+      "line": 163,
+      "usage": "produced",
+      "context": "argument to tool_input.get"
+    },
+    {
+      "value": "package_name",
+      "line": 164,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "small",
+      "line": 172,
+      "usage": "produced",
+      "context": "argument to config.model_for",
+      "kind": "identifier"
+    },
+    {
+      "value": "junk_deps.resolve_import_names",
+      "line": 174,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions",
+      "kind": "identifier"
+    },
+    {
+      "value": "tool",
+      "line": 176,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "resolve_import_names",
+      "line": 176,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "resolve_import_names",
+      "line": 183,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tc.name",
+      "kind": "identifier"
+    },
+    {
+      "value": "resolutions",
+      "line": 184,
+      "usage": "produced",
+      "context": "argument to tc.input.get"
+    },
+    {
+      "value": "package_name",
+      "line": 185,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "import_names",
+      "line": 186,
+      "usage": "produced",
+      "context": "argument to r.get"
+    },
+    {
+      "value": "You are a dependency usage classifier. For each zero-import dependency, determine HOW it is used based on its name and ecosystem context.\n\nBe conservative \u2014 if a package is clearly a build tool, linter, formatter, test framework, type stub, or plugin, classify it accordingly to avoid false positives in dead dependency detection.\n\nOnly classify as `genuine_candidate` if the package does not fit any other category.",
+      "line": 195,
+      "usage": "defined",
+      "context": "constant _CLASSIFY_DEPS_SYSTEM_PROMPT"
+    },
+    {
+      "value": "## Zero-import dependencies to classify\n",
+      "line": 216,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "classify_deps",
+      "line": 227,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "classifications",
+      "line": 229,
+      "usage": "produced",
+      "context": "argument to tool_input.get"
+    },
+    {
+      "value": "package_name",
+      "line": 230,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "small",
+      "line": 238,
+      "usage": "produced",
+      "context": "argument to config.model_for",
+      "kind": "identifier"
+    },
+    {
+      "value": "junk_deps.classify",
+      "line": 240,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions",
+      "kind": "identifier"
+    },
+    {
+      "value": "tool",
+      "line": 242,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "classify_deps",
+      "line": 242,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "classify_deps",
+      "line": 249,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tc.name",
+      "kind": "identifier"
+    },
+    {
+      "value": "classifications",
+      "line": 250,
+      "usage": "produced",
+      "context": "argument to tc.input.get"
+    },
+    {
+      "value": "package_name",
+      "line": 251,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "classification",
+      "line": 252,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "genuine_candidate",
+      "line": 252,
+      "usage": "produced",
+      "context": "argument to c.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "genuine_candidate",
+      "line": 256,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "python",
+      "line": 263,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "python",
+      "line": 264,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "python",
+      "line": 265,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "node",
+      "line": 266,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "rust",
+      "line": 267,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "go",
+      "line": 268,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "^requirements(?:-\\w+)?\\.txt$",
+      "line": 271,
+      "usage": "produced",
+      "context": "argument to re.compile"
+    },
+    {
+      "value": "python",
+      "line": 289,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "-r",
+      "line": 304,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "-c",
+      "line": 304,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "-e",
+      "line": 304,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "-f",
+      "line": 304,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "--",
+      "line": 304,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "([A-Za-z0-9][\\w.\\-]*)",
+      "line": 308,
+      "usage": "produced",
+      "context": "argument to re.match"
+    },
+    {
+      "value": "python",
+      "line": 315,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "python",
+      "line": 316,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "([A-Za-z0-9][\\w.\\-]*)",
+      "line": 350,
+      "usage": "produced",
+      "context": "argument to re.match"
+    },
+    {
+      "value": "project",
+      "line": 354,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "dependencies",
+      "line": 354,
+      "usage": "produced",
+      "context": "argument to get"
+    },
+    {
+      "value": "python",
+      "line": 359,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "python",
+      "line": 360,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "dev",
+      "line": 364,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "develop",
+      "line": 364,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "development",
+      "line": 364,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "test",
+      "line": 364,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "testing",
+      "line": 364,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "lint",
+      "line": 364,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "docs",
+      "line": 364,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "project",
+      "line": 365,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "optional-dependencies",
+      "line": 365,
+      "usage": "produced",
+      "context": "argument to get"
+    },
+    {
+      "value": "python",
+      "line": 372,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "python",
+      "line": 373,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "tool",
+      "line": 377,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "poetry",
+      "line": 377,
+      "usage": "produced",
+      "context": "argument to get"
+    },
+    {
+      "value": "dependencies",
+      "line": 378,
+      "usage": "produced",
+      "context": "argument to poetry.get"
+    },
+    {
+      "value": "python",
+      "line": 379,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "python",
+      "line": 383,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "python",
+      "line": 384,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "group",
+      "line": 386,
+      "usage": "produced",
+      "context": "argument to poetry.get"
+    },
+    {
+      "value": "dependencies",
+      "line": 387,
+      "usage": "produced",
+      "context": "argument to group_data.get"
+    },
+    {
+      "value": "python",
+      "line": 388,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "python",
+      "line": 392,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "python",
+      "line": 393,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "build-system",
+      "line": 397,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "requires",
+      "line": 397,
+      "usage": "produced",
+      "context": "argument to get"
+    },
+    {
+      "value": "python",
+      "line": 402,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "python",
+      "line": 403,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "dependencies",
+      "line": 426,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "devDependencies",
+      "line": 427,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "peerDependencies",
+      "line": 428,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "node",
+      "line": 433,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "node",
+      "line": 434,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "dependencies",
+      "line": 464,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dev-dependencies",
+      "line": 464,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "package",
+      "line": 468,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "value"
+    },
+    {
+      "value": "rust",
+      "line": 472,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "rust",
+      "line": 473,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "require (",
+      "line": 490,
+      "usage": "produced",
+      "context": "argument to stripped.startswith"
+    },
+    {
+      "value": "(\\S+)\\s+\\S+",
+      "line": 498,
+      "usage": "produced",
+      "context": "argument to re.match"
+    },
+    {
+      "value": "go",
+      "line": 503,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "go",
+      "line": 504,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "require ",
+      "line": 506,
+      "usage": "produced",
+      "context": "argument to stripped.startswith"
+    },
+    {
+      "value": "require\\s+(\\S+)\\s+\\S+",
+      "line": 507,
+      "usage": "produced",
+      "context": "argument to re.match"
+    },
+    {
+      "value": "go",
+      "line": 512,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "go",
+      "line": 513,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "ignore",
+      "line": 595,
+      "usage": "produced",
+      "context": "keyword argument to path.read_text"
+    },
+    {
+      "value": "  [skip] No manifest files found.",
+      "line": 639,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "ignore",
+      "line": 651,
+      "usage": "produced",
+      "context": "keyword argument to full_path.read_text"
+    },
+    {
+      "value": "  No dependencies found in manifests.",
+      "line": 659,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "node",
+      "line": 706,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "cand.ecosystem",
+      "kind": "identifier"
+    },
+    {
+      "value": "@types/",
+      "line": 706,
+      "usage": "produced",
+      "context": "argument to lower.startswith"
+    },
+    {
+      "value": "dead_deps",
+      "line": 763,
+      "usage": "produced",
+      "context": "return value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Detect unused package dependencies",
+      "line": 767,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "dead-deps",
+      "line": 771,
+      "usage": "produced",
+      "context": "return value",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 791,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "package_name",
+      "line": 794,
+      "usage": "produced",
+      "context": "argument to meta.get"
+    },
+    {
+      "value": "dependency",
+      "line": 798,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead_dependency",
+      "line": 799,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "llm_inferred",
+      "line": 806,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "unused",
+      "line": 809,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    }
+  ],
+  "extraction_method": "ast"
+}

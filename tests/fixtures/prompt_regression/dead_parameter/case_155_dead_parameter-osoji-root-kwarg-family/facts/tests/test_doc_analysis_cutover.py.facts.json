@@ -1,0 +1,1919 @@
+{
+  "source": "tests/test_doc_analysis_cutover.py",
+  "source_hash": "6102c1e73f930f63",
+  "generated": "2026-07-22T10:56:06Z",
+  "imports": [
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 20,
+      "is_reexport": false
+    },
+    {
+      "source": "unittest.mock",
+      "names": [
+        "AsyncMock",
+        "patch"
+      ],
+      "line": 21,
+      "is_reexport": false
+    },
+    {
+      "source": "pytest",
+      "names": [
+        "pytest"
+      ],
+      "line": 23,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji",
+      "names": [
+        "doc_analysis"
+      ],
+      "line": 25,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.claim_builder",
+      "names": [
+        "CLAIM_BUILDER_SCHEMA",
+        "build_claims",
+        "category_of"
+      ],
+      "line": 26,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.config",
+      "names": [
+        "Config"
+      ],
+      "line": 27,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.doc_analysis",
+      "names": [
+        "DocAnalysisResult",
+        "DocFinding",
+        "_triage_doc_findings",
+        "analyze_docs_async"
+      ],
+      "line": 28,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.evidence_builders",
+      "names": [
+        "BuildContext"
+      ],
+      "line": 34,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_doc",
+        "gap_type_for"
+      ],
+      "line": 35,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.types",
+      "names": [
+        "CompletionResult",
+        "ToolCall"
+      ],
+      "line": 36,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.triage",
+      "names": [
+        "TRIAGE_SYSTEM_PROMPT"
+      ],
+      "line": 37,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "FakeProvider",
+      "kind": "class",
+      "line": 49,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeProvider.__init__",
+      "kind": "function",
+      "line": 52,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeProvider.complete",
+      "kind": "function",
+      "line": 59,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeProvider.close",
+      "kind": "function",
+      "line": 84,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_confirmed_findings_ship",
+      "kind": "function",
+      "line": 120,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_confirmed_finding_carries_suggested_fix_and_finding_id",
+      "kind": "function",
+      "line": 140,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_dismissed_suppresses",
+      "kind": "function",
+      "line": 159,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_llm_failure_keeps_findings",
+      "kind": "function",
+      "line": 172,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_uncertain_kept_as_warning_with_reasoning",
+      "kind": "function",
+      "line": 187,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_confirmed_verdict_can_regrade_severity",
+      "kind": "function",
+      "line": 206,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_no_findings_makes_no_llm_call",
+      "kind": "function",
+      "line": 221,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_debris_result_findings_are_not_triaged",
+      "kind": "function",
+      "line": 233,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "_FakeAnalyzeProvider.complete",
+      "kind": "function",
+      "line": 248,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "_FakeAnalyzeProvider.close",
+      "kind": "function",
+      "line": 263,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_triage_post_pass_failure_records_doc_triage_degradation",
+      "kind": "function",
+      "line": 268,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_cutover_uses_unified_triage_prompt",
+      "kind": "function",
+      "line": 286,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_coverage_dismissed_accuracy_confirmed",
+      "kind": "function",
+      "line": 299,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_doc_finding_gets_file_scope_not_root",
+      "kind": "function",
+      "line": 341,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_doc_finding_single_dir_multi_file_gets_directory_scope",
+      "kind": "function",
+      "line": 363,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_doc_finding_multi_dir_gets_root_scope",
+      "kind": "function",
+      "line": 384,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_doc_categories_resolve_to_description_schema",
+      "kind": "function",
+      "line": 407,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "_write",
+      "to": "path.parent.mkdir",
+      "line": 45,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write",
+      "to": "path.write_text",
+      "line": 46,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProvider.complete",
+      "to": "len",
+      "line": 66,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "FakeProvider.complete",
+      "to": "validator",
+      "line": 66,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProvider.complete",
+      "to": "self._verdicts_per_call.pop",
+      "line": 68,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProvider.complete",
+      "to": "range",
+      "line": 73,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProvider.complete",
+      "to": "CompletionResult",
+      "line": 75,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "FakeProvider.complete",
+      "to": "ToolCall",
+      "line": 77,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "_doc_finding",
+      "to": "dict",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_doc_finding",
+      "to": "kw.update",
+      "line": 98,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_doc_finding",
+      "to": "DocFinding",
+      "line": 99,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_result_with",
+      "to": "_write",
+      "line": 105,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_result_with",
+      "to": "DocAnalysisResult",
+      "line": 106,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_result_with",
+      "to": "Path",
+      "line": 107,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_confirmed_findings_ship",
+      "to": "Config",
+      "line": 121,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_confirmed_findings_ship",
+      "to": "_result_with",
+      "line": 122,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_confirmed_findings_ship",
+      "to": "_doc_finding",
+      "line": 123,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_confirmed_findings_ship",
+      "to": "_doc_finding",
+      "line": 124,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_confirmed_findings_ship",
+      "to": "FakeProvider",
+      "line": 126,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_confirmed_findings_ship",
+      "to": "_triage_doc_findings",
+      "line": 131,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_confirmed_finding_carries_suggested_fix_and_finding_id",
+      "to": "Config",
+      "line": 143,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_confirmed_finding_carries_suggested_fix_and_finding_id",
+      "to": "_result_with",
+      "line": 144,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_confirmed_finding_carries_suggested_fix_and_finding_id",
+      "to": "_doc_finding",
+      "line": 144,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_confirmed_finding_carries_suggested_fix_and_finding_id",
+      "to": "FakeProvider",
+      "line": 145,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_confirmed_finding_carries_suggested_fix_and_finding_id",
+      "to": "_triage_doc_findings",
+      "line": 150,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_dismissed_suppresses",
+      "to": "Config",
+      "line": 160,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_dismissed_suppresses",
+      "to": "_result_with",
+      "line": 161,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_dismissed_suppresses",
+      "to": "_doc_finding",
+      "line": 161,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_dismissed_suppresses",
+      "to": "FakeProvider",
+      "line": 162,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_dismissed_suppresses",
+      "to": "_triage_doc_findings",
+      "line": 166,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_llm_failure_keeps_findings",
+      "to": "Config",
+      "line": 174,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_llm_failure_keeps_findings",
+      "to": "_result_with",
+      "line": 175,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_llm_failure_keeps_findings",
+      "to": "_doc_finding",
+      "line": 176,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_llm_failure_keeps_findings",
+      "to": "_doc_finding",
+      "line": 176,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_llm_failure_keeps_findings",
+      "to": "FakeProvider",
+      "line": 178,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_llm_failure_keeps_findings",
+      "to": "RuntimeError",
+      "line": 178,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_llm_failure_keeps_findings",
+      "to": "_triage_doc_findings",
+      "line": 180,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_llm_failure_keeps_findings",
+      "to": "all",
+      "line": 183,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_uncertain_kept_as_warning_with_reasoning",
+      "to": "Config",
+      "line": 189,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_uncertain_kept_as_warning_with_reasoning",
+      "to": "_result_with",
+      "line": 190,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_uncertain_kept_as_warning_with_reasoning",
+      "to": "_doc_finding",
+      "line": 190,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_uncertain_kept_as_warning_with_reasoning",
+      "to": "FakeProvider",
+      "line": 191,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_uncertain_kept_as_warning_with_reasoning",
+      "to": "_triage_doc_findings",
+      "line": 196,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_uncertain_kept_as_warning_with_reasoning",
+      "to": "len",
+      "line": 198,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_confirmed_verdict_can_regrade_severity",
+      "to": "Config",
+      "line": 207,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_confirmed_verdict_can_regrade_severity",
+      "to": "_result_with",
+      "line": 208,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_confirmed_verdict_can_regrade_severity",
+      "to": "_doc_finding",
+      "line": 208,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_confirmed_verdict_can_regrade_severity",
+      "to": "FakeProvider",
+      "line": 209,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_confirmed_verdict_can_regrade_severity",
+      "to": "_triage_doc_findings",
+      "line": 214,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_no_findings_makes_no_llm_call",
+      "to": "Config",
+      "line": 222,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_no_findings_makes_no_llm_call",
+      "to": "_result_with",
+      "line": 223,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_no_findings_makes_no_llm_call",
+      "to": "FakeProvider",
+      "line": 224,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_no_findings_makes_no_llm_call",
+      "to": "_triage_doc_findings",
+      "line": 226,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_debris_result_findings_are_not_triaged",
+      "to": "Config",
+      "line": 234,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_debris_result_findings_are_not_triaged",
+      "to": "_result_with",
+      "line": 235,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_debris_result_findings_are_not_triaged",
+      "to": "_doc_finding",
+      "line": 235,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_debris_result_findings_are_not_triaged",
+      "to": "FakeProvider",
+      "line": 236,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_debris_result_findings_are_not_triaged",
+      "to": "_triage_doc_findings",
+      "line": 238,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_debris_result_findings_are_not_triaged",
+      "to": "len",
+      "line": 241,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_FakeAnalyzeProvider.complete",
+      "to": "CompletionResult",
+      "line": 249,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_FakeAnalyzeProvider.complete",
+      "to": "ToolCall",
+      "line": 251,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "test_triage_post_pass_failure_records_doc_triage_degradation",
+      "to": "_write",
+      "line": 272,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "test_triage_post_pass_failure_records_doc_triage_degradation",
+      "to": "mkdir",
+      "line": 273,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_triage_post_pass_failure_records_doc_triage_degradation",
+      "to": "Config",
+      "line": 274,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_triage_post_pass_failure_records_doc_triage_degradation",
+      "to": "_FakeAnalyzeProvider",
+      "line": 276,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_triage_post_pass_failure_records_doc_triage_degradation",
+      "to": "patch.object",
+      "line": 278,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_triage_post_pass_failure_records_doc_triage_degradation",
+      "to": "AsyncMock",
+      "line": 278,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_triage_post_pass_failure_records_doc_triage_degradation",
+      "to": "RuntimeError",
+      "line": 278,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_triage_post_pass_failure_records_doc_triage_degradation",
+      "to": "analyze_docs_async",
+      "line": 279,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_triage_post_pass_failure_records_doc_triage_degradation",
+      "to": "len",
+      "line": 281,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_cutover_uses_unified_triage_prompt",
+      "to": "Config",
+      "line": 287,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_cutover_uses_unified_triage_prompt",
+      "to": "_result_with",
+      "line": 288,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_cutover_uses_unified_triage_prompt",
+      "to": "_doc_finding",
+      "line": 288,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_cutover_uses_unified_triage_prompt",
+      "to": "FakeProvider",
+      "line": 289,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_cutover_uses_unified_triage_prompt",
+      "to": "_triage_doc_findings",
+      "line": 291,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_coverage_dismissed_accuracy_confirmed",
+      "to": "Config",
+      "line": 308,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_coverage_dismissed_accuracy_confirmed",
+      "to": "_doc_finding",
+      "line": 309,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_coverage_dismissed_accuracy_confirmed",
+      "to": "_doc_finding",
+      "line": 314,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_coverage_dismissed_accuracy_confirmed",
+      "to": "_result_with",
+      "line": 319,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_coverage_dismissed_accuracy_confirmed",
+      "to": "FakeProvider",
+      "line": 320,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "test_coverage_dismissed_accuracy_confirmed",
+      "to": "_triage_doc_findings",
+      "line": 327,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_doc_finding_gets_file_scope_not_root",
+      "to": "Config",
+      "line": 342,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_doc_finding_gets_file_scope_not_root",
+      "to": "_write",
+      "line": 343,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "test_doc_finding_gets_file_scope_not_root",
+      "to": "_write",
+      "line": 344,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "test_doc_finding_gets_file_scope_not_root",
+      "to": "_write",
+      "line": 345,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "test_doc_finding_gets_file_scope_not_root",
+      "to": "_write",
+      "line": 346,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "test_doc_finding_gets_file_scope_not_root",
+      "to": "_write",
+      "line": 347,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "test_doc_finding_gets_file_scope_not_root",
+      "to": "_doc_finding",
+      "line": 349,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_doc_finding_gets_file_scope_not_root",
+      "to": "finding_from_doc",
+      "line": 353,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_doc_finding_gets_file_scope_not_root",
+      "to": "Path",
+      "line": 353,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_doc_finding_gets_file_scope_not_root",
+      "to": "build_claims",
+      "line": 354,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_doc_finding_gets_file_scope_not_root",
+      "to": "BuildContext",
+      "line": 354,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_doc_finding_gets_file_scope_not_root",
+      "to": "_shadow_evidence",
+      "line": 356,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_doc_finding_gets_file_scope_not_root",
+      "to": "len",
+      "line": 357,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_doc_finding_gets_file_scope_not_root",
+      "to": "all",
+      "line": 360,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_doc_finding_gets_file_scope_not_root",
+      "to": "e.payload.get",
+      "line": 360,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_doc_finding_single_dir_multi_file_gets_directory_scope",
+      "to": "Config",
+      "line": 364,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_doc_finding_single_dir_multi_file_gets_directory_scope",
+      "to": "_write",
+      "line": 365,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "test_doc_finding_single_dir_multi_file_gets_directory_scope",
+      "to": "_write",
+      "line": 366,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "test_doc_finding_single_dir_multi_file_gets_directory_scope",
+      "to": "_write",
+      "line": 367,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "test_doc_finding_single_dir_multi_file_gets_directory_scope",
+      "to": "_write",
+      "line": 368,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "test_doc_finding_single_dir_multi_file_gets_directory_scope",
+      "to": "_doc_finding",
+      "line": 370,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_doc_finding_single_dir_multi_file_gets_directory_scope",
+      "to": "finding_from_doc",
+      "line": 375,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_doc_finding_single_dir_multi_file_gets_directory_scope",
+      "to": "Path",
+      "line": 375,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_doc_finding_single_dir_multi_file_gets_directory_scope",
+      "to": "build_claims",
+      "line": 376,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_doc_finding_single_dir_multi_file_gets_directory_scope",
+      "to": "BuildContext",
+      "line": 376,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_doc_finding_single_dir_multi_file_gets_directory_scope",
+      "to": "_shadow_evidence",
+      "line": 378,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_doc_finding_single_dir_multi_file_gets_directory_scope",
+      "to": "len",
+      "line": 379,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_doc_finding_multi_dir_gets_root_scope",
+      "to": "Config",
+      "line": 385,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_doc_finding_multi_dir_gets_root_scope",
+      "to": "_write",
+      "line": 386,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "test_doc_finding_multi_dir_gets_root_scope",
+      "to": "_write",
+      "line": 387,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "test_doc_finding_multi_dir_gets_root_scope",
+      "to": "_write",
+      "line": 388,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "test_doc_finding_multi_dir_gets_root_scope",
+      "to": "_write",
+      "line": 389,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "test_doc_finding_multi_dir_gets_root_scope",
+      "to": "_doc_finding",
+      "line": 391,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_doc_finding_multi_dir_gets_root_scope",
+      "to": "finding_from_doc",
+      "line": 396,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_doc_finding_multi_dir_gets_root_scope",
+      "to": "Path",
+      "line": 396,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_doc_finding_multi_dir_gets_root_scope",
+      "to": "build_claims",
+      "line": 397,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "test_doc_finding_multi_dir_gets_root_scope",
+      "to": "BuildContext",
+      "line": 397,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "test_doc_finding_multi_dir_gets_root_scope",
+      "to": "_shadow_evidence",
+      "line": 399,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_doc_finding_multi_dir_gets_root_scope",
+      "to": "len",
+      "line": 400,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_doc_categories_resolve_to_description_schema",
+      "to": "gap_type_for",
+      "line": 410,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_doc_categories_resolve_to_description_schema",
+      "to": "_doc_finding",
+      "line": 411,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_doc_categories_resolve_to_description_schema",
+      "to": "finding_from_doc",
+      "line": 412,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_doc_categories_resolve_to_description_schema",
+      "to": "Path",
+      "line": 412,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_doc_categories_resolve_to_description_schema",
+      "to": "category_of",
+      "line": 413,
+      "call_sites": 2
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "self",
+      "member": "calls",
+      "line": 53
+    },
+    {
+      "container": "self",
+      "member": "last_system",
+      "line": 54
+    },
+    {
+      "container": "self",
+      "member": "last_user",
+      "line": 55
+    },
+    {
+      "container": "self",
+      "member": "_verdicts_per_call",
+      "line": 56
+    },
+    {
+      "container": "self",
+      "member": "_error",
+      "line": 57
+    },
+    {
+      "container": "self",
+      "member": "last_system",
+      "line": 61
+    },
+    {
+      "container": "self",
+      "member": "last_user",
+      "line": 62
+    },
+    {
+      "container": "config",
+      "member": "audit_degradations",
+      "line": 275
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "utf-8",
+      "line": 46,
+      "usage": "produced",
+      "context": "keyword argument to path.write_text"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 66,
+      "usage": "produced",
+      "context": "argument to validator"
+    },
+    {
+      "value": "confirmed",
+      "line": 71,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "contradiction confirmed",
+      "line": 72,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 78,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "test",
+      "line": 81,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 81,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "incorrect_content",
+      "line": 90,
+      "usage": "produced",
+      "context": "keyword argument to dict",
+      "kind": "identifier"
+    },
+    {
+      "value": "error",
+      "line": 91,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "README says the flag is --foo but the code uses --bar",
+      "line": 92,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "src/cli.py",
+      "line": 93,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "def main(): --bar",
+      "line": 94,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "Update the README",
+      "line": 95,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "--foo",
+      "line": 96,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "README.md",
+      "line": 102,
+      "usage": "produced",
+      "context": "default parameter"
+    },
+    {
+      "value": "reference",
+      "line": 102,
+      "usage": "produced",
+      "context": "default parameter",
+      "kind": "identifier"
+    },
+    {
+      "value": "doc",
+      "line": 110,
+      "usage": "produced",
+      "context": "keyword argument to DocAnalysisResult"
+    },
+    {
+      "value": "src/cli.py",
+      "line": 111,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "claim A",
+      "line": 123,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "claim B",
+      "line": 124,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "confirmed",
+      "line": 127,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "real",
+      "line": 127,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "dismissed",
+      "line": 128,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "fp",
+      "line": 128,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "claim A",
+      "line": 134,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "confirmed",
+      "line": 135,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "claim A",
+      "line": 144,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "confirmed",
+      "line": 146,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "real contradiction",
+      "line": 147,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "update the README flag name",
+      "line": 147,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "confirmed",
+      "line": 153,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "update the README flag name",
+      "line": 154,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.suggested_fix"
+    },
+    {
+      "value": "dismissed",
+      "line": 163,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "fp",
+      "line": 163,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "boom",
+      "line": 178,
+      "usage": "produced",
+      "context": "argument to RuntimeError"
+    },
+    {
+      "value": "error",
+      "line": 190,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "uncertain",
+      "line": 192,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "shadow-doc omission is not project absence",
+      "line": 193,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "uncertain",
+      "line": 200,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "warning",
+      "line": 201,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.severity"
+    },
+    {
+      "value": "omission",
+      "line": 202,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "error",
+      "line": 208,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "confirmed",
+      "line": 210,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "partial",
+      "line": 211,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "warning",
+      "line": 211,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "confirmed",
+      "line": 216,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "warning",
+      "line": 217,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "severity"
+    },
+    {
+      "value": "process_artifact",
+      "line": 235,
+      "usage": "produced",
+      "context": "keyword argument to _result_with",
+      "kind": "identifier"
+    },
+    {
+      "value": "tc1",
+      "line": 252,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "analyze_document",
+      "line": 252,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "reference",
+      "line": 254,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "doc",
+      "line": 256,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test",
+      "line": 260,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 260,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "README.md",
+      "line": 272,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "# Project\n",
+      "line": 272,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "_triage_doc_findings",
+      "line": 278,
+      "usage": "produced",
+      "context": "argument to patch.object"
+    },
+    {
+      "value": "boom",
+      "line": 278,
+      "usage": "produced",
+      "context": "argument to RuntimeError"
+    },
+    {
+      "value": "doc-triage",
+      "line": 282,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "boom",
+      "line": 282,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "single verifier for every code-quality finding",
+      "line": 295,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "provider.last_system",
+      "kind": "identifier"
+    },
+    {
+      "value": "stale_content",
+      "line": 310,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "warning",
+      "line": 310,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "README does not mention the 'osoji init' command",
+      "line": 311,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "init",
+      "line": 312,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "incorrect_content",
+      "line": 315,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "error",
+      "line": 315,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "README says the flag is --foo but the code uses --bar",
+      "line": 316,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "--foo",
+      "line": 317,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dismissed",
+      "line": 321,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "absence of a mention is a coverage matter, off-mission",
+      "line": 322,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "confirmed",
+      "line": 323,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "doc asserts --foo, code contradicts with --bar",
+      "line": 324,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "README says the flag is --foo but the code uses --bar",
+      "line": 330,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "confirmed",
+      "line": 331,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "shadow_doc_claim",
+      "line": 338,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/foo.py",
+      "line": 343,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "def hello():\n    return 1\n",
+      "line": 343,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": ".osoji/shadow/src/foo.py.shadow.md",
+      "line": 344,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "# src/foo.py\nDefines hello().\n",
+      "line": 344,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": ".osoji/shadow/src/_directory.shadow.md",
+      "line": 345,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "# src/\nThe package.\n",
+      "line": 345,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": ".osoji/shadow/_root.shadow.md",
+      "line": 346,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "# root\nProject overview.\n",
+      "line": 346,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "README.md",
+      "line": 347,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "# Project\nUses hello.\n",
+      "line": 347,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "README claims hello() returns 2",
+      "line": 350,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "src/foo.py",
+      "line": 351,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "returns 1",
+      "line": 351,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "hello",
+      "line": 351,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "README.md",
+      "line": 353,
+      "usage": "produced",
+      "context": "argument to Path"
+    },
+    {
+      "value": "file",
+      "line": 358,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/foo.py",
+      "line": 359,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "scope",
+      "line": 360,
+      "usage": "produced",
+      "context": "argument to e.payload.get"
+    },
+    {
+      "value": "root",
+      "line": 360,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": ".osoji/shadow/src/foo.py.shadow.md",
+      "line": 365,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "# foo\n",
+      "line": 365,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": ".osoji/shadow/src/bar.py.shadow.md",
+      "line": 366,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "# bar\n",
+      "line": 366,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": ".osoji/shadow/src/_directory.shadow.md",
+      "line": 367,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "# src/\nPackage overview.\n",
+      "line": 367,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "README.md",
+      "line": 368,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "# Project\n",
+      "line": 368,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "stale_content",
+      "line": 371,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "warning",
+      "line": 371,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "README describes the src package layout",
+      "line": 372,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "src/foo.py",
+      "line": 373,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "...",
+      "line": 373,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "src/bar.py",
+      "line": 373,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "README.md",
+      "line": 375,
+      "usage": "produced",
+      "context": "argument to Path"
+    },
+    {
+      "value": "directory",
+      "line": 380,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "src",
+      "line": 381,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": ".osoji/shadow/src/a/foo.py.shadow.md",
+      "line": 386,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "# a/foo\n",
+      "line": 386,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": ".osoji/shadow/src/b/bar.py.shadow.md",
+      "line": 387,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "# b/bar\n",
+      "line": 387,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": ".osoji/shadow/_root.shadow.md",
+      "line": 388,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "# root\nProject overview.\n",
+      "line": 388,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "README.md",
+      "line": 389,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "# Project\n",
+      "line": 389,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "misleading_claim",
+      "line": 392,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "warning",
+      "line": 392,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "README describes a cross-package flow",
+      "line": 393,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "src/a/foo.py",
+      "line": 394,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "...",
+      "line": 394,
+      "usage": "produced",
+      "context": "keyword argument to _doc_finding"
+    },
+    {
+      "value": "src/b/bar.py",
+      "line": 394,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "README.md",
+      "line": 396,
+      "usage": "produced",
+      "context": "argument to Path"
+    },
+    {
+      "value": "root",
+      "line": 401,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "stale_content",
+      "line": 409,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "incorrect_content",
+      "line": 409,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "misleading_claim",
+      "line": 409,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "obsolete_reference",
+      "line": 409,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "description",
+      "line": 410,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "README.md",
+      "line": 412,
+      "usage": "produced",
+      "context": "argument to Path"
+    }
+  ],
+  "extraction_method": "ast"
+}

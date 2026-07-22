@@ -1,0 +1,560 @@
+{
+  "source": "scripts/eval_lib.py",
+  "source_hash": "edc6b22e17f41e3c",
+  "generated": "2026-07-22T10:56:51Z",
+  "file_role": "service",
+  "symbols": [
+    {
+      "name": "REPO_ROOT",
+      "kind": "constant",
+      "line_start": 38,
+      "line_end": 38,
+      "visibility": "public"
+    },
+    {
+      "name": "CORPUS_ROOT",
+      "kind": "constant",
+      "line_start": 50,
+      "line_end": 50,
+      "visibility": "public"
+    },
+    {
+      "name": "CORPUS_CASE_SCHEMA",
+      "kind": "constant",
+      "line_start": 52,
+      "line_end": 52,
+      "visibility": "public"
+    },
+    {
+      "name": "CORPUS_EXPECTED_SCHEMA",
+      "kind": "constant",
+      "line_start": 53,
+      "line_end": 53,
+      "visibility": "public"
+    },
+    {
+      "name": "CORPUS_SPLITS_SCHEMA",
+      "kind": "constant",
+      "line_start": 54,
+      "line_end": 54,
+      "visibility": "public"
+    },
+    {
+      "name": "VERDICT_SCHEMA",
+      "kind": "constant",
+      "line_start": 55,
+      "line_end": 55,
+      "visibility": "public"
+    },
+    {
+      "name": "CorpusCase",
+      "kind": "class",
+      "line_start": 58,
+      "line_end": 72,
+      "visibility": "public"
+    },
+    {
+      "name": "_resolve_posix_ref",
+      "kind": "function",
+      "line_start": 75,
+      "line_end": 83,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "base",
+          "optional": false
+        },
+        {
+          "name": "posix_ref",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "load_corpus",
+      "kind": "function",
+      "line_start": 86,
+      "line_end": 179,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "corpus_root",
+          "optional": true
+        },
+        {
+          "name": "split",
+          "optional": true
+        },
+        {
+          "name": "splits",
+          "optional": true
+        },
+        {
+          "name": "only",
+          "optional": true
+        },
+        {
+          "name": "exclude_gray",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "_copy_tree",
+      "kind": "function",
+      "line_start": 182,
+      "line_end": 192,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "src_dir",
+          "optional": false
+        },
+        {
+          "name": "dest_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "stage_case",
+      "kind": "function",
+      "line_start": 195,
+      "line_end": 227,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "case",
+          "optional": false
+        },
+        {
+          "name": "workdir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "build_case_claim",
+      "kind": "function",
+      "line_start": 230,
+      "line_end": 247,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "case",
+          "optional": false
+        },
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "Variant",
+      "kind": "class",
+      "line_start": 255,
+      "line_end": 267,
+      "visibility": "public"
+    },
+    {
+      "name": "resolve_variant",
+      "kind": "function",
+      "line_start": 270,
+      "line_end": 305,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "spec",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "cases_from_bootstrap_manifest",
+      "kind": "function",
+      "line_start": 313,
+      "line_end": 349,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "path",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_producer",
+      "kind": "function",
+      "line_start": 357,
+      "line_end": 360,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "detector",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_ranges_overlap",
+      "kind": "function",
+      "line_start": 363,
+      "line_end": 368,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "a_start",
+          "optional": false
+        },
+        {
+          "name": "a_end",
+          "optional": false
+        },
+        {
+          "name": "b_start",
+          "optional": false
+        },
+        {
+          "name": "b_end",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_me_overlap",
+      "kind": "function",
+      "line_start": 371,
+      "line_end": 422,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "cases",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_rate",
+      "kind": "function",
+      "line_start": 425,
+      "line_end": 430,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "records",
+          "optional": false
+        },
+        {
+          "name": "denom_pred",
+          "optional": false
+        },
+        {
+          "name": "numer_pred",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "compute_metrics",
+      "kind": "function",
+      "line_start": 433,
+      "line_end": 536,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "records",
+          "optional": false
+        },
+        {
+          "name": "cases",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "check_thresholds",
+      "kind": "function",
+      "line_start": 539,
+      "line_end": 574,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "metrics",
+          "optional": false
+        },
+        {
+          "name": "baseline",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "write_verdict_ndjson",
+      "kind": "function",
+      "line_start": 582,
+      "line_end": 599,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "records",
+          "optional": false
+        },
+        {
+          "name": "run_meta",
+          "optional": false
+        },
+        {
+          "name": "out",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "read_verdict_ndjson",
+      "kind": "function",
+      "line_start": 602,
+      "line_end": 629,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "path",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "load_splits",
+      "kind": "function",
+      "line_start": 637,
+      "line_end": 646,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "path",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "suggest_split",
+      "kind": "function",
+      "line_start": 649,
+      "line_end": 667,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "case_key",
+          "optional": false
+        },
+        {
+          "name": "seed",
+          "optional": false
+        },
+        {
+          "name": "ratios",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "GateReport",
+      "kind": "class",
+      "line_start": 675,
+      "line_end": 687,
+      "visibility": "public"
+    },
+    {
+      "name": "check_gepa_gate",
+      "kind": "function",
+      "line_start": 689,
+      "line_end": 718,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "cases",
+          "optional": false
+        },
+        {
+          "name": "splits",
+          "optional": false
+        },
+        {
+          "name": "required",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "EvalRun",
+      "kind": "class",
+      "line_start": 726,
+      "line_end": 731,
+      "visibility": "public"
+    },
+    {
+      "name": "default_run_id",
+      "kind": "function",
+      "line_start": 734,
+      "line_end": 738,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "_git_commit",
+      "kind": "function",
+      "line_start": 741,
+      "line_end": 754,
+      "visibility": "internal",
+      "parameters": []
+    },
+    {
+      "name": "_stage_and_build_claims",
+      "kind": "function",
+      "line_start": 757,
+      "line_end": 781,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "cases",
+          "optional": false
+        },
+        {
+          "name": "workdir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_build_verdict_record",
+      "kind": "function",
+      "line_start": 784,
+      "line_end": 818,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "run_id",
+          "optional": false
+        },
+        {
+          "name": "variant_name",
+          "optional": false
+        },
+        {
+          "name": "repeat",
+          "optional": false
+        },
+        {
+          "name": "case",
+          "optional": false
+        },
+        {
+          "name": "claim",
+          "optional": false
+        },
+        {
+          "name": "finding",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "evaluate_corpus",
+      "kind": "function",
+      "line_start": 821,
+      "line_end": 979,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "cases",
+          "optional": false
+        },
+        {
+          "name": "variants",
+          "optional": false
+        },
+        {
+          "name": "repeats",
+          "optional": true
+        },
+        {
+          "name": "repeat_offset",
+          "optional": true
+        },
+        {
+          "name": "run_id",
+          "optional": true
+        },
+        {
+          "name": "provider",
+          "optional": true
+        },
+        {
+          "name": "config_factory",
+          "optional": true
+        },
+        {
+          "name": "batch_size",
+          "optional": true
+        },
+        {
+          "name": "workdir",
+          "optional": false
+        },
+        {
+          "name": "corpus_root",
+          "optional": true
+        },
+        {
+          "name": "split",
+          "optional": true
+        },
+        {
+          "name": "only",
+          "optional": true
+        },
+        {
+          "name": "exclude_gray",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "select_cases",
+      "kind": "function",
+      "line_start": 982,
+      "line_end": 1022,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "source",
+          "optional": false
+        },
+        {
+          "name": "corpus_root",
+          "optional": true
+        },
+        {
+          "name": "bootstrap_manifest",
+          "optional": true
+        },
+        {
+          "name": "split",
+          "optional": true
+        },
+        {
+          "name": "splits",
+          "optional": true
+        },
+        {
+          "name": "only",
+          "optional": true
+        },
+        {
+          "name": "exclude_gray",
+          "optional": true
+        }
+      ]
+    }
+  ]
+}

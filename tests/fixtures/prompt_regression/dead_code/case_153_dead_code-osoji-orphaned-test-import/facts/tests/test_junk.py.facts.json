@@ -1,0 +1,1201 @@
+{
+  "source": "tests/test_junk.py",
+  "source_hash": "650905a551e1f964",
+  "generated": "2026-07-22T10:55:52Z",
+  "imports": [
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "unittest.mock",
+      "names": [
+        "AsyncMock"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "pytest",
+      "names": [
+        "pytest"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.config",
+      "names": [
+        "Config"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.junk",
+      "names": [
+        "JunkAnalyzer",
+        "JunkAnalysisResult",
+        "JunkFinding",
+        "load_shadow_content"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.deadcode",
+      "names": [
+        "DeadCodeAnalyzer"
+      ],
+      "line": 16,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.plumbing",
+      "names": [
+        "DeadPlumbingAnalyzer"
+      ],
+      "line": 17,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.types",
+      "names": [
+        "CompletionResult",
+        "ToolCall"
+      ],
+      "line": 18,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "TestJunkFinding",
+      "kind": "class",
+      "line": 56,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestJunkFinding.test_construction",
+      "kind": "function",
+      "line": 57,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestJunkFinding.test_metadata_default",
+      "kind": "function",
+      "line": 78,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestJunkFinding.test_metadata_custom",
+      "kind": "function",
+      "line": 87,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestJunkAnalysisResult",
+      "kind": "class",
+      "line": 100,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestJunkAnalysisResult.test_construction",
+      "kind": "function",
+      "line": 101,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestLoadShadowContent",
+      "kind": "class",
+      "line": 114,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestLoadShadowContent.test_loads_existing_shadow",
+      "kind": "function",
+      "line": 115,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestLoadShadowContent.test_returns_empty_for_missing",
+      "kind": "function",
+      "line": 124,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestAnalyzerRegistry",
+      "kind": "class",
+      "line": 133,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestAnalyzerRegistry.test_dead_code_analyzer_properties",
+      "kind": "function",
+      "line": 134,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestAnalyzerRegistry.test_dead_plumbing_analyzer_properties",
+      "kind": "function",
+      "line": 140,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestAnalyzerRegistry.test_analyzers_are_junk_analyzer_subclasses",
+      "kind": "function",
+      "line": 146,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadCodeAnalyzer",
+      "kind": "class",
+      "line": 153,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadCodeAnalyzer.test_analyze_async_returns_junk_result",
+      "kind": "function",
+      "line": 155,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadPlumbingAnalyzer",
+      "kind": "class",
+      "line": 202,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result",
+      "kind": "function",
+      "line": 204,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestConfigJunkPath",
+      "kind": "class",
+      "line": 278,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestConfigJunkPath.test_analysis_junk_path_for",
+      "kind": "function",
+      "line": 279,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "_write_shadow",
+      "to": "shadow_file.parent.mkdir",
+      "line": 27,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_shadow",
+      "to": "shadow_file.write_text",
+      "line": 28,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_symbols",
+      "to": "sidecar.parent.mkdir",
+      "line": 35,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_symbols",
+      "to": "sidecar.write_text",
+      "line": 44,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_symbols",
+      "to": "json.dumps",
+      "line": 44,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_source",
+      "to": "full.parent.mkdir",
+      "line": 50,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_source",
+      "to": "full.write_text",
+      "line": 51,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestJunkFinding.test_construction",
+      "to": "JunkFinding",
+      "line": 59,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "TestJunkFinding.test_metadata_default",
+      "to": "JunkFinding",
+      "line": 80,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "TestJunkFinding.test_metadata_custom",
+      "to": "JunkFinding",
+      "line": 89,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "TestJunkAnalysisResult.test_construction",
+      "to": "JunkAnalysisResult",
+      "line": 102,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestLoadShadowContent.test_loads_existing_shadow",
+      "to": "Config",
+      "line": 117,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestLoadShadowContent.test_loads_existing_shadow",
+      "to": "_write_shadow",
+      "line": 118,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestLoadShadowContent.test_loads_existing_shadow",
+      "to": "load_shadow_content",
+      "line": 120,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "TestLoadShadowContent.test_returns_empty_for_missing",
+      "to": "Config",
+      "line": 126,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestLoadShadowContent.test_returns_empty_for_missing",
+      "to": "load_shadow_content",
+      "line": 127,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "TestAnalyzerRegistry.test_dead_code_analyzer_properties",
+      "to": "DeadCodeAnalyzer",
+      "line": 135,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestAnalyzerRegistry.test_dead_code_analyzer_properties",
+      "to": "analyzer.description.lower",
+      "line": 138,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestAnalyzerRegistry.test_dead_plumbing_analyzer_properties",
+      "to": "DeadPlumbingAnalyzer",
+      "line": 141,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestAnalyzerRegistry.test_dead_plumbing_analyzer_properties",
+      "to": "analyzer.description.lower",
+      "line": 144,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestAnalyzerRegistry.test_dead_plumbing_analyzer_properties",
+      "to": "analyzer.description.lower",
+      "line": 144,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestAnalyzerRegistry.test_analyzers_are_junk_analyzer_subclasses",
+      "to": "issubclass",
+      "line": 147,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestAnalyzerRegistry.test_analyzers_are_junk_analyzer_subclasses",
+      "to": "issubclass",
+      "line": 148,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDeadCodeAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "Config",
+      "line": 157,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestDeadCodeAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "_write_symbols",
+      "line": 159,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDeadCodeAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "_write_source",
+      "line": 162,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDeadCodeAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "_write_source",
+      "line": 163,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDeadCodeAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "AsyncMock",
+      "line": 165,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDeadCodeAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "CompletionResult",
+      "line": 166,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "TestDeadCodeAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "ToolCall",
+      "line": 168,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "TestDeadCodeAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "DeadCodeAnalyzer",
+      "line": 183,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestDeadCodeAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "analyzer.analyze_async",
+      "line": 184,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDeadCodeAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "isinstance",
+      "line": 186,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDeadCodeAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "len",
+      "line": 188,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "Config",
+      "line": 206,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "_write_symbols",
+      "line": 208,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "_write_source",
+      "line": 209,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "_write_shadow",
+      "line": 211,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "_write_source",
+      "line": 213,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "_write_shadow",
+      "line": 214,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "AsyncMock",
+      "line": 216,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result.mock_complete",
+      "to": "get",
+      "line": 219,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result.mock_complete",
+      "to": "CompletionResult",
+      "line": 220,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result.mock_complete",
+      "to": "ToolCall",
+      "line": 222,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result.mock_complete",
+      "to": "len",
+      "line": 240,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result.mock_complete",
+      "to": "validator",
+      "line": 240,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result.mock_complete",
+      "to": "CompletionResult",
+      "line": 241,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result.mock_complete",
+      "to": "ToolCall",
+      "line": 243,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result.mock_complete",
+      "to": "range",
+      "line": 250,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "DeadPlumbingAnalyzer",
+      "line": 259,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "analyzer.analyze_async",
+      "line": 260,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "isinstance",
+      "line": 262,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDeadPlumbingAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "len",
+      "line": 265,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestConfigJunkPath.test_analysis_junk_path_for",
+      "to": "Config",
+      "line": 281,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestConfigJunkPath.test_analysis_junk_path_for",
+      "to": "config.analysis_junk_path_for",
+      "line": 282,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestConfigJunkPath.test_analysis_junk_path_for",
+      "to": "Path",
+      "line": 282,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "mock_provider.complete",
+      "member": "return_value",
+      "line": 166
+    },
+    {
+      "container": "mock_provider",
+      "member": "complete",
+      "line": 257
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "# Shadow\nShadow doc content.",
+      "line": 23,
+      "usage": "produced",
+      "context": "default parameter"
+    },
+    {
+      "value": "abc123",
+      "line": 38,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "2025-01-01T00:00:00Z",
+      "line": 39,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/utils.py",
+      "line": 60,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "old_func",
+      "line": 61,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "function",
+      "line": 62,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "dead_symbol",
+      "line": 63,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "No references",
+      "line": 67,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "Remove function",
+      "line": 68,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "function `old_func`",
+      "line": 69,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "src/utils.py",
+      "line": 71,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.source_path"
+    },
+    {
+      "value": "old_func",
+      "line": 72,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.name"
+    },
+    {
+      "value": "function",
+      "line": 73,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.kind"
+    },
+    {
+      "value": "dead_symbol",
+      "line": 74,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.category",
+      "kind": "identifier"
+    },
+    {
+      "value": "a.py",
+      "line": 81,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "function",
+      "line": 81,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "dead_symbol",
+      "line": 81,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "rm",
+      "line": 83,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "a.py",
+      "line": 90,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "config_field",
+      "line": 90,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "unactuated_config",
+      "line": 91,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "rm",
+      "line": 92,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "MySchema",
+      "line": 93,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "MySchema",
+      "line": 95,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "dead_code",
+      "line": 105,
+      "usage": "produced",
+      "context": "keyword argument to JunkAnalysisResult",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead_code",
+      "line": 109,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.analyzer_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/utils.py",
+      "line": 118,
+      "usage": "produced",
+      "context": "argument to _write_shadow"
+    },
+    {
+      "value": "# Utils\nHelper functions.",
+      "line": 118,
+      "usage": "produced",
+      "context": "argument to _write_shadow"
+    },
+    {
+      "value": "src/utils.py",
+      "line": 120,
+      "usage": "produced",
+      "context": "argument to load_shadow_content"
+    },
+    {
+      "value": "# Utils",
+      "line": 121,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "content"
+    },
+    {
+      "value": "Helper functions.",
+      "line": 122,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "content"
+    },
+    {
+      "value": "src/nonexistent.py",
+      "line": 127,
+      "usage": "produced",
+      "context": "argument to load_shadow_content"
+    },
+    {
+      "value": "dead_code",
+      "line": 136,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "analyzer.name",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead-code",
+      "line": 137,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "analyzer.cli_flag",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead code",
+      "line": 138,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "dead_plumbing",
+      "line": 142,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "analyzer.name",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead-plumbing",
+      "line": 143,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "analyzer.cli_flag",
+      "kind": "identifier"
+    },
+    {
+      "value": "config",
+      "line": 144,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "plumbing",
+      "line": 144,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/lib.py",
+      "line": 159,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "dead_func",
+      "line": 160,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 160,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/lib.py",
+      "line": 162,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "def dead_func(): pass\n",
+      "line": 162,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "src/main.py",
+      "line": 163,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "print('hello')\n",
+      "line": 163,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "tc1",
+      "line": 169,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 169,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 173,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "No references",
+      "line": 174,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Remove function",
+      "line": 175,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test",
+      "line": 180,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 180,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "dead_code",
+      "line": 187,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.analyzer_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/lib.py",
+      "line": 191,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.source_path"
+    },
+    {
+      "value": "dead_func",
+      "line": 192,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.name"
+    },
+    {
+      "value": "function",
+      "line": 193,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.kind"
+    },
+    {
+      "value": "dead_symbol",
+      "line": 194,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.category",
+      "kind": "identifier"
+    },
+    {
+      "value": "No references",
+      "line": 196,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.reason"
+    },
+    {
+      "value": "Remove function",
+      "line": 197,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.remediation"
+    },
+    {
+      "value": "src/trial.ts",
+      "line": 208,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "schema",
+      "line": 208,
+      "usage": "produced",
+      "context": "keyword argument to _write_symbols",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/trial.ts",
+      "line": 209,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "const Schema = z.object({\n  taskTimeoutMs: z.number(),\n});",
+      "line": 210,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "src/trial.ts",
+      "line": 211,
+      "usage": "produced",
+      "context": "argument to _write_shadow"
+    },
+    {
+      "value": "# Schema\nTimeout fields",
+      "line": 211,
+      "usage": "produced",
+      "context": "argument to _write_shadow"
+    },
+    {
+      "value": "src/runner.ts",
+      "line": 213,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "const t = config.taskTimeoutMs;\n",
+      "line": 213,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "src/runner.ts",
+      "line": 214,
+      "usage": "produced",
+      "context": "argument to _write_shadow"
+    },
+    {
+      "value": "# Runner\nReads config",
+      "line": 214,
+      "usage": "produced",
+      "context": "argument to _write_shadow"
+    },
+    {
+      "value": "extract_obligations",
+      "line": 219,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "name",
+      "line": 219,
+      "usage": "produced",
+      "context": "argument to get"
+    },
+    {
+      "value": "tc1",
+      "line": 223,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "extract_obligations",
+      "line": 223,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "taskTimeoutMs",
+      "line": 226,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Schema",
+      "line": 227,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Enforce task timeout",
+      "line": 230,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "timer/deadline",
+      "line": 231,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test",
+      "line": 236,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 236,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 240,
+      "usage": "produced",
+      "context": "argument to validator",
+      "kind": "identifier"
+    },
+    {
+      "value": "tc2",
+      "line": 244,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 244,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 246,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "taskTimeoutMs stored but never enforced",
+      "line": 248,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Add timer enforcement",
+      "line": 249,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test",
+      "line": 254,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 254,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "dead_plumbing",
+      "line": 263,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.analyzer_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/trial.ts",
+      "line": 268,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.source_path"
+    },
+    {
+      "value": "taskTimeoutMs",
+      "line": 269,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.name",
+      "kind": "identifier"
+    },
+    {
+      "value": "config_field",
+      "line": 270,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "unactuated_config",
+      "line": 271,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.category",
+      "kind": "identifier"
+    },
+    {
+      "value": "Schema",
+      "line": 273,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "dead_code",
+      "line": 282,
+      "usage": "produced",
+      "context": "argument to config.analysis_junk_path_for",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/utils.py",
+      "line": 282,
+      "usage": "produced",
+      "context": "argument to Path"
+    }
+  ],
+  "extraction_method": "ast"
+}

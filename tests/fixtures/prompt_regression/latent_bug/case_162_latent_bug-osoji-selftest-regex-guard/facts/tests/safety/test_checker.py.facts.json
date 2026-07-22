@@ -1,0 +1,763 @@
+{
+  "source": "tests/safety/test_checker.py",
+  "source_hash": "a66a2f4fe081ffad",
+  "generated": "2026-07-22T10:55:47Z",
+  "imports": [
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.safety.checker",
+      "names": [
+        "check_file",
+        "check_files",
+        "format_check_result"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.safety.models",
+      "names": [
+        "CheckResult",
+        "PathFinding"
+      ],
+      "line": 10,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "TestCheckFile",
+      "kind": "class",
+      "line": 13,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCheckFile.test_finds_personal_path",
+      "kind": "function",
+      "line": 16,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCheckFile.test_safe_file_passes",
+      "kind": "function",
+      "line": 27,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCheckFile.test_skips_binary_file",
+      "kind": "function",
+      "line": 38,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCheckFile.test_handles_nonexistent_file",
+      "kind": "function",
+      "line": 49,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCheckFile.test_multiple_findings_in_file",
+      "kind": "function",
+      "line": 56,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCheckFiles",
+      "kind": "class",
+      "line": 72,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCheckFiles.test_checks_multiple_files",
+      "kind": "function",
+      "line": 75,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCheckFiles.test_aggregates_findings",
+      "kind": "function",
+      "line": 84,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCheckFiles.test_filters_binary_files",
+      "kind": "function",
+      "line": 94,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCheckFiles.test_empty_list",
+      "kind": "function",
+      "line": 104,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCheckResult",
+      "kind": "class",
+      "line": 112,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCheckResult.test_passed_when_empty",
+      "kind": "function",
+      "line": 115,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCheckResult.test_not_passed_with_path_findings",
+      "kind": "function",
+      "line": 121,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCheckResult.test_finding_count",
+      "kind": "function",
+      "line": 134,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCheckResult.test_merge_combines_results",
+      "kind": "function",
+      "line": 157,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCheckResult.test_summary_passed",
+      "kind": "function",
+      "line": 167,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCheckResult.test_summary_failed",
+      "kind": "function",
+      "line": 174,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFormatCheckResult",
+      "kind": "class",
+      "line": 193,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFormatCheckResult.test_format_passed",
+      "kind": "function",
+      "line": 196,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFormatCheckResult.test_format_failed_with_paths",
+      "kind": "function",
+      "line": 205,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFormatCheckResult.test_verbose_includes_counts",
+      "kind": "function",
+      "line": 227,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFormatCheckResult.test_includes_remediation_suggestions",
+      "kind": "function",
+      "line": 236,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "TestCheckFile.test_finds_personal_path",
+      "to": "test_file.write_text",
+      "line": 19,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestCheckFile.test_finds_personal_path",
+      "to": "check_file",
+      "line": 21,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestCheckFile.test_finds_personal_path",
+      "to": "len",
+      "line": 24,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestCheckFile.test_safe_file_passes",
+      "to": "test_file.write_text",
+      "line": 30,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestCheckFile.test_safe_file_passes",
+      "to": "check_file",
+      "line": 32,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestCheckFile.test_safe_file_passes",
+      "to": "len",
+      "line": 36,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestCheckFile.test_skips_binary_file",
+      "to": "test_file.write_bytes",
+      "line": 41,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestCheckFile.test_skips_binary_file",
+      "to": "check_file",
+      "line": 43,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestCheckFile.test_handles_nonexistent_file",
+      "to": "check_file",
+      "line": 51,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestCheckFile.test_handles_nonexistent_file",
+      "to": "len",
+      "line": 54,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestCheckFile.test_multiple_findings_in_file",
+      "to": "test_file.write_text",
+      "line": 59,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestCheckFile.test_multiple_findings_in_file",
+      "to": "check_file",
+      "line": 66,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestCheckFile.test_multiple_findings_in_file",
+      "to": "len",
+      "line": 69,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestCheckFiles.test_checks_multiple_files",
+      "to": "write_text",
+      "line": 77,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestCheckFiles.test_checks_multiple_files",
+      "to": "write_text",
+      "line": 78,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestCheckFiles.test_checks_multiple_files",
+      "to": "check_files",
+      "line": 80,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestCheckFiles.test_aggregates_findings",
+      "to": "write_text",
+      "line": 86,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestCheckFiles.test_aggregates_findings",
+      "to": "write_text",
+      "line": 87,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestCheckFiles.test_aggregates_findings",
+      "to": "check_files",
+      "line": 89,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestCheckFiles.test_aggregates_findings",
+      "to": "len",
+      "line": 91,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestCheckFiles.test_filters_binary_files",
+      "to": "write_text",
+      "line": 96,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestCheckFiles.test_filters_binary_files",
+      "to": "write_bytes",
+      "line": 97,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestCheckFiles.test_filters_binary_files",
+      "to": "check_files",
+      "line": 99,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestCheckFiles.test_empty_list",
+      "to": "check_files",
+      "line": 106,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestCheckResult.test_passed_when_empty",
+      "to": "CheckResult",
+      "line": 117,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "TestCheckResult.test_not_passed_with_path_findings",
+      "to": "PathFinding",
+      "line": 123,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestCheckResult.test_not_passed_with_path_findings",
+      "to": "Path",
+      "line": 124,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestCheckResult.test_not_passed_with_path_findings",
+      "to": "CheckResult",
+      "line": 130,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "TestCheckResult.test_finding_count",
+      "to": "CheckResult",
+      "line": 136,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "TestCheckResult.test_finding_count",
+      "to": "PathFinding",
+      "line": 138,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestCheckResult.test_finding_count",
+      "to": "Path",
+      "line": 139,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestCheckResult.test_finding_count",
+      "to": "PathFinding",
+      "line": 145,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestCheckResult.test_finding_count",
+      "to": "Path",
+      "line": 146,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestCheckResult.test_merge_combines_results",
+      "to": "CheckResult",
+      "line": 159,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "TestCheckResult.test_merge_combines_results",
+      "to": "CheckResult",
+      "line": 160,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "TestCheckResult.test_merge_combines_results",
+      "to": "r1.merge",
+      "line": 162,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestCheckResult.test_summary_passed",
+      "to": "CheckResult",
+      "line": 169,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "TestCheckResult.test_summary_passed",
+      "to": "lower",
+      "line": 171,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestCheckResult.test_summary_passed",
+      "to": "result.summary",
+      "line": 171,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestCheckResult.test_summary_passed",
+      "to": "result.summary",
+      "line": 172,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestCheckResult.test_summary_failed",
+      "to": "CheckResult",
+      "line": 176,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "TestCheckResult.test_summary_failed",
+      "to": "PathFinding",
+      "line": 179,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestCheckResult.test_summary_failed",
+      "to": "Path",
+      "line": 180,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestCheckResult.test_summary_failed",
+      "to": "lower",
+      "line": 189,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestCheckResult.test_summary_failed",
+      "to": "result.summary",
+      "line": 189,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestCheckResult.test_summary_failed",
+      "to": "result.summary",
+      "line": 190,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestFormatCheckResult.test_format_passed",
+      "to": "CheckResult",
+      "line": 198,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "TestFormatCheckResult.test_format_passed",
+      "to": "format_check_result",
+      "line": 200,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestFormatCheckResult.test_format_passed",
+      "to": "output.lower",
+      "line": 202,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestFormatCheckResult.test_format_passed",
+      "to": "output.lower",
+      "line": 203,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestFormatCheckResult.test_format_failed_with_paths",
+      "to": "CheckResult",
+      "line": 207,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "TestFormatCheckResult.test_format_failed_with_paths",
+      "to": "PathFinding",
+      "line": 210,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestFormatCheckResult.test_format_failed_with_paths",
+      "to": "Path",
+      "line": 211,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestFormatCheckResult.test_format_failed_with_paths",
+      "to": "format_check_result",
+      "line": 220,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestFormatCheckResult.test_verbose_includes_counts",
+      "to": "CheckResult",
+      "line": 229,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "TestFormatCheckResult.test_verbose_includes_counts",
+      "to": "format_check_result",
+      "line": 231,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestFormatCheckResult.test_includes_remediation_suggestions",
+      "to": "CheckResult",
+      "line": 238,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "TestFormatCheckResult.test_includes_remediation_suggestions",
+      "to": "PathFinding",
+      "line": 241,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestFormatCheckResult.test_includes_remediation_suggestions",
+      "to": "Path",
+      "line": 242,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestFormatCheckResult.test_includes_remediation_suggestions",
+      "to": "format_check_result",
+      "line": 251,
+      "call_sites": 6
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "PATH = \"/home/jsmith/projects\"",
+      "line": 19,
+      "usage": "produced",
+      "context": "argument to test_file.write_text"
+    },
+    {
+      "value": "import os\nprint(\"hello\")",
+      "line": 30,
+      "usage": "produced",
+      "context": "argument to test_file.write_text"
+    },
+    {
+      "value": "\nPATH1 = \"/home/jsmith/data\"\nPATH2 = \"C:\\Users\\alice\\docs\"\n",
+      "line": 60,
+      "usage": "produced",
+      "context": "argument to test_file.write_text"
+    },
+    {
+      "value": "x = 1",
+      "line": 77,
+      "usage": "produced",
+      "context": "argument to write_text"
+    },
+    {
+      "value": "y = \"/home/user/data\"",
+      "line": 78,
+      "usage": "produced",
+      "context": "argument to write_text"
+    },
+    {
+      "value": "x = \"/home/jsmith/a\"",
+      "line": 86,
+      "usage": "produced",
+      "context": "argument to write_text"
+    },
+    {
+      "value": "y = \"/home/alice/b\"",
+      "line": 87,
+      "usage": "produced",
+      "context": "argument to write_text"
+    },
+    {
+      "value": "x = 1",
+      "line": 96,
+      "usage": "produced",
+      "context": "argument to write_text"
+    },
+    {
+      "value": "test.py",
+      "line": 124,
+      "usage": "produced",
+      "context": "argument to Path"
+    },
+    {
+      "value": "test",
+      "line": 126,
+      "usage": "produced",
+      "context": "keyword argument to PathFinding"
+    },
+    {
+      "value": "test",
+      "line": 127,
+      "usage": "produced",
+      "context": "keyword argument to PathFinding"
+    },
+    {
+      "value": "test",
+      "line": 128,
+      "usage": "produced",
+      "context": "keyword argument to PathFinding"
+    },
+    {
+      "value": "a.py",
+      "line": 139,
+      "usage": "produced",
+      "context": "argument to Path"
+    },
+    {
+      "value": "b.py",
+      "line": 146,
+      "usage": "produced",
+      "context": "argument to Path"
+    },
+    {
+      "value": "passed",
+      "line": 171,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "a.py",
+      "line": 180,
+      "usage": "produced",
+      "context": "argument to Path"
+    },
+    {
+      "value": "failed",
+      "line": 189,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "passed",
+      "line": 202,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "no issues",
+      "line": 203,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "message"
+    },
+    {
+      "value": "config.py",
+      "line": 211,
+      "usage": "produced",
+      "context": "argument to Path"
+    },
+    {
+      "value": "PATH = \"/home/jsmith/\"",
+      "line": 213,
+      "usage": "produced",
+      "context": "keyword argument to PathFinding"
+    },
+    {
+      "value": "unix_home",
+      "line": 214,
+      "usage": "produced",
+      "context": "keyword argument to PathFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "/home/jsmith/",
+      "line": 215,
+      "usage": "produced",
+      "context": "keyword argument to PathFinding"
+    },
+    {
+      "value": "FAILED",
+      "line": 222,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "output",
+      "kind": "identifier"
+    },
+    {
+      "value": "config.py",
+      "line": 223,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "output"
+    },
+    {
+      "value": "15",
+      "line": 224,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "output"
+    },
+    {
+      "value": "unix_home",
+      "line": 225,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "output",
+      "kind": "identifier"
+    },
+    {
+      "value": "x.py",
+      "line": 242,
+      "usage": "produced",
+      "context": "argument to Path"
+    },
+    {
+      "value": "Replace personal paths",
+      "line": 253,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "output",
+      "kind": "message"
+    },
+    {
+      "value": "generic alternatives",
+      "line": 253,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "output",
+      "kind": "message"
+    },
+    {
+      "value": "--no-verify",
+      "line": 254,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "output",
+      "kind": "identifier"
+    }
+  ],
+  "extraction_method": "ast"
+}

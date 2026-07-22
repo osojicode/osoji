@@ -1,0 +1,2729 @@
+{
+  "source": "src/osoji/queries/python_driver.py",
+  "source_hash": "7e7dfa58a90b2777",
+  "generated": "2026-07-22T10:56:27Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 21,
+      "is_reexport": false
+    },
+    {
+      "source": "ast",
+      "names": [
+        "_ast"
+      ],
+      "line": 23,
+      "is_reexport": false,
+      "name_map": {
+        "_ast": "ast"
+      }
+    },
+    {
+      "source": "logging",
+      "names": [
+        "logging"
+      ],
+      "line": 24,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 25,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Any"
+      ],
+      "line": 26,
+      "is_reexport": false
+    },
+    {
+      "source": "..plugins.base",
+      "names": [
+        "ExtractedFacts",
+        "LanguagePlugin",
+        "PluginUnavailableError"
+      ],
+      "line": 28,
+      "is_reexport": false
+    },
+    {
+      "source": "..plugins.python_resolution",
+      "names": [
+        "annotate_call_sites",
+        "normalize_path"
+      ],
+      "line": 29,
+      "is_reexport": false
+    },
+    {
+      "source": "tree_sitter_python",
+      "names": [
+        "tree_sitter_python"
+      ],
+      "line": 79,
+      "is_reexport": false
+    },
+    {
+      "source": "tree_sitter",
+      "names": [
+        "Language"
+      ],
+      "line": 80,
+      "is_reexport": false
+    },
+    {
+      "source": "tree_sitter",
+      "names": [
+        "Parser"
+      ],
+      "line": 796,
+      "is_reexport": false
+    },
+    {
+      "source": ".",
+      "names": [
+        "load_queries"
+      ],
+      "line": 798,
+      "is_reexport": false
+    },
+    {
+      "source": "tree_sitter",
+      "names": [
+        "QueryCursor"
+      ],
+      "line": 805,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "logger",
+      "kind": "variable",
+      "line": 31,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "_TSFileExtractor.collect_docstrings",
+      "kind": "function",
+      "line": 200,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "_TSFileExtractor.extract",
+      "kind": "function",
+      "line": 214,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonPlugin",
+      "kind": "class",
+      "line": 774,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "LanguagePlugin"
+      ]
+    },
+    {
+      "name": "PythonPlugin.__init__",
+      "kind": "function",
+      "line": 777,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonPlugin.name",
+      "kind": "function",
+      "line": 783,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "PythonPlugin.extensions",
+      "kind": "function",
+      "line": 787,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "PythonPlugin.check_available",
+      "kind": "function",
+      "line": 790,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonPlugin._ensure_runtime",
+      "kind": "function",
+      "line": 793,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonPlugin._capture_ids",
+      "kind": "function",
+      "line": 804,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonPlugin.extract_project_facts",
+      "kind": "function",
+      "line": 822,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "logging.getLogger",
+      "line": 31,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frozenset",
+      "line": 35,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_load_language",
+      "to": "PluginUnavailableError",
+      "line": 82,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_load_language",
+      "to": "Language",
+      "line": 85,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_language",
+      "to": "tree_sitter_python.language",
+      "line": 85,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor.__init__",
+      "to": "set",
+      "line": 102,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "_TSFileExtractor.__init__",
+      "to": "set",
+      "line": 114,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "_TSFileExtractor._text",
+      "to": "decode",
+      "line": 119,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._dotted",
+      "to": "self._unwrap_parens",
+      "line": 135,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._dotted",
+      "to": "self._text",
+      "line": 139,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._dotted",
+      "to": "self._dotted",
+      "line": 141,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_TSFileExtractor._dotted",
+      "to": "node.child_by_field_name",
+      "line": 141,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._dotted",
+      "to": "node.child_by_field_name",
+      "line": 142,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._dotted",
+      "to": "self._text",
+      "line": 143,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._dotted",
+      "to": "self._dotted",
+      "line": 148,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_TSFileExtractor._dotted",
+      "to": "node.child_by_field_name",
+      "line": 148,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._is_exported",
+      "to": "name.startswith",
+      "line": 154,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._decorator_exprs",
+      "to": "exprs.append",
+      "line": 166,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._decorator_names",
+      "to": "self._decorator_exprs",
+      "line": 172,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_TSFileExtractor._decorator_names",
+      "to": "self._dotted",
+      "line": 173,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_TSFileExtractor._has_framework_decorator",
+      "to": "self._decorator_names",
+      "line": 177,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_TSFileExtractor._has_framework_decorator",
+      "to": "any",
+      "line": 180,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._has_framework_decorator",
+      "to": "name.endswith",
+      "line": 180,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor.collect_docstrings",
+      "to": "candidates.extend",
+      "line": 202,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor.collect_docstrings",
+      "to": "_iter_nodes",
+      "line": 203,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor.collect_docstrings",
+      "to": "node.child_by_field_name",
+      "line": 207,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor.collect_docstrings",
+      "to": "self._first_statement_string",
+      "line": 208,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor.collect_docstrings",
+      "to": "self._docstring_lines.add",
+      "line": 210,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor.collect_docstrings",
+      "to": "self._line",
+      "line": 210,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_TSFileExtractor.extract",
+      "to": "self.collect_docstrings",
+      "line": 215,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor.extract",
+      "to": "self._walk",
+      "line": 217,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._walk",
+      "to": "self._handle_import",
+      "line": 222,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._walk",
+      "to": "self._handle_import_from",
+      "line": 225,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._walk",
+      "to": "self._handle_future_import",
+      "line": 228,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._walk",
+      "to": "self._handle_decorated",
+      "line": 231,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._walk",
+      "to": "self._handle_funcdef",
+      "line": 234,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._walk",
+      "to": "self._handle_classdef",
+      "line": 237,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._walk",
+      "to": "self._handle_assignment",
+      "line": 240,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._walk",
+      "to": "self._handle_call",
+      "line": 243,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._walk",
+      "to": "self._handle_string",
+      "line": 246,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._walk",
+      "to": "len",
+      "line": 254,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_TSFileExtractor._walk",
+      "to": "self._walk",
+      "line": 255,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._walk",
+      "to": "self._walk",
+      "line": 256,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._walk",
+      "to": "self._walk",
+      "line": 257,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._walk",
+      "to": "self._walk",
+      "line": 260,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._import_reexport",
+      "to": "local.startswith",
+      "line": 267,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_import",
+      "to": "self._line",
+      "line": 272,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_import",
+      "to": "self._text",
+      "line": 275,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_import",
+      "to": "self._text",
+      "line": 279,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_import",
+      "to": "child.child_by_field_name",
+      "line": 279,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_import",
+      "to": "self._text",
+      "line": 280,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_import",
+      "to": "child.child_by_field_name",
+      "line": 280,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_import",
+      "to": "self._import_reexport",
+      "line": 288,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_import",
+      "to": "self.imports.append",
+      "line": 292,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._import_from_names",
+      "to": "names.append",
+      "line": 302,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_TSFileExtractor._import_from_names",
+      "to": "names.append",
+      "line": 304,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_TSFileExtractor._import_from_names",
+      "to": "self._text",
+      "line": 304,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._import_from_names",
+      "to": "self._text",
+      "line": 306,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._import_from_names",
+      "to": "child.child_by_field_name",
+      "line": 306,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_TSFileExtractor._import_from_names",
+      "to": "self._text",
+      "line": 307,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._import_from_names",
+      "to": "child.child_by_field_name",
+      "line": 307,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_TSFileExtractor._import_from_names",
+      "to": "names.append",
+      "line": 308,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_TSFileExtractor._finish_import_from",
+      "to": "n.startswith",
+      "line": 317,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._finish_import_from",
+      "to": "self.imports.append",
+      "line": 329,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_import_from",
+      "to": "node.child_by_field_name",
+      "line": 332,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_import_from",
+      "to": "self._text",
+      "line": 333,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_import_from",
+      "to": "self._import_from_names",
+      "line": 334,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_import_from",
+      "to": "self._finish_import_from",
+      "line": 335,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_import_from",
+      "to": "self._line",
+      "line": 335,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_future_import",
+      "to": "self._import_from_names",
+      "line": 338,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_future_import",
+      "to": "self._finish_import_from",
+      "line": 339,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_future_import",
+      "to": "self._line",
+      "line": 339,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_decorated",
+      "to": "node.child_by_field_name",
+      "line": 345,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_decorated",
+      "to": "self._handle_funcdef",
+      "line": 349,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_decorated",
+      "to": "self._handle_classdef",
+      "line": 351,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._push_function_scope",
+      "to": "self._scope_stack.append",
+      "line": 354,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "node.child_by_field_name",
+      "line": 359,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "self._text",
+      "line": 362,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "self._is_exported",
+      "line": 368,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "self._is_exported",
+      "line": 368,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "self.exports.append",
+      "line": 369,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "self._line",
+      "line": 372,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "self._decorator_names",
+      "line": 373,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "self._has_framework_decorator",
+      "line": 374,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "self._push_function_scope",
+      "line": 377,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "node.child_by_field_name",
+      "line": 380,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "self._walk",
+      "line": 383,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "node.child_by_field_name",
+      "line": 384,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "self._walk",
+      "line": 387,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "self._decorator_exprs",
+      "line": 388,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "self._walk",
+      "line": 389,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "node.child_by_field_name",
+      "line": 390,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "self._walk",
+      "line": 392,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_funcdef",
+      "to": "self._scope_stack.pop",
+      "line": 394,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_classdef",
+      "to": "node.child_by_field_name",
+      "line": 397,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_classdef",
+      "to": "self._text",
+      "line": 400,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_classdef",
+      "to": "node.child_by_field_name",
+      "line": 401,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_classdef",
+      "to": "self._is_exported",
+      "line": 403,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_classdef",
+      "to": "self._line",
+      "line": 407,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_classdef",
+      "to": "self._decorator_names",
+      "line": 408,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_classdef",
+      "to": "self._has_framework_decorator",
+      "line": 409,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_classdef",
+      "to": "self._dotted",
+      "line": 416,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_classdef",
+      "to": "self.exports.append",
+      "line": 420,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_classdef",
+      "to": "self._scope_stack.append",
+      "line": 422,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_classdef",
+      "to": "self._walk",
+      "line": 428,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_classdef",
+      "to": "node.child_by_field_name",
+      "line": 429,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_classdef",
+      "to": "self._walk",
+      "line": 432,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_classdef",
+      "to": "self._decorator_exprs",
+      "line": 433,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_classdef",
+      "to": "self._walk",
+      "line": 434,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_classdef",
+      "to": "self._scope_stack.pop",
+      "line": 437,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._flatten_assignment",
+      "to": "value.child_by_field_name",
+      "line": 448,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._flatten_assignment",
+      "to": "targets.append",
+      "line": 450,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._flatten_assignment",
+      "to": "value.child_by_field_name",
+      "line": 451,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_assignment",
+      "to": "self._flatten_assignment",
+      "line": 455,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_assignment",
+      "to": "self._line",
+      "line": 456,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_assignment",
+      "to": "self._text",
+      "line": 461,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_assignment",
+      "to": "self._is_exported",
+      "line": 462,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_assignment",
+      "to": "self.exports.append",
+      "line": 463,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_assignment",
+      "to": "name.isupper",
+      "line": 465,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_assignment",
+      "to": "node.child_by_field_name",
+      "line": 472,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_assignment",
+      "to": "self._dotted",
+      "line": 475,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_assignment",
+      "to": "target.child_by_field_name",
+      "line": 476,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_assignment",
+      "to": "target.child_by_field_name",
+      "line": 479,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_assignment",
+      "to": "self.member_writes.append",
+      "line": 480,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_assignment",
+      "to": "self._text",
+      "line": 482,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_assignment",
+      "to": "self._walk",
+      "line": 489,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_assignment",
+      "to": "node.child_by_field_name",
+      "line": 490,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_assignment",
+      "to": "self._walk",
+      "line": 492,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_assignment",
+      "to": "self._walk",
+      "line": 494,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_call",
+      "to": "node.child_by_field_name",
+      "line": 499,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_call",
+      "to": "self._dotted",
+      "line": 500,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_call",
+      "to": "self.calls.append",
+      "line": 502,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_call",
+      "to": "self._current_scope",
+      "line": 503,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_call",
+      "to": "self._line",
+      "line": 505,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_call",
+      "to": "self._walk",
+      "line": 509,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_call",
+      "to": "node.child_by_field_name",
+      "line": 510,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_call",
+      "to": "self._walk",
+      "line": 513,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._add_string",
+      "to": "len",
+      "line": 525,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_TSFileExtractor._add_string",
+      "to": "self.string_literals.append",
+      "line": 537,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._walk_interpolations",
+      "to": "self._walk",
+      "line": 543,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "_TSFileExtractor._walk_interpolations",
+      "to": "self._walk_interpolations",
+      "line": 545,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._string_value",
+      "to": "_ast.literal_eval",
+      "line": 556,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._string_value",
+      "to": "self._text",
+      "line": 556,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._string_value",
+      "to": "isinstance",
+      "line": 559,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_string",
+      "to": "self._string_value",
+      "line": 583,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_string",
+      "to": "self._walk_interpolations",
+      "line": 585,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_string",
+      "to": "self._line",
+      "line": 587,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_TSFileExtractor._handle_string",
+      "to": "self._classify_string",
+      "line": 588,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._effective_parent",
+      "line": 591,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._top_under",
+      "line": 596,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "parent.child_by_field_name",
+      "line": 601,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._add_string",
+      "line": 608,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._text",
+      "line": 614,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "list",
+      "line": 617,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "len",
+      "line": 620,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._dotted",
+      "line": 621,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._dotted",
+      "line": 623,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._add_string",
+      "line": 624,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "parent.child_by_field_name",
+      "line": 632,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "parent.child_by_field_name",
+      "line": 635,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._add_string",
+      "line": 637,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._text",
+      "line": 637,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._add_string",
+      "line": 642,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._dotted",
+      "line": 649,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "call.child_by_field_name",
+      "line": 650,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._add_string",
+      "line": 653,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._dotted",
+      "line": 663,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "call.child_by_field_name",
+      "line": 664,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._add_string",
+      "line": 667,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._add_string",
+      "line": 672,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "parent.children_by_field_name",
+      "line": 680,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "len",
+      "line": 682,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._add_string",
+      "line": 683,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "len",
+      "line": 698,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._add_string",
+      "line": 699,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "outer.child_by_field_name",
+      "line": 704,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._add_string",
+      "line": 706,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._text",
+      "line": 706,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "parent.child_by_field_name",
+      "line": 712,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_TSFileExtractor._classify_string",
+      "to": "self._add_string",
+      "line": 714,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_iter_nodes",
+      "to": "stack.pop",
+      "line": 725,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_iter_nodes",
+      "to": "stack.extend",
+      "line": 727,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_iter_nodes",
+      "to": "reversed",
+      "line": 727,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_get_all_members",
+      "to": "_TSFileExtractor._flatten_assignment",
+      "line": 741,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_get_all_members",
+      "to": "any",
+      "line": 742,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_get_all_members",
+      "to": "extractor._text",
+      "line": 743,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_get_all_members",
+      "to": "_extract_string_list",
+      "line": 748,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_get_all_members",
+      "to": "expr.child_by_field_name",
+      "line": 750,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_get_all_members",
+      "to": "extractor._text",
+      "line": 752,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_extract_string_list",
+      "to": "_TSFileExtractor._unwrap_parens",
+      "line": 758,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_string_list",
+      "to": "extractor._string_value",
+      "line": 767,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_string_list",
+      "to": "result.append",
+      "line": 770,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extensions",
+      "to": "frozenset",
+      "line": 788,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonPlugin.check_available",
+      "to": "self._ensure_runtime",
+      "line": 791,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonPlugin._ensure_runtime",
+      "to": "_load_language",
+      "line": 800,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin._ensure_runtime",
+      "to": "Parser",
+      "line": 801,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin._ensure_runtime",
+      "to": "load_queries",
+      "line": 802,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "set",
+      "line": 808,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "set",
+      "line": 808,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "set",
+      "line": 808,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "set",
+      "line": 809,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "set",
+      "line": 809,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "set",
+      "line": 809,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "set",
+      "line": 810,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "set",
+      "line": 810,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "set",
+      "line": 811,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "set",
+      "line": 812,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "set",
+      "line": 812,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "set",
+      "line": 813,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "self._queries.values",
+      "line": 815,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "captures",
+      "line": 816,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "QueryCursor",
+      "line": 816,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "captures.items",
+      "line": 817,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "ids.setdefault",
+      "line": 818,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "set",
+      "line": 818,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "PythonPlugin._capture_ids",
+      "to": "bucket.update",
+      "line": 819,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "self._ensure_runtime",
+      "line": 828,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "set",
+      "line": 830,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "file_set.add",
+      "line": 832,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "normalize_path",
+      "line": 832,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "normalize_path",
+      "line": 838,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "file_path.read_text",
+      "line": 840,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "logger.warning",
+      "line": 842,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "source_code.encode",
+      "line": 845,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "self._parser.parse",
+      "line": 846,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "logger.warning",
+      "line": 849,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "self._capture_ids",
+      "line": 852,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "_TSFileExtractor",
+      "line": 853,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "_get_all_members",
+      "line": 856,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "_TSFileExtractor",
+      "line": 857,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "extractor.extract",
+      "line": 863,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "annotate_call_sites",
+      "line": 867,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "per_file.items",
+      "line": 870,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "ExtractedFacts",
+      "line": 871,
+      "call_sites": 5
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "self",
+      "member": "src",
+      "line": 99
+    },
+    {
+      "container": "self",
+      "member": "is_init",
+      "line": 100
+    },
+    {
+      "container": "self",
+      "member": "all_members",
+      "line": 101
+    },
+    {
+      "container": "self",
+      "member": "capture_ids",
+      "line": 103
+    },
+    {
+      "container": "self",
+      "member": "_depth",
+      "line": 112
+    },
+    {
+      "container": "self",
+      "member": "_class_scope_depth",
+      "line": 113
+    },
+    {
+      "container": "self",
+      "member": "_language",
+      "line": 778
+    },
+    {
+      "container": "self",
+      "member": "_parser",
+      "line": 779
+    },
+    {
+      "container": "self",
+      "member": "_queries",
+      "line": 780
+    },
+    {
+      "container": "self",
+      "member": "_language",
+      "line": 800
+    },
+    {
+      "container": "self",
+      "member": "_parser",
+      "line": 801
+    },
+    {
+      "container": "self",
+      "member": "_queries",
+      "line": 802
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "property",
+      "line": 36,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "classmethod",
+      "line": 37,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "staticmethod",
+      "line": 38,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "abstractmethod",
+      "line": 39,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pytest.fixture",
+      "line": 40,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "fixture",
+      "line": 41,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "app.route",
+      "line": 42,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "router.get",
+      "line": 43,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "router.post",
+      "line": 44,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "router.put",
+      "line": 45,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "router.delete",
+      "line": 46,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "router.patch",
+      "line": 47,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "signal.connect",
+      "line": 48,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "receiver",
+      "line": 49,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "task",
+      "line": 50,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "shared_task",
+      "line": 51,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "command",
+      "line": 52,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "group",
+      "line": 53,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "click.command",
+      "line": 54,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "click.group",
+      "line": 55,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".route",
+      "line": 59,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".command",
+      "line": 60,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".group",
+      "line": 61,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".get",
+      "line": 62,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".post",
+      "line": 63,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".put",
+      "line": 64,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".delete",
+      "line": 65,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".patch",
+      "line": 66,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".connect",
+      "line": 67,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".handler",
+      "line": 68,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".listener",
+      "line": 69,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pip install tree-sitter tree-sitter-python",
+      "line": 72,
+      "usage": "defined",
+      "context": "constant _INSTALL_HINT"
+    },
+    {
+      "value": "utf-8",
+      "line": 119,
+      "usage": "produced",
+      "context": "argument to decode"
+    },
+    {
+      "value": "replace",
+      "line": 119,
+      "usage": "produced",
+      "context": "keyword argument to decode"
+    },
+    {
+      "value": "parenthesized_expression",
+      "line": 127,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "node.type"
+    },
+    {
+      "value": "identifier",
+      "line": 138,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "node.type"
+    },
+    {
+      "value": "attribute",
+      "line": 140,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "node.type"
+    },
+    {
+      "value": "object",
+      "line": 141,
+      "usage": "produced",
+      "context": "argument to node.child_by_field_name"
+    },
+    {
+      "value": "attribute",
+      "line": 142,
+      "usage": "produced",
+      "context": "argument to node.child_by_field_name"
+    },
+    {
+      "value": "call",
+      "line": 147,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "node.type"
+    },
+    {
+      "value": "function",
+      "line": 148,
+      "usage": "produced",
+      "context": "argument to node.child_by_field_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "comment",
+      "line": 191,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "child.type"
+    },
+    {
+      "value": "expression_statement",
+      "line": 193,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "child.type"
+    },
+    {
+      "value": "string",
+      "line": 195,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "type"
+    },
+    {
+      "value": "module",
+      "line": 207,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "node.type"
+    },
+    {
+      "value": "body",
+      "line": 207,
+      "usage": "produced",
+      "context": "argument to node.child_by_field_name"
+    },
+    {
+      "value": "comment",
+      "line": 248,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "node.type"
+    },
+    {
+      "value": "conditional_expression",
+      "line": 250,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "node.type"
+    },
+    {
+      "value": "dotted_name",
+      "line": 274,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "child.type"
+    },
+    {
+      "value": "aliased_import",
+      "line": 278,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "child.type"
+    },
+    {
+      "value": "name",
+      "line": 279,
+      "usage": "produced",
+      "context": "argument to child.child_by_field_name"
+    },
+    {
+      "value": "alias",
+      "line": 280,
+      "usage": "produced",
+      "context": "argument to child.child_by_field_name"
+    },
+    {
+      "value": "wildcard_import",
+      "line": 301,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "child.type"
+    },
+    {
+      "value": "dotted_name",
+      "line": 303,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "child.type"
+    },
+    {
+      "value": "aliased_import",
+      "line": 305,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "child.type"
+    },
+    {
+      "value": "name",
+      "line": 306,
+      "usage": "produced",
+      "context": "argument to child.child_by_field_name"
+    },
+    {
+      "value": "alias",
+      "line": 307,
+      "usage": "produced",
+      "context": "argument to child.child_by_field_name"
+    },
+    {
+      "value": "module_name",
+      "line": 332,
+      "usage": "produced",
+      "context": "argument to node.child_by_field_name"
+    },
+    {
+      "value": "__future__",
+      "line": 339,
+      "usage": "produced",
+      "context": "argument to self._finish_import_from",
+      "kind": "identifier"
+    },
+    {
+      "value": "decorator",
+      "line": 344,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "c.type"
+    },
+    {
+      "value": "definition",
+      "line": 345,
+      "usage": "produced",
+      "context": "argument to node.child_by_field_name"
+    },
+    {
+      "value": "name",
+      "line": 359,
+      "usage": "produced",
+      "context": "argument to node.child_by_field_name"
+    },
+    {
+      "value": "function",
+      "line": 371,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "parameters",
+      "line": 380,
+      "usage": "produced",
+      "context": "argument to node.child_by_field_name"
+    },
+    {
+      "value": "body",
+      "line": 384,
+      "usage": "produced",
+      "context": "argument to node.child_by_field_name"
+    },
+    {
+      "value": "return_type",
+      "line": 390,
+      "usage": "produced",
+      "context": "argument to node.child_by_field_name"
+    },
+    {
+      "value": "name",
+      "line": 397,
+      "usage": "produced",
+      "context": "argument to node.child_by_field_name"
+    },
+    {
+      "value": "superclasses",
+      "line": 401,
+      "usage": "produced",
+      "context": "argument to node.child_by_field_name"
+    },
+    {
+      "value": "class",
+      "line": 406,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "keyword_argument",
+      "line": 415,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "base.type"
+    },
+    {
+      "value": "body",
+      "line": 429,
+      "usage": "produced",
+      "context": "argument to node.child_by_field_name"
+    },
+    {
+      "value": "assignment",
+      "line": 447,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "value.type"
+    },
+    {
+      "value": "left",
+      "line": 448,
+      "usage": "produced",
+      "context": "argument to value.child_by_field_name"
+    },
+    {
+      "value": "right",
+      "line": 451,
+      "usage": "produced",
+      "context": "argument to value.child_by_field_name"
+    },
+    {
+      "value": "identifier",
+      "line": 460,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "target.type"
+    },
+    {
+      "value": "type",
+      "line": 472,
+      "usage": "produced",
+      "context": "argument to node.child_by_field_name"
+    },
+    {
+      "value": "attribute",
+      "line": 474,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "target.type"
+    },
+    {
+      "value": "object",
+      "line": 476,
+      "usage": "produced",
+      "context": "argument to target.child_by_field_name"
+    },
+    {
+      "value": "attribute",
+      "line": 479,
+      "usage": "produced",
+      "context": "argument to target.child_by_field_name"
+    },
+    {
+      "value": "type",
+      "line": 490,
+      "usage": "produced",
+      "context": "argument to node.child_by_field_name"
+    },
+    {
+      "value": "function",
+      "line": 499,
+      "usage": "produced",
+      "context": "argument to node.child_by_field_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "arguments",
+      "line": 510,
+      "usage": "produced",
+      "context": "argument to node.child_by_field_name"
+    },
+    {
+      "value": "interpolation",
+      "line": 541,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "child.type"
+    },
+    {
+      "value": "string",
+      "line": 544,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "child.type"
+    },
+    {
+      "value": "parenthesized_expression",
+      "line": 565,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "parent.type"
+    },
+    {
+      "value": "concatenated_string",
+      "line": 580,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "parent.type"
+    },
+    {
+      "value": "pair",
+      "line": 599,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ptype"
+    },
+    {
+      "value": "value",
+      "line": 601,
+      "usage": "produced",
+      "context": "argument to parent.child_by_field_name"
+    },
+    {
+      "value": "dictionary",
+      "line": 604,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "grandparent.type"
+    },
+    {
+      "value": "produced",
+      "line": 608,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "dict value",
+      "line": 608,
+      "usage": "produced",
+      "context": "argument to self._add_string"
+    },
+    {
+      "value": "comparison_operator",
+      "line": 612,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ptype"
+    },
+    {
+      "value": "==",
+      "line": 616,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "!=",
+      "line": 616,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "in",
+      "line": 616,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "not in",
+      "line": 616,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "checked",
+      "line": 624,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "equality comparison",
+      "line": 624,
+      "usage": "produced",
+      "context": "argument to self._add_string"
+    },
+    {
+      "value": "assignment",
+      "line": 629,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ptype"
+    },
+    {
+      "value": "assignment",
+      "line": 630,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "parent.parent.type"
+    },
+    {
+      "value": "right",
+      "line": 632,
+      "usage": "produced",
+      "context": "argument to parent.child_by_field_name"
+    },
+    {
+      "value": "left",
+      "line": 635,
+      "usage": "produced",
+      "context": "argument to parent.child_by_field_name"
+    },
+    {
+      "value": "identifier",
+      "line": 636,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "left.type"
+    },
+    {
+      "value": "defined",
+      "line": 637,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "return_statement",
+      "line": 641,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ptype"
+    },
+    {
+      "value": "produced",
+      "line": 642,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "return value",
+      "line": 642,
+      "usage": "produced",
+      "context": "argument to self._add_string"
+    },
+    {
+      "value": "argument_list",
+      "line": 646,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ptype"
+    },
+    {
+      "value": "call",
+      "line": 648,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "call.type"
+    },
+    {
+      "value": "function",
+      "line": 650,
+      "usage": "produced",
+      "context": "argument to call.child_by_field_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "produced",
+      "line": 653,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "keyword_argument",
+      "line": 657,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ptype"
+    },
+    {
+      "value": "argument_list",
+      "line": 660,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "arg_list.type"
+    },
+    {
+      "value": "call",
+      "line": 662,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "call.type"
+    },
+    {
+      "value": "function",
+      "line": 664,
+      "usage": "produced",
+      "context": "argument to call.child_by_field_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "produced",
+      "line": 667,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "list",
+      "line": 671,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "tuple",
+      "line": 671,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "set",
+      "line": 671,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "expression_list",
+      "line": 671,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "produced",
+      "line": 672,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "collection element",
+      "line": 672,
+      "usage": "produced",
+      "context": "argument to self._add_string"
+    },
+    {
+      "value": "subscript",
+      "line": 678,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ptype"
+    },
+    {
+      "value": "subscript",
+      "line": 680,
+      "usage": "produced",
+      "context": "argument to parent.children_by_field_name"
+    },
+    {
+      "value": "produced",
+      "line": 683,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "collection element",
+      "line": 683,
+      "usage": "produced",
+      "context": "argument to self._add_string"
+    },
+    {
+      "value": "type",
+      "line": 692,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ptype"
+    },
+    {
+      "value": "type_parameter",
+      "line": 694,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "outer.type"
+    },
+    {
+      "value": "type",
+      "line": 696,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "c.type"
+    },
+    {
+      "value": "produced",
+      "line": 699,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "collection element",
+      "line": 699,
+      "usage": "produced",
+      "context": "argument to self._add_string"
+    },
+    {
+      "value": "assignment",
+      "line": 701,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "outer.type"
+    },
+    {
+      "value": "assignment",
+      "line": 702,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "outer.parent.type"
+    },
+    {
+      "value": "left",
+      "line": 704,
+      "usage": "produced",
+      "context": "argument to outer.child_by_field_name"
+    },
+    {
+      "value": "identifier",
+      "line": 705,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "left.type"
+    },
+    {
+      "value": "defined",
+      "line": 706,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "default_parameter",
+      "line": 711,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "typed_default_parameter",
+      "line": 711,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "value",
+      "line": 712,
+      "usage": "produced",
+      "context": "argument to parent.child_by_field_name"
+    },
+    {
+      "value": "produced",
+      "line": 714,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "default parameter",
+      "line": 714,
+      "usage": "produced",
+      "context": "argument to self._add_string"
+    },
+    {
+      "value": "expression_statement",
+      "line": 734,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "stmt.type"
+    },
+    {
+      "value": "assignment",
+      "line": 740,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "expr.type"
+    },
+    {
+      "value": "identifier",
+      "line": 743,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "t.type"
+    },
+    {
+      "value": "__all__",
+      "line": 743,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "augmented_assignment",
+      "line": 749,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "expr.type"
+    },
+    {
+      "value": "left",
+      "line": 750,
+      "usage": "produced",
+      "context": "argument to expr.child_by_field_name"
+    },
+    {
+      "value": "identifier",
+      "line": 751,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "left.type"
+    },
+    {
+      "value": "__all__",
+      "line": 752,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "list",
+      "line": 759,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "tuple",
+      "line": 759,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "comment",
+      "line": 763,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "child.type"
+    },
+    {
+      "value": "string",
+      "line": 765,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "child.type"
+    },
+    {
+      "value": "python",
+      "line": 784,
+      "usage": "produced",
+      "context": "return value",
+      "kind": "identifier"
+    },
+    {
+      "value": ".py",
+      "line": 788,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "config"
+    },
+    {
+      "value": ".pyi",
+      "line": 788,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "config"
+    },
+    {
+      "value": "python",
+      "line": 802,
+      "usage": "produced",
+      "context": "argument to load_queries",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 840,
+      "usage": "produced",
+      "context": "keyword argument to file_path.read_text"
+    },
+    {
+      "value": "replace",
+      "line": 840,
+      "usage": "produced",
+      "context": "keyword argument to file_path.read_text"
+    },
+    {
+      "value": "utf-8",
+      "line": 845,
+      "usage": "produced",
+      "context": "argument to source_code.encode"
+    },
+    {
+      "value": "__init__.py",
+      "line": 859,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "file_path.name",
+      "kind": "identifier"
+    },
+    {
+      "value": "constant",
+      "context": "Export kind for all-uppercase assignments",
+      "line": 465,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "variable",
+      "context": "Export kind for non-uppercase assignments",
+      "line": 465,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "<module>",
+      "context": "Default scope name when scope stack is empty",
+      "line": 159,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

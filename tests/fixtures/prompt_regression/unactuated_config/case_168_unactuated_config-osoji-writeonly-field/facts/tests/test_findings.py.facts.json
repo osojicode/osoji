@@ -1,0 +1,843 @@
+{
+  "source": "tests/test_findings.py",
+  "source_hash": "adedd1a33b7a6bd3",
+  "generated": "2026-07-22T10:55:41Z",
+  "imports": [
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.evidence",
+      "names": [
+        "EVIDENCE_KINDS",
+        "Evidence"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings",
+      "names": [
+        "Finding",
+        "compute_finding_id"
+      ],
+      "line": 6,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "TestFindingId",
+      "kind": "class",
+      "line": 27,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingId.test_id_is_16_hex",
+      "kind": "function",
+      "line": 28,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingId.test_id_stable_same_inputs",
+      "kind": "function",
+      "line": 34,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingId.test_id_changes_with_detector",
+      "kind": "function",
+      "line": 37,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingId.test_id_changes_with_path",
+      "kind": "function",
+      "line": 40,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingId.test_id_changes_with_symbol",
+      "kind": "function",
+      "line": 43,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingId.test_id_changes_with_claim",
+      "kind": "function",
+      "line": 46,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingId.test_line_numbers_do_not_change_id_when_symbol_present",
+      "kind": "function",
+      "line": 49,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingId.test_symbol_none_uses_line_fallback",
+      "kind": "function",
+      "line": 55,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingId.test_explicit_id_not_recomputed",
+      "kind": "function",
+      "line": 63,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingId.test_none_location_deterministic",
+      "kind": "function",
+      "line": 67,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingId.test_delimiter_safe",
+      "kind": "function",
+      "line": 72,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingId.test_evidence_fingerprint_not_in_id",
+      "kind": "function",
+      "line": 79,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingSerialization",
+      "kind": "class",
+      "line": 85,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingSerialization.test_round_trip_minimal",
+      "kind": "function",
+      "line": 86,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingSerialization.test_round_trip_with_evidence",
+      "kind": "function",
+      "line": 90,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingSerialization.test_id_survives_round_trip",
+      "kind": "function",
+      "line": 97,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingSerialization.test_evidence_fingerprint_defaults_none",
+      "kind": "function",
+      "line": 101,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingSerialization.test_evidence_fingerprint_round_trips",
+      "kind": "function",
+      "line": 104,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingSerialization.test_json_dumps_default_str",
+      "kind": "function",
+      "line": 108,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFindingSerialization.test_triage_fields_default_none",
+      "kind": "function",
+      "line": 113,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestGapType",
+      "kind": "class",
+      "line": 122,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestGapType.test_uncategorized_accepted",
+      "kind": "function",
+      "line": 123,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestGapType.test_all_literal_values_accepted",
+      "kind": "function",
+      "line": 127,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestEvidence",
+      "kind": "class",
+      "line": 132,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestEvidence.test_round_trip",
+      "kind": "function",
+      "line": 133,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestEvidence.test_kind_set_is_pinned",
+      "kind": "function",
+      "line": 137,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestEvidence.test_empty_payload_round_trips",
+      "kind": "function",
+      "line": 153,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "_make_finding",
+      "to": "dict",
+      "line": 12,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_make_finding",
+      "to": "kwargs.update",
+      "line": 23,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_make_finding",
+      "to": "Finding",
+      "line": 24,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestFindingId.test_id_is_16_hex",
+      "to": "_make_finding",
+      "line": 29,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_id_is_16_hex",
+      "to": "isinstance",
+      "line": 30,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestFindingId.test_id_is_16_hex",
+      "to": "len",
+      "line": 31,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestFindingId.test_id_is_16_hex",
+      "to": "int",
+      "line": 32,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestFindingId.test_id_stable_same_inputs",
+      "to": "_make_finding",
+      "line": 35,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_id_stable_same_inputs",
+      "to": "_make_finding",
+      "line": 35,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_id_changes_with_detector",
+      "to": "_make_finding",
+      "line": 38,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_id_changes_with_detector",
+      "to": "_make_finding",
+      "line": 38,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_id_changes_with_path",
+      "to": "_make_finding",
+      "line": 41,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_id_changes_with_path",
+      "to": "_make_finding",
+      "line": 41,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_id_changes_with_symbol",
+      "to": "_make_finding",
+      "line": 44,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_id_changes_with_symbol",
+      "to": "_make_finding",
+      "line": 44,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_id_changes_with_claim",
+      "to": "_make_finding",
+      "line": 47,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_id_changes_with_claim",
+      "to": "_make_finding",
+      "line": 47,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_line_numbers_do_not_change_id_when_symbol_present",
+      "to": "_make_finding",
+      "line": 51,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_line_numbers_do_not_change_id_when_symbol_present",
+      "to": "_make_finding",
+      "line": 52,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_symbol_none_uses_line_fallback",
+      "to": "_make_finding",
+      "line": 57,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_symbol_none_uses_line_fallback",
+      "to": "_make_finding",
+      "line": 58,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_symbol_none_uses_line_fallback",
+      "to": "_make_finding",
+      "line": 60,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_explicit_id_not_recomputed",
+      "to": "_make_finding",
+      "line": 64,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_none_location_deterministic",
+      "to": "_make_finding",
+      "line": 68,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_none_location_deterministic",
+      "to": "_make_finding",
+      "line": 69,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_delimiter_safe",
+      "to": "compute_finding_id",
+      "line": 75,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestFindingId.test_delimiter_safe",
+      "to": "compute_finding_id",
+      "line": 76,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestFindingId.test_evidence_fingerprint_not_in_id",
+      "to": "_make_finding",
+      "line": 80,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingId.test_evidence_fingerprint_not_in_id",
+      "to": "_make_finding",
+      "line": 81,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_round_trip_minimal",
+      "to": "_make_finding",
+      "line": 87,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_round_trip_minimal",
+      "to": "Finding.from_dict",
+      "line": 88,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_round_trip_minimal",
+      "to": "f.to_dict",
+      "line": 88,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_round_trip_with_evidence",
+      "to": "Evidence",
+      "line": 91,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_round_trip_with_evidence",
+      "to": "_make_finding",
+      "line": 92,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_round_trip_with_evidence",
+      "to": "Finding.from_dict",
+      "line": 93,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_round_trip_with_evidence",
+      "to": "f.to_dict",
+      "line": 93,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_round_trip_with_evidence",
+      "to": "isinstance",
+      "line": 95,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_id_survives_round_trip",
+      "to": "_make_finding",
+      "line": 98,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_id_survives_round_trip",
+      "to": "Finding.from_dict",
+      "line": 99,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_id_survives_round_trip",
+      "to": "f.to_dict",
+      "line": 99,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_evidence_fingerprint_defaults_none",
+      "to": "_make_finding",
+      "line": 102,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_evidence_fingerprint_round_trips",
+      "to": "_make_finding",
+      "line": 105,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_evidence_fingerprint_round_trips",
+      "to": "Finding.from_dict",
+      "line": 106,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_evidence_fingerprint_round_trips",
+      "to": "f.to_dict",
+      "line": 106,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_json_dumps_default_str",
+      "to": "_make_finding",
+      "line": 109,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_json_dumps_default_str",
+      "to": "Evidence",
+      "line": 109,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_json_dumps_default_str",
+      "to": "json.dumps",
+      "line": 111,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_json_dumps_default_str",
+      "to": "f.to_dict",
+      "line": 111,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestFindingSerialization.test_triage_fields_default_none",
+      "to": "_make_finding",
+      "line": 114,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestGapType.test_uncategorized_accepted",
+      "to": "_make_finding",
+      "line": 124,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestGapType.test_all_literal_values_accepted",
+      "to": "_make_finding",
+      "line": 129,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "TestEvidence.test_round_trip",
+      "to": "Evidence",
+      "line": 134,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "TestEvidence.test_round_trip",
+      "to": "Evidence.from_dict",
+      "line": 135,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestEvidence.test_round_trip",
+      "to": "ev.to_dict",
+      "line": 135,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestEvidence.test_kind_set_is_pinned",
+      "to": "set",
+      "line": 142,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestEvidence.test_empty_payload_round_trips",
+      "to": "Evidence",
+      "line": 154,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "TestEvidence.test_empty_payload_round_trips",
+      "to": "Evidence.from_dict",
+      "line": 155,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestEvidence.test_empty_payload_round_trips",
+      "to": "ev.to_dict",
+      "line": 155,
+      "call_sites": 2
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "deadcode:dead_symbol",
+      "line": 13,
+      "usage": "produced",
+      "context": "keyword argument to dict",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 14,
+      "usage": "produced",
+      "context": "keyword argument to dict",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/osoji/foo.py",
+      "line": 15,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "old_func",
+      "line": 18,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "function",
+      "line": 19,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "exported helper that should be used",
+      "line": 20,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "no references in any indexed file",
+      "line": 21,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "deps:dead_dependency",
+      "line": 38,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/osoji/bar.py",
+      "line": 41,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding"
+    },
+    {
+      "value": "other_func",
+      "line": 44,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding"
+    },
+    {
+      "value": "a different claim",
+      "line": 47,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding"
+    },
+    {
+      "value": "deadbeefdeadbeef",
+      "line": 64,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding"
+    },
+    {
+      "value": "deadbeefdeadbeef",
+      "line": 65,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.id"
+    },
+    {
+      "value": "sym",
+      "line": 75,
+      "usage": "produced",
+      "context": "argument to compute_finding_id"
+    },
+    {
+      "value": "claim",
+      "line": 75,
+      "usage": "produced",
+      "context": "argument to compute_finding_id"
+    },
+    {
+      "value": "sym\",\"claim",
+      "line": 76,
+      "usage": "produced",
+      "context": "argument to compute_finding_id"
+    },
+    {
+      "value": "abc123",
+      "line": 81,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 91,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "warning",
+      "line": 91,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "fp-xyz",
+      "line": 105,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding"
+    },
+    {
+      "value": "fp-xyz",
+      "line": 106,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "evidence_fingerprint"
+    },
+    {
+      "value": "ast_fact",
+      "line": 109,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "uncategorized",
+      "line": 124,
+      "usage": "produced",
+      "context": "keyword argument to _make_finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "uncategorized",
+      "line": 125,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 128,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "description",
+      "line": 128,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "contract",
+      "line": 128,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "uncategorized",
+      "line": 128,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 134,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "a.py",
+      "line": 134,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "ast_fact",
+      "line": 143,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 144,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "shadow_doc_claim",
+      "line": 145,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 146,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "git_blame",
+      "line": 147,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "type_signature",
+      "line": 148,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "surrounding_code",
+      "line": 149,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "declared_intent",
+      "line": 150,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "git_blame",
+      "line": 154,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    }
+  ],
+  "extraction_method": "ast"
+}

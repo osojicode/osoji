@@ -1,0 +1,1469 @@
+{
+  "source": "src/osoji/plugins/_legacy_python_ast.py",
+  "source_hash": "6ffb129c75cf9278",
+  "generated": "2026-07-22T10:55:35Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "ast",
+      "names": [
+        "ast"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "logging",
+      "names": [
+        "logging"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Any"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": ".base",
+      "names": [
+        "ExtractedFacts",
+        "LanguagePlugin"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": ".python_resolution",
+      "names": [
+        "annotate_call_sites",
+        "normalize_path"
+      ],
+      "line": 11,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "logger",
+      "kind": "variable",
+      "line": 13,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "_FileExtractor.visit_Import",
+      "kind": "function",
+      "line": 187,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "_FileExtractor.visit_ImportFrom",
+      "kind": "function",
+      "line": 206,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "_FileExtractor.visit_FunctionDef",
+      "kind": "function",
+      "line": 243,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "_FileExtractor.visit_AsyncFunctionDef",
+      "kind": "function",
+      "line": 246,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "_FileExtractor.visit_ClassDef",
+      "kind": "function",
+      "line": 272,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "_FileExtractor.visit_Assign",
+      "kind": "function",
+      "line": 294,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "_FileExtractor.visit_AnnAssign",
+      "kind": "function",
+      "line": 320,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "_FileExtractor.visit_Call",
+      "kind": "function",
+      "line": 335,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "_FileExtractor.visit_Constant",
+      "kind": "function",
+      "line": 370,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonPlugin",
+      "kind": "class",
+      "line": 471,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "LanguagePlugin"
+      ]
+    },
+    {
+      "name": "PythonPlugin.name",
+      "kind": "function",
+      "line": 475,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "PythonPlugin.extensions",
+      "kind": "function",
+      "line": 479,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "PythonPlugin.check_available",
+      "kind": "function",
+      "line": 482,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonPlugin.extract_project_facts",
+      "kind": "function",
+      "line": 485,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "logging.getLogger",
+      "line": 13,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frozenset",
+      "line": 17,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_decorator_name",
+      "to": "isinstance",
+      "line": 58,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_decorator_name",
+      "to": "isinstance",
+      "line": 60,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_decorator_name",
+      "to": "_decorator_name",
+      "line": 61,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_decorator_name",
+      "to": "isinstance",
+      "line": 65,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_decorator_name",
+      "to": "_decorator_name",
+      "line": 66,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_has_framework_decorator",
+      "to": "_decorator_name",
+      "line": 73,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_has_framework_decorator",
+      "to": "any",
+      "line": 76,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_has_framework_decorator",
+      "to": "name.endswith",
+      "line": 76,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_decorator_names",
+      "to": "_decorator_name",
+      "line": 83,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_resolve_callee",
+      "to": "isinstance",
+      "line": 88,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_resolve_callee",
+      "to": "isinstance",
+      "line": 90,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_resolve_callee",
+      "to": "_resolve_callee",
+      "line": 91,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_get_all_members",
+      "to": "isinstance",
+      "line": 101,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_get_all_members",
+      "to": "isinstance",
+      "line": 103,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_get_all_members",
+      "to": "_extract_string_list",
+      "line": 104,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_get_all_members",
+      "to": "isinstance",
+      "line": 105,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_get_all_members",
+      "to": "isinstance",
+      "line": 106,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_get_all_members",
+      "to": "_extract_string_list",
+      "line": 107,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_get_all_members",
+      "to": "isinstance",
+      "line": 108,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_get_all_members",
+      "to": "isinstance",
+      "line": 109,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_extract_string_list",
+      "to": "isinstance",
+      "line": 117,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_extract_string_list",
+      "to": "isinstance",
+      "line": 120,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_extract_string_list",
+      "to": "isinstance",
+      "line": 120,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_extract_string_list",
+      "to": "result.append",
+      "line": 121,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_collect_docstring_lines",
+      "to": "set",
+      "line": 135,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_collect_docstring_lines",
+      "to": "isinstance",
+      "line": 136,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_collect_docstring_lines",
+      "to": "isinstance",
+      "line": 138,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_collect_docstring_lines",
+      "to": "isinstance",
+      "line": 138,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_collect_docstring_lines",
+      "to": "lines.add",
+      "line": 139,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_annotate_parents",
+      "to": "ast.walk",
+      "line": 145,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_annotate_parents",
+      "to": "ast.iter_child_nodes",
+      "line": 146,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_FileExtractor.__init__",
+      "to": "set",
+      "line": 163,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_FileExtractor.__init__",
+      "to": "set",
+      "line": 174,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_FileExtractor._is_exported",
+      "to": "name.startswith",
+      "line": 181,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Import",
+      "to": "local.startswith",
+      "line": 192,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Import",
+      "to": "self.imports.append",
+      "line": 203,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Import",
+      "to": "self.generic_visit",
+      "line": 204,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_ImportFrom",
+      "to": "names.append",
+      "line": 216,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_ImportFrom",
+      "to": "n.startswith",
+      "line": 225,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_ImportFrom",
+      "to": "self.imports.append",
+      "line": 238,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_ImportFrom",
+      "to": "self.generic_visit",
+      "line": 239,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_FunctionDef",
+      "to": "self._handle_funcdef",
+      "line": 244,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_AsyncFunctionDef",
+      "to": "self._handle_funcdef",
+      "line": 247,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_FileExtractor._handle_funcdef",
+      "to": "self._is_exported",
+      "line": 255,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_FileExtractor._handle_funcdef",
+      "to": "self._is_exported",
+      "line": 255,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_FileExtractor._handle_funcdef",
+      "to": "_has_framework_decorator",
+      "line": 256,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_FileExtractor._handle_funcdef",
+      "to": "self.exports.append",
+      "line": 257,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_FileExtractor._handle_funcdef",
+      "to": "_decorator_names",
+      "line": 261,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_FileExtractor._handle_funcdef",
+      "to": "self._scope_stack.append",
+      "line": 266,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_FileExtractor._handle_funcdef",
+      "to": "self.generic_visit",
+      "line": 268,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor._handle_funcdef",
+      "to": "self._scope_stack.pop",
+      "line": 270,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_ClassDef",
+      "to": "self._is_exported",
+      "line": 273,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_ClassDef",
+      "to": "_decorator_names",
+      "line": 278,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_ClassDef",
+      "to": "_has_framework_decorator",
+      "line": 279,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_ClassDef",
+      "to": "_decorator_name",
+      "line": 281,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_ClassDef",
+      "to": "self.exports.append",
+      "line": 284,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_ClassDef",
+      "to": "self._scope_stack.append",
+      "line": 286,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_ClassDef",
+      "to": "self.generic_visit",
+      "line": 289,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_ClassDef",
+      "to": "self._scope_stack.pop",
+      "line": 292,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Assign",
+      "to": "isinstance",
+      "line": 298,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Assign",
+      "to": "self._is_exported",
+      "line": 298,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Assign",
+      "to": "self.exports.append",
+      "line": 299,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Assign",
+      "to": "target.id.isupper",
+      "line": 301,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Assign",
+      "to": "isinstance",
+      "line": 309,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Assign",
+      "to": "_resolve_callee",
+      "line": 310,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Assign",
+      "to": "self.member_writes.append",
+      "line": 312,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Assign",
+      "to": "self.generic_visit",
+      "line": 318,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_AnnAssign",
+      "to": "isinstance",
+      "line": 321,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_AnnAssign",
+      "to": "self._is_exported",
+      "line": 323,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_AnnAssign",
+      "to": "self.exports.append",
+      "line": 324,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_AnnAssign",
+      "to": "name.isupper",
+      "line": 326,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_AnnAssign",
+      "to": "self.generic_visit",
+      "line": 331,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Call",
+      "to": "_resolve_callee",
+      "line": 336,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Call",
+      "to": "self.calls.append",
+      "line": 338,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Call",
+      "to": "_current_scope",
+      "line": 339,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Call",
+      "to": "self.generic_visit",
+      "line": 343,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor._add_string",
+      "to": "len",
+      "line": 356,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_FileExtractor._add_string",
+      "to": "self.string_literals.append",
+      "line": 368,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "isinstance",
+      "line": 372,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self.generic_visit",
+      "line": 373,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "getattr",
+      "line": 376,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self.generic_visit",
+      "line": 378,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "isinstance",
+      "line": 385,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self._add_string",
+      "line": 387,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self.generic_visit",
+      "line": 389,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "isinstance",
+      "line": 393,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "isinstance",
+      "line": 395,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "_resolve_callee",
+      "line": 401,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "_resolve_callee",
+      "line": 404,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self._add_string",
+      "line": 405,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self.generic_visit",
+      "line": 407,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self.generic_visit",
+      "line": 409,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "isinstance",
+      "line": 413,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "isinstance",
+      "line": 414,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "len",
+      "line": 415,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "isinstance",
+      "line": 415,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self._add_string",
+      "line": 416,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self.generic_visit",
+      "line": 417,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "isinstance",
+      "line": 421,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self._add_string",
+      "line": 422,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self.generic_visit",
+      "line": 423,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "isinstance",
+      "line": 427,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "_resolve_callee",
+      "line": 428,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self._add_string",
+      "line": 430,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self.generic_visit",
+      "line": 431,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "isinstance",
+      "line": 435,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "getattr",
+      "line": 436,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "isinstance",
+      "line": 438,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "_resolve_callee",
+      "line": 439,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self._add_string",
+      "line": 441,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self.generic_visit",
+      "line": 442,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "isinstance",
+      "line": 446,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self._add_string",
+      "line": 447,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self.generic_visit",
+      "line": 448,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "isinstance",
+      "line": 452,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self._add_string",
+      "line": 453,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self.generic_visit",
+      "line": 454,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "isinstance",
+      "line": 458,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self.generic_visit",
+      "line": 460,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "isinstance",
+      "line": 464,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self.generic_visit",
+      "line": 465,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_FileExtractor.visit_Constant",
+      "to": "self.generic_visit",
+      "line": 468,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "PythonPlugin.extensions",
+      "to": "frozenset",
+      "line": 480,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "set",
+      "line": 494,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "file_set.add",
+      "line": 496,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "normalize_path",
+      "line": 496,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "normalize_path",
+      "line": 502,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "file_path.read_text",
+      "line": 504,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "logger.warning",
+      "line": 506,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "ast.parse",
+      "line": 511,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "logger.warning",
+      "line": 513,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "_get_all_members",
+      "line": 516,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "_annotate_parents",
+      "line": 520,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "_FileExtractor",
+      "line": 522,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "_collect_docstring_lines",
+      "line": 528,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "ast.walk",
+      "line": 529,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "isinstance",
+      "line": 530,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "_collect_docstring_lines",
+      "line": 531,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "extractor.visit",
+      "line": 533,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "annotate_call_sites",
+      "line": 537,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "per_file.items",
+      "line": 541,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonPlugin.extract_project_facts",
+      "to": "ExtractedFacts",
+      "line": 542,
+      "call_sites": 5
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "child",
+      "member": "_parent",
+      "line": 147
+    },
+    {
+      "container": "self",
+      "member": "relative_path",
+      "line": 160
+    },
+    {
+      "container": "self",
+      "member": "is_init",
+      "line": 161
+    },
+    {
+      "container": "self",
+      "member": "all_members",
+      "line": 162
+    },
+    {
+      "container": "self",
+      "member": "_depth",
+      "line": 172
+    },
+    {
+      "container": "self",
+      "member": "_class_scope_depth",
+      "line": 173
+    },
+    {
+      "container": "extractor",
+      "member": "_docstring_lines",
+      "line": 528
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "property",
+      "line": 18,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "classmethod",
+      "line": 19,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "staticmethod",
+      "line": 20,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "abstractmethod",
+      "line": 21,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pytest.fixture",
+      "line": 22,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "fixture",
+      "line": 23,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "app.route",
+      "line": 24,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "router.get",
+      "line": 25,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "router.post",
+      "line": 26,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "router.put",
+      "line": 27,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "router.delete",
+      "line": 28,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "router.patch",
+      "line": 29,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "signal.connect",
+      "line": 30,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "receiver",
+      "line": 31,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "task",
+      "line": 32,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "shared_task",
+      "line": 33,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "command",
+      "line": 34,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "group",
+      "line": 35,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "click.command",
+      "line": 36,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "click.group",
+      "line": 37,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".route",
+      "line": 42,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".command",
+      "line": 43,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".group",
+      "line": 44,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".get",
+      "line": 45,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".post",
+      "line": 46,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".put",
+      "line": 47,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".delete",
+      "line": 48,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".patch",
+      "line": 49,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".connect",
+      "line": 50,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".handler",
+      "line": 51,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".listener",
+      "line": 52,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "__all__",
+      "line": 103,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "target.id",
+      "kind": "identifier"
+    },
+    {
+      "value": "__all__",
+      "line": 106,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "stmt.target.id",
+      "kind": "identifier"
+    },
+    {
+      "value": "__all__",
+      "line": 109,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "stmt.target.id",
+      "kind": "identifier"
+    },
+    {
+      "value": "function",
+      "line": 259,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "class",
+      "line": 276,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "_parent",
+      "line": 376,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "produced",
+      "line": 387,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "dict value",
+      "line": 387,
+      "usage": "produced",
+      "context": "argument to self._add_string"
+    },
+    {
+      "value": "checked",
+      "line": 405,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "equality comparison",
+      "line": 405,
+      "usage": "produced",
+      "context": "argument to self._add_string"
+    },
+    {
+      "value": "defined",
+      "line": 416,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "produced",
+      "line": 422,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "return value",
+      "line": 422,
+      "usage": "produced",
+      "context": "argument to self._add_string"
+    },
+    {
+      "value": "produced",
+      "line": 430,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "_parent",
+      "line": 436,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "produced",
+      "line": 441,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "produced",
+      "line": 447,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "collection element",
+      "line": 447,
+      "usage": "produced",
+      "context": "argument to self._add_string"
+    },
+    {
+      "value": "produced",
+      "line": 453,
+      "usage": "produced",
+      "context": "argument to self._add_string",
+      "kind": "identifier"
+    },
+    {
+      "value": "default parameter",
+      "line": 453,
+      "usage": "produced",
+      "context": "argument to self._add_string"
+    },
+    {
+      "value": "python",
+      "line": 476,
+      "usage": "produced",
+      "context": "return value",
+      "kind": "identifier"
+    },
+    {
+      "value": ".py",
+      "line": 480,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": ".pyi",
+      "line": 480,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 504,
+      "usage": "produced",
+      "context": "keyword argument to file_path.read_text"
+    },
+    {
+      "value": "replace",
+      "line": 504,
+      "usage": "produced",
+      "context": "keyword argument to file_path.read_text"
+    },
+    {
+      "value": "__init__.py",
+      "line": 517,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "file_path.name",
+      "kind": "identifier"
+    },
+    {
+      "value": "constant",
+      "context": "Export kind for all-uppercase assignments",
+      "line": 301,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "variable",
+      "context": "Export kind for non-uppercase assignments",
+      "line": 301,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "<module>",
+      "context": "Default scope name when scope_stack is empty",
+      "line": 130,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

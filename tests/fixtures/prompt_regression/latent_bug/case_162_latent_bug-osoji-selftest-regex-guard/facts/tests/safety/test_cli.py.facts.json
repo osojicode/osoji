@@ -1,0 +1,657 @@
+{
+  "source": "tests/safety/test_cli.py",
+  "source_hash": "1ad595faf8a68176",
+  "generated": "2026-07-22T10:55:37Z",
+  "imports": [
+    {
+      "source": "pytest",
+      "names": [
+        "pytest"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "click.testing",
+      "names": [
+        "CliRunner"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.cli",
+      "names": [
+        "main"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.safety.paths",
+      "names": [
+        "PATTERNS"
+      ],
+      "line": 7,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "runner",
+      "kind": "function",
+      "line": 11,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "TestSafetyCheck",
+      "kind": "class",
+      "line": 16,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSafetyCheck.test_check_clean_file",
+      "kind": "function",
+      "line": 19,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSafetyCheck.test_check_finds_personal_path",
+      "kind": "function",
+      "line": 29,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSafetyCheck.test_check_multiple_files",
+      "kind": "function",
+      "line": 39,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSafetyCheck.test_check_verbose_output",
+      "kind": "function",
+      "line": 50,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSafetyPatterns",
+      "kind": "class",
+      "line": 61,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSafetyPatterns.test_patterns_shows_all_patterns",
+      "kind": "function",
+      "line": 64,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSafetyPatterns.test_patterns_shows_regex",
+      "kind": "function",
+      "line": 76,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSafetyPatterns.test_patterns_shows_count",
+      "kind": "function",
+      "line": 83,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSafetyPatterns.test_patterns_shows_secrets_status",
+      "kind": "function",
+      "line": 90,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSafetySelfTest",
+      "kind": "class",
+      "line": 98,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSafetySelfTest.test_self_test_passes",
+      "kind": "function",
+      "line": 101,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSafetySelfTest.test_self_test_scans_package",
+      "kind": "function",
+      "line": 108,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSafetyHelp",
+      "kind": "class",
+      "line": 116,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSafetyHelp.test_safety_group_help",
+      "kind": "function",
+      "line": 119,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSafetyHelp.test_safety_check_help",
+      "kind": "function",
+      "line": 128,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "runner",
+      "to": "CliRunner",
+      "line": 13,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestSafetyCheck.test_check_clean_file",
+      "to": "test_file.write_text",
+      "line": 22,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestSafetyCheck.test_check_clean_file",
+      "to": "runner.invoke",
+      "line": 24,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestSafetyCheck.test_check_clean_file",
+      "to": "str",
+      "line": 24,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestSafetyCheck.test_check_clean_file",
+      "to": "result.output.lower",
+      "line": 27,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestSafetyCheck.test_check_finds_personal_path",
+      "to": "test_file.write_text",
+      "line": 32,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestSafetyCheck.test_check_finds_personal_path",
+      "to": "runner.invoke",
+      "line": 34,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestSafetyCheck.test_check_finds_personal_path",
+      "to": "str",
+      "line": 34,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestSafetyCheck.test_check_multiple_files",
+      "to": "write_text",
+      "line": 41,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestSafetyCheck.test_check_multiple_files",
+      "to": "write_text",
+      "line": 42,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestSafetyCheck.test_check_multiple_files",
+      "to": "runner.invoke",
+      "line": 44,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestSafetyCheck.test_check_multiple_files",
+      "to": "str",
+      "line": 45,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestSafetyCheck.test_check_multiple_files",
+      "to": "str",
+      "line": 45,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestSafetyCheck.test_check_verbose_output",
+      "to": "test_file.write_text",
+      "line": 53,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestSafetyCheck.test_check_verbose_output",
+      "to": "runner.invoke",
+      "line": 55,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestSafetyCheck.test_check_verbose_output",
+      "to": "str",
+      "line": 55,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestSafetyPatterns.test_patterns_shows_all_patterns",
+      "to": "runner.invoke",
+      "line": 66,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestSafetyPatterns.test_patterns_shows_regex",
+      "to": "runner.invoke",
+      "line": 78,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestSafetyPatterns.test_patterns_shows_count",
+      "to": "runner.invoke",
+      "line": 85,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestSafetyPatterns.test_patterns_shows_count",
+      "to": "len",
+      "line": 88,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestSafetyPatterns.test_patterns_shows_secrets_status",
+      "to": "runner.invoke",
+      "line": 92,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestSafetySelfTest.test_self_test_passes",
+      "to": "runner.invoke",
+      "line": 103,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestSafetySelfTest.test_self_test_passes",
+      "to": "result.output.lower",
+      "line": 106,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestSafetySelfTest.test_self_test_scans_package",
+      "to": "runner.invoke",
+      "line": 110,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestSafetyHelp.test_safety_group_help",
+      "to": "runner.invoke",
+      "line": 121,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestSafetyHelp.test_safety_check_help",
+      "to": "runner.invoke",
+      "line": 130,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "TestSafetyHelp.test_safety_check_help",
+      "to": "result.output.lower",
+      "line": 133,
+      "call_sites": 3
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "print(\"hello\")",
+      "line": 22,
+      "usage": "produced",
+      "context": "argument to test_file.write_text"
+    },
+    {
+      "value": "safety",
+      "line": 24,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "check",
+      "line": 24,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "passed",
+      "line": 27,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "PATH = \"C:\\Users\\jsmith\\data\"",
+      "line": 32,
+      "usage": "produced",
+      "context": "argument to test_file.write_text"
+    },
+    {
+      "value": "safety",
+      "line": 34,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "check",
+      "line": 34,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "FAILED",
+      "line": 37,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output",
+      "kind": "identifier"
+    },
+    {
+      "value": "x = 1",
+      "line": 41,
+      "usage": "produced",
+      "context": "argument to write_text"
+    },
+    {
+      "value": "y = 2",
+      "line": 42,
+      "usage": "produced",
+      "context": "argument to write_text"
+    },
+    {
+      "value": "safety",
+      "line": 45,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "check",
+      "line": 45,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "x = 1",
+      "line": 53,
+      "usage": "produced",
+      "context": "argument to test_file.write_text"
+    },
+    {
+      "value": "-v",
+      "line": 55,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "safety",
+      "line": 55,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "check",
+      "line": 55,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Files checked",
+      "line": 58,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output",
+      "kind": "identifier"
+    },
+    {
+      "value": "safety",
+      "line": 66,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "patterns",
+      "line": 66,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "windows_user",
+      "line": 69,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output",
+      "kind": "identifier"
+    },
+    {
+      "value": "unix_home",
+      "line": 70,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output",
+      "kind": "identifier"
+    },
+    {
+      "value": "cloud_storage",
+      "line": 71,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output",
+      "kind": "identifier"
+    },
+    {
+      "value": "dated_folder",
+      "line": 72,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output",
+      "kind": "identifier"
+    },
+    {
+      "value": "personal_folder",
+      "line": 73,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output",
+      "kind": "identifier"
+    },
+    {
+      "value": "my_folder",
+      "line": 74,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output",
+      "kind": "identifier"
+    },
+    {
+      "value": "safety",
+      "line": 78,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "patterns",
+      "line": 78,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Regex:",
+      "line": 81,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output",
+      "kind": "identifier"
+    },
+    {
+      "value": "safety",
+      "line": 85,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "patterns",
+      "line": 85,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "safety",
+      "line": 92,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "patterns",
+      "line": 92,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "detect-secrets",
+      "line": 95,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output",
+      "kind": "identifier"
+    },
+    {
+      "value": "safety",
+      "line": 103,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "self-test",
+      "line": 103,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "passed",
+      "line": 106,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "safety",
+      "line": 110,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "self-test",
+      "line": 110,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Scanning",
+      "line": 113,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output",
+      "kind": "identifier"
+    },
+    {
+      "value": "osoji",
+      "line": 113,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output"
+    },
+    {
+      "value": "safety",
+      "line": 121,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "--help",
+      "line": 121,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "check",
+      "line": 124,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output"
+    },
+    {
+      "value": "self-test",
+      "line": 125,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output"
+    },
+    {
+      "value": "patterns",
+      "line": 126,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output"
+    },
+    {
+      "value": "safety",
+      "line": 130,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "check",
+      "line": 130,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "--help",
+      "line": 130,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "FILES",
+      "line": 133,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.output"
+    },
+    {
+      "value": "files",
+      "line": 133,
+      "usage": "checked",
+      "context": "equality comparison"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,650 @@
+{
+  "source": "src/osoji/plumbing.py",
+  "source_hash": "aa704b63cfee161a",
+  "generated": "2026-07-22T10:55:55Z",
+  "imports": [
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Callable"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": ".async_utils",
+      "names": [
+        "gather_with_buffer"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config"
+      ],
+      "line": 14,
+      "is_reexport": false
+    },
+    {
+      "source": ".evidence_builders",
+      "names": [
+        "BuildContext",
+        "_scanner_meta"
+      ],
+      "line": 15,
+      "is_reexport": false
+    },
+    {
+      "source": ".facts",
+      "names": [
+        "FactsDB"
+      ],
+      "line": 16,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 17,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings_adapter",
+      "names": [
+        "finding_from_config_obligation"
+      ],
+      "line": 18,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk",
+      "names": [
+        "JunkAnalyzer",
+        "JunkFinding",
+        "JunkAnalysisResult",
+        "load_shadow_content"
+      ],
+      "line": 19,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk_triage",
+      "names": [
+        "build_junk_claims",
+        "decide_junk_claims"
+      ],
+      "line": 20,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.base",
+      "names": [
+        "LLMProvider"
+      ],
+      "line": 21,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.budgets",
+      "names": [
+        "input_budget_for_config"
+      ],
+      "line": 22,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.types",
+      "names": [
+        "Message",
+        "MessageRole",
+        "CompletionOptions"
+      ],
+      "line": 23,
+      "is_reexport": false
+    },
+    {
+      "source": ".symbols",
+      "names": [
+        "load_files_by_role"
+      ],
+      "line": 24,
+      "is_reexport": false
+    },
+    {
+      "source": ".tools",
+      "names": [
+        "get_extract_obligations_tool_definitions"
+      ],
+      "line": 25,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "ConfigObligation",
+      "kind": "class",
+      "line": 29,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "extract_obligations_async",
+      "kind": "function",
+      "line": 75,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "detect_dead_plumbing_async",
+      "kind": "function",
+      "line": 127,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DeadPlumbingAnalyzer",
+      "kind": "class",
+      "line": 197,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "JunkAnalyzer"
+      ]
+    },
+    {
+      "name": "DeadPlumbingAnalyzer.name",
+      "kind": "function",
+      "line": 201,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DeadPlumbingAnalyzer.description",
+      "kind": "function",
+      "line": 205,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DeadPlumbingAnalyzer.cli_flag",
+      "kind": "function",
+      "line": 209,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DeadPlumbingAnalyzer.analyze_async",
+      "kind": "function",
+      "line": 212,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "user_parts.append",
+      "line": 87,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "user_parts.append",
+      "line": 88,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "user_parts.append",
+      "line": 90,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "user_parts.append",
+      "line": 91,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "provider.complete",
+      "line": 93,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "Message",
+      "line": 94,
+      "call_sites": 67
+    },
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "join",
+      "line": 94,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "CompletionOptions",
+      "line": 96,
+      "call_sites": 60
+    },
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "config.model_for",
+      "line": 97,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "input_budget_for_config",
+      "line": 99,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "get_extract_obligations_tool_definitions",
+      "line": 101,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "tool_call.input.get",
+      "line": 109,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "obligations.append",
+      "line": 110,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "ConfigObligation",
+      "line": 110,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "item.get",
+      "line": 113,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "item.get",
+      "line": 115,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "item.get",
+      "line": 118,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "extract_obligations_async",
+      "to": "RuntimeError",
+      "line": 122,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async",
+      "to": "load_files_by_role",
+      "line": 145,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async",
+      "to": "print",
+      "line": 147,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async",
+      "to": "print",
+      "line": 150,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async",
+      "to": "len",
+      "line": 150,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async.extract_one",
+      "to": "src_file.is_file",
+      "line": 155,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async.extract_one",
+      "to": "src_file.read_text",
+      "line": 159,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async.extract_one",
+      "to": "load_shadow_content",
+      "line": 163,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async.extract_one",
+      "to": "extract_obligations_async",
+      "line": 166,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async.extract_one",
+      "to": "print",
+      "line": 171,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async",
+      "to": "gather_with_buffer",
+      "line": 174,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async",
+      "to": "extract_one",
+      "line": 175,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async",
+      "to": "all_obligations.extend",
+      "line": 179,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async",
+      "to": "print",
+      "line": 182,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async",
+      "to": "print",
+      "line": 185,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async",
+      "to": "len",
+      "line": 185,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async",
+      "to": "finding_from_config_obligation",
+      "line": 188,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async",
+      "to": "BuildContext",
+      "line": 189,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async",
+      "to": "FactsDB",
+      "line": 189,
+      "call_sites": 90
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async",
+      "to": "build_junk_claims",
+      "line": 190,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async",
+      "to": "decide_junk_claims",
+      "line": 191,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "detect_dead_plumbing_async",
+      "to": "len",
+      "line": 194,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DeadPlumbingAnalyzer.analyze_async",
+      "to": "detect_dead_plumbing_async",
+      "line": 213,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DeadPlumbingAnalyzer.analyze_async",
+      "to": "_scanner_meta",
+      "line": 218,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DeadPlumbingAnalyzer.analyze_async",
+      "to": "meta.get",
+      "line": 219,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DeadPlumbingAnalyzer.analyze_async",
+      "to": "meta.get",
+      "line": 220,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DeadPlumbingAnalyzer.analyze_async",
+      "to": "findings.append",
+      "line": 221,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadPlumbingAnalyzer.analyze_async",
+      "to": "JunkFinding",
+      "line": 221,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DeadPlumbingAnalyzer.analyze_async",
+      "to": "JunkAnalysisResult",
+      "line": 239,
+      "call_sites": 20
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "You are analyzing a schema file to find fields that declare behavioral obligations.\n\nAn \"obligation-bearing\" field is one whose name and context promise the system will enforce\na runtime behavior. Think: timeouts, rate limits, max retries, size limits, concurrency caps,\nTTLs, deadlines.\n\nNOT obligation-bearing:\n- Identity fields: name, id, description, label, title\n- Purely quantitative: count, total (unless \"maxCount\" or similar implies a limit)\n- Data shape fields: type, kind, format, version\n- Descriptive: status, state, result\n- Position/metadata fields: line_start, line_end, line_number, offset, column, index\n- LLM tool schema constraints: minimum, maximum, enum, range constraints on fields inside\n  tool definitions for structured LLM output (e.g., Anthropic tool_use schemas). These\n  constraints guide the LLM's output format, not application code \u2014 enforcement happens\n  at the API layer, not in the application.\n\nIMPORTANT: Only extract obligations that are TEXTUALLY STATED in the schema (in descriptions,\ncomments, or constraint declarations). Do NOT infer obligations from field names alone.\n- Do NOT infer \"line_end >= line_start\" just because two fields sound like a range\n- If a field has no description and no constraints, it has no obligation\n- Bare type declarations like {\"type\": \"integer\"} alone are NOT obligations\n- Do NOT invent constraints that are not written in the schema text\n\nFor each obligation-bearing field, describe:\n1. What the field promises (obligation) \u2014 must be grounded in schema text\n2. What enforcement code would look like (expected actuation pattern)\n\nUse the extract_obligations tool with your findings.",
+      "line": 44,
+      "usage": "defined",
+      "context": "constant _EXTRACT_OBLIGATIONS_SYSTEM_PROMPT"
+    },
+    {
+      "value": "Identify all obligation-bearing fields using the extract_obligations tool.",
+      "line": 91,
+      "usage": "produced",
+      "context": "argument to user_parts.append"
+    },
+    {
+      "value": "small",
+      "line": 97,
+      "usage": "produced",
+      "context": "argument to config.model_for",
+      "kind": "identifier"
+    },
+    {
+      "value": "plumbing.extract_obligations",
+      "line": 100,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions",
+      "kind": "identifier"
+    },
+    {
+      "value": "tool",
+      "line": 102,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "extract_obligations",
+      "line": 102,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "extract_obligations",
+      "line": 108,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_call.name",
+      "kind": "identifier"
+    },
+    {
+      "value": "obligations",
+      "line": 109,
+      "usage": "produced",
+      "context": "argument to tool_call.input.get"
+    },
+    {
+      "value": "schema_name",
+      "line": 113,
+      "usage": "produced",
+      "context": "argument to item.get"
+    },
+    {
+      "value": "line_end",
+      "line": 115,
+      "usage": "produced",
+      "context": "argument to item.get"
+    },
+    {
+      "value": "evidence",
+      "line": 118,
+      "usage": "produced",
+      "context": "argument to item.get"
+    },
+    {
+      "value": "schema",
+      "line": 145,
+      "usage": "produced",
+      "context": "argument to load_files_by_role",
+      "kind": "identifier"
+    },
+    {
+      "value": "  [skip] No schema files found. Run 'osoji shadow . --force' to classify files.",
+      "line": 147,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "ignore",
+      "line": 159,
+      "usage": "produced",
+      "context": "keyword argument to src_file.read_text"
+    },
+    {
+      "value": "  No obligation-bearing fields found in schema files.",
+      "line": 182,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "dead_plumbing",
+      "line": 202,
+      "usage": "produced",
+      "context": "return value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Detect unactuated config obligations",
+      "line": 206,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "dead-plumbing",
+      "line": 210,
+      "usage": "produced",
+      "context": "return value",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 216,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "field_name",
+      "line": 219,
+      "usage": "produced",
+      "context": "argument to meta.get"
+    },
+    {
+      "value": "schema_name",
+      "line": 220,
+      "usage": "produced",
+      "context": "argument to meta.get"
+    },
+    {
+      "value": "config_field",
+      "line": 224,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "unactuated_config",
+      "line": 225,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "llm_inferred",
+      "line": 232,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    }
+  ],
+  "extraction_method": "ast"
+}

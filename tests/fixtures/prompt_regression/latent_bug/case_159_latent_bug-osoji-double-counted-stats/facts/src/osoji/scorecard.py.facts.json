@@ -1,0 +1,672 @@
+{
+  "source": "src/osoji/scorecard.py",
+  "source_hash": "5d66197fce163e30",
+  "generated": "2026-07-22T10:55:55Z",
+  "imports": [
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config",
+        "DIRECTORY_SHADOW_FILENAME",
+        "SHADOW_DIR"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": ".doc_analysis",
+      "names": [
+        "DocAnalysisResult"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": ".hasher",
+      "names": [
+        "is_findings_current"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk",
+      "names": [
+        "JunkAnalysisResult"
+      ],
+      "line": 10,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "CoverageEntry",
+      "kind": "class",
+      "line": 14,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JunkCodeEntry",
+      "kind": "class",
+      "line": 21,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Scorecard",
+      "kind": "class",
+      "line": 30,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "merge_ranges",
+      "kind": "function",
+      "line": 94,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "count_lines",
+      "kind": "function",
+      "line": 109,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "build_scorecard",
+      "kind": "function",
+      "line": 128,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "merge_ranges",
+      "to": "sorted",
+      "line": 98,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "merge_ranges",
+      "to": "max",
+      "line": 103,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "merge_ranges",
+      "to": "merged.append",
+      "line": 105,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "count_lines",
+      "to": "len",
+      "line": 112,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "count_lines",
+      "to": "splitlines",
+      "line": 112,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "count_lines",
+      "to": "path.read_text",
+      "line": 112,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_signature",
+      "to": "config.signatures_path_for",
+      "line": 119,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_signature",
+      "to": "Path",
+      "line": 119,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_load_signature",
+      "to": "sig_path.exists",
+      "line": 120,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_signature",
+      "to": "json.loads",
+      "line": 122,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_load_signature",
+      "to": "sig_path.read_text",
+      "line": 122,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "set",
+      "line": 138,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "shadow_root.exists",
+      "line": 139,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "shadow_root.rglob",
+      "line": 140,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "shadow_file.relative_to",
+      "line": 143,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "replace",
+      "line": 144,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "removesuffix",
+      "line": 144,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "str",
+      "line": 144,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "config.is_doc_candidate",
+      "line": 145,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "Path",
+      "line": 145,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "all_source_files.add",
+      "line": 147,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "shadow_path.replace",
+      "line": 155,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "append",
+      "line": 157,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "str",
+      "line": 158,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "sorted",
+      "line": 163,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "_load_signature",
+      "line": 164,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "source_to_docs.get",
+      "line": 165,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "coverage_entries.append",
+      "line": 166,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "CoverageEntry",
+      "line": 166,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "sum",
+      "line": 172,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "len",
+      "line": 173,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "type_total.get",
+      "line": 183,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "type_covered.get",
+      "line": 185,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "type_covered.get",
+      "line": 189,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "replace",
+      "line": 193,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "str",
+      "line": 193,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "len",
+      "line": 197,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "accuracy_by_category.get",
+      "line": 205,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "findings_dir.exists",
+      "line": 215,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_sources.append",
+      "line": 216,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "findings_dir.rglob",
+      "line": 217,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "json.loads",
+      "line": 219,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "findings_file.read_text",
+      "line": 219,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "data.get",
+      "line": 220,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "is_findings_current",
+      "line": 221,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "data.get",
+      "line": 222,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "data.get",
+      "line": 222,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "data.get",
+      "line": 226,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "append",
+      "line": 229,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_results.items",
+      "line": 240,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_sources.append",
+      "line": 241,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "item.source_path.replace",
+      "line": 243,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "append",
+      "line": 244,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_items_by_file.setdefault",
+      "line": 244,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "count_lines",
+      "line": 268,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_items_by_file.items",
+      "line": 271,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "count_lines",
+      "line": 273,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "merge_ranges",
+      "line": 277,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "sum",
+      "line": 278,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "len",
+      "line": 281,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_by_category.get",
+      "line": 286,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "append",
+      "line": 287,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "file_cat_ranges.setdefault",
+      "line": 287,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "file_cat_ranges.items",
+      "line": 288,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "merge_ranges",
+      "line": 289,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_by_category_lines.get",
+      "line": 290,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "sum",
+      "line": 290,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_entries.append",
+      "line": 295,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "JunkCodeEntry",
+      "line": 295,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_entries.sort",
+      "line": 303,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "len",
+      "line": 305,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "junk_results.get",
+      "line": 308,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "len",
+      "line": 312,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "f.metadata.get",
+      "line": 317,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "append",
+      "line": 322,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "build_scorecard",
+      "to": "Scorecard",
+      "line": 329,
+      "call_sites": 5
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "ignore",
+      "line": 112,
+      "usage": "produced",
+      "context": "keyword argument to path.read_text"
+    },
+    {
+      "value": "utf-8",
+      "line": 122,
+      "usage": "produced",
+      "context": "keyword argument to sig_path.read_text"
+    },
+    {
+      "value": "*.shadow.md",
+      "line": 140,
+      "usage": "produced",
+      "context": "argument to shadow_root.rglob"
+    },
+    {
+      "value": ".shadow.md",
+      "line": 144,
+      "usage": "produced",
+      "context": "argument to removesuffix"
+    },
+    {
+      "value": "error",
+      "line": 202,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.severity",
+      "kind": "identifier"
+    },
+    {
+      "value": "code_debris",
+      "line": 216,
+      "usage": "produced",
+      "context": "argument to junk_sources.append",
+      "kind": "identifier"
+    },
+    {
+      "value": "*.findings.json",
+      "line": 217,
+      "usage": "produced",
+      "context": "argument to findings_dir.rglob"
+    },
+    {
+      "value": "utf-8",
+      "line": 219,
+      "usage": "produced",
+      "context": "keyword argument to findings_file.read_text"
+    },
+    {
+      "value": "source",
+      "line": 220,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "source_hash",
+      "line": 222,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "impl_hash",
+      "line": 222,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "findings",
+      "line": 226,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "code_debris",
+      "line": 233,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead_plumbing",
+      "line": 308,
+      "usage": "produced",
+      "context": "argument to junk_results.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "schema_name",
+      "line": 317,
+      "usage": "produced",
+      "context": "argument to f.metadata.get"
+    }
+  ],
+  "extraction_method": "ast"
+}

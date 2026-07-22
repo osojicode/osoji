@@ -1,0 +1,3187 @@
+{
+  "source": "tests/test_deadparam.py",
+  "source_hash": "0bad6762b11164a8",
+  "generated": "2026-07-22T10:55:51Z",
+  "imports": [
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "unittest.mock",
+      "names": [
+        "AsyncMock",
+        "MagicMock",
+        "patch"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "pytest",
+      "names": [
+        "pytest"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.config",
+      "names": [
+        "Config"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.deadparam",
+      "names": [
+        "CallSite",
+        "DeadParamCandidate",
+        "DeadParameterAnalyzer",
+        "detect_dead_params_async",
+        "scan_dead_param_candidates"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.junk",
+      "names": [
+        "JunkAnalysisResult",
+        "JunkFinding"
+      ],
+      "line": 16,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.types",
+      "names": [
+        "CompletionResult",
+        "ToolCall"
+      ],
+      "line": 17,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "replace"
+      ],
+      "line": 441,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dead_param_candidate"
+      ],
+      "line": 443,
+      "is_reexport": false
+    },
+    {
+      "source": "asyncio",
+      "names": [
+        "asyncio"
+      ],
+      "line": 463,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.scorecard",
+      "names": [
+        "build_scorecard"
+      ],
+      "line": 488,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "TestScanCandidates",
+      "kind": "class",
+      "line": 65,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestScanCandidates.test_function_with_optional_params_and_callers",
+      "kind": "function",
+      "line": 66,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestScanCandidates.test_function_with_no_optional_params_skipped",
+      "kind": "function",
+      "line": 121,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestScanCandidates.test_function_with_no_callers_skipped",
+      "kind": "function",
+      "line": 148,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestScanCandidates.test_internal_functions_skipped",
+      "kind": "function",
+      "line": 172,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestScanCandidates.test_symbols_without_parameters_skipped",
+      "kind": "function",
+      "line": 195,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestScanCandidates.test_dotted_method_name_matches_instance_calls",
+      "kind": "function",
+      "line": 219,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestScanCandidates.test_common_name_scan_only_checks_importers",
+      "kind": "function",
+      "line": 269,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDetectDeadParams",
+      "kind": "class",
+      "line": 318,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDetectDeadParams._write_env",
+      "kind": "function",
+      "line": 321,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDetectDeadParams.test_confirmed_param_decided_through_triage",
+      "kind": "function",
+      "line": 357,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDetectDeadParams.test_dismissed_param_kept_with_verdict",
+      "kind": "function",
+      "line": 390,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDetectDeadParams.test_no_candidates_makes_no_llm_call",
+      "kind": "function",
+      "line": 414,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestAnalyzerClass",
+      "kind": "class",
+      "line": 425,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestAnalyzerClass.test_name",
+      "kind": "function",
+      "line": 426,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestAnalyzerClass.test_cli_flag",
+      "kind": "function",
+      "line": 430,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestAnalyzerClass.test_description",
+      "kind": "function",
+      "line": 434,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestAnalyzerClass.test_category_mapping",
+      "kind": "function",
+      "line": 439,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestScorecardIntegration",
+      "kind": "class",
+      "line": 485,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestScorecardIntegration.test_dead_param_findings_in_junk_metrics",
+      "kind": "function",
+      "line": 486,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSameFileCaller",
+      "kind": "class",
+      "line": 523,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSameFileCaller.test_same_file_caller_outside_definition_is_visible",
+      "kind": "function",
+      "line": 524,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestSameFileCaller.test_same_file_match_inside_definition_is_excluded",
+      "kind": "function",
+      "line": 576,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestConstructorPattern",
+      "kind": "class",
+      "line": 623,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestConstructorPattern.test_class_constructor_call_is_detected",
+      "kind": "function",
+      "line": 624,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "_write_shadow",
+      "to": "shadow_file.parent.mkdir",
+      "line": 25,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_shadow",
+      "to": "shadow_file.write_text",
+      "line": 26,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_source",
+      "to": "full.parent.mkdir",
+      "line": 31,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_source",
+      "to": "full.write_text",
+      "line": 32,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_symbols",
+      "to": "symbols_file.parent.mkdir",
+      "line": 38,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_symbols",
+      "to": "symbols_file.write_text",
+      "line": 45,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_symbols",
+      "to": "json.dumps",
+      "line": 45,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_write_facts",
+      "to": "facts_file.parent.mkdir",
+      "line": 51,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_facts",
+      "to": "facts_file.write_text",
+      "line": 60,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_facts",
+      "to": "json.dumps",
+      "line": 60,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_optional_params_and_callers",
+      "to": "Config",
+      "line": 68,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_optional_params_and_callers",
+      "to": "_write_source",
+      "line": 71,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_optional_params_and_callers",
+      "to": "join",
+      "line": 71,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_optional_params_and_callers",
+      "to": "_write_symbols",
+      "line": 83,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_optional_params_and_callers",
+      "to": "_write_source",
+      "line": 94,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_optional_params_and_callers",
+      "to": "join",
+      "line": 94,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_optional_params_and_callers",
+      "to": "_write_facts",
+      "line": 101,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_optional_params_and_callers",
+      "to": "_write_facts",
+      "line": 102,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_optional_params_and_callers",
+      "to": "patch",
+      "line": 107,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_optional_params_and_callers",
+      "to": "scan_dead_param_candidates",
+      "line": 112,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_optional_params_and_callers",
+      "to": "len",
+      "line": 114,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_no_optional_params_skipped",
+      "to": "Config",
+      "line": 123,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_no_optional_params_skipped",
+      "to": "_write_source",
+      "line": 125,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_no_optional_params_skipped",
+      "to": "join",
+      "line": 125,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_no_optional_params_skipped",
+      "to": "_write_symbols",
+      "line": 129,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_no_optional_params_skipped",
+      "to": "_write_facts",
+      "line": 137,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_no_optional_params_skipped",
+      "to": "_write_facts",
+      "line": 138,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_no_optional_params_skipped",
+      "to": "patch",
+      "line": 142,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_no_optional_params_skipped",
+      "to": "scan_dead_param_candidates",
+      "line": 144,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_no_optional_params_skipped",
+      "to": "len",
+      "line": 146,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_no_callers_skipped",
+      "to": "Config",
+      "line": 150,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_no_callers_skipped",
+      "to": "_write_source",
+      "line": 152,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_no_callers_skipped",
+      "to": "join",
+      "line": 152,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_no_callers_skipped",
+      "to": "_write_symbols",
+      "line": 156,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_no_callers_skipped",
+      "to": "_write_facts",
+      "line": 163,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_no_callers_skipped",
+      "to": "patch",
+      "line": 166,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_no_callers_skipped",
+      "to": "scan_dead_param_candidates",
+      "line": 168,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_function_with_no_callers_skipped",
+      "to": "len",
+      "line": 170,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_internal_functions_skipped",
+      "to": "Config",
+      "line": 174,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_internal_functions_skipped",
+      "to": "_write_source",
+      "line": 176,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_internal_functions_skipped",
+      "to": "join",
+      "line": 176,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_internal_functions_skipped",
+      "to": "_write_symbols",
+      "line": 180,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_internal_functions_skipped",
+      "to": "_write_facts",
+      "line": 187,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_internal_functions_skipped",
+      "to": "patch",
+      "line": 189,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_internal_functions_skipped",
+      "to": "scan_dead_param_candidates",
+      "line": 191,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_internal_functions_skipped",
+      "to": "len",
+      "line": 193,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_symbols_without_parameters_skipped",
+      "to": "Config",
+      "line": 197,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_symbols_without_parameters_skipped",
+      "to": "_write_source",
+      "line": 199,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_symbols_without_parameters_skipped",
+      "to": "join",
+      "line": 199,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_symbols_without_parameters_skipped",
+      "to": "_write_symbols",
+      "line": 204,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_symbols_without_parameters_skipped",
+      "to": "_write_facts",
+      "line": 208,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_symbols_without_parameters_skipped",
+      "to": "_write_facts",
+      "line": 209,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_symbols_without_parameters_skipped",
+      "to": "patch",
+      "line": 213,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_symbols_without_parameters_skipped",
+      "to": "scan_dead_param_candidates",
+      "line": 215,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_symbols_without_parameters_skipped",
+      "to": "len",
+      "line": 217,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_dotted_method_name_matches_instance_calls",
+      "to": "Config",
+      "line": 221,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_dotted_method_name_matches_instance_calls",
+      "to": "_write_source",
+      "line": 224,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_dotted_method_name_matches_instance_calls",
+      "to": "join",
+      "line": 224,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_dotted_method_name_matches_instance_calls",
+      "to": "_write_symbols",
+      "line": 230,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_dotted_method_name_matches_instance_calls",
+      "to": "_write_source",
+      "line": 242,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_dotted_method_name_matches_instance_calls",
+      "to": "join",
+      "line": 242,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_dotted_method_name_matches_instance_calls",
+      "to": "_write_facts",
+      "line": 249,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_dotted_method_name_matches_instance_calls",
+      "to": "_write_facts",
+      "line": 250,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_dotted_method_name_matches_instance_calls",
+      "to": "patch",
+      "line": 254,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_dotted_method_name_matches_instance_calls",
+      "to": "scan_dead_param_candidates",
+      "line": 259,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_dotted_method_name_matches_instance_calls",
+      "to": "len",
+      "line": 262,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_dotted_method_name_matches_instance_calls",
+      "to": "len",
+      "line": 267,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_common_name_scan_only_checks_importers",
+      "to": "Config",
+      "line": 271,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_common_name_scan_only_checks_importers",
+      "to": "_write_source",
+      "line": 273,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_common_name_scan_only_checks_importers",
+      "to": "join",
+      "line": 273,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_common_name_scan_only_checks_importers",
+      "to": "_write_symbols",
+      "line": 277,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_common_name_scan_only_checks_importers",
+      "to": "_write_facts",
+      "line": 285,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_common_name_scan_only_checks_importers",
+      "to": "_write_source",
+      "line": 287,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_common_name_scan_only_checks_importers",
+      "to": "join",
+      "line": 287,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_common_name_scan_only_checks_importers",
+      "to": "_write_facts",
+      "line": 292,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_common_name_scan_only_checks_importers",
+      "to": "_write_source",
+      "line": 294,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_common_name_scan_only_checks_importers",
+      "to": "join",
+      "line": 294,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_common_name_scan_only_checks_importers",
+      "to": "_write_facts",
+      "line": 299,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_common_name_scan_only_checks_importers",
+      "to": "patch",
+      "line": 301,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_common_name_scan_only_checks_importers",
+      "to": "scan_dead_param_candidates",
+      "line": 310,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScanCandidates.test_common_name_scan_only_checks_importers",
+      "to": "next",
+      "line": 312,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestDetectDeadParams._write_env",
+      "to": "_write_source",
+      "line": 322,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestDetectDeadParams._write_env",
+      "to": "join",
+      "line": 322,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestDetectDeadParams._write_env",
+      "to": "_write_symbols",
+      "line": 334,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestDetectDeadParams._write_env",
+      "to": "_write_source",
+      "line": 343,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestDetectDeadParams._write_env",
+      "to": "join",
+      "line": 343,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestDetectDeadParams._write_env",
+      "to": "_write_facts",
+      "line": 350,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestDetectDeadParams._write_env",
+      "to": "_write_facts",
+      "line": 351,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_confirmed_param_decided_through_triage",
+      "to": "Config",
+      "line": 358,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_confirmed_param_decided_through_triage",
+      "to": "self._write_env",
+      "line": 359,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_confirmed_param_decided_through_triage",
+      "to": "AsyncMock",
+      "line": 361,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_confirmed_param_decided_through_triage",
+      "to": "CompletionResult",
+      "line": 362,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_confirmed_param_decided_through_triage",
+      "to": "ToolCall",
+      "line": 364,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_confirmed_param_decided_through_triage",
+      "to": "patch",
+      "line": 375,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_confirmed_param_decided_through_triage",
+      "to": "detect_dead_params_async",
+      "line": 377,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_confirmed_param_decided_through_triage",
+      "to": "len",
+      "line": 380,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_dismissed_param_kept_with_verdict",
+      "to": "Config",
+      "line": 391,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_dismissed_param_kept_with_verdict",
+      "to": "self._write_env",
+      "line": 392,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_dismissed_param_kept_with_verdict",
+      "to": "AsyncMock",
+      "line": 394,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_dismissed_param_kept_with_verdict",
+      "to": "CompletionResult",
+      "line": 395,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_dismissed_param_kept_with_verdict",
+      "to": "ToolCall",
+      "line": 397,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_dismissed_param_kept_with_verdict",
+      "to": "patch",
+      "line": 407,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_dismissed_param_kept_with_verdict",
+      "to": "detect_dead_params_async",
+      "line": 409,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_no_candidates_makes_no_llm_call",
+      "to": "Config",
+      "line": 415,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_no_candidates_makes_no_llm_call",
+      "to": "AsyncMock",
+      "line": 417,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_no_candidates_makes_no_llm_call",
+      "to": "detect_dead_params_async",
+      "line": 419,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDetectDeadParams.test_no_candidates_makes_no_llm_call",
+      "to": "mock_provider.complete.assert_not_called",
+      "line": 422,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestAnalyzerClass.test_name",
+      "to": "DeadParameterAnalyzer",
+      "line": 427,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestAnalyzerClass.test_cli_flag",
+      "to": "DeadParameterAnalyzer",
+      "line": 431,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestAnalyzerClass.test_description",
+      "to": "DeadParameterAnalyzer",
+      "line": 435,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestAnalyzerClass.test_description",
+      "to": "analyzer.description.lower",
+      "line": 436,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestAnalyzerClass.test_description",
+      "to": "analyzer.description.lower",
+      "line": 437,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestAnalyzerClass.test_category_mapping",
+      "to": "DeadParameterAnalyzer",
+      "line": 445,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestAnalyzerClass.test_category_mapping",
+      "to": "finding_from_dead_param_candidate",
+      "line": 446,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestAnalyzerClass.test_category_mapping",
+      "to": "DeadParamCandidate",
+      "line": 446,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestAnalyzerClass.test_category_mapping",
+      "to": "replace",
+      "line": 454,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestAnalyzerClass.test_category_mapping",
+      "to": "replace",
+      "line": 456,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestAnalyzerClass.test_category_mapping",
+      "to": "patch",
+      "line": 462,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestAnalyzerClass.test_category_mapping",
+      "to": "asyncio.run",
+      "line": 464,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestAnalyzerClass.test_category_mapping",
+      "to": "analyzer.analyze_async",
+      "line": 464,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestAnalyzerClass.test_category_mapping",
+      "to": "MagicMock",
+      "line": 465,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestAnalyzerClass.test_category_mapping",
+      "to": "MagicMock",
+      "line": 465,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestAnalyzerClass.test_category_mapping",
+      "to": "len",
+      "line": 468,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestScorecardIntegration.test_dead_param_findings_in_junk_metrics",
+      "to": "Config",
+      "line": 490,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestScorecardIntegration.test_dead_param_findings_in_junk_metrics",
+      "to": "_write_shadow",
+      "line": 491,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestScorecardIntegration.test_dead_param_findings_in_junk_metrics",
+      "to": "_write_source",
+      "line": 492,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestScorecardIntegration.test_dead_param_findings_in_junk_metrics",
+      "to": "join",
+      "line": 492,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScorecardIntegration.test_dead_param_findings_in_junk_metrics",
+      "to": "range",
+      "line": 492,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestScorecardIntegration.test_dead_param_findings_in_junk_metrics",
+      "to": "JunkAnalysisResult",
+      "line": 495,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestScorecardIntegration.test_dead_param_findings_in_junk_metrics",
+      "to": "JunkFinding",
+      "line": 497,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "TestScorecardIntegration.test_dead_param_findings_in_junk_metrics",
+      "to": "build_scorecard",
+      "line": 515,
+      "call_sites": 39
+    },
+    {
+      "from_symbol": "TestScorecardIntegration.test_dead_param_findings_in_junk_metrics",
+      "to": "sc.junk_by_category.get",
+      "line": 518,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_caller_outside_definition_is_visible",
+      "to": "Config",
+      "line": 526,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_caller_outside_definition_is_visible",
+      "to": "_write_source",
+      "line": 529,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_caller_outside_definition_is_visible",
+      "to": "join",
+      "line": 529,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_caller_outside_definition_is_visible",
+      "to": "_write_symbols",
+      "line": 543,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_caller_outside_definition_is_visible",
+      "to": "_write_source",
+      "line": 557,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_caller_outside_definition_is_visible",
+      "to": "_write_facts",
+      "line": 558,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_caller_outside_definition_is_visible",
+      "to": "_write_facts",
+      "line": 559,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_caller_outside_definition_is_visible",
+      "to": "patch",
+      "line": 563,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_caller_outside_definition_is_visible",
+      "to": "scan_dead_param_candidates",
+      "line": 568,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_caller_outside_definition_is_visible",
+      "to": "len",
+      "line": 572,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_caller_outside_definition_is_visible",
+      "to": "any",
+      "line": 574,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_match_inside_definition_is_excluded",
+      "to": "Config",
+      "line": 578,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_match_inside_definition_is_excluded",
+      "to": "_write_source",
+      "line": 581,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_match_inside_definition_is_excluded",
+      "to": "join",
+      "line": 581,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_match_inside_definition_is_excluded",
+      "to": "_write_symbols",
+      "line": 592,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_match_inside_definition_is_excluded",
+      "to": "_write_source",
+      "line": 600,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_match_inside_definition_is_excluded",
+      "to": "_write_facts",
+      "line": 601,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_match_inside_definition_is_excluded",
+      "to": "_write_facts",
+      "line": 602,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_match_inside_definition_is_excluded",
+      "to": "patch",
+      "line": 606,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_match_inside_definition_is_excluded",
+      "to": "scan_dead_param_candidates",
+      "line": 611,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_match_inside_definition_is_excluded",
+      "to": "len",
+      "line": 614,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestSameFileCaller.test_same_file_match_inside_definition_is_excluded",
+      "to": "len",
+      "line": 617,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestConstructorPattern.test_class_constructor_call_is_detected",
+      "to": "Config",
+      "line": 626,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestConstructorPattern.test_class_constructor_call_is_detected",
+      "to": "_write_source",
+      "line": 628,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestConstructorPattern.test_class_constructor_call_is_detected",
+      "to": "join",
+      "line": 628,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestConstructorPattern.test_class_constructor_call_is_detected",
+      "to": "_write_symbols",
+      "line": 633,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestConstructorPattern.test_class_constructor_call_is_detected",
+      "to": "_write_source",
+      "line": 644,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "TestConstructorPattern.test_class_constructor_call_is_detected",
+      "to": "join",
+      "line": 644,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestConstructorPattern.test_class_constructor_call_is_detected",
+      "to": "_write_facts",
+      "line": 650,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestConstructorPattern.test_class_constructor_call_is_detected",
+      "to": "_write_facts",
+      "line": 651,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestConstructorPattern.test_class_constructor_call_is_detected",
+      "to": "patch",
+      "line": 655,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestConstructorPattern.test_class_constructor_call_is_detected",
+      "to": "scan_dead_param_candidates",
+      "line": 660,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestConstructorPattern.test_class_constructor_call_is_detected",
+      "to": "len",
+      "line": 663,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestConstructorPattern.test_class_constructor_call_is_detected",
+      "to": "any",
+      "line": 665,
+      "call_sites": 2
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "mock_list",
+      "member": "return_value",
+      "line": 108
+    },
+    {
+      "container": "mock_list",
+      "member": "return_value",
+      "line": 143
+    },
+    {
+      "container": "mock_list",
+      "member": "return_value",
+      "line": 167
+    },
+    {
+      "container": "mock_list",
+      "member": "return_value",
+      "line": 190
+    },
+    {
+      "container": "mock_list",
+      "member": "return_value",
+      "line": 214
+    },
+    {
+      "container": "mock_list",
+      "member": "return_value",
+      "line": 255
+    },
+    {
+      "container": "mock_list",
+      "member": "return_value",
+      "line": 302
+    },
+    {
+      "container": "mock_provider.complete",
+      "member": "return_value",
+      "line": 362
+    },
+    {
+      "container": "mock_list",
+      "member": "return_value",
+      "line": 376
+    },
+    {
+      "container": "mock_provider.complete",
+      "member": "return_value",
+      "line": 395
+    },
+    {
+      "container": "mock_list",
+      "member": "return_value",
+      "line": 408
+    },
+    {
+      "container": "mock_list",
+      "member": "return_value",
+      "line": 564
+    },
+    {
+      "container": "mock_list",
+      "member": "return_value",
+      "line": 607
+    },
+    {
+      "container": "mock_list",
+      "member": "return_value",
+      "line": 656
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "# placeholder\n",
+      "line": 29,
+      "usage": "produced",
+      "context": "default parameter"
+    },
+    {
+      "value": "service",
+      "line": 35,
+      "usage": "produced",
+      "context": "default parameter",
+      "kind": "identifier"
+    },
+    {
+      "value": "abc",
+      "line": 41,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "abc",
+      "line": 54,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/scorecard.py",
+      "line": 71,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "from .config import Config",
+      "line": 72,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "def build_scorecard(",
+      "line": 74,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    config: Config,",
+      "line": 75,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    results: list,",
+      "line": 76,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    dead_code_results: list | None = None,",
+      "line": 77,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ") -> dict:",
+      "line": 78,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    if dead_code_results is not None:",
+      "line": 79,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "        pass",
+      "line": 80,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    return {}",
+      "line": 81,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/scorecard.py",
+      "line": 83,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "build_scorecard",
+      "line": 84,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 84,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 85,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "config",
+      "line": 87,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "results",
+      "line": 88,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "dead_code_results",
+      "line": 89,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/audit.py",
+      "line": 94,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "from .scorecard import build_scorecard",
+      "line": 95,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "def run_audit():",
+      "line": 97,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    sc = build_scorecard(config, results)",
+      "line": 98,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    return sc",
+      "line": 99,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/scorecard.py",
+      "line": 101,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": "build_scorecard",
+      "line": 101,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/audit.py",
+      "line": 102,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": ".scorecard",
+      "line": 103,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "build_scorecard",
+      "line": 103,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "osoji.deadparam.list_repo_files",
+      "line": 107,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "dead_code_results",
+      "line": 116,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "param_names"
+    },
+    {
+      "value": "config",
+      "line": 118,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "param_names"
+    },
+    {
+      "value": "results",
+      "line": 119,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "param_names"
+    },
+    {
+      "value": "src/utils.py",
+      "line": 125,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "def add(a: int, b: int) -> int:",
+      "line": 126,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    return a + b",
+      "line": 127,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/utils.py",
+      "line": 129,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "add",
+      "line": 130,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 130,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 131,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/utils.py",
+      "line": 137,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": "add",
+      "line": 137,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/caller.py",
+      "line": 138,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": ".utils",
+      "line": 139,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "add",
+      "line": 139,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "osoji.deadparam.list_repo_files",
+      "line": 142,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "src/orphan.py",
+      "line": 152,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "def lonely_func(x: int = 0) -> int:",
+      "line": 153,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    return x",
+      "line": 154,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/orphan.py",
+      "line": 156,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "lonely_func",
+      "line": 157,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 157,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 158,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/orphan.py",
+      "line": 163,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": "lonely_func",
+      "line": 163,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "osoji.deadparam.list_repo_files",
+      "line": 166,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "src/utils.py",
+      "line": 176,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "def _helper(x: int = 0) -> int:",
+      "line": 177,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    return x",
+      "line": 178,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/utils.py",
+      "line": 180,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "_helper",
+      "line": 181,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 181,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "internal",
+      "line": 182,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/utils.py",
+      "line": 187,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": "_helper",
+      "line": 187,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "osoji.deadparam.list_repo_files",
+      "line": 189,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "src/utils.py",
+      "line": 199,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "def func(x: int = 0) -> int:",
+      "line": 200,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    return x",
+      "line": 201,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/utils.py",
+      "line": 204,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "func",
+      "line": 205,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 205,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 206,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/utils.py",
+      "line": 208,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": "func",
+      "line": 208,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/caller.py",
+      "line": 209,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": ".utils",
+      "line": 210,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "func",
+      "line": 210,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "osoji.deadparam.list_repo_files",
+      "line": 213,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "src/analyzer.py",
+      "line": 224,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "class MyAnalyzer:",
+      "line": 225,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    def analyze(self, data, rate_limiter=None):",
+      "line": 226,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "        pass",
+      "line": 227,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/analyzer.py",
+      "line": 230,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "MyAnalyzer",
+      "line": 231,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "class",
+      "line": 231,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 232,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "MyAnalyzer.analyze",
+      "line": 233,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 233,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 234,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "data",
+      "line": 236,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "rate_limiter",
+      "line": 237,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/runner.py",
+      "line": 242,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "from .analyzer import MyAnalyzer",
+      "line": 243,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "def run():",
+      "line": 245,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    analyzer = MyAnalyzer()",
+      "line": 246,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    analyzer.analyze(my_data)",
+      "line": 247,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/analyzer.py",
+      "line": 249,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": "MyAnalyzer",
+      "line": 249,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/runner.py",
+      "line": 250,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": ".analyzer",
+      "line": 251,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "MyAnalyzer",
+      "line": 251,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "osoji.deadparam.list_repo_files",
+      "line": 254,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "rate_limiter",
+      "line": 264,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "param_names"
+    },
+    {
+      "value": "rate_limiter",
+      "line": 266,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "c.param_name"
+    },
+    {
+      "value": "src/launcher.py",
+      "line": 273,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "def log(message, error=False):",
+      "line": 274,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    return message",
+      "line": 275,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/launcher.py",
+      "line": 277,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "log",
+      "line": 278,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 278,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 279,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "message",
+      "line": 281,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "error",
+      "line": 282,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/launcher.py",
+      "line": 285,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": "log",
+      "line": 285,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/cli.py",
+      "line": 287,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "from .launcher import log",
+      "line": 288,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "def run():",
+      "line": 289,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    return log('ok')",
+      "line": 290,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/cli.py",
+      "line": 292,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": ".launcher",
+      "line": 292,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "log",
+      "line": 292,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/noisy.py",
+      "line": 294,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "def log(message):",
+      "line": 295,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    return message",
+      "line": 296,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "result = log('noise')",
+      "line": 297,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/noisy.py",
+      "line": 299,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": "osoji.deadparam.list_repo_files",
+      "line": 301,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "error",
+      "line": 312,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "c.param_name"
+    },
+    {
+      "value": "src/cli.py",
+      "line": 313,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/scorecard.py",
+      "line": 322,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "from .config import Config",
+      "line": 323,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "def build_scorecard(",
+      "line": 325,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    config: Config,",
+      "line": 326,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    results: list,",
+      "line": 327,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    dead_code_results: list | None = None,",
+      "line": 328,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ") -> dict:",
+      "line": 329,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    if dead_code_results is not None:",
+      "line": 330,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "        pass",
+      "line": 331,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    return {}",
+      "line": 332,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/scorecard.py",
+      "line": 334,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "build_scorecard",
+      "line": 335,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 335,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 336,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "config",
+      "line": 338,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "results",
+      "line": 339,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "dead_code_results",
+      "line": 340,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/audit.py",
+      "line": 343,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "from .scorecard import build_scorecard",
+      "line": 344,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "def run_audit():",
+      "line": 346,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    sc = build_scorecard(config, results)",
+      "line": 347,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    return sc",
+      "line": 348,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/scorecard.py",
+      "line": 350,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": "build_scorecard",
+      "line": 350,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/audit.py",
+      "line": 351,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": ".scorecard",
+      "line": 352,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "build_scorecard",
+      "line": 352,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "tc1",
+      "line": 365,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 365,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 367,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "No caller passes it",
+      "line": 368,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Remove the parameter",
+      "line": 369,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test",
+      "line": 372,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 372,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "osoji.deadparam.list_repo_files",
+      "line": 375,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "confirmed",
+      "line": 379,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "deadparam:dead_parameter",
+      "line": 382,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.detector",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 383,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "build_scorecard.dead_code_results",
+      "line": 384,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.symbol"
+    },
+    {
+      "value": "No caller passes it",
+      "line": 385,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.triage_reasoning"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 387,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "tc1",
+      "line": 398,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 398,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "dismissed",
+      "line": 400,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "A caller passes it via kwargs",
+      "line": 401,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test",
+      "line": 404,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 404,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "osoji.deadparam.list_repo_files",
+      "line": 407,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "dismissed",
+      "line": 411,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead_params",
+      "line": 428,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "analyzer.name",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead-params",
+      "line": 432,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "analyzer.cli_flag",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead",
+      "line": 436,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "parameter",
+      "line": 437,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/mod.py",
+      "line": 447,
+      "usage": "produced",
+      "context": "keyword argument to DeadParamCandidate"
+    },
+    {
+      "value": "func",
+      "line": 448,
+      "usage": "produced",
+      "context": "keyword argument to DeadParamCandidate"
+    },
+    {
+      "value": "unused",
+      "line": 449,
+      "usage": "produced",
+      "context": "keyword argument to DeadParamCandidate"
+    },
+    {
+      "value": "confirmed",
+      "line": 454,
+      "usage": "produced",
+      "context": "keyword argument to replace",
+      "kind": "identifier"
+    },
+    {
+      "value": "Never passed",
+      "line": 455,
+      "usage": "produced",
+      "context": "keyword argument to replace"
+    },
+    {
+      "value": "Remove",
+      "line": 455,
+      "usage": "produced",
+      "context": "keyword argument to replace"
+    },
+    {
+      "value": "dismissed",
+      "line": 456,
+      "usage": "produced",
+      "context": "keyword argument to replace",
+      "kind": "identifier"
+    },
+    {
+      "value": "A caller passes it",
+      "line": 457,
+      "usage": "produced",
+      "context": "keyword argument to replace"
+    },
+    {
+      "value": "osoji.deadparam.detect_dead_params_async",
+      "line": 462,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "dead_parameter",
+      "line": 469,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "category",
+      "kind": "identifier"
+    },
+    {
+      "value": "func.unused",
+      "line": 470,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "name"
+    },
+    {
+      "value": "Never passed",
+      "line": 471,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "reason"
+    },
+    {
+      "value": "func",
+      "line": 473,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "confirmed",
+      "line": 478,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead_params",
+      "line": 480,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.analyzer_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/scorecard.py",
+      "line": 491,
+      "usage": "produced",
+      "context": "argument to _write_shadow"
+    },
+    {
+      "value": "src/scorecard.py",
+      "line": 492,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "src/scorecard.py",
+      "line": 498,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "build_scorecard.dead_code_results",
+      "line": 499,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "parameter",
+      "line": 500,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "dead_parameter",
+      "line": 501,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "Never passed by any caller",
+      "line": 505,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "Remove parameter and gated branches",
+      "line": 506,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "parameter `dead_code_results` of `build_scorecard`",
+      "line": 507,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding"
+    },
+    {
+      "value": "build_scorecard",
+      "line": 508,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "dead_params",
+      "line": 512,
+      "usage": "produced",
+      "context": "keyword argument to JunkAnalysisResult",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead_params",
+      "line": 517,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "sc.junk_sources",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead_parameter",
+      "line": 518,
+      "usage": "produced",
+      "context": "argument to sc.junk_by_category.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/deadcode.py",
+      "line": 529,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "def detect_dead_code_async(",
+      "line": 530,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    config,",
+      "line": 531,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    on_progress=None,",
+      "line": 532,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "):",
+      "line": 533,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    return []",
+      "line": 534,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "class DeadCodeAnalyzer:",
+      "line": 536,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    def analyze_async(self):",
+      "line": 537,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "        return detect_dead_code_async(",
+      "line": 538,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "            self.config,",
+      "line": 539,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "            on_progress=self.cb,",
+      "line": 540,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "        )",
+      "line": 541,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/deadcode.py",
+      "line": 543,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "detect_dead_code_async",
+      "line": 544,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 544,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 545,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "config",
+      "line": 547,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "on_progress",
+      "line": 548,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "DeadCodeAnalyzer",
+      "line": 550,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "class",
+      "line": 550,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 551,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "analyze_async",
+      "line": 552,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 552,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 553,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/other.py",
+      "line": 557,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "from .deadcode import detect_dead_code_async\n",
+      "line": 557,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "src/deadcode.py",
+      "line": 558,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": "detect_dead_code_async",
+      "line": 558,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/other.py",
+      "line": 559,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": ".deadcode",
+      "line": 560,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "detect_dead_code_async",
+      "line": 560,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "osoji.deadparam.list_repo_files",
+      "line": 563,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "on_progress",
+      "line": 571,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "c.param_name"
+    },
+    {
+      "value": "src/deadcode.py",
+      "line": 574,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "cs.file_path"
+    },
+    {
+      "value": "src/mod.py",
+      "line": 581,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "def process(",
+      "line": 582,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    data,",
+      "line": 583,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    verbose=False,",
+      "line": 584,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "):",
+      "line": 585,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    # recursive: process(data)",
+      "line": 586,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    return data",
+      "line": 587,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "def caller():",
+      "line": 589,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    return process(data)",
+      "line": 590,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/mod.py",
+      "line": 592,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "process",
+      "line": 593,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 593,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 594,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "data",
+      "line": 596,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "verbose",
+      "line": 597,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/other.py",
+      "line": 600,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "from .mod import process\n",
+      "line": 600,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "src/mod.py",
+      "line": 601,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": "process",
+      "line": 601,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/other.py",
+      "line": 602,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": ".mod",
+      "line": 603,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "process",
+      "line": 603,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "osoji.deadparam.list_repo_files",
+      "line": 606,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "verbose",
+      "line": 613,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "c.param_name"
+    },
+    {
+      "value": "src/mod.py",
+      "line": 616,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "cs.file_path"
+    },
+    {
+      "value": "src/logging.py",
+      "line": 628,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "class LoggingProvider:",
+      "line": 629,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    def __init__(self, verbose=False):",
+      "line": 630,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "        self.verbose = verbose",
+      "line": 631,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/logging.py",
+      "line": 633,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "LoggingProvider",
+      "line": 634,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "class",
+      "line": 634,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 635,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "__init__",
+      "line": 636,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 636,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 637,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "verbose",
+      "line": 639,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/caller.py",
+      "line": 644,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "from .logging import LoggingProvider",
+      "line": 645,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "def make():",
+      "line": 647,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "    return LoggingProvider(verbose=True)",
+      "line": 648,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/logging.py",
+      "line": 650,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": "LoggingProvider",
+      "line": 650,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/caller.py",
+      "line": 651,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": ".logging",
+      "line": 652,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "LoggingProvider",
+      "line": 652,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "osoji.deadparam.list_repo_files",
+      "line": 655,
+      "usage": "produced",
+      "context": "argument to patch"
+    },
+    {
+      "value": "verbose",
+      "line": 662,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "c.param_name"
+    },
+    {
+      "value": "src/caller.py",
+      "line": 665,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "cs.file_path"
+    }
+  ],
+  "extraction_method": "ast"
+}

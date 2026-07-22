@@ -1,0 +1,1367 @@
+{
+  "source": "src/osoji/corpus_emit.py",
+  "source_hash": "a3aa42a8e49a871f",
+  "generated": "2026-07-22T10:56:04Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 18,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 20,
+      "is_reexport": false
+    },
+    {
+      "source": "os",
+      "names": [
+        "os"
+      ],
+      "line": 21,
+      "is_reexport": false
+    },
+    {
+      "source": "re",
+      "names": [
+        "re"
+      ],
+      "line": 22,
+      "is_reexport": false
+    },
+    {
+      "source": "shutil",
+      "names": [
+        "shutil"
+      ],
+      "line": 23,
+      "is_reexport": false
+    },
+    {
+      "source": "subprocess",
+      "names": [
+        "subprocess"
+      ],
+      "line": 24,
+      "is_reexport": false
+    },
+    {
+      "source": "collections.abc",
+      "names": [
+        "Sequence"
+      ],
+      "line": 25,
+      "is_reexport": false
+    },
+    {
+      "source": "datetime",
+      "names": [
+        "datetime",
+        "timezone"
+      ],
+      "line": 26,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path",
+        "PurePosixPath"
+      ],
+      "line": 27,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Any"
+      ],
+      "line": 28,
+      "is_reexport": false
+    },
+    {
+      "source": ".",
+      "names": [
+        "__version__"
+      ],
+      "line": 30,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "SHADOW_DIR"
+      ],
+      "line": 31,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "CORPUS_CASE_SCHEMA",
+      "kind": "constant",
+      "line": 33,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "CORPUS_EXPECTED_SCHEMA",
+      "kind": "constant",
+      "line": 34,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DECIDED_FINDINGS_SCHEMA",
+      "kind": "constant",
+      "line": 39,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ENV_CORPUS_DEST",
+      "kind": "constant",
+      "line": 42,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MAX_FILES",
+      "kind": "constant",
+      "line": 47,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "CorpusEmitError",
+      "kind": "class",
+      "line": 94,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "Exception"
+      ]
+    },
+    {
+      "name": "resolve_dest",
+      "kind": "function",
+      "line": 352,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "emit_case",
+      "kind": "function",
+      "line": 384,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "re.compile",
+      "line": 49,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_to_posix",
+      "to": "as_posix",
+      "line": 106,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_to_posix",
+      "to": "PurePosixPath",
+      "line": 106,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_to_posix",
+      "to": "replace",
+      "line": 106,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_to_posix",
+      "to": "str",
+      "line": 106,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_posix_join",
+      "to": "rel.split",
+      "line": 116,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_posix_join",
+      "to": "base.joinpath",
+      "line": 117,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_git",
+      "to": "subprocess.run",
+      "line": 124,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_git",
+      "to": "result.stdout.strip",
+      "line": 135,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_resolve_within_repo",
+      "to": "_posix_join",
+      "line": 151,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_resolve_within_repo",
+      "to": "candidate.resolve",
+      "line": 152,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_resolve_within_repo",
+      "to": "repo_root.resolve",
+      "line": 153,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_resolve_within_repo",
+      "to": "resolved.is_relative_to",
+      "line": 156,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_resolve_within_repo",
+      "to": "resolved.is_file",
+      "line": 159,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_snapshot_failure_reason",
+      "to": "_posix_join",
+      "line": 175,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_snapshot_failure_reason",
+      "to": "candidate.resolve",
+      "line": 176,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_snapshot_failure_reason",
+      "to": "repo_root.resolve",
+      "line": 177,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_snapshot_failure_reason",
+      "to": "resolved.is_relative_to",
+      "line": 180,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_walk_strings",
+      "to": "isinstance",
+      "line": 188,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_walk_strings",
+      "to": "value.values",
+      "line": 189,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_walk_strings",
+      "to": "_walk_strings",
+      "line": 190,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_walk_strings",
+      "to": "isinstance",
+      "line": 191,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_walk_strings",
+      "to": "_walk_strings",
+      "line": 193,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_walk_strings",
+      "to": "isinstance",
+      "line": 194,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_evidence_paths",
+      "to": "set",
+      "line": 206,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_evidence_paths",
+      "to": "finding.get",
+      "line": 207,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_evidence_paths",
+      "to": "isinstance",
+      "line": 208,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_evidence_paths",
+      "to": "ev.get",
+      "line": 208,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_evidence_paths",
+      "to": "isinstance",
+      "line": 209,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_evidence_paths",
+      "to": "_walk_strings",
+      "line": 211,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_evidence_paths",
+      "to": "_resolve_within_repo",
+      "line": 212,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_evidence_paths",
+      "to": "_to_posix",
+      "line": 212,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_evidence_paths",
+      "to": "found.add",
+      "line": 214,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_evidence_paths",
+      "to": "_to_posix",
+      "line": 214,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_language_for",
+      "to": "suffix.lower",
+      "line": 223,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_language_for",
+      "to": "PurePosixPath",
+      "line": 223,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_language_for",
+      "to": "ext.lstrip",
+      "line": 227,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_producer_of",
+      "to": "partition",
+      "line": 234,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_category_of",
+      "to": "partition",
+      "line": 257,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_validate_slug",
+      "to": "_SLUG_RE.fullmatch",
+      "line": 266,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_validate_slug",
+      "to": "CorpusEmitError",
+      "line": 267,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_write_json",
+      "to": "path.parent.mkdir",
+      "line": 273,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_json",
+      "to": "path.write_text",
+      "line": 274,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_json",
+      "to": "json.dumps",
+      "line": 275,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_ledger",
+      "to": "ledger_path.exists",
+      "line": 286,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_ledger",
+      "to": "CorpusEmitError",
+      "line": 287,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_load_ledger",
+      "to": "json.loads",
+      "line": 291,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_ledger",
+      "to": "ledger_path.read_text",
+      "line": 291,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_ledger",
+      "to": "CorpusEmitError",
+      "line": 293,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_load_ledger",
+      "to": "ledger.get",
+      "line": 294,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_load_ledger",
+      "to": "CorpusEmitError",
+      "line": 295,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_load_ledger",
+      "to": "ledger.get",
+      "line": 297,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_find_finding",
+      "to": "ledger.get",
+      "line": 311,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_find_finding",
+      "to": "f.get",
+      "line": 313,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_find_finding",
+      "to": "CorpusEmitError",
+      "line": 317,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_find_finding",
+      "to": "f.get",
+      "line": 321,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_find_finding",
+      "to": "f.get",
+      "line": 321,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_find_finding",
+      "to": "len",
+      "line": 323,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_find_finding",
+      "to": "shown.append",
+      "line": 324,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_finding",
+      "to": "len",
+      "line": 324,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_find_finding",
+      "to": "CorpusEmitError",
+      "line": 325,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_find_finding",
+      "to": "join",
+      "line": 327,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_resolve_expected_verdict",
+      "to": "CorpusEmitError",
+      "line": 334,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_resolve_expected_verdict",
+      "to": "finding.get",
+      "line": 338,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_resolve_expected_verdict",
+      "to": "CorpusEmitError",
+      "line": 341,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_resolve_expected_verdict",
+      "to": "finding.get",
+      "line": 342,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "resolve_dest",
+      "to": "Path",
+      "line": 362,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "resolve_dest",
+      "to": "os.environ.get",
+      "line": 364,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "resolve_dest",
+      "to": "Path",
+      "line": 366,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "resolve_dest",
+      "to": "default_corpus.is_dir",
+      "line": 369,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "resolve_dest",
+      "to": "CorpusEmitError",
+      "line": 372,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_validate_slug",
+      "line": 416,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "Path",
+      "line": 417,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "Path",
+      "line": 418,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_load_ledger",
+      "line": 420,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_find_finding",
+      "line": 421,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_to_posix",
+      "line": 423,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "finding.get",
+      "line": 423,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "set",
+      "line": 424,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_evidence_paths",
+      "line": 425,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_to_posix",
+      "line": 428,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_resolve_within_repo",
+      "line": 429,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "CorpusEmitError",
+      "line": 430,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "relevant.add",
+      "line": 431,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "len",
+      "line": 433,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "CorpusEmitError",
+      "line": 439,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "len",
+      "line": 440,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "sorted",
+      "line": 459,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_resolve_within_repo",
+      "line": 460,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "CorpusEmitError",
+      "line": 462,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_snapshot_failure_reason",
+      "line": 463,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_resolve_expected_verdict",
+      "line": 467,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "finding.get",
+      "line": 469,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_language_for",
+      "line": 471,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_category_of",
+      "line": 472,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "finding.get",
+      "line": 472,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_producer_of",
+      "line": 473,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "finding.get",
+      "line": 473,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "case_dir.exists",
+      "line": 476,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "CorpusEmitError",
+      "line": 477,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "isoformat",
+      "line": 479,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "datetime.now",
+      "line": 479,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "sorted",
+      "line": 490,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_posix_join",
+      "line": 492,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "dest_file.parent.mkdir",
+      "line": 493,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "shutil.copy2",
+      "line": 494,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_posix_join",
+      "line": 498,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "sidecar_src.is_file",
+      "line": 499,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_posix_join",
+      "line": 500,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "sidecar_dest.parent.mkdir",
+      "line": 501,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "shutil.copy2",
+      "line": 502,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "dict",
+      "line": 504,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_write_json",
+      "line": 513,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "finding.get",
+      "line": 518,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_git",
+      "line": 522,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_git",
+      "line": 523,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_write_json",
+      "line": 531,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "_write_json",
+      "line": 532,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "bool",
+      "line": 536,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "emit_case",
+      "to": "shutil.rmtree",
+      "line": 544,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "corpus-case/1",
+      "line": 33,
+      "usage": "defined",
+      "context": "constant CORPUS_CASE_SCHEMA",
+      "kind": "identifier"
+    },
+    {
+      "value": "corpus-expected/1",
+      "line": 34,
+      "usage": "defined",
+      "context": "constant CORPUS_EXPECTED_SCHEMA",
+      "kind": "identifier"
+    },
+    {
+      "value": "decided-findings/1",
+      "line": 39,
+      "usage": "defined",
+      "context": "constant DECIDED_FINDINGS_SCHEMA",
+      "kind": "identifier"
+    },
+    {
+      "value": "OSOJI_CORPUS_DEST",
+      "line": 42,
+      "usage": "defined",
+      "context": "constant ENV_CORPUS_DEST",
+      "kind": "identifier"
+    },
+    {
+      "value": "^[a-z0-9_-]+$",
+      "line": 49,
+      "usage": "produced",
+      "context": "argument to re.compile"
+    },
+    {
+      "value": "symbols",
+      "line": 55,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".symbols.json",
+      "line": 55,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "facts",
+      "line": 56,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".facts.json",
+      "line": 56,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "shadow",
+      "line": 57,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".shadow.md",
+      "line": 57,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "python",
+      "line": 63,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "python",
+      "line": 64,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "javascript",
+      "line": 65,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "javascript",
+      "line": 66,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "javascript",
+      "line": 67,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "javascript",
+      "line": 68,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "typescript",
+      "line": 69,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "typescript",
+      "line": 70,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "go",
+      "line": 71,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "rust",
+      "line": 72,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "java",
+      "line": 73,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "kotlin",
+      "line": 74,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "ruby",
+      "line": 75,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "php",
+      "line": 76,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "csharp",
+      "line": 77,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "cpp",
+      "line": 80,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "cpp",
+      "line": 81,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "cpp",
+      "line": 82,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "swift",
+      "line": 83,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "scala",
+      "line": 84,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "shell",
+      "line": 85,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "markdown",
+      "line": 86,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "yaml",
+      "line": 87,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "yaml",
+      "line": 88,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "json",
+      "line": 89,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "toml",
+      "line": 90,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "git",
+      "line": 125,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "empty or invalid path",
+      "line": 173,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "evidence",
+      "line": 207,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "payload",
+      "line": 208,
+      "usage": "produced",
+      "context": "argument to ev.get"
+    },
+    {
+      "value": "unknown",
+      "line": 228,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "uncategorized",
+      "line": 259,
+      "usage": "produced",
+      "context": "return value",
+      "kind": "identifier"
+    },
+    {
+      "value": "doc",
+      "line": 260,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "producer",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 275,
+      "usage": "produced",
+      "context": "keyword argument to path.write_text"
+    },
+    {
+      "value": "utf-8",
+      "line": 291,
+      "usage": "produced",
+      "context": "keyword argument to ledger_path.read_text"
+    },
+    {
+      "value": "schema",
+      "line": 294,
+      "usage": "produced",
+      "context": "argument to ledger.get"
+    },
+    {
+      "value": "schema",
+      "line": 297,
+      "usage": "produced",
+      "context": "argument to ledger.get"
+    },
+    {
+      "value": "findings",
+      "line": 311,
+      "usage": "produced",
+      "context": "argument to ledger.get"
+    },
+    {
+      "value": "id",
+      "line": 313,
+      "usage": "produced",
+      "context": "argument to f.get"
+    },
+    {
+      "value": "path",
+      "line": 321,
+      "usage": "produced",
+      "context": "argument to f.get"
+    },
+    {
+      "value": "id",
+      "line": 321,
+      "usage": "produced",
+      "context": "argument to f.get"
+    },
+    {
+      "value": "confirmed",
+      "line": 333,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "dismissed",
+      "line": 333,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "verdict",
+      "line": 338,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "confirmed",
+      "line": 339,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "dismissed",
+      "line": 339,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "id",
+      "line": 342,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "path",
+      "line": 423,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "triage_reasoning",
+      "line": 469,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "detector",
+      "line": 472,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "detector",
+      "line": 473,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "verdict",
+      "line": 507,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "confidence",
+      "line": 507,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "triage_reasoning",
+      "line": 507,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "suggested_fix",
+      "line": 507,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "severity",
+      "line": 508,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "contract_class",
+      "line": 508,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "evidence_fingerprint",
+      "line": 508,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "gap_type",
+      "line": 518,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "remote",
+      "line": 522,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "get-url",
+      "line": 522,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "origin",
+      "line": 522,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "rev-parse",
+      "line": 523,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "HEAD",
+      "line": 523,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "rebuild",
+      "line": 529,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "sweep-proposed",
+      "line": 539,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    }
+  ],
+  "extraction_method": "ast"
+}

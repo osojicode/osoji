@@ -1,0 +1,752 @@
+{
+  "source": "src/osoji/claim_builder.py",
+  "source_hash": "b876168098d97e4e",
+  "generated": "2026-07-22T10:55:55Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 26,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 28,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "replace"
+      ],
+      "line": 29,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Any",
+        "Mapping",
+        "Sequence"
+      ],
+      "line": 30,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config"
+      ],
+      "line": 32,
+      "is_reexport": false
+    },
+    {
+      "source": ".evidence",
+      "names": [
+        "BUILDERS",
+        "Evidence",
+        "EvidenceKind"
+      ],
+      "line": 33,
+      "is_reexport": false
+    },
+    {
+      "source": ".evidence_builders",
+      "names": [
+        "BuildContext",
+        "_extract_all_symbols_from_debris",
+        "_infer_variable_type",
+        "_lookup_type_definitions"
+      ],
+      "line": 34,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 40,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings_adapter",
+      "names": [
+        "finding_from_debris"
+      ],
+      "line": 41,
+      "is_reexport": false
+    },
+    {
+      "source": ".hasher",
+      "names": [
+        "compute_hash",
+        "compute_impl_hash"
+      ],
+      "line": 42,
+      "is_reexport": false
+    },
+    {
+      "source": ".triage",
+      "names": [
+        "Claim"
+      ],
+      "line": 43,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "CLAIM_BUILDER_SCHEMA_VERSION",
+      "kind": "constant",
+      "line": 48,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SchemaEntry",
+      "kind": "class",
+      "line": 52,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SchemaEntry.to_dict",
+      "kind": "function",
+      "line": 66,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SchemaEntry.from_dict",
+      "kind": "function",
+      "line": 70,
+      "decorators": [
+        "classmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "CLAIM_BUILDER_SCHEMA",
+      "kind": "constant",
+      "line": 93,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DEFAULT_SCHEMA_BY_GAP_TYPE",
+      "kind": "constant",
+      "line": 123,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DEBRIS_SCHEMA",
+      "kind": "constant",
+      "line": 136,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "category_of",
+      "kind": "function",
+      "line": 145,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "compute_evidence_fingerprint",
+      "kind": "function",
+      "line": 152,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "build_claims",
+      "kind": "function",
+      "line": 173,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "build_debris_claims",
+      "kind": "function",
+      "line": 233,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "SchemaEntry",
+      "to": "frozenset",
+      "line": 64,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "SchemaEntry.to_dict",
+      "to": "list",
+      "line": 67,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SchemaEntry.to_dict",
+      "to": "sorted",
+      "line": 67,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SchemaEntry.from_dict",
+      "to": "cls",
+      "line": 71,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SchemaEntry.from_dict",
+      "to": "tuple",
+      "line": 72,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SchemaEntry.from_dict",
+      "to": "frozenset",
+      "line": 73,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "SchemaEntry.from_dict",
+      "to": "data.get",
+      "line": 73,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SchemaEntry",
+      "to": "dataclass",
+      "line": 51,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "SchemaEntry",
+      "line": 77,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frozenset",
+      "line": 79,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "SchemaEntry",
+      "line": 82,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frozenset",
+      "line": 84,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "SchemaEntry",
+      "line": 86,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frozenset",
+      "line": 88,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "SchemaEntry",
+      "line": 127,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frozenset",
+      "line": 129,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "replace",
+      "line": 138,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frozenset",
+      "line": 139,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "category_of",
+      "to": "finding.detector.partition",
+      "line": 148,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "compute_evidence_fingerprint",
+      "to": "sorted",
+      "line": 166,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "compute_evidence_fingerprint",
+      "to": "json.dumps",
+      "line": 167,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "compute_evidence_fingerprint",
+      "to": "ev.to_dict",
+      "line": 167,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "compute_evidence_fingerprint",
+      "to": "compute_hash",
+      "line": 170,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "compute_evidence_fingerprint",
+      "to": "join",
+      "line": 170,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "compute_evidence_fingerprint",
+      "to": "compute_impl_hash",
+      "line": 170,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "build_claims",
+      "to": "table.get",
+      "line": 190,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_claims",
+      "to": "category_of",
+      "line": 190,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_claims",
+      "to": "DEFAULT_SCHEMA_BY_GAP_TYPE.get",
+      "line": 191,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_claims",
+      "to": "set",
+      "line": 195,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_claims",
+      "to": "BUILDERS.get",
+      "line": 197,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_claims",
+      "to": "builder.build",
+      "line": 200,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_claims",
+      "to": "filled.add",
+      "line": 202,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_claims",
+      "to": "built.extend",
+      "line": 203,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_claims",
+      "to": "bool",
+      "line": 204,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_claims",
+      "to": "claims.append",
+      "line": 206,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_claims",
+      "to": "Claim",
+      "line": 207,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "build_claims",
+      "to": "replace",
+      "line": 208,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_claims",
+      "to": "compute_evidence_fingerprint",
+      "line": 211,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_is_eligible",
+      "to": "finding.get",
+      "line": 225,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_is_eligible",
+      "to": "finding.get",
+      "line": 228,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "build_debris_claims",
+      "to": "BuildContext",
+      "line": 250,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "build_debris_claims",
+      "to": "enumerate",
+      "line": 256,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_debris_claims",
+      "to": "_is_eligible",
+      "line": 257,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_debris_claims",
+      "to": "finding.get",
+      "line": 259,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "build_debris_claims",
+      "to": "finding.get",
+      "line": 259,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "build_debris_claims",
+      "to": "finding_from_debris",
+      "line": 262,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "build_debris_claims",
+      "to": "build_claims",
+      "line": 263,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "build_debris_claims",
+      "to": "claims.append",
+      "line": 267,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_debris_claims",
+      "to": "original_indices.append",
+      "line": 268,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "cb-3",
+      "line": 48,
+      "usage": "defined",
+      "context": "constant CLAIM_BUILDER_SCHEMA_VERSION",
+      "kind": "identifier"
+    },
+    {
+      "value": "require_any",
+      "line": 73,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 78,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "surrounding_code",
+      "line": 78,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 79,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "surrounding_code",
+      "line": 83,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "declared_intent",
+      "line": 83,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "shadow_doc_claim",
+      "line": 83,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 83,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "surrounding_code",
+      "line": 84,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "surrounding_code",
+      "line": 87,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 87,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "type_signature",
+      "line": 87,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 88,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "type_signature",
+      "line": 88,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "surrounding_code",
+      "line": 128,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 128,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "surrounding_code",
+      "line": 129,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 129,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 139,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "category",
+      "line": 225,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "dead_code",
+      "line": 226,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "latent_bug",
+      "line": 226,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "stale_comment",
+      "line": 228,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "category",
+      "kind": "identifier"
+    },
+    {
+      "value": "cross_file_verification_needed",
+      "line": 228,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "source",
+      "line": 259,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "source_path",
+      "line": 259,
+      "usage": "produced",
+      "context": "argument to finding.get"
+    },
+    {
+      "value": "dead_symbol",
+      "context": "Category key in CLAIM_BUILDER_SCHEMA",
+      "line": 96,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dead_parameter",
+      "context": "Category key in CLAIM_BUILDER_SCHEMA",
+      "line": 97,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "unactuated_config",
+      "context": "Category key in CLAIM_BUILDER_SCHEMA",
+      "line": 98,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "obligation_implicit_contract",
+      "context": "Category key in CLAIM_BUILDER_SCHEMA for contract findings",
+      "line": 103,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "obligation_violation",
+      "context": "Category key in CLAIM_BUILDER_SCHEMA for contract findings",
+      "line": 104,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "misleading_docstring",
+      "context": "Category key in CLAIM_BUILDER_SCHEMA",
+      "line": 113,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "incorrect_content",
+      "context": "Category key in CLAIM_BUILDER_SCHEMA",
+      "line": 114,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "misleading_claim",
+      "context": "Category key in CLAIM_BUILDER_SCHEMA",
+      "line": 115,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "stale_content",
+      "context": "Category key in CLAIM_BUILDER_SCHEMA",
+      "line": 116,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "obsolete_reference",
+      "context": "Category key in CLAIM_BUILDER_SCHEMA",
+      "line": 117,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "reachability",
+      "context": "Gap type key in DEFAULT_SCHEMA_BY_GAP_TYPE",
+      "line": 124,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "contract",
+      "context": "Gap type key in DEFAULT_SCHEMA_BY_GAP_TYPE",
+      "line": 125,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "description",
+      "context": "Gap type key in DEFAULT_SCHEMA_BY_GAP_TYPE",
+      "line": 126,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "uncategorized",
+      "context": "Gap type key in DEFAULT_SCHEMA_BY_GAP_TYPE, used as final fallback in build_claims",
+      "line": 127,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

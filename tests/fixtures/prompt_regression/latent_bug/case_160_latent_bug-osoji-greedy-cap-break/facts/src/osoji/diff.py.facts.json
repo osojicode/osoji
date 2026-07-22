@@ -1,0 +1,1021 @@
+{
+  "source": "src/osoji/diff.py",
+  "source_hash": "66c1b469e3b5f445",
+  "generated": "2026-07-22T10:55:52Z",
+  "imports": [
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "subprocess",
+      "names": [
+        "subprocess"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "field"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Any"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": ".doc_analysis",
+      "names": [
+        "find_doc_candidates"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": ".facts",
+      "names": [
+        "FactsDB"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": ".hooks",
+      "names": [
+        "find_git_root"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": ".shadow",
+      "names": [
+        "is_stale"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": ".walker",
+      "names": [
+        "_matches_ignore"
+      ],
+      "line": 14,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "DiffFileChange",
+      "kind": "class",
+      "line": 18,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StaleShadow",
+      "kind": "class",
+      "line": 28,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DocReference",
+      "kind": "class",
+      "line": 37,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DiffImpactReport",
+      "kind": "class",
+      "line": 48,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DiffImpactReport.has_issues",
+      "kind": "function",
+      "line": 59,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "get_diff_files",
+      "kind": "function",
+      "line": 74,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "check_stale_shadows",
+      "kind": "function",
+      "line": 127,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "find_doc_references",
+      "kind": "function",
+      "line": 163,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "run_diff",
+      "kind": "function",
+      "line": 279,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "format_diff_report",
+      "kind": "function",
+      "line": 309,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "format_diff_json",
+      "kind": "function",
+      "line": 361,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "DiffImpactReport",
+      "to": "field",
+      "line": 52,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DiffImpactReport",
+      "to": "field",
+      "line": 53,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DiffImpactReport",
+      "to": "field",
+      "line": 54,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DiffImpactReport",
+      "to": "field",
+      "line": 55,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DiffImpactReport.has_issues",
+      "to": "bool",
+      "line": 60,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "get_diff_files",
+      "to": "subprocess.run",
+      "line": 80,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "get_diff_files",
+      "to": "RuntimeError",
+      "line": 88,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "get_diff_files",
+      "to": "e.stderr.strip",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "get_diff_files",
+      "to": "e.stdout.strip",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "get_diff_files",
+      "to": "str",
+      "line": 89,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "get_diff_files",
+      "to": "config.load_osojiignore",
+      "line": 92,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "get_diff_files",
+      "to": "split",
+      "line": 95,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "get_diff_files",
+      "to": "result.stdout.strip",
+      "line": 95,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "get_diff_files",
+      "to": "line.split",
+      "line": 99,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "get_diff_files",
+      "to": "len",
+      "line": 100,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "get_diff_files",
+      "to": "Path",
+      "line": 105,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "get_diff_files",
+      "to": "_matches_ignore",
+      "line": 108,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "get_diff_files",
+      "to": "_matches_ignore",
+      "line": 110,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "get_diff_files",
+      "to": "_STATUS_MAP.get",
+      "line": 113,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "get_diff_files",
+      "to": "config.is_doc_candidate",
+      "line": 115,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "get_diff_files",
+      "to": "changes.append",
+      "line": 117,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "get_diff_files",
+      "to": "DiffFileChange",
+      "line": 117,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "check_stale_shadows",
+      "to": "config.shadow_path_for",
+      "line": 135,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "check_stale_shadows",
+      "to": "stale.append",
+      "line": 136,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "check_stale_shadows",
+      "to": "StaleShadow",
+      "line": 136,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "check_stale_shadows",
+      "to": "shadow_path.exists",
+      "line": 138,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "check_stale_shadows",
+      "to": "abs_path.exists",
+      "line": 143,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "check_stale_shadows",
+      "to": "config.shadow_path_for",
+      "line": 146,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "check_stale_shadows",
+      "to": "shadow_path.exists",
+      "line": 147,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "check_stale_shadows",
+      "to": "stale.append",
+      "line": 148,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "check_stale_shadows",
+      "to": "StaleShadow",
+      "line": 148,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "check_stale_shadows",
+      "to": "is_stale",
+      "line": 153,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "check_stale_shadows",
+      "to": "stale.append",
+      "line": 154,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "check_stale_shadows",
+      "to": "StaleShadow",
+      "line": 154,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "find_doc_references",
+      "to": "FactsDB",
+      "line": 172,
+      "call_sites": 90
+    },
+    {
+      "from_symbol": "find_doc_references",
+      "to": "bool",
+      "line": 173,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "find_doc_references",
+      "to": "facts_db.doc_files",
+      "line": 173,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "find_doc_references",
+      "to": "_find_doc_references_via_facts",
+      "line": 176,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "find_doc_references",
+      "to": "_find_doc_references_via_grep",
+      "line": 177,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_doc_references_via_facts",
+      "to": "replace",
+      "line": 189,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_find_doc_references_via_facts",
+      "to": "str",
+      "line": 189,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_find_doc_references_via_facts",
+      "to": "facts_db.docs_referencing",
+      "line": 190,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_doc_references_via_facts",
+      "to": "doc_abs.exists",
+      "line": 194,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_doc_references_via_facts",
+      "to": "doc_abs.read_text",
+      "line": 199,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_doc_references_via_facts",
+      "to": "enumerate",
+      "line": 206,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_find_doc_references_via_facts",
+      "to": "content.splitlines",
+      "line": 206,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_find_doc_references_via_facts",
+      "to": "references.append",
+      "line": 208,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_find_doc_references_via_facts",
+      "to": "DocReference",
+      "line": 208,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_find_doc_references_via_facts",
+      "to": "Path",
+      "line": 209,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_find_doc_references_via_facts",
+      "to": "line.strip",
+      "line": 212,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_find_doc_references_via_facts",
+      "to": "references.append",
+      "line": 220,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_find_doc_references_via_facts",
+      "to": "DocReference",
+      "line": 220,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_find_doc_references_via_facts",
+      "to": "Path",
+      "line": 221,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_find_doc_references_via_grep",
+      "to": "find_doc_candidates",
+      "line": 236,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_find_doc_references_via_grep",
+      "to": "replace",
+      "line": 244,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_find_doc_references_via_grep",
+      "to": "str",
+      "line": 244,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_find_doc_references_via_grep",
+      "to": "source_patterns.append",
+      "line": 247,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_doc_references_via_grep",
+      "to": "doc_path.read_text",
+      "line": 253,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_doc_references_via_grep",
+      "to": "doc_path.relative_to",
+      "line": 257,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_doc_references_via_grep",
+      "to": "enumerate",
+      "line": 259,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_find_doc_references_via_grep",
+      "to": "content.splitlines",
+      "line": 259,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_find_doc_references_via_grep",
+      "to": "references.append",
+      "line": 264,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_find_doc_references_via_grep",
+      "to": "DocReference",
+      "line": 264,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_find_doc_references_via_grep",
+      "to": "line.strip",
+      "line": 268,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run_diff",
+      "to": "find_git_root",
+      "line": 284,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "run_diff",
+      "to": "RuntimeError",
+      "line": 286,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run_diff",
+      "to": "get_diff_files",
+      "line": 288,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run_diff",
+      "to": "DiffImpactReport",
+      "line": 291,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run_diff",
+      "to": "check_stale_shadows",
+      "line": 296,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_diff",
+      "to": "find_doc_references",
+      "line": 297,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_diff",
+      "to": "DiffImpactReport",
+      "line": 299,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 312,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 313,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 316,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "join",
+      "line": 317,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 320,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "len",
+      "line": 320,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "len",
+      "line": 320,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 321,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 325,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 326,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 334,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 335,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 336,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 337,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 341,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 342,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 345,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 346,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 347,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 348,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 349,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "len",
+      "line": 353,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "len",
+      "line": 353,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 354,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "lines.append",
+      "line": 356,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "format_diff_report",
+      "to": "join",
+      "line": 358,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "format_diff_json",
+      "to": "str",
+      "line": 368,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "format_diff_json",
+      "to": "str",
+      "line": 375,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "format_diff_json",
+      "to": "str",
+      "line": 382,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "format_diff_json",
+      "to": "str",
+      "line": 390,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "format_diff_json",
+      "to": "str",
+      "line": 391,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "format_diff_json",
+      "to": "json.dumps",
+      "line": 401,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "modified",
+      "line": 65,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "added",
+      "line": 66,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "deleted",
+      "line": 67,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "renamed",
+      "line": 68,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "copied",
+      "line": 69,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "type_changed",
+      "line": 70,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "git",
+      "line": 81,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "diff",
+      "line": 81,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "--name-status",
+      "line": 81,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "modified",
+      "line": 113,
+      "usage": "produced",
+      "context": "argument to _STATUS_MAP.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "deleted",
+      "line": 134,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "change.change_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "deleted_source",
+      "line": 139,
+      "usage": "produced",
+      "context": "keyword argument to StaleShadow",
+      "kind": "identifier"
+    },
+    {
+      "value": "missing",
+      "line": 151,
+      "usage": "produced",
+      "context": "keyword argument to StaleShadow",
+      "kind": "identifier"
+    },
+    {
+      "value": "stale",
+      "line": 157,
+      "usage": "produced",
+      "context": "keyword argument to StaleShadow",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 199,
+      "usage": "produced",
+      "context": "keyword argument to doc_abs.read_text"
+    },
+    {
+      "value": "deleted",
+      "line": 213,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "change.change_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "(reference found via FactsDB)",
+      "line": 224,
+      "usage": "produced",
+      "context": "keyword argument to DocReference",
+      "kind": "message"
+    },
+    {
+      "value": "deleted",
+      "line": 225,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "change.change_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 253,
+      "usage": "produced",
+      "context": "keyword argument to doc_path.read_text"
+    },
+    {
+      "value": "deleted",
+      "line": 269,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "change.change_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "Not a git repository",
+      "line": 286,
+      "usage": "produced",
+      "context": "argument to RuntimeError"
+    },
+    {
+      "value": "No changes found.",
+      "line": 316,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "## Stale Shadow Documentation",
+      "line": 325,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "deleted_source",
+      "line": 328,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "s.status",
+      "kind": "identifier"
+    },
+    {
+      "value": "deleted source",
+      "line": 329,
+      "usage": "defined",
+      "context": "constant label"
+    },
+    {
+      "value": "missing",
+      "line": 330,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "s.status",
+      "kind": "identifier"
+    },
+    {
+      "value": "no shadow doc",
+      "line": 331,
+      "usage": "defined",
+      "context": "constant label"
+    },
+    {
+      "value": "stale",
+      "line": 333,
+      "usage": "defined",
+      "context": "constant label",
+      "kind": "identifier"
+    },
+    {
+      "value": "Run `osoji shadow .` or `osoji diff <base> --update` to regenerate.",
+      "line": 336,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "## Documentation References to Changed Source",
+      "line": 341,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "Review these documentation files - they may need updating.",
+      "line": 348,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "---\n**No issues found.** Documentation appears in sync.",
+      "line": 356,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    }
+  ],
+  "extraction_method": "ast"
+}

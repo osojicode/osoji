@@ -1,0 +1,1344 @@
+{
+  "source": "src/osoji/doc_analysis.py",
+  "source_hash": "aa6847f84c3876ce",
+  "generated": "2026-07-22T10:56:18Z",
+  "imports": [
+    {
+      "source": "asyncio",
+      "names": [
+        "asyncio"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "field"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Callable"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": ".async_utils",
+      "names": [
+        "gather_with_buffer"
+      ],
+      "line": 15,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config",
+        "DIRECTORY_SHADOW_FILENAME",
+        "SHADOW_DIR"
+      ],
+      "line": 16,
+      "is_reexport": false
+    },
+    {
+      "source": ".evidence_builders",
+      "names": [
+        "BuildContext"
+      ],
+      "line": 17,
+      "is_reexport": false
+    },
+    {
+      "source": ".facts",
+      "names": [
+        "FactsDB"
+      ],
+      "line": 18,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings_adapter",
+      "names": [
+        "finding_from_doc"
+      ],
+      "line": 19,
+      "is_reexport": false
+    },
+    {
+      "source": ".hasher",
+      "names": [
+        "read_file_safe"
+      ],
+      "line": 20,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk_triage",
+      "names": [
+        "build_junk_claims",
+        "decide_junk_claims"
+      ],
+      "line": 21,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.base",
+      "names": [
+        "LLMProvider"
+      ],
+      "line": 22,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.budgets",
+      "names": [
+        "input_budget_for_config"
+      ],
+      "line": 23,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.types",
+      "names": [
+        "Message",
+        "MessageRole",
+        "CompletionOptions"
+      ],
+      "line": 24,
+      "is_reexport": false
+    },
+    {
+      "source": ".tools",
+      "names": [
+        "get_match_doc_topics_tool_definitions",
+        "get_analyze_document_tool_definitions"
+      ],
+      "line": 25,
+      "is_reexport": false
+    },
+    {
+      "source": ".triage",
+      "names": [
+        "TRIAGE_SYSTEM_PROMPT"
+      ],
+      "line": 29,
+      "is_reexport": false
+    },
+    {
+      "source": ".walker",
+      "names": [
+        "list_repo_files",
+        "_matches_ignore"
+      ],
+      "line": 30,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "DocFinding",
+      "kind": "class",
+      "line": 37,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DocAnalysisResult",
+      "kind": "class",
+      "line": 60,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DocAnalysisResult.is_debris",
+      "kind": "function",
+      "line": 72,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "find_doc_candidates",
+      "kind": "function",
+      "line": 79,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "analyze_docs_async",
+      "kind": "function",
+      "line": 470,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "DocFinding",
+      "to": "field",
+      "line": 46,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DocAnalysisResult",
+      "to": "field",
+      "line": 67,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DocAnalysisResult",
+      "to": "field",
+      "line": 68,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "find_doc_candidates",
+      "to": "config.load_osojiignore",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "find_doc_candidates",
+      "to": "list_repo_files",
+      "line": 92,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "find_doc_candidates",
+      "to": "path.is_absolute",
+      "line": 96,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "find_doc_candidates",
+      "to": "path.is_file",
+      "line": 99,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "find_doc_candidates",
+      "to": "path.relative_to",
+      "line": 102,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "find_doc_candidates",
+      "to": "startswith",
+      "line": 105,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "find_doc_candidates",
+      "to": "str",
+      "line": 105,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "find_doc_candidates",
+      "to": "_matches_ignore",
+      "line": 109,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "find_doc_candidates",
+      "to": "_matches_ignore",
+      "line": 113,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "find_doc_candidates",
+      "to": "config.is_doc_candidate",
+      "line": 117,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "find_doc_candidates",
+      "to": "candidates.append",
+      "line": 118,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "find_doc_candidates",
+      "to": "sorted",
+      "line": 120,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_referenced_sources",
+      "to": "doc_path.is_absolute",
+      "line": 137,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_referenced_sources",
+      "to": "doc_path.relative_to",
+      "line": 137,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_find_referenced_sources",
+      "to": "replace",
+      "line": 138,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_find_referenced_sources",
+      "to": "str",
+      "line": 138,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_find_referenced_sources",
+      "to": "facts_db.get_file",
+      "line": 139,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_referenced_sources",
+      "to": "Path",
+      "line": 141,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_find_referenced_sources",
+      "to": "imp.get",
+      "line": 141,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_find_referenced_sources",
+      "to": "imp.get",
+      "line": 141,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_find_referenced_sources",
+      "to": "_find_referenced_sources_regex",
+      "line": 144,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "shadow_root.exists",
+      "line": 152,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "shadow_root.rglob",
+      "line": 156,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "shadow_path.relative_to",
+      "line": 159,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "removesuffix",
+      "line": 160,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "str",
+      "line": 160,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "Path",
+      "line": 161,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "replace",
+      "line": 163,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "str",
+      "line": 163,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "list",
+      "line": 166,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "source_path.with_suffix",
+      "line": 166,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "len",
+      "line": 171,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "join",
+      "line": 172,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "set",
+      "line": 174,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "source_files.items",
+      "line": 175,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "len",
+      "line": 176,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "str",
+      "line": 179,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "found.add",
+      "line": 181,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_referenced_sources_regex",
+      "to": "referenced.append",
+      "line": 182,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_directory_summaries",
+      "to": "shadow_root.exists",
+      "line": 206,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_load_directory_summaries",
+      "to": "shadow_root.rglob",
+      "line": 211,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_load_directory_summaries",
+      "to": "dir_shadow.read_text",
+      "line": 213,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_directory_summaries",
+      "to": "dir_shadow.parent.relative_to",
+      "line": 218,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_directory_summaries",
+      "to": "replace",
+      "line": 219,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_load_directory_summaries",
+      "to": "str",
+      "line": 219,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_load_directory_summaries",
+      "to": "dir_shadow.parent.iterdir",
+      "line": 225,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_directory_summaries",
+      "to": "child.is_file",
+      "line": 228,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_directory_summaries",
+      "to": "child.name.endswith",
+      "line": 228,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_directory_summaries",
+      "to": "removesuffix",
+      "line": 229,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_load_directory_summaries",
+      "to": "str",
+      "line": 229,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_load_directory_summaries",
+      "to": "child.relative_to",
+      "line": 229,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_directory_summaries",
+      "to": "child_files.append",
+      "line": 230,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_directory_summaries",
+      "to": "Path",
+      "line": 230,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_match_topics_async",
+      "to": "dir_summaries.items",
+      "line": 257,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_match_topics_async",
+      "to": "listing_parts.append",
+      "line": 259,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_match_topics_async",
+      "to": "join",
+      "line": 262,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_match_topics_async",
+      "to": "len",
+      "line": 266,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_match_topics_async",
+      "to": "provider.complete",
+      "line": 280,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_match_topics_async",
+      "to": "Message",
+      "line": 281,
+      "call_sites": 67
+    },
+    {
+      "from_symbol": "_match_topics_async",
+      "to": "CompletionOptions",
+      "line": 283,
+      "call_sites": 60
+    },
+    {
+      "from_symbol": "_match_topics_async",
+      "to": "config.model_for",
+      "line": 284,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_match_topics_async",
+      "to": "input_budget_for_config",
+      "line": 286,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_match_topics_async",
+      "to": "get_match_doc_topics_tool_definitions",
+      "line": 288,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_match_topics_async",
+      "to": "tool_call.input.get",
+      "line": 297,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_match_topics_async",
+      "to": "dir_path.strip",
+      "line": 299,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_match_topics_async",
+      "to": "matched_files.extend",
+      "line": 301,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_match_topics_async",
+      "to": "matched_files.extend",
+      "line": 305,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_match_topics_async",
+      "to": "tool_call.input.get",
+      "line": 306,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_analyze_document_async",
+      "to": "doc_path.relative_to",
+      "line": 383,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_analyze_document_async",
+      "to": "provider.complete",
+      "line": 416,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_analyze_document_async",
+      "to": "Message",
+      "line": 417,
+      "call_sites": 67
+    },
+    {
+      "from_symbol": "_analyze_document_async",
+      "to": "CompletionOptions",
+      "line": 419,
+      "call_sites": 60
+    },
+    {
+      "from_symbol": "_analyze_document_async",
+      "to": "config.model_for",
+      "line": 420,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_analyze_document_async",
+      "to": "input_budget_for_config",
+      "line": 422,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_analyze_document_async",
+      "to": "get_analyze_document_tool_definitions",
+      "line": 424,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_analyze_document_async",
+      "to": "str",
+      "line": 429,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_analyze_document_async",
+      "to": "tool_call.input.get",
+      "line": 434,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_analyze_document_async",
+      "to": "f.get",
+      "line": 437,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_analyze_document_async",
+      "to": "findings.append",
+      "line": 439,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_analyze_document_async",
+      "to": "DocFinding",
+      "line": 439,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_analyze_document_async",
+      "to": "f.get",
+      "line": 443,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_analyze_document_async",
+      "to": "f.get",
+      "line": 444,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_analyze_document_async",
+      "to": "f.get",
+      "line": 446,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_analyze_document_async",
+      "to": "DocAnalysisResult",
+      "line": 449,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_analyze_document_async",
+      "to": "RuntimeError",
+      "line": 461,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "analyze_docs_async",
+      "to": "find_doc_candidates",
+      "line": 476,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "analyze_docs_async",
+      "to": "shadow_root.exists",
+      "line": 481,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "analyze_docs_async",
+      "to": "print",
+      "line": 483,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "analyze_docs_async",
+      "to": "config.load_rules_text",
+      "line": 486,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "analyze_docs_async",
+      "to": "_load_directory_summaries",
+      "line": 489,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "analyze_docs_async",
+      "to": "FactsDB",
+      "line": 492,
+      "call_sites": 90
+    },
+    {
+      "from_symbol": "analyze_docs_async",
+      "to": "len",
+      "line": 495,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "analyze_docs_async",
+      "to": "asyncio.Lock",
+      "line": 496,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "read_file_safe",
+      "line": 505,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "on_progress",
+      "line": 510,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "on_progress",
+      "line": 516,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "len",
+      "line": 520,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "_find_referenced_sources",
+      "line": 524,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "_match_topics_async",
+      "line": 529,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "replace",
+      "line": 536,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "str",
+      "line": 536,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "replace",
+      "line": 538,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "str",
+      "line": 538,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "all_sources.values",
+      "line": 545,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "str",
+      "line": 546,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "shadow_path.exists",
+      "line": 547,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "shadow_path.read_text",
+      "line": 550,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "len",
+      "line": 553,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "shadow_contexts.append",
+      "line": 555,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "len",
+      "line": 556,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "_analyze_document_async",
+      "line": 561,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "results.append",
+      "line": 570,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "len",
+      "line": 574,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "on_progress",
+      "line": 578,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "on_progress",
+      "line": 585,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "analyze_docs_async.process_one",
+      "to": "print",
+      "line": 587,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "analyze_docs_async",
+      "to": "gather_with_buffer",
+      "line": 590,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "analyze_docs_async",
+      "to": "process_one",
+      "line": 590,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "analyze_docs_async",
+      "to": "_triage_doc_findings",
+      "line": 595,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "analyze_docs_async",
+      "to": "print",
+      "line": 598,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "analyze_docs_async",
+      "to": "getattr",
+      "line": 602,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "analyze_docs_async",
+      "to": "degradations.append",
+      "line": 604,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "analyze_docs_async",
+      "to": "str",
+      "line": 604,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_triage_doc_findings",
+      "to": "finding_from_doc",
+      "line": 638,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_triage_doc_findings",
+      "to": "BuildContext",
+      "line": 641,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "_triage_doc_findings",
+      "to": "build_junk_claims",
+      "line": 642,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "_triage_doc_findings",
+      "to": "decide_junk_claims",
+      "line": 643,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "_triage_doc_findings",
+      "to": "id",
+      "line": 647,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_triage_doc_findings",
+      "to": "zip",
+      "line": 648,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_triage_doc_findings",
+      "to": "append",
+      "line": 660,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_triage_doc_findings",
+      "to": "id",
+      "line": 660,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_triage_doc_findings",
+      "to": "id",
+      "line": 663,
+      "call_sites": 3
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "analysis",
+      "member": "topic_signature",
+      "line": 566
+    },
+    {
+      "container": "df",
+      "member": "verdict",
+      "line": 651
+    },
+    {
+      "container": "df",
+      "member": "confidence",
+      "line": 652
+    },
+    {
+      "container": "df",
+      "member": "triage_reasoning",
+      "line": 653
+    },
+    {
+      "container": "df",
+      "member": "suggested_fix",
+      "line": 654
+    },
+    {
+      "container": "df",
+      "member": "finding_id",
+      "line": 655
+    },
+    {
+      "container": "df",
+      "member": "severity",
+      "line": 657
+    },
+    {
+      "container": "df",
+      "member": "severity",
+      "line": 659
+    },
+    {
+      "container": "r",
+      "member": "findings",
+      "line": 663
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "process_artifact",
+      "line": 73,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "self.classification",
+      "kind": "identifier"
+    },
+    {
+      "value": "source",
+      "line": 141,
+      "usage": "produced",
+      "context": "argument to imp.get"
+    },
+    {
+      "value": "source",
+      "line": 141,
+      "usage": "produced",
+      "context": "argument to imp.get"
+    },
+    {
+      "value": "*.shadow.md",
+      "line": 156,
+      "usage": "produced",
+      "context": "argument to shadow_root.rglob"
+    },
+    {
+      "value": ".shadow.md",
+      "line": 160,
+      "usage": "produced",
+      "context": "argument to removesuffix"
+    },
+    {
+      "value": ".py",
+      "line": 165,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "source_path.suffix"
+    },
+    {
+      "value": "src",
+      "line": 167,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "__init__",
+      "line": 169,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "You are a documentation-to-code matcher. Given a documentation file and a list of source code directory summaries, identify which directories contain code relevant to this documentation.\n\nReturn the directory paths whose code is discussed, referenced, or semantically relevant to the doc \u2014 even if the doc doesn't explicitly name the files.\n\nBe selective: only return directories that are genuinely relevant, not tangentially related.\n\nALSO: Populate topic_signature with a one-sentence purpose and 3-7 key topic noun phrases\ndescribing what this documentation covers (e.g., \"authentication setup\", \"webhook configuration\").",
+      "line": 189,
+      "usage": "defined",
+      "context": "constant _MATCH_SYSTEM_PROMPT"
+    },
+    {
+      "value": "utf-8",
+      "line": 213,
+      "usage": "produced",
+      "context": "keyword argument to dir_shadow.read_text"
+    },
+    {
+      "value": ".shadow.md",
+      "line": 228,
+      "usage": "produced",
+      "context": "argument to child.name.endswith"
+    },
+    {
+      "value": ".shadow.md",
+      "line": 229,
+      "usage": "produced",
+      "context": "argument to removesuffix"
+    },
+    {
+      "value": "small",
+      "line": 284,
+      "usage": "produced",
+      "context": "argument to config.model_for",
+      "kind": "identifier"
+    },
+    {
+      "value": "doc.match_topics",
+      "line": 287,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions",
+      "kind": "identifier"
+    },
+    {
+      "value": "tool",
+      "line": 289,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "match_doc_topics",
+      "line": 289,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "match_doc_topics",
+      "line": 296,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_call.name",
+      "kind": "identifier"
+    },
+    {
+      "value": "relevant_paths",
+      "line": 297,
+      "usage": "produced",
+      "context": "argument to tool_call.input.get"
+    },
+    {
+      "value": "(root)",
+      "line": 303,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "(root)/",
+      "line": 303,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "topic_signature",
+      "line": 306,
+      "usage": "produced",
+      "context": "argument to tool_call.input.get"
+    },
+    {
+      "value": "You are a documentation analyst performing two tasks:\n\n## Task 1: Classification (Diataxis Framework)\n\nClassify the document into one of:\n1. **tutorial** \u2014 Learning-oriented walkthrough for beginners\n2. **how-to** \u2014 Task-oriented guide for specific goals\n3. **reference** \u2014 Precise technical information (API docs, specs, ADRs, design docs)\n4. **explanatory** \u2014 Understanding-oriented discussion of concepts\n5. **process_artifact** \u2014 Inherently temporary file created for a one-time action (debris)\n\n**Staleness is NOT debris.** A document whose content is outdated but whose *purpose* is ongoing is stale, not disposable.\n\n### NOT Debris (classify under the appropriate Diataxis category)\n- Living planning docs (roadmaps, backlogs, milestone trackers)\n- Architectural knowledge (ADRs, design docs, impact analyses, risk assessments)\n- Package/project READMEs\n- Durable AI agent configuration files (e.g. AGENTS.md, CLAUDE.md, .cursorrules, CONVENTIONS.md)\n- Intentionally maintained decision logs\n\n## Task 2: Accuracy Validation\n\nIf shadow documentation (source of truth) is provided, check for contradictions:\n- Wrong CLI flags or command syntax\n- Incorrect function signatures or parameters\n- Described behaviors the code doesn't implement\n- References to renamed or deleted functions/classes/files\n- Outdated configuration options or defaults\n- Incorrect architectural descriptions\n\nDo NOT flag:\n- Documentation that is incomplete (omits details)\n- Style or formatting issues\n- Documentation about things not covered by the provided shadow docs\n- Claims you cannot confirm or deny from the shadow docs (inconclusive \u2260 incorrect)\n\nEach finding has a `confirmed` boolean. Set `confirmed: true` only for genuine contradictions.\nSet `confirmed: false` if on reflection the evidence is inconclusive, the doc and shadow docs\nare consistent, or the shadow docs simply don't cover the claim (shadow docs are summaries,\nnot exhaustive \u2014 absence of detail is not a contradiction).\n\nSeverity rules \u2014 commission vs omission:\n- If a doc file states something that contradicts the actual codebase (wrong path, wrong\n  behavior, wrong API, wrong location of a file or module), classify as severity=error\n  (commission \u2014 actively misleading).\n- If it merely omits information (doesn't mention a module, skips a feature), classify as\n  severity=warning (omission \u2014 incomplete but not wrong).\n\nFor each finding, include the shadow doc path and a brief verbatim evidence quote.\n\nFor each finding, also provide `search_terms`: the specific technical identifiers (command names,\nfunction names, config keys, CLI flags, file paths, etc.) that the finding makes claims about.\nThese are used to search the broader project for corroborating or contradicting evidence.\n\nYou MUST call the analyze_document tool with all required fields.\nAlways include a `findings` array. If the document has no issues, return `findings: []`.",
+      "line": 313,
+      "usage": "defined",
+      "context": "constant _ANALYZE_SYSTEM_PROMPT"
+    },
+    {
+      "value": "large",
+      "line": 420,
+      "usage": "produced",
+      "context": "argument to config.model_for",
+      "kind": "identifier"
+    },
+    {
+      "value": "doc.analyze",
+      "line": 423,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions",
+      "kind": "identifier"
+    },
+    {
+      "value": "tool",
+      "line": 425,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "analyze_document",
+      "line": 425,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "analyze_document",
+      "line": 432,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_call.name",
+      "kind": "identifier"
+    },
+    {
+      "value": "findings",
+      "line": 434,
+      "usage": "produced",
+      "context": "argument to tool_call.input.get"
+    },
+    {
+      "value": "confirmed",
+      "line": 437,
+      "usage": "produced",
+      "context": "argument to f.get"
+    },
+    {
+      "value": "evidence_shadow_path",
+      "line": 443,
+      "usage": "produced",
+      "context": "argument to f.get"
+    },
+    {
+      "value": "evidence_quote",
+      "line": 444,
+      "usage": "produced",
+      "context": "argument to f.get"
+    },
+    {
+      "value": "search_terms",
+      "line": 446,
+      "usage": "produced",
+      "context": "argument to f.get"
+    },
+    {
+      "value": "  [skip] No shadow docs found. Run 'osoji shadow .' first.",
+      "line": 483,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "error",
+      "line": 510,
+      "usage": "produced",
+      "context": "argument to on_progress",
+      "kind": "identifier"
+    },
+    {
+      "value": "error",
+      "line": 516,
+      "usage": "produced",
+      "context": "argument to on_progress",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 550,
+      "usage": "produced",
+      "context": "keyword argument to shadow_path.read_text"
+    },
+    {
+      "value": "debris",
+      "line": 572,
+      "usage": "defined",
+      "context": "constant status",
+      "kind": "identifier"
+    },
+    {
+      "value": "ok",
+      "line": 576,
+      "usage": "defined",
+      "context": "constant status",
+      "kind": "identifier"
+    },
+    {
+      "value": "error",
+      "line": 585,
+      "usage": "produced",
+      "context": "argument to on_progress",
+      "kind": "identifier"
+    },
+    {
+      "value": "audit_degradations",
+      "line": 602,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "doc-triage",
+      "line": 604,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "dismissed",
+      "line": 649,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "fnd.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "uncertain",
+      "line": 656,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "fnd.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "warning",
+      "context": "Severity value assigned to uncertain findings during triage downgrade",
+      "line": 657,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

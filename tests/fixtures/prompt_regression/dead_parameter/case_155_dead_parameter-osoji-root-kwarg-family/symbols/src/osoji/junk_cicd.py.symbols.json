@@ -1,0 +1,215 @@
+{
+  "source": "src/osoji/junk_cicd.py",
+  "source_hash": "b6e9f5f7104725e9",
+  "generated": "2026-07-22T10:56:04Z",
+  "file_role": "service",
+  "symbols": [
+    {
+      "name": "CICDElement",
+      "kind": "class",
+      "line_start": 25,
+      "line_end": 36,
+      "visibility": "public"
+    },
+    {
+      "name": "CICDCandidate",
+      "kind": "class",
+      "line_start": 39,
+      "line_end": 50,
+      "visibility": "public"
+    },
+    {
+      "name": "discover_cicd_files",
+      "kind": "function",
+      "line_start": 54,
+      "line_end": 103,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_parse_github_workflow",
+      "kind": "function",
+      "line_start": 108,
+      "line_end": 193,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "content",
+          "optional": false
+        },
+        {
+          "name": "path",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_parse_makefile",
+      "kind": "function",
+      "line_start": 196,
+      "line_end": 238,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "content",
+          "optional": false
+        },
+        {
+          "name": "path",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_parse_gitlab_ci",
+      "kind": "function",
+      "line_start": 241,
+      "line_end": 298,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "content",
+          "optional": false
+        },
+        {
+          "name": "path",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_EXTRACT_CICD_SYSTEM_PROMPT",
+      "kind": "constant",
+      "line_start": 301,
+      "line_end": 309,
+      "visibility": "internal"
+    },
+    {
+      "name": "_parse_cicd_via_llm",
+      "kind": "function",
+      "line_start": 312,
+      "line_end": 355,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "provider",
+          "optional": false
+        },
+        {
+          "name": "content",
+          "optional": false
+        },
+        {
+          "name": "path",
+          "optional": false
+        },
+        {
+          "name": "cicd_type",
+          "optional": false
+        },
+        {
+          "name": "config",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "_COMMON_COMMANDS",
+      "kind": "constant",
+      "line_start": 361,
+      "line_end": 370,
+      "visibility": "internal"
+    },
+    {
+      "name": "_extract_paths_from_command",
+      "kind": "function",
+      "line_start": 373,
+      "line_end": 416,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "command",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_check_path_references",
+      "kind": "function",
+      "line_start": 421,
+      "line_end": 468,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "elements",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_build_candidates",
+      "kind": "function",
+      "line_start": 471,
+      "line_end": 498,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "elements",
+          "optional": false
+        },
+        {
+          "name": "file_contents",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_CICD_PARSERS",
+      "kind": "constant",
+      "line_start": 503,
+      "line_end": 507,
+      "visibility": "internal"
+    },
+    {
+      "name": "detect_dead_cicd_async",
+      "kind": "function",
+      "line_start": 510,
+      "line_end": 594,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "provider",
+          "optional": false
+        },
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "on_progress",
+          "optional": true
+        },
+        {
+          "name": "cicd_files",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "DeadCICDAnalyzer",
+      "kind": "class",
+      "line_start": 597,
+      "line_end": 659,
+      "visibility": "public"
+    }
+  ]
+}

@@ -1,0 +1,371 @@
+{
+  "source": "src/osoji/corpus_emit.py",
+  "source_hash": "a3aa42a8e49a871f",
+  "generated": "2026-07-22T10:56:04Z",
+  "file_role": "service",
+  "symbols": [
+    {
+      "name": "CORPUS_CASE_SCHEMA",
+      "kind": "constant",
+      "line_start": 33,
+      "line_end": 33,
+      "visibility": "public"
+    },
+    {
+      "name": "CORPUS_EXPECTED_SCHEMA",
+      "kind": "constant",
+      "line_start": 34,
+      "line_end": 34,
+      "visibility": "public"
+    },
+    {
+      "name": "DECIDED_FINDINGS_SCHEMA",
+      "kind": "constant",
+      "line_start": 39,
+      "line_end": 39,
+      "visibility": "public"
+    },
+    {
+      "name": "ENV_CORPUS_DEST",
+      "kind": "constant",
+      "line_start": 42,
+      "line_end": 42,
+      "visibility": "public"
+    },
+    {
+      "name": "MAX_FILES",
+      "kind": "constant",
+      "line_start": 47,
+      "line_end": 47,
+      "visibility": "public"
+    },
+    {
+      "name": "_SLUG_RE",
+      "kind": "variable",
+      "line_start": 49,
+      "line_end": 49,
+      "visibility": "internal"
+    },
+    {
+      "name": "_SIDECARS",
+      "kind": "constant",
+      "line_start": 54,
+      "line_end": 58,
+      "visibility": "internal"
+    },
+    {
+      "name": "_EXTENSION_LANGUAGES",
+      "kind": "variable",
+      "line_start": 62,
+      "line_end": 91,
+      "visibility": "internal"
+    },
+    {
+      "name": "CorpusEmitError",
+      "kind": "class",
+      "line_start": 94,
+      "line_end": 95,
+      "visibility": "public"
+    },
+    {
+      "name": "_to_posix",
+      "kind": "function",
+      "line_start": 103,
+      "line_end": 106,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "value",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_posix_join",
+      "kind": "function",
+      "line_start": 109,
+      "line_end": 117,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "base",
+          "optional": false
+        },
+        {
+          "name": "rel",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_git",
+      "kind": "function",
+      "line_start": 120,
+      "line_end": 136,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "args",
+          "optional": false
+        },
+        {
+          "name": "cwd",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_resolve_within_repo",
+      "kind": "function",
+      "line_start": 139,
+      "line_end": 161,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "repo_root",
+          "optional": false
+        },
+        {
+          "name": "rel",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_snapshot_failure_reason",
+      "kind": "function",
+      "line_start": 164,
+      "line_end": 182,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "repo_root",
+          "optional": false
+        },
+        {
+          "name": "rel",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_walk_strings",
+      "kind": "function",
+      "line_start": 185,
+      "line_end": 195,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "value",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_evidence_paths",
+      "kind": "function",
+      "line_start": 198,
+      "line_end": 215,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "finding",
+          "optional": false
+        },
+        {
+          "name": "repo_root",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_language_for",
+      "kind": "function",
+      "line_start": 218,
+      "line_end": 228,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "path",
+          "optional": false
+        },
+        {
+          "name": "override",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_producer_of",
+      "kind": "function",
+      "line_start": 231,
+      "line_end": 235,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "detector",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_category_of",
+      "kind": "function",
+      "line_start": 238,
+      "line_end": 262,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "detector",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_validate_slug",
+      "kind": "function",
+      "line_start": 265,
+      "line_end": 269,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "slug",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_write_json",
+      "kind": "function",
+      "line_start": 272,
+      "line_end": 276,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "path",
+          "optional": false
+        },
+        {
+          "name": "data",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_load_ledger",
+      "kind": "function",
+      "line_start": 284,
+      "line_end": 299,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "repo_root",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_MAX_NEAR_MISS_LINES",
+      "kind": "constant",
+      "line_start": 302,
+      "line_end": 302,
+      "visibility": "internal"
+    },
+    {
+      "name": "_find_finding",
+      "kind": "function",
+      "line_start": 305,
+      "line_end": 328,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "ledger",
+          "optional": false
+        },
+        {
+          "name": "finding_id",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_resolve_expected_verdict",
+      "kind": "function",
+      "line_start": 331,
+      "line_end": 344,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "finding",
+          "optional": false
+        },
+        {
+          "name": "override",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "resolve_dest",
+      "kind": "function",
+      "line_start": 352,
+      "line_end": 376,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "repo_root",
+          "optional": false
+        },
+        {
+          "name": "dest_override",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "emit_case",
+      "kind": "function",
+      "line_start": 384,
+      "line_end": 545,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "repo_root",
+          "optional": false
+        },
+        {
+          "name": "finding_id",
+          "optional": false
+        },
+        {
+          "name": "slug",
+          "optional": false
+        },
+        {
+          "name": "dest",
+          "optional": false
+        },
+        {
+          "name": "expected_verdict",
+          "optional": true
+        },
+        {
+          "name": "reasoning",
+          "optional": true
+        },
+        {
+          "name": "gray",
+          "optional": true
+        },
+        {
+          "name": "include",
+          "optional": true
+        },
+        {
+          "name": "language",
+          "optional": true
+        }
+      ]
+    }
+  ]
+}
