@@ -18,6 +18,7 @@ under ``.osoji/analysis/``, which the audit wipes at the start of every run.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 from collections.abc import Iterable
@@ -36,10 +37,22 @@ class IncrementalAuditError(RuntimeError):
     """Raised when an incremental-audit precondition fails (e.g. bad --since)."""
 
 
-def current_version() -> str:
-    """Return the osoji logic version stamp for manifest validation."""
+def current_version(project_rules: str | None = None) -> str:
+    """Return the osoji logic version stamp for manifest validation.
 
-    return f"{CLAIM_BUILDER_SCHEMA_VERSION}:{compute_impl_hash()}"
+    ``project_rules`` (maintainer-declared triage intent, work#35) folds into the
+    stamp so cached verdicts invalidate when the rules change: the rules ride in
+    the Triage user message, so a rules edit is a logic change for cache
+    purposes. Absent or blank rules leave the stamp byte-identical to the
+    pre-rules version — existing manifests stay valid (no invalidation for
+    users who declare none).
+    """
+
+    base = f"{CLAIM_BUILDER_SCHEMA_VERSION}:{compute_impl_hash()}"
+    if not (project_rules and project_rules.strip()):
+        return base
+    digest = hashlib.sha256(project_rules.encode("utf-8")).hexdigest()[:16]
+    return f"{base}:rules-{digest}"
 
 
 def get_head_commit(root: Path) -> str | None:

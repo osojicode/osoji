@@ -68,6 +68,25 @@ def test_current_version_embeds_schema_and_impl_hash():
     assert len(version) > len(CLAIM_BUILDER_SCHEMA_VERSION) + 1
 
 
+def test_current_version_stable_without_project_rules():
+    # Existing users pass no rules; folding must not invalidate their manifests.
+    base = current_version()
+    assert current_version(None) == base
+    assert current_version("") == base
+    assert current_version("   \n\t ") == base
+
+
+def test_current_version_changes_with_project_rules():
+    # Maintainer-declared rules ride in the Triage user message (work#35), so a
+    # rules edit is a logic change for cache purposes: cached verdicts must
+    # invalidate.
+    assert current_version("Prefer deletion over commenting-out.") != current_version()
+
+
+def test_current_version_distinct_per_rules_text():
+    assert current_version("rule A") != current_version("rule B")
+
+
 # -- load / write round trip --------------------------------------------------
 
 

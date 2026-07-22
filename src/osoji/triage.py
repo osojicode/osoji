@@ -321,6 +321,29 @@ class TriageBatchResult:
 _MAX_EXPLORATION_TURNS = 8
 
 
+def _maintainer_intent_block(project_rules: str) -> str:
+    """Frame maintainer-declared project rules for the Triage user message.
+
+    The rules are the maintainers' own statement of intended design, weighed as
+    declared intent (decisions/0021 sense) — evidence to reason over, never a
+    catalog of per-case verdict instructions or a mechanical suppression list.
+    The framing is ours and deliberately short; the rules text rides through
+    verbatim as user content.
+    """
+
+    return (
+        "## Maintainer-declared project rules\n"
+        "The project maintainers have declared the rules below. Weigh them as "
+        "declared intent — the project's own statement of intended design — when "
+        "deciding a finding's Reality, not as per-case verdict instructions: they "
+        "are evidence to reason over, never a directive to confirm or dismiss any "
+        "particular claim.\n"
+        "--- begin maintainer-declared rules ---\n"
+        f"{project_rules}\n"
+        "--- end maintainer-declared rules ---\n\n"
+    )
+
+
 def _claim_echo(finding: Finding) -> str:
     """Identity token a batch verdict must echo back (cross-wiring guard).
 
@@ -362,6 +385,7 @@ class Triage:
         *,
         mode: str = "claim",
         system_prompt: str = TRIAGE_SYSTEM_PROMPT,
+        project_rules: str | None = None,
         verdict_cache: dict[tuple[str, str], dict] | None = None,
         escalate_insufficient: bool = False,
     ) -> TriageBatchResult:
@@ -376,6 +400,15 @@ class Triage:
         - ``insufficient_evidence`` claims escalate to exploration only when
           ``escalate_insufficient`` is True; otherwise they pass through
           unverified (verdict stays ``None``). The count is always reported.
+
+        ``project_rules`` (work#35): non-empty maintainer-declared project rules
+        are prepended, in a clearly-delimited block, to the USER message (before
+        the claims) so Triage can weigh them as declared intent. The SYSTEM
+        prompt is untouched — the sectioning sha pin and the ablation harness are
+        unaffected. Absent/blank rules leave the user message byte-identical to a
+        no-rules run. Because the rules ride in the user message, callers fold a
+        hash of the same text into ``audit_manifest.current_version()`` so cached
+        verdicts invalidate when the rules change.
         """
 
         n = len(claims)
@@ -409,7 +442,8 @@ class Triage:
             try:
                 if claim_route:
                     decided, ti, to = await self._run_claim_batch(
-                        [c for _, c in claim_route], system_prompt, provider
+                        [c for _, c in claim_route], system_prompt, provider,
+                        project_rules=project_rules,
                     )
                     for (idx, _), fnd in zip(claim_route, decided):
                         findings[idx] = fnd
@@ -417,7 +451,7 @@ class Triage:
                     out_tok += to
                 for idx, claim in explore_route:
                     fnd, ti, to, trace = await self._run_exploration(
-                        claim, system_prompt, provider
+                        claim, system_prompt, provider, project_rules=project_rules,
                     )
                     findings[idx] = fnd
                     in_tok += ti
@@ -459,10 +493,17 @@ class Triage:
     # -- claim mode --------------------------------------------------------
 
     async def _run_claim_batch(
-        self, claims: list[Claim], system_prompt: str, provider: Any
+        self,
+        claims: list[Claim],
+        system_prompt: str,
+        provider: Any,
+        *,
+        project_rules: str | None = None,
     ) -> tuple[list[Finding], int, int]:
         n = len(claims)
         user = self._render_claim_batch(claims)
+        if project_rules and project_rules.strip():
+            user = _maintainer_intent_block(project_rules) + user
 
         def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
             if tool_name != "submit_triage_verdicts":
@@ -573,7 +614,12 @@ class Triage:
     # -- exploration mode (implemented in V1-3 task #5) --------------------
 
     async def _run_exploration(
-        self, claim: Claim, system_prompt: str, provider: Any
+        self,
+        claim: Claim,
+        system_prompt: str,
+        provider: Any,
+        *,
+        project_rules: str | None = None,
     ) -> tuple[Finding, int, int, dict[str, Any]]:
         """Decide one claim via a multi-turn read/grep/list loop.
 
@@ -593,6 +639,8 @@ class Triage:
             + "\nExplore the repository with read_file / grep / list_dir as needed, "
             "then call submit_triage_verdict with your decision."
         )
+        if project_rules and project_rules.strip():
+            user = _maintainer_intent_block(project_rules) + user
         messages: list[Message] = [Message(role=MessageRole.USER, content=user)]
         trace: dict[str, Any] = {"finding_id": finding.id, "calls": []}
         tools = get_triage_exploration_tool_definitions()
