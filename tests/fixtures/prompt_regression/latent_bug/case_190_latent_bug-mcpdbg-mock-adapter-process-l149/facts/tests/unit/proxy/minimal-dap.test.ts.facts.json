@@ -1,0 +1,6249 @@
+{
+  "source": "tests/unit/proxy/minimal-dap.test.ts",
+  "source_hash": "b937b945c0ccaa36",
+  "generated": "2026-07-22T22:07:43Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "vi",
+        "beforeEach",
+        "afterEach"
+      ],
+      "line": 1,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "net",
+      "names": [
+        "net"
+      ],
+      "line": 2,
+      "is_reexport": false
+    },
+    {
+      "source": "fs",
+      "names": [
+        "fs"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "../../../src/proxy/minimal-dap.js",
+      "names": [
+        "MinimalDapClient"
+      ],
+      "line": 5,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/minimal-dap.ts"
+    },
+    {
+      "source": "../../../src/proxy/child-session-manager.js",
+      "names": [
+        "ChildSessionManager"
+      ],
+      "line": 6,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/child-session-manager.ts"
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "JsDebugAdapterPolicy"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DapClientBehavior",
+        "ReverseRequestResult"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 12,
+      "call_sites": 110
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.hoisted",
+      "line": 22,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 25,
+      "call_sites": 110
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 26,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 28,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 29,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 30,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 31,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerInstances.push",
+      "line": 33,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 38,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 52,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 53,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 53,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 54,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 54,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 55,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 55,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 56,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 56,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 57,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 58,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 58,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 64,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 65,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "cb",
+      "line": 66,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 69,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callback",
+      "line": 70,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 72,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "createDapMessage",
+      "to": "JSON.stringify",
+      "line": 79,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createDapMessage",
+      "to": "Buffer.byteLength",
+      "line": 80,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createDapMessage",
+      "to": "Buffer.concat",
+      "line": 81,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createDapMessage",
+      "to": "Buffer.from",
+      "line": 81,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "createDapMessage",
+      "to": "Buffer.from",
+      "line": 81,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "splitBuffer",
+      "to": "chunks.push",
+      "line": 89,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "splitBuffer",
+      "to": "buffer.slice",
+      "line": 89,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "splitBuffer",
+      "to": "chunks.push",
+      "line": 93,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "splitBuffer",
+      "to": "buffer.slice",
+      "line": 93,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 98,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllMocks",
+      "line": 99,
+      "call_sites": 87
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockSocket",
+      "line": 100,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(net.createConnection).mockImplementation",
+      "line": 101,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 101,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 104,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 108,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 111,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.shutdown",
+      "line": 114,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.restoreAllMocks",
+      "line": 116,
+      "call_sites": 45
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 119,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 120,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 121,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(net.createConnection).toHaveBeenCalledWith",
+      "line": 124,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 124,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 126,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 130,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 131,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 134,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 135,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(net.createConnection).mockImplementation",
+      "line": 138,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 138,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 141,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 142,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(client.connect()).rejects.toThrow",
+      "line": 147,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 147,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 147,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(errorHandler).not.toHaveBeenCalled",
+      "line": 150,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 150,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.off",
+      "line": 153,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 156,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 157,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 158,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 159,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 161,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(closeHandler).toHaveBeenCalled",
+      "line": 163,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 163,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 166,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 167,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 168,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 169,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerInstances.at",
+      "line": 170,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "logger.error.mockClear",
+      "line": 171,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 173,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 174,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(errorHandler).toHaveBeenCalledWith",
+      "line": 176,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 176,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.error).toHaveBeenCalledWith",
+      "line": 177,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 177,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 180,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 181,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 182,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerInstances.at",
+      "line": 183,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "logger.info.mockClear",
+      "line": 184,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 186,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.info).toHaveBeenCalledWith",
+      "line": 188,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 188,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(cleanupSpy).toHaveBeenCalled",
+      "line": 189,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 189,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 193,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 194,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 195,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 206,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 207,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockSocket.write).not.toHaveBeenCalled",
+      "line": 210,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 210,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 213,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 214,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 225,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "splitBuffer",
+      "line": 226,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 230,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 236,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 237,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 255,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 256,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Buffer.concat",
+      "line": 257,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 259,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 264,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 265,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Buffer.from",
+      "line": 268,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 269,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 274,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 275,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerInstances.at",
+      "line": 276,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "logger.error.mockClear",
+      "line": 277,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 280,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Buffer.from",
+      "line": 280,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.error).toHaveBeenCalledWith",
+      "line": 282,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 282,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 282,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 285,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 286,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerInstances.at",
+      "line": 287,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "logger.warn.mockClear",
+      "line": 288,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 289,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Buffer.from",
+      "line": 291,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as unknown as { handleData(data: Buffer): void }).handleData",
+      "line": 292,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.warn).toHaveBeenCalledWith",
+      "line": 294,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 294,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(protocolSpy).not.toHaveBeenCalled",
+      "line": 297,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 297,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as unknown as { rawData: Buffer }).rawData.length).toBe",
+      "line": 298,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 298,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "protocolSpy.mockRestore",
+      "line": 299,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 302,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 303,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerInstances.at",
+      "line": 304,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "logger.warn.mockClear",
+      "line": 305,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Buffer.from",
+      "line": 307,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Buffer.from",
+      "line": 308,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as unknown as { handleData(data: Buffer): void }).handleData",
+      "line": 310,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as unknown as { handleData(data: Buffer): void }).handleData",
+      "line": 311,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.warn).toHaveBeenCalledTimes",
+      "line": 313,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 313,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.warn).toHaveBeenNthCalledWith",
+      "line": 314,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 314,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.warn).toHaveBeenNthCalledWith",
+      "line": 318,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 318,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as unknown as { rawData: Buffer }).rawData.length).toBe",
+      "line": 322,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 322,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 325,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 326,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 331,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Buffer.from",
+      "line": 331,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "' '.repeat",
+      "line": 337,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 338,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Buffer.from",
+      "line": 338,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 342,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 343,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 344,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 349,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "requestPromise.catch",
+      "line": 352,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockSocket.write).toHaveBeenCalled",
+      "line": 354,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 354,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(writeCall).toMatch",
+      "line": 358,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 358,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "writeCall.indexOf",
+      "line": 361,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.parse",
+      "line": 362,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "writeCall.substring",
+      "line": 362,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(json).toMatchObject",
+      "line": 363,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 363,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 371,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 372,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 375,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 387,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 387,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result).toEqual",
+      "line": 390,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 390,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 393,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 394,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 396,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 407,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 407,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(requestPromise).rejects.toThrow",
+      "line": 409,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 409,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 412,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 413,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 416,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 417,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 418,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 448,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 448,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 449,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 449,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 450,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 450,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise.all",
+      "line": 452,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result1.command).toBe",
+      "line": 453,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 453,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result2.command).toBe",
+      "line": 454,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 454,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result3.command).toBe",
+      "line": 455,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 455,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 458,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.shutdown",
+      "line": 460,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 464,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callback",
+      "line": 464,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 466,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "clearTimeout",
+      "line": 469,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 472,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 474,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        client.sendRequest('evaluate', { expression: 'test' })\n      ).rejects.toThrow",
+      "line": 476,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 476,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 477,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 489,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 489,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 492,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.shutdown",
+      "line": 495,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "scheduledDelays.push",
+      "line": 499,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 501,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callback",
+      "line": 501,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 503,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "clearTimeout",
+      "line": 506,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 509,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 511,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        client.sendRequest('evaluate', { expression: 'test' }, 60000)\n      ).rejects.toThro",
+      "line": 513,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 513,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 514,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(scheduledDelays).toContain",
+      "line": 517,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 517,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 520,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 521,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 532,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 532,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 535,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 536,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(client.sendRequest('test')).rejects.toThrow",
+      "line": 539,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 539,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 539,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 543,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerInstances\n        .flatMap(l => [l.info, l.debug, l.warn, l.error].flatMap(fn => fn.mock.calls",
+      "line": 545,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerInstances\n        .flatMap(l => [l.info, l.debug, l.warn, l.error].flatMap(fn => fn.mock.calls",
+      "line": 545,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerInstances\n        .flatMap",
+      "line": 545,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "[l.info, l.debug, l.warn, l.error].flatMap",
+      "line": 546,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 547,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 550,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 551,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 553,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "requestPromise.catch",
+      "line": 557,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.write.mock.calls.map((c: unknown[]) => String(c[0])).join",
+      "line": 560,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.write.mock.calls.map",
+      "line": 560,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "String",
+      "line": 560,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(written).toContain",
+      "line": 561,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 561,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(allLoggedText()).not.toContain",
+      "line": 564,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 564,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "allLoggedText",
+      "line": 564,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(allLoggedText()).toContain",
+      "line": 565,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 565,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "allLoggedText",
+      "line": 565,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 568,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 569,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 571,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 571,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 577,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 577,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(allLoggedText()).not.toContain",
+      "line": 579,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 579,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "allLoggedText",
+      "line": 579,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 582,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 587,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "traceClient.connect",
+      "line": 588,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "traceClient.sendRequest",
+      "line": 590,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "requestPromise.catch",
+      "line": 594,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.readFileSync",
+      "line": 596,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(trace).not.toContain",
+      "line": 597,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 597,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(trace).toContain",
+      "line": 598,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 598,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "traceClient?.shutdown",
+      "line": 601,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.rmSync",
+      "line": 602,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 607,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 608,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 609,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 611,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 612,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 613,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 614,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 626,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 626,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(outputHandler).toHaveBeenCalledWith",
+      "line": 628,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 628,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(genericHandler).toHaveBeenCalledWith",
+      "line": 629,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 629,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 632,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 633,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 635,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 636,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 637,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 638,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 662,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 662,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 663,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 663,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stoppedHandler).toHaveBeenCalledWith",
+      "line": 665,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 665,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(threadHandler).toHaveBeenCalledWith",
+      "line": 666,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 666,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 670,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 671,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 672,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.disconnect",
+      "line": 674,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockSocket.end).toHaveBeenCalled",
+      "line": 676,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 676,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockSocket.destroy).toHaveBeenCalled",
+      "line": 677,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 677,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 680,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 681,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 683,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 684,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.disconnect",
+      "line": 686,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(request1).rejects.toThrow",
+      "line": 688,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 688,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(request2).rejects.toThrow",
+      "line": 689,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 689,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 692,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 693,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.disconnect",
+      "line": 695,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.disconnect",
+      "line": 696,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockSocket.end).toHaveBeenCalledTimes",
+      "line": 698,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 698,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockSocket.destroy).toHaveBeenCalledTimes",
+      "line": 699,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 699,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 702,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 703,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 705,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 706,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 707,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.disconnect",
+      "line": 709,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(client.listenerCount('output')).toBe",
+      "line": 712,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 712,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.listenerCount",
+      "line": 712,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(client.listenerCount('stopped')).toBe",
+      "line": 713,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 713,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.listenerCount",
+      "line": 713,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 716,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 717,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.disconnect",
+      "line": 720,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockSocket.end).not.toHaveBeenCalled",
+      "line": 723,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 723,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 727,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 728,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 729,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.write.mockReturnValue",
+      "line": 732,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 735,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockSocket.write).toHaveBeenCalled",
+      "line": 737,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 737,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 748,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 748,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(promise).resolves.toEqual",
+      "line": 749,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 749,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 753,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 754,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 755,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "'x'.repeat",
+      "line": 759,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array(100).fill",
+      "line": 760,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array",
+      "line": 760,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 772,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "chunks.push",
+      "line": 778,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "message.slice",
+      "line": 778,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Math.min",
+      "line": 778,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 783,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 790,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 791,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 792,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 794,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Buffer.from",
+      "line": 794,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 799,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 800,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 810,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 810,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 815,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 816,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSocket.emit",
+      "line": 824,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDapMessage",
+      "line": 824,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 831,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 832,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.connect",
+      "line": 833,
+      "call_sites": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 835,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "cb",
+      "line": 836,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 836,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(client.sendRequest('threads')).rejects.toThrow",
+      "line": 840,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 840,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 840,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as unknown as { pendingRequests: Map<number, unknown> }).pendingRequests.size).toBe",
+      "line": 841,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 841,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 845,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 846,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerInstances.at",
+      "line": 847,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 848,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 852,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(orphanClient as unknown as { writeMessage(message: DebugProtocol.ProtocolMessage): void }).writeMes",
+      "line": 855,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(errorSpy).toHaveBeenCalledWith",
+      "line": 862,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 862,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "orphanClient.shutdown",
+      "line": 863,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "errorSpy.mockRestore",
+      "line": 864,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 867,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 869,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 869,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 870,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as unknown as { childSessions: Map<string, MinimalDapClient> }).childSessions.set",
+      "line": 874,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerInstances.at",
+      "line": 877,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "logger.warn.mockClear",
+      "line": 878,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.shutdown",
+      "line": 880,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.warn).toHaveBeenCalledWith",
+      "line": 882,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 882,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as unknown as { childSessions: Map<string, MinimalDapClient> }).childSessions.size).t",
+      "line": 886,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 886,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as unknown as { activeChild: MinimalDapClient | null }).activeChild).toBeNull",
+      "line": 887,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 887,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 890,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerInstances.at",
+      "line": 891,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.shutdown",
+      "line": 892,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "logger.debug.mockClear",
+      "line": 893,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.shutdown",
+      "line": 895,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.debug).toHaveBeenCalledWith",
+      "line": 897,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 897,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 901,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 902,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.shutdown",
+      "line": 903,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "realSetTimeout",
+      "line": 909,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callback",
+      "line": 910,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "realSetTimeout",
+      "line": 913,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "clearTimeout",
+      "line": 916,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 919,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.assign",
+      "line": 927,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 927,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 929,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "raw.split",
+      "line": 930,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.parse",
+      "line": 931,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "requests.push",
+      "line": 932,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "cb",
+      "line": 933,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 934,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as any).handleProtocolMessage",
+      "line": 935,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 945,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 946,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 952,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.command).toBe",
+      "line": 954,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 954,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeSocket.write).toHaveBeenCalledTimes",
+      "line": 955,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 955,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(requests[0]?.command).toBe",
+      "line": 956,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 956,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as any).parentConfigDoneDeferred).toBeNull",
+      "line": 957,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 957,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as any).suppressNextConfigDoneDeferral).toBe",
+      "line": 958,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 958,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 962,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 963,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createChildSessionManagerStub",
+      "line": 964,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 965,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubManager.emit",
+      "line": 975,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as any).childSessions.get('child-1')).toBe",
+      "line": 977,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 977,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as any).childSessions.get",
+      "line": 977,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as any).activeChild).toBe",
+      "line": 978,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 978,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 980,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 981,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 982,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 983,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubManager.emit",
+      "line": 986,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(specificHandler).toHaveBeenCalledWith",
+      "line": 988,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 988,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(genericHandler).toHaveBeenCalledWith",
+      "line": 989,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 989,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubManager.emit",
+      "line": 991,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as any).childSessions.size).toBe",
+      "line": 992,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 992,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as any).activeChild).toBeNull",
+      "line": 993,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 993,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 996,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 997,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn(fs, 'appendFileSync').mockImplementation",
+      "line": 998,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 998,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1000,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1003,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "cb",
+      "line": 1004,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 1005,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "raw.split",
+      "line": 1006,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.parse",
+      "line": 1007,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as any).handleProtocolMessage",
+      "line": 1008,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1018,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1019,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 1024,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(appendSpy).toHaveBeenCalled",
+      "line": 1026,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1026,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "appendSpy.mockRestore",
+      "line": 1028,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.shutdown",
+      "line": 1029,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1032,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createChildSessionManagerStub",
+      "line": 1033,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1034,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as any).handleProtocolMessage",
+      "line": 1054,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stubManager.createChildSession).toHaveBeenCalledWith",
+      "line": 1056,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1056,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 1057,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1061,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createChildSessionManagerStub",
+      "line": 1062,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1063,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1073,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "cb",
+      "line": 1074,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 1087,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as any).handleProtocolMessage",
+      "line": 1089,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sendPromise).resolves.toEqual",
+      "line": 1097,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1097,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 1098,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stubManager.storeBreakpoints).toHaveBeenCalledWith",
+      "line": 1101,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1101,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 1102,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.arrayContaining",
+      "line": 1103,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 1103,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1107,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createChildSessionManagerStub",
+      "line": 1108,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubManager.shouldRouteToChild.mockReturnValue",
+      "line": 1109,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1120,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1120,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1123,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1134,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "routedClient.sendRequest",
+      "line": 1138,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stubManager.shouldRouteToChild).toHaveBeenCalledWith",
+      "line": 1140,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1140,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(childClient.sendRequest).toHaveBeenCalledWith",
+      "line": 1141,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1141,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result).toEqual",
+      "line": 1142,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1142,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1145,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createChildSessionManagerStub",
+      "line": 1146,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubManager.shouldRouteToChild.mockReturnValue",
+      "line": 1147,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1150,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1150,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubManager.getActiveChild.mockImplementation",
+      "line": 1160,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubManager.isAdoptionInProgress.mockImplementation",
+      "line": 1164,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1166,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 1177,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1177,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 1179,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1179,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "routedClient.sendRequest",
+      "line": 1181,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stubManager.shouldRouteToChild).toHaveBeenCalledWith",
+      "line": 1183,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1183,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((routedClient as any).sleep).toHaveBeenCalled",
+      "line": 1184,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1184,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(childClient.sendRequest).toHaveBeenCalledWith",
+      "line": 1185,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1185,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.success).toBe",
+      "line": 1186,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1186,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((routedClient as any).socket.write).not.toHaveBeenCalled",
+      "line": 1187,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1187,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1190,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createChildSessionManagerStub",
+      "line": 1191,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubManager.shouldRouteToChild.mockReturnValue",
+      "line": 1192,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubManager.isAdoptionInProgress.mockReturnValue",
+      "line": 1193,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubManager.getActiveChild.mockReturnValue",
+      "line": 1194,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1196,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 1208,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1208,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 1210,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1210,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "routedClient.sendRequest",
+      "line": 1212,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(response.success).toBe",
+      "line": 1214,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1214,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(response.command).toBe",
+      "line": 1215,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1215,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(response.message).toContain",
+      "line": 1216,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1216,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((routedClient as any).socket.write).not.toHaveBeenCalled",
+      "line": 1217,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1217,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1221,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1222,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1223,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 1226,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1226,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 1227,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as any).handleProtocolMessage",
+      "line": 1235,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(responseSpy).toHaveBeenCalledWith",
+      "line": 1237,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1237,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1240,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1241,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 1244,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1244,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 1245,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as any).handleProtocolMessage",
+      "line": 1253,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(responseSpy).toHaveBeenCalledWith",
+      "line": 1255,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1255,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1258,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createChildSessionManagerStub",
+      "line": 1259,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(typeof (childSessionManager as any).on).toBe",
+      "line": 1261,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1261,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1264,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1264,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1267,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1272,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1273,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as any).handleProtocolMessage",
+      "line": 1281,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(handledBehavior.handleReverseRequest).toHaveBeenCalled",
+      "line": 1283,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1283,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(childSessionManager.createChildSession).not.toHaveBeenCalled",
+      "line": 1284,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1284,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as any).sendResponse).not.toHaveBeenCalled",
+      "line": 1285,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1285,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1288,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.assign",
+      "line": 1289,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 1289,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1290,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1290,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createChildSessionManagerStub",
+      "line": 1293,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "childSessionManager.getActiveChild.mockReturnValue",
+      "line": 1294,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1297,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1297,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1305,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1308,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as any).handleProtocolMessage",
+      "line": 1318,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(childSessionManager.createChildSession).toHaveBeenCalledWith",
+      "line": 1320,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1320,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as any).deferParentConfigDoneActive).toBe",
+      "line": 1324,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1324,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as any).activeChild).toBe",
+      "line": 1325,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1325,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1328,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createChildSessionManagerStub",
+      "line": 1329,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockRejectedValue",
+      "line": 1331,
+      "call_sites": 47
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1331,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 1331,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1334,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 1336,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 1338,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1338,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as any).handleProtocolMessage",
+      "line": 1347,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(failingBehavior.handleReverseRequest).toHaveBeenCalled",
+      "line": 1349,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1349,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(responseSpy).toHaveBeenCalledWith",
+      "line": 1350,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1350,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1353,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createChildSessionManagerStub",
+      "line": 1354,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1356,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1356,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1359,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 1363,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 1365,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1365,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as any).handleProtocolMessage",
+      "line": 1373,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(behavior.handleReverseRequest).toHaveBeenCalled",
+      "line": 1375,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1375,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(responseSpy).toHaveBeenCalledWith",
+      "line": 1376,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1376,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1379,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createChildSessionManagerStub",
+      "line": 1380,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "childSessionManager.createChildSession.mockRejectedValue",
+      "line": 1381,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 1381,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1383,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1383,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1391,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 1396,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1396,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as any).handleProtocolMessage(request)).resolves.toBeUndefined",
+      "line": 1405,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1405,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as any).handleProtocolMessage",
+      "line": 1405,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(childSessionManager.createChildSession).toHaveBeenCalledWith",
+      "line": 1407,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1407,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as any).deferParentConfigDoneActive).toBe",
+      "line": 1411,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1411,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(behavior.handleReverseRequest).toHaveBeenCalled",
+      "line": 1412,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1412,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1416,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1417,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1418,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1421,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1422,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1423,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "cb",
+      "line": 1424,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 1424,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(failingClient.sendRequest('threads', undefined, 50)).rejects.toThrow",
+      "line": 1429,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1429,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "failingClient.sendRequest",
+      "line": 1429,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(socket.write).toHaveBeenCalled",
+      "line": 1430,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1430,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((failingClient as any).pendingRequests.size).toBe",
+      "line": 1431,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1431,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "failingClient.shutdown",
+      "line": 1433,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1436,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1437,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(missingSocketClient.sendRequest('initialize')).rejects.toThrow",
+      "line": 1439,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1439,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "missingSocketClient.sendRequest",
+      "line": 1439,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((missingSocketClient as any).pendingRequests.size).toBe",
+      "line": 1440,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1440,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "missingSocketClient.shutdown",
+      "line": 1442,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1445,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1446,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerInstances.at",
+      "line": 1449,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger).toBeDefined",
+      "line": 1450,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1450,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 1451,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(loggingClient as any).writeMessage",
+      "line": 1453,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(errorSpy).toHaveBeenCalledWith",
+      "line": 1459,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1459,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggingClient.shutdown",
+      "line": 1463,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1473,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1474,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1475,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "cb",
+      "line": 1476,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "raw.split",
+      "line": 1477,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.parse",
+      "line": 1478,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "capturedRequests?.push",
+      "line": 1479,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 1480,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as any).handleProtocolMessage",
+      "line": 1481,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1495,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1496,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "echoSocket",
+      "line": 1498,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1500,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 1503,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as any).dapBehavior.normalizeAdapterId).toHaveBeenCalledWith",
+      "line": 1505,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1505,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(captured).toHaveLength",
+      "line": 1506,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1506,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((captured[0].arguments as { adapterID: string }).adapterID).toBe",
+      "line": 1507,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1507,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1510,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "echoSocket",
+      "line": 1512,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1514,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 1515,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        client.sendRequest('initialize', { adapterID: 'python' })\n      ).resolves.toBeDefin",
+      "line": 1519,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1519,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 1520,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(captured).toHaveLength",
+      "line": 1523,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1523,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((captured[0].arguments as { adapterID: string }).adapterID).toBe",
+      "line": 1524,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1524,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1527,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "echoSocket",
+      "line": 1529,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1530,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 1533,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(normalizer).not.toHaveBeenCalled",
+      "line": 1535,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1535,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(captured).toHaveLength",
+      "line": 1536,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1536,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1539,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "echoSocket",
+      "line": 1541,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1542,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 1545,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(normalizer).toHaveBeenCalledWith",
+      "line": 1547,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1547,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((captured[0].arguments as { adapterID: string }).adapterID).toBe",
+      "line": 1548,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1548,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1552,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1553,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createChildSessionManagerStub",
+      "line": 1554,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubManager.shouldRouteToChild.mockReturnValue",
+      "line": 1555,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubManager.hasActiveChildren.mockReturnValue",
+      "line": 1556,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1566,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1566,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubManager.getActiveChild.mockImplementation",
+      "line": 1570,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1575,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1585,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1586,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1587,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1589,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1589,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "routedClient.sendRequest",
+      "line": 1591,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((routedClient as any).sleep).toHaveBeenCalled",
+      "line": 1593,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1593,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(childClient.sendRequest).toHaveBeenCalledWith",
+      "line": 1594,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1594,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result).toEqual",
+      "line": 1595,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1595,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((routedClient as any).socket.write).not.toHaveBeenCalled",
+      "line": 1597,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1597,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "routedClient.shutdown",
+      "line": 1599,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1603,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1604,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createChildSessionManagerStub",
+      "line": 1605,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubManager.shouldRouteToChild.mockReturnValue",
+      "line": 1606,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockRejectedValue",
+      "line": 1609,
+      "call_sites": 47
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1609,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 1609,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1612,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1622,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1623,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1624,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "routedClient.sendRequest",
+      "line": 1628,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.success).toBe",
+      "line": 1630,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1630,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.command).toBe",
+      "line": 1631,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1631,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((routedClient as any).socket.write).not.toHaveBeenCalled",
+      "line": 1633,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1633,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "routedClient.shutdown",
+      "line": 1635,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1638,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createChildSessionManagerStub",
+      "line": 1639,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubManager.shouldRouteToChild.mockReturnValue",
+      "line": 1640,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockRejectedValue",
+      "line": 1643,
+      "call_sites": 47
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1643,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 1643,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1647,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1657,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1658,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1659,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "cb",
+      "line": 1660,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "raw.split",
+      "line": 1661,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.parse",
+      "line": 1662,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "captured.push",
+      "line": 1663,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 1664,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(routedClient as any).handleProtocolMessage",
+      "line": 1665,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "routedClient.sendRequest",
+      "line": 1678,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(childClient.sendRequest).toHaveBeenCalled",
+      "line": 1680,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1680,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(captured).toHaveLength",
+      "line": 1682,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1682,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(captured[0].command).toBe",
+      "line": 1683,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1683,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.success).toBe",
+      "line": 1684,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1684,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "routedClient.shutdown",
+      "line": 1686,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1689,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createChildSessionManagerStub",
+      "line": 1690,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubManager.shouldRouteToChild.mockReturnValue",
+      "line": 1691,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockRejectedValue",
+      "line": 1694,
+      "call_sites": 47
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1694,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 1694,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1697,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1707,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1708,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1709,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        routedClient.sendRequest('next', { threadId: 1 })\n      ).rejects.toThrow",
+      "line": 1713,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1713,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "routedClient.sendRequest",
+      "line": 1714,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "routedClient.shutdown",
+      "line": 1717,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1721,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1722,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.shutdown",
+      "line": 1723,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1726,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1729,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1731,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1739,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1740,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1741,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 1745,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "promise1.catch",
+      "line": 1746,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(firstDeferred).not.toBeNull",
+      "line": 1748,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1748,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(firstDeferred.timer).toEqual",
+      "line": 1749,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1749,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 1751,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "promise2.catch",
+      "line": 1752,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(clearTimeoutSpy).toHaveBeenCalledWith",
+      "line": 1754,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1754,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as any).parentConfigDoneDeferred).not.toBe",
+      "line": 1755,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1755,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as any).parentConfigDoneDeferred.timer).toEqual",
+      "line": 1756,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1756,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(client as any).parentConfigDoneDeferred?.reject",
+      "line": 1759,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 1759,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1762,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "echoSocket",
+      "line": 1764,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.sendRequest",
+      "line": 1768,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(captured).toHaveLength",
+      "line": 1770,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1770,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(captured[0].command).toBe",
+      "line": 1771,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1771,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as any).suppressNextConfigDoneDeferral).toBe",
+      "line": 1772,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1772,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((client as any).parentConfigDoneDeferred).toBeNull",
+      "line": 1773,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1773,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1777,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1778,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 1779,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn(fs, 'appendFileSync').mockImplementation",
+      "line": 1780,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 1780,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 1781,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1784,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1788,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1789,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1790,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "cb",
+      "line": 1791,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "raw.split",
+      "line": 1792,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.parse",
+      "line": 1793,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "captured.push",
+      "line": 1794,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 1795,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(traceClient as any).handleProtocolMessage",
+      "line": 1796,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(traceClient.sendRequest('threads')).resolves.toBeDefined",
+      "line": 1809,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1809,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "traceClient.sendRequest",
+      "line": 1809,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(appendSpy).toHaveBeenCalled",
+      "line": 1811,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1811,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(captured).toHaveLength",
+      "line": 1812,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1812,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "appendSpy.mockRestore",
+      "line": 1814,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "traceClient.shutdown",
+      "line": 1815,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1819,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1830,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1831,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((c as any).enrichChildConfig(baseConfig)).toBe",
+      "line": 1832,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1832,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(c as any).enrichChildConfig",
+      "line": 1832,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "c.shutdown",
+      "line": 1833,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1836,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1837,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((c as any).enrichChildConfig(baseConfig)).toBe",
+      "line": 1839,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1839,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(c as any).enrichChildConfig",
+      "line": 1839,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "c.shutdown",
+      "line": 1840,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1843,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1844,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(c as any).enrichChildConfig",
+      "line": 1846,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(enriched.parentConfig.request).toBe",
+      "line": 1847,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1847,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(enriched.parentConfig.stopOnEntry).toBe",
+      "line": 1848,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1848,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(enriched.parentConfig.type).toBe",
+      "line": 1849,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1849,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((baseConfig.parentConfig as Record<string, unknown>).request).toBeUndefined",
+      "line": 1851,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1851,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "c.shutdown",
+      "line": 1852,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1855,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MinimalDapClient",
+      "line": 1856,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(c as any).enrichChildConfig",
+      "line": 1858,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(enriched.parentConfig.request).toBe",
+      "line": 1859,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1859,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect('stopOnEntry' in enriched.parentConfig).toBe",
+      "line": 1860,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1860,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "c.shutdown",
+      "line": 1861,
+      "call_sites": 4
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "emitter",
+      "member": "createChildSession",
+      "line": 53
+    },
+    {
+      "container": "emitter",
+      "member": "getActiveChild",
+      "line": 54
+    },
+    {
+      "container": "emitter",
+      "member": "hasActiveChildren",
+      "line": 55
+    },
+    {
+      "container": "emitter",
+      "member": "shouldRouteToChild",
+      "line": 56
+    },
+    {
+      "container": "emitter",
+      "member": "storeBreakpoints",
+      "line": 57
+    },
+    {
+      "container": "emitter",
+      "member": "isAdoptionInProgress",
+      "line": 58
+    },
+    {
+      "container": "socket",
+      "member": "write",
+      "line": 65
+    },
+    {
+      "container": "socket",
+      "member": "end",
+      "line": 69
+    },
+    {
+      "container": "socket",
+      "member": "destroy",
+      "line": 72
+    },
+    {
+      "container": "socket",
+      "member": "destroyed",
+      "line": 73
+    },
+    {
+      "container": "mockSocket",
+      "member": "destroyed",
+      "line": 537
+    },
+    {
+      "container": "process.env",
+      "member": "DAP_TRACE_FILE",
+      "line": 584
+    },
+    {
+      "container": "mockSocket",
+      "member": "destroyed",
+      "line": 718
+    },
+    {
+      "container": "mockSocket",
+      "member": "write",
+      "line": 835
+    },
+    {
+      "container": "mockSocket",
+      "member": "write",
+      "line": 842
+    },
+    {
+      "container": "(orphanClient as unknown as { socket: net.Socket | null })",
+      "member": "socket",
+      "line": 850
+    },
+    {
+      "container": "(client as unknown as { activeChild: MinimalDapClient | null })",
+      "member": "activeChild",
+      "line": 875
+    },
+    {
+      "container": "(client as any)",
+      "member": "socket",
+      "line": 949
+    },
+    {
+      "container": "(client as any)",
+      "member": "deferParentConfigDoneActive",
+      "line": 950
+    },
+    {
+      "container": "(client as any)",
+      "member": "socket",
+      "line": 1022
+    },
+    {
+      "container": "(client as any)",
+      "member": "socket",
+      "line": 1080
+    },
+    {
+      "container": "(routedClient as any)",
+      "member": "socket",
+      "line": 1132
+    },
+    {
+      "container": "(routedClient as any)",
+      "member": "activeChild",
+      "line": 1136
+    },
+    {
+      "container": "(routedClient as any)",
+      "member": "socket",
+      "line": 1175
+    },
+    {
+      "container": "(routedClient as any)",
+      "member": "sleep",
+      "line": 1179
+    },
+    {
+      "container": "(routedClient as any).dapBehavior",
+      "member": "childInitTimeout",
+      "line": 1205
+    },
+    {
+      "container": "(routedClient as any)",
+      "member": "socket",
+      "line": 1206
+    },
+    {
+      "container": "(routedClient as any)",
+      "member": "sleep",
+      "line": 1210
+    },
+    {
+      "container": "(client as any)",
+      "member": "dapBehavior",
+      "line": 1225
+    },
+    {
+      "container": "(client as any)",
+      "member": "socket",
+      "line": 1226
+    },
+    {
+      "container": "(client as any)",
+      "member": "dapBehavior",
+      "line": 1243
+    },
+    {
+      "container": "(client as any)",
+      "member": "socket",
+      "line": 1244
+    },
+    {
+      "container": "(client as any)",
+      "member": "childSessionManager",
+      "line": 1269
+    },
+    {
+      "container": "(client as any)",
+      "member": "dapBehavior",
+      "line": 1271
+    },
+    {
+      "container": "(client as any)",
+      "member": "sendResponse",
+      "line": 1272
+    },
+    {
+      "container": "(client as any)",
+      "member": "socket",
+      "line": 1273
+    },
+    {
+      "container": "(client as any)",
+      "member": "dapBehavior",
+      "line": 1307
+    },
+    {
+      "container": "(client as any)",
+      "member": "socket",
+      "line": 1308
+    },
+    {
+      "container": "(client as any)",
+      "member": "childSessionManager",
+      "line": 1309
+    },
+    {
+      "container": "(client as any)",
+      "member": "dapBehavior",
+      "line": 1337
+    },
+    {
+      "container": "(client as any)",
+      "member": "socket",
+      "line": 1338
+    },
+    {
+      "container": "(client as any)",
+      "member": "childSessionManager",
+      "line": 1339
+    },
+    {
+      "container": "(client as any)",
+      "member": "dapBehavior",
+      "line": 1364
+    },
+    {
+      "container": "(client as any)",
+      "member": "socket",
+      "line": 1365
+    },
+    {
+      "container": "(client as any)",
+      "member": "dapBehavior",
+      "line": 1395
+    },
+    {
+      "container": "(client as any)",
+      "member": "socket",
+      "line": 1396
+    },
+    {
+      "container": "(failingClient as any)",
+      "member": "socket",
+      "line": 1427
+    },
+    {
+      "container": "(loggingClient as any)",
+      "member": "socket",
+      "line": 1447
+    },
+    {
+      "container": "(client as any)",
+      "member": "socket",
+      "line": 1498
+    },
+    {
+      "container": "(client as any)",
+      "member": "dapBehavior",
+      "line": 1499
+    },
+    {
+      "container": "(client as any)",
+      "member": "socket",
+      "line": 1512
+    },
+    {
+      "container": "(client as any)",
+      "member": "dapBehavior",
+      "line": 1513
+    },
+    {
+      "container": "(client as any)",
+      "member": "socket",
+      "line": 1529
+    },
+    {
+      "container": "(client as any)",
+      "member": "dapBehavior",
+      "line": 1531
+    },
+    {
+      "container": "(client as any)",
+      "member": "socket",
+      "line": 1541
+    },
+    {
+      "container": "(client as any)",
+      "member": "dapBehavior",
+      "line": 1543
+    },
+    {
+      "container": "(routedClient as any)",
+      "member": "socket",
+      "line": 1583
+    },
+    {
+      "container": "(routedClient as any)",
+      "member": "sleep",
+      "line": 1589
+    },
+    {
+      "container": "(routedClient as any)",
+      "member": "socket",
+      "line": 1620
+    },
+    {
+      "container": "(routedClient as any)",
+      "member": "activeChild",
+      "line": 1626
+    },
+    {
+      "container": "(routedClient as any)",
+      "member": "socket",
+      "line": 1655
+    },
+    {
+      "container": "(routedClient as any)",
+      "member": "activeChild",
+      "line": 1676
+    },
+    {
+      "container": "(routedClient as any)",
+      "member": "socket",
+      "line": 1705
+    },
+    {
+      "container": "(routedClient as any)",
+      "member": "activeChild",
+      "line": 1711
+    },
+    {
+      "container": "(client as any)",
+      "member": "socket",
+      "line": 1737
+    },
+    {
+      "container": "(client as any)",
+      "member": "deferParentConfigDoneActive",
+      "line": 1743
+    },
+    {
+      "container": "(client as any)",
+      "member": "socket",
+      "line": 1764
+    },
+    {
+      "container": "(client as any)",
+      "member": "deferParentConfigDoneActive",
+      "line": 1765
+    },
+    {
+      "container": "(client as any)",
+      "member": "suppressNextConfigDoneDeferral",
+      "line": 1766
+    },
+    {
+      "container": "(traceClient as any)",
+      "member": "socket",
+      "line": 1807
+    },
+    {
+      "container": "(c as any)",
+      "member": "lastStartRequestArgs",
+      "line": 1838
+    },
+    {
+      "container": "(c as any)",
+      "member": "lastStartRequestArgs",
+      "line": 1845
+    },
+    {
+      "container": "(c as any)",
+      "member": "lastStartRequestArgs",
+      "line": 1857
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "Connection refused",
+      "context": "Expected error message when TCP connection fails",
+      "line": 131,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "Socket not connected or destroyed",
+      "context": "Expected rejection message when socket is destroyed before sendRequest",
+      "line": 539,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "DAP client disconnected",
+      "context": "Expected rejection message on disconnect with pending requests",
+      "line": 688,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "DAP request 'evaluate' (seq 1) timed out",
+      "context": "Expected timeout rejection message format",
+      "line": 478,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "[MinimalDapClient] Socket error:",
+      "context": "Logger error message on socket error",
+      "line": 177,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "logger.error"
+    },
+    {
+      "value": "[MinimalDapClient] Socket closed",
+      "context": "Logger info message on socket close",
+      "line": 188,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "logger.info"
+    },
+    {
+      "value": "[MinimalDapClient] Error parsing message:",
+      "context": "Logger error on invalid JSON",
+      "line": 282,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "logger.error"
+    },
+    {
+      "value": "[MinimalDapClient] Invalid Content-Length header encountered; discarding payload",
+      "context": "Logger warn on non-numeric/zero/negative Content-Length",
+      "line": 294,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "logger.warn"
+    },
+    {
+      "value": "[MinimalDapClient] Cannot write message, socket not connected/destroyed",
+      "context": "Logger error when writeMessage called with destroyed socket",
+      "line": 862,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "errorSpy"
+    },
+    {
+      "value": "[MinimalDapClient] Error shutting down child sessions:",
+      "context": "Logger warn when child shutdown throws",
+      "line": 882,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "logger.warn"
+    },
+    {
+      "value": "[MinimalDapClient] Already disconnecting or disconnected",
+      "context": "Logger debug on duplicate shutdown",
+      "line": 897,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "logger.debug"
+    },
+    {
+      "value": "env vars redacted",
+      "context": "Expected redaction marker in logger output for env payload sanitization",
+      "line": 565,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "allLoggedText()"
+    },
+    {
+      "value": "Child session not ready",
+      "context": "Expected message in synthetic error response when child never becomes ready",
+      "line": 1216,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "response.message"
+    },
+    {
+      "value": "configurationDone",
+      "context": "DAP command name used in deferral tests",
+      "line": 952,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "startDebugging",
+      "context": "DAP reverse request command triggering child session creation",
+      "line": 1046,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "setBreakpoints",
+      "context": "DAP command triggering breakpoint mirroring to CSM",
+      "line": 1087,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "runInTerminal",
+      "context": "DAP reverse request command for default ack tests",
+      "line": 1232,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "DAP_TRACE_FILE",
+      "context": "Environment variable enabling DAP wire trace file output",
+      "line": 584,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "write failed",
+      "context": "Error message simulated in socket write callback failure tests",
+      "line": 840,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "child boom",
+      "context": "Error message simulated when child shutdown throws",
+      "line": 871,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "python-normalized",
+      "context": "Expected normalized adapterID value after normalizer applied",
+      "line": 1507,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "captured[0].arguments.adapterID"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,384 @@
+{
+  "source": "src/dap-core/handlers.ts",
+  "source_hash": "72c45f1e525e0806",
+  "generated": "2026-07-22T22:08:35Z",
+  "imports": [
+    {
+      "source": "./types.js",
+      "names": [
+        "DAPSessionState",
+        "DAPProcessingResult",
+        "DAPCommand",
+        "ProxyMessage",
+        "ProxyStatusMessage",
+        "ProxyErrorMessage",
+        "ProxyDapEventMessage",
+        "ProxyDapResponseMessage"
+      ],
+      "line": 4,
+      "is_reexport": false,
+      "resolved_path": "src/dap-core/types.ts"
+    },
+    {
+      "source": "./state.js",
+      "names": [
+        "setInitialized",
+        "setAdapterConfigured",
+        "setCurrentThreadId",
+        "getPendingRequest",
+        "removePendingRequest"
+      ],
+      "line": 14,
+      "is_reexport": false,
+      "resolved_path": "src/dap-core/state.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "handleProxyMessage",
+      "kind": "function",
+      "line": 25,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "state",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/dap-core/types\").DAPSessionState"
+        },
+        {
+          "name": "message",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/dap-core/types\").ProxyMessage"
+        }
+      ]
+    },
+    {
+      "name": "isValidProxyMessage",
+      "kind": "function",
+      "line": 259,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "message",
+          "optional": false,
+          "type": "unknown"
+        }
+      ]
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "handleProxyMessage",
+      "to": "handleStatusMessage",
+      "line": 42,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "handleProxyMessage",
+      "to": "handleErrorMessage",
+      "line": 45,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "handleProxyMessage",
+      "to": "handleDapEvent",
+      "line": 48,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "handleProxyMessage",
+      "to": "handleDapResponse",
+      "line": 51,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "handleStatusMessage",
+      "to": "commands.push",
+      "line": 76,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "handleStatusMessage",
+      "to": "commands.push",
+      "line": 83,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "handleStatusMessage",
+      "to": "commands.push",
+      "line": 90,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "handleStatusMessage",
+      "to": "commands.push",
+      "line": 97,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "handleStatusMessage",
+      "to": "setInitialized",
+      "line": 101,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "handleStatusMessage",
+      "to": "commands.push",
+      "line": 104,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "handleStatusMessage",
+      "to": "setAdapterConfigured",
+      "line": 110,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "handleStatusMessage",
+      "to": "setInitialized",
+      "line": 114,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "handleStatusMessage",
+      "to": "commands.push",
+      "line": 115,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "handleStatusMessage",
+      "to": "commands.push",
+      "line": 123,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "handleErrorMessage",
+      "to": "Error",
+      "line": 154,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "handleDapEvent",
+      "to": "setCurrentThreadId",
+      "line": 185,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "handleDapEvent",
+      "to": "commands.push",
+      "line": 187,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "handleDapEvent",
+      "to": "commands.push",
+      "line": 195,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "handleDapEvent",
+      "to": "commands.push",
+      "line": 203,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "handleDapEvent",
+      "to": "commands.push",
+      "line": 211,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "handleDapEvent",
+      "to": "commands.push",
+      "line": 220,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "handleDapResponse",
+      "to": "getPendingRequest",
+      "line": 237,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "handleDapResponse",
+      "to": "removePendingRequest",
+      "line": 252,
+      "call_sites": 2
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "status",
+      "context": "ProxyMessage type discriminant for status messages",
+      "line": 41,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.type"
+    },
+    {
+      "value": "error",
+      "context": "ProxyMessage type discriminant for error messages",
+      "line": 44,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.type"
+    },
+    {
+      "value": "dapEvent",
+      "context": "ProxyMessage type discriminant for DAP events",
+      "line": 47,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.type"
+    },
+    {
+      "value": "dapResponse",
+      "context": "ProxyMessage type discriminant for DAP responses",
+      "line": 50,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.type"
+    },
+    {
+      "value": "proxy_minimal_ran_ipc_test",
+      "context": "Status value for IPC test phase",
+      "line": 75,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "init_received",
+      "context": "Status value for proxy init acknowledgment",
+      "line": 82,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "dry_run_complete",
+      "context": "Status value for dry run completion",
+      "line": 89,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "adapter_connected",
+      "context": "Status value for adapter transport connected",
+      "line": 96,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "adapter_configured_and_launched",
+      "context": "Status value for adapter fully configured",
+      "line": 103,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "adapter_exited",
+      "context": "Status value for adapter exit",
+      "line": 120,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "dap_connection_closed",
+      "context": "Status value for DAP connection close",
+      "line": 121,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "terminated",
+      "context": "Status value for session termination (used in both status and DAP event handlers)",
+      "line": 122,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "init-received",
+      "context": "Event name emitted when proxy acknowledges init command",
+      "line": 85,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dry-run-complete",
+      "context": "Event name emitted on dry run completion",
+      "line": 92,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "initialized",
+      "context": "Event name emitted when adapter is connected/initialized",
+      "line": 99,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "adapter-configured",
+      "context": "Event name emitted when adapter is configured and launched",
+      "line": 106,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "exit",
+      "context": "Event name emitted on adapter exit/termination",
+      "line": 127,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "stopped",
+      "context": "DAP event name for debuggee stopped; also emitted event name",
+      "line": 179,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.event"
+    },
+    {
+      "value": "continued",
+      "context": "DAP event name for debuggee continued; also emitted event name",
+      "line": 194,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.event"
+    },
+    {
+      "value": "exited",
+      "context": "DAP event name for debuggee exited; also emitted event name",
+      "line": 210,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.event"
+    },
+    {
+      "value": "dap-event",
+      "context": "Generic fallback event name for unknown DAP events",
+      "line": 222,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "killProcess",
+      "context": "Command type to kill the proxy process",
+      "line": 78,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

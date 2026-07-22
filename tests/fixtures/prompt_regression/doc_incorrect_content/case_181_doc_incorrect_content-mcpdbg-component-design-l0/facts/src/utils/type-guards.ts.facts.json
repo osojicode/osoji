@@ -1,0 +1,443 @@
+{
+  "source": "src/utils/type-guards.ts",
+  "source_hash": "a29f3dfcd372f6c5",
+  "generated": "2026-07-22T22:08:11Z",
+  "imports": [
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterCommand"
+      ],
+      "line": 6,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "../proxy/dap-proxy-interfaces.js",
+      "names": [
+        "ProxyInitPayload"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-interfaces.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "isValidAdapterCommand",
+      "kind": "function",
+      "line": 13,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "obj",
+          "optional": false,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "name": "validateAdapterCommand",
+      "kind": "function",
+      "line": 55,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "obj",
+          "optional": false,
+          "type": "unknown"
+        },
+        {
+          "name": "source",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "hasValidAdapterCommand",
+      "kind": "function",
+      "line": 80,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "payload",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/proxy/dap-proxy-interfaces\").ProxyInitPayload"
+        }
+      ]
+    },
+    {
+      "name": "validateProxyInitPayload",
+      "kind": "function",
+      "line": 92,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "payload",
+          "optional": false,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "name": "serializeAdapterCommand",
+      "kind": "function",
+      "line": 137,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "cmd",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").AdapterCommand"
+        }
+      ]
+    },
+    {
+      "name": "deserializeAdapterCommand",
+      "kind": "function",
+      "line": 146,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "data",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "source",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "createAdapterCommand",
+      "kind": "function",
+      "line": 162,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "command",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "args",
+          "optional": true,
+          "type": "string[]"
+        },
+        {
+          "name": "env",
+          "optional": true,
+          "type": "Record<string, string> | undefined"
+        }
+      ]
+    },
+    {
+      "name": "getAdapterCommandProperty",
+      "kind": "function",
+      "line": 185,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "cmd",
+          "optional": false,
+          "type": "unknown"
+        },
+        {
+          "name": "property",
+          "optional": false,
+          "type": "K"
+        },
+        {
+          "name": "defaultValue",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").AdapterCommand[K]"
+        }
+      ]
+    },
+    {
+      "name": "logAdapterCommandValidation",
+      "kind": "function",
+      "line": 202,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "cmd",
+          "optional": false,
+          "type": "unknown"
+        },
+        {
+          "name": "source",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "isValid",
+          "optional": false,
+          "type": "boolean"
+        },
+        {
+          "name": "details",
+          "optional": true,
+          "type": "unknown"
+        }
+      ]
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "isValidAdapterCommand",
+      "to": "Array.isArray",
+      "line": 25,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "isValidAdapterCommand",
+      "to": "cmd.args.every",
+      "line": 30,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "isValidAdapterCommand",
+      "to": "Array.isArray",
+      "line": 36,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "isValidAdapterCommand",
+      "to": "Object.entries",
+      "line": 41,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "validateAdapterCommand",
+      "to": "isValidAdapterCommand",
+      "line": 56,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "validateAdapterCommand",
+      "to": "Error",
+      "line": 68,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "validateAdapterCommand",
+      "to": "JSON.stringify",
+      "line": 68,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "validateAdapterCommand",
+      "to": "console.error",
+      "line": 69,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "hasValidAdapterCommand",
+      "to": "isValidAdapterCommand",
+      "line": 85,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "validateProxyInitPayload",
+      "to": "Error",
+      "line": 94,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "validateProxyInitPayload",
+      "to": "Error",
+      "line": 107,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "validateProxyInitPayload",
+      "to": "Error",
+      "line": 113,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "validateProxyInitPayload",
+      "to": "Error",
+      "line": 116,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "validateProxyInitPayload",
+      "to": "isValidAdapterCommand",
+      "line": 120,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "validateProxyInitPayload",
+      "to": "Error",
+      "line": 121,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "validateProxyInitPayload",
+      "to": "JSON.stringify",
+      "line": 121,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "validateProxyInitPayload",
+      "to": "console.error",
+      "line": 122,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "validateProxyInitPayload",
+      "to": "Error",
+      "line": 127,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "serializeAdapterCommand",
+      "to": "validateAdapterCommand",
+      "line": 138,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "serializeAdapterCommand",
+      "to": "JSON.stringify",
+      "line": 139,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "deserializeAdapterCommand",
+      "to": "JSON.parse",
+      "line": 150,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "deserializeAdapterCommand",
+      "to": "Error",
+      "line": 152,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "deserializeAdapterCommand",
+      "to": "validateAdapterCommand",
+      "line": 155,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "createAdapterCommand",
+      "to": "Error",
+      "line": 168,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "createAdapterCommand",
+      "to": "validateAdapterCommand",
+      "line": 178,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "getAdapterCommandProperty",
+      "to": "isValidAdapterCommand",
+      "line": 190,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "getAdapterCommandProperty",
+      "to": "console.warn",
+      "line": 191,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getAdapterCommandProperty",
+      "to": "String",
+      "line": 191,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "logAdapterCommandValidation",
+      "to": "new Date().toISOString",
+      "line": 212,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "logAdapterCommandValidation",
+      "to": "Date",
+      "line": 212,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "logAdapterCommandValidation",
+      "to": "console.log",
+      "line": 217,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "logAdapterCommandValidation",
+      "to": "JSON.stringify",
+      "line": 217,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "logAdapterCommandValidation",
+      "to": "console.error",
+      "line": 219,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "logAdapterCommandValidation",
+      "to": "JSON.stringify",
+      "line": 219,
+      "call_sites": 5
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "[TYPE VALIDATION ERROR]",
+      "context": "console.error prefix in validateAdapterCommand on validation failure",
+      "line": 69,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "[VALIDATION ERROR]",
+      "context": "console.error prefix in validateProxyInitPayload on adapterCommand failure",
+      "line": 122,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "[TYPE GUARD]",
+      "context": "console.warn prefix in getAdapterCommandProperty",
+      "line": 191,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "[ADAPTER COMMAND VALIDATION]",
+      "context": "console.log prefix in logAdapterCommandValidation (valid path)",
+      "line": 217,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "[ADAPTER COMMAND VALIDATION ERROR]",
+      "context": "console.error prefix in logAdapterCommandValidation (invalid path)",
+      "line": 219,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,952 @@
+{
+  "source": "src/proxy/dap-proxy-core.ts",
+  "source_hash": "1fab463c9202e0b0",
+  "generated": "2026-07-22T22:09:05Z",
+  "imports": [
+    {
+      "source": "readline",
+      "names": [
+        "readline"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "./dap-proxy-worker.js",
+      "names": [
+        "DapProxyWorker"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-worker.ts"
+    },
+    {
+      "source": "./dap-proxy-message-parser.js",
+      "names": [
+        "MessageParser"
+      ],
+      "line": 10,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-message-parser.ts"
+    },
+    {
+      "source": "./dap-proxy-interfaces.js",
+      "names": [
+        "DapProxyDependencies",
+        "ILogger",
+        "ParentCommand",
+        "ProxyState"
+      ],
+      "line": 11,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-interfaces.ts"
+    },
+    {
+      "source": "../errors/debug-errors.js",
+      "names": [
+        "getErrorMessage"
+      ],
+      "line": 17,
+      "is_reexport": false,
+      "resolved_path": "src/errors/debug-errors.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "sanitizePayloadForLogging"
+      ],
+      "line": 18,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "../interfaces/process-interfaces.js",
+      "names": [
+        "ProcessLike"
+      ],
+      "line": 19,
+      "is_reexport": false,
+      "resolved_path": "src/interfaces/process-interfaces.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "detectExecutionMode",
+      "kind": "function",
+      "line": 416,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "proc",
+          "optional": true,
+          "type": "Pick<import(\"C:/Users/johnf/projects/mcp-debugger/src/interfaces/process-interfaces\").ProcessLike, \"send\" | \"env\" | \"argv\">"
+        }
+      ]
+    },
+    {
+      "name": "shouldAutoExecute",
+      "kind": "function",
+      "line": 434,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "mode",
+          "optional": false,
+          "type": "{ isDirectRun: boolean; hasIPC: boolean; isWorkerEnv: boolean; }"
+        }
+      ]
+    },
+    {
+      "name": "ProxyRunner",
+      "kind": "class",
+      "line": 49,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ProxyRunner.start",
+      "kind": "function",
+      "line": 76,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ProxyRunner.stop",
+      "kind": "function",
+      "line": 146,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ProxyRunner.getWorkerState",
+      "kind": "function",
+      "line": 196,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ProxyRunner.getWorker",
+      "kind": "function",
+      "line": 203,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ProxyRunner.setupGlobalErrorHandlers",
+      "kind": "function",
+      "line": 360,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "errorShutdown",
+          "optional": false,
+          "type": "() => Promise<void>"
+        },
+        {
+          "name": "getCurrentSessionId",
+          "optional": false,
+          "type": "() => string | null"
+        }
+      ]
+    },
+    {
+      "name": "ProxyRunnerOptions",
+      "kind": "type",
+      "line": 21,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "DapProxyWorker",
+      "line": 69,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.proc.exit",
+      "line": 69,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "Error",
+      "line": 78,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "this.logger.info",
+      "line": 82,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "this.createMessageProcessor",
+      "line": 86,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "this.setupIPCCommunication",
+      "line": 90,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "this.setupStdinCommunication",
+      "line": 92,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "this.logger.warn",
+      "line": 94,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "this.logger.info",
+      "line": 97,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "setInterval",
+      "line": 100,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "this.logger.debug",
+      "line": 103,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "this.proc.send",
+      "line": 106,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "Date.now",
+      "line": 108,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "this.logger.warn",
+      "line": 116,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "this.stop().finally",
+      "line": 120,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "this.stop",
+      "line": 120,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "this.proc.exit",
+      "line": 121,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "setTimeout",
+      "line": 129,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "this.logger.warn",
+      "line": 130,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "this.proc.exit",
+      "line": 131,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyRunner.start",
+      "to": "this.logger.error",
+      "line": 138,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyRunner.stop",
+      "to": "this.logger.info",
+      "line": 156,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "ProxyRunner.stop",
+      "to": "clearTimeout",
+      "line": 159,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyRunner.stop",
+      "to": "clearInterval",
+      "line": 164,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyRunner.stop",
+      "to": "this.worker.shutdown",
+      "line": 169,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyRunner.stop",
+      "to": "this.proc.removeListener",
+      "line": 173,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.stop",
+      "to": "this.proc.removeListener",
+      "line": 177,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.stop",
+      "to": "this.proc.removeListener",
+      "line": 182,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.stop",
+      "to": "this.rl.close",
+      "line": 187,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyRunner.stop",
+      "to": "this.logger.info",
+      "line": 190,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "ProxyRunner.getWorkerState",
+      "to": "this.worker.getState",
+      "line": 197,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyRunner.createMessageProcessor",
+      "to": "this.logger.info",
+      "line": 212,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "ProxyRunner.createMessageProcessor",
+      "to": "messageStr.substring",
+      "line": 212,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyRunner.createMessageProcessor",
+      "to": "MessageParser.parseCommand",
+      "line": 216,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "ProxyRunner.createMessageProcessor",
+      "to": "clearTimeout",
+      "line": 220,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyRunner.createMessageProcessor",
+      "to": "this.logger.info",
+      "line": 222,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "ProxyRunner.createMessageProcessor",
+      "to": "this.worker.handleCommand",
+      "line": 225,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyRunner.createMessageProcessor",
+      "to": "getErrorMessage",
+      "line": 227,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyRunner.createMessageProcessor",
+      "to": "this.logger.error",
+      "line": 228,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyRunner.createMessageProcessor",
+      "to": "this.dependencies.messageSender.send",
+      "line": 229,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.createMessageProcessor",
+      "to": "this.worker.getState",
+      "line": 237,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyRunner.createMessageProcessor",
+      "to": "this.logger.info",
+      "line": 241,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "ProxyRunner.createMessageProcessor",
+      "to": "setTimeout",
+      "line": 242,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyRunner.createMessageProcessor",
+      "to": "this.proc.exit",
+      "line": 243,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.info",
+      "line": 253,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.error",
+      "line": 257,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.info",
+      "line": 261,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.info",
+      "line": 265,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.debug",
+      "line": 268,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.proc.listenerCount",
+      "line": 269,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.debug",
+      "line": 271,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "sanitizePayloadForLogging",
+      "line": 271,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.debug",
+      "line": 272,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "JSON.stringify(sanitizePayloadForLogging(message)).substring",
+      "line": 272,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "JSON.stringify",
+      "line": 272,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "sanitizePayloadForLogging",
+      "line": 272,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.debug",
+      "line": 273,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.proc.send",
+      "line": 276,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "Date.now",
+      "line": 279,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.warn",
+      "line": 282,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "processMessage",
+      "line": 287,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.debug",
+      "line": 288,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.debug",
+      "line": 290,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "processMessage",
+      "line": 292,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "JSON.stringify",
+      "line": 292,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.debug",
+      "line": 293,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.error",
+      "line": 295,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "sanitizePayloadForLogging",
+      "line": 296,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "getErrorMessage",
+      "line": 297,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.warn",
+      "line": 302,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.error",
+      "line": 305,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.proc.on",
+      "line": 309,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.info",
+      "line": 310,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.warn",
+      "line": 313,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.stop().finally",
+      "line": 316,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.stop",
+      "line": 316,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.proc.exit",
+      "line": 317,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.proc.on",
+      "line": 320,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.logger.error",
+      "line": 323,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyRunner.setupIPCCommunication",
+      "to": "this.proc.on",
+      "line": 325,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyRunner.setupStdinCommunication",
+      "to": "this.logger.info",
+      "line": 332,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "ProxyRunner.setupStdinCommunication",
+      "to": "readline.createInterface",
+      "line": 334,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyRunner.setupStdinCommunication",
+      "to": "this.rl.on",
+      "line": 340,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyRunner.setupStdinCommunication",
+      "to": "processMessage",
+      "line": 340,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.setupStdinCommunication",
+      "to": "this.rl.on",
+      "line": 346,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyRunner.setupStdinCommunication",
+      "to": "this.logger.warn",
+      "line": 350,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyRunner.setupStdinCommunication",
+      "to": "this.stop().finally",
+      "line": 351,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.setupStdinCommunication",
+      "to": "this.stop",
+      "line": 351,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.setupStdinCommunication",
+      "to": "this.proc.exit",
+      "line": 352,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "this.proc.on",
+      "line": 365,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "this.logger.error",
+      "line": 366,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "getCurrentSessionId",
+      "line": 367,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "this.dependencies.messageSender.send",
+      "line": 369,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "errorShutdown().finally",
+      "line": 375,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "errorShutdown",
+      "line": 375,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "this.proc.exit",
+      "line": 376,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "this.proc.on",
+      "line": 381,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "this.logger.error",
+      "line": 382,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "getCurrentSessionId",
+      "line": 383,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "this.dependencies.messageSender.send",
+      "line": 385,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "this.proc.on",
+      "line": 393,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "this.logger.info",
+      "line": 394,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "errorShutdown().finally",
+      "line": 395,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "errorShutdown",
+      "line": 395,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "this.proc.exit",
+      "line": 396,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "this.proc.on",
+      "line": 401,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "this.logger.info",
+      "line": 402,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "errorShutdown().finally",
+      "line": 403,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "errorShutdown",
+      "line": 403,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyRunner.setupGlobalErrorHandlers",
+      "to": "this.proc.exit",
+      "line": 404,
+      "call_sites": 9
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "proc",
+      "line": 68
+    },
+    {
+      "container": "this",
+      "member": "worker",
+      "line": 69
+    },
+    {
+      "container": "this",
+      "member": "logger",
+      "line": 70
+    },
+    {
+      "container": "this",
+      "member": "isRunning",
+      "line": 81
+    },
+    {
+      "container": "this",
+      "member": "heartbeatInterval",
+      "line": 100
+    },
+    {
+      "container": "this",
+      "member": "_initTimeout",
+      "line": 135
+    },
+    {
+      "container": "this",
+      "member": "isRunning",
+      "line": 137
+    },
+    {
+      "container": "this",
+      "member": "isRunning",
+      "line": 154
+    },
+    {
+      "container": "this",
+      "member": "_initTimeout",
+      "line": 160
+    },
+    {
+      "container": "this",
+      "member": "heartbeatInterval",
+      "line": 165
+    },
+    {
+      "container": "this",
+      "member": "disconnectHandler",
+      "line": 178
+    },
+    {
+      "container": "this",
+      "member": "errorHandler",
+      "line": 183
+    },
+    {
+      "container": "this",
+      "member": "_initTimeout",
+      "line": 221
+    },
+    {
+      "container": "this",
+      "member": "messageHandler",
+      "line": 263
+    },
+    {
+      "container": "this",
+      "member": "disconnectHandler",
+      "line": 312
+    },
+    {
+      "container": "this",
+      "member": "errorHandler",
+      "line": 322
+    },
+    {
+      "container": "this",
+      "member": "rl",
+      "line": 334
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "ipc-heartbeat-tick",
+      "context": "Periodic heartbeat message type sent to parent process via IPC",
+      "line": 107,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "ipc-heartbeat",
+      "context": "Per-message acknowledgement heartbeat type sent to parent",
+      "line": 277,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "error",
+      "context": "Message type for error responses sent via messageSender",
+      "line": 230,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "init",
+      "context": "Command name checked to clear initialization timeout",
+      "line": 219,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command.cmd"
+    },
+    {
+      "value": "DAP_PROXY_WORKER",
+      "context": "Environment variable checked to detect worker execution mode",
+      "line": 426,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "proc.env"
+    }
+  ],
+  "extraction_method": "ast"
+}

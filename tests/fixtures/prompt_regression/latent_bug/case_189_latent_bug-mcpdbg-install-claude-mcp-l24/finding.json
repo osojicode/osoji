@@ -1,0 +1,20 @@
+{
+  "detector": "debris:latent_bug",
+  "gap_type": "uncategorized",
+  "path": "scripts/install-claude-mcp.sh",
+  "line_start": 24,
+  "line_end": 25,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "Mixed package managers: `pnpm install --frozen-lockfile` is used for dependency installation (L24), but `npm run build` is used for the build step (L25). If the project is pnpm-managed, `npm run build` may still work (it reads package.json scripts), but the inconsistency could cause issues if `npm` resolves a different node_modules layout or is not installed. Should use `pnpm run build` for consistency.",
+  "observed_behavior": "Mixed package managers: `pnpm install --frozen-lockfile` is used for dependency installation (L24), but `npm run build` is used for the build step (L25). If the project is pnpm-managed, `npm run build` may still work (it reads package.json scripts), but the inconsistency could cause issues if `npm` resolves a different node_modules layout or is not installed. Should use `pnpm run build` for consistency.",
+  "evidence": [],
+  "id": "e00b3bc6ebab07a4",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

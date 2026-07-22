@@ -1,0 +1,535 @@
+{
+  "source": "tests/e2e/docker/docker-test-utils.ts",
+  "source_hash": "72de2053702536e4",
+  "generated": "2026-07-22T22:06:46Z",
+  "imports": [
+    {
+      "source": "child_process",
+      "names": [
+        "exec"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "util",
+      "names": [
+        "promisify"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/client/index.js",
+      "names": [
+        "Client"
+      ],
+      "line": 11,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/index.d.ts"
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/client/stdio.js",
+      "names": [
+        "StdioClientTransport"
+      ],
+      "line": 12,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/stdio.d.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "buildDockerImage",
+      "kind": "function",
+      "line": 34,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": true,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/tests/e2e/docker/docker-test-utils\").DockerTestConfig"
+        }
+      ]
+    },
+    {
+      "name": "cleanupContainer",
+      "kind": "function",
+      "line": 94,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "containerName",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "createDockerMcpClient",
+      "kind": "function",
+      "line": 115,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": true,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/tests/e2e/docker/docker-test-utils\").DockerTestConfig"
+        }
+      ]
+    },
+    {
+      "name": "hostToContainerPath",
+      "kind": "function",
+      "line": 208,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "hostPath",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "workspaceMount",
+          "optional": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "getDockerLogs",
+      "kind": "function",
+      "line": 251,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "containerName",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "DockerTestConfig",
+      "kind": "type",
+      "line": 22,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "promisify",
+      "line": 14,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fileURLToPath",
+      "line": 16,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.dirname",
+      "line": 17,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 18,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "buildDockerImage",
+      "to": "console.log",
+      "line": 40,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "buildDockerImage",
+      "to": "runDockerBuild",
+      "line": 41,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "buildDockerImage",
+      "to": "(async () => {\n      console.log(`[Docker Test] Ensuring Docker image ${imageName} is up to date...`",
+      "line": 46,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "buildDockerImage",
+      "to": "console.log",
+      "line": 47,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "buildDockerImage",
+      "to": "path.join",
+      "line": 48,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "buildDockerImage",
+      "to": "execAsync",
+      "line": 50,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "buildDockerImage",
+      "to": "console.error",
+      "line": 66,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "buildDockerImage",
+      "to": "console.error",
+      "line": 69,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "runDockerBuild",
+      "to": "execAsync",
+      "line": 81,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "runDockerBuild",
+      "to": "stderr.trim",
+      "line": 82,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "runDockerBuild",
+      "to": "console.warn",
+      "line": 83,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "runDockerBuild",
+      "to": "console.error",
+      "line": 86,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "cleanupContainer",
+      "to": "execAsync",
+      "line": 97,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "cleanupContainer",
+      "to": "console.log",
+      "line": 98,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "cleanupContainer",
+      "to": "execAsync",
+      "line": 105,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "cleanupContainer",
+      "to": "console.log",
+      "line": 106,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "createDockerMcpClient",
+      "to": "Date.now",
+      "line": 121,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createDockerMcpClient",
+      "to": "path.resolve",
+      "line": 122,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "createDockerMcpClient",
+      "to": "cleanupContainer",
+      "line": 126,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "createDockerMcpClient",
+      "to": "console.log",
+      "line": 128,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "createDockerMcpClient",
+      "to": "dockerArgs.push",
+      "line": 141,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createDockerMcpClient",
+      "to": "process.getuid",
+      "line": 141,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createDockerMcpClient",
+      "to": "process.getgid",
+      "line": 141,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createDockerMcpClient",
+      "to": "dockerArgs.push",
+      "line": 144,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createDockerMcpClient",
+      "to": "StdioClientTransport",
+      "line": 154,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "createDockerMcpClient",
+      "to": "Client",
+      "line": 163,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "createDockerMcpClient",
+      "to": "client.connect",
+      "line": 171,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createDockerMcpClient",
+      "to": "console.log",
+      "line": 172,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "createDockerMcpClient",
+      "to": "console.error",
+      "line": 174,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "createDockerMcpClient",
+      "to": "cleanupContainer",
+      "line": 175,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "createDockerMcpClient",
+      "to": "client.close",
+      "line": 181,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createDockerMcpClient",
+      "to": "transport.close",
+      "line": 187,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createDockerMcpClient",
+      "to": "cleanupContainer",
+      "line": 193,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "hostToContainerPath",
+      "to": "hostPath.replace",
+      "line": 210,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "hostToContainerPath",
+      "to": "normalizedPath.startsWith",
+      "line": 213,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "hostToContainerPath",
+      "to": "normalizedPath.includes",
+      "line": 213,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "hostToContainerPath",
+      "to": "normalizedPath.startsWith",
+      "line": 219,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "hostToContainerPath",
+      "to": "normalizedPath.substring",
+      "line": 220,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "hostToContainerPath",
+      "to": "path.resolve(ROOT, 'examples').replace",
+      "line": 224,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "hostToContainerPath",
+      "to": "path.resolve",
+      "line": 224,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "hostToContainerPath",
+      "to": "normalizedPath.startsWith",
+      "line": 225,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "hostToContainerPath",
+      "to": "normalizedPath.substring(examplesDir.length).replace",
+      "line": 227,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "hostToContainerPath",
+      "to": "normalizedPath.substring",
+      "line": 227,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "hostToContainerPath",
+      "to": "ROOT.replace",
+      "line": 233,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "hostToContainerPath",
+      "to": "normalizedPath.startsWith",
+      "line": 234,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "hostToContainerPath",
+      "to": "normalizedPath.substring",
+      "line": 235,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "hostToContainerPath",
+      "to": "relativePath.startsWith",
+      "line": 237,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "hostToContainerPath",
+      "to": "relativePath.substring",
+      "line": 239,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "hostToContainerPath",
+      "to": "path.basename",
+      "line": 244,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getDockerLogs",
+      "to": "execAsync",
+      "line": 253,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "getDockerLogs",
+      "to": "console.error",
+      "line": 256,
+      "call_sites": 5
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "mcp-debugger:local",
+      "context": "Default Docker image name fallback when DOCKER_IMAGE_NAME env var is not set",
+      "line": 19,
+      "kind": "identifier",
+      "usage": "defined"
+    },
+    {
+      "value": "true",
+      "context": "Checked against DOCKER_FORCE_REBUILD env var to determine if image should be force-rebuilt",
+      "line": 36,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "process.env.DOCKER_FORCE_REBUILD"
+    },
+    {
+      "value": "true",
+      "context": "Checked against CI env var to decide whether to add --user docker flag",
+      "line": 140,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "process.env.CI"
+    },
+    {
+      "value": "docker-test-client",
+      "context": "MCP client name passed to Client constructor",
+      "line": 164,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "stdio",
+      "context": "Docker container command \u2014 MCP server transport mode argument",
+      "line": 149,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "/tmp/docker-test.log",
+      "context": "Log file path inside container passed as --log-file argument",
+      "line": 152,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "/workspace",
+      "context": "Default workspaceMount value and container mount point for examples directory",
+      "line": 208,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "test",
+      "context": "NODE_ENV value set in docker run environment",
+      "line": 159,
+      "kind": "config",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

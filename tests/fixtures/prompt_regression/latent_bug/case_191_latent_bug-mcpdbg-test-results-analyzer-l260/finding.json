@@ -1,0 +1,20 @@
+{
+  "detector": "debris:latent_bug",
+  "gap_type": "uncategorized",
+  "path": "tests/test-utils/helpers/test-results-analyzer.js",
+  "line_start": 260,
+  "line_end": 263,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "Module-level code instantiates TestResultsAnalyzer and calls analyze() immediately (L260-263) with no `require.main === module` / `import.meta.url` guard. Any other file that imports this module will trigger CLI execution, process.exit() calls, and console output as a side effect.",
+  "observed_behavior": "Module-level code instantiates TestResultsAnalyzer and calls analyze() immediately (L260-263) with no `require.main === module` / `import.meta.url` guard. Any other file that imports this module will trigger CLI execution, process.exit() calls, and console output as a side effect.",
+  "evidence": [],
+  "id": "acee83508cae6dbf",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

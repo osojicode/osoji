@@ -122,6 +122,12 @@ def _expected_gap_type_from_detector(detector: str) -> str:
     return "uncategorized"
 
 
+# Categories the mapping deliberately omits get their gap_type assigned at
+# adjudication time (decisions/0025: the stated-vs-implicit invariant split
+# cannot be derived mechanically) — any of these values is a legal answer key.
+_ADJUDICATED_SPLIT_VALUES = {"description", "contract", "uncategorized"}
+
+
 def test_every_case_gap_type_matches_category_to_gap_type():
     violations = []
     for case_json_path in _case_json_paths():
@@ -131,16 +137,25 @@ def test_every_case_gap_type_matches_category_to_gap_type():
 
         detector = finding_data.get("detector", "")
         expected = _expected_gap_type_from_detector(detector)
+        if expected == "uncategorized":
+            allowed = _ADJUDICATED_SPLIT_VALUES
+        else:
+            allowed = {expected}
 
-        if case_data.get("gap_type") != expected:
+        if case_data.get("gap_type") not in allowed:
             violations.append(
                 f"{case_json_path}: gap_type={case_data.get('gap_type')!r}, "
-                f"expected {expected!r} from detector {detector!r}"
+                f"expected one of {sorted(allowed)!r} from detector {detector!r}"
             )
-        if finding_data.get("gap_type") != expected:
+        if finding_data.get("gap_type") not in allowed:
             violations.append(
                 f"{finding_path}: gap_type={finding_data.get('gap_type')!r}, "
-                f"expected {expected!r} from detector {detector!r}"
+                f"expected one of {sorted(allowed)!r} from detector {detector!r}"
+            )
+        if case_data.get("gap_type") != finding_data.get("gap_type"):
+            violations.append(
+                f"{case_json_path}: case gap_type {case_data.get('gap_type')!r} "
+                f"!= finding gap_type {finding_data.get('gap_type')!r}"
             )
 
     assert not violations, "\n".join(violations)

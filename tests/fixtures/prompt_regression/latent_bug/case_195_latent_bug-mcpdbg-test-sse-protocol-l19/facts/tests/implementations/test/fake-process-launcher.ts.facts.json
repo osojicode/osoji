@@ -1,0 +1,582 @@
+{
+  "source": "tests/implementations/test/fake-process-launcher.ts",
+  "source_hash": "dc17d0c5d85dc373",
+  "generated": "2026-07-22T22:06:46Z",
+  "imports": [
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "stream",
+      "names": [
+        "PassThrough"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "../../../src/interfaces/process-interfaces.js",
+      "names": [
+        "IProcess",
+        "IProxyProcessLauncher",
+        "IProxyProcess"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "src/interfaces/process-interfaces.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "FakeProcess",
+      "kind": "class",
+      "line": 18,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EventEmitter"
+      ],
+      "implements": [
+        "IProcess"
+      ]
+    },
+    {
+      "name": "FakeProcess.send",
+      "kind": "function",
+      "line": 40,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "message",
+          "optional": false,
+          "type": "any"
+        }
+      ]
+    },
+    {
+      "name": "FakeProcess.kill",
+      "kind": "function",
+      "line": 47,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "signal",
+          "optional": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "FakeProcess.simulateOutput",
+      "kind": "function",
+      "line": 59,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "data",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "FakeProcess.simulateError",
+      "kind": "function",
+      "line": 63,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "data",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "FakeProcess.simulateExit",
+      "kind": "function",
+      "line": 67,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "code",
+          "optional": false,
+          "type": "number"
+        },
+        {
+          "name": "signal",
+          "optional": true,
+          "type": "string | undefined"
+        }
+      ]
+    },
+    {
+      "name": "FakeProcess.simulateSpawn",
+      "kind": "function",
+      "line": 75,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeProcess.simulateProcessError",
+      "kind": "function",
+      "line": 79,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "error",
+          "optional": false,
+          "type": "Error"
+        }
+      ]
+    },
+    {
+      "name": "FakeProcess.simulateMessage",
+      "kind": "function",
+      "line": 83,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "message",
+          "optional": false,
+          "type": "any"
+        }
+      ]
+    },
+    {
+      "name": "FakeProxyProcess",
+      "kind": "class",
+      "line": 91,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "FakeProcess"
+      ],
+      "implements": [
+        "IProxyProcess"
+      ]
+    },
+    {
+      "name": "FakeProxyProcess.sendCommand",
+      "kind": "function",
+      "line": 98,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "command",
+          "optional": false,
+          "type": "object"
+        }
+      ]
+    },
+    {
+      "name": "FakeProxyProcess.waitForInitialization",
+      "kind": "function",
+      "line": 104,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "timeout",
+          "optional": true,
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "FakeProxyProcess.simulateInitialization",
+      "kind": "function",
+      "line": 110,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeProxyProcess.simulateInitializationFailure",
+      "kind": "function",
+      "line": 119,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "error",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "FakeProxyProcessLauncher",
+      "kind": "class",
+      "line": 131,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "implements": [
+        "IProxyProcessLauncher"
+      ]
+    },
+    {
+      "name": "FakeProxyProcessLauncher.launchProxy",
+      "kind": "function",
+      "line": 141,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "proxyScriptPath",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "env",
+          "optional": true,
+          "type": "Record<string, string> | undefined"
+        }
+      ]
+    },
+    {
+      "name": "FakeProxyProcessLauncher.prepareProxy",
+      "kind": "function",
+      "line": 177,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "setup",
+          "optional": false,
+          "type": "(proxy: import(\"C:/Users/johnf/projects/mcp-debugger/tests/implementations/test/fake-process-launcher\").FakeProxyProcess) => void"
+        }
+      ]
+    },
+    {
+      "name": "FakeProxyProcessLauncher.getLastLaunchedProxy",
+      "kind": "function",
+      "line": 184,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeProxyProcessLauncher.reset",
+      "kind": "function",
+      "line": 190,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "PassThrough",
+      "line": 20,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PassThrough",
+      "line": 21,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PassThrough",
+      "line": 22,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "FakeProcess.send",
+      "to": "process.nextTick",
+      "line": 43,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "FakeProcess.send",
+      "to": "this.emit",
+      "line": 43,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "FakeProcess.kill",
+      "to": "process.nextTick",
+      "line": 51,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "FakeProcess.kill",
+      "to": "this.emit",
+      "line": 52,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "FakeProcess.kill",
+      "to": "this.emit",
+      "line": 53,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "FakeProcess.simulateOutput",
+      "to": "this.stdout.push",
+      "line": 60,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProcess.simulateError",
+      "to": "this.stderr.push",
+      "line": 64,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProcess.simulateExit",
+      "to": "this.emit",
+      "line": 71,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "FakeProcess.simulateExit",
+      "to": "this.emit",
+      "line": 72,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "FakeProcess.simulateSpawn",
+      "to": "process.nextTick",
+      "line": 76,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "FakeProcess.simulateSpawn",
+      "to": "this.emit",
+      "line": 76,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "FakeProcess.simulateProcessError",
+      "to": "this.emit",
+      "line": 80,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "FakeProcess.simulateMessage",
+      "to": "this.emit",
+      "line": 84,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "super",
+      "line": 95,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProxyProcess.sendCommand",
+      "to": "this.sentCommands.push",
+      "line": 99,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProxyProcess.sendCommand",
+      "to": "JSON.stringify",
+      "line": 100,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProxyProcess.sendCommand",
+      "to": "this.send",
+      "line": 101,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProxyProcess.waitForInitialization",
+      "to": "Promise.resolve",
+      "line": 106,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProxyProcess.simulateInitialization",
+      "to": "this.simulateMessage",
+      "line": 111,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FakeProxyProcess.simulateInitializationFailure",
+      "to": "this.simulateMessage",
+      "line": 120,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FakeProxyProcessLauncher.launchProxy",
+      "to": "FakeProxyProcess",
+      "line": 147,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FakeProxyProcessLauncher.launchProxy",
+      "to": "this.launchedProxies.push",
+      "line": 150,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProxyProcessLauncher.launchProxy",
+      "to": "proxy.simulateSpawn",
+      "line": 153,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProxyProcessLauncher.launchProxy",
+      "to": "proxy.sendCommand.bind",
+      "line": 157,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProxyProcessLauncher.launchProxy",
+      "to": "originalSendCommand",
+      "line": 159,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProxyProcessLauncher.launchProxy",
+      "to": "process.nextTick",
+      "line": 162,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "FakeProxyProcessLauncher.launchProxy",
+      "to": "proxy.simulateMessage",
+      "line": 163,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProxyProcessLauncher.prepareProxy",
+      "to": "FakeProxyProcess",
+      "line": 178,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FakeProxyProcessLauncher.prepareProxy",
+      "to": "setup",
+      "line": 179,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "_killed",
+      "line": 49
+    },
+    {
+      "container": "this",
+      "member": "_signalCode",
+      "line": 50
+    },
+    {
+      "container": "this",
+      "member": "_exitCode",
+      "line": 68
+    },
+    {
+      "container": "this",
+      "member": "_signalCode",
+      "line": 69
+    },
+    {
+      "container": "this",
+      "member": "_killed",
+      "line": 70
+    },
+    {
+      "container": "this",
+      "member": "nextProxy",
+      "line": 148
+    },
+    {
+      "container": "proxy",
+      "member": "sendCommand",
+      "line": 158
+    },
+    {
+      "container": "this",
+      "member": "nextProxy",
+      "line": 180
+    },
+    {
+      "container": "this",
+      "member": "launchedProxies",
+      "line": 191
+    },
+    {
+      "container": "this",
+      "member": "nextProxy",
+      "line": 192
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "adapter_configured_and_launched",
+      "context": "Status identifier emitted in simulateInitialization to signal proxy is ready",
+      "line": 114,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "init_received",
+      "context": "Status identifier auto-emitted when 'init' command is sent to a non-prepped proxy",
+      "line": 165,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "status",
+      "context": "Message type field value in proxy status messages",
+      "line": 112,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "error",
+      "context": "Message type field value in proxy error messages",
+      "line": 121,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "init",
+      "context": "Command name checked to trigger auto init_received response in launchProxy",
+      "line": 161,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command.cmd"
+    },
+    {
+      "value": "SIGTERM",
+      "context": "Default signal for kill()",
+      "line": 47,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "test-session",
+      "context": "Hardcoded sessionId used when prepareProxy creates a FakeProxyProcess",
+      "line": 178,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

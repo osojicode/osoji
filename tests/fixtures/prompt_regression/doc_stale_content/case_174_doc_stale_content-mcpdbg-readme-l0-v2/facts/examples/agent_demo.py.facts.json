@@ -1,0 +1,718 @@
+{
+  "source": "examples/agent_demo.py",
+  "source_hash": "98d6ab5a2f9e4c59",
+  "generated": "2026-07-22T22:08:01Z",
+  "imports": [
+    {
+      "source": "requests",
+      "names": [
+        "requests"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "time",
+      "names": [
+        "time"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "os",
+      "names": [
+        "os"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "uuid",
+      "names": [
+        "uuid"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "sys",
+      "names": [
+        "sys"
+      ],
+      "line": 9,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "MCP_SERVER_URL",
+      "kind": "constant",
+      "line": 11,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "call_mcp_tool",
+      "kind": "function",
+      "line": 14,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockLLM",
+      "kind": "class",
+      "line": 49,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockLLM.__init__",
+      "kind": "function",
+      "line": 50,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockLLM.think",
+      "kind": "function",
+      "line": 66,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "agent_loop",
+      "kind": "function",
+      "line": 96,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "swap_script",
+      "kind": "variable",
+      "line": 150,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "call_mcp_tool",
+      "to": "uuid.uuid4",
+      "line": 23,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "call_mcp_tool",
+      "to": "print",
+      "line": 26,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "call_mcp_tool",
+      "to": "requests.post",
+      "line": 27,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "call_mcp_tool",
+      "to": "response.raise_for_status",
+      "line": 28,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "call_mcp_tool",
+      "to": "response.json",
+      "line": 29,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "call_mcp_tool",
+      "to": "print",
+      "line": 31,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "call_mcp_tool",
+      "to": "json.dumps",
+      "line": 31,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "call_mcp_tool",
+      "to": "json_response.get",
+      "line": 33,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "call_mcp_tool",
+      "to": "Exception",
+      "line": 34,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "call_mcp_tool",
+      "to": "json_response.get",
+      "line": 36,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "call_mcp_tool",
+      "to": "isinstance",
+      "line": 38,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "call_mcp_tool",
+      "to": "json.loads",
+      "line": 40,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "call_mcp_tool",
+      "to": "response.headers.get",
+      "line": 46,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockLLM.__init__",
+      "to": "os.path.abspath",
+      "line": 56,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MockLLM.__init__",
+      "to": "os.path.abspath",
+      "line": 57,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MockLLM.think",
+      "to": "self.history.append",
+      "line": 68,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MockLLM.think",
+      "to": "len",
+      "line": 70,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MockLLM.think",
+      "to": "print",
+      "line": 71,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "MockLLM.think",
+      "to": "copy",
+      "line": 76,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockLLM.think",
+      "to": "os.path.isabs",
+      "line": 85,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockLLM.think",
+      "to": "os.path.abspath",
+      "line": 88,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MockLLM.think",
+      "to": "print",
+      "line": 89,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "MockLLM.think",
+      "to": "self.history.append",
+      "line": 93,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "MockLLM",
+      "line": 97,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "range",
+      "line": 101,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "print",
+      "line": 102,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "print",
+      "line": 103,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "llm.think",
+      "line": 105,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "print",
+      "line": 107,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "call_mcp_tool",
+      "line": 113,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "print",
+      "line": 116,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "isinstance",
+      "line": 122,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "tool_result.get",
+      "line": 123,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "print",
+      "line": 124,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "isinstance",
+      "line": 126,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "tool_result.get",
+      "line": 126,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "print",
+      "line": 127,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "time.sleep",
+      "line": 128,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "print",
+      "line": 133,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "str",
+      "line": 134,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "print",
+      "line": 138,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "len",
+      "line": 139,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "print",
+      "line": 141,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "call_mcp_tool",
+      "line": 143,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "agent_loop",
+      "to": "print",
+      "line": 145,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "os.path.abspath",
+      "line": 150,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "os.path.exists",
+      "line": 151,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "print",
+      "line": 152,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "print",
+      "line": 153,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sys.exit",
+      "line": 154,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "print",
+      "line": 156,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "print",
+      "line": 157,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "input",
+      "line": 158,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "agent_loop",
+      "line": 159,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "self",
+      "member": "history",
+      "line": 51
+    },
+    {
+      "container": "self",
+      "member": "plan",
+      "line": 52
+    },
+    {
+      "container": "self",
+      "member": "current_step",
+      "line": 62
+    },
+    {
+      "container": "llm",
+      "member": "mcp_http_session_id",
+      "line": 117
+    },
+    {
+      "container": "llm",
+      "member": "debug_session_id",
+      "line": 123
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "http://localhost:3000/mcp",
+      "line": 11,
+      "usage": "defined",
+      "context": "constant MCP_SERVER_URL"
+    },
+    {
+      "value": "application/json",
+      "line": 15,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "2.0",
+      "line": 20,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "CallTool",
+      "line": 21,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "config"
+    },
+    {
+      "value": "error",
+      "line": 33,
+      "usage": "produced",
+      "context": "argument to json_response.get"
+    },
+    {
+      "value": "result",
+      "line": 36,
+      "usage": "produced",
+      "context": "argument to json_response.get"
+    },
+    {
+      "value": "result_is_unparseable_string",
+      "line": 42,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "mcp-session-id",
+      "line": 46,
+      "usage": "produced",
+      "context": "argument to response.headers.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "create_debug_session",
+      "line": 53,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "python",
+      "line": 53,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "AgentDebugSession",
+      "line": 53,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "set_breakpoint",
+      "line": 56,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "examples/python_simple_swap/swap_vars.py",
+      "line": 56,
+      "usage": "produced",
+      "context": "argument to os.path.abspath"
+    },
+    {
+      "value": "start_debugging",
+      "line": 57,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "examples/python_simple_swap/swap_vars.py",
+      "line": 57,
+      "usage": "produced",
+      "context": "argument to os.path.abspath"
+    },
+    {
+      "value": "get_stack_trace",
+      "line": 58,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "close_debug_session",
+      "line": 60,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "assistant",
+      "line": 68,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "[LLM] Plan complete.",
+      "line": 71,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "sessionId",
+      "line": 79,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_args",
+      "kind": "identifier"
+    },
+    {
+      "value": "create_debug_session",
+      "line": 80,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "list_debug_sessions",
+      "line": 80,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "set_breakpoint",
+      "line": 84,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_to_call",
+      "kind": "identifier"
+    },
+    {
+      "value": "file",
+      "line": 84,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_args"
+    },
+    {
+      "value": "assistant",
+      "line": 93,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Initial task: Debug the swap_vars.py script.",
+      "line": 98,
+      "usage": "defined",
+      "context": "constant observation"
+    },
+    {
+      "value": "[Agent] LLM decided to finish.",
+      "line": 107,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "create_debug_session",
+      "line": 122,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "sessionId",
+      "line": 123,
+      "usage": "produced",
+      "context": "argument to tool_result.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "start_debugging",
+      "line": 126,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "success",
+      "line": 126,
+      "usage": "produced",
+      "context": "argument to tool_result.get"
+    },
+    {
+      "value": "[Agent] Debugging started. Waiting for breakpoint...",
+      "line": 127,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "\n--- Agent loop finished ---",
+      "line": 138,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "close_debug_session",
+      "line": 140,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "close_debug_session",
+      "line": 143,
+      "usage": "produced",
+      "context": "argument to call_mcp_tool",
+      "kind": "identifier"
+    },
+    {
+      "value": "__main__",
+      "line": 148,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "__name__"
+    },
+    {
+      "value": "examples/python_simple_swap/swap_vars.py",
+      "line": 150,
+      "usage": "produced",
+      "context": "argument to os.path.abspath"
+    },
+    {
+      "value": "Please ensure 'examples/python_simple_swap/swap_vars.py' is present.",
+      "line": 153,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "Press Enter to start the agent demo...",
+      "line": 158,
+      "usage": "produced",
+      "context": "argument to input"
+    }
+  ],
+  "extraction_method": "ast"
+}

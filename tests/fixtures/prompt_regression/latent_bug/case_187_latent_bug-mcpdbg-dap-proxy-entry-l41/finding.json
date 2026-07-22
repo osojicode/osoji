@@ -1,0 +1,20 @@
+{
+  "detector": "debris:latent_bug",
+  "gap_type": "description",
+  "path": "src/proxy/dap-proxy-entry.ts",
+  "line_start": 41,
+  "line_end": 41,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "The session ID accessor casts `runner.getWorker()` through `unknown as Record<string, string>` to access `currentSessionId`, which is a private field. If `getWorker()` returns null/undefined or if the private field is renamed, this will silently return `'unknown'` due to the `??` fallback \u2014 but the cast itself bypasses TypeScript type safety and could produce undefined behavior if the internal shape of the worker changes.",
+  "observed_behavior": "The session ID accessor casts `runner.getWorker()` through `unknown as Record<string, string>` to access `currentSessionId`, which is a private field. If `getWorker()` returns null/undefined or if the private field is renamed, this will silently return `'unknown'` due to the `??` fallback \u2014 but the cast itself bypasses TypeScript type safety and could produce undefined behavior if the internal shape of the worker changes.",
+  "evidence": [],
+  "id": "e85e99100b989b65",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

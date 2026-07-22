@@ -1,0 +1,57 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: "ci"
+    # Supply-chain mitigation: only open a PR once a release has been public for a few
+    # days, giving the community a window to surface a bad/compromised release first.
+    # GitHub Actions supports only `default-days` (no semver-* granularity).
+    cooldown:
+      default-days: 3
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: "deps"
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+    # Supply-chain n-day delay before a PR is opened. Majors get a longer window since
+    # they are reviewed/merged manually anyway.
+    cooldown:
+      default-days: 3
+      semver-major-days: 7
+      semver-minor-days: 3
+      semver-patch-days: 3
+
+  - package-ecosystem: pip
+    directory: /mcp_debugger_launcher
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: "deps"
+    # pip supports only `default-days`.
+    cooldown:
+      default-days: 3
+
+  # Keep digest-pinned base images (Dockerfile FROM ...@sha256:) fresh.
+  - package-ecosystem: docker
+    directories:
+      - /
+      - /docker
+      - /examples/ruby/remote-attach
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: "docker"
+    cooldown:
+      default-days: 3

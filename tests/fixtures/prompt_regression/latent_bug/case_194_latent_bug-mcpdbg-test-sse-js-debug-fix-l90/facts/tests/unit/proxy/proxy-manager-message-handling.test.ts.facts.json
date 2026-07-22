@@ -1,0 +1,3464 @@
+{
+  "source": "tests/unit/proxy/proxy-manager-message-handling.test.ts",
+  "source_hash": "ad2c161d10b406d0",
+  "generated": "2026-07-22T22:07:15Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "beforeEach",
+        "afterEach",
+        "vi"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "pathToFileURL"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": "../test-utils/test-proxy-manager.js",
+      "names": [
+        "TestProxyManager"
+      ],
+      "line": 13,
+      "is_reexport": false,
+      "resolved_path": "tests/unit/test-utils/test-proxy-manager.ts"
+    },
+    {
+      "source": "../../../src/proxy/proxy-config.js",
+      "names": [
+        "ProxyConfig"
+      ],
+      "line": 14,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/proxy-config.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage",
+        "IDebugAdapter",
+        "IProxyProcess"
+      ],
+      "line": 15,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "../test-utils/mock-factories.js",
+      "names": [
+        "createMockLogger",
+        "createMockFileSystem"
+      ],
+      "line": 16,
+      "is_reexport": false,
+      "resolved_path": "tests/unit/test-utils/mock-factories.ts"
+    },
+    {
+      "source": "../../../src/proxy/proxy-manager.js",
+      "names": [
+        "ProxyManager"
+      ],
+      "line": 17,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/proxy-manager.ts"
+    },
+    {
+      "source": "../../../src/dap-core/index.js",
+      "names": [
+        "createInitialState"
+      ],
+      "line": 18,
+      "is_reexport": false,
+      "resolved_path": "src/dap-core/index.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 20,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 25,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 27,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "TestProxyManager",
+      "line": 45,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.start",
+      "line": 48,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 51,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.isRunning",
+      "line": 52,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.stop",
+      "line": 53,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllMocks",
+      "line": 55,
+      "call_sites": 87
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 58,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 59,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.on",
+      "line": 67,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateMessage",
+      "line": 72,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapterConfiguredEmitted).toBe",
+      "line": 74,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 74,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 77,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.on",
+      "line": 90,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateMessage",
+      "line": 96,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dryRunEmitted).toBe",
+      "line": 98,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 98,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(capturedCommand).toBe",
+      "line": 99,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 99,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(capturedScript).toBe",
+      "line": 100,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 100,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 103,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.on",
+      "line": 107,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateStoppedEvent",
+      "line": 112,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stoppedEmitted).toBe",
+      "line": 114,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 114,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(capturedThreadId).toBe",
+      "line": 115,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 115,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 118,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(proxyManager.getCurrentThreadId()).toBeNull",
+      "line": 120,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 120,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.getCurrentThreadId",
+      "line": 120,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateStoppedEvent",
+      "line": 123,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(proxyManager.getCurrentThreadId()).toBe",
+      "line": 125,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 125,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.getCurrentThreadId",
+      "line": 125,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 128,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateStoppedEvent",
+      "line": 130,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(proxyManager.getCurrentThreadId()).toBe",
+      "line": 131,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 131,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.getCurrentThreadId",
+      "line": 131,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateMessage",
+      "line": 142,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(proxyManager.getCurrentThreadId()).toBe",
+      "line": 145,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 145,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.getCurrentThreadId",
+      "line": 145,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 148,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.on",
+      "line": 151,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateContinuedEvent",
+      "line": 155,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(continuedEmitted).toBe",
+      "line": 157,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 157,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 160,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.on",
+      "line": 168,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateMessage",
+      "line": 172,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(terminatedEmitted).toBe",
+      "line": 174,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 174,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 177,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.on",
+      "line": 190,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateMessage",
+      "line": 195,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(exitedEmitted).toBe",
+      "line": 197,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 197,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(capturedCode).toBe",
+      "line": 198,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 198,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 201,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.setMockResponse",
+      "line": 214,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 217,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(response.success).toBe",
+      "line": 222,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 222,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(response.body).toEqual",
+      "line": 223,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 223,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 228,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.on",
+      "line": 238,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateMessage",
+      "line": 243,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(errorEmitted).toBe",
+      "line": 245,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 245,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(capturedError?.message).toBe",
+      "line": 246,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 246,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 249,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(() => {\n        proxyManager.simulateMessage(invalidMessage);\n      }).not.toThrow",
+      "line": 255,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 255,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateMessage",
+      "line": 256,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 260,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(() => {\n        proxyManager.simulateMessage('not json');\n      }).not.toThrow",
+      "line": 262,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 262,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateMessage",
+      "line": 263,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(() => {\n        proxyManager.simulateMessage(null);\n      }).not.toThrow",
+      "line": 266,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 266,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateMessage",
+      "line": 267,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 271,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(() => {\n        proxyManager.simulateMessage({});\n      }).not.toThrow",
+      "line": 272,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 272,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateMessage",
+      "line": 273,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 277,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.on",
+      "line": 286,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateMessage",
+      "line": 290,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(eventEmitted).toBe",
+      "line": 292,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 292,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 296,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 297,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.on",
+      "line": 299,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.stop",
+      "line": 303,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(exitEmitted).toBe",
+      "line": 305,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 305,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(proxyManager.isRunning()).toBe",
+      "line": 306,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 306,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.isRunning",
+      "line": 306,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 309,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateMessage",
+      "line": 318,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalled",
+      "line": 321,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 321,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 324,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateMessage",
+      "line": 333,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalled",
+      "line": 336,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 336,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 339,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.on",
+      "line": 347,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateMessage",
+      "line": 351,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(errorEmitted).toBe",
+      "line": 353,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 353,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 357,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 358,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 361,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(response.success).toBe",
+      "line": 362,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 362,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.stop",
+      "line": 365,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(proxyManager.sendDapRequest('threads')).rejects.toThrow",
+      "line": 368,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 368,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 368,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 371,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise.all",
+      "line": 373,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 374,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 375,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 376,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result1.success).toBe",
+      "line": 379,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 379,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result2.success).toBe",
+      "line": 380,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 380,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result3.success).toBe",
+      "line": 381,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 381,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.stop",
+      "line": 384,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(proxyManager.sendDapRequest('threads')).rejects.toThrow",
+      "line": 385,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 385,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 385,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 388,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(proxyManager.stop()).resolves.not.toThrow",
+      "line": 390,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 390,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.stop",
+      "line": 390,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 393,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.stop",
+      "line": 396,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(proxyManager.isRunning()).toBe",
+      "line": 397,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 397,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.isRunning",
+      "line": 397,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 400,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.stop",
+      "line": 402,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(proxyManager.isRunning()).toBe",
+      "line": 403,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 403,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.isRunning",
+      "line": 403,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(proxyManager.stop()).resolves.not.toThrow",
+      "line": 406,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 406,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.stop",
+      "line": 406,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 410,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "makeStoppableProxyManager",
+      "to": "createMockLogger",
+      "line": 419,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "makeStoppableProxyManager",
+      "to": "createMockFileSystem",
+      "line": 420,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "makeStoppableProxyManager",
+      "to": "ProxyManager",
+      "line": 421,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "makeStoppableProxyManager",
+      "to": "vi.fn",
+      "line": 423,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "makeStoppableProxyManager",
+      "to": "EventEmitter",
+      "line": 428,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "makeStoppableProxyManager",
+      "to": "vi.fn",
+      "line": 436,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "makeStoppableProxyManager",
+      "to": "vi.fn",
+      "line": 439,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "makeStoppableProxyManager",
+      "to": "vi.fn",
+      "line": 441,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "makeStoppableProxyManager",
+      "to": "setImmediate",
+      "line": 442,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "makeStoppableProxyManager",
+      "to": "(fakeProcess as unknown as EventEmitter).emit",
+      "line": 442,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "makeStoppableProxyManager",
+      "to": "createInitialState",
+      "line": 449,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 455,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "makeStoppableProxyManager",
+      "line": 456,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 458,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(payload.dapCommand).toBe",
+      "line": 461,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 461,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.stop",
+      "line": 465,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 468,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(proxyManager as any).handleProxyMessage",
+      "line": 470,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(response.success).toBe",
+      "line": 488,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 488,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((fakeProcess as any).send).toHaveBeenCalledWith",
+      "line": 493,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 493,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 494,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 498,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "makeStoppableProxyManager",
+      "line": 499,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 503,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.stop",
+      "line": 504,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(hungPromise).rejects.toThrow",
+      "line": 506,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 506,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 511,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 512,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.stop",
+      "line": 514,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        proxyManager.sendDapRequest('threads')\n      ).rejects.toThrow",
+      "line": 517,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 517,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 518,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 522,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.setMockResponse",
+      "line": 524,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise.all",
+      "line": 530,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 531,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 532,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result1.success).toBe",
+      "line": 535,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 535,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result2.success).toBe",
+      "line": 536,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 536,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 539,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 542,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(response.success).toBe",
+      "line": 543,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 543,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 546,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.setMockResponse",
+      "line": 548,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 557,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(response.success).toBe",
+      "line": 561,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 561,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(response.message).toBe",
+      "line": 562,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 562,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 566,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 567,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateStoppedEvent",
+      "line": 568,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(proxyManager.getCurrentThreadId()).toBe",
+      "line": 569,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 569,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.getCurrentThreadId",
+      "line": 569,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 572,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateStoppedEvent",
+      "line": 574,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(proxyManager.getCurrentThreadId()).toBe",
+      "line": 575,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 575,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.getCurrentThreadId",
+      "line": 575,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.simulateContinuedEvent",
+      "line": 578,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(proxyManager.getCurrentThreadId()).toBeNull",
+      "line": 579,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 579,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.getCurrentThreadId",
+      "line": 579,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 582,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "TestProxyManager",
+      "line": 589,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dryRunManager.start(dryRunConfig)).resolves.not.toThrow",
+      "line": 592,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 592,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "dryRunManager.start",
+      "line": 592,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 596,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 597,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 598,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 601,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 602,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "TestProxyManager",
+      "line": 604,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "manager.simulateMessage",
+      "line": 606,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(warnSpy).toHaveBeenCalledWith",
+      "line": 608,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 608,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 609,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 610,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 614,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 615,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockFileSystem",
+      "line": 616,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyManager",
+      "line": 617,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 619,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 627,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 631,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 633,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 635,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(request).rejects.toThrow",
+      "line": 637,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 637,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(pending.size).toBe",
+      "line": 640,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 640,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "makeInitializedProxyManager",
+      "to": "createMockLogger",
+      "line": 644,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "makeInitializedProxyManager",
+      "to": "createMockFileSystem",
+      "line": 645,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "makeInitializedProxyManager",
+      "to": "ProxyManager",
+      "line": 646,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "makeInitializedProxyManager",
+      "to": "vi.fn",
+      "line": 648,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "makeInitializedProxyManager",
+      "to": "vi.fn",
+      "line": 652,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 664,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "makeInitializedProxyManager",
+      "line": 665,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 667,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 669,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "request.catch",
+      "line": 671,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 674,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(settled).toBe",
+      "line": 675,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 675,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 678,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(request).rejects.toThrow",
+      "line": 679,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 679,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 682,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "makeInitializedProxyManager",
+      "line": 683,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 685,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 687,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "request.catch",
+      "line": 689,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 691,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(settled).toBe",
+      "line": 692,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 692,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 694,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(request).rejects.toThrow",
+      "line": 695,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 695,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 698,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "makeInitializedProxyManager",
+      "line": 699,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 701,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 703,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 704,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "withOverride.catch",
+      "line": 705,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "withoutOverride.catch",
+      "line": 706,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(firstPayload).toMatchObject",
+      "line": 710,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 710,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect('timeoutMs' in secondPayload).toBe",
+      "line": 713,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 713,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 716,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 719,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 720,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockFileSystem",
+      "line": 721,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fileSystem.pathExists.mockResolvedValue",
+      "line": 722,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "pathToFileURL",
+      "line": 725,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 725,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.cwd",
+      "line": 725,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 726,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.cwd",
+      "line": 726,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyManager",
+      "line": 729,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 731,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        (proxyManager as unknown as {\n          prepareSpawnContext: (config: ProxyConfig) =",
+      "line": 737,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 737,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(proxyManager as unknown as {\n          prepareSpawnContext: (config: ProxyConfig) => Promise<unknow",
+      "line": 738,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 752,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 753,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockFileSystem",
+      "line": 754,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyManager",
+      "line": 755,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 757,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 762,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 762,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 763,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 773,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 775,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(request).rejects.toThrow",
+      "line": 777,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 777,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(pending.size).toBe",
+      "line": 780,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 780,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 783,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 786,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 786,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 793,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockFileSystem",
+      "line": 794,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyManager",
+      "line": 796,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 798,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        (proxyManager as unknown as {\n          prepareSpawnContext: (config: ProxyConfig) =",
+      "line": 803,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 803,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(proxyManager as unknown as {\n          prepareSpawnContext: (config: ProxyConfig) => Promise<unknow",
+      "line": 804,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 818,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 819,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockFileSystem",
+      "line": 820,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 824,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 825,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 826,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 827,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 828,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 828,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 829,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 831,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 831,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 835,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 835,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 836,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 836,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyManager",
+      "line": 841,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 843,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 848,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 856,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(createLaunchBarrier).toHaveBeenCalledWith",
+      "line": 858,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 858,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(barrier.onRequestSent).toHaveBeenCalled",
+      "line": 859,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 859,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(barrier.waitUntilReady).toHaveBeenCalled",
+      "line": 860,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 860,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sendCommand).toHaveBeenCalledWith",
+      "line": 861,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 861,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 862,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(barrier.dispose).toHaveBeenCalled",
+      "line": 867,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 867,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(response).toEqual",
+      "line": 868,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 868,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 871,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 872,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockFileSystem",
+      "line": 873,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 877,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 878,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 879,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 880,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 881,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 881,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 882,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 887,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 887,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 888,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 888,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 889,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 889,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyManager",
+      "line": 892,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 894,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 899,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 900,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 903,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(proxyManager as unknown as { setupEventHandlers: () => void }).setupEventHandlers",
+      "line": 908,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 910,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.createLaunchBarrier).toHaveBeenCalledWith",
+      "line": 912,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 912,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(barrier.onRequestSent).toHaveBeenCalled",
+      "line": 913,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 913,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProcess.emit",
+      "line": 915,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(requestPromise).rejects.toThrow",
+      "line": 917,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 917,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(barrier.onProxyExit).toHaveBeenCalledWith",
+      "line": 918,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 918,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(barrier.dispose).toHaveBeenCalled",
+      "line": 919,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 919,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 922,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 923,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockFileSystem",
+      "line": 924,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 928,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 929,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 930,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 931,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 932,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 933,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 938,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 938,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 939,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 939,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 940,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 940,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyManager",
+      "line": 943,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 945,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 952,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(proxyManager as unknown as { handleProxyMessage: (message: object) => void }).handleProxyMessage",
+      "line": 954,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createInitialState",
+      "line": 973,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 975,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(response.command).toBe",
+      "line": 977,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 977,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(barrier.onRequestSent).toHaveBeenCalled",
+      "line": 978,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 978,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(barrier.waitUntilReady).not.toHaveBeenCalled",
+      "line": 979,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 979,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(barrier.dispose).toHaveBeenCalled",
+      "line": 980,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 980,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 983,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 984,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 985,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockFileSystem",
+      "line": 986,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 990,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 991,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 992,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 993,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 994,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 995,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1000,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1000,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1001,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1001,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 1002,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1002,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyManager",
+      "line": 1005,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1007,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1014,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createInitialState",
+      "line": 1019,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.sendDapRequest",
+      "line": 1021,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 1023,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(requestPromise).rejects.toThrow",
+      "line": 1026,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1026,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(barrier.dispose).toHaveBeenCalled",
+      "line": 1027,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1027,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 1029,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1034,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1035,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 1036,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockFileSystem",
+      "line": 1037,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyManager",
+      "line": 1039,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1041,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1046,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.on",
+      "line": 1047,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(proxyManager as unknown as {\n        handleStatusMessage: (status: any) => void;\n      }).handleSta",
+      "line": 1049,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(initialized).toHaveBeenCalled",
+      "line": 1057,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1057,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1060,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 1061,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockFileSystem",
+      "line": 1062,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyManager",
+      "line": 1064,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1066,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1071,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proxyManager.on",
+      "line": 1072,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(proxyManager as unknown as {\n        handleStatusMessage: (status: any) => void;\n      }).handleSta",
+      "line": 1074,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(exitSpy).toHaveBeenCalledWith",
+      "line": 1084,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1084,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1087,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 1088,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockFileSystem",
+      "line": 1089,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyManager",
+      "line": 1091,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1093,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1098,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(proxyManager as unknown as {\n        pendingDapRequests: Map<string, { resolve: () => void; reject:",
+      "line": 1099,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1102,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(proxyManager as unknown as {\n        handleProxyExit: (code: number | null, signal: string | null) ",
+      "line": 1106,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(rejectSpy).toHaveBeenCalledWith",
+      "line": 1110,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1110,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 1110,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(pending.size).toBe",
+      "line": 1112,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1112,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1116,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1117,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 1118,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockFileSystem",
+      "line": 1119,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyManager",
+      "line": 1121,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1123,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1128,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(proxyManager as unknown as { handleStatusMessage: (message: any) => void }).handleStatusMessage",
+      "line": 1131,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(kill).toHaveBeenCalled",
+      "line": 1137,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1137,
+      "call_sites": 5808
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "(fakeProcess as any)",
+      "member": "sendCommand",
+      "line": 436
+    },
+    {
+      "container": "(fakeProcess as any)",
+      "member": "killed",
+      "line": 437
+    },
+    {
+      "container": "(fakeProcess as any)",
+      "member": "exitCode",
+      "line": 438
+    },
+    {
+      "container": "(fakeProcess as any)",
+      "member": "kill",
+      "line": 439
+    },
+    {
+      "container": "(fakeProcess as any)",
+      "member": "send",
+      "line": 441
+    },
+    {
+      "container": "(proxyManager as any)",
+      "member": "proxyProcess",
+      "line": 446
+    },
+    {
+      "container": "(proxyManager as any)",
+      "member": "isInitialized",
+      "line": 447
+    },
+    {
+      "container": "(proxyManager as any)",
+      "member": "sessionId",
+      "line": 448
+    },
+    {
+      "container": "(proxyManager as any)",
+      "member": "dapState",
+      "line": 449
+    },
+    {
+      "container": "(proxyManager as any)",
+      "member": "stopDrainTimeoutMs",
+      "line": 501
+    },
+    {
+      "container": "(proxyManager as unknown as { sessionId: string })",
+      "member": "sessionId",
+      "line": 624
+    },
+    {
+      "container": "(proxyManager as unknown as { isInitialized: boolean })",
+      "member": "isInitialized",
+      "line": 625
+    },
+    {
+      "container": "(proxyManager as unknown as { proxyProcess: unknown })",
+      "member": "proxyProcess",
+      "line": 626
+    },
+    {
+      "container": "(proxyManager as unknown as { sessionId: string })",
+      "member": "sessionId",
+      "line": 654
+    },
+    {
+      "container": "(proxyManager as unknown as { isInitialized: boolean })",
+      "member": "isInitialized",
+      "line": 655
+    },
+    {
+      "container": "(proxyManager as unknown as { proxyProcess: unknown })",
+      "member": "proxyProcess",
+      "line": 656
+    },
+    {
+      "container": "(proxyManager as unknown as { sessionId: string })",
+      "member": "sessionId",
+      "line": 766
+    },
+    {
+      "container": "(proxyManager as unknown as { isInitialized: boolean })",
+      "member": "isInitialized",
+      "line": 767
+    },
+    {
+      "container": "(proxyManager as unknown as { proxyProcess: unknown })",
+      "member": "proxyProcess",
+      "line": 768
+    },
+    {
+      "container": "(proxyManager as unknown as { proxyProcess: unknown })",
+      "member": "proxyProcess",
+      "line": 849
+    },
+    {
+      "container": "(proxyManager as unknown as { isInitialized: boolean })",
+      "member": "isInitialized",
+      "line": 853
+    },
+    {
+      "container": "(proxyManager as unknown as { sessionId: string })",
+      "member": "sessionId",
+      "line": 854
+    },
+    {
+      "container": "(fakeProcess as unknown as { sendCommand: (cmd: unknown) => void })",
+      "member": "sendCommand",
+      "line": 901
+    },
+    {
+      "container": "(fakeProcess as unknown as { killed: boolean })",
+      "member": "killed",
+      "line": 902
+    },
+    {
+      "container": "(fakeProcess as unknown as { kill: (_signal?: string) => void })",
+      "member": "kill",
+      "line": 903
+    },
+    {
+      "container": "(proxyManager as unknown as { proxyProcess: unknown })",
+      "member": "proxyProcess",
+      "line": 905
+    },
+    {
+      "container": "(proxyManager as unknown as { isInitialized: boolean })",
+      "member": "isInitialized",
+      "line": 906
+    },
+    {
+      "container": "(proxyManager as unknown as { sessionId: string })",
+      "member": "sessionId",
+      "line": 907
+    },
+    {
+      "container": "(proxyManager as unknown as { proxyProcess: unknown })",
+      "member": "proxyProcess",
+      "line": 950
+    },
+    {
+      "container": "(proxyManager as unknown as { isInitialized: boolean })",
+      "member": "isInitialized",
+      "line": 970
+    },
+    {
+      "container": "(proxyManager as unknown as { sessionId: string })",
+      "member": "sessionId",
+      "line": 971
+    },
+    {
+      "container": "(proxyManager as unknown as { dapState: ReturnType<typeof createInitialState> | null })",
+      "member": "dapState",
+      "line": 972
+    },
+    {
+      "container": "(proxyManager as unknown as { proxyProcess: unknown })",
+      "member": "proxyProcess",
+      "line": 1012
+    },
+    {
+      "container": "(proxyManager as unknown as { isInitialized: boolean })",
+      "member": "isInitialized",
+      "line": 1016
+    },
+    {
+      "container": "(proxyManager as unknown as { sessionId: string })",
+      "member": "sessionId",
+      "line": 1017
+    },
+    {
+      "container": "(proxyManager as unknown as { dapState: ReturnType<typeof createInitialState> | null })",
+      "member": "dapState",
+      "line": 1018
+    },
+    {
+      "container": "(proxyManager as unknown as { proxyProcess: { kill: () => void } })",
+      "member": "proxyProcess",
+      "line": 1129
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "adapter_configured_and_launched",
+      "context": "Status message value triggering adapter-configured event",
+      "line": 63,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dry_run_complete",
+      "context": "Status message triggering dry-run-complete event",
+      "line": 81,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "adapter_exited",
+      "context": "Status message triggering exit/log",
+      "line": 313,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "adapter_connected",
+      "context": "Status message triggering initialized event",
+      "line": 1054,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "proxy_minimal_ran_ipc_test",
+      "context": "IPC smoke test status that causes proxy kill",
+      "line": 1134,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "Proxy not running",
+      "context": "Error message expected when proxy is stopped",
+      "line": 368,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "proxyManager.sendDapRequest rejection"
+    },
+    {
+      "value": "Request cancelled during proxy shutdown",
+      "context": "Drain regression: must NOT appear for in-flight requests within drain window",
+      "line": 486,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "continuePromise rejection message"
+    },
+    {
+      "value": "cancelled during proxy shutdown",
+      "context": "Expected rejection message for requests that never settle after drain",
+      "line": 506,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "hungPromise rejection message"
+    },
+    {
+      "value": "Debug adapter did not respond",
+      "context": "Timeout rejection message pattern",
+      "line": 637,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "request rejection message"
+    },
+    {
+      "value": "Bootstrap worker script not found",
+      "context": "Error thrown when proxy bootstrap is missing",
+      "line": 749,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "prepareSpawnContext rejection"
+    },
+    {
+      "value": "Invalid environment",
+      "context": "Error pattern when adapter validation fails",
+      "line": 815,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "prepareSpawnContext rejection"
+    },
+    {
+      "value": "Proxy exited",
+      "context": "Expected rejection message when proxy exits with pending requests",
+      "line": 917,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "requestPromise rejection"
+    },
+    {
+      "value": "terminate",
+      "context": "IPC command sent to terminate proxy worker",
+      "line": 493,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "fakeProcess.send call args"
+    },
+    {
+      "value": "dapResponse",
+      "context": "IPC message type for DAP response routing in handleProxyMessage",
+      "line": 471,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "js-debug",
+      "context": "Adapter module name discriminant for fire-and-forget launch path",
+      "line": 837,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "Invalid message format",
+      "context": "Warning logged for unknown message types",
+      "line": 608,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "logger.warn call args"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,461 @@
+{
+  "source": "src/session/session-store.ts",
+  "source_hash": "805831efbe7dd507",
+  "generated": "2026-07-22T22:07:31Z",
+  "imports": [
+    {
+      "source": "uuid",
+      "names": [
+        "uuidv4"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "name_map": {
+        "uuidv4": "v4"
+      },
+      "resolved_path": "node_modules/.pnpm/uuid@14.0.1/node_modules/uuid/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage",
+        "SessionState",
+        "SessionLifecycleState",
+        "ExecutionState",
+        "DebugSessionInfo",
+        "Breakpoint",
+        "AdapterPolicy",
+        "getPolicyForLanguage"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "../errors/debug-errors.js",
+      "names": [
+        "SessionNotFoundError"
+      ],
+      "line": 19,
+      "is_reexport": false,
+      "resolved_path": "src/errors/debug-errors.ts"
+    },
+    {
+      "source": "../proxy/proxy-manager.js",
+      "names": [
+        "IProxyManager"
+      ],
+      "line": 30,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/proxy-manager.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "SessionStore",
+      "kind": "class",
+      "line": 68,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SessionStore.selectPolicy",
+      "kind": "function",
+      "line": 74,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "language",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/models/index\").DebugLanguage"
+        }
+      ]
+    },
+    {
+      "name": "SessionStore.createSession",
+      "kind": "function",
+      "line": 81,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "params",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/session/session-store\").CreateSessionParams"
+        }
+      ]
+    },
+    {
+      "name": "SessionStore.get",
+      "kind": "function",
+      "line": 125,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "SessionStore.getOrThrow",
+      "kind": "function",
+      "line": 132,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "SessionStore.set",
+      "kind": "function",
+      "line": 143,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "session",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/session/session-store\").ManagedSession"
+        }
+      ]
+    },
+    {
+      "name": "SessionStore.update",
+      "kind": "function",
+      "line": 150,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "updates",
+          "optional": false,
+          "type": "Partial<import(\"C:/Users/johnf/projects/mcp-debugger/src/session/session-store\").ManagedSession>"
+        }
+      ]
+    },
+    {
+      "name": "SessionStore.updateState",
+      "kind": "function",
+      "line": 159,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "newState",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/models/index\").SessionState"
+        }
+      ]
+    },
+    {
+      "name": "SessionStore.remove",
+      "kind": "function",
+      "line": 170,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "SessionStore.getAll",
+      "kind": "function",
+      "line": 177,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SessionStore.getAllManaged",
+      "kind": "function",
+      "line": 191,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SessionStore.has",
+      "kind": "function",
+      "line": 198,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "SessionStore.size",
+      "kind": "function",
+      "line": 205,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SessionStore.clear",
+      "kind": "function",
+      "line": 212,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "CreateSessionParams",
+      "kind": "type",
+      "line": 24,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ToolchainValidationState",
+      "kind": "type",
+      "line": 32,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ManagedSession",
+      "kind": "type",
+      "line": 44,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 69,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionStore.selectPolicy",
+      "to": "getPolicyForLanguage",
+      "line": 75,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "SessionStore.createSession",
+      "to": "uuidv4",
+      "line": 83,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "SessionStore.createSession",
+      "to": "sessionId.substring",
+      "line": 84,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionStore.createSession",
+      "to": "Object.values(DebugLanguage).includes",
+      "line": 87,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionStore.createSession",
+      "to": "Object.values",
+      "line": 87,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionStore.createSession",
+      "to": "Error",
+      "line": 88,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionStore.createSession",
+      "to": "this.selectPolicy",
+      "line": 92,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionStore.createSession",
+      "to": "policy.resolveExecutablePath",
+      "line": 93,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionStore.createSession",
+      "to": "Date",
+      "line": 100,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionStore.createSession",
+      "to": "Date",
+      "line": 101,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionStore.createSession",
+      "to": "Map",
+      "line": 102,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionStore.createSession",
+      "to": "this.sessions.set",
+      "line": 110,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionStore.get",
+      "to": "this.sessions.get",
+      "line": 126,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionStore.getOrThrow",
+      "to": "this.sessions.get",
+      "line": 133,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionStore.getOrThrow",
+      "to": "SessionNotFoundError",
+      "line": 135,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionStore.set",
+      "to": "this.sessions.set",
+      "line": 144,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionStore.update",
+      "to": "this.getOrThrow",
+      "line": 151,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionStore.update",
+      "to": "Object.assign",
+      "line": 152,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionStore.update",
+      "to": "Date",
+      "line": 153,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionStore.updateState",
+      "to": "this.getOrThrow",
+      "line": 160,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionStore.updateState",
+      "to": "Date",
+      "line": 163,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionStore.remove",
+      "to": "this.sessions.delete",
+      "line": 171,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionStore.getAll",
+      "to": "Array.from(this.sessions.values()).map",
+      "line": 178,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionStore.getAll",
+      "to": "Array.from",
+      "line": 178,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionStore.getAll",
+      "to": "this.sessions.values",
+      "line": 178,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionStore.getAllManaged",
+      "to": "Array.from",
+      "line": 192,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionStore.getAllManaged",
+      "to": "this.sessions.values",
+      "line": 192,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionStore.has",
+      "to": "this.sessions.has",
+      "line": 199,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionStore.clear",
+      "to": "this.sessions.clear",
+      "line": 213,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "session",
+      "member": "updatedAt",
+      "line": 153
+    },
+    {
+      "container": "session",
+      "member": "state",
+      "line": 162
+    },
+    {
+      "container": "session",
+      "member": "updatedAt",
+      "line": 163
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "session-",
+      "context": "Default session name prefix when no name is provided",
+      "line": 84,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,20 @@
+{
+  "detector": "doc:incorrect_content",
+  "gap_type": "description",
+  "path": "docs/architecture/testing-architecture.md",
+  "line_start": null,
+  "line_end": null,
+  "symbol": null,
+  "contract_source": "tests\\vitest.setup.ts",
+  "contract_claim": "The document states the setup file 'Deletes process.env.CONSOLE_OUTPUT_SILENCED' but the shadow doc says it is deleted from process.env at module load time (L40). The doc says this is step 2 in the setup file, but it's actually a module-level operation, not part of beforeAll/afterEach hooks.",
+  "observed_behavior": "CONSOLE_OUTPUT_SILENCED: Deleted from process.env at module load (L40) to ensure console is active unless tests re-set it.",
+  "evidence": [],
+  "id": "70cb76a155bf0633",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

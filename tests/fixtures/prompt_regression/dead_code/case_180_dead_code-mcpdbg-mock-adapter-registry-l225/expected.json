@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "Read the whole file. resetAdapterRegistryMock (L225-232) resets only top-level vi.fn()s via Object.values(mock). The create mock (L49-124) is a factory returning a new object literal of fresh spies each call, so its nested spies are ephemeral per-invocation \u2014 not cross-test shared state. Grep confirms the helper is never called anywhere in the test suite. With no caller and no persistent nested state, the claimed 'test isolation issues' has no stateable input\u2192failure path. Gray because the unreachability observation itself is accurate; only its impact is unfounded.",
+  "gray": true,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-22",
+  "accepted": true
+}

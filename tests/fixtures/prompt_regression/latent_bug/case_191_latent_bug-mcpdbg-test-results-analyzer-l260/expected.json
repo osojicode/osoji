@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "Read L232-264: args are parsed at module scope and L260-263 unconditionally instantiate TestResultsAnalyzer and call analyze() with no import.meta.url / require.main guard \u2014 factually as described. But the harm ('imports trigger CLI side effects') is contingent on a future import. Grep across the repo for 'test-results-analyzer' returned only CLI-usage references (docs/vitest-llm-config.md L42/45/64, docs/archive/.../REORGANIZATION_LOG.md), no import site. With no current importer the failure state is unreachable now; adding a guard is defensive best-practice, not a fix for a present bug. gray=true because a missing entry-point guard is a defensible hygiene note that could be filed at info s",
+  "gray": true,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-22",
+  "accepted": true
+}

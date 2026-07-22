@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "Read the test (L144-220) and the handler. Launch test L169 emits `('dap-event', { event: 'initialized' })`; attach test L209 emits `('dap-event', 'initialized')` \u2014 the discrepancy the finding flags is real. I then read adapter-policy-js.ts:233-255: onHandler(event) at L243 computes `eventName = typeof event === 'string' ? event : event?.event` (L246) and matches `eventName === 'initialized'` (L247). This deliberately accepts both forms, so neither test relies on undefined behavior \u2014 both drive the handshake to completion. The claimed failure ('string form would not match, handshake would not complete') cannot happen. Not gray: the handler code and its comment are unambiguous.",
+  "gray": false,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-22",
+  "accepted": true
+}

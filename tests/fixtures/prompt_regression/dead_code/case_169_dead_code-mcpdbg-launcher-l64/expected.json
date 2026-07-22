@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "confirmed",
+  "reasoning": "Read launcher.py L28-71. launch_with_npx starts the child via subprocess.Popen (L43-50) and collects the exit code via self.process.wait() (L58). CalledProcessError is never raised by Popen or Popen.wait() \u2014 it is raised only by the check=True family. So the except subprocess.CalledProcessError block (L64-66) can never fire on this path: real dead code, concretely removable. The claim is accurate and correctly limited to npx (the docker path at L101 does use check=True, making its analogous handler live).",
+  "gray": false,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-22",
+  "accepted": true
+}

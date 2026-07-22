@@ -1,0 +1,875 @@
+{
+  "source": "packages/shared/src/interfaces/adapter-policy-js.ts",
+  "source_hash": "7b9e3696271f5ebb",
+  "generated": "2026-07-22T22:07:56Z",
+  "imports": [
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "./adapter-policy.js",
+      "names": [
+        "AdapterPolicy",
+        "AdapterSpecificState",
+        "CommandHandling"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/src/interfaces/adapter-policy.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "SessionState"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "../models/index.js",
+      "names": [
+        "StackFrame",
+        "Variable"
+      ],
+      "line": 10,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/src/models/index.ts"
+    },
+    {
+      "source": "./dap-client-behavior.js",
+      "names": [
+        "DapClientBehavior",
+        "DapClientContext",
+        "ReverseRequestResult"
+      ],
+      "line": 11,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/src/interfaces/dap-client-behavior.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "JsDebugAdapterPolicy",
+      "kind": "variable",
+      "line": 22,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JsAdapterState",
+      "kind": "type",
+      "line": 16,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "filePath.includes",
+      "line": 51,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frames.filter",
+      "line": 64,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JsDebugAdapterPolicy.isInternalFrame!",
+      "line": 64,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frameScopes.find",
+      "line": 96,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "scope.name.startsWith",
+      "line": 99,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "scope.name.startsWith",
+      "line": 100,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frameScopes.find",
+      "line": 105,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "scope.name.toLowerCase().includes",
+      "line": 109,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "scope.name.toLowerCase",
+      "line": 109,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "localVars.filter",
+      "line": 122,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "name.startsWith",
+      "line": 136,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "name.endsWith",
+      "line": 136,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "name.startsWith",
+      "line": 141,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "name.startsWith",
+      "line": 141,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "pm.isRunning",
+      "line": 206,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.warn",
+      "line": 207,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.info",
+      "line": 215,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "pm.sendDapRequest",
+      "line": 216,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.warn",
+      "line": 226,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "String",
+      "line": 228,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 234,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 236,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.warn",
+      "line": 239,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "resolve",
+      "line": 240,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "clearTimeout",
+      "line": 249,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "pm.removeListener",
+      "line": 250,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "resolve",
+      "line": 251,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "pm.on",
+      "line": 254,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.info",
+      "line": 259,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "pm.sendDapRequest",
+      "line": 260,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.warn",
+      "line": 262,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "String",
+      "line": 264,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 271,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "breakpoints.values",
+      "line": 272,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "grouped.get",
+      "line": 275,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "arr.push",
+      "line": 276,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "grouped.set",
+      "line": 277,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.info",
+      "line": 280,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "pm.sendDapRequest",
+      "line": 283,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.warn",
+      "line": 289,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "String",
+      "line": 290,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.info",
+      "line": 296,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "pm.sendDapRequest",
+      "line": 297,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.warn",
+      "line": 299,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "String",
+      "line": 301,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Number.isFinite",
+      "line": 312,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getPortValue",
+      "line": 329,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getPortValue",
+      "line": 330,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getPortValue",
+      "line": 331,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getPortValue",
+      "line": 332,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.info",
+      "line": 371,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "pm.sendDapRequest",
+      "line": 372,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.warn",
+      "line": 374,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "String",
+      "line": 374,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "import",
+      "line": 380,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array.isArray",
+      "line": 386,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array.isArray",
+      "line": 387,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.dirname",
+      "line": 394,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.cwd",
+      "line": 394,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array.isArray",
+      "line": 439,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array.isArray",
+      "line": 441,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array.isArray",
+      "line": 449,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array.isArray",
+      "line": 451,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.info",
+      "line": 458,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "pm.sendDapRequest",
+      "line": 461,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.warn",
+      "line": 463,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "String",
+      "line": 463,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.info",
+      "line": 468,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Set",
+      "line": 497,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "configCommands.has",
+      "line": 506,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "[\n      'setBreakpoints',\n      'setFunctionBreakpoints',\n      'setExceptionBreakpoints',\n      'se",
+      "line": 537,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "typedCommands.filter",
+      "line": 545,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "isConfig",
+      "line": 545,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "typedCommands.filter",
+      "line": 546,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "typedCommands.filter",
+      "line": 547,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "typedCommands.filter",
+      "line": 548,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "isConfig",
+      "line": 549,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapterCommand.command.toLowerCase",
+      "line": 628,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapterCommand.args.join(' ').toLowerCase",
+      "line": 629,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapterCommand.args.join",
+      "line": 629,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "commandStr.includes",
+      "line": 631,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "commandStr.includes",
+      "line": 632,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "commandStr.includes",
+      "line": 633,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "argsStr.includes",
+      "line": 634,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "argsStr.includes",
+      "line": 635,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "argsStr.includes",
+      "line": 636,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "context.sendResponse",
+      "line": 666,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "context.adoptedTargets.has",
+      "line": 670,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "context.adoptedTargets.add",
+      "line": 671,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "context.sendResponse",
+      "line": 687,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Set",
+      "line": 694,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "requestedId.toLowerCase",
+      "line": 726,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.warn",
+      "line": 758,
+      "call_sites": 9
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "attachArgs",
+      "member": "stopOnEntry",
+      "line": 368
+    },
+    {
+      "container": "baseLaunchConfig",
+      "member": "program",
+      "line": 382
+    },
+    {
+      "container": "baseLaunchConfig",
+      "member": "args",
+      "line": 390
+    },
+    {
+      "container": "baseLaunchConfig",
+      "member": "cwd",
+      "line": 394
+    },
+    {
+      "container": "baseLaunchConfig",
+      "member": "stopOnEntry",
+      "line": 398
+    },
+    {
+      "container": "baseLaunchConfig",
+      "member": "justMyCode",
+      "line": 402
+    },
+    {
+      "container": "baseLaunchConfig",
+      "member": "console",
+      "line": 406
+    },
+    {
+      "container": "baseLaunchConfig",
+      "member": "outputCapture",
+      "line": 410
+    },
+    {
+      "container": "baseLaunchConfig",
+      "member": "smartStep",
+      "line": 414
+    },
+    {
+      "container": "baseLaunchConfig",
+      "member": "pauseForSourceMap",
+      "line": 418
+    },
+    {
+      "container": "baseLaunchConfig",
+      "member": "runtimeExecutable",
+      "line": 423
+    },
+    {
+      "container": "finalLaunchArgs",
+      "member": "sourceMaps",
+      "line": 433
+    },
+    {
+      "container": "finalLaunchArgs",
+      "member": "sourceMaps",
+      "line": 435
+    },
+    {
+      "container": "finalLaunchArgs",
+      "member": "outFiles",
+      "line": 445
+    },
+    {
+      "container": "finalLaunchArgs",
+      "member": "resolveSourceMapLocations",
+      "line": 455
+    },
+    {
+      "container": "jsState",
+      "member": "configurationDone",
+      "line": 579
+    },
+    {
+      "container": "jsState",
+      "member": "startSent",
+      "line": 581
+    },
+    {
+      "container": "jsState",
+      "member": "initializeResponded",
+      "line": 591
+    },
+    {
+      "container": "jsState",
+      "member": "initialized",
+      "line": 602
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "js-debug",
+      "context": "Policy name identifier",
+      "line": 23,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "launchWithPendingTarget",
+      "context": "Child session strategy discriminant",
+      "line": 25,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "pwa-node",
+      "context": "DAP adapter type for js-debug",
+      "line": 28,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "attach",
+      "context": "DAP request type for child attach",
+      "line": 30,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "__pendingTargetId",
+      "context": "js-debug pending target ID field in attach args",
+      "line": 34,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "thread",
+      "context": "DAP event name checked for child readiness",
+      "line": 42,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "evt?.event"
+    },
+    {
+      "value": "stopped",
+      "context": "DAP event name checked for child readiness",
+      "line": 42,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "evt?.event"
+    },
+    {
+      "value": "<node_internals>",
+      "context": "Node.js internal frame path marker",
+      "line": 51,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "filePath"
+    },
+    {
+      "value": "Local",
+      "context": "JS debugger scope name for local variables",
+      "line": 97,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "scope.name"
+    },
+    {
+      "value": "initialize",
+      "context": "DAP command name gating command queue bypass",
+      "line": 483,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "initialized",
+      "context": "DAP event name for state transition",
+      "line": 247,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "eventName"
+    },
+    {
+      "value": "configurationDone",
+      "context": "DAP command name for configuration done sequencing",
+      "line": 501,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "startDebugging",
+      "context": "Reverse DAP request command from js-debug for multi-session child creation",
+      "line": 659,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "request.command"
+    },
+    {
+      "value": "runInTerminal",
+      "context": "Reverse DAP request command handled by policy",
+      "line": 685,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "request.command"
+    },
+    {
+      "value": "internalConsole",
+      "context": "Default console mode for js-debug launch",
+      "line": 406,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "std",
+      "context": "Default outputCapture for js-debug launch",
+      "line": 410,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "mcp",
+      "context": "clientID sent in DAP initialize request",
+      "line": 217,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "javascript",
+      "context": "adapterID sent in DAP initialize request; also normalized to pwa-node",
+      "line": 218,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "127.0.0.1",
+      "context": "Default attach host when none provided",
+      "line": 343,
+      "kind": "config",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

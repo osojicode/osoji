@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "[re-triage: downgrade-to-info \u2014 claim as stated fails, pattern noted] Read dependencies.ts L117-147 and adapter-loader.ts L159-177. The container pre-registration is best-effort (guarded by MCP_CONTAINER, fire-and-forget, catch-and-ignore) and the primary loading path is on-demand AdapterLoader with correct two-level paths plus a packages/ fallback - so no reachable user-visible 'can't find adapters' outcome. The genuine, low-impact observation is the `../` vs `../../` asymmetry between the two files, which could make the pre-registration import silently ineffective in the container. That warrants an info-level note to verify against the actual container/dist layout, non-gating. DOWNGRADE. gray=true (osoji's own 'uncertain' verdict reflects the same ambiguity)",
+  "gray": true,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-22",
+  "accepted": true
+}

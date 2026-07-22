@@ -1,0 +1,20 @@
+{
+  "detector": "debris:latent_bug",
+  "gap_type": "description",
+  "path": "tests/unit/shared/adapter-policy-js.test.ts",
+  "line_start": 209,
+  "line_end": 209,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "The attach flow test emits 'dap-event' with a plain string 'initialized' (L209), while the launch flow test emits an object `{ event: 'initialized' }` (L169). If `performHandshake` listens for `event.event === 'initialized'`, the string-form emission in the attach test would not match and the handshake would not complete correctly. The test passes only if the policy also handles the raw string form, which may be unintentional.",
+  "observed_behavior": "The attach flow test emits 'dap-event' with a plain string 'initialized' (L209), while the launch flow test emits an object `{ event: 'initialized' }` (L169). If `performHandshake` listens for `event.event === 'initialized'`, the string-form emission in the attach test would not match and the handshake would not complete correctly. The test passes only if the policy also handles the raw string form, which may be unintentional.",
+  "evidence": [],
+  "id": "fab102a74713ea6e",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

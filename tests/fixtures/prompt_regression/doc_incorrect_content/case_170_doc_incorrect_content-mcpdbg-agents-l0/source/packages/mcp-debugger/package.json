@@ -1,0 +1,44 @@
+{
+  "name": "@debugmcp/mcp-debugger",
+  "version": "0.22.0",
+  "description": "Step-through debugging MCP server for LLMs",
+  "homepage": "https://github.com/debugmcp/mcp-debugger",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/debugmcp/mcp-debugger.git",
+    "directory": "packages/mcp-debugger"
+  },
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "mcp-debugger": "./dist/cli"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "node scripts/bundle-cli.js",
+    "build:ci": "node scripts/bundle-cli.js",
+    "clean": "rimraf dist && rimraf tsconfig.tsbuildinfo"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@debugmcp/adapter-dotnet": "workspace:*",
+    "@debugmcp/adapter-go": "workspace:*",
+    "@debugmcp/adapter-java": "workspace:*",
+    "@debugmcp/adapter-javascript": "workspace:*",
+    "@debugmcp/adapter-python": "workspace:*",
+    "@debugmcp/adapter-mock": "workspace:*",
+    "@debugmcp/adapter-ruby": "workspace:*",
+    "@debugmcp/adapter-rust": "workspace:*",
+    "@debugmcp/shared": "workspace:*"
+  }
+}
