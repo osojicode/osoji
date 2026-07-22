@@ -512,6 +512,11 @@ async def run_audit_async(
                 origin={"source": "llm", "plugin": "doc_analysis"},
                 exclude_key="doc-analysis",
             ))
+            # Debris items are never triaged (_triage_doc_findings skips
+            # them), so .findings are raw, untriaged proposals -- moot for a
+            # file whose verdict is "delete this file". Ship only the debris
+            # error above; the per-item continue skips the raw proposals.
+            continue
         for finding in item.findings:
             evidence_tag = ""
             if finding.shadow_ref and finding.evidence:
