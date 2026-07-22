@@ -626,3 +626,78 @@ async def test_malformed_verdict_entries_do_not_crash_the_batch(config):
     result = await triage.decide_batch(claims, mode="claim")
     assert result.findings[0].verdict is None
     assert result.findings[1].verdict == "dismissed"
+
+
+# --- LLM-assigned gap_type split for parked claims (decisions/0025) ---------
+
+
+def test_gap_type_split_applied_to_uncategorized_claim():
+    f = _apply_verdict(make_finding(gap_type="uncategorized"), {
+        "batch_index": 0,
+        "verdict": "confirmed",
+        "confidence": 0.9,
+        "reasoning": "The docstring states the invariant the code violates. Confirming.",
+        "gap_type": "description",
+    })
+    assert f.gap_type == "description"
+
+
+def test_gap_type_split_contract_applied():
+    f = _apply_verdict(make_finding(gap_type="uncategorized"), {
+        "batch_index": 0,
+        "verdict": "confirmed",
+        "confidence": 0.85,
+        "reasoning": "Two sites share the literal; the agreement is implicit. Confirming.",
+        "gap_type": "contract",
+    })
+    assert f.gap_type == "contract"
+
+
+def test_gap_type_never_overrides_mechanical_assignment():
+    f = _apply_verdict(make_finding(gap_type="reachability"), {
+        "batch_index": 0,
+        "verdict": "confirmed",
+        "confidence": 0.9,
+        "reasoning": "No live path. Confirming.",
+        "gap_type": "description",
+    })
+    assert f.gap_type == "reachability"
+
+
+def test_gap_type_invalid_value_ignored():
+    f = _apply_verdict(make_finding(gap_type="uncategorized"), {
+        "batch_index": 0,
+        "verdict": "dismissed",
+        "confidence": 0.8,
+        "reasoning": "The guard already handles it. Dismissing.",
+        "gap_type": "bogus",
+    })
+    assert f.gap_type == "uncategorized"
+
+
+def test_gap_type_absent_leaves_parking():
+    f = _apply_verdict(make_finding(gap_type="uncategorized"), {
+        "batch_index": 0,
+        "verdict": "uncertain",
+        "confidence": 0.4,
+        "reasoning": "Cannot state the invariant class.",
+    })
+    assert f.gap_type == "uncategorized"
+
+
+def test_cached_gap_type_reapplied_with_same_guard():
+    from osoji.triage import _apply_cached
+
+    cached = {
+        "verdict": "confirmed",
+        "confidence": 0.9,
+        "triage_reasoning": "stated invariant",
+        "suggested_fix": None,
+        "severity": "warning",
+        "contract_class": None,
+        "gap_type": "description",
+    }
+    parked = _apply_cached(make_finding(gap_type="uncategorized"), cached)
+    assert parked.gap_type == "description"
+    mechanical = _apply_cached(make_finding(gap_type="contract"), cached)
+    assert mechanical.gap_type == "contract"

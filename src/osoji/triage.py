@@ -227,6 +227,12 @@ the evidence genuinely cannot decide. A deliberately pinned value asserted in
 a test-role file (a snapshot pin, a golden value, a self-test expectation) is
 a guard doing its job, not a magic-number bug: read it as declared intent for
 the pinned value, scoped to files whose role is verification.
+When such a claim's header shows gap type [uncategorized], also emit `gap_type`
+classifying which invariant the alleged bug violates: one stated in an artifact
+(comment, docstring, type, documentation) is a description gap; one that lives
+only in an implicit cross-component agreement (a shared literal, schema, or
+ABI) is a contract gap. Keep `uncategorized` when neither can be stated — that
+is the honest outlet, not a failure.
 
 """,
     "prose_doc_gaps": """\
@@ -690,6 +696,19 @@ def _reasoning_contradicts_verdict(verdict: str | None, reasoning: str | None) -
     return not _NEGATION_WORD.search(last[: m.start()])
 
 
+# LLM-assigned gap_type split (decisions/0025): only claims the mechanical
+# layer parked as ``uncategorized`` may be re-routed, and only to these values.
+_GAP_SPLIT_ALLOWED = frozenset({"description", "contract", "uncategorized"})
+
+
+def _split_gap_type(finding: Finding, assigned: Any) -> str:
+    """The gap_type to persist: LLM split applies only to parked claims."""
+
+    if finding.gap_type == "uncategorized" and assigned in _GAP_SPLIT_ALLOWED:
+        return assigned
+    return finding.gap_type
+
+
 def _apply_verdict(finding: Finding, v: dict) -> Finding:
     """Return a copy of ``finding`` with triage outputs from a verdict dict.
 
@@ -714,6 +733,7 @@ def _apply_verdict(finding: Finding, v: dict) -> Finding:
         suggested_fix=v.get("suggested_fix"),
         severity=v.get("severity"),
         contract_class=v.get("contract_class"),
+        gap_type=_split_gap_type(finding, v.get("gap_type")),
     )
 
 
@@ -728,6 +748,7 @@ def _apply_cached(finding: Finding, cached: dict) -> Finding:
         suggested_fix=cached.get("suggested_fix"),
         severity=cached.get("severity"),
         contract_class=cached.get("contract_class"),
+        gap_type=_split_gap_type(finding, cached.get("gap_type")),
     )
 
 

@@ -18,9 +18,10 @@ from osoji.triage import (
 
 # sha256 of TRIAGE_SYSTEM_PROMPT. A deliberate rubric change must update this
 # hash in the same PR and carry its A/B evidence (wiki decisions/0022).
-# History: 16b45f61… at the work#66 sectioning refactor; current hash is the
-# work#78/work#79 change (confirmed-verdict semantics + latent_bug rigor).
-FROZEN_SHA = "67141f5531e49c51a33aba677b1b2966971935ca26d1165f0b6ffff7da9847e9"
+# History: 16b45f61… at the work#66 sectioning refactor; 67141f55… at the
+# work#78/work#79 change; current hash adds the decisions/0025 latent_bug
+# gap_type split instruction.
+FROZEN_SHA = "19190bee9f15342a6a99199b1e2f025510756a62e0d078149faf2ce933a20d94"
 
 
 def test_assembled_prompt_is_byte_identical() -> None:
