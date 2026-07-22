@@ -137,6 +137,27 @@ Config precedence (highest to lowest):
 
 Run `osoji config show` to inspect the effective policy.
 
+### Excluding paths from analysis
+
+Scope expensive analysis away from low-value trees (e.g. a doc archive) with
+`[audit] exclude` in `.osoji.toml`:
+
+```toml
+# .osoji.toml (per-project, committed)
+
+[audit]
+exclude = ["docs/archive/**", "vendor/**"]
+```
+
+Patterns are repo-relative [`fnmatch`](https://docs.python.org/3/library/fnmatch.html)
+globs matched against each file's path relative to the project root. `*`
+already matches any run of characters including `/`, so `**` behaves the
+same as `*` — write it for readability. Matched paths are dropped from
+repository discovery entirely: no shadow docs, no facts, no analysis, no
+findings. There's no built-in catalog and no default excludes — this is an
+explicit, per-project scope decision you declare, not a heuristic osoji
+applies on your behalf.
+
 ## Requirements
 
 - Python 3.11+
