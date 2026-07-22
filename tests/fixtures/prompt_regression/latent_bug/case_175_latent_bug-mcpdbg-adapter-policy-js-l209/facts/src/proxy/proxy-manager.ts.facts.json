@@ -1,0 +1,2222 @@
+{
+  "source": "src/proxy/proxy-manager.ts",
+  "source_hash": "174f24ff2d502e3b",
+  "generated": "2026-07-22T22:08:37Z",
+  "imports": [
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 5,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "uuid",
+      "names": [
+        "uuidv4"
+      ],
+      "line": 6,
+      "is_reexport": false,
+      "name_map": {
+        "uuidv4": "v4"
+      },
+      "resolved_path": "node_modules/.pnpm/uuid@14.0.1/node_modules/uuid/dist/index.d.ts"
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IFileSystem",
+        "ILogger"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IProxyProcessLauncher",
+        "IProxyProcess"
+      ],
+      "line": 13,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "../dap-core/index.js",
+      "names": [
+        "createInitialState",
+        "handleProxyMessage",
+        "isValidProxyMessage",
+        "DAPSessionState",
+        "addPendingRequest",
+        "removePendingRequest",
+        "clearPendingRequests"
+      ],
+      "line": 14,
+      "is_reexport": false,
+      "resolved_path": "src/dap-core/index.ts"
+    },
+    {
+      "source": "../dap-core/types.js",
+      "names": [
+        "ProxyStatusMessage",
+        "ProxyDapEventMessage",
+        "ProxyDapResponseMessage",
+        "ProxyMessage"
+      ],
+      "line": 23,
+      "is_reexport": false,
+      "resolved_path": "src/dap-core/types.ts"
+    },
+    {
+      "source": "../utils/error-messages.js",
+      "names": [
+        "ErrorMessages"
+      ],
+      "line": 29,
+      "is_reexport": false,
+      "resolved_path": "src/utils/error-messages.ts"
+    },
+    {
+      "source": "./proxy-config.js",
+      "names": [
+        "ProxyConfig"
+      ],
+      "line": 30,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/proxy-config.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IDebugAdapter",
+        "AdapterLaunchBarrier",
+        "sanitizePayloadForLogging",
+        "sanitizeStderr",
+        "LineBuffer"
+      ],
+      "line": 31,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "ProxyManager",
+      "kind": "class",
+      "line": 103,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EventEmitter"
+      ],
+      "implements": [
+        "IProxyManager"
+      ]
+    },
+    {
+      "name": "ProxyManager.start",
+      "kind": "function",
+      "line": 159,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/proxy/proxy-config\").ProxyConfig"
+        }
+      ]
+    },
+    {
+      "name": "ProxyManager.stop",
+      "kind": "function",
+      "line": 305,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ProxyManager.sendDapRequest",
+      "kind": "function",
+      "line": 396,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "command",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "args",
+          "optional": true,
+          "type": "unknown"
+        },
+        {
+          "name": "options",
+          "optional": true,
+          "type": "{ timeoutMs?: number | undefined; } | undefined"
+        }
+      ]
+    },
+    {
+      "name": "ProxyManager.isRunning",
+      "kind": "function",
+      "line": 492,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ProxyManager.getCurrentThreadId",
+      "kind": "function",
+      "line": 496,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ProxyManager.setCurrentThreadId",
+      "kind": "function",
+      "line": 500,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "threadId",
+          "optional": false,
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ProxyManager.hasDryRunCompleted",
+      "kind": "function",
+      "line": 1157,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ProxyManager.getDryRunSnapshot",
+      "kind": "function",
+      "line": 1161,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ProxyManagerEvents",
+      "kind": "type",
+      "line": 42,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "IProxyManager",
+      "kind": "type",
+      "line": 64,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "process.cwd",
+      "line": 97,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 107,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "super",
+      "line": 151,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.on",
+      "line": 156,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "Error",
+      "line": 161,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "[config.adapterCommand.command, ...(config.adapterCommand.args ?? [])]\n        .filter",
+      "line": 172,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "parts.join",
+      "line": 175,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "createInitialState",
+      "line": 182,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "this.prepareSpawnContext",
+      "line": 184,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "this.logger.info",
+      "line": 186,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "this.proxyProcessLauncher.launchProxy",
+      "line": 189,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "this.logger.error",
+      "line": 195,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "Error",
+      "line": 200,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "this.logger.info",
+      "line": 203,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "this.setupEventHandlers",
+      "line": 206,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "Promise",
+      "line": 209,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "setTimeout",
+      "line": 209,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "this.logger.info",
+      "line": 232,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "this.sendInitWithRetry",
+      "line": 242,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "Promise",
+      "line": 245,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "setTimeout",
+      "line": 246,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "reject",
+      "line": 247,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "Error",
+      "line": 247,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "ErrorMessages.proxyInitTimeout",
+      "line": 247,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "clearTimeout",
+      "line": 251,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "this.removeListener",
+      "line": 252,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "this.removeListener",
+      "line": 253,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "this.removeListener",
+      "line": 254,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "this.removeListener",
+      "line": 255,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "cleanup",
+      "line": 260,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "resolve",
+      "line": 261,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "cleanup",
+      "line": 265,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "resolve",
+      "line": 266,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "cleanup",
+      "line": 270,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "reject",
+      "line": 271,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "cleanup",
+      "line": 275,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "resolve",
+      "line": 278,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "this.stderrBuffer.slice",
+      "line": 284,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "lines.join",
+      "line": 285,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "text.slice",
+      "line": 287,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "reject",
+      "line": 294,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "Error",
+      "line": 294,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "this.once",
+      "line": 298,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "this.once",
+      "line": 299,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "this.once",
+      "line": 300,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ProxyManager.start",
+      "to": "this.once",
+      "line": 301,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ProxyManager.stop",
+      "to": "this.cleanup",
+      "line": 308,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ProxyManager.stop",
+      "to": "this.logger.info",
+      "line": 312,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.stop",
+      "to": "this.drainPendingDapRequests",
+      "line": 320,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.stop",
+      "to": "this.cleanup",
+      "line": 328,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ProxyManager.stop",
+      "to": "this.cleanup",
+      "line": 337,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ProxyManager.stop",
+      "to": "process.send",
+      "line": 342,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.stop",
+      "to": "this.logger.error",
+      "line": 345,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ProxyManager.stop",
+      "to": "Promise",
+      "line": 349,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.stop",
+      "to": "setTimeout",
+      "line": 350,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.stop",
+      "to": "this.logger.warn",
+      "line": 351,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyManager.stop",
+      "to": "process.kill",
+      "line": 353,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.stop",
+      "to": "resolve",
+      "line": 355,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyManager.stop",
+      "to": "process.once",
+      "line": 358,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.stop",
+      "to": "clearTimeout",
+      "line": 359,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ProxyManager.stop",
+      "to": "resolve",
+      "line": 360,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyManager.stop",
+      "to": "clearTimeout",
+      "line": 365,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ProxyManager.stop",
+      "to": "resolve",
+      "line": 366,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyManager.drainPendingDapRequests",
+      "to": "this.logger.debug",
+      "line": 382,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "ProxyManager.drainPendingDapRequests",
+      "to": "Date.now",
+      "line": 385,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ProxyManager.drainPendingDapRequests",
+      "to": "Date.now",
+      "line": 386,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ProxyManager.drainPendingDapRequests",
+      "to": "Promise",
+      "line": 387,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.drainPendingDapRequests",
+      "to": "setTimeout",
+      "line": 387,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.drainPendingDapRequests",
+      "to": "this.logger.warn",
+      "line": 390,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "Error",
+      "line": 402,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "this.adapter?.createLaunchBarrier",
+      "line": 405,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "uuidv4",
+      "line": 406,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "this.logger.info",
+      "line": 418,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "this.setActiveLaunchBarrier",
+      "line": 421,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "barrier.onRequestSent",
+      "line": 422,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "this.sendCommand",
+      "line": 425,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "this.clearActiveLaunchBarrier",
+      "line": 427,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "barrier.waitUntilReady",
+      "line": 432,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "this.clearActiveLaunchBarrier",
+      "line": 435,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "this.logger.info",
+      "line": 439,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "this.setActiveLaunchBarrier",
+      "line": 441,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "barrier.onRequestSent",
+      "line": 442,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "Promise",
+      "line": 445,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "this.pendingDapRequests.set",
+      "line": 446,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "addPendingRequest",
+      "line": 454,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "Date.now",
+      "line": 458,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "this.sendCommand",
+      "line": 463,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "this.pendingDapRequests.delete",
+      "line": 465,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "this.clearActiveLaunchBarrier",
+      "line": 467,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "reject",
+      "line": 469,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "setTimeout",
+      "line": 477,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "this.pendingDapRequests.has",
+      "line": 478,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "this.pendingDapRequests.delete",
+      "line": 479,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "removePendingRequest",
+      "line": 481,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "this.clearActiveLaunchBarrier",
+      "line": 484,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "reject",
+      "line": 486,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "Error",
+      "line": 486,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "ErrorMessages.dapRequestTimeout",
+      "line": 486,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.sendDapRequest",
+      "to": "Math.round",
+      "line": 486,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.prepareSpawnContext",
+      "to": "this.adapter.validateEnvironment",
+      "line": 514,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.prepareSpawnContext",
+      "to": "Error",
+      "line": 516,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.prepareSpawnContext",
+      "to": "this.adapter.resolveExecutablePath",
+      "line": 522,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.prepareSpawnContext",
+      "to": "this.logger.info",
+      "line": 523,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.prepareSpawnContext",
+      "to": "Error",
+      "line": 526,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.prepareSpawnContext",
+      "to": "this.findProxyScript",
+      "line": 529,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.prepareSpawnContext",
+      "to": "Error",
+      "line": 532,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.prepareSpawnContext",
+      "to": "this.cloneProcessEnv",
+      "line": 535,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.cloneProcessEnv",
+      "to": "Object.entries",
+      "line": 546,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.findProxyScript",
+      "to": "fileURLToPath",
+      "line": 555,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.findProxyScript",
+      "to": "path.dirname",
+      "line": 556,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.findProxyScript",
+      "to": "moduleDir.split",
+      "line": 557,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.findProxyScript",
+      "to": "this.runtimeEnv.cwd",
+      "line": 558,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.findProxyScript",
+      "to": "path.join",
+      "line": 564,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.findProxyScript",
+      "to": "path.join",
+      "line": 566,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.findProxyScript",
+      "to": "path.resolve",
+      "line": 569,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.findProxyScript",
+      "to": "this.logger.info",
+      "line": 572,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.findProxyScript",
+      "to": "this.fileSystem.pathExists",
+      "line": 574,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.findProxyScript",
+      "to": "Error",
+      "line": 575,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "Math.min",
+      "line": 595,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "Promise",
+      "line": 598,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "clearTimeout",
+      "line": 604,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "resolve",
+      "line": 605,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "this.removeListener",
+      "line": 609,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "clearTimeout",
+      "line": 610,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "this.on",
+      "line": 613,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "setTimeout",
+      "line": 615,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "this.removeListener",
+      "line": 618,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "resolve",
+      "line": 619,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "this.sendCommand",
+      "line": 623,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "cleanup",
+      "line": 625,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "reject",
+      "line": 626,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "this.logger.info",
+      "line": 631,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "this.logger.warn",
+      "line": 635,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "this.logger.warn",
+      "line": 640,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "Math.min",
+      "line": 646,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "Promise",
+      "line": 647,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "setTimeout",
+      "line": 647,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "capturedStderr.slice(-10).join",
+      "line": 658,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "capturedStderr.slice",
+      "line": 658,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.sendInitWithRetry",
+      "to": "Error",
+      "line": 663,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.sendCommand",
+      "to": "this.logger.error",
+      "line": 669,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ProxyManager.sendCommand",
+      "to": "this.logger.error",
+      "line": 674,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ProxyManager.sendCommand",
+      "to": "Error",
+      "line": 676,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.sendCommand",
+      "to": "this.logger.debug",
+      "line": 690,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "ProxyManager.sendCommand",
+      "to": "this.logger.info",
+      "line": 696,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.sendCommand",
+      "to": "JSON.stringify(sanitizePayloadForLogging(command)).substring",
+      "line": 696,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.sendCommand",
+      "to": "JSON.stringify",
+      "line": 696,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.sendCommand",
+      "to": "sanitizePayloadForLogging",
+      "line": 696,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ProxyManager.sendCommand",
+      "to": "this.proxyProcess.sendCommand",
+      "line": 699,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.sendCommand",
+      "to": "this.logger.info",
+      "line": 700,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.sendCommand",
+      "to": "this.logger.debug",
+      "line": 704,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "ProxyManager.sendCommand",
+      "to": "this.logger.error",
+      "line": 712,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.proxyProcess.on",
+      "line": 726,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.handleProxyMessage",
+      "line": 727,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.proxyProcess.on",
+      "line": 730,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.logger.debug",
+      "line": 731,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.proxyProcess.on",
+      "line": 736,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.logger.debug",
+      "line": 737,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.proxyProcess.on",
+      "line": 742,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.logger.warn",
+      "line": 743,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.proxyProcess.on",
+      "line": 748,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.logger.error",
+      "line": 749,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "LineBuffer",
+      "line": 760,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.proxyProcess.stderr?.on",
+      "line": 761,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.recordStderrLines",
+      "line": 762,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "stderrLineBuffer.append",
+      "line": 762,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "data.toString",
+      "line": 762,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.recordStderrLines",
+      "line": 767,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "stderrLineBuffer.flush",
+      "line": 767,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.proxyProcess.stderr?.on",
+      "line": 768,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.proxyProcess.stderr?.on",
+      "line": 769,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.proxyProcess.on",
+      "line": 772,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.logger.info",
+      "line": 773,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "Date.now",
+      "line": 778,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.logger.error",
+      "line": 783,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.handleProxyExit",
+      "line": 789,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.proxyProcess.on",
+      "line": 793,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.logger.error",
+      "line": 794,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.emit",
+      "line": 795,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.setupEventHandlers",
+      "to": "this.cleanup",
+      "line": 796,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ProxyManager.recordStderrLines",
+      "to": "sanitizeStderr",
+      "line": 806,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "ProxyManager.recordStderrLines",
+      "to": "lines.filter",
+      "line": 806,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.recordStderrLines",
+      "to": "line.trim",
+      "line": 806,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.recordStderrLines",
+      "to": "this.logger.error",
+      "line": 808,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ProxyManager.recordStderrLines",
+      "to": "this.stderrBuffer.shift",
+      "line": 814,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.recordStderrLines",
+      "to": "this.stderrBuffer.push",
+      "line": 816,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.recordStderrLines",
+      "to": "this.lastExitDetails.capturedStderr.shift",
+      "line": 820,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.recordStderrLines",
+      "to": "this.lastExitDetails.capturedStderr.push",
+      "line": 822,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyMessage",
+      "to": "this.logger.debug",
+      "line": 830,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyMessage",
+      "to": "this.logger.debug",
+      "line": 835,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyMessage",
+      "to": "this.logger.debug",
+      "line": 842,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyMessage",
+      "to": "this.logger.debug",
+      "line": 848,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyMessage",
+      "to": "isValidProxyMessage",
+      "line": 854,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyMessage",
+      "to": "this.logger.warn",
+      "line": 855,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyMessage",
+      "to": "this.handleDapEvent",
+      "line": 863,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyMessage",
+      "to": "this.handleStatusMessage",
+      "line": 868,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyMessage",
+      "to": "handleProxyMessage",
+      "line": 873,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyMessage",
+      "to": "this.logger[command.level]",
+      "line": 879,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyMessage",
+      "to": "this.emit",
+      "line": 888,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyMessage",
+      "to": "this.proxyProcess?.kill",
+      "line": 893,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyMessage",
+      "to": "this.sendCommand",
+      "line": 897,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyMessage",
+      "to": "this.handleDapResponse",
+      "line": 923,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyMessage",
+      "to": "this.logger.error",
+      "line": 927,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ProxyManager.handleDapResponse",
+      "to": "this.pendingDapRequests.get",
+      "line": 932,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.handleDapResponse",
+      "to": "this.logger.debug",
+      "line": 936,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "ProxyManager.handleDapResponse",
+      "to": "this.pendingDapRequests.delete",
+      "line": 941,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyManager.handleDapResponse",
+      "to": "removePendingRequest",
+      "line": 944,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.handleDapResponse",
+      "to": "this.clearActiveLaunchBarrier",
+      "line": 948,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.handleDapResponse",
+      "to": "Array.isArray",
+      "line": 957,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.handleDapResponse",
+      "to": "pending.resolve",
+      "line": 966,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.handleDapResponse",
+      "to": "pending.reject",
+      "line": 968,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyManager.handleDapResponse",
+      "to": "Error",
+      "line": 968,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.handleDapEvent",
+      "to": "this.activeLaunchBarrier?.onDapEvent",
+      "line": 973,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.handleDapEvent",
+      "to": "this.logger.info",
+      "line": 978,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.handleDapEvent",
+      "to": "this.emit",
+      "line": 989,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.handleDapEvent",
+      "to": "this.emit",
+      "line": 993,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.handleDapEvent",
+      "to": "this.emit",
+      "line": 997,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.handleDapEvent",
+      "to": "this.emit",
+      "line": 1001,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.handleDapEvent",
+      "to": "this.emit",
+      "line": 1006,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.handleStatusMessage",
+      "to": "this.activeLaunchBarrier?.onProxyStatus",
+      "line": 1011,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.handleStatusMessage",
+      "to": "this.logger.info",
+      "line": 1015,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.handleStatusMessage",
+      "to": "this.proxyProcess?.kill",
+      "line": 1016,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.handleStatusMessage",
+      "to": "this.logger.info",
+      "line": 1020,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.handleStatusMessage",
+      "to": "this.emit",
+      "line": 1021,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.handleStatusMessage",
+      "to": "this.logger.info",
+      "line": 1025,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.handleStatusMessage",
+      "to": "message.command.trim",
+      "line": 1027,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.handleStatusMessage",
+      "to": "message.script.trim",
+      "line": 1030,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.handleStatusMessage",
+      "to": "this.emit",
+      "line": 1033,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.handleStatusMessage",
+      "to": "this.logger.info",
+      "line": 1037,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.handleStatusMessage",
+      "to": "this.emit",
+      "line": 1039,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.handleStatusMessage",
+      "to": "this.emit",
+      "line": 1042,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.handleStatusMessage",
+      "to": "this.logger.info",
+      "line": 1048,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.handleStatusMessage",
+      "to": "this.emit",
+      "line": 1051,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.handleStatusMessage",
+      "to": "this.logger.info",
+      "line": 1058,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "ProxyManager.handleStatusMessage",
+      "to": "this.emit",
+      "line": 1061,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyExit",
+      "to": "this.activeLaunchBarrier?.onProxyExit",
+      "line": 1068,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyExit",
+      "to": "this.clearActiveLaunchBarrier",
+      "line": 1069,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyExit",
+      "to": "this.logger.warn",
+      "line": 1074,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyExit",
+      "to": "this.emit",
+      "line": 1080,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyExit",
+      "to": "this.pendingDapRequests.forEach",
+      "line": 1084,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyExit",
+      "to": "pending.reject",
+      "line": 1085,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyExit",
+      "to": "Error",
+      "line": 1085,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyExit",
+      "to": "this.pendingDapRequests.clear",
+      "line": 1087,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyExit",
+      "to": "this.emit",
+      "line": 1092,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.handleProxyExit",
+      "to": "this.cleanup",
+      "line": 1096,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ProxyManager.cleanup",
+      "to": "this.logger.debug",
+      "line": 1102,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "ProxyManager.cleanup",
+      "to": "this.pendingDapRequests.values",
+      "line": 1103,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.cleanup",
+      "to": "pending.reject",
+      "line": 1104,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProxyManager.cleanup",
+      "to": "Error",
+      "line": 1104,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "ProxyManager.cleanup",
+      "to": "this.pendingDapRequests.clear",
+      "line": 1106,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.cleanup",
+      "to": "clearPendingRequests",
+      "line": 1110,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.cleanup",
+      "to": "this.clearActiveLaunchBarrier",
+      "line": 1114,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ProxyManager.cleanup",
+      "to": "this.adapter.dispose().catch",
+      "line": 1118,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.cleanup",
+      "to": "this.adapter.dispose",
+      "line": 1118,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.cleanup",
+      "to": "this.logger.warn",
+      "line": 1119,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ProxyManager.cleanup",
+      "to": "String",
+      "line": 1119,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProxyManager.setActiveLaunchBarrier",
+      "to": "this.activeLaunchBarrier.dispose",
+      "line": 1135,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.clearActiveLaunchBarrier",
+      "to": "this.activeLaunchBarrier.dispose",
+      "line": 1149,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ProxyManager.clearActiveLaunchBarrier",
+      "to": "this.logger.warn",
+      "line": 1151,
+      "call_sites": 9
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "runtimeEnv",
+      "line": 152
+    },
+    {
+      "container": "this",
+      "member": "sessionId",
+      "line": 164
+    },
+    {
+      "container": "this",
+      "member": "isStopped",
+      "line": 165
+    },
+    {
+      "container": "this",
+      "member": "isDryRun",
+      "line": 166
+    },
+    {
+      "container": "this",
+      "member": "dryRunCompleteReceived",
+      "line": 167
+    },
+    {
+      "container": "this",
+      "member": "dryRunCommandSnapshot",
+      "line": 168
+    },
+    {
+      "container": "this",
+      "member": "dryRunScriptPath",
+      "line": 169
+    },
+    {
+      "container": "this",
+      "member": "lastExitDetails",
+      "line": 170
+    },
+    {
+      "container": "this",
+      "member": "dryRunCommandSnapshot",
+      "line": 175
+    },
+    {
+      "container": "this",
+      "member": "dryRunCommandSnapshot",
+      "line": 178
+    },
+    {
+      "container": "this",
+      "member": "dapState",
+      "line": 182
+    },
+    {
+      "container": "this",
+      "member": "proxyProcess",
+      "line": 189
+    },
+    {
+      "container": "this",
+      "member": "isInitialized",
+      "line": 259
+    },
+    {
+      "container": "this",
+      "member": "isStopped",
+      "line": 327
+    },
+    {
+      "container": "this",
+      "member": "isStopped",
+      "line": 333
+    },
+    {
+      "container": "this",
+      "member": "dapState",
+      "line": 454
+    },
+    {
+      "container": "this",
+      "member": "dapState",
+      "line": 481
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 501
+    },
+    {
+      "container": "this",
+      "member": "lastExitDetails",
+      "line": 775
+    },
+    {
+      "container": "this",
+      "member": "dapState",
+      "line": 906
+    },
+    {
+      "container": "this",
+      "member": "isInitialized",
+      "line": 909
+    },
+    {
+      "container": "this",
+      "member": "adapterConfigured",
+      "line": 910
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 915
+    },
+    {
+      "container": "this",
+      "member": "dapState",
+      "line": 944
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 960
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 986
+    },
+    {
+      "container": "this",
+      "member": "dryRunCompleteReceived",
+      "line": 1026
+    },
+    {
+      "container": "this",
+      "member": "dryRunCommandSnapshot",
+      "line": 1028
+    },
+    {
+      "container": "this",
+      "member": "dryRunScriptPath",
+      "line": 1031
+    },
+    {
+      "container": "this",
+      "member": "adapterConfigured",
+      "line": 1038
+    },
+    {
+      "container": "this",
+      "member": "isInitialized",
+      "line": 1041
+    },
+    {
+      "container": "this",
+      "member": "isInitialized",
+      "line": 1050
+    },
+    {
+      "container": "this",
+      "member": "exitEmitted",
+      "line": 1060
+    },
+    {
+      "container": "this",
+      "member": "dryRunCompleteReceived",
+      "line": 1077
+    },
+    {
+      "container": "this",
+      "member": "dryRunCommandSnapshot",
+      "line": 1078
+    },
+    {
+      "container": "this",
+      "member": "dryRunScriptPath",
+      "line": 1079
+    },
+    {
+      "container": "this",
+      "member": "exitEmitted",
+      "line": 1091
+    },
+    {
+      "container": "this",
+      "member": "dapState",
+      "line": 1110
+    },
+    {
+      "container": "this",
+      "member": "adapter",
+      "line": 1121
+    },
+    {
+      "container": "this",
+      "member": "proxyProcess",
+      "line": 1124
+    },
+    {
+      "container": "this",
+      "member": "isInitialized",
+      "line": 1125
+    },
+    {
+      "container": "this",
+      "member": "adapterConfigured",
+      "line": 1126
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 1127
+    },
+    {
+      "container": "this",
+      "member": "stderrBuffer",
+      "line": 1128
+    },
+    {
+      "container": "this",
+      "member": "sessionId",
+      "line": 1129
+    },
+    {
+      "container": "this",
+      "member": "exitEmitted",
+      "line": 1130
+    },
+    {
+      "container": "this",
+      "member": "activeLaunchBarrier",
+      "line": 1137
+    },
+    {
+      "container": "this",
+      "member": "activeLaunchBarrierRequestId",
+      "line": 1138
+    },
+    {
+      "container": "this",
+      "member": "activeLaunchBarrier",
+      "line": 1153
+    },
+    {
+      "container": "this",
+      "member": "activeLaunchBarrierRequestId",
+      "line": 1154
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "init",
+      "context": "IPC command type sent to proxy for initialization",
+      "line": 213,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dap",
+      "context": "IPC command type for forwarding DAP requests",
+      "line": 408,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "terminate",
+      "context": "IPC command type sent to proxy to request graceful exit",
+      "line": 342,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dapEvent",
+      "context": "Discriminant for proxy message type routing",
+      "line": 862,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.type"
+    },
+    {
+      "value": "status",
+      "context": "Discriminant for proxy message type routing",
+      "line": 867,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.type"
+    },
+    {
+      "value": "dapResponse",
+      "context": "Discriminant for proxy message type routing",
+      "line": 922,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.type"
+    },
+    {
+      "value": "ipc-heartbeat",
+      "context": "Heartbeat message type from proxy worker",
+      "line": 833,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "(rawMessage as {type?: string})?.type"
+    },
+    {
+      "value": "ipc-heartbeat-tick",
+      "context": "Heartbeat tick message type from proxy worker",
+      "line": 840,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "(rawMessage as {type?: string})?.type"
+    },
+    {
+      "value": "proxy_minimal_ran_ipc_test",
+      "context": "Proxy status for IPC test mode",
+      "line": 1014,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "init_received",
+      "context": "Proxy status confirming init command was received",
+      "line": 1019,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "dry_run_complete",
+      "context": "Proxy status for dry-run completion",
+      "line": 1024,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "adapter_configured_and_launched",
+      "context": "Proxy status when adapter is ready",
+      "line": 1036,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "adapter_connected",
+      "context": "Proxy status when adapter transport is up",
+      "line": 1046,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "adapter_exited",
+      "context": "Proxy status for adapter exit",
+      "line": 1055,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "dap_connection_closed",
+      "context": "Proxy status for DAP connection close",
+      "line": 1056,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "terminated",
+      "context": "Proxy status for session termination",
+      "line": 1057,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "stopped",
+      "context": "DAP event name for breakpoint/exception stop",
+      "line": 981,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.event"
+    },
+    {
+      "value": "continued",
+      "context": "DAP event name for continue",
+      "line": 992,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.event"
+    },
+    {
+      "value": "terminated",
+      "context": "DAP event name for debug session termination",
+      "line": 996,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.event"
+    },
+    {
+      "value": "exited",
+      "context": "DAP event name for debuggee exit",
+      "line": 1000,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.event"
+    },
+    {
+      "value": "threads",
+      "context": "DAP command name for opportunistic thread ID capture",
+      "line": 954,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "pending.command"
+    }
+  ],
+  "extraction_method": "ast"
+}

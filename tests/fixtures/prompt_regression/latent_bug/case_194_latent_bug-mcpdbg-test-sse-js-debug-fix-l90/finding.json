@@ -1,0 +1,20 @@
+{
+  "detector": "debris:latent_bug",
+  "gap_type": "contract",
+  "path": "examples/debugging/test-sse-js-debug-fix.js",
+  "line_start": 90,
+  "line_end": 92,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "sessionId extraction uses JSON.parse on content[0].text without a try/catch. If the server returns malformed JSON or an error response, JSON.parse will throw an unhandled exception inside the try block, but the error message will be misleading ('JSON parse error' rather than 'failed to create session').",
+  "observed_behavior": "sessionId extraction uses JSON.parse on content[0].text without a try/catch. If the server returns malformed JSON or an error response, JSON.parse will throw an unhandled exception inside the try block, but the error message will be misleading ('JSON parse error' rather than 'failed to create session').",
+  "evidence": [],
+  "id": "1a85b729fb5f624f",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

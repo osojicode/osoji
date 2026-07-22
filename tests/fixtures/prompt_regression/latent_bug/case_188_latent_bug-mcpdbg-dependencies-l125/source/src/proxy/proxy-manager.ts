@@ -1,0 +1,1170 @@
+/**
+ * ProxyManager - Handles spawning and communication with debug proxy processes
+ */
+import { EventEmitter } from 'events';
+import { DebugProtocol } from '@vscode/debugprotocol';
+import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { 
+  IFileSystem,
+  ILogger
+} from '@debugmcp/shared';
+import { IProxyProcessLauncher, IProxyProcess } from '@debugmcp/shared';
+import {
+  createInitialState,
+  handleProxyMessage,
+  isValidProxyMessage,
+  DAPSessionState,
+  addPendingRequest,
+  removePendingRequest,
+  clearPendingRequests
+} from '../dap-core/index.js';
+import type {
+  ProxyStatusMessage,
+  ProxyDapEventMessage,
+  ProxyDapResponseMessage,
+  ProxyMessage
+} from '../dap-core/types.js';
+import { ErrorMessages } from '../utils/error-messages.js';
+import { ProxyConfig } from './proxy-config.js';
+import {
+  IDebugAdapter,
+  AdapterLaunchBarrier,
+  sanitizePayloadForLogging,
+  sanitizeStderr,
+  LineBuffer
+} from '@debugmcp/shared';
+
+/**
+ * Events emitted by ProxyManager
+ */
+export interface ProxyManagerEvents {
+  // DAP events
+  'stopped': (threadId: number | undefined, reason: string, data?: DebugProtocol.StoppedEvent['body']) => void;
+  'continued': () => void;
+  'terminated': () => void;
+  'exited': () => void;
+
+  // Proxy lifecycle events
+  'initialized': () => void;
+  'init-received': () => void;
+  'error': (error: Error) => void;
+  'exit': (code: number | null, signal?: string) => void;
+
+  // Status events
+  'dry-run-complete': (command: string, script: string) => void;
+  'adapter-configured': () => void;
+  'dap-event': (event: string, body: unknown) => void;
+}
+
+/**
+ * Interface for proxy managers
+ */
+export interface IProxyManager extends EventEmitter {
+  start(config: ProxyConfig): Promise<void>;
+  stop(): Promise<void>;
+  sendDapRequest<T extends DebugProtocol.Response>(
+    command: string,
+    args?: unknown,
+    options?: { timeoutMs?: number }
+  ): Promise<T>;
+  isRunning(): boolean;
+  getCurrentThreadId(): number | null;
+  setCurrentThreadId(threadId: number): void;
+
+  // Typed event emitter methods
+  on<K extends keyof ProxyManagerEvents>(
+    event: K, 
+    listener: ProxyManagerEvents[K]
+  ): this;
+  emit<K extends keyof ProxyManagerEvents>(
+    event: K, 
+    ...args: Parameters<ProxyManagerEvents[K]>
+  ): boolean;
+  hasDryRunCompleted(): boolean;
+  getDryRunSnapshot(): { command?: string; script?: string } | undefined;
+}
+
+
+interface ProxyRuntimeEnvironment {
+  moduleUrl: string;
+  cwd: () => string;
+}
+
+const DEFAULT_RUNTIME_ENVIRONMENT: ProxyRuntimeEnvironment = {
+  moduleUrl: import.meta.url,
+  cwd: () => process.cwd()
+};
+
+/**
+ * Concrete implementation of ProxyManager
+ */
+export class ProxyManager extends EventEmitter implements IProxyManager {
+  private proxyProcess: IProxyProcess | null = null;
+  private sessionId: string | null = null;
+  private currentThreadId: number | null = null;
+  private pendingDapRequests = new Map<string, {
+    resolve: (response: DebugProtocol.Response) => void;
+    reject: (error: Error) => void;
+    command: string;
+  }>();
+  private isInitialized = false;
+  private isStopped = false;
+  /** Bounded wait for in-flight DAP requests to settle before stop() cancels them. */
+  private stopDrainTimeoutMs = 1000;
+  /** Worker-side DAP request timeout assumed when no per-request override is given. */
+  private defaultDapRequestTimeoutMs = 30000;
+  /**
+   * Extra time the parent waits beyond the worker/socket timeout so the
+   * worker's own timeout (which produces the actionable error) fires first.
+   */
+  private dapParentMarginMs = 5000;
+  private isDryRun = false;
+  private dryRunCompleteReceived = false;
+  private dryRunCommandSnapshot?: string;
+  private dryRunScriptPath?: string;
+  private adapterConfigured = false;
+  private dapState: DAPSessionState | null = null;
+  private stderrBuffer: string[] = [];
+  private lastExitDetails:
+    | {
+        code: number | null;
+        signal: string | null;
+        timestamp: number;
+        capturedStderr: string[];
+      }
+    | undefined;
+  private readonly runtimeEnv: ProxyRuntimeEnvironment;
+  private activeLaunchBarrier: AdapterLaunchBarrier | null = null;
+  private activeLaunchBarrierRequestId: string | null = null;
+  private proxyMessageCounter = 0;
+  private exitEmitted = false;
+
+  constructor(
+    private adapter: IDebugAdapter | null,  // Optional adapter for language-agnostic support
+    private proxyProcessLauncher: IProxyProcessLauncher,
+    private fileSystem: IFileSystem,
+    private logger: ILogger,
+    runtimeEnv: ProxyRuntimeEnvironment = DEFAULT_RUNTIME_ENVIRONMENT
+  ) {
+    super();
+    this.runtimeEnv = runtimeEnv;
+    // Safety handler: prevents Node.js from throwing when 'error' is emitted
+    // after all named listeners have been removed (e.g., late IPC messages from
+    // a child process that hasn't fully exited yet).
+    this.on('error', () => {});
+  }
+
+  async start(config: ProxyConfig): Promise<void> {
+    if (this.proxyProcess) {
+      throw new Error('Proxy already running');
+    }
+
+    this.sessionId = config.sessionId;
+    this.isStopped = false;
+    this.isDryRun = config.dryRunSpawn === true;
+    this.dryRunCompleteReceived = false;
+    this.dryRunCommandSnapshot = undefined;
+    this.dryRunScriptPath = config.scriptPath;
+    this.lastExitDetails = undefined;
+    if (config.adapterCommand?.command) {
+      const parts = [config.adapterCommand.command, ...(config.adapterCommand.args ?? [])]
+        .filter((part) => typeof part === 'string' && part.length > 0);
+      if (parts.length > 0) {
+        this.dryRunCommandSnapshot = parts.join(' ');
+      }
+    } else if (!this.dryRunCommandSnapshot && config.executablePath) {
+      this.dryRunCommandSnapshot = config.executablePath;
+    }
+    
+    // Initialize functional core state
+    this.dapState = createInitialState(config.sessionId);
+    
+    const { executablePath, proxyScriptPath, env } = await this.prepareSpawnContext(config);
+
+    this.logger.info(`[ProxyManager] Spawning proxy for session ${config.sessionId}. Path: ${proxyScriptPath}`);
+    
+    try {
+      this.proxyProcess = this.proxyProcessLauncher.launchProxy(
+        proxyScriptPath,
+        config.sessionId,
+        env
+      );
+    } catch (error) {
+      this.logger.error(`[ProxyManager] Failed to spawn proxy:`, error);
+      throw error;
+    }
+
+    if (!this.proxyProcess || typeof this.proxyProcess.pid === 'undefined') {
+      throw new Error('Proxy process is invalid or PID is missing');
+    }
+
+    this.logger.info(`[ProxyManager] Proxy spawned with PID: ${this.proxyProcess.pid}`);
+
+    // Set up event handlers
+    this.setupEventHandlers();
+
+    // Wait a brief moment for the process to start before sending init
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    // Send initialization command with retry logic
+    const initCommand = {
+      cmd: 'init',
+      sessionId: config.sessionId,
+      language: config.language,
+      executablePath: executablePath,  // Using resolved executable path
+      adapterHost: config.adapterHost,
+      adapterPort: config.adapterPort,
+      logDir: config.logDir,
+      scriptPath: config.scriptPath,
+      scriptArgs: config.scriptArgs,
+      stopOnEntry: config.stopOnEntry,
+      justMyCode: config.justMyCode,
+      initialBreakpoints: config.initialBreakpoints,
+      dryRunSpawn: config.dryRunSpawn,
+      launchConfig: config.launchConfig,
+      // Pass adapter command info for language-agnostic adapter spawning
+      adapterCommand: config.adapterCommand
+    };
+
+    // Debug log the command being sent
+    this.logger.info(`[ProxyManager] Sending init command with adapterCommand:`, {
+      hasAdapterCommand: !!config.adapterCommand,
+      adapterCommand: config.adapterCommand ? {
+        command: config.adapterCommand.command,
+        args: config.adapterCommand.args,
+        hasEnv: !!config.adapterCommand.env
+      } : null
+    });
+
+    // Send init command with retry logic
+    await this.sendInitWithRetry(initCommand);
+
+    // Wait for initialization or dry run completion
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error(ErrorMessages.proxyInitTimeout(30)));
+      }, 30000);
+
+      const cleanup = () => {
+        clearTimeout(timeout);
+        this.removeListener('initialized', handleInitialized);
+        this.removeListener('dry-run-complete', handleDryRun);
+        this.removeListener('error', handleError);
+        this.removeListener('exit', handleExit);
+      };
+
+      const handleInitialized = () => {
+        this.isInitialized = true;
+        cleanup();
+        resolve();
+      };
+
+      const handleDryRun = () => {
+        cleanup();
+        resolve();
+      };
+
+      const handleError = (error: Error) => {
+        cleanup();
+        reject(error);
+      };
+
+      const handleExit = (code: number | null, signal?: string) => {
+        cleanup();
+        if (this.isDryRun && code === 0) {
+          // Normal exit for dry run
+          resolve();
+        } else {
+          let errorMessage = `Proxy exited during initialization. Code: ${code}, Signal: ${signal}`;
+          if (this.stderrBuffer.length > 0) {
+            // Cap what gets embedded in the user-facing error — the full
+            // buffer is already in the logs (issue #146).
+            const lines = this.stderrBuffer.slice(-10);
+            let text = lines.join('\n');
+            if (text.length > 2000) {
+              text = '…' + text.slice(-2000);
+            }
+            const label = this.stderrBuffer.length > lines.length
+              ? ` (last ${lines.length} of ${this.stderrBuffer.length} lines)`
+              : '';
+            errorMessage += `\nStderr output${label}:\n${text}`;
+          }
+          reject(new Error(errorMessage));
+        }
+      };
+
+      this.once('initialized', handleInitialized);
+      this.once('dry-run-complete', handleDryRun);
+      this.once('error', handleError);
+      this.once('exit', handleExit);
+    });
+  }
+
+  async stop(): Promise<void> {
+    if (!this.proxyProcess) {
+      // No proxy process, but still dispose adapter to release instance slot
+      this.cleanup();
+      return;
+    }
+
+    this.logger.info(`[ProxyManager] Stopping proxy for session ${this.sessionId}`);
+
+    // Give in-flight DAP requests a bounded window to settle before we stop
+    // processing messages and cancel them. On natural termination the DAP
+    // 'terminated' event often races ahead of the final continue/step
+    // response, which is typically already in the IPC pipe — cancelling
+    // immediately would turn a successful operation into an error
+    // (issue #122 follow-up; observed with js-debug in container e2e).
+    await this.drainPendingDapRequests(this.stopDrainTimeoutMs);
+
+    // The proxy may have exited — or a concurrent stop() may have completed —
+    // while we drained; cleanup() nulls proxyProcess, so re-check before
+    // touching the process handle.
+    const process = this.proxyProcess;
+    if (!process) {
+      this.isStopped = true;
+      this.cleanup();
+      return;
+    }
+
+    // Mark as shutting down to stop processing new messages
+    this.isStopped = true;
+    const sessionIdSnapshot = this.sessionId;
+
+    // Cleanup (cancels whatever is still pending after the drain)
+    this.cleanup();
+
+    // Send terminate command if process is still running
+    try {
+      if (!process.killed) {
+        process.send({ cmd: 'terminate', sessionId: sessionIdSnapshot });
+      }
+    } catch (error) {
+      this.logger.error(`[ProxyManager] Error sending terminate command:`, error);
+    }
+
+    // Wait for graceful exit or force kill after timeout
+    return new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        this.logger.warn(`[ProxyManager] Timeout waiting for proxy exit. Force killing.`);
+        if (!process.killed) {
+          process.kill('SIGKILL');
+        }
+        resolve();
+      }, 5000);
+
+      process.once('exit', () => {
+        clearTimeout(timeout);
+        resolve();
+      });
+
+      // If already killed/exited, resolve immediately
+      if (process.killed || process.exitCode !== null) {
+        clearTimeout(timeout);
+        resolve();
+      }
+    });
+  }
+
+  /**
+   * Wait (bounded) for in-flight DAP requests to settle. While draining,
+   * isStopped is still false, so responses already in the IPC pipe are
+   * processed normally and resolve their pending promises — the common case
+   * completes within one poll interval. Requests still pending at the
+   * deadline are cancelled by the caller via cleanup().
+   */
+  private async drainPendingDapRequests(timeoutMs: number, pollIntervalMs = 20): Promise<void> {
+    if (this.pendingDapRequests.size === 0) {
+      return;
+    }
+    this.logger.debug(
+      `[ProxyManager] Draining ${this.pendingDapRequests.size} in-flight DAP request(s) before stop (max ${timeoutMs}ms)`
+    );
+    const deadline = Date.now() + timeoutMs;
+    while (this.pendingDapRequests.size > 0 && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+    }
+    if (this.pendingDapRequests.size > 0) {
+      this.logger.warn(
+        `[ProxyManager] ${this.pendingDapRequests.size} DAP request(s) still pending after ${timeoutMs}ms drain; cancelling`
+      );
+    }
+  }
+
+  async sendDapRequest<T extends DebugProtocol.Response>(
+    command: string,
+    args?: unknown,
+    options?: { timeoutMs?: number }
+  ): Promise<T> {
+    if (!this.proxyProcess || !this.isInitialized) {
+      throw new Error('Proxy not initialized');
+    }
+
+    const barrier = this.adapter?.createLaunchBarrier?.(command, args);
+    const requestId = uuidv4();
+    const commandToSend = {
+      cmd: 'dap',
+      sessionId: this.sessionId,
+      requestId,
+      dapCommand: command,
+      dapArgs: args,
+      // Conditional so the key is truly absent (not undefined) in IPC payloads
+      ...(options?.timeoutMs !== undefined ? { timeoutMs: options.timeoutMs } : {})
+    };
+
+    if (barrier && !barrier.awaitResponse) {
+      this.logger.info(
+        `[ProxyManager] Sending DAP command with adapter barrier (fire-and-forget): ${command}, requestId: ${requestId}`
+      );
+      this.setActiveLaunchBarrier(barrier, requestId);
+      barrier.onRequestSent(requestId);
+
+      try {
+        this.sendCommand(commandToSend);
+      } catch (error) {
+        this.clearActiveLaunchBarrier(barrier);
+        throw error;
+      }
+
+      try {
+        await barrier.waitUntilReady();
+        return {} as T;
+      } finally {
+        this.clearActiveLaunchBarrier(barrier);
+      }
+    }
+
+    this.logger.info(`[ProxyManager] Sending DAP command: ${command}, requestId: ${requestId}`);
+    if (barrier) {
+      this.setActiveLaunchBarrier(barrier, requestId);
+      barrier.onRequestSent(requestId);
+    }
+
+    return new Promise<T>((resolve, reject) => {
+      this.pendingDapRequests.set(requestId, {
+        resolve: resolve as (value: DebugProtocol.Response) => void,
+        reject,
+        command
+      });
+
+      // Mirror into functional core for observability (seq is placeholder; ProxyManager remains authoritative)
+      if (this.dapState) {
+        this.dapState = addPendingRequest(this.dapState, {
+          requestId,
+          command,
+          seq: 0,
+          timestamp: Date.now()
+        });
+      }
+
+      try {
+        this.sendCommand(commandToSend);
+      } catch (error) {
+        this.pendingDapRequests.delete(requestId);
+        if (barrier) {
+          this.clearActiveLaunchBarrier(barrier);
+        }
+        reject(error);
+      }
+
+      // Timeout handler. The worker/socket timeout (timeoutMs, default 30s)
+      // fires first and produces the actionable error; this parent timer is a
+      // backstop that only fires if the worker never responds at all.
+      const effectiveTimeoutMs =
+        (options?.timeoutMs ?? this.defaultDapRequestTimeoutMs) + this.dapParentMarginMs;
+      setTimeout(() => {
+        if (this.pendingDapRequests.has(requestId)) {
+          this.pendingDapRequests.delete(requestId);
+          if (this.dapState) {
+            this.dapState = removePendingRequest(this.dapState, requestId);
+          }
+          if (this.activeLaunchBarrier && this.activeLaunchBarrierRequestId === requestId) {
+            this.clearActiveLaunchBarrier();
+          }
+          reject(new Error(ErrorMessages.dapRequestTimeout(command, Math.round(effectiveTimeoutMs / 1000))));
+        }
+      }, effectiveTimeoutMs);
+    });
+  }
+
+  isRunning(): boolean {
+    return this.proxyProcess !== null && !this.proxyProcess.killed;
+  }
+
+  getCurrentThreadId(): number | null {
+    return this.currentThreadId;
+  }
+
+  setCurrentThreadId(threadId: number): void {
+    this.currentThreadId = threadId;
+  }
+
+  private async prepareSpawnContext(config: ProxyConfig): Promise<{
+    executablePath: string;
+    proxyScriptPath: string;
+    env: Record<string, string>;
+  }> {
+    let executablePath = config.executablePath;
+
+    if (this.adapter) {
+      // Validate the interpreter the user configured (if any) rather than an auto-detected one,
+      // so a venv that has debugpy is not rejected because the system Python lacks it (issue #106).
+      const validation = await this.adapter.validateEnvironment(executablePath);
+      if (!validation.valid) {
+        throw new Error(
+          `Invalid environment for ${this.adapter.language}: ${validation.errors[0].message}`
+        );
+      }
+
+      if (!executablePath) {
+        executablePath = await this.adapter.resolveExecutablePath();
+        this.logger.info(`[ProxyManager] Adapter resolved executable path: ${executablePath}`);
+      }
+    } else if (!executablePath) {
+      throw new Error('No executable path provided and no adapter available to resolve it');
+    }
+
+    const proxyScriptPath = await this.findProxyScript();
+
+    if (!executablePath) {
+      throw new Error('Executable path could not be determined after validation');
+    }
+
+    const env = this.cloneProcessEnv();
+
+    return {
+      executablePath,
+      proxyScriptPath,
+      env
+    };
+  }
+
+  private cloneProcessEnv(): Record<string, string> {
+    const env: Record<string, string> = {};
+    for (const [key, value] of Object.entries(process.env)) {
+      if (value !== undefined) {
+        env[key] = value;
+      }
+    }
+    return env;
+  }
+
+  private async findProxyScript(): Promise<string> {
+    const modulePath = fileURLToPath(this.runtimeEnv.moduleUrl);
+    const moduleDir = path.dirname(modulePath);
+    const dirParts = moduleDir.split(path.sep);
+    const cwd = this.runtimeEnv.cwd();
+    const lastPart = dirParts[dirParts.length - 1];
+    const secondLast = dirParts[dirParts.length - 2];
+
+    let distPath: string;
+    if (lastPart === 'dist') {
+      distPath = path.join(moduleDir, 'proxy', 'proxy-bootstrap.js');
+    } else if (lastPart === 'proxy' && secondLast === 'dist') {
+      distPath = path.join(moduleDir, 'proxy-bootstrap.js');
+    } else {
+      // Fallback to development layout
+      distPath = path.resolve(moduleDir, '../../dist/proxy/proxy-bootstrap.js');
+    }
+
+    this.logger.info(`[ProxyManager] Checking for proxy script at: ${distPath}`);
+
+    if (!(await this.fileSystem.pathExists(distPath))) {
+      throw new Error(
+        `Bootstrap worker script not found at: ${distPath}\n` +
+        `Module directory: ${moduleDir}\n` +
+        `Current working directory: ${cwd}\n` +
+        `This usually means:\n` +
+        `  1. You need to run 'npm run build' first\n` +
+        `  2. The build failed to copy proxy files\n` +
+        `  3. The TypeScript compilation structure is unexpected`
+      );
+    }
+
+    return distPath;
+  }
+
+  private async sendInitWithRetry(initCommand: object): Promise<void> {
+    const maxRetries = 5;
+    const delays = [500, 1000, 2000, 4000, 8000]; // More generous backoff for Windows CI
+    let lastError: Error | undefined;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      const timeoutMs = delays[Math.min(attempt, delays.length - 1)];
+
+      try {
+        const received = await new Promise<boolean>((resolve, reject) => {
+          let resolved = false;
+
+          const handler = () => {
+            if (resolved) return;
+            resolved = true;
+            if (timer) clearTimeout(timer);
+            resolve(true);
+          };
+
+          const cleanup = () => {
+            this.removeListener('init-received', handler);
+            if (timer) clearTimeout(timer);
+          };
+
+          this.on('init-received', handler);
+
+          const timer = setTimeout(() => {
+            if (resolved) return;
+            resolved = true;
+            this.removeListener('init-received', handler);
+            resolve(false);
+          }, timeoutMs);
+
+          try {
+            this.sendCommand(initCommand);
+          } catch (error) {
+            cleanup();
+            reject(error);
+          }
+        });
+
+        if (received) {
+          this.logger.info(`[ProxyManager] Init command acknowledged on attempt ${attempt + 1}`);
+          return;
+        }
+
+        this.logger.warn(
+          `[ProxyManager] Init not acknowledged, attempt ${attempt + 1}/${maxRetries + 1}`
+        );
+      } catch (error) {
+        lastError = error as Error;
+        this.logger.warn(
+          `[ProxyManager] Error sending init on attempt ${attempt + 1}: ${lastError.message}`
+        );
+      }
+
+      if (attempt < maxRetries) {
+        const waitMs = delays[Math.min(attempt, delays.length - 1)];
+        await new Promise((resolve) => setTimeout(resolve, waitMs));
+      }
+    }
+
+    let detailMessage = `Failed to initialize proxy after ${maxRetries + 1} attempts. ${
+      lastError ? `Last error: ${lastError.message}` : 'Init command not acknowledged'
+    }`;
+
+    if (this.lastExitDetails) {
+      const { code, signal, capturedStderr } = this.lastExitDetails;
+      const stderrSnippet = capturedStderr.length
+        ? capturedStderr.slice(-10).join('\n')
+        : '<<no stderr captured>>';
+      detailMessage += ` Proxy exit details -> code=${code} signal=${signal} stderr:\n${stderrSnippet}`;
+    }
+
+    throw new Error(detailMessage);
+  }
+
+  private sendCommand(command: object): void {
+    if (!this.proxyProcess || this.proxyProcess.killed) {
+      if (this.lastExitDetails) {
+        this.logger.error(
+          `[ProxyManager] Attempted to send command after proxy unavailable. Last exit -> code=${this.lastExitDetails.code} signal=${this.lastExitDetails.signal}`,
+          this.lastExitDetails.capturedStderr
+        );
+      } else {
+        this.logger.error('[ProxyManager] Attempted to send command but proxy process is not available (no exit details recorded).');
+      }
+      throw new Error('Proxy process not available');
+    }
+
+    const rawChild =
+      (this.proxyProcess as unknown as { childProcess?: { connected?: boolean; pid?: number; killed?: boolean } })
+        .childProcess;
+    const requestId = (command as { requestId?: string }).requestId;
+    const cmd = (command as { cmd?: string }).cmd;
+    const dapCommand = (command as { dapCommand?: string }).dapCommand;
+
+    const connectedBefore =
+      rawChild && typeof rawChild.connected === 'boolean' ? rawChild.connected : undefined;
+    const childPid = rawChild?.pid;
+
+    this.logger.debug(
+      `[ProxyManager] IPC pre-send pid=${childPid ?? 'unknown'} connected=${connectedBefore} cmd=${cmd}${
+        dapCommand ? `/${dapCommand}` : ''
+      } requestId=${requestId ?? 'n/a'}`
+    );
+
+    this.logger.info(`[ProxyManager] Sending command to proxy: ${JSON.stringify(sanitizePayloadForLogging(command)).substring(0, 500)}`);
+
+    try {
+      this.proxyProcess.sendCommand(command);
+      this.logger.info(`[ProxyManager] Command dispatched via proxy process`);
+
+      const connectedAfter =
+        rawChild && typeof rawChild.connected === 'boolean' ? rawChild.connected : undefined;
+      this.logger.debug(
+        `[ProxyManager] IPC post-send pid=${childPid ?? 'unknown'} connected=${connectedAfter} cmd=${cmd}${
+          dapCommand ? `/${dapCommand}` : ''
+        } requestId=${requestId ?? 'n/a'}`
+      );
+    } catch (error) {
+      const connectedAfter =
+        rawChild && typeof rawChild.connected === 'boolean' ? rawChild.connected : undefined;
+      this.logger.error(
+        `[ProxyManager] Failed to send command (pid=${childPid ?? 'unknown'} connected=${connectedAfter} cmd=${cmd}${
+          dapCommand ? `/${dapCommand}` : ''
+        } requestId=${requestId ?? 'n/a'})`,
+        error
+      );
+      throw error;
+    }
+  }
+
+  private setupEventHandlers(): void {
+    if (!this.proxyProcess) return;
+
+    // Handle IPC messages
+    this.proxyProcess.on('message', (rawMessage: unknown) => {
+      this.handleProxyMessage(rawMessage);
+    });
+
+    this.proxyProcess.on('ipc-send-start', (data: { pid?: number; connectedBefore?: boolean; summary?: string; timestamp?: number }) => {
+      this.logger.debug(
+        `[ProxyManager] IPC send start pid=${data?.pid ?? 'unknown'} connected=${data?.connectedBefore} summary=${data?.summary ?? 'n/a'}`
+      );
+    });
+
+    this.proxyProcess.on('ipc-send-complete', (data: { pid?: number; connectedAfter?: boolean; summary?: string; timestamp?: number; queueSizeBefore?: number; queueSizeAfter?: number }) => {
+      this.logger.debug(
+        `[ProxyManager] IPC send complete pid=${data?.pid ?? 'unknown'} connected=${data?.connectedAfter} summary=${data?.summary ?? 'n/a'} queueBefore=${data?.queueSizeBefore ?? 'n/a'} queueAfter=${data?.queueSizeAfter ?? 'n/a'}`
+      );
+    });
+
+    this.proxyProcess.on('ipc-send-failed', (data: { pid?: number; killed?: boolean; childProcessKilled?: boolean | string; summary?: string; timestamp?: number }) => {
+      this.logger.warn(
+        `[ProxyManager] IPC send returned false pid=${data?.pid ?? 'unknown'} killed=${data?.killed} childKilled=${data?.childProcessKilled} summary=${data?.summary ?? 'n/a'}`
+      );
+    });
+
+    this.proxyProcess.on('ipc-send-error', (data: { pid?: number; error?: string; summary?: string; timestamp?: number }) => {
+      this.logger.error(
+        `[ProxyManager] IPC send error pid=${data?.pid ?? 'unknown'} error=${data?.error ?? 'unknown'} summary=${data?.summary ?? 'n/a'}`
+      );
+    });
+
+    // Handle stderr. Chunks arrive at arbitrary byte boundaries, so they are
+    // line-buffered before sanitization — a secret assignment split across
+    // two chunks would otherwise leak its tail past the key/value redaction
+    // patterns (issue #151). Scoped to this process's handlers so a pending
+    // partial line survives until this stream's own 'end'/'close', and never
+    // bleeds into a later process's stderr.
+    const stderrLineBuffer = new LineBuffer();
+    this.proxyProcess.stderr?.on('data', (data: Buffer | string) => {
+      this.recordStderrLines(stderrLineBuffer.append(data.toString()));
+    });
+    // Flush the trailing partial line only once the stream itself is done.
+    // Flushing on process 'exit' would be wrong: the pipe can still deliver
+    // the rest of a split line afterwards, re-creating the straddle leak.
+    const flushStderr = () => this.recordStderrLines(stderrLineBuffer.flush());
+    this.proxyProcess.stderr?.on('end', flushStderr);
+    this.proxyProcess.stderr?.on('close', flushStderr);
+
+    // Handle exit
+    this.proxyProcess.on('exit', (code: number | null, signal: string | null) => {
+      this.logger.info(`[ProxyManager] Proxy exited. Code: ${code}, Signal: ${signal}`);
+
+      this.lastExitDetails = {
+        code,
+        signal,
+        timestamp: Date.now(),
+        capturedStderr: [...this.stderrBuffer],
+      };
+
+      if (!this.isInitialized) {
+        this.logger.error(
+          `[ProxyManager] Proxy exited before initialization. code=${code} signal=${signal} stderrLines=${this.stderrBuffer.length}`,
+          this.stderrBuffer
+        );
+      }
+
+      this.handleProxyExit(code, signal);
+    });
+
+    // Handle errors
+    this.proxyProcess.on('error', (err: Error) => {
+      this.logger.error(`[ProxyManager] Proxy error:`, err);
+      this.emit('error', err);
+      this.cleanup();
+    });
+  }
+
+  /**
+   * Log and capture complete stderr lines, sanitized. Lines can arrive after
+   * the process 'exit' event snapshotted the buffer (the pipe drains last),
+   * so late lines are also appended to the captured exit details.
+   */
+  private recordStderrLines(lines: string[]): void {
+    const sanitized = sanitizeStderr(lines.filter(line => line.trim().length > 0));
+    for (const line of sanitized) {
+      this.logger.error(`[ProxyManager STDERR] ${line}`);
+      // Capture sanitized stderr for error reporting during initialization.
+      // Bounded so a chatty proxy cannot grow the buffer (and everything it
+      // gets copied into) without limit.
+      if (!this.isInitialized) {
+        if (this.stderrBuffer.length >= 100) {
+          this.stderrBuffer.shift();
+        }
+        this.stderrBuffer.push(line);
+      }
+      if (this.lastExitDetails) {
+        if (this.lastExitDetails.capturedStderr.length >= 100) {
+          this.lastExitDetails.capturedStderr.shift();
+        }
+        this.lastExitDetails.capturedStderr.push(line);
+      }
+    }
+  }
+
+  private handleProxyMessage(rawMessage: unknown): void {
+    // Skip all message processing after stop() to prevent emitting events with no listeners
+    if (this.isStopped) {
+      this.logger.debug(`[ProxyManager] Ignoring late message after stop (session ${this.sessionId})`);
+      return;
+    }
+    if ((rawMessage as { type?: string })?.type === 'ipc-heartbeat') {
+      const heartbeat = rawMessage as { counter?: number; timestamp?: number };
+      this.logger.debug(
+        `[ProxyManager] Received worker heartbeat counter=${heartbeat.counter ?? 'n/a'} timestamp=${heartbeat.timestamp ?? 'n/a'}`
+      );
+      return;
+    }
+    if ((rawMessage as { type?: string })?.type === 'ipc-heartbeat-tick') {
+      const heartbeatTick = rawMessage as { timestamp?: number };
+      this.logger.debug(
+        `[ProxyManager] Received worker heartbeat tick timestamp=${heartbeatTick.timestamp ?? 'n/a'}`
+      );
+      return;
+    }
+    this.proxyMessageCounter += 1;
+    this.logger.debug(
+      `[ProxyManager] Received message #${this.proxyMessageCounter}:`,
+      rawMessage
+    );
+
+    // Validate message format
+    if (!isValidProxyMessage(rawMessage)) {
+      this.logger.warn(`[ProxyManager] Invalid message format:`, rawMessage);
+      return;
+    }
+
+    const message = rawMessage as ProxyMessage;
+
+    // Fast-path: always forward DAP events to consumers to avoid missing stops/output
+    if (message.type === 'dapEvent') {
+      this.handleDapEvent(message as ProxyDapEventMessage);
+    }
+    
+    // Handle status messages
+    if (message.type === 'status') {
+      this.handleStatusMessage(message as ProxyStatusMessage);
+    }
+
+    // Use functional core if state is initialized
+    if (this.dapState) {
+      const result = handleProxyMessage(this.dapState, message);
+      
+      // Execute commands from functional core
+      for (const command of result.commands) {
+        switch (command.type) {
+          case 'log':
+            this.logger[command.level](command.message, command.data);
+            break;
+            
+          case 'emitEvent':
+            {
+              // Skip emitEvent commands for DAP events — they are already handled
+              // by the fast-path handleDapEvent() call above to avoid double emission.
+              if (message.type === 'dapEvent') break;
+              const args = (command.args as unknown[]) ?? [];
+              this.emit(command.event as keyof ProxyManagerEvents, ...(args as never[]));
+            }
+            break;
+            
+          case 'killProcess':
+            this.proxyProcess?.kill();
+            break;
+            
+          case 'sendToProxy':
+            this.sendCommand(command.command);
+            break;
+            
+          // Note: sendToClient is not used in ProxyManager context
+        }
+      }
+      
+      // Update state if changed
+      if (result.newState) {
+        this.dapState = result.newState;
+        
+        // Sync local state with functional core state
+        this.isInitialized = result.newState.initialized;
+        this.adapterConfigured = result.newState.adapterConfigured;
+        // Only update currentThreadId if the core provided a concrete number.
+        // Avoid overwriting the value we set in the fast-path dapEvent handler with null/undefined.
+        const coreTid = (result.newState as { currentThreadId?: number | null }).currentThreadId;
+        if (typeof coreTid === 'number') {
+          this.currentThreadId = coreTid;
+        }
+      }
+      
+      // Resolve/reject pending DAP request Promises. The functional core above only
+      // tracks state; response resolution remains imperative because it involves
+      // Promise callbacks that cannot be expressed as pure commands.
+      if (message.type === 'dapResponse') {
+        this.handleDapResponse(message as ProxyDapResponseMessage);
+      }
+    } else {
+      // Fallback if state not initialized (shouldn't happen)
+      this.logger.error(`[ProxyManager] DAP state not initialized`);
+    }
+  }
+
+  private handleDapResponse(message: ProxyDapResponseMessage): void {
+    const pending = this.pendingDapRequests.get(message.requestId);
+    if (!pending) {
+      // During shutdown, it's normal to receive responses for requests that were cancelled
+      if (this.proxyProcess) {
+        this.logger.debug(`[ProxyManager] Received response for unknown/cancelled request: ${message.requestId}`);
+      }
+      return;
+    }
+
+    this.pendingDapRequests.delete(message.requestId);
+    // Mirror completion into functional core
+    if (this.dapState) {
+      this.dapState = removePendingRequest(this.dapState, message.requestId);
+    }
+
+    if (this.activeLaunchBarrier && this.activeLaunchBarrierRequestId === message.requestId) {
+      this.clearActiveLaunchBarrier();
+    }
+
+    if (message.success) {
+      // If this was a 'threads' response, opportunistically capture a usable thread id
+      try {
+        if (pending.command === 'threads') {
+          const resp = (message.response || message.body) as DebugProtocol.ThreadsResponse | undefined;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const threads = (resp && (resp as any).body && Array.isArray((resp as any).body.threads)) ? (resp as any).body.threads : [];
+          const first = threads.length ? threads[0]?.id : undefined;
+          if (typeof first === 'number') {
+            this.currentThreadId = first;
+          }
+        }
+      } catch {
+        // ignore capture errors
+      }
+      pending.resolve((message.response || message.body) as DebugProtocol.Response);
+    } else {
+      pending.reject(new Error(message.error || `DAP request '${pending.command}' failed`));
+    }
+  }
+
+  private handleDapEvent(message: ProxyDapEventMessage): void {
+    this.activeLaunchBarrier?.onDapEvent(
+      message.event,
+      message.body as DebugProtocol.Event['body'] | undefined
+    );
+
+    this.logger.info(`[ProxyManager] DAP event: ${message.event}`, message.body);
+
+    switch (message.event) {
+      case 'stopped':
+        const stoppedBody = message.body as { threadId?: number; reason?: string } | undefined;
+        const threadIdMaybe = (typeof stoppedBody?.threadId === 'number') ? stoppedBody!.threadId! : undefined;
+        const reason = stoppedBody?.reason || 'unknown';
+        if (typeof threadIdMaybe === 'number') {
+          this.currentThreadId = threadIdMaybe;
+        }
+        // Do not fabricate a threadId; emit undefined if adapter omitted it
+        this.emit('stopped', threadIdMaybe, reason, stoppedBody as DebugProtocol.StoppedEvent['body']);
+        break;
+      
+      case 'continued':
+        this.emit('continued');
+        break;
+      
+      case 'terminated':
+        this.emit('terminated');
+        break;
+      
+      case 'exited':
+        this.emit('exited');
+        break;
+      
+      // Forward other events as generic DAP events
+      default:
+        this.emit('dap-event', message.event, message.body);
+    }
+  }
+
+  private handleStatusMessage(message: ProxyStatusMessage): void {
+    this.activeLaunchBarrier?.onProxyStatus(message.status, message);
+
+    switch (message.status) {
+      case 'proxy_minimal_ran_ipc_test':
+        this.logger.info(`[ProxyManager] IPC test message received`);
+        this.proxyProcess?.kill();
+        break;
+
+      case 'init_received':
+        this.logger.info(`[ProxyManager] Init command acknowledged by proxy`);
+        this.emit('init-received');
+        break;
+
+      case 'dry_run_complete':
+        this.logger.info(`[ProxyManager] Dry run complete`);
+        this.dryRunCompleteReceived = true;
+        if (typeof message.command === 'string' && message.command.trim().length > 0) {
+          this.dryRunCommandSnapshot = message.command;
+        }
+        if (typeof message.script === 'string' && message.script.trim().length > 0) {
+          this.dryRunScriptPath = message.script;
+        }
+        this.emit('dry-run-complete', message.command, message.script);
+        break;
+      
+      case 'adapter_configured_and_launched':
+        this.logger.info(`[ProxyManager] Adapter configured and launched`);
+        this.adapterConfigured = true;
+        this.emit('adapter-configured');
+        if (!this.isInitialized) {
+          this.isInitialized = true;
+          this.emit('initialized');
+        }
+        break;
+      
+      case 'adapter_connected':
+        // Adapter transport is up; allow client to proceed with DAP handshake.
+        this.logger.info(`[ProxyManager] Adapter transport connected. Marking initialized to unblock client handshake.`);
+        if (!this.isInitialized) {
+          this.isInitialized = true;
+          this.emit('initialized');
+        }
+        break;
+      
+      case 'adapter_exited':
+      case 'dap_connection_closed':
+      case 'terminated':
+        this.logger.info(`[ProxyManager] Status: ${message.status}`);
+        if (!this.exitEmitted) {
+          this.exitEmitted = true;
+          this.emit('exit', message.code ?? 1, message.signal || undefined);
+        }
+        break;
+    }
+  }
+
+  private handleProxyExit(code: number | null, signal: string | null): void {
+    this.activeLaunchBarrier?.onProxyExit(code, signal);
+    this.clearActiveLaunchBarrier();
+
+    if (this.isDryRun && code === 0 && !this.dryRunCompleteReceived) {
+      const fallbackCommand = this.dryRunCommandSnapshot ?? '(command unavailable)';
+      const fallbackScript = this.dryRunScriptPath ?? '';
+      this.logger.warn(
+        `[ProxyManager] Dry run proxy exited without reporting completion; synthesizing dry-run-complete event.`
+      );
+      this.dryRunCompleteReceived = true;
+      this.dryRunCommandSnapshot = fallbackCommand;
+      this.dryRunScriptPath = fallbackScript;
+      this.emit('dry-run-complete', fallbackCommand, fallbackScript);
+    }
+
+    // Clean up pending requests
+    this.pendingDapRequests.forEach(pending => {
+      pending.reject(new Error('Proxy exited'));
+    });
+    this.pendingDapRequests.clear();
+
+    // Emit exit event
+    if (!this.exitEmitted) {
+      this.exitEmitted = true;
+      this.emit('exit', code, signal || undefined);
+    }
+
+    // Clean up
+    this.cleanup();
+  }
+
+  private cleanup(): void {
+    // Clear pending DAP requests to avoid "unknown request" warnings during shutdown
+    if (this.pendingDapRequests.size > 0) {
+      this.logger.debug(`[ProxyManager] Clearing ${this.pendingDapRequests.size} pending DAP requests during cleanup`);
+      for (const pending of this.pendingDapRequests.values()) {
+        pending.reject(new Error(`Request cancelled during proxy shutdown: ${pending.command}`));
+      }
+      this.pendingDapRequests.clear();
+    }
+    // Clear functional core mirror
+    if (this.dapState) {
+      this.dapState = clearPendingRequests(this.dapState);
+    }
+
+    // Clear adapter-provided launch barriers
+    this.clearActiveLaunchBarrier();
+
+    // Dispose the adapter so AdapterRegistry releases the instance slot
+    if (this.adapter && typeof this.adapter.dispose === 'function') {
+      this.adapter.dispose().catch(err => {
+        this.logger.warn(`[ProxyManager] Error disposing adapter during cleanup: ${err instanceof Error ? err.message : String(err)}`);
+      });
+      this.adapter = null;
+    }
+
+    this.proxyProcess = null;
+    this.isInitialized = false;
+    this.adapterConfigured = false;
+    this.currentThreadId = null;
+    this.stderrBuffer = [];
+    this.sessionId = null;
+    this.exitEmitted = false;
+  }
+
+  private setActiveLaunchBarrier(barrier: AdapterLaunchBarrier, requestId: string): void {
+    if (this.activeLaunchBarrier && this.activeLaunchBarrier !== barrier) {
+      this.activeLaunchBarrier.dispose();
+    }
+    this.activeLaunchBarrier = barrier;
+    this.activeLaunchBarrierRequestId = requestId;
+  }
+
+  private clearActiveLaunchBarrier(barrier?: AdapterLaunchBarrier | null): void {
+    if (!this.activeLaunchBarrier) {
+      return;
+    }
+    if (barrier && this.activeLaunchBarrier !== barrier) {
+      return;
+    }
+    try {
+      this.activeLaunchBarrier.dispose();
+    } catch (error) {
+      this.logger.warn('[ProxyManager] Error disposing adapter launch barrier', error);
+    }
+    this.activeLaunchBarrier = null;
+    this.activeLaunchBarrierRequestId = null;
+  }
+
+  hasDryRunCompleted(): boolean {
+    return this.dryRunCompleteReceived;
+  }
+
+  getDryRunSnapshot(): { command?: string; script?: string } | undefined {
+    if (!this.dryRunCommandSnapshot && !this.dryRunScriptPath) {
+      return undefined;
+    }
+    return {
+      command: this.dryRunCommandSnapshot,
+      script: this.dryRunScriptPath
+    };
+  }
+}

@@ -1,0 +1,1631 @@
+{
+  "source": "tests/e2e/docker/docker-smoke-javascript.test.ts",
+  "source_hash": "99ce30630b912b15",
+  "generated": "2026-07-22T22:07:14Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "beforeAll",
+        "afterAll",
+        "afterEach"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": "util",
+      "names": [
+        "promisify"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "child_process",
+      "names": [
+        "exec"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": "./docker-test-utils.js",
+      "names": [
+        "buildDockerImage",
+        "createDockerMcpClient",
+        "hostToContainerPath",
+        "getDockerLogs"
+      ],
+      "line": 12,
+      "is_reexport": false,
+      "resolved_path": "tests/e2e/docker/docker-test-utils.ts"
+    },
+    {
+      "source": "../smoke-test-utils.js",
+      "names": [
+        "parseSdkToolResult"
+      ],
+      "line": 13,
+      "is_reexport": false,
+      "resolved_path": "tests/e2e/smoke-test-utils.ts"
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/client/index.js",
+      "names": [
+        "Client"
+      ],
+      "line": 14,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/index.d.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "promisify",
+      "line": 16,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fileURLToPath",
+      "line": 18,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.dirname",
+      "line": 19,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 20,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe.skipIf(SKIP_DOCKER)",
+      "line": 24,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe.skipIf",
+      "line": 24,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeAll",
+      "line": 30,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 31,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "buildDockerImage",
+      "line": 32,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 34,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 35,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDockerMcpClient",
+      "line": 36,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 45,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterAll",
+      "line": 48,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient.callTool",
+      "line": 51,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "cleanup",
+      "line": 61,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 66,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getDockerLogs",
+      "line": 67,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 68,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 71,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 74,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient.callTool",
+      "line": 77,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 88,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 90,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "hostToContainerPath",
+      "line": 91,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 93,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 94,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 97,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 98,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 106,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(createResponse.sessionId).toBeDefined",
+      "line": 107,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 107,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(typeof createResponse.sessionId).toBe",
+      "line": 108,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 108,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 110,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 113,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 114,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 123,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(bpResponse.success).toBe",
+      "line": 124,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 124,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 125,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 128,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 131,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 144,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 145,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 145,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 149,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 150,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getDockerLogs",
+      "line": 154,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 155,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "execAsync",
+      "line": 158,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 162,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 164,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "execAsync",
+      "line": 170,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 174,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 175,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 177,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(startResponse.state).toBeDefined",
+      "line": 181,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 181,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(startResponse.state).toContain",
+      "line": 183,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 183,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 184,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 187,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getDockerLogs",
+      "line": 191,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 192,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 193,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 200,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 200,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 203,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 204,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 212,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stackResponse.stackFrames).toBeDefined",
+      "line": 213,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 213,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(Array.isArray(stackResponse.stackFrames)).toBe",
+      "line": 214,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 214,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array.isArray",
+      "line": 214,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((stackResponse.stackFrames as any[]).length).toBeGreaterThan",
+      "line": 215,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 215,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 216,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 219,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 220,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 228,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(varsResponse.variables).toBeDefined",
+      "line": 229,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 229,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(Array.isArray(varsResponse.variables)).toBe",
+      "line": 230,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 230,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array.isArray",
+      "line": 230,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 231,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 234,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 235,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 240,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stepResponse.success).toBe",
+      "line": 241,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 241,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 242,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 245,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 245,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 248,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 249,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 257,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(evalResponse.result).toBeDefined",
+      "line": 258,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 258,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "String",
+      "line": 259,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(resultStr).toMatch",
+      "line": 260,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 260,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 261,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 264,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 265,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 270,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(continueResponse.success).toBe",
+      "line": 271,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 271,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 272,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 275,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 275,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 278,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 279,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 284,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(closeResponse.success).toBe",
+      "line": 285,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 285,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 287,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 289,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 292,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 293,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "hostToContainerPath",
+      "line": 294,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 296,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 304,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 306,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(parseSdkToolResult(breakpointResult).success).toBe",
+      "line": 314,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 314,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 314,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 316,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 329,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(startResponse.state).toBeDefined",
+      "line": 330,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 330,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(startResponse.state).toContain",
+      "line": 331,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 331,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 333,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 333,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 335,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 336,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array.isArray",
+      "line": 342,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(topBefore).toBeTruthy",
+      "line": 345,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 345,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(topBefore?.line).toBe",
+      "line": 346,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 346,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 348,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 353,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stepResponse.success).toBe",
+      "line": 354,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 354,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 356,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 356,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 358,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 359,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array.isArray",
+      "line": 365,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(topAfter).toBeTruthy",
+      "line": 369,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 369,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(topAfter?.name?.toLowerCase()).toContain",
+      "line": 370,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 370,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "topAfter?.name?.toLowerCase",
+      "line": 370,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(topAfter?.line).toBeLessThan",
+      "line": 371,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 371,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 373,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 377,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(continueParsed.success).toBe",
+      "line": 378,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 378,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 380,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(parseSdkToolResult(closeResult).success).toBe",
+      "line": 384,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 384,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 384,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 389,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 390,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "hostToContainerPath",
+      "line": 391,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 393,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 401,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 403,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(parseSdkToolResult(breakpointResult).success).toBe",
+      "line": 411,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 411,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 411,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 413,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 426,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(startResponse.state).toBeDefined",
+      "line": 427,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 427,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(startResponse.state).toContain",
+      "line": 428,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 428,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 430,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 430,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 432,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 437,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stepResponse.success).toBe",
+      "line": 438,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 438,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 440,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 440,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 442,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 443,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array.isArray",
+      "line": 449,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(topAfter).toBeTruthy",
+      "line": 452,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 452,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(topAfter?.line).toBe",
+      "line": 453,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 453,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 455,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 459,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(continueParsed.success).toBe",
+      "line": 460,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 460,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 462,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(parseSdkToolResult(closeResult).success).toBe",
+      "line": 466,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 466,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 466,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 471,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 472,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "hostToContainerPath",
+      "line": 473,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 476,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 484,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 487,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 492,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(parseSdkToolResult(bp1).success).toBe",
+      "line": 498,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 498,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 498,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(parseSdkToolResult(bp2).success).toBe",
+      "line": 499,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 499,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 499,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 501,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 504,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 511,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 512,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "hostToContainerPath",
+      "line": 513,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 516,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 524,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 527,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 537,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sourceResponse.success).toBe",
+      "line": 538,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 538,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\r\n      sourceResponse.lineContent || \r\n      sourceResponse.source || \r\n      sourceResponse",
+      "line": 539,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 539,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 545,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 548,
+      "call_sites": 31
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "mcp-debugger:test",
+      "context": "Docker image name used for building and creating MCP client",
+      "line": 32,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "javascript",
+      "context": "Language argument passed to create_debug_session tool",
+      "line": 101,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "create_debug_session",
+      "context": "MCP tool name for creating a debug session",
+      "line": 99,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "set_breakpoint",
+      "context": "MCP tool name for setting a breakpoint",
+      "line": 115,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "start_debugging",
+      "context": "MCP tool name for starting a debug session",
+      "line": 132,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "get_stack_trace",
+      "context": "MCP tool name for retrieving stack trace",
+      "line": 205,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "get_local_variables",
+      "context": "MCP tool name for getting local variables",
+      "line": 221,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "step_over",
+      "context": "MCP tool name for stepping over",
+      "line": 236,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "evaluate_expression",
+      "context": "MCP tool name for evaluating an expression",
+      "line": 250,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "continue_execution",
+      "context": "MCP tool name for continuing execution",
+      "line": 266,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "close_debug_session",
+      "context": "MCP tool name for closing a debug session",
+      "line": 280,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "step_into",
+      "context": "MCP tool name for stepping into a function",
+      "line": 349,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "get_source_context",
+      "context": "MCP tool name for getting source context",
+      "line": 528,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "paused",
+      "context": "Expected substring in debug session state after hitting breakpoint",
+      "line": 183,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "startResponse.state"
+    },
+    {
+      "value": "deepfunction",
+      "context": "Expected function name after step_into; compared lowercased against frame name",
+      "line": 370,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "topAfter?.name?.toLowerCase()"
+    },
+    {
+      "value": "error",
+      "context": "Debug state value indicating start_debugging failed",
+      "line": 148,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "startResponse.state"
+    },
+    {
+      "value": "SKIP_DOCKER_TESTS",
+      "context": "Environment variable controlling whether Docker tests are skipped",
+      "line": 22,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "true",
+      "context": "Value compared against SKIP_DOCKER_TESTS env var to skip suite",
+      "line": 22,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "process.env.SKIP_DOCKER_TESTS"
+    },
+    {
+      "value": "VITEST_FAILED",
+      "context": "Environment variable checked to decide whether to print container logs in afterAll",
+      "line": 65,
+      "kind": "config",
+      "usage": "external_input"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,220 @@
+{
+  "source": "src/proxy/dap-proxy-dependencies.ts",
+  "source_hash": "8d8756e1545ed64c",
+  "generated": "2026-07-22T22:08:13Z",
+  "imports": [
+    {
+      "source": "child_process",
+      "names": [
+        "spawn"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "fs-extra",
+      "names": [
+        "fs"
+      ],
+      "line": 6,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@types+fs-extra@11.0.4/node_modules/@types/fs-extra/index.d.ts"
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "./minimal-dap.js",
+      "names": [
+        "MinimalDapClient"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/minimal-dap.ts"
+    },
+    {
+      "source": "../utils/logger.js",
+      "names": [
+        "createLogger"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "src/utils/logger.ts"
+    },
+    {
+      "source": "./dap-proxy-interfaces.js",
+      "names": [
+        "DapProxyDependencies",
+        "ILogger",
+        "ILoggerFactory"
+      ],
+      "line": 10,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-interfaces.ts"
+    },
+    {
+      "source": "../interfaces/process-interfaces.js",
+      "names": [
+        "ProcessLike"
+      ],
+      "line": 15,
+      "is_reexport": false,
+      "resolved_path": "src/interfaces/process-interfaces.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "createProductionDependencies",
+      "kind": "function",
+      "line": 23,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "proc",
+          "optional": true,
+          "type": "Pick<import(\"C:/Users/johnf/projects/mcp-debugger/src/interfaces/process-interfaces\").ProcessLike, \"stdout\" | \"send\">"
+        }
+      ]
+    },
+    {
+      "name": "createConsoleLogger",
+      "kind": "function",
+      "line": 66,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "createProductionDependencies",
+      "to": "path.join",
+      "line": 28,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createProductionDependencies",
+      "to": "createLogger",
+      "line": 29,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "createProductionDependencies",
+      "to": "fs.ensureDir",
+      "line": 39,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "createProductionDependencies",
+      "to": "fs.pathExists",
+      "line": 40,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createProductionDependencies",
+      "to": "MinimalDapClient",
+      "line": 48,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "createProductionDependencies",
+      "to": "proc.send",
+      "line": 54,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createProductionDependencies",
+      "to": "proc.stdout.write",
+      "line": 56,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createProductionDependencies",
+      "to": "JSON.stringify",
+      "line": 56,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createConsoleLogger",
+      "to": "console.log",
+      "line": 68,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createConsoleLogger",
+      "to": "console.error",
+      "line": 69,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "createConsoleLogger",
+      "to": "console.error",
+      "line": 70,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "createConsoleLogger",
+      "to": "console.error",
+      "line": 71,
+      "call_sites": 3
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "proxy-",
+      "context": "Log file name prefix: proxy-<sessionId>.log",
+      "line": 28,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dap-proxy:",
+      "context": "Logger namespace prefix: dap-proxy:<sessionId>",
+      "line": 29,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "debug",
+      "context": "Log level for the session file logger",
+      "line": 30,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "[INFO]",
+      "context": "Console logger info prefix",
+      "line": 68,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "[ERROR]",
+      "context": "Console logger error prefix",
+      "line": 69,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "[DEBUG]",
+      "context": "Console logger debug prefix",
+      "line": 70,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "[WARN]",
+      "context": "Console logger warn prefix",
+      "line": 71,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "setup-guide.md L42 states 'JDK 21+ - For Java debugging'. I traced the JDI bridge: it is compiled with `--release 21` and the compile scripts explicitly refuse javac < 21. Since the bridge must be compiled/run to debug Java, JDK 21+ is actually required. The doc is accurate; the finding's evidence (install-claude-mcp.sh 11+, adapter warns-below-11) reflects the under-stated statements elsewhere, not the setup guide.",
+  "gray": true,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-22",
+  "accepted": true
+}

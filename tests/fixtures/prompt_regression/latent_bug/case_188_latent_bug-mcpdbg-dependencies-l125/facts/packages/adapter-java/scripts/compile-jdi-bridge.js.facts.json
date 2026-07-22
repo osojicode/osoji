@@ -1,0 +1,85 @@
+{
+  "source": "packages/adapter-java/scripts/compile-jdi-bridge.js",
+  "source_hash": "9c01bd3a2536bf28",
+  "generated": "2026-07-22T22:07:04Z",
+  "imports": [
+    {
+      "source": "child_process",
+      "names": [
+        "execFileSync",
+        "execSync"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "fs",
+      "names": [
+        "existsSync",
+        "statSync",
+        "mkdirSync"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "path",
+      "names": [
+        "resolve",
+        "dirname"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "is_reexport": false
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "findJavac",
+      "to": "child_process.execSync",
+      "line": 35
+    },
+    {
+      "from_symbol": "getJavacMajorVersion",
+      "to": "child_process.execFileSync",
+      "line": 47
+    },
+    {
+      "from_symbol": "main",
+      "to": "child_process.execFileSync",
+      "line": 109
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "SKIP_JDI_COMPILE",
+      "context": "Environment variable name checked to skip compilation",
+      "line": 68,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "process.env"
+    },
+    {
+      "value": "SKIP_ADAPTER_VENDOR",
+      "context": "Environment variable name checked to skip compilation",
+      "line": 73,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "process.env"
+    },
+    {
+      "value": "true",
+      "context": "Expected value of SKIP_ADAPTER_VENDOR to trigger skip",
+      "line": 73,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "(process.env.SKIP_ADAPTER_VENDOR || '').trim().toLowerCase()"
+    }
+  ],
+  "extraction_method": "llm"
+}

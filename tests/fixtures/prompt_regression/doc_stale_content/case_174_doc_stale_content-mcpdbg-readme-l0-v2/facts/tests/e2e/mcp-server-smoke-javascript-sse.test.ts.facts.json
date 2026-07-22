@@ -1,0 +1,1079 @@
+{
+  "source": "tests/e2e/mcp-server-smoke-javascript-sse.test.ts",
+  "source_hash": "10a187fcc8d58ac4",
+  "generated": "2026-07-22T22:08:15Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "afterEach"
+      ],
+      "line": 26,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 27,
+      "is_reexport": false
+    },
+    {
+      "source": "net",
+      "names": [
+        "net"
+      ],
+      "line": 28,
+      "is_reexport": false
+    },
+    {
+      "source": "child_process",
+      "names": [
+        "spawn",
+        "ChildProcess"
+      ],
+      "line": 29,
+      "is_reexport": false
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/client/index.js",
+      "names": [
+        "Client"
+      ],
+      "line": 30,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/index.d.ts"
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/client/sse.js",
+      "names": [
+        "SSEClientTransport"
+      ],
+      "line": 31,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/sse.d.ts"
+    },
+    {
+      "source": "./smoke-test-utils.js",
+      "names": [
+        "waitForHealthEndpoint",
+        "parseSdkToolResult"
+      ],
+      "line": 32,
+      "is_reexport": false,
+      "resolved_path": "tests/e2e/smoke-test-utils.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "process.cwd",
+      "line": 42,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 44,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 46,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 47,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpSdkClient.close",
+      "line": 52,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 53,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 55,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 66,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proc.kill",
+      "line": 67,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 71,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 73,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setInterval",
+      "line": 74,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 75,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "clearInterval",
+      "line": 76,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "resolve",
+      "line": 77,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 84,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proc.kill",
+      "line": 85,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 87,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 92,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 92,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 93,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 95,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "Promise",
+      "line": 107,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "reject",
+      "line": 113,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "Error",
+      "line": 113,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "Math.floor",
+      "line": 118,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "Math.random",
+      "line": 118,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "net.createServer",
+      "line": 119,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "server.once",
+      "line": 121,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "console.log",
+      "line": 123,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "tryPort",
+      "line": 124,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "reject",
+      "line": 126,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "server.once",
+      "line": 130,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "server.close",
+      "line": 131,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "console.log",
+      "line": 132,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "setTimeout",
+      "line": 134,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "resolve",
+      "line": 134,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "server.listen",
+      "line": 138,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "tryPort",
+      "line": 141,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "findAvailablePort",
+      "line": 158,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "Promise",
+      "line": 160,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.log",
+      "line": 161,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.log",
+      "line": 162,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.log",
+      "line": 164,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "spawn",
+      "line": 171,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "path.join",
+      "line": 172,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "port.toString",
+      "line": 174,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "setTimeout",
+      "line": 183,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.error",
+      "line": 185,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "reject",
+      "line": 186,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "Error",
+      "line": 186,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "(async () => {\r\n            try {\r\n              const ok = await waitForHealthEndpoint(port, TEST_T",
+      "line": 194,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "waitForHealthEndpoint",
+      "line": 196,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "clearTimeout",
+      "line": 199,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.log",
+      "line": 200,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "resolve",
+      "line": 201,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "sseServerProcess.on",
+      "line": 208,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "clearTimeout",
+      "line": 210,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.error",
+      "line": 211,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "reject",
+      "line": 212,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "sseServerProcess.on",
+      "line": 215,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "clearTimeout",
+      "line": 217,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.error",
+      "line": 218,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "reject",
+      "line": 219,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "Error",
+      "line": 219,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.error",
+      "line": 225,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "sseServerProcess.kill",
+      "line": 229,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "Promise",
+      "line": 231,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "setTimeout",
+      "line": 231,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "(error as any).message?.includes",
+      "line": 235,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.log",
+      "line": 236,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "Error",
+      "line": 245,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "console.log",
+      "line": 270,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "client.callTool",
+      "line": 273,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "parseSdkToolResult",
+      "line": 280,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "Error",
+      "line": 283,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "console.log",
+      "line": 286,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "client.callTool",
+      "line": 289,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "parseSdkToolResult",
+      "line": 297,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "console.log",
+      "line": 298,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "JSON.stringify",
+      "line": 303,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "client.callTool",
+      "line": 321,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "parseSdkToolResult",
+      "line": 325,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "console.log",
+      "line": 326,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "JSON.stringify",
+      "line": 331,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "client.callTool",
+      "line": 340,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "parseSdkToolResult",
+      "line": 346,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "Array.isArray",
+      "line": 347,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "console.log",
+      "line": 350,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "console.log",
+      "line": 351,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "JSON.stringify",
+      "line": 351,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "Date.now",
+      "line": 355,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "Date.now",
+      "line": 357,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "fetchStackTrace",
+      "line": 359,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "console.log",
+      "line": 361,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "Promise",
+      "line": 364,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "setTimeout",
+      "line": 364,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "fetchStackTrace",
+      "line": 367,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "Error",
+      "line": 368,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "waitForStackTrace",
+      "line": 372,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "console.log",
+      "line": 376,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "Promise",
+      "line": 377,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "setTimeout",
+      "line": 377,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "client.callTool",
+      "line": 380,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "parseSdkToolResult",
+      "line": 386,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "Array.isArray",
+      "line": 387,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "console.log",
+      "line": 390,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "console.log",
+      "line": 391,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "JSON.stringify",
+      "line": 391,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "fetchStackTrace",
+      "line": 395,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "JSON.stringify",
+      "line": 406,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "JSON.stringify",
+      "line": 414,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "console.error",
+      "line": 421,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "executeJavaScriptDebugSequence",
+      "to": "String",
+      "line": 425,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 430,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "startSSEServer",
+      "line": 435,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 438,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "waitForHealthEndpoint",
+      "line": 439,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 441,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 443,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 446,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Client",
+      "line": 447,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "URL",
+      "line": 452,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "SSEClientTransport",
+      "line": 453,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpSdkClient.connect",
+      "line": 455,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 456,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 459,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "executeJavaScriptDebugSequence",
+      "line": 460,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.success).toBe",
+      "line": 470,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 470,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.sessionId).toBeDefined",
+      "line": 471,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 471,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 474,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 476,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 480,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpSdkClient.callTool",
+      "line": 486,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 490,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 492,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 498,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "startSSEServer",
+      "line": 502,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "waitForHealthEndpoint",
+      "line": 503,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 505,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Client",
+      "line": 508,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "URL",
+      "line": 513,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "SSEClientTransport",
+      "line": 514,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpSdkClient.connect",
+      "line": 515,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 517,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "executeJavaScriptDebugSequence",
+      "line": 518,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.success).toBe",
+      "line": 526,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 526,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.sessionId).toBeDefined",
+      "line": 527,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 527,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpSdkClient.callTool",
+      "line": 532,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 537,
+      "call_sites": 11
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "startArguments",
+      "member": "dapLaunchArgs",
+      "line": 315
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "javascript",
+      "context": "Language discriminant passed to create_debug_session MCP tool",
+      "line": 276,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "create_debug_session",
+      "context": "MCP tool name for creating a debug session",
+      "line": 274,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "set_breakpoint",
+      "context": "MCP tool name for setting a breakpoint",
+      "line": 290,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "start_debugging",
+      "context": "MCP tool name for starting the debugger",
+      "line": 322,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "get_stack_trace",
+      "context": "MCP tool name for retrieving stack trace",
+      "line": 341,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "get_local_variables",
+      "context": "MCP tool name for retrieving local variables",
+      "line": 382,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "close_debug_session",
+      "context": "MCP tool name for closing a debug session",
+      "line": 487,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "sse",
+      "context": "Subcommand passed to dist/index.js to start SSE server mode",
+      "line": 173,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "--log-level",
+      "context": "CLI flag for setting log level when spawning SSE server",
+      "line": 175,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "inherit",
+      "context": "stdio mode for spawned SSE server process \u2014 CRITICAL for IPC channel reproduction",
+      "line": 177,
+      "kind": "config",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

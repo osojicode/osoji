@@ -1,0 +1,3307 @@
+{
+  "source": "tests/adapters/java/unit/java-debug-adapter.test.ts",
+  "source_hash": "79deee40c46513be",
+  "generated": "2026-07-22T22:07:39Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "beforeEach",
+        "afterEach",
+        "vi"
+      ],
+      "line": 1,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 2,
+      "is_reexport": false
+    },
+    {
+      "source": "child_process",
+      "names": [
+        "spawn"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterDependencies"
+      ],
+      "line": 5,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterState",
+        "DebugLanguage",
+        "DebugFeature"
+      ],
+      "line": 6,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/adapter-java",
+      "names": [
+        "JavaDebugAdapter"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-java/dist/index.d.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 9,
+      "call_sites": 110
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "importOriginal",
+      "line": 10,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 13,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 17,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 38,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 39,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 40,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 41,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.cwd",
+      "line": 46,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 50,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 54,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllMocks",
+      "line": 55,
+      "call_sites": 87
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockDependencies",
+      "line": 56,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JavaDebugAdapter",
+      "line": 57,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 60,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllMocks",
+      "line": 61,
+      "call_sites": 87
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.unstubAllGlobals",
+      "line": 62,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 65,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 66,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.language).toBe",
+      "line": 67,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 67,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 70,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.name).toBe",
+      "line": 71,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 71,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 74,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 75,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 75,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 75,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 78,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.isReady()).toBe",
+      "line": 79,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 79,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.isReady",
+      "line": 79,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 83,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 84,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSpawn.mockImplementation",
+      "line": 85,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 86,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 87,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 88,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.nextTick",
+      "line": 90,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proc.stderr.emit",
+      "line": 91,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Buffer.from",
+      "line": 91,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proc.emit",
+      "line": 92,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.initialize",
+      "line": 98,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 99,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 99,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 99,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.isReady()).toBe",
+      "line": 100,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 100,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.isReady",
+      "line": 100,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 103,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSpawn.mockImplementation",
+      "line": 104,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 105,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 106,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 107,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.nextTick",
+      "line": 108,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proc.stderr.emit",
+      "line": 109,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Buffer.from",
+      "line": 109,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proc.emit",
+      "line": 110,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 115,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 116,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.initialize",
+      "line": 118,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(initializeSpy).toHaveBeenCalled",
+      "line": 119,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 119,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 122,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSpawn.mockImplementation",
+      "line": 123,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 124,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 125,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 126,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.nextTick",
+      "line": 127,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proc.emit",
+      "line": 127,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 127,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 131,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 132,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.initialize()).rejects.toThrow",
+      "line": 134,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 134,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.initialize",
+      "line": 134,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 135,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 135,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 135,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 138,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSpawn.mockImplementation",
+      "line": 139,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 140,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 141,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 142,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.nextTick",
+      "line": 143,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proc.stderr.emit",
+      "line": 145,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Buffer.from",
+      "line": 145,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proc.emit",
+      "line": 146,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.initialize",
+      "line": 151,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 152,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 152,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 152,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDependencies.logger?.warn).toHaveBeenCalledWith",
+      "line": 154,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 154,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 155,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 160,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 161,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSpawn.mockImplementation",
+      "line": 162,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 163,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 164,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 165,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.nextTick",
+      "line": 166,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proc.stderr.emit",
+      "line": 167,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Buffer.from",
+      "line": 167,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proc.emit",
+      "line": 168,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.initialize",
+      "line": 173,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 174,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 174,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 174,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.dispose",
+      "line": 176,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 177,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 177,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 177,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 180,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 181,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 182,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.dispose",
+      "line": 184,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(disposeSpy).toHaveBeenCalled",
+      "line": 185,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 185,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 189,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 190,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.connect",
+      "line": 191,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 192,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 192,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 192,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.isConnected()).toBe",
+      "line": 193,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 193,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.isConnected",
+      "line": 193,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 196,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 197,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 198,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.connect",
+      "line": 200,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectedSpy).toHaveBeenCalled",
+      "line": 201,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 201,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 204,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.connect",
+      "line": 205,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.disconnect",
+      "line": 206,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 207,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 207,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 207,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.isConnected()).toBe",
+      "line": 208,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 208,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.isConnected",
+      "line": 208,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 211,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 212,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 213,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.connect",
+      "line": 215,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.disconnect",
+      "line": 216,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(disconnectedSpy).toHaveBeenCalled",
+      "line": 217,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 217,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 221,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 222,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getRequiredDependencies",
+      "line": 223,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(deps).toHaveLength",
+      "line": 224,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 224,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(deps[0].name).toBe",
+      "line": 225,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 225,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(deps[0].required).toBe",
+      "line": 226,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 226,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 230,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 231,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.CONDITIONAL_BREAKPOINTS)).toBe",
+      "line": 232,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 232,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 232,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 235,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.FUNCTION_BREAKPOINTS)).toBe",
+      "line": 236,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 236,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 236,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 239,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.EXCEPTION_BREAKPOINTS)).toBe",
+      "line": 240,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 240,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 240,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 243,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.EVALUATE_FOR_HOVERS)).toBe",
+      "line": 244,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 244,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 244,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 247,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.TERMINATE_REQUEST)).toBe",
+      "line": 248,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 248,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 248,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 251,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.STEP_BACK)).toBe",
+      "line": 252,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 252,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 252,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 255,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.DATA_BREAKPOINTS)).toBe",
+      "line": 256,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 256,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 256,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 260,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 261,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCapabilities",
+      "line": 262,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsConfigurationDoneRequest).toBe",
+      "line": 264,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 264,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsFunctionBreakpoints).toBe",
+      "line": 265,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 265,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsConditionalBreakpoints).toBe",
+      "line": 266,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 266,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsEvaluateForHovers).toBe",
+      "line": 267,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 267,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsSetVariable).toBe",
+      "line": 268,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 268,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsTerminateRequest).toBe",
+      "line": 269,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 269,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsStepBack).toBe",
+      "line": 270,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 270,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsLogPoints).toBe",
+      "line": 271,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 271,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 274,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCapabilities",
+      "line": 275,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.exceptionBreakpointFilters).toBeDefined",
+      "line": 277,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 277,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.exceptionBreakpointFilters?.length).toBe",
+      "line": 278,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 278,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.exceptionBreakpointFilters?.[0].filter).toBe",
+      "line": 279,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 279,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.exceptionBreakpointFilters?.[1].filter).toBe",
+      "line": 280,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 280,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 284,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 285,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 286,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 287,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(translated).toContain",
+      "line": 288,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 288,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(translated).toContain",
+      "line": 289,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 289,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 292,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 293,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 294,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(translated).toContain",
+      "line": 295,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 295,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 298,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 299,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 300,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(translated).toContain",
+      "line": 301,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 301,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 304,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 305,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 306,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(translated).toContain",
+      "line": 307,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 307,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 310,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 311,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 312,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(translated).toContain",
+      "line": 313,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 313,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 316,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 317,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 318,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(translated).toBe",
+      "line": 319,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 319,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 323,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 324,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getInstallationInstructions",
+      "line": 325,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(instructions).toContain",
+      "line": 326,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 326,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(instructions).toContain",
+      "line": 327,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 327,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(instructions).toContain",
+      "line": 328,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 328,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 332,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 333,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getMissingExecutableError",
+      "line": 334,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(error).toContain",
+      "line": 335,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 335,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(error).toContain",
+      "line": 336,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 336,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 340,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 341,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.buildAdapterCommand",
+      "line": 343,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fn",
+      "line": 355,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.command).toBeTruthy",
+      "line": 357,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 357,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.args).toBeDefined",
+      "line": 358,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 358,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.args).toContain",
+      "line": 360,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 360,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((error as Error).message).toMatch",
+      "line": 363,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 363,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 367,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(() => adapter.buildAdapterCommand({\n        sessionId: 'test-session',\n        executablePath",
+      "line": 368,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 368,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.buildAdapterCommand",
+      "line": 368,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 380,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 381,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.buildAdapterCommand",
+      "line": 383,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "result.args.indexOf",
+      "line": 393,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(idx).toBeGreaterThanOrEqual",
+      "line": 394,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 394,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.args[idx + 1]).toBe",
+      "line": 395,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 395,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((error as Error).message).toMatch",
+      "line": 398,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 398,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 402,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 403,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.buildAdapterCommand",
+      "line": 405,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "result.args.indexOf",
+      "line": 415,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(idx).toBeGreaterThanOrEqual",
+      "line": 416,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 416,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.args[idx + 1]).toBe",
+      "line": 417,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 417,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "String",
+      "line": 417,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((error as Error).message).toMatch",
+      "line": 419,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 419,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 424,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 425,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformLaunchConfig",
+      "line": 426,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(transformed.type).toBe",
+      "line": 432,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 432,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(transformed.request).toBe",
+      "line": 433,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 433,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 436,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformLaunchConfig",
+      "line": 437,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(transformed.mainClass).toBe",
+      "line": 442,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 442,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 445,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformLaunchConfig",
+      "line": 446,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(transformed.mainClass).toBe",
+      "line": 451,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 451,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 454,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformLaunchConfig",
+      "line": 455,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(transformed.stopOnEntry).toBe",
+      "line": 459,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 459,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 462,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformLaunchConfig",
+      "line": 463,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(transformed.stopOnEntry).toBe",
+      "line": 468,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 468,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 471,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformLaunchConfig",
+      "line": 472,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(transformed.classpath).toBe",
+      "line": 477,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 477,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 480,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformLaunchConfig",
+      "line": 481,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(transformed.sourcePath).toBe",
+      "line": 486,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 486,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 490,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 491,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 492,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 493,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.handleDapEvent",
+      "line": 495,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 502,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 502,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 502,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getCurrentThreadId()).toBe",
+      "line": 503,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 503,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCurrentThreadId",
+      "line": 503,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stoppedSpy).toHaveBeenCalled",
+      "line": 504,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 504,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 507,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 508,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 509,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.handleDapEvent",
+      "line": 511,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 518,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 518,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 518,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(continuedSpy).toHaveBeenCalled",
+      "line": 519,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 519,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 522,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 523,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 524,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.handleDapEvent",
+      "line": 526,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 533,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 533,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 533,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(terminatedSpy).toHaveBeenCalled",
+      "line": 534,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 534,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 537,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 538,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 539,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.handleDapEvent",
+      "line": 541,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(exitedSpy).toHaveBeenCalled",
+      "line": 548,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 548,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 551,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 552,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 553,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.handleDapEvent",
+      "line": 555,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(threadSpy).toHaveBeenCalled",
+      "line": 562,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 562,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 565,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 566,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 567,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.handleDapEvent",
+      "line": 569,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(outputSpy).toHaveBeenCalled",
+      "line": 576,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 576,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 580,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 581,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.sendDapRequest('stackTrace', { threadId: 1 }))\n        .rejects.toThrow",
+      "line": 582,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 582,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.sendDapRequest",
+      "line": 582,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 587,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 588,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(() => adapter.handleDapResponse({\n        seq: 1,\n        type: 'response',\n        request_s",
+      "line": 591,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 591,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.handleDapResponse",
+      "line": 591,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 601,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 602,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getDefaultLaunchConfig",
+      "line": 603,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(defaults.stopOnEntry).toBe",
+      "line": 604,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 604,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(defaults.justMyCode).toBe",
+      "line": 605,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 605,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 609,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 610,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getExecutableSearchPaths",
+      "line": 611,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(Array.isArray(paths)).toBe",
+      "line": 612,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 612,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array.isArray",
+      "line": 612,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(paths.length).toBeGreaterThan",
+      "line": 613,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 613,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 616,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 617,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 618,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getExecutableSearchPaths",
+      "line": 620,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(paths.some(p => p.split(path.sep).join('/').includes('custom/jdk'))).toBe",
+      "line": 622,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 622,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "paths.some",
+      "line": 622,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "p.split(path.sep).join('/').includes",
+      "line": 622,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "p.split(path.sep).join",
+      "line": 622,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "p.split",
+      "line": 622,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 626,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 627,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsAttach()).toBe",
+      "line": 628,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 628,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsAttach",
+      "line": 628,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 632,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 633,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig",
+      "line": 634,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.type).toBe",
+      "line": 640,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 640,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.request).toBe",
+      "line": 641,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 641,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.host).toBe",
+      "line": 642,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 642,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.port).toBe",
+      "line": 643,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 643,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 646,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig",
+      "line": 647,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.host).toBe",
+      "line": 652,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 652,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 655,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig",
+      "line": 656,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.sourcePaths).toEqual",
+      "line": 667,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 667,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.stopOnEntry).toBe",
+      "line": 668,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 668,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.cwd).toBe",
+      "line": 669,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 669,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.env).toEqual",
+      "line": 670,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 670,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.timeout).toBe",
+      "line": 671,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 671,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 674,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig",
+      "line": 675,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.sourcePaths).toBeUndefined",
+      "line": 680,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 680,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.stopOnEntry).toBeUndefined",
+      "line": 681,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 681,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.cwd).toBeUndefined",
+      "line": 682,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 682,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.env).toBeUndefined",
+      "line": 683,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 683,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.timeout).toBeUndefined",
+      "line": 685,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 685,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 689,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 690,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getDefaultAttachConfig",
+      "line": 691,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(defaults.request).toBe",
+      "line": 692,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 692,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(defaults.host).toBe",
+      "line": 693,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 693,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 698,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 699,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getDefaultExecutableName",
+      "line": 700,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(name).toBe",
+      "line": 702,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 702,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(name).toBe",
+      "line": 704,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 704,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 709,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 710,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 711,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 712,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.handleDapEvent",
+      "line": 722,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(breakpointHandler).toHaveBeenCalledWith",
+      "line": 723,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 723,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 727,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 728,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getFeatureRequirements",
+      "line": 729,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(requirements).toHaveLength",
+      "line": 730,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 730,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(requirements[0].type).toBe",
+      "line": 731,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 731,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(requirements[0].description).toContain",
+      "line": 732,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 732,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(requirements[0].required).toBe",
+      "line": 733,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 733,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 736,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getFeatureRequirements",
+      "line": 737,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(requirements).toHaveLength",
+      "line": 738,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 738,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(requirements[0].type).toBe",
+      "line": 739,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 739,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(requirements[0].description).toContain",
+      "line": 740,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 740,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(requirements[0].required).toBe",
+      "line": 741,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 741,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 744,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getFeatureRequirements",
+      "line": 745,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(requirements).toHaveLength",
+      "line": 746,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 746,
+      "call_sites": 5808
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "proc",
+      "member": "stdout",
+      "line": 87
+    },
+    {
+      "container": "proc",
+      "member": "stderr",
+      "line": 88
+    },
+    {
+      "container": "proc",
+      "member": "stdout",
+      "line": 106
+    },
+    {
+      "container": "proc",
+      "member": "stderr",
+      "line": 107
+    },
+    {
+      "container": "proc",
+      "member": "stdout",
+      "line": 125
+    },
+    {
+      "container": "proc",
+      "member": "stderr",
+      "line": 126
+    },
+    {
+      "container": "proc",
+      "member": "stdout",
+      "line": 141
+    },
+    {
+      "container": "proc",
+      "member": "stderr",
+      "line": 142
+    },
+    {
+      "container": "proc",
+      "member": "stdout",
+      "line": 164
+    },
+    {
+      "container": "proc",
+      "member": "stderr",
+      "line": 165
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "Java Debug Adapter (JDI)",
+      "context": "Expected adapter name",
+      "line": 71,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "adapter.name"
+    },
+    {
+      "value": "JDK",
+      "context": "Required dependency name",
+      "line": 225,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "deps[0].name"
+    },
+    {
+      "value": "JdiDapServer",
+      "context": "Expected Java class name in buildAdapterCommand args",
+      "line": 360,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "result.args"
+    },
+    {
+      "value": "DAP request forwarding not implemented",
+      "context": "Expected rejection message from sendDapRequest",
+      "line": 583,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "adapter.sendDapRequest(...)"
+    },
+    {
+      "value": "Java 11+ recommended",
+      "context": "Expected warning log for old Java version",
+      "line": 155,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "mockDependencies.logger?.warn"
+    },
+    {
+      "value": "build:adapter",
+      "context": "Expected substring in translateErrorMessage and getInstallationInstructions",
+      "line": 290,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "translated"
+    },
+    {
+      "value": "adoptium",
+      "context": "Expected substring in installation instructions and missing executable error",
+      "line": 327,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "instructions"
+    },
+    {
+      "value": "caught",
+      "context": "Exception breakpoint filter identifier",
+      "line": 279,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "caps.exceptionBreakpointFilters?.[0].filter"
+    },
+    {
+      "value": "uncaught",
+      "context": "Exception breakpoint filter identifier",
+      "line": 280,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "caps.exceptionBreakpointFilters?.[1].filter"
+    },
+    {
+      "value": "java",
+      "context": "Expected type in transformed launch/attach config",
+      "line": 432,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "transformed.type"
+    },
+    {
+      "value": "launch",
+      "context": "Expected request type in transformLaunchConfig",
+      "line": 433,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "transformed.request"
+    },
+    {
+      "value": "attach",
+      "context": "Expected request type in transformAttachConfig",
+      "line": 641,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "config.request"
+    },
+    {
+      "value": "localhost",
+      "context": "Default host in transformAttachConfig and getDefaultAttachConfig",
+      "line": 652,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "config.host"
+    },
+    {
+      "value": "dependency",
+      "context": "Requirement type from getFeatureRequirements",
+      "line": 731,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "requirements[0].type"
+    },
+    {
+      "value": "MCP_DEBUGGER_MAIN_PID",
+      "context": "Env var controlling owner-pid passed to JDI bridge",
+      "line": 381,
+      "kind": "identifier",
+      "usage": "external_input"
+    },
+    {
+      "value": "--owner-pid",
+      "context": "CLI flag passed to JdiDapServer",
+      "line": 393,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "result.args"
+    }
+  ],
+  "extraction_method": "ast"
+}

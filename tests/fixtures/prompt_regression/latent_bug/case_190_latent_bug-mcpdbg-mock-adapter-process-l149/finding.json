@@ -1,0 +1,20 @@
+{
+  "detector": "debris:latent_bug",
+  "gap_type": "uncategorized",
+  "path": "packages/adapter-mock/src/mock-adapter-process.ts",
+  "line_start": 149,
+  "line_end": 151,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "In TCP server mode, each new client connection overwrites `this.connection` (L149). If a second client connects while the first is still active, the first client's responses will be silently dropped — `sendResponse`/`sendEvent` always use `this.connection` which now points to the second client.",
+  "observed_behavior": "In TCP server mode, each new client connection overwrites `this.connection` (L149). If a second client connects while the first is still active, the first client's responses will be silently dropped — `sendResponse`/`sendEvent` always use `this.connection` which now points to the second client.",
+  "evidence": [],
+  "id": "a9f5a206cf526d45",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

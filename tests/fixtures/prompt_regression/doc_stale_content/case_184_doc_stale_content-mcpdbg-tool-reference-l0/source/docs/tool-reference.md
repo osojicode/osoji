@@ -1,0 +1,807 @@
+# mcp-debugger Tool Reference
+
+This document provides a complete reference for all tools available in mcp-debugger, based on real testing conducted on 2025-06-11.
+
+## Table of Contents
+
+1. [Session Management](#session-management)
+   - [create_debug_session](#create_debug_session)
+   - [list_debug_sessions](#list_debug_sessions)
+   - [close_debug_session](#close_debug_session)
+2. [Breakpoint Management](#breakpoint-management)
+   - [set_breakpoint](#set_breakpoint)
+3. [Execution Control](#execution-control)
+   - [start_debugging](#start_debugging)
+   - [step_over](#step_over)
+   - [step_into](#step_into)
+   - [step_out](#step_out)
+   - [continue_execution](#continue_execution)
+   - [pause_execution](#pause_execution)
+4. [State Inspection](#state-inspection)
+   - [get_stack_trace](#get_stack_trace)
+   - [get_scopes](#get_scopes)
+   - [get_variables](#get_variables)
+   - [get_local_variables](#get_local_variables)
+   - [evaluate_expression](#evaluate_expression)
+   - [get_source_context](#get_source_context)
+
+---
+
+## Session Management
+
+### create_debug_session
+
+Creates a new debugging session.
+
+**Parameters:**
+- `language` (string, required): The programming language to debug. Languages are discovered dynamically from installed adapters. The default fallback languages (when dynamic discovery is unavailable) are `"python"` and `"mock"`. When all adapters are available, the full list is: `"python"`, `"ruby"`, `"javascript"`, `"rust"`, `"go"`, `"java"`, `"dotnet"`, `"mock"`. The actual list depends on which `@debugmcp/adapter-*` packages are discoverable at runtime.
+- `name` (string, optional): A descriptive name for the debug session. Defaults to `"session-<8 chars>"` (e.g., `"session-a4d1acc8"`).
+- `executablePath` (string, optional): Path to the language interpreter/executable (e.g., Python interpreter path).
+
+**Response:**
+```json
+{
+  "success": true,
+  "sessionId": "a4d1acc8-84a8-44fe-a13e-28628c5b33c7",
+  "message": "Created python debug session: Test Debug Session"
+}
+```
+
+**Example:**
+```json
+{
+  "language": "python",
+  "name": "My Debug Session"
+}
+```
+
+**Notes:**
+- Session IDs are UUIDs in the format `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+- Sessions start in `"created"` state
+- When a `port` parameter is provided in `create_debug_session`, the server performs an inline attach (creating the session and immediately attaching to a running process on that port)
+
+---
+
+### list_debug_sessions
+
+Lists all active debugging sessions.
+
+**Parameters:** None (empty object `{}`)
+
+**Response:**
+```json
+{
+  "success": true,
+  "sessions": [
+    {
+      "id": "a4d1acc8-84a8-44fe-a13e-28628c5b33c7",
+      "name": "Test Debug Session",
+      "language": "python",
+      "state": "created",
+      "createdAt": "2025-06-11T04:53:14.762Z",
+      "updatedAt": "2025-06-11T04:53:14.762Z"
+    }
+  ],
+  "count": 1
+}
+```
+
+**Session States** (from `SessionState` enum):
+- `"created"`: Session created but not started
+- `"initializing"`: Debug session starting up
+- `"ready"`: Session initialized and ready to start debugging
+- `"running"`: Actively debugging (program executing)
+- `"paused"`: Paused at breakpoint or step
+- `"stopped"`: Session stopped (program terminated)
+- `"error"`: Session encountered an error
+
+---
+
+### close_debug_session
+
+Closes an active debugging session.
+
+**Parameters:**
+- `sessionId` (string, required): The ID of the debug session to close.
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Closed debug session: a4d1acc8-84a8-44fe-a13e-28628c5b33c7"
+}
+```
+
+**Notes:**
+- Sessions may close automatically on errors
+- Closing a non-existent session returns `success: false`
+
+---
+
+## Breakpoint Management
+
+### set_breakpoint
+
+Sets a breakpoint in a source file.
+
+**Parameters:**
+- `sessionId` (string, required): The ID of the debug session.
+- `file` (string, required): Path to the source file (absolute or relative to project root).
+- `line` (number, required): Line number where to set breakpoint (1-indexed).
+- `condition` (string, optional): Conditional expression for the breakpoint *(not verified to work)*.
+
+**Response:**
+```json
+{
+  "success": true,
+  "breakpointId": "28e06119-619e-43c0-b029-339cec2615df",
+  "file": "C:\\path\\to\\debug-mcp-server\\examples\\python_simple_swap\\swap_vars.py",
+  "line": 9,
+  "verified": false,
+  "message": "Breakpoint set at C:\\path\\to\\debug-mcp-server\\examples\\python_simple_swap\\swap_vars.py:9",
+  "context": {
+    "lineContent": "    a = b  # Bug: loses original value of 'a'",
+    "surrounding": [
+      { "line": 7, "content": "def swap_variables(a, b):" },
+      { "line": 8, "content": "    \"\"\"This function is supposed to swap two variables.\"\"\"" },
+      { "line": 9, "content": "    a = b  # Bug: loses original value of 'a'" },
+      { "line": 10, "content": "    b = a  # Bug: 'b' gets the new value of 'a', not the original" },
+      { "line": 11, "content": "    return a, b" }
+    ]
+  }
+}
+```
+
+**Important Notes:**
+- Breakpoints show `"verified": false` until debugging starts
+- The response includes the absolute path even if you provide a relative path
+- Setting breakpoints on non-executable lines (comments, blank lines, declarations) may cause unexpected behavior
+- Executable lines that work well: assignments, function calls, conditionals, returns
+
+---
+
+## Execution Control
+
+### start_debugging
+
+Starts debugging a script.
+
+**Parameters:**
+- `sessionId` (string, required): The ID of the debug session.
+- `scriptPath` (string, required): Path to the script to debug.
+- `args` (array of strings, optional): Command line arguments for the script.
+- `dapLaunchArgs` (object, optional): Standard DAP launch arguments:
+  - `stopOnEntry` (boolean): Stop at first line
+  - `justMyCode` (boolean): Debug only user code
+- `adapterLaunchConfig` (object, optional): Adapter-specific launch configuration overrides. Use this for language-specific settings that go beyond standard DAP arguments (e.g., `mainClass` and `classpath` for Java, `buildCommand` for Rust).
+- `dryRunSpawn` (boolean, optional): Test spawn without actually starting
+
+**Response:**
+```json
+{
+  "success": true,
+  "state": "paused",
+  "message": "Debugging started for examples/python_simple_swap/swap_vars.py. Current state: paused",
+  "data": {
+    "message": "Debugging started for examples/python_simple_swap/swap_vars.py. Current state: paused",
+    "reason": "breakpoint"
+  }
+}
+```
+
+**Pause Reasons:**
+- `"breakpoint"`: Stopped at a breakpoint
+- `"step"`: Stopped after a step operation
+- `"entry"`: Stopped on entry (if configured)
+
+---
+
+### step_over
+
+Steps over the current line, executing it without entering function calls.
+
+**Parameters:**
+- `sessionId` (string, required): The ID of the debug session.
+
+**Response:**
+```json
+{
+  "success": true,
+  "state": "paused",
+  "message": "Stepped over"
+}
+```
+
+---
+
+### step_into
+
+Steps into function calls on the current line.
+
+**Parameters:**
+- `sessionId` (string, required): The ID of the debug session.
+
+**Response:**
+```json
+{
+  "success": true,
+  "state": "paused",
+  "message": "Stepped into"
+}
+```
+
+---
+
+### step_out
+
+Steps out of the current function.
+
+**Parameters:**
+- `sessionId` (string, required): The ID of the debug session.
+
+**Response:**
+```json
+{
+  "success": true,
+  "state": "paused",
+  "message": "Stepped out"
+}
+```
+
+---
+
+### continue_execution
+
+Continues execution until the next breakpoint or program end.
+
+**Parameters:**
+- `sessionId` (string, required): The ID of the debug session.
+
+**Response:**
+```json
+{
+  "success": true,
+  "state": "running",
+  "message": "Continued execution"
+}
+```
+
+**Error Response:**
+```json
+{
+  "code": -32603,
+  "message": "MCP error -32603: Failed to continue execution: Managed session not found: {sessionId}"
+}
+```
+
+---
+
+### pause_execution
+
+Pauses a running program. The debugger sends a DAP pause request and returns immediately; the paused state is updated asynchronously when the stopped event arrives.
+
+**Parameters:**
+- `sessionId` (string, required): The ID of the debug session.
+
+**Response:**
+```json
+{
+  "success": true,
+  "state": "running",
+  "data": {
+    "message": "Execution paused"
+  }
+}
+```
+
+**Notes:**
+- The `"state"` field in the response reflects the session state at the moment the pause request is acknowledged, which is still `"running"`. The state transitions to `"paused"` asynchronously when the stopped event arrives from the debug adapter; poll `list_debug_sessions` or wait for subsequent tool calls to observe the paused state.
+- The session must be in a `"running"` state; pausing an already-paused session returns success immediately with `"Already paused"`
+- After pausing, you can inspect variables, evaluate expressions, and step through code
+
+---
+
+## State Inspection
+
+### get_stack_trace
+
+Gets the current call stack.
+
+**Parameters:**
+- `sessionId` (string, required): The ID of the debug session.
+
+**Response:**
+```json
+{
+  "success": true,
+  "stackFrames": [
+    {
+      "id": 3,
+      "name": "swap_variables",
+      "file": "C:\\path\\to\\debug-mcp-server\\examples\\python_simple_swap\\swap_vars.py",
+      "line": 5,
+      "column": 1
+    },
+    {
+      "id": 4,
+      "name": "main",
+      "file": "C:\\path\\to\\debug-mcp-server\\examples\\python_simple_swap\\swap_vars.py",
+      "line": 21,
+      "column": 1
+    },
+    {
+      "id": 2,
+      "name": "<module>",
+      "file": "C:\\path\\to\\debug-mcp-server\\examples\\python_simple_swap\\swap_vars.py",
+      "line": 30,
+      "column": 1
+    }
+  ],
+  "count": 3
+}
+```
+
+**Notes:**
+- Stack frames are ordered from innermost (current) to outermost
+- Frame IDs are used with `get_scopes`
+
+---
+
+### get_scopes
+
+Gets variable scopes for a specific stack frame.
+
+**Parameters:**
+- `sessionId` (string, required): The ID of the debug session.
+- `frameId` (number, required): The ID of the stack frame from `get_stack_trace`.
+
+**Response:**
+```json
+{
+  "success": true,
+  "scopes": [
+    {
+      "name": "Locals",
+      "variablesReference": 5,
+      "expensive": false,
+      "presentationHint": "locals",
+      "source": {}
+    },
+    {
+      "name": "Globals",
+      "variablesReference": 6,
+      "expensive": false,
+      "source": {}
+    }
+  ]
+}
+```
+
+**Important:**
+- The `variablesReference` is what you pass to `get_variables` as the `scope` parameter
+- This is NOT the same as the frame ID!
+
+---
+
+### get_variables
+
+Gets variables within a scope.
+
+**Parameters:**
+- `sessionId` (string, required): The ID of the debug session.
+- `scope` (number, required): The `variablesReference` number from a scope or variable.
+
+**Response:**
+```json
+{
+  "success": true,
+  "variables": [
+    {
+      "name": "a",
+      "value": "10",
+      "type": "int",
+      "variablesReference": 0,
+      "expandable": false
+    },
+    {
+      "name": "b",
+      "value": "20",
+      "type": "int",
+      "variablesReference": 0,
+      "expandable": false
+    }
+  ],
+  "count": 2,
+  "variablesReference": 5
+}
+```
+
+**Variable Properties:**
+- `variablesReference`: 0 for primitive types, >0 for complex objects that can be expanded
+- `expandable`: Whether the variable has child properties
+- Values are always returned as strings
+
+---
+
+### get_local_variables
+
+Gets local variables by traversing all stack frames and their scopes, then using the language adapter's policy to extract the relevant local variables. This is a convenience tool that collects scopes and variables across all frames (not just the top frame) so that closures and outer-scope locals are included, then returns the filtered result without needing to manually call stack→scopes→variables.
+
+**Parameters:**
+- `sessionId` (string, required): The ID of the debug session.
+- `includeSpecial` (boolean, optional): Include special/internal variables like `this`, `__proto__`, `__builtins__`, etc. Default: false.
+
+**Response:**
+```json
+{
+  "success": true,
+  "variables": [
+    {
+      "name": "x",
+      "value": "10",
+      "type": "int",
+      "variablesReference": 0,
+      "expandable": false
+    },
+    {
+      "name": "y",
+      "value": "20",
+      "type": "int",
+      "variablesReference": 0,
+      "expandable": false
+    }
+  ],
+  "count": 2,
+  "frame": {
+    "name": "main",
+    "file": "C:\\path\\to\\script.py",
+    "line": 31
+  },
+  "scopeName": "Locals"
+}
+```
+
+**Example - Python:**
+```json
+// Request
+{
+  "sessionId": "842ef9bb-037a-4d3c-960c-ad79a63ccfab",
+  "includeSpecial": false
+}
+
+// Response
+{
+  "success": true,
+  "variables": [
+    {"name": "x", "value": "10", "type": "int", "variablesReference": 0, "expandable": false},
+    {"name": "y", "value": "20", "type": "int", "variablesReference": 0, "expandable": false}
+  ],
+  "count": 2,
+  "frame": {
+    "name": "main",
+    "file": "C:\\path\\to\\test-scripts\\python_test_comprehensive.py",
+    "line": 31
+  },
+  "scopeName": "Locals"
+}
+```
+
+**Example - JavaScript:**
+```json
+// Request
+{
+  "sessionId": "ec46719a-68d9-4755-9c28-70478e0cde7d",
+  "includeSpecial": false
+}
+
+// Response
+{
+  "success": true,
+  "variables": [
+    {"name": "x", "value": "10", "type": "number", "variablesReference": 0, "expandable": false}
+  ],
+  "count": 1,
+  "frame": {
+    "name": "main",
+    "file": "c:\\path\\to\\test-scripts\\javascript_test_comprehensive.js",
+    "line": 40
+  },
+  "scopeName": "Local"
+}
+```
+
+**Edge Cases:**
+```json
+// Empty locals
+{
+  "success": true,
+  "variables": [],
+  "count": 0,
+  "frame": {"name": "<module>", "file": "script.py", "line": 2},
+  "scopeName": "Locals",
+  "message": "The Locals scope is empty."
+}
+
+// Session not paused
+{
+  "success": false,
+  "error": "Session is not paused",
+  "message": "Cannot get local variables. The session must be paused at a breakpoint."
+}
+```
+
+**Key Advantages:**
+- **Single Call**: Get local variables with one tool call instead of three (stack_trace → scopes → variables)
+- **Language-Aware Filtering**: Automatically filters out internal/special variables based on language
+- **Consistent Format**: Returns a consistent structure across Python and JavaScript
+- **Smart Defaults**: By default, excludes noise like `__proto__`, `this`, `__builtins__` unless explicitly requested
+
+**Language-Specific Behavior:**
+- **Python**: Looks for "Locals" scope, filters out `__builtins__`, special variables, and internal debugger variables
+- **JavaScript**: Looks for "Local", "Local:", or "Block:" scopes, filters out `this`, `__proto__`, and V8 internals
+- **Other Languages**: Falls back to generic behavior (first non-global scope)
+
+**Notes:**
+- Session must be paused at a breakpoint for this tool to work
+- The tool traverses all frames in the call stack and collects scopes/variables from each, then uses the adapter policy to extract relevant locals (the reported frame is still the top frame)
+- When `includeSpecial` is true, all variables including internals are returned
+- This is especially useful for AI agents that need quick access to current local state
+
+---
+
+### evaluate_expression
+
+Evaluates an expression in the context of the current debug session.
+
+**Parameters:**
+- `sessionId` (string, required): The ID of the debug session.
+- `expression` (string, required): The expression to evaluate.
+- `frameId` (number, optional): Stack frame ID for context. If not provided, automatically uses the current (top) frame.
+
+**Response:**
+```json
+{
+  "success": true,
+  "result": "10",
+  "type": "int",
+  "variablesReference": 0,
+  "presentationHint": {}
+}
+```
+
+**Example - Simple Variable:**
+```json
+// Request (no frameId needed!)
+{
+  "sessionId": "d507d6fb-45fc-4295-9dc0-4f44b423c103",
+  "expression": "x"
+}
+
+// Response
+{
+  "success": true,
+  "result": "10",
+  "type": "int",
+  "variablesReference": 0
+}
+```
+
+**Example - Arithmetic Expression:**
+```json
+// Request
+{
+  "sessionId": "d507d6fb-45fc-4295-9dc0-4f44b423c103",
+  "expression": "x + y"
+}
+
+// Response
+{
+  "success": true,
+  "result": "30",
+  "type": "int",
+  "variablesReference": 0
+}
+```
+
+**Example - Complex Expression:**
+```json
+// Request
+{
+  "sessionId": "d507d6fb-45fc-4295-9dc0-4f44b423c103",
+  "expression": "[i*2 for i in range(5)]"
+}
+
+// Response
+{
+  "success": true,
+  "result": "[0, 2, 4, 6, 8]",
+  "type": "list",
+  "variablesReference": 4  // Can be expanded to see elements
+}
+```
+
+**Error Handling:**
+```json
+// Request - undefined variable
+{
+  "sessionId": "d507d6fb-45fc-4295-9dc0-4f44b423c103",
+  "expression": "undefined_variable"
+}
+
+// Response
+{
+  "success": false,
+  "error": "Name not found: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nNameError: name 'undefined_variable' is not defined\n"
+}
+```
+
+**Important Notes:**
+- **Automatic Frame Detection**: When `frameId` is not provided, the tool automatically gets the current frame from the stack trace
+- **Side Effects Are Allowed**: Expressions CAN modify program state (e.g., `x = 100`). This is intentional and useful for debugging
+- **Session Must Be Paused**: The debugger must be stopped at a breakpoint for evaluation to work
+- **Results Are Strings**: All results are returned as strings, even for numeric types
+- **Python Truncation**: Python/debugpy automatically truncates collections at 300 items for performance
+
+---
+
+### get_source_context
+
+Gets source code context around a specific line in a file.
+
+**Parameters:**
+- `sessionId` (string, required): The ID of the debug session.
+- `file` (string, required): Path to the source file (absolute or relative to project root).
+- `line` (number, required): Line number to get context for (1-indexed).
+- `linesContext` (number, optional): Number of lines before and after to include (default: 5).
+
+**Response:**
+```json
+{
+  "success": true,
+  "file": "C:\\path\\to\\script.py",
+  "line": 15,
+  "lineContent": "    result = calculate_sum(x, y)",
+  "surrounding": [
+    { "line": 12, "content": "def main():" },
+    { "line": 13, "content": "    x = 10" },
+    { "line": 14, "content": "    y = 20" },
+    { "line": 15, "content": "    result = calculate_sum(x, y)" },
+    { "line": 16, "content": "    print(f\"Result: {result}\")" },
+    { "line": 17, "content": "    return result" },
+    { "line": 18, "content": "" }
+  ],
+  "contextLines": 3
+}
+```
+
+**Example:**
+```json
+{
+  "sessionId": "a4d1acc8-84a8-44fe-a13e-28628c5b33c7",
+  "file": "test_script.py",
+  "line": 25,
+  "linesContext": 3
+}
+```
+
+**Notes:**
+- Useful for AI agents to understand code structure without reading entire files
+- Returns the requested line content and surrounding context
+- Handles file boundaries gracefully (won't return lines before 1 or after EOF)
+- Uses efficient line reading with LRU caching for performance
+
+---
+
+## Additional Tools
+
+The following tools are also available but are not fully documented with examples here:
+
+- **list_supported_languages**: Lists all supported debugging languages with metadata (installed status, display name, default executable). Takes no parameters.
+- **attach_to_process**: Attaches the debugger to a running process. Parameters include `sessionId`, `processId` or connection details, and adapter-specific attach configuration.
+- **detach_from_process**: Detaches the debugger from an attached process. Parameters include `sessionId` and optional `terminateProcess` flag.
+- **list_threads**: Lists all threads in the debug session. Parameters include `sessionId`.
+
+---
+
+## Language-Specific Tools
+
+### redefine_classes
+
+Hot-swap changed Java classes into a running JVM using JDI `VirtualMachine.redefineClasses()`. **Java only.**
+
+**Parameters:**
+- `sessionId` (string, required): The debug session ID (must be an active Java session)
+- `classesDir` (string, required): Absolute path to compiled classes directory (e.g., `build/classes/java/main/`)
+- `sinceTimestamp` (number, optional): Unix timestamp in milliseconds. Only redefine `.class` files modified after this time. `0` or omitted = scan all files.
+
+**Response:**
+```json
+{
+  "success": true,
+  "redefined": ["com.example.Foo", "com.example.Bar"],
+  "redefinedCount": 2,
+  "skippedNotLoaded": 3,
+  "failedCount": 1,
+  "failed": [
+    { "fqcn": "com.example.Baz", "error": "UnsupportedOperationException: class redefinition failed: attempted to add a method" }
+  ],
+  "scannedFiles": 6,
+  "newestTimestamp": 1711500000000
+}
+```
+
+**Example — full scan:**
+```json
+{
+  "sessionId": "abc-123",
+  "classesDir": "/project/build/classes/java/main"
+}
+```
+
+**Example — incremental scan (pass `newestTimestamp` from previous call):**
+```json
+{
+  "sessionId": "abc-123",
+  "classesDir": "/project/build/classes/java/main",
+  "sinceTimestamp": 1711500000000
+}
+```
+
+**Notes:**
+- Only works with Java debug sessions (requires JDI support)
+- Classes must already be loaded in the target JVM — unloaded classes are skipped (`skippedNotLoaded`)
+- Schema changes (adding/removing methods or fields) will fail for individual classes without blocking others
+- The `newestTimestamp` in the response enables incremental workflows: recompile, then pass it as `sinceTimestamp` on the next call to only redefine newly modified files
+- The session can be paused or running when calling this tool
+
+---
+
+## Error Handling
+
+Tools can return errors in two formats:
+
+1. **MCP transport errors**: Standard JSON-RPC error responses with numeric error codes. These indicate protocol-level failures.
+2. **Application-level failures**: JSON payloads with `{ "success": false, "error": "..." }`. Most tool failures use this format, where the HTTP/transport layer succeeds but the operation itself failed.
+
+### Common Error Codes (MCP transport errors)
+- `-32603`: Internal error (feature not implemented, session not found, etc.)
+- `-32602`: Invalid parameters
+
+### MCP Error Response Format
+```json
+{
+  "code": -32603,
+  "name": "McpError",
+  "message": "MCP error -32603: {specific error message}",
+  "stack": "{stack trace}"
+}
+```
+
+### Application-Level Error Format
+```json
+{
+  "success": false,
+  "error": "Session is not paused",
+  "message": "Cannot get local variables. The session must be paused at a breakpoint."
+}
+```
+
+### Common Error Scenarios
+1. **Session not found**: Occurs when a session terminates unexpectedly
+2. **Invalid language**: Language must be one of the supported languages (discovered dynamically from installed adapters)
+3. **File not found**: When setting breakpoints in non-existent files
+4. **Invalid scope**: When passing wrong variablesReference to get_variables
+
+---
+
+## Best Practices
+
+1. **Always check session state** before performing operations
+2. **Use absolute paths** for files to avoid ambiguity
+3. **Get scopes before variables** - you need the variablesReference
+4. **Handle session termination** gracefully - sessions can end unexpectedly
+5. **Set breakpoints on executable lines** - avoid comments and declarations
+
+---
+
+*Last updated: 2026-03-18 based on source code review of mcp-debugger v0.19.0*

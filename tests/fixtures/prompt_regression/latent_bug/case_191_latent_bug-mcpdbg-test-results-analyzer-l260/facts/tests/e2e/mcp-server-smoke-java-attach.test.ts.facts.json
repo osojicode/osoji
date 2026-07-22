@@ -1,0 +1,1590 @@
+{
+  "source": "tests/e2e/mcp-server-smoke-java-attach.test.ts",
+  "source_hash": "1bfde5a0f1807b18",
+  "generated": "2026-07-22T22:07:54Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "beforeAll",
+        "afterAll",
+        "afterEach"
+      ],
+      "line": 26,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 27,
+      "is_reexport": false
+    },
+    {
+      "source": "net",
+      "names": [
+        "net"
+      ],
+      "line": 28,
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "line": 29,
+      "is_reexport": false
+    },
+    {
+      "source": "child_process",
+      "names": [
+        "execSync",
+        "spawn",
+        "ChildProcess"
+      ],
+      "line": 30,
+      "is_reexport": false
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/client/index.js",
+      "names": [
+        "Client"
+      ],
+      "line": 31,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/index.d.ts"
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/client/stdio.js",
+      "names": [
+        "StdioClientTransport"
+      ],
+      "line": 32,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/stdio.d.ts"
+    },
+    {
+      "source": "./smoke-test-utils.js",
+      "names": [
+        "parseSdkToolResult",
+        "callToolSafely"
+      ],
+      "line": 33,
+      "is_reexport": false,
+      "resolved_path": "tests/e2e/smoke-test-utils.ts"
+    },
+    {
+      "source": "./java-example-utils.js",
+      "names": [
+        "prepareJavaExample"
+      ],
+      "line": 34,
+      "is_reexport": false,
+      "resolved_path": "tests/e2e/java-example-utils.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "fileURLToPath",
+      "line": 36,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.dirname",
+      "line": 37,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 38,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "Promise",
+      "line": 44,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "net.createServer",
+      "line": 45,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "srv.listen",
+      "line": 46,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "srv.address",
+      "line": 47,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "srv.close",
+      "line": 49,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "reject",
+      "line": 49,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "Error",
+      "line": 49,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "srv.close",
+      "line": 53,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "resolve",
+      "line": 53,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "srv.on",
+      "line": 55,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "waitForPausedState",
+      "to": "callToolSafely",
+      "line": 71,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "waitForPausedState",
+      "to": "validate",
+      "line": 74,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "waitForPausedState",
+      "to": "Promise",
+      "line": 78,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "waitForPausedState",
+      "to": "setTimeout",
+      "line": 78,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 83,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeAll",
+      "line": 89,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 90,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "StdioClientTransport",
+      "line": 92,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 94,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Client",
+      "line": 101,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient.connect",
+      "line": 108,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 109,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterAll",
+      "line": 112,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 115,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient.close",
+      "line": 122,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "transport.close",
+      "line": 125,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "jvmProcess.kill",
+      "line": 129,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 132,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 135,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 138,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "jvmProcess.kill",
+      "line": 146,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 151,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "execSync",
+      "line": 154,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "execSync",
+      "line": 155,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 157,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "prepareJavaExample",
+      "line": 161,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 162,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getFreePort",
+      "line": 166,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 167,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "spawn",
+      "line": 170,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 180,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 181,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "reject",
+      "line": 181,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 181,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "chunk.toString",
+      "line": 187,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 188,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "chunk.toString().trim",
+      "line": 188,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "chunk.toString",
+      "line": 188,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "outputData.includes",
+      "line": 189,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "clearTimeout",
+      "line": 191,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "resolve",
+      "line": 192,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "jvmProcess!.stdout!.on",
+      "line": 196,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "checkOutput",
+      "line": 196,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "jvmProcess!.stderr!.on",
+      "line": 197,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "checkOutput",
+      "line": 197,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "jvmProcess!.on",
+      "line": 199,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "clearTimeout",
+      "line": 201,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "reject",
+      "line": 202,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "jvmProcess!.on",
+      "line": 205,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "clearTimeout",
+      "line": 207,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "reject",
+      "line": 208,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 208,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 212,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 215,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 216,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 224,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(createResponse.sessionId).toBeDefined",
+      "line": 225,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 225,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 227,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 230,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 231,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 240,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(bpResponse.success).toBe",
+      "line": 241,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 241,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 242,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 245,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 246,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 256,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(attachResponse.success).toBe",
+      "line": 257,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 257,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(attachResponse.state).toBe",
+      "line": 258,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 258,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 259,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 264,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 265,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 266,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(continueResult.success).toBe",
+      "line": 271,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 271,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 275,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "waitForPausedState",
+      "line": 276,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frames[0]?.name?.toLowerCase().includes",
+      "line": 277,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frames[0]?.name?.toLowerCase",
+      "line": 277,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stackResponse).not.toBeNull",
+      "line": 281,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 281,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stackResponse!.stackFrames).toBeDefined",
+      "line": 282,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 282,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(frames.length).toBeGreaterThan",
+      "line": 284,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 284,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 285,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 289,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(topFrame.name?.toLowerCase()).toContain",
+      "line": 290,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 290,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "topFrame.name?.toLowerCase",
+      "line": 290,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(topFrame.line).toBe",
+      "line": 292,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 292,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 296,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 297,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 301,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(localsResponse.success).toBe",
+      "line": 307,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 307,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(Array.isArray(localsResponse.variables)).toBe",
+      "line": 308,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 308,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array.isArray",
+      "line": 308,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(localsResponse.variables!.length).toBeGreaterThan",
+      "line": 309,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 309,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 311,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(localsResponse.variables ?? []).map",
+      "line": 312,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 314,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.fromEntries",
+      "line": 314,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(localsByName.get('a')).toBe",
+      "line": 317,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 317,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "localsByName.get",
+      "line": 317,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(localsByName.get('b')).toBe",
+      "line": 318,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 318,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "localsByName.get",
+      "line": 318,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 321,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 322,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 323,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(finalContinue.success).toBe",
+      "line": 328,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 328,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "jvmProcess.kill",
+      "line": 333,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 339,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "execSync",
+      "line": 342,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "execSync",
+      "line": 343,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 345,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "prepareJavaExample",
+      "line": 349,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getFreePort",
+      "line": 353,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 354,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "spawn",
+      "line": 356,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 366,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 367,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "reject",
+      "line": 367,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 367,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "chunk.toString",
+      "line": 373,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "outputData.includes",
+      "line": 374,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "clearTimeout",
+      "line": 376,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "resolve",
+      "line": 377,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "jvmProcess!.stdout!.on",
+      "line": 381,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "jvmProcess!.stderr!.on",
+      "line": 382,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "jvmProcess!.on",
+      "line": 383,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "clearTimeout",
+      "line": 383,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "reject",
+      "line": 383,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "jvmProcess!.on",
+      "line": 384,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "clearTimeout",
+      "line": 384,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "reject",
+      "line": 384,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 384,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 388,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 392,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(createResponse.sessionId).toBeDefined",
+      "line": 393,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 393,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 397,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 398,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 398,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(bp1Result.success).toBe",
+      "line": 402,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 402,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 405,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 406,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 406,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(attachResult.success).toBe",
+      "line": 410,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 410,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 413,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 414,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 414,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(cont1.success).toBe",
+      "line": 418,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 418,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 421,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "waitForPausedState",
+      "line": 422,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frames[0]?.name?.toLowerCase().includes",
+      "line": 423,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frames[0]?.name?.toLowerCase",
+      "line": 423,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stack1).not.toBeNull",
+      "line": 425,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 425,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(frames1.length).toBeGreaterThan",
+      "line": 427,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 427,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(frames1[0].name?.toLowerCase()).toContain",
+      "line": 428,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 428,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frames1[0].name?.toLowerCase",
+      "line": 428,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(frames1[0].line).toBe",
+      "line": 429,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 429,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 430,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 433,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 434,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 434,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(bp2Result.success).toBe",
+      "line": 438,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 438,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 441,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 442,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 442,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(cont2.success).toBe",
+      "line": 446,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 446,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 449,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "waitForPausedState",
+      "line": 450,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frames[0]?.name?.toLowerCase().includes",
+      "line": 451,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frames[0]?.name?.toLowerCase",
+      "line": 451,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stack2).not.toBeNull",
+      "line": 455,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 455,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(frames2.length).toBeGreaterThan",
+      "line": 457,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 457,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(frames2[0].name?.toLowerCase()).toContain",
+      "line": 458,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 458,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "frames2[0].name?.toLowerCase",
+      "line": 458,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(frames2[0].line).toBe",
+      "line": 459,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 459,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 460,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 463,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 467,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(localsResponse.success).toBe",
+      "line": 471,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 471,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 472,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(localsResponse.variables ?? []).map",
+      "line": 473,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 475,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.fromEntries",
+      "line": 475,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(localsByName.get('label')).toBe",
+      "line": 476,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 476,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "localsByName.get",
+      "line": 476,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(localsByName.get('value')).toBe",
+      "line": 477,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 477,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "localsByName.get",
+      "line": 477,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 480,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 480,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(cont3.success).toBe",
+      "line": 484,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 484,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 486,
+      "call_sites": 34
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "jvmProcess.kill",
+      "line": 490,
+      "call_sites": 4
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "java",
+      "context": "Language argument to create_debug_session MCP tool",
+      "line": 219,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "paused",
+      "context": "Expected state after attach_to_process",
+      "line": 258,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "attachResponse.state"
+    },
+    {
+      "value": "Listening for transport",
+      "context": "JVM JDWP agent ready signal string detected in stdout/stderr",
+      "line": 189,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "outputData"
+    },
+    {
+      "value": "compute",
+      "context": "Method name substring checked in top stack frame to validate breakpoint hit",
+      "line": 277,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "frames[0].name"
+    },
+    {
+      "value": "format",
+      "context": "Method name substring checked in top stack frame for second breakpoint hit",
+      "line": 451,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "frames[0].name"
+    },
+    {
+      "value": "InfiniteWait",
+      "context": "Java example class name passed to prepareJavaExample",
+      "line": 161,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "127.0.0.1",
+      "context": "Host for JDWP attach connection",
+      "line": 251,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "NODE_ENV",
+      "context": "Environment variable set for MCP server process",
+      "line": 97,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "test",
+      "context": "Value of NODE_ENV for MCP server",
+      "line": 97,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "\"Sum\"",
+      "context": "Expected value of label variable in format() scope (Java string with quotes)",
+      "line": 476,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "localsByName.get('label')"
+    }
+  ],
+  "extraction_method": "ast"
+}

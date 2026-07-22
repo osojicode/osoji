@@ -1,0 +1,988 @@
+{
+  "source": "tests/e2e/mcp-server-smoke-sse.test.ts",
+  "source_hash": "687340cf6dc51fdb",
+  "generated": "2026-07-22T22:07:54Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "afterEach"
+      ],
+      "line": 1,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 2,
+      "is_reexport": false
+    },
+    {
+      "source": "os",
+      "names": [
+        "os"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "net",
+      "names": [
+        "net"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "fs",
+      "names": [
+        "existsSync"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "child_process",
+      "names": [
+        "spawn",
+        "ChildProcess"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/client/index.js",
+      "names": [
+        "Client"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/index.d.ts"
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/client/sse.js",
+      "names": [
+        "SSEClientTransport"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/sse.d.ts"
+    },
+    {
+      "source": "./smoke-test-utils.js",
+      "names": [
+        "executeDebugSequence",
+        "waitForHealthEndpoint"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "tests/e2e/smoke-test-utils.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "process.cwd",
+      "line": 19,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 22,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 24,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 25,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpSdkClient.close",
+      "line": 30,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 31,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 33,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 44,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proc.kill",
+      "line": 45,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 49,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 51,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setInterval",
+      "line": 52,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 55,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "clearInterval",
+      "line": 56,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "resolve",
+      "line": 57,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 64,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "proc.kill",
+      "line": 65,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 67,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 72,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 72,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 73,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 75,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "ensureDistBuild",
+      "to": "path.join",
+      "line": 90,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ensureDistBuild",
+      "to": "existsSync",
+      "line": 91,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ensureDistBuild",
+      "to": "Error",
+      "line": 92,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "Promise",
+      "line": 101,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "reject",
+      "line": 107,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "Error",
+      "line": 107,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "Math.floor",
+      "line": 112,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "Math.random",
+      "line": 112,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "net.createServer",
+      "line": 113,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "server.once",
+      "line": 115,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "console.log",
+      "line": 117,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "tryPort",
+      "line": 118,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "reject",
+      "line": 120,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "server.once",
+      "line": 124,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "server.close",
+      "line": 125,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "console.log",
+      "line": 126,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "setTimeout",
+      "line": 128,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "resolve",
+      "line": 128,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "server.listen",
+      "line": 132,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findAvailablePort",
+      "to": "tryPort",
+      "line": 135,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "ensureDistBuild",
+      "line": 144,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "findAvailablePort",
+      "line": 148,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "Promise",
+      "line": 150,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.log",
+      "line": 151,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.log",
+      "line": 153,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "spawn",
+      "line": 162,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "path.join",
+      "line": 163,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "port.toString",
+      "line": 165,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "setTimeout",
+      "line": 174,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.error",
+      "line": 176,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.error",
+      "line": 177,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.error",
+      "line": 178,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "reject",
+      "line": 179,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "Error",
+      "line": 179,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "data.toString",
+      "line": 185,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.log",
+      "line": 187,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "output.trim",
+      "line": 187,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "data.toString",
+      "line": 191,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.error",
+      "line": 193,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "output.trim",
+      "line": 193,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "output.includes",
+      "line": 196,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "output.includes",
+      "line": 196,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "clearTimeout",
+      "line": 198,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "reject",
+      "line": 199,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "Error",
+      "line": 199,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "sseServerProcess.stdout?.on",
+      "line": 203,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "sseServerProcess.stderr?.on",
+      "line": 204,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "(async () => {\n            try {\n              const ok = await waitForHealthEndpoint(port, TEST_TIM",
+      "line": 207,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "waitForHealthEndpoint",
+      "line": 209,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "clearTimeout",
+      "line": 212,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.log",
+      "line": 213,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "resolve",
+      "line": 214,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "sseServerProcess.on",
+      "line": 221,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "clearTimeout",
+      "line": 223,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.error",
+      "line": 224,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "reject",
+      "line": 225,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "sseServerProcess.on",
+      "line": 228,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "clearTimeout",
+      "line": 230,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.error",
+      "line": 231,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.error",
+      "line": 232,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.error",
+      "line": 233,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "reject",
+      "line": 234,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "Error",
+      "line": 234,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.error",
+      "line": 240,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "sseServerProcess.kill",
+      "line": 244,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "Promise",
+      "line": 246,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "setTimeout",
+      "line": 246,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "(error as any).message?.includes",
+      "line": 250,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "console.log",
+      "line": 251,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "startSSEServer",
+      "to": "Error",
+      "line": 260,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 263,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "startSSEServer",
+      "line": 268,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 271,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "waitForHealthEndpoint",
+      "line": 272,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 274,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 276,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 279,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Client",
+      "line": 280,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "URL",
+      "line": 285,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "SSEClientTransport",
+      "line": 286,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpSdkClient.connect",
+      "line": 288,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 289,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 292,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "executeDebugSequence",
+      "line": 293,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.success).toBe",
+      "line": 299,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 299,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 301,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 304,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpSdkClient.callTool",
+      "line": 310,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 314,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 316,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 323,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "os.tmpdir",
+      "line": 324,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 325,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "startSSEServer",
+      "line": 331,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 336,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "waitForHealthEndpoint",
+      "line": 337,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 343,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 345,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 347,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 349,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 352,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Client",
+      "line": 353,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "URL",
+      "line": 358,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "SSEClientTransport",
+      "line": 359,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpSdkClient.connect",
+      "line": 361,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 362,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 365,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "executeDebugSequence",
+      "line": 366,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.success).toBe",
+      "line": 372,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 372,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 374,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 377,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpSdkClient.callTool",
+      "line": 383,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 387,
+      "call_sites": 26
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 389,
+      "call_sites": 17
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "close_debug_session",
+      "context": "MCP tool name called to clean up debug session in finally block",
+      "line": 311,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "close_debug_session",
+      "context": "MCP tool name called to clean up debug session in finally block (temp dir test)",
+      "line": 383,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "e2e-sse-smoke-test-client",
+      "context": "MCP Client name used when creating SDK client in first test",
+      "line": 281,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "e2e-sse-smoke-test-client-tempdir",
+      "context": "MCP Client name used when creating SDK client in second test",
+      "line": 354,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "E2E SSE Smoke Test Session",
+      "context": "Session label passed to executeDebugSequence",
+      "line": 296,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "E2E SSE Smoke Test Session (Temp Dir)",
+      "context": "Session label passed to executeDebugSequence in temp dir test",
+      "line": 369,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "sse",
+      "context": "CLI subcommand argument passed to dist/index.js to start SSE mode",
+      "line": 164,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "EADDRINUSE",
+      "context": "Error code checked when a port bind fails during port discovery",
+      "line": 116,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "err.code"
+    },
+    {
+      "value": "EACCES",
+      "context": "Error code checked when a port bind is denied during port discovery",
+      "line": 116,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "err.code"
+    }
+  ],
+  "extraction_method": "ast"
+}

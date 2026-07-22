@@ -1,0 +1,6668 @@
+{
+  "source": "tests/proxy/dap-proxy-worker.test.ts",
+  "source_hash": "b96c3f0e7264255c",
+  "generated": "2026-07-22T22:09:42Z",
+  "imports": [
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "child_process",
+      "names": [
+        "ChildProcess"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "beforeEach",
+        "vi",
+        "Mock"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "../../src/proxy/dap-proxy-worker.js",
+      "names": [
+        "DapProxyWorker"
+      ],
+      "line": 10,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-worker.ts"
+    },
+    {
+      "source": "../../src/proxy/dap-proxy-adapter-manager.js",
+      "names": [
+        "GenericAdapterManager"
+      ],
+      "line": 11,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-adapter-manager.ts"
+    },
+    {
+      "source": "../../src/proxy/dap-proxy-connection-manager.js",
+      "names": [
+        "DapConnectionManager"
+      ],
+      "line": 12,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-connection-manager.ts"
+    },
+    {
+      "source": "../../src/proxy/dap-proxy-interfaces.js",
+      "names": [
+        "DapProxyDependencies",
+        "ILogger",
+        "IFileSystem",
+        "IProcessSpawner",
+        "IDapClient",
+        "ProxyInitPayload",
+        "DapCommandPayload",
+        "StatusMessage"
+      ],
+      "line": 13,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-interfaces.ts"
+    },
+    {
+      "source": "../../src/proxy/dap-proxy-interfaces.js",
+      "names": [
+        "ProxyState"
+      ],
+      "line": 23,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-interfaces.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DefaultAdapterPolicy",
+        "JsDebugAdapterPolicy",
+        "PythonAdapterPolicy",
+        "GoAdapterPolicy",
+        "JavaAdapterPolicy",
+        "RubyAdapterPolicy"
+      ],
+      "line": 24,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 35,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 36,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 37,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 38,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 42,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 42,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 43,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 43,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 47,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 47,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 49,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 50,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 51,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 57,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "emitter.on.bind",
+      "line": 59,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "emitter.off.bind",
+      "line": 60,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "emitter.once.bind",
+      "line": 61,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "emitter.removeAllListeners.bind",
+      "line": 62,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.assign",
+      "line": 64,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 65,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 65,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 66,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 66,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 67,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 67,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 68,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "originalOn",
+      "line": 69,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 72,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "originalOff",
+      "line": 73,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 76,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "originalOnce",
+      "line": 77,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 80,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "originalRemoveAllListeners",
+      "line": 81,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 84,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 89,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 92,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 105,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 106,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockDapClient",
+      "line": 107,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockMessageSender",
+      "line": 108,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockFileSystem",
+      "line": 111,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 112,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 112,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockProcessSpawner",
+      "line": 113,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 115,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 115,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 120,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DapProxyWorker",
+      "line": 121,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 124,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllTimers",
+      "line": 126,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 127,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.getState",
+      "line": 131,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleTerminate",
+      "line": 134,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 142,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 143,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(worker.getState()).toBe",
+      "line": 144,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 144,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.getState",
+      "line": 144,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 147,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 148,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 151,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DapProxyWorker",
+      "line": 152,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 169,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(worker.getState()).toBe",
+      "line": 171,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 171,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.getState",
+      "line": 171,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 175,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(exitSpy).toHaveBeenCalledWith",
+      "line": 176,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 176,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 178,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 182,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 183,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 185,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DapProxyWorker",
+      "line": 186,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 199,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mock.calls.find",
+      "line": 201,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(statusCall).toBeTruthy",
+      "line": 204,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 204,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(statusCall![0].command).toContain",
+      "line": 205,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 205,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 208,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 210,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DapProxyWorker",
+      "line": 211,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 228,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 230,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 230,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 231,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 235,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 237,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DapProxyWorker",
+      "line": 238,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 255,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 257,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 257,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 258,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 262,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).selectAdapterPolicy",
+      "line": 264,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(policy.name).toBe",
+      "line": 268,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 268,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 271,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).selectAdapterPolicy",
+      "line": 272,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(policy.name).toBe",
+      "line": 276,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 276,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 279,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).selectAdapterPolicy",
+      "line": 280,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(policy.name).toBe",
+      "line": 284,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 284,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 287,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).selectAdapterPolicy",
+      "line": 288,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(policy.name).toBe",
+      "line": 292,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 292,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 295,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).selectAdapterPolicy",
+      "line": 296,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(policy.name).toBe",
+      "line": 300,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 300,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 303,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).selectAdapterPolicy",
+      "line": 304,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(policy.name).toBe",
+      "line": 308,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 308,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 311,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).selectAdapterPolicy",
+      "line": 312,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(policy.name).toBe",
+      "line": 316,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 316,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 319,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).selectAdapterPolicy",
+      "line": 320,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(policy.name).toBe",
+      "line": 324,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 324,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 327,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((worker as any).selectAdapterPolicy('go').name).toBe",
+      "line": 328,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 328,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).selectAdapterPolicy",
+      "line": 328,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((worker as any).selectAdapterPolicy('python').name).toBe",
+      "line": 329,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 329,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).selectAdapterPolicy",
+      "line": 329,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((worker as any).selectAdapterPolicy('ruby').name).toBe",
+      "line": 330,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 330,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).selectAdapterPolicy",
+      "line": 330,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 333,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).selectAdapterPolicy",
+      "line": 334,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(policy.name).toBe",
+      "line": 338,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 338,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 342,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 343,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 345,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DapProxyWorker",
+      "line": 346,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 363,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockMessageSender.send).toHaveBeenCalledWith",
+      "line": 365,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 365,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 366,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 374,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(() =>\n        (worker as unknown as { handleDryRun: (p: ProxyInitPayload) => void }).handleDr",
+      "line": 390,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 390,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as unknown as { handleDryRun: (p: ProxyInitPayload) => void }).handleDryRun",
+      "line": 391,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 396,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 412,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 413,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 415,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 416,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 416,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 417,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 418,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DapProxyWorker",
+      "line": 421,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 426,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllTimers",
+      "line": 429,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(traceSpy).toHaveBeenCalledWith",
+      "line": 431,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 431,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(process.env.DAP_TRACE_FILE).toBe",
+      "line": 432,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 432,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 432,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 434,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 437,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 438,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 440,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 441,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 441,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockRejectedValue",
+      "line": 442,
+      "call_sites": 47
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 442,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 442,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DapProxyWorker",
+      "line": 444,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn(worker as unknown as { shutdown: () => Promise<void> }, 'shutdown').mockResolvedValue",
+      "line": 449,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 449,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 451,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 454,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(exitSpy).toHaveBeenCalledWith",
+      "line": 456,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 456,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(shutdownSpy).toHaveBeenCalled",
+      "line": 457,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 457,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(worker.getState()).toBe",
+      "line": 458,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 458,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.getState",
+      "line": 458,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 460,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 463,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 464,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 466,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DapProxyWorker",
+      "line": 467,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 471,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllTimers",
+      "line": 475,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(exitSpy).not.toHaveBeenCalled",
+      "line": 477,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 477,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 479,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 483,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 487,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 491,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "currentWorker.getState",
+      "line": 494,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "currentWorker.handleTerminate",
+      "line": 497,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 505,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 521,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 521,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 522,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 525,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 525,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 529,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 529,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 530,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 531,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 532,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 533,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 534,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 535,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 536,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JsDebugAdapterPolicy.createInitialState",
+      "line": 543,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).startAdapterAndConnect",
+      "line": 547,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(processStub.spawn).toHaveBeenCalledTimes",
+      "line": 549,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 549,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectionStub.connectWithRetry).toHaveBeenCalledWith",
+      "line": 550,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 550,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mock.calls.find",
+      "line": 551,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(statusCall).toBeDefined",
+      "line": 554,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 554,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(worker.getState()).toBe",
+      "line": 555,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 555,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.getState",
+      "line": 555,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 558,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 573,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 573,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 574,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 577,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 577,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 581,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 581,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 582,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 583,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 585,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 586,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 587,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 588,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 590,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 590,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 592,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockDapClient as EventEmitter).emit",
+      "line": 592,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 594,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 594,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 595,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 595,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 596,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 596,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 597,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 597,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonAdapterPolicy.createInitialState",
+      "line": 604,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).startAdapterAndConnect",
+      "line": 608,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).handleInitializedEvent",
+      "line": 609,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(processStub.spawn).toHaveBeenCalledTimes",
+      "line": 611,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 611,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectionStub.initializeSession).toHaveBeenCalledWith",
+      "line": 612,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 612,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectionStub.sendLaunchRequest).toHaveBeenCalledWith",
+      "line": 617,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 617,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mock.calls.find",
+      "line": 625,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(statusCall).toBeDefined",
+      "line": 628,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 628,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(worker.getState()).toBe",
+      "line": 629,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 629,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.getState",
+      "line": 629,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 632,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 652,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 653,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 653,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 657,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 657,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 658,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 659,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 660,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 662,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 662,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 663,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockDapClient as EventEmitter).emit",
+      "line": 663,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 665,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 665,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 666,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 666,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 667,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 667,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 668,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 668,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "RubyAdapterPolicy.createInitialState",
+      "line": 675,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).startAdapterAndConnect",
+      "line": 679,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(processStub.spawn).not.toHaveBeenCalled",
+      "line": 681,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 681,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectionStub.connectWithRetry).toHaveBeenCalledWith",
+      "line": 682,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 682,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectionStub.sendAttachRequest).toHaveBeenCalledWith",
+      "line": 683,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 683,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 689,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 711,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 711,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 712,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 715,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 715,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 719,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 719,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 720,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 721,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 722,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 723,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 724,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 725,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 728,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 728,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callOrder.push",
+      "line": 729,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 731,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockDapClient as EventEmitter).emit",
+      "line": 731,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 733,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 733,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callOrder.push",
+      "line": 734,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 736,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 736,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callOrder.push",
+      "line": 737,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 739,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 739,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callOrder.push",
+      "line": 740,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 742,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 742,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "GoAdapterPolicy.createInitialState",
+      "line": 749,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).startAdapterAndConnect",
+      "line": 753,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectionStub.initializeSession).toHaveBeenCalledWith",
+      "line": 757,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 757,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectionStub.sendLaunchRequest).toHaveBeenCalledWith",
+      "line": 762,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 762,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectionStub.sendConfigurationDone).toHaveBeenCalledTimes",
+      "line": 770,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 770,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callOrder.indexOf",
+      "line": 773,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callOrder.indexOf",
+      "line": 774,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(launchIdx).toBeGreaterThan",
+      "line": 775,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 775,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(configDoneIdx).toBeGreaterThan",
+      "line": 776,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 776,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(launchIdx).toBeLessThan",
+      "line": 777,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 777,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callOrder.indexOf",
+      "line": 780,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(initIdx).toBeLessThan",
+      "line": 781,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 781,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mock.calls.find",
+      "line": 784,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(statusCall).toBeDefined",
+      "line": 787,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 787,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(worker.getState()).toBe",
+      "line": 788,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 788,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.getState",
+      "line": 788,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 791,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sendRequestMock.mockReset",
+      "line": 794,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sendRequestMock.mockImplementation",
+      "line": 795,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).ensureInitialStop",
+      "line": 805,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sendRequestMock.mock.calls.find",
+      "line": 807,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(threadsCall).toBeDefined",
+      "line": 808,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 808,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sendRequestMock.mock.calls.find",
+      "line": 809,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(pauseCall?.[1]).toEqual",
+      "line": 810,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 810,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 813,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 814,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 817,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DapProxyWorker",
+      "line": 818,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sendRequestMock.mockReset",
+      "line": 824,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sendRequestMock.mockImplementation",
+      "line": 825,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 829,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(testWorker as any).ensureInitialStop",
+      "line": 832,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 833,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.warn).toHaveBeenCalledWith",
+      "line": 836,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 836,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 837,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sendRequestMock).toHaveBeenCalledWith",
+      "line": 839,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 839,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(exitSpy).not.toHaveBeenCalled",
+      "line": 842,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 842,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 844,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 847,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 862,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.assign",
+      "line": 863,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 865,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 866,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 871,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 871,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 875,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 875,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 880,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 880,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 881,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 882,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.assign",
+      "line": 884,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 885,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 886,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 887,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 888,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 890,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 890,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 892,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockDapClient as EventEmitter).emit",
+      "line": 892,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 894,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 894,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 895,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 895,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 896,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 896,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 897,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 897,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonAdapterPolicy.createInitialState",
+      "line": 904,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mockClear",
+      "line": 908,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi\n        .spyOn(worker as unknown as { shutdown: () => Promise<void> }, 'shutdown')\n        .mockR",
+      "line": 909,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi\n        .spyOn",
+      "line": 909,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).startAdapterAndConnect",
+      "line": 913,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(processStub.spawn).toHaveBeenCalledTimes",
+      "line": 915,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 915,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectionStub.setupEventHandlers).toHaveBeenCalled",
+      "line": 916,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 916,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 918,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapterEmitter.emit",
+      "line": 919,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.error).toHaveBeenCalledWith",
+      "line": 920,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 920,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockMessageSender.send).toHaveBeenCalledWith",
+      "line": 921,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 921,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 922,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapterEmitter.emit",
+      "line": 928,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockMessageSender.send).toHaveBeenCalledWith",
+      "line": 929,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 929,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 930,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionHandlers.onStopped",
+      "line": 938,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockMessageSender.send).toHaveBeenCalledWith",
+      "line": 939,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 939,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 940,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionHandlers.onTerminated",
+      "line": 947,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockMessageSender.send).toHaveBeenCalledWith",
+      "line": 948,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 948,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 949,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(shutdownSpy).toHaveBeenCalled",
+      "line": 955,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 955,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "shutdownSpy.mockRestore",
+      "line": 957,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 960,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 962,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 962,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 963,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 963,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleTerminate",
+      "line": 968,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectionStub.disconnect).toHaveBeenCalledWith",
+      "line": 971,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 971,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.shutdown).toHaveBeenCalledWith",
+      "line": 972,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 972,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectionStub.disconnect.mock.invocationCallOrder[0]).toBeLessThan",
+      "line": 976,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 976,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(worker.getState()).toBe",
+      "line": 979,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 979,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.getState",
+      "line": 979,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 982,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 983,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 985,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 985,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 986,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 986,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleTerminate",
+      "line": 994,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 995,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(processStub.shutdown).toHaveBeenCalledWith",
+      "line": 998,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 998,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 1000,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1004,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 1005,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1007,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1007,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1008,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1008,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleTerminate",
+      "line": 1017,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 1018,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(processStub.shutdown).toHaveBeenCalledWith",
+      "line": 1021,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1021,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 1023,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1027,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1029,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1029,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1030,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1030,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleTerminate",
+      "line": 1036,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectionStub.disconnect).toHaveBeenCalledWith",
+      "line": 1039,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1039,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(worker.getState()).toBe",
+      "line": 1040,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1040,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.getState",
+      "line": 1040,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1044,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1045,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 1062,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DapProxyWorker",
+      "line": 1065,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 1075,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockMessageSender.send).toHaveBeenCalledWith",
+      "line": 1078,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1078,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 1079,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1088,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DapProxyWorker",
+      "line": 1090,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1090,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "testWorker.handleTerminate",
+      "line": 1099,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(testWorker.getState()).toBe",
+      "line": 1102,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1102,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "testWorker.getState",
+      "line": 1102,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mockClear",
+      "line": 1113,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "testWorker.handleCommand",
+      "line": 1115,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockMessageSender.send).toHaveBeenCalledWith",
+      "line": 1119,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1119,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 1120,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1129,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mockClear",
+      "line": 1130,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DefaultAdapterPolicy.createInitialState",
+      "line": 1134,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockRejectedValue",
+      "line": 1137,
+      "call_sites": 47
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1137,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 1137,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 1147,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockMessageSender.send).toHaveBeenCalledWith",
+      "line": 1149,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1149,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 1150,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1158,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1158,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1161,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mockClear",
+      "line": 1162,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DefaultAdapterPolicy.createInitialState",
+      "line": 1166,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1169,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1169,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 1170,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 1181,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(trackSpy).toHaveBeenCalledWith",
+      "line": 1183,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1183,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledWith",
+      "line": 1184,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1184,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "trackSpy.mockRestore",
+      "line": 1186,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1187,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1187,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1190,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mockClear",
+      "line": 1191,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DefaultAdapterPolicy.createInitialState",
+      "line": 1195,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1198,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1198,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 1208,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledWith",
+      "line": 1210,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1210,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1212,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1212,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1216,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1217,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DapProxyWorker",
+      "line": 1219,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1219,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "jsWorker.handleCommand",
+      "line": 1237,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "jsWorker.handleCommand",
+      "line": 1243,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mock.calls.filter",
+      "line": 1253,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(responses.length).toBeGreaterThanOrEqual",
+      "line": 1260,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1260,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1264,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1265,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1270,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1271,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "queuePolicy.createInitialState",
+      "line": 1289,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1291,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1291,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mockClear",
+      "line": 1292,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 1302,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(shouldQueueSpy).toHaveBeenCalledWith",
+      "line": 1304,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1304,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 1304,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledTimes",
+      "line": 1305,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1305,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledWith",
+      "line": 1306,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1306,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledWith",
+      "line": 1307,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1307,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mock.calls.filter",
+      "line": 1309,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(responses).toHaveLength",
+      "line": 1313,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1313,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(responses[0][0].success).toBe",
+      "line": 1314,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1314,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1317,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1324,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1329,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "queuePolicy.createInitialState",
+      "line": 1333,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1335,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1335,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mockClear",
+      "line": 1336,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 1337,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 1348,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(trackSpy).toHaveBeenCalledWith",
+      "line": 1350,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1350,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledWith",
+      "line": 1351,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1351,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "trackSpy.mockRestore",
+      "line": 1353,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1354,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1354,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1358,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1359,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn(worker as any, 'handleDapCommand').mockResolvedValue",
+      "line": 1372,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 1372,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).drainPreConnectQueue",
+      "line": 1374,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(handleSpy).toHaveBeenCalledWith",
+      "line": 1376,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1376,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 1377,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((worker as any).preConnectQueue).toHaveLength",
+      "line": 1379,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1379,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "handleSpy.mockRestore",
+      "line": 1381,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1385,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1386,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 1387,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockLogger.error as Mock).mockClear",
+      "line": 1390,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mockClear",
+      "line": 1391,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "tracker.track",
+      "line": 1394,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 1396,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise.resolve",
+      "line": 1397,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.error).toHaveBeenCalledWith",
+      "line": 1399,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1399,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockMessageSender.send).toHaveBeenCalledWith",
+      "line": 1402,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1402,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 1403,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 1411,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1415,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1416,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 1417,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(dependencies.fileSystem.ensureDir).mockRejectedValue",
+      "line": 1420,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 1420,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 1421,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 1434,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 1437,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(workerExitSpy).toHaveBeenCalledWith",
+      "line": 1441,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1441,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 1445,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1448,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 1449,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1451,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DapProxyWorker",
+      "line": 1452,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 1453,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi\n        .spyOn(GenericAdapterManager.prototype, 'spawn')\n        .mockRejectedValue",
+      "line": 1454,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi\n        .spyOn",
+      "line": 1454,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi\n        .spyOn(worker as unknown as { shutdown: () => Promise<void> }, 'shutdown')\n        .mockR",
+      "line": 1457,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi\n        .spyOn",
+      "line": 1457,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockLogger.error as Mock).mockClear",
+      "line": 1461,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 1478,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 1481,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(exitSpy).toHaveBeenCalledWith",
+      "line": 1483,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1483,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.error).toHaveBeenCalledWith",
+      "line": 1484,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1484,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 1485,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "spawnSpy.mockRestore",
+      "line": 1489,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "shutdownSpy.mockRestore",
+      "line": 1490,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 1491,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1495,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 1496,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1498,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DapProxyWorker",
+      "line": 1499,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 1500,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi\n        .spyOn(DapConnectionManager.prototype, 'connectWithRetry')\n        .mockRejectedValue",
+      "line": 1501,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi\n        .spyOn",
+      "line": 1501,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi\n        .spyOn(worker as unknown as { shutdown: () => Promise<void> }, 'shutdown')\n        .mockR",
+      "line": 1504,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi\n        .spyOn",
+      "line": 1504,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockLogger.error as Mock).mockClear",
+      "line": 1508,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 1525,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 1528,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(exitSpy).toHaveBeenCalledWith",
+      "line": 1530,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1530,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.error).toHaveBeenCalledWith",
+      "line": 1531,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1531,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 1532,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectSpy.mockRestore",
+      "line": 1536,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "shutdownSpy.mockRestore",
+      "line": 1537,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 1538,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1542,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 1558,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(mockDapClient.sendRequest).mockRejectedValue",
+      "line": 1561,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 1561,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 1562,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest('threads')).rejects.toThrow",
+      "line": 1566,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1566,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest",
+      "line": 1566,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1570,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1571,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1573,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DapProxyWorker",
+      "line": 1574,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 1587,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockMessageSender.send).toHaveBeenCalledWith",
+      "line": 1589,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1589,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 1590,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1597,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 1599,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 1610,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockMessageSender.send).toHaveBeenCalledWith",
+      "line": 1620,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1620,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 1621,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 1623,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1629,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1630,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleTerminate",
+      "line": 1631,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(worker.getState()).toBe",
+      "line": 1633,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1633,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.getState",
+      "line": 1633,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockMessageSender.send).toHaveBeenCalledWith",
+      "line": 1634,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1634,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 1635,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1642,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleTerminate",
+      "line": 1643,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleTerminate",
+      "line": 1644,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mock.calls.filter",
+      "line": 1647,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(terminatedCalls.length).toBe",
+      "line": 1650,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1650,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1653,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).shutdown",
+      "line": 1657,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 1659,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1659,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(worker.getState()).toBe",
+      "line": 1660,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1660,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.getState",
+      "line": 1660,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1664,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1665,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 1685,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.assign",
+      "line": 1686,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1686,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1686,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1689,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1689,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1690,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1690,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1694,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1694,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1695,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1696,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 1697,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 1698,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 1700,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1700,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 1702,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockDapClient as EventEmitter).emit",
+      "line": 1702,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1704,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1704,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1705,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1705,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1706,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1706,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1707,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1707,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JavaAdapterPolicy.createInitialState",
+      "line": 1714,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mockClear",
+      "line": 1718,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).startAdapterAndConnect",
+      "line": 1720,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 1723,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1723,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 1724,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectionStub.sendAttachRequest).toHaveBeenCalled",
+      "line": 1726,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1726,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1729,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 1749,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.assign",
+      "line": 1750,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1750,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1750,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1753,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1753,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1754,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1754,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1758,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1758,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1759,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1760,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 1761,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 1762,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 1764,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1764,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 1765,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockDapClient as EventEmitter).emit",
+      "line": 1765,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1767,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1767,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1768,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1768,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1769,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1769,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1770,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1770,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JavaAdapterPolicy.createInitialState",
+      "line": 1777,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mockClear",
+      "line": 1781,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).startAdapterAndConnect",
+      "line": 1783,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 1786,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1786,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 1787,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectionStub.sendAttachRequest).toHaveBeenCalled",
+      "line": 1789,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1789,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 1791,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1791,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 1792,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1800,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1819,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1820,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1820,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 1825,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1830,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1830,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1831,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1832,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 1833,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1836,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1836,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 1837,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1837,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callOrder.push",
+      "line": 1838,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 1840,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockDapClient as EventEmitter).emit",
+      "line": 1840,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1844,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1844,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 1845,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1845,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callOrder.push",
+      "line": 1846,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "resolveAttachResponse",
+      "line": 1847,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1849,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1849,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonAdapterPolicy.createInitialState",
+      "line": 1856,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mockClear",
+      "line": 1860,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).startAdapterAndConnect",
+      "line": 1862,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(processStub.spawn).not.toHaveBeenCalled",
+      "line": 1865,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1865,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectionStub.connectWithRetry).toHaveBeenCalledWith",
+      "line": 1866,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1866,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(callOrder).toEqual",
+      "line": 1868,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1868,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1871,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1889,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1890,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1890,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1894,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1894,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1895,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1896,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 1897,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1899,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1899,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockRejectedValue",
+      "line": 1903,
+      "call_sites": 47
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1903,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 1904,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1906,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1906,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1907,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1907,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1908,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1908,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonAdapterPolicy.createInitialState",
+      "line": 1915,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 1919,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((worker as any).startAdapterAndConnect(payload)).rejects.toThrow",
+      "line": 1920,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1920,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).startAdapterAndConnect",
+      "line": 1920,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(Date.now() - started).toBeLessThan",
+      "line": 1922,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1922,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 1922,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 1926,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1927,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 1942,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.assign",
+      "line": 1943,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1943,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1943,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1946,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1946,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1947,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1947,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1951,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1951,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1952,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1953,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 1954,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 1955,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 1957,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1957,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 1959,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockDapClient as EventEmitter).emit",
+      "line": 1959,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1961,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1961,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1962,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1962,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1963,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1963,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 1964,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 1964,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "GoAdapterPolicy.createInitialState",
+      "line": 1971,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mockClear",
+      "line": 1975,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).startAdapterAndConnect",
+      "line": 1977,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 1980,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1980,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 1981,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectionStub.sendLaunchRequest).toHaveBeenCalled",
+      "line": 1983,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 1983,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 1986,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 2001,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.assign",
+      "line": 2002,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 2002,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 2002,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 2005,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 2005,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 2006,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 2006,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 2010,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 2010,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 2011,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 2012,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 2013,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.on",
+      "line": 2014,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 2016,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 2016,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 2017,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockDapClient as EventEmitter).emit",
+      "line": 2017,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 2019,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 2019,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 2020,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 2020,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 2021,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 2021,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 2022,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 2022,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JavaAdapterPolicy.createInitialState",
+      "line": 2029,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockMessageSender.send.mockClear",
+      "line": 2033,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(worker as any).startAdapterAndConnect",
+      "line": 2035,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 2038,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 2038,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 2039,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectionStub.sendLaunchRequest).toHaveBeenCalled",
+      "line": 2041,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 2041,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 2043,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 2043,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 2044,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 2049,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 2050,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 2052,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 2052,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 2053,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 2053,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.handleCommand",
+      "line": 2058,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(worker.getState()).toBe",
+      "line": 2063,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 2063,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "worker.getState",
+      "line": 2063,
+      "call_sites": 12
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "(worker as unknown as { adapterPolicy: typeof DefaultAdapterPolicy })",
+      "member": "adapterPolicy",
+      "line": 386
+    },
+    {
+      "container": "(worker as unknown as { logger: ILogger })",
+      "member": "logger",
+      "line": 388
+    },
+    {
+      "container": "dependencies.fileSystem",
+      "member": "ensureDir",
+      "line": 442
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 539
+    },
+    {
+      "container": "(worker as any)",
+      "member": "processManager",
+      "line": 540
+    },
+    {
+      "container": "(worker as any)",
+      "member": "connectionManager",
+      "line": 541
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterPolicy",
+      "line": 542
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterState",
+      "line": 543
+    },
+    {
+      "container": "(worker as any)",
+      "member": "currentInitPayload",
+      "line": 544
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 545
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 600
+    },
+    {
+      "container": "(worker as any)",
+      "member": "processManager",
+      "line": 601
+    },
+    {
+      "container": "(worker as any)",
+      "member": "connectionManager",
+      "line": 602
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterPolicy",
+      "line": 603
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterState",
+      "line": 604
+    },
+    {
+      "container": "(worker as any)",
+      "member": "currentInitPayload",
+      "line": 605
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 606
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 671
+    },
+    {
+      "container": "(worker as any)",
+      "member": "processManager",
+      "line": 672
+    },
+    {
+      "container": "(worker as any)",
+      "member": "connectionManager",
+      "line": 673
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterPolicy",
+      "line": 674
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterState",
+      "line": 675
+    },
+    {
+      "container": "(worker as any)",
+      "member": "currentInitPayload",
+      "line": 676
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 677
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 745
+    },
+    {
+      "container": "(worker as any)",
+      "member": "processManager",
+      "line": 746
+    },
+    {
+      "container": "(worker as any)",
+      "member": "connectionManager",
+      "line": 747
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterPolicy",
+      "line": 748
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterState",
+      "line": 749
+    },
+    {
+      "container": "(worker as any)",
+      "member": "currentInitPayload",
+      "line": 750
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 751
+    },
+    {
+      "container": "(worker as any)",
+      "member": "dapClient",
+      "line": 792
+    },
+    {
+      "container": "(testWorker as any)",
+      "member": "dapClient",
+      "line": 821
+    },
+    {
+      "container": "(testWorker as any)",
+      "member": "logger",
+      "line": 822
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 900
+    },
+    {
+      "container": "(worker as any)",
+      "member": "processManager",
+      "line": 901
+    },
+    {
+      "container": "(worker as any)",
+      "member": "connectionManager",
+      "line": 902
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterPolicy",
+      "line": 903
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterState",
+      "line": 904
+    },
+    {
+      "container": "(worker as any)",
+      "member": "currentInitPayload",
+      "line": 905
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 906
+    },
+    {
+      "container": "(worker as any)",
+      "member": "dapClient",
+      "line": 961
+    },
+    {
+      "container": "(worker as any)",
+      "member": "processManager",
+      "line": 964
+    },
+    {
+      "container": "(worker as any)",
+      "member": "connectionManager",
+      "line": 965
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 966
+    },
+    {
+      "container": "(worker as any)",
+      "member": "dapClient",
+      "line": 988
+    },
+    {
+      "container": "(worker as any)",
+      "member": "processManager",
+      "line": 989
+    },
+    {
+      "container": "(worker as any)",
+      "member": "connectionManager",
+      "line": 990
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterProcess",
+      "line": 991
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 992
+    },
+    {
+      "container": "(worker as any)",
+      "member": "dapClient",
+      "line": 1010
+    },
+    {
+      "container": "(worker as any)",
+      "member": "processManager",
+      "line": 1011
+    },
+    {
+      "container": "(worker as any)",
+      "member": "connectionManager",
+      "line": 1012
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterProcess",
+      "line": 1013
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 1014
+    },
+    {
+      "container": "(worker as any)",
+      "member": "isAttachMode",
+      "line": 1015
+    },
+    {
+      "container": "(worker as any)",
+      "member": "dapClient",
+      "line": 1028
+    },
+    {
+      "container": "(worker as any)",
+      "member": "processManager",
+      "line": 1031
+    },
+    {
+      "container": "(worker as any)",
+      "member": "connectionManager",
+      "line": 1032
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 1033
+    },
+    {
+      "container": "(worker as any)",
+      "member": "isAttachMode",
+      "line": 1034
+    },
+    {
+      "container": "(testWorker as any)",
+      "member": "state",
+      "line": 1093
+    },
+    {
+      "container": "(testWorker as any)",
+      "member": "dapClient",
+      "line": 1094
+    },
+    {
+      "container": "(testWorker as any)",
+      "member": "logger",
+      "line": 1095
+    },
+    {
+      "container": "(testWorker as any)",
+      "member": "currentSessionId",
+      "line": 1096
+    },
+    {
+      "container": "(worker as any)",
+      "member": "dapClient",
+      "line": 1131
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 1132
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterPolicy",
+      "line": 1133
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterState",
+      "line": 1134
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 1135
+    },
+    {
+      "container": "mockDapClient",
+      "member": "sendRequest",
+      "line": 1137
+    },
+    {
+      "container": "mockDapClient",
+      "member": "sendRequest",
+      "line": 1158
+    },
+    {
+      "container": "(worker as any)",
+      "member": "dapClient",
+      "line": 1163
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 1164
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterPolicy",
+      "line": 1165
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterState",
+      "line": 1166
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 1167
+    },
+    {
+      "container": "mockDapClient",
+      "member": "sendRequest",
+      "line": 1169
+    },
+    {
+      "container": "mockDapClient",
+      "member": "sendRequest",
+      "line": 1187
+    },
+    {
+      "container": "(worker as any)",
+      "member": "dapClient",
+      "line": 1192
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 1193
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterPolicy",
+      "line": 1194
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterState",
+      "line": 1195
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 1196
+    },
+    {
+      "container": "mockDapClient",
+      "member": "sendRequest",
+      "line": 1198
+    },
+    {
+      "container": "mockDapClient",
+      "member": "sendRequest",
+      "line": 1212
+    },
+    {
+      "container": "(worker as any)",
+      "member": "dapClient",
+      "line": 1266
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 1267
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 1268
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterPolicy",
+      "line": 1288
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterState",
+      "line": 1289
+    },
+    {
+      "container": "mockDapClient",
+      "member": "sendRequest",
+      "line": 1291
+    },
+    {
+      "container": "(worker as any)",
+      "member": "dapClient",
+      "line": 1318
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 1319
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 1320
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterPolicy",
+      "line": 1332
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterState",
+      "line": 1333
+    },
+    {
+      "container": "mockDapClient",
+      "member": "sendRequest",
+      "line": 1335
+    },
+    {
+      "container": "mockDapClient",
+      "member": "sendRequest",
+      "line": 1354
+    },
+    {
+      "container": "(worker as any)",
+      "member": "dapClient",
+      "line": 1360
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 1361
+    },
+    {
+      "container": "(worker as any)",
+      "member": "preConnectQueue",
+      "line": 1362
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 1388
+    },
+    {
+      "container": "(worker as any)",
+      "member": "currentSessionId",
+      "line": 1389
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 1654
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 1655
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 1710
+    },
+    {
+      "container": "(worker as any)",
+      "member": "processManager",
+      "line": 1711
+    },
+    {
+      "container": "(worker as any)",
+      "member": "connectionManager",
+      "line": 1712
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterPolicy",
+      "line": 1713
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterState",
+      "line": 1714
+    },
+    {
+      "container": "(worker as any)",
+      "member": "currentInitPayload",
+      "line": 1715
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 1716
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 1773
+    },
+    {
+      "container": "(worker as any)",
+      "member": "processManager",
+      "line": 1774
+    },
+    {
+      "container": "(worker as any)",
+      "member": "connectionManager",
+      "line": 1775
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterPolicy",
+      "line": 1776
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterState",
+      "line": 1777
+    },
+    {
+      "container": "(worker as any)",
+      "member": "currentInitPayload",
+      "line": 1778
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 1779
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 1852
+    },
+    {
+      "container": "(worker as any)",
+      "member": "processManager",
+      "line": 1853
+    },
+    {
+      "container": "(worker as any)",
+      "member": "connectionManager",
+      "line": 1854
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterPolicy",
+      "line": 1855
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterState",
+      "line": 1856
+    },
+    {
+      "container": "(worker as any)",
+      "member": "currentInitPayload",
+      "line": 1857
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 1858
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 1911
+    },
+    {
+      "container": "(worker as any)",
+      "member": "processManager",
+      "line": 1912
+    },
+    {
+      "container": "(worker as any)",
+      "member": "connectionManager",
+      "line": 1913
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterPolicy",
+      "line": 1914
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterState",
+      "line": 1915
+    },
+    {
+      "container": "(worker as any)",
+      "member": "currentInitPayload",
+      "line": 1916
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 1917
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 1967
+    },
+    {
+      "container": "(worker as any)",
+      "member": "processManager",
+      "line": 1968
+    },
+    {
+      "container": "(worker as any)",
+      "member": "connectionManager",
+      "line": 1969
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterPolicy",
+      "line": 1970
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterState",
+      "line": 1971
+    },
+    {
+      "container": "(worker as any)",
+      "member": "currentInitPayload",
+      "line": 1972
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 1973
+    },
+    {
+      "container": "(worker as any)",
+      "member": "logger",
+      "line": 2025
+    },
+    {
+      "container": "(worker as any)",
+      "member": "processManager",
+      "line": 2026
+    },
+    {
+      "container": "(worker as any)",
+      "member": "connectionManager",
+      "line": 2027
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterPolicy",
+      "line": 2028
+    },
+    {
+      "container": "(worker as any)",
+      "member": "adapterState",
+      "line": 2029
+    },
+    {
+      "container": "(worker as any)",
+      "member": "currentInitPayload",
+      "line": 2030
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 2031
+    },
+    {
+      "container": "(worker as any)",
+      "member": "dapClient",
+      "line": 2051
+    },
+    {
+      "container": "(worker as any)",
+      "member": "processManager",
+      "line": 2054
+    },
+    {
+      "container": "(worker as any)",
+      "member": "connectionManager",
+      "line": 2055
+    },
+    {
+      "container": "(worker as any)",
+      "member": "state",
+      "line": 2056
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "dry_run_complete",
+      "context": "Status message status field checked in multiple tests",
+      "line": 202,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "call[0].status"
+    },
+    {
+      "value": "adapter_connected",
+      "context": "Status message for queuing policy connection",
+      "line": 552,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "adapter_configured_and_launched",
+      "context": "Status after full launch sequence",
+      "line": 626,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "adapter_exited",
+      "context": "Status emitted when adapter process exits",
+      "line": 931,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.status"
+    },
+    {
+      "value": "terminated",
+      "context": "Status emitted on worker shutdown",
+      "line": 1637,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "call[0].status"
+    },
+    {
+      "value": "[Worker] Using adapter policy: js-debug",
+      "context": "Log message for JS adapter policy selection",
+      "line": 231,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "mockLogger.info"
+    },
+    {
+      "value": "[Worker] Using adapter policy: python",
+      "context": "Log message for Python adapter policy selection",
+      "line": 258,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "mockLogger.info"
+    },
+    {
+      "value": "DAP client not connected",
+      "context": "Error response when no DAP client available",
+      "line": 1083,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.error"
+    },
+    {
+      "value": "Invalid state for init",
+      "context": "Error message for double-init",
+      "line": 1623,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message.message"
+    },
+    {
+      "value": "js-debug",
+      "context": "Policy name for JavaScript adapter",
+      "line": 231,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockLogger.info"
+    },
+    {
+      "value": "python",
+      "context": "Policy name for Python adapter",
+      "line": 258,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockLogger.info"
+    },
+    {
+      "value": "go",
+      "context": "Policy name returned by selectAdapterPolicy for dlv",
+      "line": 268,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "policy.name"
+    },
+    {
+      "value": "ruby",
+      "context": "Policy name returned by selectAdapterPolicy for rdbg",
+      "line": 276,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "policy.name"
+    },
+    {
+      "value": "java",
+      "context": "Policy name returned by selectAdapterPolicy for JdiDapServer",
+      "line": 284,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "policy.name"
+    },
+    {
+      "value": "rust",
+      "context": "Policy name returned by selectAdapterPolicy for codelldb",
+      "line": 292,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "policy.name"
+    },
+    {
+      "value": "dotnet",
+      "context": "Policy name returned by selectAdapterPolicy for netcoredbg",
+      "line": 300,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "policy.name"
+    },
+    {
+      "value": "mock",
+      "context": "Policy name returned for mock-adapter-process.js",
+      "line": 316,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "policy.name"
+    },
+    {
+      "value": "debugpy",
+      "context": "Adapter ID passed to initializeSession for Python",
+      "line": 615,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "connectionStub.initializeSession"
+    },
+    {
+      "value": "dlv-dap",
+      "context": "Adapter ID passed to initializeSession for Go",
+      "line": 760,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "connectionStub.initializeSession"
+    },
+    {
+      "value": "worker shutdown",
+      "context": "Argument to dapClient.shutdown",
+      "line": 972,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockDapClient.shutdown"
+    },
+    {
+      "value": "DAP_TRACE_FILE",
+      "context": "Environment variable set by trace file factory hook",
+      "line": 419,
+      "kind": "config",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

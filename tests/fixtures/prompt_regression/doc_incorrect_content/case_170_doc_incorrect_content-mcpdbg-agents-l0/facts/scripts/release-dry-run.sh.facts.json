@@ -1,0 +1,176 @@
+{
+  "source": "scripts/release-dry-run.sh",
+  "source_hash": "04e27eb9086dc91c",
+  "generated": "2026-07-22T22:09:14Z",
+  "imports": [],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "node.require(package.json).version",
+      "line": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "npm.run build",
+      "line": 71
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "npm.run test:unit",
+      "line": 80
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "npm.pack --dry-run",
+      "line": 92
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "gh.secret list",
+      "line": 113
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "gh.workflow run validate-secrets.yml",
+      "line": 125
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "gh.run list",
+      "line": 127
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "gh.run watch",
+      "line": 131
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "gh.run view",
+      "line": 134
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "npm.view version",
+      "line": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "git.diff --quiet HEAD",
+      "line": 192
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "git.rev-parse --abbrev-ref HEAD",
+      "line": 198
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "github.com/debugmcp/mcp-debugger",
+      "context": "Required repository.url value in package.json for npm --provenance flag",
+      "line": 100,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "REPO_URL"
+    },
+    {
+      "value": "validate-secrets.yml",
+      "context": "GitHub Actions workflow name triggered to validate publishing tokens",
+      "line": 125,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "NPM_TOKEN",
+      "context": "GitHub secret name for npm publish authentication",
+      "line": 114,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "SECRETS_LIST"
+    },
+    {
+      "value": "DOCKER_USERNAME",
+      "context": "GitHub secret name for Docker Hub authentication",
+      "line": 114,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "SECRETS_LIST"
+    },
+    {
+      "value": "DOCKER_PASSWORD",
+      "context": "GitHub secret name for Docker Hub authentication",
+      "line": 114,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "SECRETS_LIST"
+    },
+    {
+      "value": "PYPI_TOKEN",
+      "context": "GitHub secret name for PyPI publish authentication",
+      "line": 114,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "SECRETS_LIST"
+    },
+    {
+      "value": "main",
+      "context": "Expected git branch name for release",
+      "line": 199,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "BRANCH"
+    },
+    {
+      "value": "@debugmcp/shared",
+      "context": "npm package name checked for prior publication",
+      "line": 161,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "npm view"
+    },
+    {
+      "value": "@debugmcp/adapter-mock",
+      "context": "npm package name checked for prior publication",
+      "line": 161,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "npm view"
+    },
+    {
+      "value": "@debugmcp/adapter-python",
+      "context": "npm package name checked for prior publication",
+      "line": 161,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "npm view"
+    },
+    {
+      "value": "@debugmcp/adapter-ruby",
+      "context": "npm package name checked for prior publication",
+      "line": 161,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "npm view"
+    },
+    {
+      "value": "@debugmcp/mcp-debugger",
+      "context": "npm package name checked for prior publication",
+      "line": 161,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "npm view"
+    },
+    {
+      "value": "tags/v}",
+      "context": "Pattern checked in release.yml to verify v-prefix stripping in changelog extraction",
+      "line": 183,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "CHANGELOG_EXTRACT"
+    }
+  ],
+  "extraction_method": "llm"
+}

@@ -1,0 +1,20 @@
+{
+  "detector": "doc:incorrect_content",
+  "gap_type": "description",
+  "path": "packages/adapter-dotnet/docs/dotnet-adapter.md",
+  "line_start": null,
+  "line_end": null,
+  "symbol": null,
+  "contract_source": "packages\\shared\\src\\interfaces\\adapter-policy-dotnet.ts",
+  "contract_claim": "The document describes the filtered variables as including '<>t__*' and '<>s__*' (async state machine fields), but the shadow doc for adapter-policy-dotnet.ts only describes three variable filter patterns: prefix '<>' (C# generated, L90-92), prefix 'CS$<>' (closure variables, L95-97), and prefix '$VB$' (VB.NET generated, L100-102). The patterns '<>t__*' and '<>s__*' are not separately listed — they would be caught by the general '<>' prefix filter. The doc misleadingly lists them as separate filter patterns and also incorrectly describes '<>c__DisplayClass*' as a separate filter (it's also caught by the '<>' prefix). Additionally, the doc labels 'CS$<>*' as 'compiler temporaries' but the shadow doc calls them 'Closure variables'.",
+  "observed_behavior": "C# generated: prefix `<>` (L90–92), Closure variables: prefix `CS$<>` (L95–97), VB.NET generated: prefix `$VB$` (L100–102)",
+  "evidence": [],
+  "id": "599df5ab532cf23a",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

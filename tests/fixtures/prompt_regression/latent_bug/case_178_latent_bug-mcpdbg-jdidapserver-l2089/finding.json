@@ -1,0 +1,20 @@
+{
+  "detector": "debris:latent_bug",
+  "gap_type": "contract",
+  "path": "packages/adapter-java/java/JdiDapServer.java",
+  "line_start": 2089,
+  "line_end": 2092,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "LONG literal parsing strips the L/l suffix then calls Long.parseLong(text). If the original literal used a hex prefix (0xDEADBEEFL), the suffix is stripped but the '0x' prefix remains, so Long.parseLong('0xDEADBEEF') will throw NumberFormatException. The INTEGER branch at L2080 handles 0x/0b, but the LONG branch does not.",
+  "observed_behavior": "LONG literal parsing strips the L/l suffix then calls Long.parseLong(text). If the original literal used a hex prefix (0xDEADBEEFL), the suffix is stripped but the '0x' prefix remains, so Long.parseLong('0xDEADBEEF') will throw NumberFormatException. The INTEGER branch at L2080 handles 0x/0b, but the LONG branch does not.",
+  "evidence": [],
+  "id": "b6fe4045a69490d4",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

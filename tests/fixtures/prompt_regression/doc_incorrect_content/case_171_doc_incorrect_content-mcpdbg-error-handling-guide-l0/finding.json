@@ -1,0 +1,20 @@
+{
+  "detector": "doc:incorrect_content",
+  "gap_type": "description",
+  "path": "docs/error-handling-guide.md",
+  "line_start": null,
+  "line_end": null,
+  "symbol": null,
+  "contract_source": "src/server.ts",
+  "contract_claim": "The document's Pattern 2 (Error Propagation) states 'The MCP server (src/server.ts) may also throw McpError directly' and implies typed errors from the backend propagate as MCP protocol errors. However, the shadow doc for server.ts reveals a different pattern: 'Session-related errors (terminated, not found, proxy not running) are caught per-tool and returned as { success: false, error } JSON rather than thrown; other errors are rethrown as McpError.' This means typed session errors are actually caught and converted to structured failure responses at the server layer, not propagated as protocol-level MCP errors.",
+  "observed_behavior": "Session-related errors (terminated, not found, proxy not running) are caught per-tool and returned as `{ success: false, error }` JSON rather than thrown; other errors are rethrown as `McpError`.",
+  "evidence": [],
+  "id": "50e575265bfac962",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

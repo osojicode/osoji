@@ -1,0 +1,1560 @@
+{
+  "source": "src/proxy/minimal-dap.ts",
+  "source_hash": "3e720eb65e6524ca",
+  "generated": "2026-07-22T22:08:11Z",
+  "imports": [
+    {
+      "source": "net",
+      "names": [
+        "net",
+        "Socket"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "../utils/logger.js",
+      "names": [
+        "createLogger"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "src/utils/logger.ts"
+    },
+    {
+      "source": "fs",
+      "names": [
+        "fs"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterPolicy",
+        "DefaultAdapterPolicy",
+        "DapClientBehavior",
+        "DapClientContext",
+        "ChildSessionConfig",
+        "sanitizePayloadForLogging"
+      ],
+      "line": 12,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./child-session-manager.js",
+      "names": [
+        "ChildSessionManager",
+        "ChildSessionOptions"
+      ],
+      "line": 20,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/child-session-manager.ts"
+    },
+    {
+      "source": "../errors/debug-errors.js",
+      "names": [
+        "getErrorMessage"
+      ],
+      "line": 21,
+      "is_reexport": false,
+      "resolved_path": "src/errors/debug-errors.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "MinimalDapClient",
+      "kind": "class",
+      "line": 35,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EventEmitter"
+      ]
+    },
+    {
+      "name": "MinimalDapClient.connect",
+      "kind": "function",
+      "line": 351,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MinimalDapClient.sendRequest",
+      "kind": "function",
+      "line": 424,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "command",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "args",
+          "optional": true,
+          "type": "unknown"
+        },
+        {
+          "name": "timeoutMs",
+          "optional": true,
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "MinimalDapClient.disconnect",
+      "kind": "function",
+      "line": 714,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MinimalDapClient.shutdown",
+      "kind": "function",
+      "line": 718,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "reason",
+          "optional": true,
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "createLogger",
+      "line": 23,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Buffer.alloc",
+      "line": 37,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 39,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Set",
+      "line": 49,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 50,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "super",
+      "line": 82,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.policy.getDapClientBehavior",
+      "line": 86,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ChildSessionManager",
+      "line": 95,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createChildSessionManager",
+      "line": 97,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.childSessionManager.on",
+      "line": 104,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "logger.info",
+      "line": 105,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.childSessions.set",
+      "line": 106,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.childSessionManager.on",
+      "line": 110,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.emit",
+      "line": 112,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.emit",
+      "line": 113,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.childSessionManager.on",
+      "line": 116,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "logger.error",
+      "line": 117,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.childSessionManager.on",
+      "line": 120,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "logger.info",
+      "line": 121,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.childSessions.clear",
+      "line": 122,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "Buffer.concat",
+      "line": 133,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "this.rawData.toString",
+      "line": 139,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "this.rawData.slice",
+      "line": 140,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "JSON.parse",
+      "line": 146,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "this.handleProtocolMessage",
+      "line": 147,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "logger.error",
+      "line": 149,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "this.rawData.indexOf",
+      "line": 157,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "this.rawData.toString",
+      "line": 163,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "header.split",
+      "line": 164,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "line.toLowerCase().startsWith",
+      "line": 168,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "line.toLowerCase",
+      "line": 168,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "line.split(':')[1]?.trim",
+      "line": 169,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "line.split",
+      "line": 169,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "Number.parseInt",
+      "line": 170,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "Number.isNaN",
+      "line": 171,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "this.rawData.slice",
+      "line": 179,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "Number.isFinite",
+      "line": 181,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "logger.warn",
+      "line": 182,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleData",
+      "to": "Buffer.alloc",
+      "line": 184,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "this.appendTrace",
+      "line": 193,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "logger.info",
+      "line": 210,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "logger.info",
+      "line": 213,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "sanitizePayloadForLogging",
+      "line": 218,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "logger.info",
+      "line": 222,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "logger.debug",
+      "line": 228,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "this.pendingRequests.get",
+      "line": 232,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "this.timers.clearTimeout",
+      "line": 235,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "this.pendingRequests.delete",
+      "line": 236,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "pending.resolve",
+      "line": 239,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "pending.reject",
+      "line": 241,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "Error",
+      "line": 241,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "logger.debug",
+      "line": 245,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "logger.warn",
+      "line": 247,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "logger.info",
+      "line": 252,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "this.emit",
+      "line": 256,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "this.emit",
+      "line": 257,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "logger.info",
+      "line": 260,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "this.sendResponse",
+      "line": 267,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "this.childSessionManager.createChildSession",
+      "line": 271,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "this.enrichChildConfig",
+      "line": 271,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "this.childSessionManager.getActiveChild",
+      "line": 273,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "this.dapBehavior.handleReverseRequest",
+      "line": 280,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "logger.info",
+      "line": 286,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "this.childSessionManager.createChildSession",
+      "line": 288,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "this.enrichChildConfig",
+      "line": 288,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "this.childSessionManager.getActiveChild",
+      "line": 296,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "String",
+      "line": 298,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "logger.error",
+      "line": 299,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "getErrorMessage",
+      "line": 305,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "logger.error",
+      "line": 306,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "this.sendResponse",
+      "line": 315,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "this.sendResponse",
+      "line": 319,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "getErrorMessage",
+      "line": 323,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "logger.error",
+      "line": 324,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.handleProtocolMessage",
+      "to": "this.sendResponse",
+      "line": 325,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MinimalDapClient.appendTrace",
+      "to": "fs.appendFileSync",
+      "line": 333,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.appendTrace",
+      "to": "JSON.stringify",
+      "line": 337,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MinimalDapClient.appendTrace",
+      "to": "new Date().toISOString",
+      "line": 337,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.appendTrace",
+      "to": "Date",
+      "line": 337,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.appendTrace",
+      "to": "sanitizePayloadForLogging",
+      "line": 337,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "MinimalDapClient.sleep",
+      "to": "Promise",
+      "line": 346,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MinimalDapClient.sleep",
+      "to": "this.timers.setTimeout",
+      "line": 347,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MinimalDapClient.connect",
+      "to": "Promise",
+      "line": 352,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MinimalDapClient.connect",
+      "to": "logger.info",
+      "line": 353,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.connect",
+      "to": "net.createConnection",
+      "line": 359,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.connect",
+      "to": "logger.info",
+      "line": 360,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.connect",
+      "to": "resolve",
+      "line": 362,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.connect",
+      "to": "this.socket.on",
+      "line": 366,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MinimalDapClient.connect",
+      "to": "this.handleData",
+      "line": 367,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.connect",
+      "to": "this.socket.on",
+      "line": 370,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MinimalDapClient.connect",
+      "to": "logger.error",
+      "line": 371,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.connect",
+      "to": "this.emit",
+      "line": 380,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "MinimalDapClient.connect",
+      "to": "reject",
+      "line": 383,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "MinimalDapClient.connect",
+      "to": "this.socket.on",
+      "line": 387,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MinimalDapClient.connect",
+      "to": "logger.info",
+      "line": 388,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.connect",
+      "to": "this.emit",
+      "line": 389,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "MinimalDapClient.connect",
+      "to": "this.cleanup",
+      "line": 390,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.connect",
+      "to": "reject",
+      "line": 395,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "MinimalDapClient.connect",
+      "to": "Error",
+      "line": 395,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "Error",
+      "line": 430,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "Error",
+      "line": 434,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "Promise",
+      "line": 456,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.timers.clearTimeout",
+      "line": 459,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.timers.setTimeout",
+      "line": 462,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.sendRequest<DebugProtocol.Response>('configurationDone', args)\n              // eslint-disable-",
+      "line": 465,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.sendRequest<DebugProtocol.Response>('configurationDone', args)\n              // eslint-disable-",
+      "line": 465,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.sendRequest",
+      "line": 465,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "manager?.shouldRouteToChild",
+      "line": 484,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "manager?.hasActiveChildren",
+      "line": 487,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "manager.isAdoptionInProgress",
+      "line": 490,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "logger.info",
+      "line": 492,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "logger.info",
+      "line": 504,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.sleep",
+      "line": 513,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "manager?.getActiveChild",
+      "line": 514,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "manager?.isAdoptionInProgress",
+      "line": 518,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "logger.info",
+      "line": 519,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "logger.warn",
+      "line": 526,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "logger.info",
+      "line": 541,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "manager?.hasActiveChildren",
+      "line": 544,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "logger.info",
+      "line": 546,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.sleep",
+      "line": 548,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "manager.getActiveChild",
+      "line": 549,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "logger.info",
+      "line": 555,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.activeChild.sendRequest",
+      "line": 556,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "String",
+      "line": 558,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "message.includes",
+      "line": 562,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "message.includes",
+      "line": 563,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "message.includes",
+      "line": 564,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "logger.warn",
+      "line": 566,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "logger.warn",
+      "line": 582,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "logger.warn",
+      "line": 585,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.childSessionManager?.hasActiveChildren",
+      "line": 588,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.childSessionManager.isAdoptionInProgress",
+      "line": 591,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "logger.info",
+      "line": 593,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "Array.isArray",
+      "line": 605,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "path.isAbsolute",
+      "line": 606,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "path.resolve",
+      "line": 606,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.childSessionManager.storeBreakpoints",
+      "line": 608,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.dapBehavior.normalizeAdapterId",
+      "line": 624,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "logger.info",
+      "line": 628,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "logger.info",
+      "line": 643,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "sanitizePayloadForLogging",
+      "line": 647,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "Promise",
+      "line": 650,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.timers.setTimeout",
+      "line": 652,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.pendingRequests.has",
+      "line": 653,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.pendingRequests.delete",
+      "line": 654,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "reject",
+      "line": 655,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "Error",
+      "line": 655,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.pendingRequests.set",
+      "line": 660,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.appendTrace",
+      "line": 667,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "JSON.stringify",
+      "line": 668,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "Buffer.byteLength",
+      "line": 669,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.timers.clearTimeout",
+      "line": 674,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.pendingRequests.delete",
+      "line": 675,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "reject",
+      "line": 676,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "Error",
+      "line": 676,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.socket.write",
+      "line": 680,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.timers.clearTimeout",
+      "line": 682,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "this.pendingRequests.delete",
+      "line": 683,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendRequest",
+      "to": "reject",
+      "line": 684,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "MinimalDapClient.writeMessage",
+      "to": "JSON.stringify",
+      "line": 691,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MinimalDapClient.writeMessage",
+      "to": "Buffer.byteLength",
+      "line": 692,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.writeMessage",
+      "to": "this.appendTrace",
+      "line": 694,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MinimalDapClient.writeMessage",
+      "to": "this.socket.write",
+      "line": 696,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.writeMessage",
+      "to": "logger.error",
+      "line": 698,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.sendResponse",
+      "to": "this.writeMessage",
+      "line": 711,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.disconnect",
+      "to": "this.shutdown",
+      "line": 715,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.shutdown",
+      "to": "logger.debug",
+      "line": 720,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MinimalDapClient.shutdown",
+      "to": "logger.info",
+      "line": 725,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "MinimalDapClient.shutdown",
+      "to": "this.childSessions.values",
+      "line": 729,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.shutdown",
+      "to": "child.shutdown",
+      "line": 731,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.shutdown",
+      "to": "getErrorMessage",
+      "line": 733,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "MinimalDapClient.shutdown",
+      "to": "logger.warn",
+      "line": 734,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.shutdown",
+      "to": "this.childSessions.clear",
+      "line": 738,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.shutdown",
+      "to": "this.cleanup",
+      "line": 743,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.shutdown",
+      "to": "this.socket.end",
+      "line": 747,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.shutdown",
+      "to": "this.socket.destroy",
+      "line": 748,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.cleanup",
+      "to": "this.pendingRequests.forEach",
+      "line": 754,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.cleanup",
+      "to": "this.timers.clearTimeout",
+      "line": 755,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "MinimalDapClient.cleanup",
+      "to": "pending.reject",
+      "line": 756,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.cleanup",
+      "to": "Error",
+      "line": 756,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "MinimalDapClient.cleanup",
+      "to": "this.pendingRequests.clear",
+      "line": 758,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MinimalDapClient.cleanup",
+      "to": "Buffer.alloc",
+      "line": 761,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MinimalDapClient.cleanup",
+      "to": "this.removeAllListeners",
+      "line": 766,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MinimalDapClient.cleanup",
+      "to": "this.timers.setTimeout",
+      "line": 769,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MinimalDapClient.cleanup",
+      "to": "this.removeAllListeners",
+      "line": 770,
+      "call_sites": 2
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "host",
+      "line": 83
+    },
+    {
+      "container": "this",
+      "member": "port",
+      "line": 84
+    },
+    {
+      "container": "this",
+      "member": "policy",
+      "line": 85
+    },
+    {
+      "container": "this",
+      "member": "dapBehavior",
+      "line": 86
+    },
+    {
+      "container": "this",
+      "member": "timers",
+      "line": 87
+    },
+    {
+      "container": "this",
+      "member": "childSessionManager",
+      "line": 97
+    },
+    {
+      "container": "this",
+      "member": "activeChild",
+      "line": 107
+    },
+    {
+      "container": "this",
+      "member": "activeChild",
+      "line": 123
+    },
+    {
+      "container": "this",
+      "member": "rawData",
+      "line": 133
+    },
+    {
+      "container": "this",
+      "member": "rawData",
+      "line": 140
+    },
+    {
+      "container": "this",
+      "member": "contentLength",
+      "line": 141
+    },
+    {
+      "container": "this",
+      "member": "rawData",
+      "line": 179
+    },
+    {
+      "container": "this",
+      "member": "contentLength",
+      "line": 183
+    },
+    {
+      "container": "this",
+      "member": "rawData",
+      "line": 184
+    },
+    {
+      "container": "this",
+      "member": "contentLength",
+      "line": 188
+    },
+    {
+      "container": "debugInfo",
+      "member": "command",
+      "line": 201
+    },
+    {
+      "container": "debugInfo",
+      "member": "event",
+      "line": 206
+    },
+    {
+      "container": "this",
+      "member": "activeChild",
+      "line": 273
+    },
+    {
+      "container": "this",
+      "member": "deferParentConfigDoneActive",
+      "line": 292
+    },
+    {
+      "container": "this",
+      "member": "activeChild",
+      "line": 296
+    },
+    {
+      "container": "this",
+      "member": "socket",
+      "line": 359
+    },
+    {
+      "container": "parentConfig",
+      "member": "stopOnEntry",
+      "line": 419
+    },
+    {
+      "container": "this",
+      "member": "lastStartRequestArgs",
+      "line": 442
+    },
+    {
+      "container": "this",
+      "member": "suppressNextConfigDoneDeferral",
+      "line": 453
+    },
+    {
+      "container": "this",
+      "member": "parentConfigDoneDeferred",
+      "line": 460
+    },
+    {
+      "container": "this",
+      "member": "suppressNextConfigDoneDeferral",
+      "line": 464
+    },
+    {
+      "container": "this",
+      "member": "parentConfigDoneDeferred",
+      "line": 469
+    },
+    {
+      "container": "this",
+      "member": "parentConfigDoneDeferred",
+      "line": 471
+    },
+    {
+      "container": "this",
+      "member": "activeChild",
+      "line": 514
+    },
+    {
+      "container": "this",
+      "member": "activeChild",
+      "line": 549
+    },
+    {
+      "container": "a",
+      "member": "adapterID",
+      "line": 626
+    },
+    {
+      "container": "this",
+      "member": "isDisconnectingOrDisconnected",
+      "line": 724
+    },
+    {
+      "container": "this",
+      "member": "activeChild",
+      "line": 739
+    },
+    {
+      "container": "this",
+      "member": "rawData",
+      "line": 761
+    },
+    {
+      "container": "this",
+      "member": "contentLength",
+      "line": 762
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "DAP_TRACE_FILE",
+      "context": "Environment variable name read to determine trace file path",
+      "line": 48,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "attach",
+      "context": "Checked against lastStartRequestArgs.request to detect attach mode in enrichChildConfig",
+      "line": 411,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "start.request"
+    },
+    {
+      "value": "attach",
+      "context": "Stored as request field in lastStartRequestArgs when command is attach",
+      "line": 441,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "launch",
+      "context": "Stored as request field in lastStartRequestArgs when command is launch",
+      "line": 441,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "configurationDone",
+      "context": "Command name checked for deferral logic",
+      "line": 450,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "stackTrace",
+      "context": "Command name checked for child-wait routing logic",
+      "line": 499,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "setBreakpoints",
+      "context": "Command name checked to mirror breakpoints to ChildSessionManager",
+      "line": 599,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "initialize",
+      "context": "Command name checked to apply adapterID normalization",
+      "line": 619,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "runInTerminal",
+      "context": "Reverse request command handled with empty ACK response",
+      "line": 313,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "request.command"
+    },
+    {
+      "value": "continue",
+      "context": "Command treated as graceful completion when child is unavailable",
+      "line": 560,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "disconnect",
+      "context": "Command treated as graceful completion when child is unavailable",
+      "line": 560,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "terminate",
+      "context": "Command treated as graceful completion when child is unavailable",
+      "line": 560,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "DAP client disconnected",
+      "context": "Error message emitted when pending requests are rejected during cleanup",
+      "line": 756,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "minimal-dap-simple",
+      "context": "Logger name for this module",
+      "line": 23,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,20 @@
+{
+  "detector": "doc:incorrect_content",
+  "gap_type": "description",
+  "path": "docs/architecture/component-design.md",
+  "line_start": null,
+  "line_end": null,
+  "symbol": null,
+  "contract_source": "src\\utils\\type-guards.ts",
+  "contract_claim": "The document describes validateProxyInitPayload as performing 'limited structural validation (e.g., verifying required fields exist and are non-null)' and says it 'Does not perform full runtime type validation.' However, the shadow doc for type-guards.ts shows it actually validates several specific types: sessionId must be string, adapterPort must be number, adapterCommand is validated via isValidAdapterCommand if present, launchConfig must be object if present. This is more than just null checking.",
+  "observed_behavior": "Required fields: cmd, sessionId, executablePath, adapterHost, adapterPort, logDir, scriptPath (none may be undefined/null). sessionId: must be string. adapterPort: must be number. adapterCommand: validated via isValidAdapterCommand if present. launchConfig: must be object if present",
+  "evidence": [],
+  "id": "55763a021f6c59ad",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

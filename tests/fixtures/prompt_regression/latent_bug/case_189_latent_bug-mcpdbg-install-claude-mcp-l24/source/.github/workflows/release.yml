@@ -1,0 +1,532 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref (tag or branch) to release from'
+        required: true
+        default: 'refs/tags/v0.22.0'
+
+permissions: {}
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.inputs.ref || github.ref }}
+    
+    - name: Setup pnpm
+      uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271  # v6.0.9
+      with:
+        version: 10
+
+    - name: Setup Node.js
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+      with:
+        node-version: '22.x'
+        cache: 'pnpm'
+
+    - name: Setup Python 3.11
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+      with:
+        python-version: '3.11'
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --require-hashes -r requirements/pip.txt
+        python -m pip install --require-hashes -r requirements/debugpy.txt
+
+    - name: Setup Go
+      uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+      with:
+        go-version: '1.21'
+
+    - name: Install Delve debugger
+      run: go install github.com/go-delve/delve/cmd/dlv@v1.24.2
+
+    - name: Setup Java 21
+      uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95  # v5.6.0
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600  # v1.319.0
+      with:
+        ruby-version: '3.3'
+
+    - name: Verify rdbg (bundled debug gem)
+      run: rdbg --version
+
+    - name: Sanity versions
+      run: |
+        node -v
+        npm -v
+        pnpm -v
+
+    - name: Approve build scripts (esbuild)
+      run: pnpm approve-builds esbuild
+      continue-on-error: true
+    
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile --ignore-scripts
+    
+    - name: Build project
+      run: pnpm run build
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Run tests
+      run: pnpm run test:ci-no-python
+
+  docker-publish:
+    name: Build and Push Docker Image
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.inputs.ref || github.ref }}
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c  # v4.2.0
+    
+    - name: Log in to Docker Hub
+      uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0  # v4.4.0
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    
+    - name: Determine Docker latest tag strategy
+      shell: bash
+      env:
+        GITHUB_REF_TYPE: ${{ github.ref_type }}
+        GITHUB_REF_NAME: ${{ github.ref_name }}
+        DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      run: |
+        if [[ "${GITHUB_REF_TYPE}" == "branch" && "${GITHUB_REF_NAME}" == "${DEFAULT_BRANCH}" ]]; then
+          echo "PUBLISH_LATEST=true" >> "$GITHUB_ENV"
+          echo "latest will track default branch build (${GITHUB_REF_NAME})"
+        elif [[ "${GITHUB_REF_TYPE}" == "tag" && "${GITHUB_REF_NAME}" != *"-alpha"* && "${GITHUB_REF_NAME}" != *"-beta"* && "${GITHUB_REF_NAME}" != *"-rc"* ]]; then
+          echo "PUBLISH_LATEST=true" >> "$GITHUB_ENV"
+          echo "latest will point to release ${GITHUB_REF_NAME}"
+        else
+          echo "PUBLISH_LATEST=false" >> "$GITHUB_ENV"
+          echo "latest tag update skipped for ref ${GITHUB_REF_NAME}"
+        fi
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302  # v6.2.0
+      with:
+        images: debugmcp/mcp-debugger
+        tags: |
+          type=ref,event=tag
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=raw,value=latest,enable=${{ env.PUBLISH_LATEST == 'true' }}
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a  # v7.3.0
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  pypi-publish:
+    name: Publish Python Launcher to PyPI
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.inputs.ref || github.ref }}
+    
+    - name: Set up Python
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+      with:
+        python-version: '3.11'
+    
+    - name: Install Python build dependencies
+      run: |
+        python -m pip install "pip==25.0.1"
+        pip install "build==1.2.2" "twine==6.1.0" "tomlkit==0.13.2"
+    
+    - name: Resolve release ref
+      run: |
+        if [ -n "${{ github.event.inputs.ref }}" ]; then
+          echo "RELEASE_REF=${{ github.event.inputs.ref }}" >> $GITHUB_ENV
+        else
+          echo "RELEASE_REF=${GITHUB_REF}" >> $GITHUB_ENV
+        fi
+    - name: Set launcher version from tag
+      run: |
+        VERSION="${RELEASE_REF#refs/tags/v}"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+    - name: Sync version into pyproject.toml
+      run: |
+        python - <<'PY'
+        import os
+        from tomlkit import parse, dumps
+        p = os.path.join('mcp_debugger_launcher','pyproject.toml')
+        with open(p,'r',encoding='utf-8') as f:
+            doc = parse(f.read())
+        ver = os.environ.get('VERSION','0.0.0')
+        if 'project' in doc and 'version' in doc['project']:
+            doc['project']['version'] = ver
+        elif 'tool' in doc and 'poetry' in doc['tool'] and 'version' in doc['tool']['poetry']:
+            doc['tool']['poetry']['version'] = ver
+        else:
+            doc.setdefault('project', {})['version'] = ver
+        with open(p,'w',encoding='utf-8') as f:
+            f.write(dumps(doc))
+        print(f"Set pyproject version to {ver}")
+        PY
+
+    - name: Build Python package
+      run: |
+        cd mcp_debugger_launcher
+        rm -rf dist build *.egg-info
+        python -m build
+    
+    - name: Publish to PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      run: |
+        cd mcp_debugger_launcher
+        python -m twine check dist/*
+        python -m twine upload --skip-existing dist/*
+
+  npm-publish:
+    name: Publish to npm
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # Required for npm trusted publishing (OIDC)
+    outputs:
+      hashes: ${{ steps.hash.outputs.hashes }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.inputs.ref || github.ref }}
+    
+    - name: Setup pnpm
+      uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271  # v6.0.9
+      with:
+        version: 10
+
+    - name: Setup Node.js
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+      with:
+        node-version: '22.x'
+        registry-url: 'https://registry.npmjs.org'
+        cache: 'pnpm'
+    
+    - name: Setup Java 21
+      uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95  # v5.6.0
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600  # v1.319.0
+      with:
+        ruby-version: '3.3'
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile --ignore-scripts
+
+    - name: Sanity versions
+      run: |
+        node -v
+        npm -v
+        pnpm -v
+
+    - name: Resolve release ref
+      run: |
+        if [ -n "${{ github.event.inputs.ref }}" ]; then
+          echo "RELEASE_REF=${{ github.event.inputs.ref }}" >> $GITHUB_ENV
+        else
+          echo "RELEASE_REF=${GITHUB_REF}" >> $GITHUB_ENV
+        fi
+    - name: Set CLI package version from tag (monorepo-safe)
+      run: |
+        VERSION="${RELEASE_REF#refs/tags/v}"
+        echo "Setting CLI package version to $VERSION"
+        VERSION_STRIPPED="$VERSION" node -e "const fs=require('fs');const p='packages/mcp-debugger/package.json';const pkg=JSON.parse(fs.readFileSync(p,'utf8'));const ver=process.env.VERSION_STRIPPED; if(!/^[0-9]+\\.[0-9]+\\.[0-9]+(-.+)?$/.test(ver)){console.error('Invalid semver:',ver);process.exit(1);} pkg.version=ver; fs.writeFileSync(p,JSON.stringify(pkg,null,2)+'\\n');console.log('Updated',p,'to',pkg.version)"
+    - name: Capture workspace package versions (robust)
+      run: |
+        node -e 'console.log("SHARED_VERSION="+require("./packages/shared/package.json").version)' >> $GITHUB_ENV
+        node -e 'console.log("ADAPTER_MOCK_VERSION="+require("./packages/adapter-mock/package.json").version)' >> $GITHUB_ENV
+        node -e 'console.log("ADAPTER_PYTHON_VERSION="+require("./packages/adapter-python/package.json").version)' >> $GITHUB_ENV
+        node -e 'console.log("ADAPTER_RUBY_VERSION="+require("./packages/adapter-ruby/package.json").version)' >> $GITHUB_ENV
+        node -e 'console.log("CLI_VERSION="+require("./packages/mcp-debugger/package.json").version)' >> $GITHUB_ENV
+    - name: Set npm dist-tag
+      run: |
+        if [[ "${CLI_VERSION}" == *"-beta"* ]] || [[ "${CLI_VERSION}" == *"-alpha"* ]]; then
+          echo "NPM_TAG=beta" >> $GITHUB_ENV
+        else
+          echo "NPM_TAG=latest" >> $GITHUB_ENV
+        fi
+    
+    - name: Build project
+      run: pnpm run build
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Pack npm tarballs (dry-run)
+      run: |
+        npm pack --dry-run -w @debugmcp/shared
+        npm pack --dry-run -w @debugmcp/adapter-mock
+        npm pack --dry-run -w @debugmcp/adapter-python
+        npm pack --dry-run -w @debugmcp/adapter-ruby
+        npm pack --dry-run -w @debugmcp/mcp-debugger
+    
+    - name: Publish to npm (workspaces)
+      run: |
+        # Auth via NPM_TOKEN (granular access token scoped to @debugmcp packages)
+        # --provenance adds signed build attestation (requires id-token: write)
+        # Trusted publisher config on npmjs.com verifies provenance against this repo
+
+        # Publish packages in dependency order if the target version does NOT yet exist
+        if npm view @debugmcp/shared@${SHARED_VERSION} version >/dev/null 2>&1; then
+          echo "@debugmcp/shared@${SHARED_VERSION} already exists, skipping"
+        else
+          npm publish -w @debugmcp/shared --access public --provenance
+        fi
+
+        if npm view @debugmcp/adapter-mock@${ADAPTER_MOCK_VERSION} version >/dev/null 2>&1; then
+          echo "@debugmcp/adapter-mock@${ADAPTER_MOCK_VERSION} already exists, skipping"
+        else
+          npm publish -w @debugmcp/adapter-mock --access public --provenance
+        fi
+
+        if npm view @debugmcp/adapter-python@${ADAPTER_PYTHON_VERSION} version >/dev/null 2>&1; then
+          echo "@debugmcp/adapter-python@${ADAPTER_PYTHON_VERSION} already exists, skipping"
+        else
+          npm publish -w @debugmcp/adapter-python --access public --provenance
+        fi
+
+        if npm view @debugmcp/adapter-ruby@${ADAPTER_RUBY_VERSION} version >/dev/null 2>&1; then
+          echo "@debugmcp/adapter-ruby@${ADAPTER_RUBY_VERSION} already exists, skipping"
+        else
+          npm publish -w @debugmcp/adapter-ruby --access public --provenance
+        fi
+
+        if npm view @debugmcp/mcp-debugger@${CLI_VERSION} version >/dev/null 2>&1; then
+          echo "@debugmcp/mcp-debugger@${CLI_VERSION} already exists, skipping"
+        else
+          npm publish -w @debugmcp/mcp-debugger --access public --provenance --tag ${NPM_TAG}
+        fi
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    # The packed tarballs become GitHub Release assets; their hashes feed the
+    # SLSA provenance job below (OpenSSF Scorecard Signed-Releases).
+    - name: Pack release artifacts for provenance
+      run: |
+        mkdir -p release-artifacts
+        npm pack -w @debugmcp/shared --pack-destination release-artifacts
+        npm pack -w @debugmcp/adapter-mock --pack-destination release-artifacts
+        npm pack -w @debugmcp/adapter-python --pack-destination release-artifacts
+        npm pack -w @debugmcp/adapter-ruby --pack-destination release-artifacts
+        npm pack -w @debugmcp/mcp-debugger --pack-destination release-artifacts
+
+    - name: Compute artifact hashes (SLSA subjects)
+      id: hash
+      run: |
+        cd release-artifacts
+        echo "hashes=$(sha256sum *.tgz | base64 -w0)" >> "$GITHUB_OUTPUT"
+
+    - name: Upload release artifacts
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+      with:
+        name: release-artifacts
+        path: release-artifacts/*.tgz
+        if-no-files-found: error
+
+  provenance:
+    name: Generate build provenance attestation
+    needs: npm-publish
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write     # sign the attestation (sigstore)
+      attestations: write # persist it to the GitHub Attestations API
+      contents: read
+    # Uses actions/attest-build-provenance (a plain composite action) rather than
+    # slsa-framework/slsa-github-generator's reusable workflow: this org has
+    # "Write permissions for workflows" disabled, and GitHub validates a calling
+    # job's permissions against that policy at PARSE TIME for external reusable
+    # *workflow* calls specifically -- even read-only-looking permission sets on
+    # such a job made the whole run fail with startup_failure before any job
+    # (even unrelated ones) could start. A normal action inside a normal job
+    # (like npm-publish's existing id-token: write) isn't subject to that check.
+    steps:
+    - name: Download release artifacts
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+      with:
+        name: release-artifacts
+        path: release-artifacts
+
+    - name: Generate attestation
+      id: attest
+      uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373  # v4.1.1
+      with:
+        subject-path: release-artifacts/*.tgz
+
+    # The bundle is a JSON-serialized Sigstore bundle wrapping an in-toto
+    # statement -- genuinely valid under both extensions Scorecard's
+    # Signed-Releases probes scan release assets for (releasesAreSigned:
+    # .sigstore.json; releasesHaveProvenance: .intoto.jsonl).
+    - name: Name provenance files for release assets
+      run: |
+        cp "${{ steps.attest.outputs.bundle-path }}" multiple.intoto.jsonl
+        cp "${{ steps.attest.outputs.bundle-path }}" multiple.sigstore.json
+
+    - name: Upload provenance files
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+      with:
+        name: provenance
+        path: |
+          multiple.intoto.jsonl
+          multiple.sigstore.json
+        if-no-files-found: error
+
+  create-release:
+    name: Create GitHub Release
+    needs: [docker-publish, pypi-publish, npm-publish, provenance]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Grant permission to create releases
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.inputs.ref || github.ref }}
+    
+    - name: Resolve release ref
+      run: |
+        if [ -n "${{ github.event.inputs.ref }}" ]; then
+          echo "RELEASE_REF=${{ github.event.inputs.ref }}" >> $GITHUB_ENV
+        else
+          echo "RELEASE_REF=${GITHUB_REF}" >> $GITHUB_ENV
+        fi
+    - name: Download release artifacts
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+      with:
+        name: release-artifacts
+        path: release-artifacts
+
+    - name: Download provenance attestation
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+      with:
+        name: provenance
+        path: provenance
+
+    - name: Generate changelog
+      id: changelog
+      run: |
+        # Extract version from tag
+        VERSION=${RELEASE_REF#refs/tags/v}
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+        # Get changelog for this version
+        CHANGELOG=$(sed -n "/^## \[$VERSION\]/,/^## \[/p" CHANGELOG.md | sed '$ d')
+        echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+        echo "$CHANGELOG" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    
+    - name: Create Release with GitHub CLI
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Create the release body in a file
+        cat << 'EOF' > release_notes.md
+        ## 🎉 Release ${{ steps.changelog.outputs.VERSION }}
+        
+        ${{ steps.changelog.outputs.CHANGELOG }}
+        
+        ### 📦 Installation
+        
+        **Docker:**
+        ```bash
+        docker pull debugmcp/mcp-debugger:${{ steps.changelog.outputs.VERSION }}
+        ```
+        
+        **npm (global install):**
+        ```bash
+        npm install -g @debugmcp/mcp-debugger@${{ steps.changelog.outputs.VERSION }}
+        ```
+        
+        **npx (no install):**
+        ```bash
+        npx @debugmcp/mcp-debugger@${{ steps.changelog.outputs.VERSION }} stdio
+        ```
+        
+        **PyPI:**
+        ```bash
+        pip install debug-mcp-server-launcher==${{ steps.changelog.outputs.VERSION }}
+        ```
+        
+        **Optional adapters:**
+        ```bash
+        npm install -g @debugmcp/adapter-python
+        npm install -g @debugmcp/adapter-ruby
+        npm install -g @debugmcp/adapter-mock
+        ```
+        
+        ### 📚 Documentation
+        See the [README](https://github.com/debugmcp/mcp-debugger#readme) for usage instructions.
+        EOF
+        
+        # Determine if this is a prerelease
+        if [[ "${{ github.ref_name }}" == *"-beta"* ]] || [[ "${{ github.ref_name }}" == *"-alpha"* ]]; then
+          PRERELEASE_FLAG="--prerelease"
+        else
+          PRERELEASE_FLAG=""
+        fi
+        
+        # Create the release using GitHub CLI, attaching the npm tarballs and
+        # their build provenance attestation (verify with:
+        #   gh attestation verify <tarball> --repo debugmcp/mcp-debugger)
+        gh release create "${{ github.ref_name }}" \
+          --title "Release ${{ steps.changelog.outputs.VERSION }}" \
+          --notes-file release_notes.md \
+          $PRERELEASE_FLAG \
+          release-artifacts/*.tgz \
+          provenance/multiple.intoto.jsonl \
+          provenance/multiple.sigstore.json

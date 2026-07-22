@@ -1,0 +1,20 @@
+{
+  "detector": "debris:latent_bug",
+  "gap_type": "contract",
+  "path": "mcp_debugger_launcher/mcp_debugger_launcher/cli.py",
+  "line_start": 106,
+  "line_end": 108,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "Returning integer 1 from a Click command (lines 108, 122, 126, 132, 136, 149, 168, 191, 199) does not cause a non-zero process exit when invoked via the Click CLI. Click ignores non-SystemExit return values from command functions. Only the `sys.exit(main())` at line 202 (direct execution) would propagate this. Callers using `debug-mcp-server` as a CLI tool will see exit code 0 on error paths.",
+  "observed_behavior": "Returning integer 1 from a Click command (lines 108, 122, 126, 132, 136, 149, 168, 191, 199) does not cause a non-zero process exit when invoked via the Click CLI. Click ignores non-SystemExit return values from command functions. Only the `sys.exit(main())` at line 202 (direct execution) would propagate this. Callers using `debug-mcp-server` as a CLI tool will see exit code 0 on error paths.",
+  "evidence": [],
+  "id": "b2324c3c2a65dddc",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

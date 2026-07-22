@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "confirmed",
+  "reasoning": "Read server.ts L1040-1199: every per-tool catch for step/continue/get_variables/get_stack_trace/get_scopes explicitly matches the three typed session errors and returns `{success:false, error:error.message}` JSON rather than rethrowing. The doc's Pattern 2 asserts the client receives 'a protocol-level MCP error (from typed backend errors...)' (L77) and its example shows continue rethrowing \u2014 flatly contradicted by the actual handlers. Genuine description gap about current behavior.",
+  "gray": false,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-22",
+  "accepted": true
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "[re-triage: downgrade-to-info \u2014 claim as stated fails, pattern noted] Read dap-proxy-entry.ts L27-53 and confirmed currentSessionId: string|null at dap-proxy-worker.ts L62 (set at L160, read as `?? 'unknown'` at L1038-1072). The double cast bypasses TS access control but produces the right value now; only a rename would silently regress the error-reporting session id. That is future fragility, not a present bug. Low-risk fix: add a public `getCurrentSessionId(): string | null` accessor on DapProxyWorker (or a method on ProxyRunner) and drop the cast. DOWNGRADE to info. gray=true (defensible as FP - it currently works and is only an error-message nicety).",
+  "gray": true,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-22",
+  "accepted": true
+}

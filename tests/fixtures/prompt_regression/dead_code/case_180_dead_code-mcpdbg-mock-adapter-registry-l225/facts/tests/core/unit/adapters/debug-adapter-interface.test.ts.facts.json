@@ -1,0 +1,2200 @@
+{
+  "source": "tests/core/unit/adapters/debug-adapter-interface.test.ts",
+  "source_hash": "08d5b265dde3b91e",
+  "generated": "2026-07-22T22:07:01Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect"
+      ],
+      "line": 5,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterState",
+        "AdapterError",
+        "AdapterErrorCode",
+        "DebugFeature",
+        "ValidationError",
+        "ValidationWarning",
+        "ValidationResult",
+        "DependencyInfo",
+        "AdapterCommand",
+        "AdapterConfig",
+        "GenericLaunchConfig",
+        "LanguageSpecificLaunchConfig",
+        "FeatureRequirement",
+        "AdapterCapabilities",
+        "ExceptionBreakpointFilter"
+      ],
+      "line": 6,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 24,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 25,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 26,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterState.UNINITIALIZED).toBe",
+      "line": 27,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 27,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterState.INITIALIZING).toBe",
+      "line": 28,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 28,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterState.READY).toBe",
+      "line": 29,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 29,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterState.CONNECTED).toBe",
+      "line": 30,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 30,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterState.DEBUGGING).toBe",
+      "line": 31,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 31,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterState.DISCONNECTED).toBe",
+      "line": 32,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 32,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterState.ERROR).toBe",
+      "line": 33,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 33,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 36,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.values",
+      "line": 37,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(states).toHaveLength",
+      "line": 38,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 38,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 42,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 43,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterErrorCode.ENVIRONMENT_INVALID).toBe",
+      "line": 44,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 44,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterErrorCode.EXECUTABLE_NOT_FOUND).toBe",
+      "line": 45,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 45,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterErrorCode.ADAPTER_NOT_INSTALLED).toBe",
+      "line": 46,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 46,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterErrorCode.INCOMPATIBLE_VERSION).toBe",
+      "line": 47,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 47,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 50,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterErrorCode.CONNECTION_FAILED).toBe",
+      "line": 51,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 51,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterErrorCode.CONNECTION_TIMEOUT).toBe",
+      "line": 52,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 52,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterErrorCode.CONNECTION_LOST).toBe",
+      "line": 53,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 53,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 56,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterErrorCode.INVALID_RESPONSE).toBe",
+      "line": 57,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 57,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterErrorCode.UNSUPPORTED_OPERATION).toBe",
+      "line": 58,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 58,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 61,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterErrorCode.DEBUGGER_ERROR).toBe",
+      "line": 62,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 62,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterErrorCode.SCRIPT_NOT_FOUND).toBe",
+      "line": 63,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 63,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterErrorCode.PERMISSION_DENIED).toBe",
+      "line": 64,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 64,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 67,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(AdapterErrorCode.UNKNOWN_ERROR).toBe",
+      "line": 68,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 68,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 71,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.values",
+      "line": 72,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(errorCodes).toHaveLength",
+      "line": 73,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 73,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 77,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 78,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.CONDITIONAL_BREAKPOINTS).toBe",
+      "line": 79,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 79,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.FUNCTION_BREAKPOINTS).toBe",
+      "line": 80,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 80,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.EXCEPTION_BREAKPOINTS).toBe",
+      "line": 81,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 81,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.VARIABLE_PAGING).toBe",
+      "line": 82,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 82,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.EVALUATE_FOR_HOVERS).toBe",
+      "line": 83,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 83,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.SET_VARIABLE).toBe",
+      "line": 84,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 84,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.SET_EXPRESSION).toBe",
+      "line": 85,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 85,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.DATA_BREAKPOINTS).toBe",
+      "line": 86,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 86,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.DISASSEMBLE_REQUEST).toBe",
+      "line": 87,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 87,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.TERMINATE_THREADS_REQUEST).toBe",
+      "line": 88,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 88,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.DELAYED_STACK_TRACE_LOADING).toBe",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 89,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.LOADED_SOURCES_REQUEST).toBe",
+      "line": 90,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 90,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.LOG_POINTS).toBe",
+      "line": 91,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 91,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.TERMINATE_REQUEST).toBe",
+      "line": 92,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 92,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.RESTART_REQUEST).toBe",
+      "line": 93,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 93,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.EXCEPTION_OPTIONS).toBe",
+      "line": 94,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 94,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.EXCEPTION_INFO_REQUEST).toBe",
+      "line": 95,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 95,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.STEP_BACK).toBe",
+      "line": 96,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 96,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.REVERSE_DEBUGGING).toBe",
+      "line": 97,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 97,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(DebugFeature.STEP_IN_TARGETS_REQUEST).toBe",
+      "line": 98,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 98,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 101,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.values",
+      "line": 102,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(features).toHaveLength",
+      "line": 103,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 103,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 107,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 108,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "AdapterError",
+      "line": 109,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(error).toBeInstanceOf",
+      "line": 111,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 111,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(error).toBeInstanceOf",
+      "line": 112,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 112,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(error.message).toBe",
+      "line": 113,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 113,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(error.code).toBe",
+      "line": 114,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 114,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(error.recoverable).toBe",
+      "line": 115,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 115,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(error.name).toBe",
+      "line": 116,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 116,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 119,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "AdapterError",
+      "line": 120,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(error.message).toBe",
+      "line": 122,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 122,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(error.code).toBe",
+      "line": 123,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 123,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(error.recoverable).toBe",
+      "line": 124,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 124,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 127,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "AdapterError",
+      "line": 128,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(error.recoverable).toBe",
+      "line": 130,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 130,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 133,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "AdapterError",
+      "line": 134,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(error.stack).toBeDefined",
+      "line": 136,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 136,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(error.stack).toContain",
+      "line": 137,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 137,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(error.stack).toContain",
+      "line": 138,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 138,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 142,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 143,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 144,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.valid).toBe",
+      "line": 151,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 151,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.errors).toHaveLength",
+      "line": 152,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 152,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.warnings).toHaveLength",
+      "line": 153,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 153,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 156,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.valid).toBe",
+      "line": 169,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 169,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.errors).toHaveLength",
+      "line": 170,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 170,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.errors[0].code).toBe",
+      "line": 171,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 171,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 174,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.valid).toBe",
+      "line": 186,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 186,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.warnings).toHaveLength",
+      "line": 187,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 187,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.warnings[0].code).toBe",
+      "line": 188,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 188,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 192,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 193,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dep.name).toBe",
+      "line": 199,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 199,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dep.required).toBe",
+      "line": 200,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 200,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 203,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dep.name).toBe",
+      "line": 211,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 211,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dep.version).toBe",
+      "line": 212,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 212,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dep.required).toBe",
+      "line": 213,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 213,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dep.installCommand).toBe",
+      "line": 214,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 214,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 218,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 219,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(command.command).toBe",
+      "line": 225,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 225,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(command.args).toHaveLength",
+      "line": 226,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 226,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(command.args[0]).toBe",
+      "line": 227,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 227,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 230,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(command.env).toBeDefined",
+      "line": 240,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 240,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(command.env!.NODE_ENV).toBe",
+      "line": 241,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 241,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(command.env!.DEBUG).toBe",
+      "line": 242,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 242,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 246,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 247,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.sessionId).toBe",
+      "line": 260,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 260,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.executablePath).toBe",
+      "line": 261,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 261,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.adapterHost).toBe",
+      "line": 262,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 262,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.adapterPort).toBe",
+      "line": 263,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 263,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.logDir).toBe",
+      "line": 264,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 264,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.scriptPath).toBe",
+      "line": 265,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 265,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.launchConfig.stopOnEntry).toBe",
+      "line": 266,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 266,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 269,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.scriptArgs).toBeDefined",
+      "line": 281,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 281,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.scriptArgs).toHaveLength",
+      "line": 282,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 282,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.scriptArgs![0]).toBe",
+      "line": 283,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 283,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 287,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 288,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(Object.keys(config)).toHaveLength",
+      "line": 291,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 291,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.keys",
+      "line": 291,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 294,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.stopOnEntry).toBe",
+      "line": 306,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 306,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.justMyCode).toBe",
+      "line": 307,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 307,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.env).toBeDefined",
+      "line": 308,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 308,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.env!.PYTHONPATH).toBe",
+      "line": 309,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 309,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.cwd).toBe",
+      "line": 310,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 310,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.args).toHaveLength",
+      "line": 311,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 311,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 315,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 316,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.stopOnEntry).toBe",
+      "line": 324,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 324,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config['pythonPath']).toBe",
+      "line": 325,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 325,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config['django']).toBe",
+      "line": 326,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 326,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config['pyramid']).toBe",
+      "line": 327,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 327,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 332,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 333,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(req.type).toBe",
+      "line": 340,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 340,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(req.description).toBe",
+      "line": 341,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 341,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(req.required).toBe",
+      "line": 342,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 342,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 345,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(req.type).toBe",
+      "line": 352,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 352,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(req.required).toBe",
+      "line": 353,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 353,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 356,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(req.type).toBe",
+      "line": 363,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 363,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(req.required).toBe",
+      "line": 364,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 364,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 368,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 369,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(Object.keys(caps)).toHaveLength",
+      "line": 372,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 372,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.keys",
+      "line": 372,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 375,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsConfigurationDoneRequest).toBe",
+      "line": 414,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 414,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsFunctionBreakpoints).toBe",
+      "line": 415,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 415,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsExceptionFilterOptions).toBe",
+      "line": 416,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 416,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 419,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.exceptionBreakpointFilters).toHaveLength",
+      "line": 433,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 433,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.exceptionBreakpointFilters![0].filter).toBe",
+      "line": 434,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 434,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.exceptionBreakpointFilters![0].supportsCondition).toBe",
+      "line": 435,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 435,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 438,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.completionTriggerCharacters).toHaveLength",
+      "line": 444,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 444,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.completionTriggerCharacters).toContain",
+      "line": 445,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 445,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 448,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportedChecksumAlgorithms).toHaveLength",
+      "line": 453,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 453,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 457,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 458,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(filter.filter).toBe",
+      "line": 464,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 464,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(filter.label).toBe",
+      "line": 465,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 465,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 468,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(filter.description).toBe",
+      "line": 478,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 478,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(filter.default).toBe",
+      "line": 479,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 479,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(filter.supportsCondition).toBe",
+      "line": 480,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 480,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(filter.conditionDescription).toBe",
+      "line": 481,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 481,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 486,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 487,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "AdapterError",
+      "line": 488,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "AdapterError",
+      "line": 489,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "AdapterError",
+      "line": 490,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(envError.code).toBe",
+      "line": 492,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 492,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connError.code).toBe",
+      "line": 493,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 493,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(protoError.code).toBe",
+      "line": 494,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 494,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 497,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "AdapterError",
+      "line": 498,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "AdapterError",
+      "line": 504,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(recoverableError.recoverable).toBe",
+      "line": 510,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 510,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fatalError.recoverable).toBe",
+      "line": 511,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 511,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 515,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 516,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(Object.values(AdapterState)).toContain",
+      "line": 518,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 518,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.values",
+      "line": 518,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 521,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(Object.values(AdapterErrorCode)).toContain",
+      "line": 523,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 523,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.values",
+      "line": 523,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 526,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(Object.values(DebugFeature)).toContain",
+      "line": 528,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 528,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.values",
+      "line": 528,
+      "call_sites": 6
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "uninitialized",
+      "context": "Expected value of AdapterState.UNINITIALIZED enum member",
+      "line": 27,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "AdapterState.UNINITIALIZED"
+    },
+    {
+      "value": "initializing",
+      "context": "Expected value of AdapterState.INITIALIZING enum member",
+      "line": 28,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "AdapterState.INITIALIZING"
+    },
+    {
+      "value": "ready",
+      "context": "Expected value of AdapterState.READY enum member",
+      "line": 29,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "AdapterState.READY"
+    },
+    {
+      "value": "connected",
+      "context": "Expected value of AdapterState.CONNECTED enum member",
+      "line": 30,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "AdapterState.CONNECTED"
+    },
+    {
+      "value": "debugging",
+      "context": "Expected value of AdapterState.DEBUGGING enum member",
+      "line": 31,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "AdapterState.DEBUGGING"
+    },
+    {
+      "value": "disconnected",
+      "context": "Expected value of AdapterState.DISCONNECTED enum member",
+      "line": 32,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "AdapterState.DISCONNECTED"
+    },
+    {
+      "value": "error",
+      "context": "Expected value of AdapterState.ERROR enum member",
+      "line": 33,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "AdapterState.ERROR"
+    },
+    {
+      "value": "ENVIRONMENT_INVALID",
+      "context": "Expected value of AdapterErrorCode.ENVIRONMENT_INVALID",
+      "line": 44,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "AdapterErrorCode.ENVIRONMENT_INVALID"
+    },
+    {
+      "value": "CONNECTION_FAILED",
+      "context": "Expected value of AdapterErrorCode.CONNECTION_FAILED",
+      "line": 51,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "AdapterErrorCode.CONNECTION_FAILED"
+    },
+    {
+      "value": "INVALID_RESPONSE",
+      "context": "Expected value of AdapterErrorCode.INVALID_RESPONSE",
+      "line": 57,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "AdapterErrorCode.INVALID_RESPONSE"
+    },
+    {
+      "value": "DEBUGGER_ERROR",
+      "context": "Expected value of AdapterErrorCode.DEBUGGER_ERROR",
+      "line": 62,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "AdapterErrorCode.DEBUGGER_ERROR"
+    },
+    {
+      "value": "UNKNOWN_ERROR",
+      "context": "Expected value of AdapterErrorCode.UNKNOWN_ERROR",
+      "line": 68,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "AdapterErrorCode.UNKNOWN_ERROR"
+    },
+    {
+      "value": "conditionalBreakpoints",
+      "context": "Expected value of DebugFeature.CONDITIONAL_BREAKPOINTS",
+      "line": 79,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "DebugFeature.CONDITIONAL_BREAKPOINTS"
+    },
+    {
+      "value": "AdapterError",
+      "context": "Expected error name property on AdapterError instance",
+      "line": 116,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "error.name"
+    },
+    {
+      "value": "dependency",
+      "context": "FeatureRequirement type discriminant value",
+      "line": 335,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "version",
+      "context": "FeatureRequirement type discriminant value",
+      "line": 347,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "configuration",
+      "context": "FeatureRequirement type discriminant value",
+      "line": 358,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "raised",
+      "context": "ExceptionBreakpointFilter filter identifier",
+      "line": 421,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "uncaught",
+      "context": "ExceptionBreakpointFilter filter identifier",
+      "line": 460,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "userUnhandled",
+      "context": "ExceptionBreakpointFilter filter identifier",
+      "line": 470,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

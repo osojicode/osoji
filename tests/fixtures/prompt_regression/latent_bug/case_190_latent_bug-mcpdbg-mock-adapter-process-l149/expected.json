@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "[re-triage: downgrade-to-info \u2014 claim as stated fails, pattern noted] Read setupTCPServer (L144-171), setupConnection (L173-179), and sendResponse/sendEvent (L749-759). Each new socket overwrites this.connection, and both send methods use it - so two concurrent clients WOULD cross responses. But this mock is spawned per session and connected once; concurrent connections don't occur, and the comments explicitly design for sequential reconnect. Failure state unreachable in actual usage -> not a current warning-level bug, but the single-connection assumption merits an info-level note (or a guard rejecting a second concurrent socket). DOWNGRADE to info. gray=true (defensible as FP since the mock is never driven by two clients).",
+  "gray": true,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-22",
+  "accepted": true
+}

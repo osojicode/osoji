@@ -1,0 +1,2587 @@
+{
+  "source": "tests/unit/proxy/dap-proxy-core.test.ts",
+  "source_hash": "f3989668adde0c5e",
+  "generated": "2026-07-22T22:06:45Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "vi",
+        "beforeEach",
+        "afterEach"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "../../../src/proxy/dap-proxy-core.js",
+      "names": [
+        "ProxyRunner",
+        "detectExecutionMode",
+        "shouldAutoExecute"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-core.ts"
+    },
+    {
+      "source": "../../../src/proxy/dap-proxy-interfaces.js",
+      "names": [
+        "ProxyState"
+      ],
+      "line": 10,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-interfaces.ts"
+    },
+    {
+      "source": "../../../src/proxy/dap-proxy-interfaces.js",
+      "names": [
+        "DapProxyDependencies",
+        "ILogger"
+      ],
+      "line": 11,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-interfaces.ts"
+    },
+    {
+      "source": "../../test-utils/mocks/fake-current-process.js",
+      "names": [
+        "FakeCurrentProcess"
+      ],
+      "line": 12,
+      "is_reexport": false,
+      "resolved_path": "tests/test-utils/mocks/fake-current-process.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "createMockDependencies",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 20,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "createMockDependencies",
+      "to": "vi.fn",
+      "line": 20,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "createMockDependencies",
+      "to": "vi.fn",
+      "line": 21,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "createMockDependencies",
+      "to": "vi.fn",
+      "line": 22,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "createMockDependencies",
+      "to": "vi.fn",
+      "line": 23,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "createMockDependencies",
+      "to": "vi.fn",
+      "line": 24,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "createMockDependencies",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 27,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "createMockDependencies",
+      "to": "vi.fn",
+      "line": 27,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "createMockDependencies",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 28,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "createMockDependencies",
+      "to": "vi.fn",
+      "line": 28,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "createMockDependencies",
+      "to": "vi.fn",
+      "line": 31,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "createMockDependencies",
+      "to": "vi.fn",
+      "line": 34,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "createMockDependencies",
+      "to": "vi.fn",
+      "line": 37,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "createMockLogger",
+      "to": "vi.fn",
+      "line": 44,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "createMockLogger",
+      "to": "vi.fn",
+      "line": 45,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "createMockLogger",
+      "to": "vi.fn",
+      "line": 46,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "createMockLogger",
+      "to": "vi.fn",
+      "line": 47,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 55,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 61,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockDependencies",
+      "line": 62,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 63,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "new FakeCurrentProcess().disableIPC",
+      "line": 65,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "FakeCurrentProcess",
+      "line": 65,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 68,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.stop",
+      "line": 70,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 74,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 75,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(runner).toBeDefined",
+      "line": 76,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 76,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 79,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 80,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(runner.getWorkerState()).toBe",
+      "line": 81,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 81,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.getWorkerState",
+      "line": 81,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 84,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 85,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.getWorker",
+      "line": 86,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(worker).toBeDefined",
+      "line": 87,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 87,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(typeof worker.handleCommand).toBe",
+      "line": 88,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 88,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 91,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 92,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 97,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.info).toHaveBeenCalledWith",
+      "line": 99,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 99,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 100,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 104,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 105,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 106,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(runner.start()).rejects.toThrow",
+      "line": 107,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 107,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 107,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 110,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 111,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.stop",
+      "line": 113,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 116,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 117,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 118,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.stop",
+      "line": 119,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.info).toHaveBeenCalledWith",
+      "line": 121,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 121,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 122,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 126,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 127,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 127,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 129,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 135,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(runner).toBeDefined",
+      "line": 139,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 139,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 147,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 148,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "detectExecutionMode",
+      "line": 149,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mode.hasIPC).toBe",
+      "line": 150,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 150,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 153,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "detectExecutionMode",
+      "line": 154,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mode.hasIPC).toBe",
+      "line": 155,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 155,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 158,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "detectExecutionMode",
+      "line": 159,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mode.isWorkerEnv).toBe",
+      "line": 160,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 160,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 163,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "detectExecutionMode",
+      "line": 164,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mode.isWorkerEnv).toBe",
+      "line": 165,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 165,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 173,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 174,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(shouldAutoExecute({ isDirectRun: true, hasIPC: false, isWorkerEnv: false })).toBe",
+      "line": 175,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 175,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "shouldAutoExecute",
+      "line": 175,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 178,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(shouldAutoExecute({ isDirectRun: false, hasIPC: true, isWorkerEnv: false })).toBe",
+      "line": 179,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 179,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "shouldAutoExecute",
+      "line": 179,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 182,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(shouldAutoExecute({ isDirectRun: false, hasIPC: false, isWorkerEnv: true })).toBe",
+      "line": 183,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 183,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "shouldAutoExecute",
+      "line": 183,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 186,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(shouldAutoExecute({ isDirectRun: false, hasIPC: false, isWorkerEnv: false })).toBe",
+      "line": 187,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 187,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "shouldAutoExecute",
+      "line": 187,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 195,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 201,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockDependencies",
+      "line": 202,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 203,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "FakeCurrentProcess",
+      "line": 204,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 207,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.stop",
+      "line": 209,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 213,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 214,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 215,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.listenerCount('message')).toBe",
+      "line": 217,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 217,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.listenerCount",
+      "line": 217,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.listenerCount('disconnect')).toBe",
+      "line": 218,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 218,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.listenerCount",
+      "line": 218,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.listenerCount('error')).toBe",
+      "line": 219,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 219,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.listenerCount",
+      "line": 219,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 222,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 223,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 223,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 225,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 226,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.lastListener",
+      "line": 228,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ipcHandler",
+      "line": 230,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(onMessage).toHaveBeenCalledWith",
+      "line": 231,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 231,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 234,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 235,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 235,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 237,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 238,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.lastListener",
+      "line": 240,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ipcHandler",
+      "line": 242,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(onMessage).toHaveBeenCalledWith",
+      "line": 243,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 243,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 243,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 246,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 247,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 247,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 249,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 250,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.lastListener",
+      "line": 252,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ipcHandler",
+      "line": 254,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 264,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(allLogged).not.toContain",
+      "line": 270,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 270,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(allLogged).not.toContain",
+      "line": 271,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 271,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 274,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 275,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 275,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 277,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 278,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.lastListener",
+      "line": 280,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ipcHandler",
+      "line": 282,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 291,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(allLogged).not.toContain",
+      "line": 297,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 297,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(allLogged).not.toContain",
+      "line": 298,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 298,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 301,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockRejectedValue",
+      "line": 302,
+      "call_sites": 47
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 302,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 302,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 304,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 305,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.lastListener",
+      "line": 307,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ipcHandler",
+      "line": 309,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 319,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(allLogged).not.toContain",
+      "line": 325,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 325,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(allLogged).not.toContain",
+      "line": 326,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 326,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 329,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 330,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 330,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 331,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.lastListener",
+      "line": 333,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ipcHandler",
+      "line": 335,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.warn).toHaveBeenCalledWith",
+      "line": 336,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 336,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 337,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 343,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 344,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 344,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 344,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 345,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.send!.mockClear",
+      "line": 348,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.lastListener",
+      "line": 350,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ipcHandler",
+      "line": 352,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.send).toHaveBeenCalledWith",
+      "line": 353,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 353,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 354,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 358,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 359,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 359,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 360,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.emit",
+      "line": 362,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 364,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 364,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.exit).toHaveBeenCalledWith",
+      "line": 366,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 366,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 369,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 370,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 370,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 371,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.emit",
+      "line": 373,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 373,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.error).toHaveBeenCalledWith",
+      "line": 374,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 374,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 375,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 376,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 385,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 391,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockDependencies",
+      "line": 392,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 393,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "new FakeCurrentProcess().disableIPC",
+      "line": 394,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "FakeCurrentProcess",
+      "line": 394,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 397,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.stop",
+      "line": 399,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 403,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 404,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 405,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.info).toHaveBeenCalledWith",
+      "line": 407,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 407,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 408,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 412,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 413,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 413,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 414,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 415,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.getWorker",
+      "line": 415,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.stdin.end",
+      "line": 418,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 420,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 420,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.warn).toHaveBeenCalledWith",
+      "line": 422,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 422,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 423,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(shutdownSpy).toHaveBeenCalled",
+      "line": 425,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 425,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.exit).toHaveBeenCalledWith",
+      "line": 426,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 426,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 429,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 430,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 430,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 431,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.stop",
+      "line": 432,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 435,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 435,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.exit).not.toHaveBeenCalled",
+      "line": 437,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 437,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.warn).not.toHaveBeenCalledWith",
+      "line": 438,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 438,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 439,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 448,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 454,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 455,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockDependencies",
+      "line": 456,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 457,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "FakeCurrentProcess",
+      "line": 458,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 461,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 462,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.stop",
+      "line": 464,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 468,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 469,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 469,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 470,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.send!.mockClear",
+      "line": 471,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTime",
+      "line": 473,
+      "call_sites": 25
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.send).toHaveBeenCalledWith",
+      "line": 474,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 474,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 475,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.send!.mockClear",
+      "line": 478,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTime",
+      "line": 479,
+      "call_sites": 25
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.send).toHaveBeenCalledWith",
+      "line": 480,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 480,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 481,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 485,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.failSendWith",
+      "line": 486,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 486,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 488,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 488,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 489,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 490,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.getWorker",
+      "line": 490,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 493,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.warn).toHaveBeenCalledWith",
+      "line": 495,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 495,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 496,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 497,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(shutdownSpy).toHaveBeenCalled",
+      "line": 499,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 499,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.exit).toHaveBeenCalledWith",
+      "line": 500,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 500,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.exit.mockClear",
+      "line": 503,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 504,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.exit).not.toHaveBeenCalled",
+      "line": 505,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 505,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 508,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.disableIPC",
+      "line": 509,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 511,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 512,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTime",
+      "line": 514,
+      "call_sites": 25
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.exit).toHaveBeenCalledWith",
+      "line": 515,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 515,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger.warn).toHaveBeenCalledWith",
+      "line": 516,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 516,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 517,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 521,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.disableIPC",
+      "line": 522,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 524,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.start",
+      "line": 525,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTime",
+      "line": 527,
+      "call_sites": 25
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.exit).not.toHaveBeenCalled",
+      "line": 528,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 528,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 536,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 542,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockDependencies",
+      "line": 543,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockLogger",
+      "line": 544,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "new FakeCurrentProcess().disableIPC",
+      "line": 547,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "FakeCurrentProcess",
+      "line": 547,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 550,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 551,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 552,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 552,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 553,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 553,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.setupGlobalErrorHandlers",
+      "line": 555,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.listenerCount('uncaughtException')).toBe",
+      "line": 557,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 557,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.listenerCount",
+      "line": 557,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.listenerCount('unhandledRejection')).toBe",
+      "line": 558,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 558,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.listenerCount",
+      "line": 558,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.listenerCount('SIGTERM')).toBe",
+      "line": 559,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 559,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.listenerCount",
+      "line": 559,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.listenerCount('SIGINT')).toBe",
+      "line": 560,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 560,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.listenerCount",
+      "line": 560,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 563,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 564,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 565,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 565,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 566,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 566,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.setupGlobalErrorHandlers",
+      "line": 568,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.emit",
+      "line": 570,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 570,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 571,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 571,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(deps.messageSender.send).toHaveBeenCalledWith",
+      "line": 573,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 573,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 574,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(shutdownFn).toHaveBeenCalled",
+      "line": 576,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 576,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.exit).toHaveBeenCalledWith",
+      "line": 577,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 577,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 580,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 581,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 582,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 582,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 583,
+      "call_sites": 199
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 583,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.setupGlobalErrorHandlers",
+      "line": 585,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.emit",
+      "line": 587,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise.resolve",
+      "line": 587,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(deps.messageSender.send).toHaveBeenCalledWith",
+      "line": 589,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 589,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 590,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.exit).not.toHaveBeenCalled",
+      "line": 592,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 592,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 595,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 596,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 597,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 597,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.setupGlobalErrorHandlers",
+      "line": 599,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 599,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.emit",
+      "line": 601,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 602,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 602,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(shutdownFn).toHaveBeenCalled",
+      "line": 604,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 604,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.exit).toHaveBeenCalledWith",
+      "line": 605,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 605,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 608,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ProxyRunner",
+      "line": 609,
+      "call_sites": 31
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 610,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 610,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "runner.setupGlobalErrorHandlers",
+      "line": 612,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 612,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.emit",
+      "line": 614,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 615,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 615,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(shutdownFn).toHaveBeenCalled",
+      "line": 617,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 617,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.exit).toHaveBeenCalledWith",
+      "line": 618,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 618,
+      "call_sites": 5808
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "Ready to receive commands",
+      "context": "Expected log message after ProxyRunner.start()",
+      "line": 100,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "logger.info"
+    },
+    {
+      "value": "already running",
+      "context": "Expected error message when start() called twice",
+      "line": 107,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "runner.start()"
+    },
+    {
+      "value": "Stopped",
+      "context": "Expected log message after ProxyRunner.stop()",
+      "line": 122,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "logger.info"
+    },
+    {
+      "value": "stdin/readline",
+      "context": "Expected log message when stdin mode is activated",
+      "line": 408,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "logger.info"
+    },
+    {
+      "value": "stdin closed",
+      "context": "Expected warning when stdin EOF occurs while running",
+      "line": 423,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "logger.warn"
+    },
+    {
+      "value": "ipc-heartbeat",
+      "context": "Message type sent as heartbeat acknowledgement per IPC message",
+      "line": 354,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "fakeProc.send"
+    },
+    {
+      "value": "ipc-heartbeat-tick",
+      "context": "Message type for periodic heartbeat tick sent every 5s",
+      "line": 475,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "fakeProc.send"
+    },
+    {
+      "value": "parent unreachable",
+      "context": "Warning logged when heartbeat tick send fails",
+      "line": 496,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "logger.warn"
+    },
+    {
+      "value": "No initialization received",
+      "context": "Warning logged when init timeout fires after 10s",
+      "line": 517,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "logger.warn"
+    },
+    {
+      "value": "unexpected type",
+      "context": "Warning logged when IPC message is neither string nor object",
+      "line": 337,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "logger.warn"
+    },
+    {
+      "value": "IPC channel error",
+      "context": "Error logged when proc emits error event on IPC",
+      "line": 375,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "logger.error"
+    },
+    {
+      "value": "DAP_PROXY_WORKER",
+      "context": "Env var key used to detect worker environment mode",
+      "line": 159,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "env"
+    }
+  ],
+  "extraction_method": "ast"
+}
