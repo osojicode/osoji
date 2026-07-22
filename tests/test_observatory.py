@@ -381,12 +381,12 @@ def test_bundle_doc_analysis_empty_when_no_docs(temp_dir):
     assert bundle["doc_analysis"] == {}
 
 
-def test_bundle_schema_version_is_1_3_0(temp_dir):
+def test_bundle_schema_version_is_1_4_0(temp_dir):
     _write_source(temp_dir, "main.py", "x = 1\n")
 
     bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
 
-    assert bundle["schema_version"] == "1.3.0"
+    assert bundle["schema_version"] == "1.4.0"
 
 
 def test_export_command_writes_bundle_file(temp_dir):
@@ -555,6 +555,68 @@ def test_audit_finding_with_origin_passes_through(temp_dir):
     assert len(file_node["audit_findings"]) == 1
     finding = file_node["audit_findings"][0]
     assert finding["origin"] == {"source": "static", "plugin": "eslint"}
+
+    schema = _load_schema()
+    jsonschema.validate(instance=bundle, schema=schema)
+
+
+def test_bundle_audit_findings_carry_triage_fields(temp_dir):
+    _write_source(temp_dir, "main.py", "x = 1\n")
+    _write_audit_result(temp_dir, [
+        {
+            "path": "main.py",
+            "severity": "warning",
+            "category": "dead_code",
+            "message": "Unused var",
+            "remediation": "Remove it",
+            "line_start": 1,
+            "line_end": 1,
+            "finding_id": "f-123",
+            "verdict": "true_positive",
+            "confidence": 0.9,
+            "triage_reasoning": "No references anywhere",
+            "suggested_fix": "Delete line 1",
+        }
+    ])
+
+    bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
+
+    file_node = _find_file_node(bundle["tree"], "main.py")
+    finding = file_node["audit_findings"][0]
+    assert finding["finding_id"] == "f-123"
+    assert finding["verdict"] == "true_positive"
+    assert finding["confidence"] == 0.9
+    assert finding["triage_reasoning"] == "No references anywhere"
+    assert finding["suggested_fix"] == "Delete line 1"
+    # Triage signal rides alongside the heuristic remediation, never replaces it.
+    assert finding["remediation"] == "Remove it"
+
+    schema = _load_schema()
+    jsonschema.validate(instance=bundle, schema=schema)
+
+
+def test_bundle_audit_findings_triage_fields_null_when_absent(temp_dir):
+    # Findings that never reached Triage (e.g. degraded phases) carry null.
+    _write_source(temp_dir, "main.py", "x = 1\n")
+    _write_audit_result(temp_dir, [
+        {
+            "path": "main.py",
+            "severity": "warning",
+            "category": "dead_code",
+            "message": "Unused var",
+            "remediation": "Remove it",
+            "line_start": 1,
+            "line_end": 1,
+        }
+    ])
+
+    bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
+
+    file_node = _find_file_node(bundle["tree"], "main.py")
+    finding = file_node["audit_findings"][0]
+    for key in ("finding_id", "verdict", "confidence", "triage_reasoning", "suggested_fix"):
+        assert key in finding
+        assert finding[key] is None
 
     schema = _load_schema()
     jsonschema.validate(instance=bundle, schema=schema)

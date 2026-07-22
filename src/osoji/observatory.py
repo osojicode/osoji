@@ -21,7 +21,7 @@ from .scorecard import merge_ranges
 from .walker import discover_directories, discover_files
 
 OBSERVATORY_SCHEMA_NAME = "osoji-observatory"
-OBSERVATORY_SCHEMA_VERSION = "1.3.0"
+OBSERVATORY_SCHEMA_VERSION = "1.4.0"
 _DEFAULT_OUTPUT_NAME = "observatory.json"
 _SEVERITY_ORDER = {"error": 0, "warning": 1, "info": 2}
 
@@ -138,6 +138,14 @@ def _load_audit_findings_by_path(config: Config) -> tuple[str, dict[str, list[di
             "remediation": issue.get("remediation"),
             "line_start": issue.get("line_start"),
             "line_end": issue.get("line_end"),
+            # Triage outputs ride alongside the heuristic `remediation`, never
+            # replacing it. Null when no decided Finding backs this issue
+            # (Triage never ran, or the seam degraded).
+            "finding_id": issue.get("finding_id"),
+            "verdict": issue.get("verdict"),
+            "confidence": issue.get("confidence"),
+            "triage_reasoning": issue.get("triage_reasoning"),
+            "suggested_fix": issue.get("suggested_fix"),
         }
         if "origin" in issue:
             finding["origin"] = issue["origin"]
