@@ -53,6 +53,11 @@ The main orchestration lives in `generate_shadow_docs_async()` in `src/osoji/sha
 - Uses `git ls-files` when available (respecting `.gitignore`)
 - Falls back to recursive glob when git is unavailable
 - Filters by configured extensions, ignore patterns, and `.osojiignore`
+- Drops paths matching `.osoji.toml`'s `[audit] exclude` globs (repo-relative
+  `fnmatch` patterns, e.g. `docs/archive/**`) in both the `git ls-files` and
+  rglob-fallback paths, alongside the corpus-snapshot exclusion — a
+  project-scoped, user-declared scope decision, not a built-in heuristic
+  (osojicode/work#90)
 - Skips the `.osoji/` directory (Osoji's own output)
 - Skips documentation candidates (identified by extension, filename, or parent directory)
 - Sorts results by depth, deepest first, for bottom-up processing
