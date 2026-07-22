@@ -581,3 +581,48 @@ def test_uncertain_verdict_never_rewritten():
     })
     assert f.verdict == "uncertain"
     assert "triage-guard" not in f.triage_reasoning
+
+
+# --- malformed verdict shapes (observed in live replays) --------------------
+
+
+@pytest.mark.asyncio
+async def test_completeness_validator_rejects_malformed_verdict_shapes(config):
+    # Live corpus replays observed models emitting the verdicts array
+    # JSON-encoded as one string, or entries as bare strings; the validator
+    # crashed (AttributeError) and the whole chunk's claims went undecided.
+    # Malformed shape must be a validation error (re-ask), never an exception.
+    claims = [Claim(make_finding(symbol="a"))]
+    provider = FakeProvider([
+        verdicts_result([{"batch_index": 0, "verdict": "confirmed", "confidence": 0.9, "reasoning": "x"}])
+    ])
+    triage = Triage(config, provider=provider)
+    await triage.decide_batch(claims, mode="claim")
+    validator = provider.calls[0]["options"].tool_input_validators[0]
+
+    as_string = validator("submit_triage_verdicts", {"verdicts": '[{"batch_index": 0}]'})
+    assert as_string and all(isinstance(e, str) for e in as_string)
+
+    entry_string = validator("submit_triage_verdicts", {"verdicts": ["confirmed"]})
+    assert entry_string and all(isinstance(e, str) for e in entry_string)
+
+    non_list = validator("submit_triage_verdicts", {"verdicts": 42})
+    assert non_list and all(isinstance(e, str) for e in non_list)
+
+
+@pytest.mark.asyncio
+async def test_malformed_verdict_entries_do_not_crash_the_batch(config):
+    # Defense in depth for the parse loop: if a malformed entry survives
+    # validation (provider without validator support), the batch must still
+    # decide the well-formed entries and leave the malformed one undecided.
+    claims = [Claim(make_finding(symbol="a")), Claim(make_finding(symbol="b"))]
+    provider = FakeProvider([
+        verdicts_result([
+            "confirmed",
+            {"batch_index": 1, "verdict": "dismissed", "confidence": 0.8, "reasoning": "used via dispatch"},
+        ])
+    ])
+    triage = Triage(config, provider=provider)
+    result = await triage.decide_batch(claims, mode="claim")
+    assert result.findings[0].verdict is None
+    assert result.findings[1].verdict == "dismissed"

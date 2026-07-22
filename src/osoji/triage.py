@@ -461,9 +461,27 @@ class Triage:
         def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
             if tool_name != "submit_triage_verdicts":
                 return []
-            by_index = {
-                v.get("batch_index"): v for v in tool_input.get("verdicts", [])
-            }
+            verdicts = tool_input.get("verdicts", [])
+            # Models occasionally emit the array JSON-encoded as one string,
+            # or entries as bare strings (observed in live corpus replays);
+            # malformed shape must re-ask, never raise.
+            if not isinstance(verdicts, list):
+                return [
+                    "'verdicts' must be a JSON array of verdict objects "
+                    f"(got {type(verdicts).__name__}); resubmit as structured objects"
+                ]
+            malformed = [
+                f"index {j} is a {type(v).__name__}"
+                for j, v in enumerate(verdicts)
+                if not isinstance(v, dict)
+            ]
+            if malformed:
+                return [
+                    "non-object entries in 'verdicts' ("
+                    + "; ".join(malformed)
+                    + "); every entry must be a verdict object"
+                ]
+            by_index = {v.get("batch_index"): v for v in verdicts}
             errors = [
                 f"Missing verdict for batch_index {i}" for i in range(n) if i not in by_index
             ]
@@ -502,7 +520,13 @@ class Triage:
         verdict_by_index: dict[int, dict] = {}
         for tc in result.tool_calls:
             if tc.name == "submit_triage_verdicts":
-                for v in tc.input.get("verdicts", []):
+                raw = tc.input.get("verdicts", [])
+                # Defense in depth behind the validator: a provider without
+                # validator support can still hand back malformed entries;
+                # skip them (undecided) rather than crash the whole batch.
+                for v in raw if isinstance(raw, list) else []:
+                    if not isinstance(v, dict):
+                        continue
                     bi = v.get("batch_index")
                     if bi is not None:
                         verdict_by_index[bi] = v
