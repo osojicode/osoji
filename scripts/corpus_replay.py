@@ -4,7 +4,7 @@ Thin argparse shell over ``eval_lib.py`` — all behavior (case selection,
 staging, claim building, the Triage decide loop, metrics, NDJSON framing)
 lives there; this module only parses arguments, calls into the library, and
 sets exit codes. Consumed standalone (a human replaying the corpus locally)
-and by the proctor corpus-replay harness (osojicode/work#63).
+and by the corpus-replay harness (osojicode/work#63).
 
 Examples::
 
