@@ -1032,6 +1032,16 @@ _TRIAGE_VERDICT_FIELDS = {
                        "literal. Emit 'other' when no class fits — a request for review, never "
                        "shoehorned into the nearest class. Omit for non-contract claims.",
     },
+    "gap_type": {
+        "type": "string",
+        "enum": ["description", "contract", "uncategorized"],
+        "description": "Claims whose header shows [uncategorized] only: which invariant "
+                       "class the claim's (alleged) gap violates — 'description' when the "
+                       "invariant is stated in an artifact (comment, docstring, type, doc), "
+                       "'contract' when it is an implicit cross-component agreement, "
+                       "'uncategorized' when neither can be stated. Omit for claims whose "
+                       "gap type is already known; such values are ignored.",
+    },
 }
 
 
