@@ -148,6 +148,18 @@ class _TSFileExtractor:
             return self._dotted(node.child_by_field_name("function"), through_call=True)
         return ""
 
+    def _base_name(self, node) -> str:
+        """Resolve a class base to a dotted name, unwrapping subscripted generics.
+
+        Mirror of the legacy ``_resolve_base_name``: ``class UserRepo(CRUDBase[User])``
+        must yield ``CRUDBase``. Base-name resolution only — decorator handling
+        stays on ``_dotted`` unchanged.
+        """
+        node = self._unwrap_parens(node)
+        if node is not None and node.type == "subscript":
+            return self._base_name(node.child_by_field_name("value"))
+        return self._dotted(node, through_call=True)
+
     def _is_exported(self, name: str) -> bool:
         if self.all_set is not None:
             return name in self.all_set
@@ -413,7 +425,7 @@ class _TSFileExtractor:
                 bases = [
                     b for base in superclasses.named_children
                     if base.type != "keyword_argument"
-                    and (b := self._dotted(base, through_call=True))
+                    and (b := self._base_name(base))
                 ]
             if bases:
                 export["bases"] = bases

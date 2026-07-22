@@ -699,6 +699,6 @@ class DeadCodeAnalyzer(JunkAnalyzer):
             ))
         return JunkAnalysisResult(
             findings=findings,
-            total_candidates=len(decided) + len(mechanical_keys),
+            total_candidates=len(decided),
             analyzer_name=self.name,
         )

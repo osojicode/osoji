@@ -476,7 +476,6 @@ Report findings with evidence from shadow docs. Always include the `findings` fi
 }
 
 
-# Tool definition for dead code verification (batch: array of verdicts)
 def _dict_to_tool_definition(tool_dict: dict[str, Any]) -> ToolDefinition:
     """Convert a tool dictionary to a ToolDefinition object."""
     return ToolDefinition(

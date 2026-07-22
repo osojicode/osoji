@@ -18,7 +18,7 @@ Usage (from the branch worktree; --root points at a checkout holding the
 corpus in .osoji/):
 
     PYTHONUTF8=1 python scripts/ab_v15e_debris_rubric.py \
-        --root C:/Users/johnf/projects/osoji \
+        --root /path/to/repo \
         --out scratch/ab-v15e-raw.json
 """
 
@@ -38,7 +38,7 @@ from dotenv import load_dotenv  # noqa: E402
 from osoji.claim_builder import build_debris_claims  # noqa: E402
 from osoji.config import Config  # noqa: E402
 from osoji.llm.runtime import create_runtime  # noqa: E402
-from osoji.triage import TRIAGE_SYSTEM_PROMPT, Triage  # noqa: E402
+from osoji.triage import TRIAGE_SYSTEM_PROMPT  # noqa: E402
 
 # Frozen copy of the legacy prompt this A/B retired (removed from triage.py by
 # the V1-5e flip) so the gate script stays runnable as a historical artifact.

@@ -116,7 +116,7 @@ def _norm_path(path: str | Path, root: str | Path | None = None) -> str:
     return posix[2:] if posix.startswith("./") else posix
 
 
-def finding_from_junk(jf: "JunkFinding", *, root: str | Path | None = None) -> Finding:
+def finding_from_junk(jf: "JunkFinding") -> Finding:
     """Convert a :class:`osoji.junk.JunkFinding` (reachability gaps) to a Finding."""
 
     category = jf.category
@@ -134,7 +134,7 @@ def finding_from_junk(jf: "JunkFinding", *, root: str | Path | None = None) -> F
     return Finding(
         detector=detector,
         gap_type=gap_type_for(category),
-        path=_norm_path(jf.source_path, root),
+        path=_norm_path(jf.source_path),
         line_start=jf.line_start,
         line_end=jf.line_end,
         symbol=jf.name,
@@ -149,7 +149,6 @@ def finding_from_dead_code_candidate(
     c: "DeadCodeCandidate",
     *,
     ast_proven: bool = False,
-    root: str | Path | None = None,
 ) -> Finding:
     """Convert a propose-time :class:`osoji.deadcode.DeadCodeCandidate` (V1-5a).
 
@@ -193,7 +192,7 @@ def finding_from_dead_code_candidate(
     return Finding(
         detector="deadcode:dead_symbol",
         gap_type="reachability",
-        path=_norm_path(c.source_path, root),
+        path=_norm_path(c.source_path),
         line_start=c.line_start,
         line_end=c.line_end,
         symbol=name,
@@ -211,8 +210,6 @@ def finding_from_dead_code_candidate(
 def finding_from_dead_param_candidate(
     c: "DeadParamCandidate",
     importers: list[str] | None = None,
-    *,
-    root: str | Path | None = None,
 ) -> Finding:
     """Convert a propose-time :class:`osoji.deadparam.DeadParamCandidate` (V1-5a).
 
@@ -235,8 +232,8 @@ def finding_from_dead_param_candidate(
         needles.append(func.rsplit(".", 1)[0])  # constructor calls: ClassName(...)
     call_site_files = sorted({s.file_path for s in c.call_sites})
     priority: list[str] = []
-    for p in [_norm_path(c.source_path, root), *call_site_files, *(importers or [])]:
-        norm = _norm_path(p, root)
+    for p in [_norm_path(c.source_path), *call_site_files, *(importers or [])]:
+        norm = _norm_path(p)
         if norm and norm not in priority:
             priority.append(norm)
     evidence = Evidence(
@@ -255,7 +252,7 @@ def finding_from_dead_param_candidate(
     return Finding(
         detector="deadparam:dead_parameter",
         gap_type="reachability",
-        path=_norm_path(c.source_path, root),
+        path=_norm_path(c.source_path),
         line_start=c.param_line,
         line_end=c.param_line,
         symbol=f"{func}.{c.param_name}",
@@ -286,11 +283,7 @@ def _dedup_needles(names: list[str], *, cap: int = _MAX_NEEDLES) -> list[str]:
     return out
 
 
-def finding_from_config_obligation(
-    o: "ConfigObligation",
-    *,
-    root: str | Path | None = None,
-) -> Finding:
+def finding_from_config_obligation(o: "ConfigObligation") -> Finding:
     """Convert a propose-time :class:`osoji.plumbing.ConfigObligation` (V1-5b).
 
     The candidate is the hypothesis "this schema field declares an obligation the
@@ -321,7 +314,7 @@ def finding_from_config_obligation(
     return Finding(
         detector="plumbing:unactuated_config",
         gap_type="reachability",
-        path=_norm_path(o.source_path, root),
+        path=_norm_path(o.source_path),
         line_start=o.line_start,
         line_end=o.line_end,
         symbol=field_name,
@@ -341,11 +334,7 @@ def finding_from_config_obligation(
     )
 
 
-def finding_from_orphan_candidate(
-    c: "OrphanCandidate",
-    *,
-    root: str | Path | None = None,
-) -> Finding:
+def finding_from_orphan_candidate(c: "OrphanCandidate") -> Finding:
     """Convert a propose-time :class:`osoji.junk_orphan.OrphanCandidate` (V1-5b).
 
     ``symbol`` is the bare filename (matches the legacy ``JunkFinding.name``). The
@@ -380,7 +369,7 @@ def finding_from_orphan_candidate(
     return Finding(
         detector="orphan:orphaned_file",
         gap_type="reachability",
-        path=_norm_path(c.source_path, root),
+        path=_norm_path(c.source_path),
         line_start=1,
         line_end=None,
         symbol=basename,
@@ -399,11 +388,7 @@ def finding_from_orphan_candidate(
     )
 
 
-def finding_from_dep_candidate(
-    c: "DependencyCandidate",
-    *,
-    root: str | Path | None = None,
-) -> Finding:
+def finding_from_dep_candidate(c: "DependencyCandidate") -> Finding:
     """Convert a propose-time :class:`osoji.junk_deps.DependencyCandidate` (V1-5b).
 
     Adapts from a *genuine* zero-import candidate (build tools / plugins / type
@@ -430,7 +415,7 @@ def finding_from_dep_candidate(
     return Finding(
         detector="deps:dead_dependency",
         gap_type="reachability",
-        path=_norm_path(c.manifest_path, root),
+        path=_norm_path(c.manifest_path),
         line_start=c.line_number,
         line_end=None,
         symbol=c.package_name,
@@ -449,11 +434,7 @@ def finding_from_dep_candidate(
     )
 
 
-def finding_from_cicd_candidate(
-    c: "CICDCandidate",
-    *,
-    root: str | Path | None = None,
-) -> Finding:
+def finding_from_cicd_candidate(c: "CICDCandidate") -> Finding:
     """Convert a propose-time :class:`osoji.junk_cicd.CICDCandidate` (V1-5b).
 
     The scan needles are the element/job/target name FIRST (catches another
@@ -481,7 +462,7 @@ def finding_from_cicd_candidate(
     return Finding(
         detector="cicd:dead_cicd",
         gap_type="reachability",
-        path=_norm_path(c.cicd_file, root),
+        path=_norm_path(c.cicd_file),
         line_start=c.line_start,
         line_end=c.line_end,
         symbol=c.element_name,
@@ -644,8 +625,8 @@ def findings_from_debris(
     """Convert a list of raw debris dicts to Findings.
 
     No ``valid`` filtering: ``shadow.py`` already drops ``valid: false`` findings
-    at write time (``shadow.py:526``), so persisted records carry no ``valid``
-    key. Re-checking it here would encode a phantom contract.
+    at write time (``shadow.py:526`` and ``shadow.py:868``), so persisted records
+    carry no ``valid`` key. Re-checking it here would encode a phantom contract.
     """
 
     return [finding_from_debris(d, root=root) for d in items]

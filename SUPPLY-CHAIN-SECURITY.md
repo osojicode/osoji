@@ -22,7 +22,8 @@ every PR, every time, without fatigue or shortcuts.
 
 - **Compromised dependencies.** A package in our dependency tree is backdoored
   or contains a known vulnerability (e.g. the litellm v1.82.7/v1.82.8
-  supply chain attack of March 2026).
+  supply chain attack of March 2026, which motivated this document; litellm
+  has since been removed entirely — osoji calls provider SDKs directly).
 - **Compromised agent instructions.** The instruction files that guide AI
   agents (CLAUDE.md, .claude/) are modified to instruct agents to introduce
   malicious code.
@@ -58,10 +59,9 @@ Three lock files enforce hash-pinned reproducibility across the CI lifecycle:
 |---------|---------|-------------|
 | SHA-256-hashed lock files | Reproducible, tamper-evident installs | CI installs every lock with `pip install --require-hashes`; registry tampering fails the install |
 | Lock freshness gate | Prevents drift between source (`pyproject.toml` or `requirements-tools.in`) and committed lock | Required status check: re-runs `uv pip compile` in place and fails if `git diff` shows any change |
-| pip-audit in CI | Catches known-vulnerable dependencies in what we ship and what CI executes | Required status check: `pip-audit -r requirements.lock -r requirements-dev.lock` — no suppression flags, real vulns fail CI |
+| pip-audit in CI | Catches known-vulnerable dependencies in what we ship and what CI executes | Required status check: two separate runs, `pip-audit -r requirements.lock` and `pip-audit -r requirements-dev.lock` (the locks pin different versions of shared transitive deps, so one combined env would conflict) — no suppression flags, real vulns fail CI |
 | Weekly scheduled pip-audit | Background monitoring between commits | Creates GitHub issue if vulnerabilities found |
 | Dependabot (pip + github-actions) | Automated update PRs for security patches | Weekly, creates PRs automatically |
-| `litellm` bound in `pyproject.toml` | Excludes compromised 1.82.7/1.82.8 range and pre-fix 1.83.0–1.83.6 | Dependency resolver rejects affected versions |
 
 ### Build and publish integrity
 
@@ -192,5 +192,5 @@ Security posture is monitored through:
 - **OpenSSF Scorecard** — weekly third-party assessment (badge on README)
 - **Scheduled pip-audit** — weekly background scan, auto-creates issues
 - **Dependabot** — weekly dependency update PRs
-- **Adversarial PR review** — every PR reviewed for security concerns
+- **Instruction-file flagging** — CI labels PRs that touch control-plane files (CLAUDE.md, `.claude/`, workflows) for elevated scrutiny
 - **Pre-commit safety checks** — blocks secrets and personal paths at commit time

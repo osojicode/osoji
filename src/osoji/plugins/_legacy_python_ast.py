@@ -67,6 +67,17 @@ def _decorator_name(node: ast.expr) -> str:
     return ""
 
 
+def _resolve_base_name(node: ast.expr) -> str:
+    """Resolve a class base to a dotted name, unwrapping subscripted generics.
+
+    ``class UserRepo(CRUDBase[User])`` must yield ``CRUDBase`` — dropping the
+    base would sever the inheritance edge dead-code liveness propagation needs.
+    """
+    if isinstance(node, ast.Subscript):
+        return _resolve_base_name(node.value)
+    return _decorator_name(node)
+
+
 def _has_framework_decorator(decorators: list[ast.expr]) -> bool:
     """Return True if any decorator indicates framework/convention usage."""
     for dec in decorators:
@@ -278,7 +289,7 @@ class _FileExtractor(ast.NodeVisitor):
                 "decorators": _decorator_names(node.decorator_list),
                 "exclude_from_dead_analysis": _has_framework_decorator(node.decorator_list),
             }
-            bases = [n for b in node.bases if (n := _decorator_name(b))]
+            bases = [n for b in node.bases if (n := _resolve_base_name(b))]
             if bases:
                 export["bases"] = bases
             self.exports.append(export)

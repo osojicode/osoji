@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from .config import Config, SHADOW_DIR

@@ -9,7 +9,6 @@ import pytest
 from osoji.config import Config
 from osoji.llm.types import CompletionResult, ToolCall
 from osoji.plumbing import (
-    ConfigObligation,
     detect_dead_plumbing_async,
     extract_obligations_async,
 )
