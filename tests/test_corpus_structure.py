@@ -184,6 +184,81 @@ def test_no_absolute_or_traversal_paths_in_case_finding_or_evidence():
 
 
 # ---------------------------------------------------------------------------
+# No nested fixture snapshots inside a case's source/ (osojicode/work#85)
+# ---------------------------------------------------------------------------
+
+# A case's ``source/`` is a mini-repo snapshot the audit walker captured. When
+# the repo it snapshotted was osoji's OWN tree, the walker swept the committed
+# corpus/bootstrap fixtures back into the snapshot, embedding whole fixture
+# trees under ``source/``. That both pollutes replay evidence (mechanism 1 of
+# work#85) and — because the nesting multiplies path depth — pushes committed
+# paths past Windows MAX_PATH, breaking ``git clone``/``git worktree add`` on
+# any checkout without ``core.longpaths``. These tests are the structural guard
+# against re-committing such snapshots.
+
+# Marker directories whose appearance ANYWHERE under a case's source/ means a
+# frozen copy of the corpus or bootstrap fixture tree leaked into the snapshot.
+_NESTED_SNAPSHOT_MARKERS = (
+    ("tests", "fixtures", "prompt_regression"),
+    ("tests", "fixtures", "bootstrap"),
+)
+
+# Every committed path is resolved on a fresh clone as ``<repo-root-abs>/<this>``.
+# Bounding the repo-root-relative path here leaves headroom under Windows
+# MAX_PATH (260) for the absolute repo-root prefix a clone/worktree prepends.
+_MAX_REPO_RELATIVE_PATH_LEN = 180
+
+
+def _has_nested_marker(rel_parts: tuple[str, ...]) -> bool:
+    """True if ``rel_parts`` (a case-source-relative path) descends through a
+    ``tests/fixtures/prompt_regression`` or ``tests/fixtures/bootstrap`` dir."""
+
+    for marker in _NESTED_SNAPSHOT_MARKERS:
+        n = len(marker)
+        for i in range(len(rel_parts) - n + 1):
+            if rel_parts[i : i + n] == marker:
+                return True
+    return False
+
+
+def test_no_nested_fixture_snapshots_under_case_source():
+    violations = []
+    for case_json_path in _case_json_paths():
+        source_dir = case_json_path.parent / "source"
+        if not source_dir.is_dir():
+            continue
+        for p in source_dir.rglob("*"):
+            if not p.is_file():
+                continue
+            rel_parts = p.relative_to(source_dir).parts
+            if _has_nested_marker(rel_parts):
+                violations.append(str(p.relative_to(REPO_ROOT).as_posix()))
+
+    assert not violations, (
+        "nested fixture snapshots leaked into case source/ trees "
+        "(osojicode/work#85 evidence pollution):\n" + "\n".join(sorted(violations))
+    )
+
+
+def test_no_case_path_exceeds_windows_safe_length():
+    violations = []
+    for case_json_path in _case_json_paths():
+        case_dir = case_json_path.parent
+        for p in case_dir.rglob("*"):
+            if not p.is_file():
+                continue
+            rel = p.relative_to(REPO_ROOT).as_posix()
+            if len(rel) > _MAX_REPO_RELATIVE_PATH_LEN:
+                violations.append(f"{len(rel)} chars: {rel}")
+
+    assert not violations, (
+        f"committed corpus paths exceed {_MAX_REPO_RELATIVE_PATH_LEN} chars "
+        "(Windows MAX_PATH headroom, osojicode/work#85):\n"
+        + "\n".join(sorted(violations, reverse=True))
+    )
+
+
+# ---------------------------------------------------------------------------
 # rebuild-policy cases carry a non-empty source/
 # ---------------------------------------------------------------------------
 
