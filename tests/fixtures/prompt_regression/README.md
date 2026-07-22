@@ -12,7 +12,7 @@ This directory holds two different kinds of fixtures:
    (numbered from `case_101` up) that carry a `case.json`. These are the V1-7
    evaluator's fixture corpus (osojicode/work#35): a growing set of real,
    human-adjudicated findings that prompt and pipeline changes get measured
-   against, replayed by `corpus_replay.py` (osojicode/work#67), the proctor
+   against, replayed by `corpus_replay.py` (osojicode/work#67), the
    corpus-replay harness (osojicode/work#63), and the GEPA adapter
    (osojicode/work#68). This README documents the three formats those tools
    share; `scripts/eval_lib.py` is the library that reads and writes them, and
@@ -215,6 +215,13 @@ nobody else can audit or replay a decision that isn't in the tree.
 Triage under one or more prompt variants, and writes `osoji-verdict/1`
 NDJSON. It spends real LLM tokens — `--gate-check` is the only mode that
 doesn't (no provider is constructed, no API key is needed).
+
+Standalone `python scripts/corpus_replay.py` does **not** load `.env` — the
+provider's API key env var must already be exported in the shell. The
+`pytest --evaluate` path (`test_corpus_evaluate` in
+`tests/test_prompt_regression.py`) auto-loads `.env` via
+`tests/conftest.py`'s `load_dotenv()`, so a key placed there is picked up
+without exporting it manually.
 
 ```bash
 # Is the corpus big enough and split-covered for a GEPA run yet?

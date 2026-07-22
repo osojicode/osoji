@@ -658,10 +658,11 @@ async def test_corpus_evaluate(tmp_path, evaluate_mode, evaluate_out):
     conftest.py's ``--evaluate``/``--evaluate-out`` options and the
     collection hook that deselects every OTHER test in this file once
     --evaluate is passed, so this is the only thing that runs). Spends real
-    LLM tokens against the whole corpus in one variant/one repeat — never
-    fires in the default suite or in CI, and skips before any provider is
-    constructed when the corpus is empty or --evaluate wasn't
-    passed, so it needs no API key in either of those cases.
+    LLM tokens replaying the live, populated corpus in one variant/one
+    repeat — cost scales with corpus size, not a fixed budget. Never fires
+    in the default suite or in CI; skips before any provider is constructed
+    when --evaluate wasn't passed, or (defensively) if the corpus were ever
+    empty, so it needs no API key in either of those cases.
     """
     if not evaluate_mode:
         pytest.skip("pass --evaluate to run the corpus evaluator (opt-in, live LLM calls)")

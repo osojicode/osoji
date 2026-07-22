@@ -1,7 +1,9 @@
 """Tests for audit result formatting, serialization, and scorecard construction."""
 
+import asyncio
 import json
 from pathlib import Path
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -16,9 +18,12 @@ from osoji.audit import (
     format_audit_html,
     format_audit_json,
     format_audit_report,
+    run_audit_async,
     serialize_audit_result,
     load_audit_result,
 )
+from osoji.config import Config
+from osoji.doc_analysis import DocAnalysisResult, DocFinding
 from osoji.junk import JunkAnalysisResult, JunkFinding
 from osoji.scorecard import CoverageEntry, JunkCodeEntry, Scorecard
 
@@ -776,6 +781,34 @@ class TestErrorReportSuggestedFix:
 
         assert "Suggested fix (triage)" not in report
 
+    def test_suggested_fix_line_suppressed_when_identical_to_remediation(self):
+        """A triage suggested_fix that byte-matches remediation is redundant —
+        don't print the text twice."""
+        result = AuditResult(issues=[
+            AuditIssue(
+                path=Path("src/x.py"), severity="error", category="debris",
+                message="dead code", remediation="remove it",
+                verdict="confirmed", confidence=0.87, suggested_fix="remove it",
+            ),
+        ])
+
+        report = format_audit_report(result)
+
+        assert "Suggested fix (triage)" not in report
+
+    def test_suggested_fix_line_present_when_differing_from_remediation(self):
+        result = AuditResult(issues=[
+            AuditIssue(
+                path=Path("src/x.py"), severity="error", category="debris",
+                message="dead code", remediation="remove it",
+                verdict="confirmed", confidence=0.87, suggested_fix="delete lines 10-12",
+            ),
+        ])
+
+        report = format_audit_report(result)
+
+        assert "**Suggested fix (triage)**: delete lines 10-12" in report
+
     def test_html_report_shows_suggested_fix_on_doc_errors(self):
         scorecard = _minimal_scorecard(
             accuracy_by_category={"doc_stale_content": 1},
@@ -796,6 +829,26 @@ class TestErrorReportSuggestedFix:
 
         assert "Suggested fix (triage)" in html
         assert "change X to Y in the README" in html
+
+    def test_html_report_suppresses_suggested_fix_identical_to_remediation(self):
+        scorecard = _minimal_scorecard(
+            accuracy_by_category={"doc_stale_content": 1},
+            total_accuracy_errors=1, live_doc_count=1, accuracy_errors_per_doc=1.0,
+        )
+        result = AuditResult(
+            issues=[
+                AuditIssue(
+                    path=Path("README.md"), severity="error", category="doc_stale_content",
+                    message="doc says X", remediation="update the doc",
+                    suggested_fix="update the doc",
+                ),
+            ],
+            scorecard=scorecard,
+        )
+
+        html = format_audit_html(result)
+
+        assert "Suggested fix (triage)" not in html
 
 
 class TestJunkResultsSerializeFindingIdAndVerdict:
@@ -1041,3 +1094,73 @@ class TestInferVariableType:
             "`options.field` issue",
         )
         assert result == []
+
+
+# --- Phase 2 collection: debris items skip their raw findings (osojicode/work#77) ---
+
+class TestPhase2CollectionSkipsDebrisFindings:
+    """`_triage_doc_findings` (doc_analysis.py) deliberately never triages a
+    debris-classified result's findings, so they stay raw, untriaged
+    proposals. The Phase 2 collection loop in ``run_audit_async`` must not
+    ship those raw proposals as audit issues -- a debris item contributes
+    exactly the one debris error. A non-debris result in the same run still
+    ships its (triaged) findings normally."""
+
+    def test_debris_item_contributes_only_the_debris_issue(self, temp_dir):
+        config = Config(root_path=temp_dir, respect_gitignore=False, quiet=True)
+        raw_finding = DocFinding(
+            category="stale_content",
+            severity="warning",
+            description="raw untriaged proposal for a file marked for deletion",
+            shadow_ref="src/old.py",
+            evidence="def legacy(): ...",
+            remediation="update the doc",
+        )
+        triaged_finding = DocFinding(
+            category="incorrect_content",
+            severity="error",
+            description="README says the flag is --foo but the code uses --bar",
+            shadow_ref="src/cli.py",
+            evidence="def main(): --bar",
+            remediation="Update the README",
+            verdict="confirmed",
+            confidence=0.9,
+            triage_reasoning="contradiction confirmed",
+            finding_id="f1",
+        )
+        analysis_results = [
+            DocAnalysisResult(
+                path=Path("docs/old-plan.md"),
+                classification="process_artifact",
+                confidence=0.9,
+                classification_reason="superseded planning doc",
+                findings=[raw_finding],
+            ),
+            DocAnalysisResult(
+                path=Path("docs/guide.md"),
+                classification="how-to",
+                confidence=0.9,
+                classification_reason="doc",
+                findings=[triaged_finding],
+            ),
+        ]
+
+        with patch("osoji.audit._run_phase2_async", AsyncMock(return_value=(analysis_results, (0, 0)))):
+            result = asyncio.run(run_audit_async(config, fix_shadow=False))
+
+        doc_issues = [i for i in result.issues if i.exclude_key == "doc-analysis"]
+        assert len(doc_issues) == 2  # one debris error + one triaged finding, nothing more
+
+        debris_issue = next(i for i in doc_issues if i.category == "debris")
+        assert debris_issue.path == Path("docs/old-plan.md")
+        assert debris_issue.severity == "error"
+        assert "superseded planning doc" in debris_issue.message
+
+        # The raw untriaged proposal attached to the debris item must not leak.
+        assert not any("raw untriaged proposal" in i.message for i in doc_issues)
+
+        # The non-debris result's triaged finding still ships, fields intact.
+        live_issue = next(i for i in doc_issues if i.category == "doc_incorrect_content")
+        assert live_issue.path == Path("docs/guide.md")
+        assert live_issue.finding_id == "f1"
+        assert live_issue.verdict == "confirmed"

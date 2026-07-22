@@ -592,6 +592,13 @@ def corpus() -> None:
 @click.option("--gray", is_flag=True, help="Mark the case gray (a genuinely debatable verdict)")
 @click.option("--include", "include", multiple=True, metavar="REL", help="Extra repo-relative file to snapshot (repeatable)")
 @click.option(
+    "--exclude",
+    "exclude",
+    multiple=True,
+    metavar="REL_OR_GLOB",
+    help="Repo-relative path or fnmatch glob to drop from the evidence-derived file set before the file cap (repeatable)",
+)
+@click.option(
     "--dest",
     type=click.Path(path_type=Path),
     default=None,
@@ -606,6 +613,7 @@ def corpus_emit(
     reasoning: str | None,
     gray: bool,
     include: tuple[str, ...],
+    exclude: tuple[str, ...],
     dest: Path | None,
     language: str | None,
 ) -> None:
@@ -627,6 +635,7 @@ def corpus_emit(
             reasoning=reasoning,
             gray=gray,
             include=include,
+            exclude=exclude,
             language=language,
         )
     except CorpusEmitError as exc:
