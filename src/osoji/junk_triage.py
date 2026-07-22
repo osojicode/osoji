@@ -33,6 +33,7 @@ from .claim_builder import build_claims
 from .config import Config
 from .evidence_builders import BuildContext
 from .findings import Finding
+from .llm.errors import classify_permanent_error
 from .triage import TRIAGE_SYSTEM_PROMPT, Claim, Triage
 
 #: Max claims per Triage call. V1-4 measured 12 claims/call as reliable on the
@@ -74,6 +75,10 @@ async def decide_junk_claims(
     # cache short-circuits Triage for unchanged findings and its harvest
     # collects decided verdicts for the audit-manifest rewrite.
     session = getattr(config, "verdict_session", None)
+    # #160: the orchestrator may attach a shared circuit breaker. Once a
+    # permanent (billing/auth) error trips it, remaining chunks short-circuit
+    # (kept undecided) instead of issuing calls that will fail identically.
+    breaker = getattr(config, "provider_circuit_breaker", None)
 
     # Keep same-file claims adjacent (shared context reads batch better), then
     # pack greedily into bounded chunks; chunks may span files — claims are
@@ -91,6 +96,11 @@ async def decide_junk_claims(
     lock = asyncio.Lock()
 
     async def decide(indices: list[int], *, allow_bisect: bool = True) -> None:
+        # Circuit already open: don't issue a doomed call; keep undecided.
+        if breaker is not None and breaker.tripped:
+            for i in indices:
+                results[i] = claims[i].finding
+            return
         chunk = [claims[i] for i in indices]
         try:
             batch = await triage.decide_batch(
@@ -100,6 +110,15 @@ async def decide_junk_claims(
                 verdict_cache=session.cache if session is not None else None,
             )
         except Exception as exc:
+            # A permanent (billing/auth) failure will recur on every retry:
+            # trip the breaker and keep this chunk undecided without bisecting.
+            permanent = classify_permanent_error(exc)
+            if permanent is not None:
+                if breaker is not None:
+                    breaker.trip(permanent)
+                for i in indices:
+                    results[i] = claims[i].finding
+                return
             if allow_bisect and len(indices) > 1:
                 mid = len(indices) // 2
                 await decide(indices[:mid], allow_bisect=False)

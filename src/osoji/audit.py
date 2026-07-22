@@ -27,6 +27,8 @@ from .shadow import check_shadow_docs, generate_shadow_docs_async
 from .doc_analysis import analyze_docs_async
 from .junk_cicd import discover_cicd_files
 from .llm.runtime import create_runtime
+from .llm.errors import ProviderCircuitBreaker, classify_permanent_error
+from .llm.types import ProviderPermanentError
 from .scorecard import CoverageEntry, JunkCodeEntry, Scorecard, build_scorecard
 from .walker import _matches_ignore
 # V1-3: Phase 3 debris verification runs through the unified Triage stage. The
@@ -184,6 +186,44 @@ def _record_degradation(config: Config, phase: str, exc: Exception) -> None:
     degradations = getattr(config, "audit_degradations", None)
     if degradations is not None:
         degradations.append({"phase": phase, "error": str(exc)})
+
+
+def _phase_result_or_degrade(config: Config, phase: str, outcome: Any, default: Any) -> Any:
+    """Unwrap a ``return_exceptions`` gather result, degrading on failure.
+
+    A phase that raised (an unhandled provider/analysis error escaping its own
+    best-effort handling) is recorded as degraded and its empty ``default`` is
+    substituted so the rest of the audit still serializes. A permanent
+    (billing/auth) failure also trips the shared circuit breaker (belt and
+    suspenders — the provider layer normally trips it first).
+    """
+    if isinstance(outcome, BaseException):
+        if not isinstance(outcome, Exception):
+            raise outcome  # never swallow KeyboardInterrupt/CancelledError
+        permanent = classify_permanent_error(outcome)
+        breaker = getattr(config, "provider_circuit_breaker", None)
+        if permanent is not None and breaker is not None:
+            breaker.trip(permanent)
+        _record_degradation(config, phase, outcome)
+        return default
+    return outcome
+
+
+def _note_breaker_degradation(config: Config, phase: str) -> None:
+    """Record ``phase`` as degraded when the shared circuit breaker is tripped.
+
+    decide_junk_claims absorbs a permanent (billing/auth) error to keep its
+    findings (best-effort) rather than raising, so the phase's own ``except``
+    never fires. This attributes the tripped breaker to the phase that ran the
+    doomed LLM work, once — so degraded_phases names it. Idempotent per phase.
+    """
+    breaker = getattr(config, "provider_circuit_breaker", None)
+    if breaker is None or not breaker.tripped:
+        return
+    degradations = getattr(config, "audit_degradations", None)
+    if degradations is None or any(d["phase"] == phase for d in degradations):
+        return
+    degradations.append({"phase": phase, "error": str(breaker.error)})
 
 
 def _degraded_phases(config: Config) -> list[str] | None:
@@ -418,6 +458,11 @@ async def run_audit_async(
     # decided findings here (see triage.py); serialized below as the
     # decided-findings ledger that `osoji corpus emit` reads.
     config.decided_ledger = []
+    # #160: shared circuit breaker. create_runtime hands it to every phase's
+    # provider; the first permanent (billing/auth) error trips it so remaining
+    # LLM work short-circuits, and the run still reaches the terminal
+    # serialization path before exiting nonzero with the billing cause.
+    config.provider_circuit_breaker = ProviderCircuitBreaker()
 
     # Shared rate limiter across all phases so token budgets are tracked globally
     rate_limiter = RateLimiter(get_config_with_overrides(config.provider or "anthropic"))
@@ -490,9 +535,19 @@ async def run_audit_async(
     phase3_5_coro = _run_phase3_5_async(config, obligations and not skip_obligations, rate_limiter, verbose)
     phase4_coro = _noop_phase4() if not enabled_flags else _run_phase4_async(config, rate_limiter, enabled_flags, progress_cb, verbose)
 
-    phase2_raw, phase3_raw, phase3_5_raw, phase4_raw = (
-        await asyncio.gather(phase2_coro, phase3_coro, phase3_5_coro, phase4_coro)
+    # #160: gather with return_exceptions so one phase crashing (e.g. an
+    # unhandled provider error in doc-analysis or a junk analyzer) never aborts
+    # the run before serialization — the crashed phase is recorded as degraded
+    # and substituted with its empty default so every other phase's completed
+    # work is still collected and serialized below.
+    gathered = await asyncio.gather(
+        phase2_coro, phase3_coro, phase3_5_coro, phase4_coro,
+        return_exceptions=True,
     )
+    phase2_raw = _phase_result_or_degrade(config, "doc-analysis", gathered[0], ([], (0, 0)))
+    phase3_raw = _phase_result_or_degrade(config, "debris", gathered[1], (set(), (0, 0), {}))
+    phase3_5_raw = _phase_result_or_degrade(config, "obligations", gathered[2], ([], (0, 0), 0, 0))
+    phase4_raw = _phase_result_or_degrade(config, "junk", gathered[3], ({}, {}))
     analysis_results, phase2_tokens = phase2_raw
     debris_result, phase3_tokens, debris_decided = phase3_raw
     obligation_findings, phase3_5_tokens, contract_triaged, contract_other = phase3_5_raw
@@ -793,6 +848,15 @@ async def run_audit_async(
         "findings": config.decided_ledger,
     })
 
+    # #160: everything above serialized this run's completed analysis (audit
+    # result, scorecard with degraded_phases, decided-findings ledger). Only
+    # now, with the terminal path done, surface a permanent provider failure so
+    # the CLI exits nonzero with a message naming the billing/auth cause instead
+    # of returning a silently-partial success.
+    breaker = getattr(config, "provider_circuit_breaker", None)
+    if breaker is not None and breaker.tripped:
+        raise breaker.error
+
     return result
 
 
@@ -899,6 +963,9 @@ async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
                 rate = would_escalate / eligible_total if eligible_total else 0.0
                 _emit(config, f"  {would_escalate} eligible finding(s) lacked gatherable evidence "
                               f"(would-escalate; kept unverified; escalation rate {rate:.1%})")
+            # #160: decide_junk_claims absorbs a permanent error to keep findings
+            # (it never raises here), so attribute a tripped breaker to this phase.
+            _note_breaker_degradation(config, "debris-triage")
         except Exception as exc:
             # Triage is best-effort; on failure, keep all findings — but the
             # degradation must be recorded and visible.
@@ -994,6 +1061,9 @@ async def _run_phase3_5_async(config, obligations_enabled, rate_limiter, verbose
                 if df.verdict == "dismissed":
                     continue                                # dismissed = false positive -> suppress
                 kept.append(_overlay_verdict(cf, df))       # confirmed OR unverified(None) kept
+            # #160: decide_junk_claims absorbs a permanent error to keep findings
+            # (it never raises here), so attribute a tripped breaker to this phase.
+            _note_breaker_degradation(config, "obligations-triage")
         except Exception as exc:
             kept = contract_findings                        # best-effort: keep all, unverified
             _record_degradation(config, "obligations-triage", exc)
