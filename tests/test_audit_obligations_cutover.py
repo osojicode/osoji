@@ -268,6 +268,14 @@ def test_provider_failure_keeps_findings_unverified(temp_dir):
     assert findings[0].finding_type == "implicit_contract"
     assert findings[0].contract_class is None
     assert (triaged, other) == (0, 0)
+    # The claim's id is assigned at propose time (independent of Triage), so
+    # it survives the chunk failure; the actual Triage-decided outputs do not.
+    f = findings[0]
+    assert f.finding_id is not None
+    assert f.verdict is None
+    assert f.triage_confidence is None
+    assert f.triage_reasoning is None
+    assert f.suggested_fix is None
 
 
 def test_provider_failure_records_obligations_triage_degradation(temp_dir):
@@ -291,6 +299,13 @@ def test_provider_failure_records_obligations_triage_degradation(temp_dir):
     assert len(findings) == 1  # best-effort: kept, unverified
     assert (triaged, other) == (0, 0)
     assert config.audit_degradations == [{"phase": "obligations-triage", "error": "boom"}]
+    # Degradation is recorded, but the finding's Triage fields stay unset.
+    f = findings[0]
+    assert f.finding_id is None
+    assert f.verdict is None
+    assert f.triage_confidence is None
+    assert f.triage_reasoning is None
+    assert f.suggested_fix is None
 
 
 def test_claim_call_uses_unified_triage_prompt(temp_dir):

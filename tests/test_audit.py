@@ -781,6 +781,34 @@ class TestErrorReportSuggestedFix:
 
         assert "Suggested fix (triage)" not in report
 
+    def test_suggested_fix_line_suppressed_when_identical_to_remediation(self):
+        """A triage suggested_fix that byte-matches remediation is redundant —
+        don't print the text twice."""
+        result = AuditResult(issues=[
+            AuditIssue(
+                path=Path("src/x.py"), severity="error", category="debris",
+                message="dead code", remediation="remove it",
+                verdict="confirmed", confidence=0.87, suggested_fix="remove it",
+            ),
+        ])
+
+        report = format_audit_report(result)
+
+        assert "Suggested fix (triage)" not in report
+
+    def test_suggested_fix_line_present_when_differing_from_remediation(self):
+        result = AuditResult(issues=[
+            AuditIssue(
+                path=Path("src/x.py"), severity="error", category="debris",
+                message="dead code", remediation="remove it",
+                verdict="confirmed", confidence=0.87, suggested_fix="delete lines 10-12",
+            ),
+        ])
+
+        report = format_audit_report(result)
+
+        assert "**Suggested fix (triage)**: delete lines 10-12" in report
+
     def test_html_report_shows_suggested_fix_on_doc_errors(self):
         scorecard = _minimal_scorecard(
             accuracy_by_category={"doc_stale_content": 1},
@@ -801,6 +829,26 @@ class TestErrorReportSuggestedFix:
 
         assert "Suggested fix (triage)" in html
         assert "change X to Y in the README" in html
+
+    def test_html_report_suppresses_suggested_fix_identical_to_remediation(self):
+        scorecard = _minimal_scorecard(
+            accuracy_by_category={"doc_stale_content": 1},
+            total_accuracy_errors=1, live_doc_count=1, accuracy_errors_per_doc=1.0,
+        )
+        result = AuditResult(
+            issues=[
+                AuditIssue(
+                    path=Path("README.md"), severity="error", category="doc_stale_content",
+                    message="doc says X", remediation="update the doc",
+                    suggested_fix="update the doc",
+                ),
+            ],
+            scorecard=scorecard,
+        )
+
+        html = format_audit_html(result)
+
+        assert "Suggested fix (triage)" not in html
 
 
 class TestJunkResultsSerializeFindingIdAndVerdict:
