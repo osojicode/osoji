@@ -1,6 +1,8 @@
 """Click CLI for Osoji."""
 
 import asyncio
+import json
+import shutil
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -9,6 +11,7 @@ import click
 from dotenv import load_dotenv
 
 from .audit import run_audit, format_audit_report, format_audit_json, format_audit_html, load_audit_result
+from .closure import closure_to_dict, compute_closure, format_table, load_issues
 from .config import Config
 from .corpus_emit import CorpusEmitError, emit_case, resolve_dest
 from .diff import run_diff, format_diff_report, format_diff_json
@@ -455,6 +458,74 @@ def report(ctx: click.Context, path: Path, output_format: str) -> None:
 
     if not result.passed:
         raise SystemExit(1)
+
+
+@main.command()
+@click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
+@click.option(
+    "--baseline",
+    "baseline_path",
+    type=click.Path(dir_okay=False, path_type=Path),
+    default=None,
+    help="Baseline audit result to diff against (default: .osoji/audit-baseline.json)",
+)
+@click.option(
+    "--snapshot",
+    is_flag=True,
+    help="Copy the current audit result to the baseline and exit (records a new baseline)",
+)
+@click.option("--format", "output_format", type=click.Choice(["text", "json"]), default="text", help="Output format")
+@click.pass_context
+def verify(
+    ctx: click.Context,
+    path: Path,
+    baseline_path: Path | None,
+    snapshot: bool,
+    output_format: str,
+) -> None:
+    """Verify findings closed since the baseline (zero-LLM closure diff).
+
+    Diffs a snapshotted baseline audit result against the most recent
+    'osoji audit' result and buckets prior findings into closed,
+    closed_by_dismissal, still_open, and new. Exits nonzero while anything is
+    still open. No LLM calls are made.
+
+    Run 'osoji verify --snapshot' after a baseline audit to record the
+    baseline, apply fixes, re-run 'osoji audit', then 'osoji verify'.
+    """
+    state = _cli_state(ctx)
+    config = Config(root_path=path.resolve(), verbose=state.verbose, quiet=state.quiet)
+    current_path = config.analysis_root / "audit-result.json"
+    default_baseline = config.audit_baseline_path
+
+    if snapshot:
+        if not current_path.exists():
+            raise click.ClickException("No current audit result to snapshot. Run 'osoji audit' first.")
+        default_baseline.parent.mkdir(parents=True, exist_ok=True)
+        # Byte-for-byte copy — preserves the exact serialization (and its line
+        # endings) rather than reserializing.
+        shutil.copyfile(current_path, default_baseline)
+        if not config.quiet:
+            click.echo(f"Baseline snapshot written to {default_baseline}")
+        return
+
+    baseline = baseline_path or default_baseline
+    if not baseline.exists():
+        raise click.ClickException(
+            f"No baseline at {baseline}. Run 'osoji verify --snapshot' after a baseline audit."
+        )
+    if not current_path.exists():
+        raise click.ClickException("No current audit result. Run 'osoji audit' first.")
+
+    diff = compute_closure(load_issues(baseline), load_issues(current_path))
+
+    if output_format == "json":
+        click.echo(json.dumps(closure_to_dict(diff), indent=2))
+    else:
+        click.echo(format_table(diff))
+
+    if diff.exit_code:
+        raise SystemExit(diff.exit_code)
 
 
 @main.command()
