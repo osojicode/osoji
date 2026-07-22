@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install --require-hashes -r requirements-dev.lock
+      - run: pip install -e "." --no-deps
+      - run: pytest -m "not prompt_regression and not live_smoke"
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        with:
+          python-version: "3.13"
+      # CI tooling (pip-audit, uv) installed with hash verification —
+      # no unverified code runs in a context that has secret access.
+      - run: pip install --require-hashes -r requirements-tools.lock
+      # Audit both project lock files. Scoped to what we ship (runtime) and
+      # what our CI executes (dev); excludes the runner's system pip and CI
+      # tooling (hash-pinned above).
+      #
+      # Two separate invocations because the runtime and dev locks pin
+      # different versions of shared transitive deps (dev extras change
+      # resolution), so combining them into one pip-audit env triggers a
+      # dependency conflict before any auditing happens.
+      - name: Audit runtime dependencies
+        run: pip-audit -r requirements.lock
+      - name: Audit dev dependencies
+        run: pip-audit -r requirements-dev.lock
+      # Regenerate locks in place. `uv pip compile` uses the existing target
+      # as a stability reference, so in-place regen is deterministic — any
+      # change indicates the committed lock is out of sync with its source.
+      - name: Verify requirements.lock is fresh (runtime deps)
+        run: |
+          uv pip compile pyproject.toml --generate-hashes --universal -o requirements.lock --quiet
+          if ! git diff --quiet requirements.lock; then
+            echo "::error::requirements.lock is out of sync with pyproject.toml"
+            echo "Run: uv pip compile pyproject.toml --generate-hashes --universal -o requirements.lock"
+            git diff requirements.lock | head -50
+            exit 1
+          fi
+      - name: Verify requirements-dev.lock is fresh (runtime + dev deps)
+        run: |
+          uv pip compile pyproject.toml --extra dev --generate-hashes --universal -o requirements-dev.lock --quiet
+          if ! git diff --quiet requirements-dev.lock; then
+            echo "::error::requirements-dev.lock is out of sync with pyproject.toml"
+            echo "Run: uv pip compile pyproject.toml --extra dev --generate-hashes --universal -o requirements-dev.lock"
+            git diff requirements-dev.lock | head -50
+            exit 1
+          fi
+      - name: Verify requirements-tools.lock is fresh (CI tooling)
+        run: |
+          uv pip compile requirements-tools.in --generate-hashes --universal -o requirements-tools.lock --quiet
+          if ! git diff --quiet requirements-tools.lock; then
+            echo "::error::requirements-tools.lock is out of sync with requirements-tools.in"
+            echo "Run: uv pip compile requirements-tools.in --generate-hashes --universal -o requirements-tools.lock"
+            git diff requirements-tools.lock | head -50
+            exit 1
+          fi

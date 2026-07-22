@@ -1,0 +1,346 @@
+{
+  "source": "src/osoji/junk.py",
+  "source_hash": "c4381da6096891fe",
+  "generated": "2026-07-22T10:55:06Z",
+  "imports": [
+    {
+      "source": "asyncio",
+      "names": [
+        "asyncio"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "abc",
+      "names": [
+        "ABC",
+        "abstractmethod"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "field"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Any",
+        "Callable"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config",
+        "SHADOW_DIR"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.base",
+      "names": [
+        "LLMProvider"
+      ],
+      "line": 14,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.runtime",
+      "names": [
+        "create_runtime"
+      ],
+      "line": 15,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "JunkFinding",
+      "kind": "class",
+      "line": 19,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JunkFinding.__post_init__",
+      "kind": "function",
+      "line": 42,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JunkAnalysisResult",
+      "kind": "class",
+      "line": 51,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JunkAnalyzer",
+      "kind": "class",
+      "line": 59,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "ABC"
+      ]
+    },
+    {
+      "name": "JunkAnalyzer.name",
+      "kind": "function",
+      "line": 68,
+      "decorators": [
+        "property",
+        "abstractmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "JunkAnalyzer.description",
+      "kind": "function",
+      "line": 74,
+      "decorators": [
+        "property",
+        "abstractmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "JunkAnalyzer.cli_flag",
+      "kind": "function",
+      "line": 80,
+      "decorators": [
+        "property",
+        "abstractmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "JunkAnalyzer.analyze_async",
+      "kind": "function",
+      "line": 85,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "JunkAnalyzer.analyze",
+      "kind": "function",
+      "line": 103,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "validate_line_ranges",
+      "kind": "function",
+      "line": 125,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "load_shadow_content",
+      "kind": "function",
+      "line": 147,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "JunkFinding",
+      "to": "field",
+      "line": 33,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JunkFinding.__post_init__",
+      "to": "ValueError",
+      "line": 44,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JunkAnalyzer.analyze",
+      "to": "symbols_dir.exists",
+      "line": 109,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JunkAnalyzer.analyze",
+      "to": "print",
+      "line": 110,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JunkAnalyzer.analyze",
+      "to": "JunkAnalysisResult",
+      "line": 111,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "JunkAnalyzer.analyze._run",
+      "to": "create_runtime",
+      "line": 114,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "JunkAnalyzer.analyze._run",
+      "to": "self.analyze_async",
+      "line": 116,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JunkAnalyzer.analyze._run",
+      "to": "logging_provider.close",
+      "line": 120,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JunkAnalyzer.analyze",
+      "to": "asyncio.run",
+      "line": 122,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JunkAnalyzer.analyze",
+      "to": "_run",
+      "line": 122,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "validate_line_ranges",
+      "to": "tool_input.get",
+      "line": 132,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "validate_line_ranges",
+      "to": "isinstance",
+      "line": 133,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "validate_line_ranges",
+      "to": "enumerate",
+      "line": 135,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "validate_line_ranges",
+      "to": "isinstance",
+      "line": 136,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "validate_line_ranges",
+      "to": "item.get",
+      "line": 138,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "validate_line_ranges",
+      "to": "item.get",
+      "line": 139,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "validate_line_ranges",
+      "to": "errors.append",
+      "line": 141,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_shadow_content",
+      "to": "shadow_path.exists",
+      "line": 153,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_shadow_content",
+      "to": "shadow_path.read_text",
+      "line": 155,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "llm_inferred",
+      "line": 32,
+      "usage": "defined",
+      "context": "constant confidence_source",
+      "kind": "identifier"
+    },
+    {
+      "value": "findings",
+      "line": 131,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "items",
+      "line": 131,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "obligations",
+      "line": 131,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "line_start",
+      "line": 138,
+      "usage": "produced",
+      "context": "argument to item.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "line_end",
+      "line": 139,
+      "usage": "produced",
+      "context": "argument to item.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 155,
+      "usage": "produced",
+      "context": "keyword argument to shadow_path.read_text"
+    },
+    {
+      "value": "ast_proven",
+      "context": "Documented alternative value for confidence_source (in comment)",
+      "line": 32,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "heuristic",
+      "context": "Documented alternative value for confidence_source (in comment)",
+      "line": 32,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

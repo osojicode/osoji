@@ -1,0 +1,1307 @@
+{
+  "source": "src/osoji/findings_adapter.py",
+  "source_hash": "0b8e50ebf510d16e",
+  "generated": "2026-07-22T10:56:18Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 24,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path",
+        "PurePosixPath"
+      ],
+      "line": 26,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "TYPE_CHECKING",
+        "Any"
+      ],
+      "line": 27,
+      "is_reexport": false
+    },
+    {
+      "source": ".evidence",
+      "names": [
+        "Evidence"
+      ],
+      "line": 29,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings",
+      "names": [
+        "Finding",
+        "GapType"
+      ],
+      "line": 30,
+      "is_reexport": false
+    },
+    {
+      "source": ".deadcode",
+      "names": [
+        "DeadCodeCandidate"
+      ],
+      "line": 33,
+      "is_reexport": false
+    },
+    {
+      "source": ".deadparam",
+      "names": [
+        "DeadParamCandidate"
+      ],
+      "line": 34,
+      "is_reexport": false
+    },
+    {
+      "source": ".doc_analysis",
+      "names": [
+        "DocFinding"
+      ],
+      "line": 35,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk",
+      "names": [
+        "JunkFinding"
+      ],
+      "line": 36,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk_cicd",
+      "names": [
+        "CICDCandidate"
+      ],
+      "line": 37,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk_deps",
+      "names": [
+        "DependencyCandidate"
+      ],
+      "line": 38,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk_orphan",
+      "names": [
+        "OrphanCandidate"
+      ],
+      "line": 39,
+      "is_reexport": false
+    },
+    {
+      "source": ".obligations",
+      "names": [
+        "ContractFinding"
+      ],
+      "line": 40,
+      "is_reexport": false
+    },
+    {
+      "source": ".plumbing",
+      "names": [
+        "ConfigObligation"
+      ],
+      "line": 41,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "CATEGORY_TO_GAP_TYPE",
+      "kind": "constant",
+      "line": 57,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "gap_type_for",
+      "kind": "function",
+      "line": 95,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "finding_from_junk",
+      "kind": "function",
+      "line": 119,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "finding_from_dead_code_candidate",
+      "kind": "function",
+      "line": 148,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "finding_from_dead_param_candidate",
+      "kind": "function",
+      "line": 211,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "finding_from_config_obligation",
+      "kind": "function",
+      "line": 289,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "finding_from_orphan_candidate",
+      "kind": "function",
+      "line": 344,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "finding_from_dep_candidate",
+      "kind": "function",
+      "line": 402,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "finding_from_cicd_candidate",
+      "kind": "function",
+      "line": 452,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "finding_from_contract",
+      "kind": "function",
+      "line": 504,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "finding_from_doc",
+      "kind": "function",
+      "line": 564,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "finding_from_debris",
+      "kind": "function",
+      "line": 604,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "findings_from_debris",
+      "kind": "function",
+      "line": 639,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "gap_type_for",
+      "to": "CATEGORY_TO_GAP_TYPE.get",
+      "line": 98,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "Path",
+      "line": 109,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "p.is_absolute",
+      "line": 110,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "p.relative_to",
+      "line": 112,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "Path",
+      "line": 112,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "as_posix",
+      "line": 115,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "PurePosixPath",
+      "line": 115,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "replace",
+      "line": 115,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "str",
+      "line": 115,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_norm_path",
+      "to": "posix.startswith",
+      "line": 116,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "finding_from_junk",
+      "to": "_JUNK_PRODUCER.get",
+      "line": 123,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "finding_from_junk",
+      "to": "Evidence",
+      "line": 124,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "finding_from_junk",
+      "to": "dict",
+      "line": 131,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "finding_from_junk",
+      "to": "Finding",
+      "line": 134,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "finding_from_junk",
+      "to": "gap_type_for",
+      "line": 136,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "finding_from_junk",
+      "to": "_norm_path",
+      "line": 137,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "finding_from_dead_code_candidate",
+      "to": "name.rsplit",
+      "line": 168,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "finding_from_dead_code_candidate",
+      "to": "sorted",
+      "line": 169,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "finding_from_dead_code_candidate",
+      "to": "Evidence",
+      "line": 182,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "finding_from_dead_code_candidate",
+      "to": "Finding",
+      "line": 193,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "finding_from_dead_code_candidate",
+      "to": "_norm_path",
+      "line": 196,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "finding_from_dead_param_candidate",
+      "to": "func.rsplit",
+      "line": 232,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "finding_from_dead_param_candidate",
+      "to": "needles.append",
+      "line": 235,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "finding_from_dead_param_candidate",
+      "to": "func.rsplit",
+      "line": 235,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "finding_from_dead_param_candidate",
+      "to": "sorted",
+      "line": 236,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "finding_from_dead_param_candidate",
+      "to": "_norm_path",
+      "line": 238,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "finding_from_dead_param_candidate",
+      "to": "_norm_path",
+      "line": 239,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "finding_from_dead_param_candidate",
+      "to": "priority.append",
+      "line": 241,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "finding_from_dead_param_candidate",
+      "to": "Evidence",
+      "line": 242,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "finding_from_dead_param_candidate",
+      "to": "len",
+      "line": 249,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "finding_from_dead_param_candidate",
+      "to": "Finding",
+      "line": 255,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "finding_from_dead_param_candidate",
+      "to": "_norm_path",
+      "line": 258,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "finding_from_dead_param_candidate",
+      "to": "len",
+      "line": 268,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_dedup_needles",
+      "to": "out.append",
+      "line": 283,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_dedup_needles",
+      "to": "len",
+      "line": 284,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "finding_from_config_obligation",
+      "to": "_dedup_needles",
+      "line": 307,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_config_obligation",
+      "to": "Evidence",
+      "line": 308,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "finding_from_config_obligation",
+      "to": "Finding",
+      "line": 321,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "finding_from_config_obligation",
+      "to": "_norm_path",
+      "line": 324,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "finding_from_orphan_candidate",
+      "to": "PurePosixPath",
+      "line": 364,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "finding_from_orphan_candidate",
+      "to": "c.source_path.replace",
+      "line": 364,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "finding_from_orphan_candidate",
+      "to": "_dedup_needles",
+      "line": 367,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_orphan_candidate",
+      "to": "list",
+      "line": 367,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "finding_from_orphan_candidate",
+      "to": "Evidence",
+      "line": 368,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "finding_from_orphan_candidate",
+      "to": "list",
+      "line": 374,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "finding_from_orphan_candidate",
+      "to": "list",
+      "line": 375,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "finding_from_orphan_candidate",
+      "to": "Finding",
+      "line": 380,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "finding_from_orphan_candidate",
+      "to": "_norm_path",
+      "line": 383,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "finding_from_dep_candidate",
+      "to": "_dedup_needles",
+      "line": 417,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_dep_candidate",
+      "to": "list",
+      "line": 417,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "finding_from_dep_candidate",
+      "to": "Evidence",
+      "line": 418,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "finding_from_dep_candidate",
+      "to": "list",
+      "line": 422,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "finding_from_dep_candidate",
+      "to": "Finding",
+      "line": 430,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "finding_from_dep_candidate",
+      "to": "_norm_path",
+      "line": 433,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "finding_from_dep_candidate",
+      "to": "list",
+      "line": 441,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "finding_from_cicd_candidate",
+      "to": "PurePosixPath",
+      "line": 467,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "finding_from_cicd_candidate",
+      "to": "_dedup_needles",
+      "line": 468,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_cicd_candidate",
+      "to": "Evidence",
+      "line": 469,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "finding_from_cicd_candidate",
+      "to": "list",
+      "line": 476,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "finding_from_cicd_candidate",
+      "to": "Finding",
+      "line": 481,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "finding_from_cicd_candidate",
+      "to": "_norm_path",
+      "line": 484,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "finding_from_cicd_candidate",
+      "to": "list",
+      "line": 491,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "join",
+      "line": 518,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "cf.evidence.items",
+      "line": 518,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "list",
+      "line": 519,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "cf.evidence.get",
+      "line": 519,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "cf.evidence.get",
+      "line": 527,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "cf.evidence.get",
+      "line": 528,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "cf.evidence.get",
+      "line": 529,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "_norm_path",
+      "line": 533,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "priority_paths.append",
+      "line": 535,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "Evidence",
+      "line": 536,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "dict",
+      "line": 545,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "Finding",
+      "line": 550,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "finding_from_contract",
+      "to": "_norm_path",
+      "line": 553,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "finding_from_doc",
+      "to": "Evidence",
+      "line": 575,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "finding_from_doc",
+      "to": "list",
+      "line": 581,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "finding_from_doc",
+      "to": "list",
+      "line": 587,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "finding_from_doc",
+      "to": "Finding",
+      "line": 590,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "finding_from_doc",
+      "to": "gap_type_for",
+      "line": 592,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "finding_from_doc",
+      "to": "_norm_path",
+      "line": 593,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "Evidence",
+      "line": 616,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "d.get",
+      "line": 620,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "d.get",
+      "line": 621,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "d.get",
+      "line": 622,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "Finding",
+      "line": 625,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "gap_type_for",
+      "line": 627,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "_norm_path",
+      "line": 628,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "str",
+      "line": 628,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "d.get",
+      "line": 628,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "d.get",
+      "line": 628,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "d.get",
+      "line": 629,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "finding_from_debris",
+      "to": "d.get",
+      "line": 630,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "findings_from_debris",
+      "to": "finding_from_debris",
+      "line": 651,
+      "call_sites": 6
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "reachability",
+      "line": 59,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 60,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 61,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 62,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 63,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 64,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 65,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 66,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "contract",
+      "line": 70,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "contract",
+      "line": 71,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "description",
+      "line": 73,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "description",
+      "line": 74,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "description",
+      "line": 75,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "description",
+      "line": 76,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "description",
+      "line": 77,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "description",
+      "line": 78,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "description",
+      "line": 79,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "description",
+      "line": 80,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "deadcode",
+      "line": 86,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "deadparam",
+      "line": 87,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "plumbing",
+      "line": 88,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "deps",
+      "line": 89,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "cicd",
+      "line": 90,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "orphan",
+      "line": 91,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "uncategorized",
+      "line": 98,
+      "usage": "produced",
+      "context": "argument to CATEGORY_TO_GAP_TYPE.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "./",
+      "line": 116,
+      "usage": "produced",
+      "context": "argument to posix.startswith"
+    },
+    {
+      "value": "junk",
+      "line": 123,
+      "usage": "produced",
+      "context": "argument to _JUNK_PRODUCER.get"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 125,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "FactsDB AST graph shows zero cross-file references to the symbol; all importers of the defining file have AST-extracted facts.",
+      "line": 172,
+      "usage": "defined",
+      "context": "constant observed"
+    },
+    {
+      "value": "Reference scan found no external file referencing the symbol.",
+      "line": 176,
+      "usage": "defined",
+      "context": "constant observed"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 183,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "deadcode:dead_symbol",
+      "line": 194,
+      "usage": "produced",
+      "context": "keyword argument to Finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 195,
+      "usage": "produced",
+      "context": "keyword argument to Finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "symbol declaration",
+      "line": 200,
+      "usage": "produced",
+      "context": "keyword argument to Finding"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 243,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "deadparam:dead_parameter",
+      "line": 256,
+      "usage": "produced",
+      "context": "keyword argument to Finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 257,
+      "usage": "produced",
+      "context": "keyword argument to Finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "function signature",
+      "line": 262,
+      "usage": "produced",
+      "context": "keyword argument to Finding"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 309,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "plumbing:unactuated_config",
+      "line": 322,
+      "usage": "produced",
+      "context": "keyword argument to Finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 323,
+      "usage": "produced",
+      "context": "keyword argument to Finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "config schema field",
+      "line": 328,
+      "usage": "produced",
+      "context": "keyword argument to Finding"
+    },
+    {
+      "value": "Reference scan gathers where the field is read across the repo; a site that only stores, passes, restructures, or logs the value does not enforce it \u2014 actuation requires code that uses it to cause the declared effect.",
+      "line": 335,
+      "usage": "produced",
+      "context": "keyword argument to Finding"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 369,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "orphan:orphaned_file",
+      "line": 381,
+      "usage": "produced",
+      "context": "keyword argument to Finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 382,
+      "usage": "produced",
+      "context": "keyword argument to Finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "project file",
+      "line": 387,
+      "usage": "produced",
+      "context": "keyword argument to Finding"
+    },
+    {
+      "value": "Reference scan sweeps the repo for the file's name and exported symbols; hits (dynamic import, config/CI reference, convention loader) show it is still reached, while zero hits over a real scan scope support the orphan verdict.",
+      "line": 393,
+      "usage": "produced",
+      "context": "keyword argument to Finding"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 419,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "deps:dead_dependency",
+      "line": 431,
+      "usage": "produced",
+      "context": "keyword argument to Finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 432,
+      "usage": "produced",
+      "context": "keyword argument to Finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "dependency manifest",
+      "line": 437,
+      "usage": "produced",
+      "context": "keyword argument to Finding"
+    },
+    {
+      "value": "Import scan found zero import matches; the reference sweep gathers any non-import textual use (config files, scripts) so the LLM can judge build-tool/plugin/CLI liveness before confirming dead.",
+      "line": 444,
+      "usage": "produced",
+      "context": "keyword argument to Finding"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 470,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "cicd:dead_cicd",
+      "line": 482,
+      "usage": "produced",
+      "context": "keyword argument to Finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 483,
+      "usage": "produced",
+      "context": "keyword argument to Finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "CI/CD element",
+      "line": 488,
+      "usage": "produced",
+      "context": "keyword argument to Finding"
+    },
+    {
+      "value": "Path-existence check already found the referenced paths missing; the reference sweep gathers repo mentions of the element name and script names so the LLM can judge external-target / dynamic-discovery / phony-target liveness (missing paths are the primary but not dispositive signal).",
+      "line": 494,
+      "usage": "produced",
+      "context": "keyword argument to Finding"
+    },
+    {
+      "value": "values",
+      "line": 519,
+      "usage": "produced",
+      "context": "argument to cf.evidence.get"
+    },
+    {
+      "value": "producer_files",
+      "line": 527,
+      "usage": "produced",
+      "context": "argument to cf.evidence.get"
+    },
+    {
+      "value": "checker_files",
+      "line": 528,
+      "usage": "produced",
+      "context": "argument to cf.evidence.get"
+    },
+    {
+      "value": "definer_files",
+      "line": 529,
+      "usage": "produced",
+      "context": "argument to cf.evidence.get"
+    },
+    {
+      "value": "(no producer found)",
+      "line": 531,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "p",
+      "kind": "identifier"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 537,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "contract",
+      "line": 552,
+      "usage": "produced",
+      "context": "keyword argument to Finding",
+      "kind": "identifier"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 576,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 617,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "severity",
+      "line": 620,
+      "usage": "produced",
+      "context": "argument to d.get"
+    },
+    {
+      "value": "suggestion",
+      "line": 621,
+      "usage": "produced",
+      "context": "argument to d.get"
+    },
+    {
+      "value": "cross_file_verification_needed",
+      "line": 622,
+      "usage": "produced",
+      "context": "argument to d.get"
+    },
+    {
+      "value": "source",
+      "line": 628,
+      "usage": "produced",
+      "context": "argument to d.get"
+    },
+    {
+      "value": "source_path",
+      "line": 628,
+      "usage": "produced",
+      "context": "argument to d.get"
+    },
+    {
+      "value": "line_start",
+      "line": 629,
+      "usage": "produced",
+      "context": "argument to d.get"
+    },
+    {
+      "value": "line_end",
+      "line": 630,
+      "usage": "produced",
+      "context": "argument to d.get"
+    },
+    {
+      "value": "code",
+      "line": 632,
+      "usage": "produced",
+      "context": "keyword argument to Finding"
+    },
+    {
+      "value": "dead_code",
+      "context": "Category key in CATEGORY_TO_GAP_TYPE",
+      "line": 59,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "latent_bug",
+      "context": "Category intentionally absent from CATEGORY_TO_GAP_TYPE (comment at L81), maps to uncategorized",
+      "line": 81,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "ast",
+      "context": "scan type in evidence payload when ast_proven=True",
+      "line": 187,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "grep",
+      "context": "scan type in evidence payload when ast_proven=False",
+      "line": 187,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

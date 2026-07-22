@@ -1,0 +1,524 @@
+{
+  "source": "scripts/ab_v15e_debris_rubric.py",
+  "source_hash": "11d191a6e7971c3b",
+  "generated": "2026-07-22T10:55:43Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 25,
+      "is_reexport": false
+    },
+    {
+      "source": "argparse",
+      "names": [
+        "argparse"
+      ],
+      "line": 27,
+      "is_reexport": false
+    },
+    {
+      "source": "asyncio",
+      "names": [
+        "asyncio"
+      ],
+      "line": 28,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 29,
+      "is_reexport": false
+    },
+    {
+      "source": "sys",
+      "names": [
+        "sys"
+      ],
+      "line": 30,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 31,
+      "is_reexport": false
+    },
+    {
+      "source": "dotenv",
+      "names": [
+        "load_dotenv"
+      ],
+      "line": 36,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.claim_builder",
+      "names": [
+        "build_debris_claims"
+      ],
+      "line": 38,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.config",
+      "names": [
+        "Config"
+      ],
+      "line": 39,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.runtime",
+      "names": [
+        "create_runtime"
+      ],
+      "line": 40,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.triage",
+      "names": [
+        "TRIAGE_SYSTEM_PROMPT",
+        "Triage"
+      ],
+      "line": 41,
+      "is_reexport": false
+    },
+    {
+      "source": "measure_debris_cutover",
+      "names": [
+        "load_debris_ignoring_impl_hash"
+      ],
+      "line": 71,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.junk_triage",
+      "names": [
+        "decide_junk_claims"
+      ],
+      "line": 103,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "REPO_ROOT",
+      "kind": "constant",
+      "line": 33,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DEBRIS_TRIAGE_SYSTEM_PROMPT",
+      "kind": "constant",
+      "line": 45,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "main",
+      "kind": "function",
+      "line": 126,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "resolve",
+      "line": 33,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Path",
+      "line": 33,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sys.path.insert",
+      "line": 34,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "str",
+      "line": 34,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sys.path.insert",
+      "line": 70,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "str",
+      "line": 70,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "create_runtime",
+      "line": 105,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "decide_junk_claims",
+      "line": 107,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "list",
+      "line": 108,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "provider.close",
+      "line": 111,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "sum",
+      "line": 112,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "print",
+      "line": 113,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "len",
+      "line": 114,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "_finding_row",
+      "line": 122,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "argparse.ArgumentParser",
+      "line": 127,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "parser.add_argument",
+      "line": 128,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "parser.add_argument",
+      "line": 129,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "parser.parse_args",
+      "line": 130,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "load_dotenv",
+      "line": 132,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "Path",
+      "line": 132,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "main",
+      "to": "Config",
+      "line": 134,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "main",
+      "to": "Path",
+      "line": 135,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "main",
+      "to": "load_debris_ignoring_impl_hash",
+      "line": 140,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "build_debris_claims",
+      "line": 141,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 142,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "main",
+      "to": "len",
+      "line": 143,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "main",
+      "to": "len",
+      "line": 143,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "main",
+      "to": "SystemExit",
+      "line": 148,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "asyncio.run",
+      "line": 150,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "_run_side",
+      "line": 150,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "asyncio.run",
+      "line": 151,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "_run_side",
+      "line": 151,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "zip",
+      "line": 154,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "changed.append",
+      "line": 157,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "len",
+      "line": 169,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "main",
+      "to": "len",
+      "line": 171,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "main",
+      "to": "Path",
+      "line": 176,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "main",
+      "to": "out_path.parent.mkdir",
+      "line": 177,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "out_path.write_text",
+      "line": 178,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "json.dumps",
+      "line": 178,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 179,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "main",
+      "to": "len",
+      "line": 179,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "main",
+      "to": "len",
+      "line": 179,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 181,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 183,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "main",
+      "line": 187,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "You are a code quality auditor verifying whether code debris findings are genuine or false positives.\n\nEach finding was generated by analyzing a single file in isolation. You are now given cross-file\nevidence from the project's facts database. Your job is to determine whether the cross-file\nreferences represent genuine usage of the flagged symbol/field.\n\nGuidelines:\n- An import that accesses or sets the flagged field/symbol = genuine usage \u2192 DISMISS\n- A call to the flagged function from another module = genuine usage \u2192 DISMISS\n- A comment mentioning the name, a string literal with the same text, or a different\n  symbol that happens to share the name = NOT genuine usage \u2192 CONFIRM the finding\n- If references are ambiguous, lean toward CONFIRMING (keep the finding)\n- For latent_bug findings: check whether cross-file evidence shows the type actually HAS\n  the accessed attribute/method. If evidence confirms the attribute exists, DISMISS.\n  If evidence is absent or ambiguous, CONFIRM.\n- For union/sum types (e.g., TypeScript `A | B`, Python `Union[A, B]`), check whether\n  the NARROWED variant (after a discriminant guard or early return) has the attribute \u2014\n  not whether the full union type has it. If the code checks a discriminant field and\n  then accesses a member specific to the narrowed variant, DISMISS the finding.\n- When type/class definition source code is provided, use it as authoritative\n  evidence of the type's fields, methods, and default values.\n\nProvide a verdict for EVERY finding listed.",
+      "line": 45,
+      "usage": "defined",
+      "context": "constant DEBRIS_TRIAGE_SYSTEM_PROMPT"
+    },
+    {
+      "value": "--root",
+      "line": 128,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "checkout holding .osoji/ with the corpus",
+      "line": 128,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "--out",
+      "line": 129,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "scratch/ab-v15e-raw.json",
+      "line": 129,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument",
+      "kind": "identifier"
+    },
+    {
+      "value": "anthropic",
+      "line": 136,
+      "usage": "produced",
+      "context": "keyword argument to Config",
+      "kind": "config"
+    },
+    {
+      "value": "no claims \u2014 corpus missing?",
+      "line": 148,
+      "usage": "produced",
+      "context": "argument to SystemExit"
+    },
+    {
+      "value": "A legacy",
+      "line": 150,
+      "usage": "produced",
+      "context": "argument to _run_side",
+      "kind": "identifier"
+    },
+    {
+      "value": "B unified",
+      "line": 151,
+      "usage": "produced",
+      "context": "argument to _run_side",
+      "kind": "identifier"
+    },
+    {
+      "value": "verdict",
+      "line": 164,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "confidence",
+      "line": 164,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "reasoning",
+      "line": 164,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "verdict",
+      "line": 165,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "confidence",
+      "line": 165,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "reasoning",
+      "line": 165,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "utf-8",
+      "line": 178,
+      "usage": "produced",
+      "context": "keyword argument to out_path.write_text"
+    },
+    {
+      "value": "__main__",
+      "line": 186,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "__name__"
+    }
+  ],
+  "extraction_method": "ast"
+}

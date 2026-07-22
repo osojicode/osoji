@@ -1,0 +1,2272 @@
+{
+  "source": "src/osoji/evidence_builders.py",
+  "source_hash": "2f16116e5f1144b9",
+  "generated": "2026-07-22T10:56:15Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 30,
+      "is_reexport": false
+    },
+    {
+      "source": "re",
+      "names": [
+        "re"
+      ],
+      "line": 32,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "field"
+      ],
+      "line": 33,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path",
+        "PurePosixPath"
+      ],
+      "line": 34,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Any"
+      ],
+      "line": 35,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config"
+      ],
+      "line": 37,
+      "is_reexport": false
+    },
+    {
+      "source": ".evidence",
+      "names": [
+        "BUILDERS",
+        "Evidence",
+        "EvidenceBuilder"
+      ],
+      "line": 38,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 39,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk",
+      "names": [
+        "load_shadow_content"
+      ],
+      "line": 40,
+      "is_reexport": false
+    },
+    {
+      "source": ".triage_exec",
+      "names": [
+        "_SKIP_DIRS"
+      ],
+      "line": 46,
+      "is_reexport": false
+    },
+    {
+      "source": ".facts",
+      "names": [
+        "FactsDB"
+      ],
+      "line": 78,
+      "is_reexport": false
+    },
+    {
+      "source": ".symbols",
+      "names": [
+        "load_all_symbols"
+      ],
+      "line": 85,
+      "is_reexport": false
+    },
+    {
+      "source": ".walker",
+      "names": [
+        "list_repo_files"
+      ],
+      "line": 118,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "BuildContext",
+      "kind": "class",
+      "line": 61,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "BuildContext.facts",
+      "kind": "function",
+      "line": 76,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "BuildContext.symbols",
+      "kind": "function",
+      "line": 83,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "BuildContext.read_lines",
+      "kind": "function",
+      "line": 90,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "BuildContext.scan_files",
+      "kind": "function",
+      "line": 104,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "BuildContext.scan_truncated",
+      "kind": "function",
+      "line": 143,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "CrossFileReferenceBuilder",
+      "kind": "class",
+      "line": 436,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EvidenceBuilder"
+      ]
+    },
+    {
+      "name": "CrossFileReferenceBuilder.build",
+      "kind": "function",
+      "line": 451,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "CrossFileReferenceBuilder._shadow_excerpts",
+      "kind": "function",
+      "line": 622,
+      "decorators": [
+        "staticmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "SurroundingCodeBuilder",
+      "kind": "class",
+      "line": 631,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EvidenceBuilder"
+      ]
+    },
+    {
+      "name": "SurroundingCodeBuilder.build",
+      "kind": "function",
+      "line": 641,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SurroundingCodeBuilder._nearest_word_line",
+      "kind": "function",
+      "line": 676,
+      "decorators": [
+        "staticmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DeclaredIntentBuilder",
+      "kind": "class",
+      "line": 684,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EvidenceBuilder"
+      ]
+    },
+    {
+      "name": "DeclaredIntentBuilder.build",
+      "kind": "function",
+      "line": 695,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ShadowDocBuilder",
+      "kind": "class",
+      "line": 764,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EvidenceBuilder"
+      ]
+    },
+    {
+      "name": "ShadowDocBuilder.build",
+      "kind": "function",
+      "line": 779,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ShadowDocBuilder._doc_anchored",
+      "kind": "function",
+      "line": 821,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ShadowDocBuilder._referenced_sources",
+      "kind": "function",
+      "line": 851,
+      "decorators": [
+        "staticmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "TypeSignatureBuilder",
+      "kind": "class",
+      "line": 873,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EvidenceBuilder"
+      ]
+    },
+    {
+      "name": "TypeSignatureBuilder.build",
+      "kind": "function",
+      "line": 879,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "BuildContext",
+      "to": "field",
+      "line": 72,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "BuildContext",
+      "to": "field",
+      "line": 73,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "BuildContext",
+      "to": "field",
+      "line": 74,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "BuildContext.facts",
+      "to": "FactsDB",
+      "line": 80,
+      "call_sites": 90
+    },
+    {
+      "from_symbol": "BuildContext.symbols",
+      "to": "load_all_symbols",
+      "line": 87,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "BuildContext.read_lines",
+      "to": "rel_path.replace",
+      "line": 93,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "BuildContext.read_lines",
+      "to": "splitlines",
+      "line": 97,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "BuildContext.read_lines",
+      "to": "full.read_text",
+      "line": 97,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "BuildContext.scan_files",
+      "to": "list_repo_files",
+      "line": 123,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "BuildContext.scan_files",
+      "to": "path.is_absolute",
+      "line": 125,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "BuildContext.scan_files",
+      "to": "full.is_file",
+      "line": 126,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "BuildContext.scan_files",
+      "to": "full.relative_to",
+      "line": 128,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "BuildContext.scan_files",
+      "to": "any",
+      "line": 129,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "BuildContext.scan_files",
+      "to": "len",
+      "line": 131,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "BuildContext.scan_files",
+      "to": "files.append",
+      "line": 137,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "BuildContext.scan_files",
+      "to": "rel.as_posix",
+      "line": 137,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "BuildContext.scan_truncated",
+      "to": "self.scan_files",
+      "line": 146,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "set",
+      "line": 162,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "re.finditer",
+      "line": 166,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "strip",
+      "line": 167,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "m.group",
+      "line": 167,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "name.lower",
+      "line": 168,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "names.append",
+      "line": 169,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "seen.add",
+      "line": 170,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "re.finditer",
+      "line": 179,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "m.group",
+      "line": 180,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "re.match",
+      "line": 181,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "len",
+      "line": 181,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "re.findall",
+      "line": 181,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "names.append",
+      "line": 183,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "seen.add",
+      "line": 184,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "description.split",
+      "line": 187,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "word.strip",
+      "line": 188,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "re.match",
+      "line": 189,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "word.lower",
+      "line": 189,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "names.append",
+      "line": 191,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_extract_all_symbols_from_debris",
+      "to": "seen.add",
+      "line": 192,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "set",
+      "line": 207,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "set",
+      "line": 208,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "symbols_by_file.items",
+      "line": 209,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "sym.get",
+      "line": 211,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "sym.get",
+      "line": 212,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "full_path.exists",
+      "line": 214,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "splitlines",
+      "line": 217,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "full_path.read_text",
+      "line": 217,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "sym.get",
+      "line": 220,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "min",
+      "line": 221,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "sym.get",
+      "line": 221,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "join",
+      "line": 222,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "enumerate",
+      "line": 223,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "results.append",
+      "line": 225,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_lookup_type_definitions",
+      "to": "seen.add",
+      "line": 226,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "full_path.exists",
+      "line": 244,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "set",
+      "line": 247,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "re.finditer",
+      "line": 248,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "var_names.add",
+      "line": 249,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "m.group",
+      "line": 249,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "splitlines",
+      "line": 254,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "full_path.read_text",
+      "line": 254,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "max",
+      "line": 257,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "range",
+      "line": 260,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "len",
+      "line": 261,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "re.search",
+      "line": 262,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "re.escape",
+      "line": 262,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "type_names.append",
+      "line": 264,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_infer_variable_type",
+      "to": "match.group",
+      "line": 264,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_match_in_quotes",
+      "to": "len",
+      "line": 298,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_backticked_names",
+      "to": "re.finditer",
+      "line": 328,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_backticked_names",
+      "to": "strip",
+      "line": 329,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_backticked_names",
+      "to": "match.group",
+      "line": 329,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_backticked_names",
+      "to": "name.rsplit",
+      "line": 332,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_backticked_names",
+      "to": "len",
+      "line": 333,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_backticked_names",
+      "to": "candidates.append",
+      "line": 334,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_backticked_names",
+      "to": "candidate.lower",
+      "line": 336,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_backticked_names",
+      "to": "seen.append",
+      "line": 337,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_scan_needles",
+      "to": "_claim_text",
+      "line": 354,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_scan_needles",
+      "to": "_quoted_literals",
+      "line": 355,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_scan_needles",
+      "to": "str",
+      "line": 356,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_scan_needles",
+      "to": "get",
+      "line": 356,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_scan_needles",
+      "to": "_scanner_meta",
+      "line": 356,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_scan_needles",
+      "to": "_backticked_names",
+      "line": 361,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_scan_needles",
+      "to": "_extract_all_symbols_from_debris",
+      "line": 363,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_quoted_literals",
+      "to": "re.finditer",
+      "line": 372,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_quoted_literals",
+      "to": "match.group",
+      "line": 373,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_quoted_literals",
+      "to": "seen.append",
+      "line": 375,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_named_paths",
+      "to": "re.findall",
+      "line": 388,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_named_paths",
+      "to": "_claim_text",
+      "line": 388,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_named_paths",
+      "to": "replace",
+      "line": 391,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_named_paths",
+      "to": "token.strip",
+      "line": 391,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_named_paths",
+      "to": "ctx.read_lines",
+      "line": 392,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_named_paths",
+      "to": "paths.append",
+      "line": 393,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_find_symbol_entry",
+      "to": "symbols_by_file.get",
+      "line": 400,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_find_symbol_entry",
+      "to": "sym.get",
+      "line": 401,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_find_symbol_entry",
+      "to": "sym.get",
+      "line": 401,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_enclosing_symbol",
+      "to": "symbols_by_file.get",
+      "line": 412,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_enclosing_symbol",
+      "to": "sym.get",
+      "line": 413,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_enclosing_symbol",
+      "to": "sym.get",
+      "line": 413,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_enclosing_symbol",
+      "to": "sym.get",
+      "line": 417,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_enclosing_symbol",
+      "to": "sym.get",
+      "line": 417,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_numbered",
+      "to": "max",
+      "line": 426,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_numbered",
+      "to": "min",
+      "line": 427,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_numbered",
+      "to": "len",
+      "line": 427,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_numbered",
+      "to": "join",
+      "line": 428,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_numbered",
+      "to": "range",
+      "line": 429,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "finding.path.replace",
+      "line": 452,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "_scan_needles",
+      "line": 453,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "ctx.facts",
+      "line": 463,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "str",
+      "line": 464,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "get",
+      "line": 464,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "_scanner_meta",
+      "line": 464,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "_extract_all_symbols_from_debris",
+      "line": 470,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "_claim_text",
+      "line": 470,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "facts.cross_file_references",
+      "line": 474,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "len",
+      "line": 477,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "len",
+      "line": 477,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "references.extend",
+      "line": 479,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "re.escape",
+      "line": 486,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "re.fullmatch",
+      "line": 488,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "re.escape",
+      "line": 488,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "re.escape",
+      "line": 488,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "get",
+      "line": 503,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "_scanner_meta",
+      "line": 503,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "replace",
+      "line": 504,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "str",
+      "line": 504,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "ctx.read_lines",
+      "line": 505,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "named.append",
+      "line": 506,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "_named_paths",
+      "line": 507,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "named.append",
+      "line": 509,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "ctx.read_lines",
+      "line": 512,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "named.append",
+      "line": 513,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "getattr",
+      "line": 514,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "PurePosixPath",
+      "line": 515,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build._proximity",
+      "to": "PurePosixPath",
+      "line": 518,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build._proximity",
+      "to": "zip",
+      "line": 520,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "ctx.scan_files",
+      "line": 526,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "sorted",
+      "line": 527,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "Path",
+      "line": 529,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "_proximity",
+      "line": 529,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "re.compile",
+      "line": 534,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "ctx.read_lines",
+      "line": 540,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "enumerate",
+      "line": 544,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "regex.search",
+      "line": 547,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "join",
+      "line": 555,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "max",
+      "line": 558,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "_match_in_quotes",
+      "line": 571,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "match.start",
+      "line": 571,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "references.append",
+      "line": 576,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "set",
+      "line": 589,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "facts.all_files",
+      "line": 589,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "facts.exported_names",
+      "line": 593,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "len",
+      "line": 599,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "ctx.scan_truncated",
+      "line": 604,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "self._shadow_excerpts",
+      "line": 614,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder.build",
+      "to": "Evidence",
+      "line": 619,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "CrossFileReferenceBuilder._shadow_excerpts",
+      "to": "load_shadow_content",
+      "line": 625,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder.build",
+      "to": "finding.path.replace",
+      "line": 642,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder.build",
+      "to": "ctx.read_lines",
+      "line": 643,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder.build",
+      "to": "_find_symbol_entry",
+      "line": 651,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder.build",
+      "to": "ctx.symbols",
+      "line": 651,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder.build",
+      "to": "entry.get",
+      "line": 653,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder.build",
+      "to": "self._nearest_word_line",
+      "line": 656,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder.build",
+      "to": "max",
+      "line": 661,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder.build",
+      "to": "min",
+      "line": 662,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder.build",
+      "to": "len",
+      "line": 662,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder.build",
+      "to": "_numbered",
+      "line": 667,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder.build",
+      "to": "_enclosing_symbol",
+      "line": 670,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder.build",
+      "to": "ctx.symbols",
+      "line": 670,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder.build",
+      "to": "Evidence",
+      "line": 673,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder._nearest_word_line",
+      "to": "re.compile",
+      "line": 677,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder._nearest_word_line",
+      "to": "re.escape",
+      "line": 677,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder._nearest_word_line",
+      "to": "enumerate",
+      "line": 678,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder._nearest_word_line",
+      "to": "regex.search",
+      "line": 678,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder._nearest_word_line",
+      "to": "min",
+      "line": 681,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "SurroundingCodeBuilder._nearest_word_line",
+      "to": "abs",
+      "line": 681,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeclaredIntentBuilder.build",
+      "to": "finding.path.replace",
+      "line": 696,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DeclaredIntentBuilder.build",
+      "to": "ctx.read_lines",
+      "line": 697,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DeclaredIntentBuilder.build",
+      "to": "max",
+      "line": 703,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DeclaredIntentBuilder.build",
+      "to": "blocks.append",
+      "line": 705,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DeclaredIntentBuilder.build",
+      "to": "join",
+      "line": 709,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DeclaredIntentBuilder.build",
+      "to": "_enclosing_symbol",
+      "line": 715,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DeclaredIntentBuilder.build",
+      "to": "ctx.symbols",
+      "line": 715,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DeclaredIntentBuilder.build",
+      "to": "min",
+      "line": 718,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DeclaredIntentBuilder.build",
+      "to": "blocks.append",
+      "line": 719,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DeclaredIntentBuilder.build",
+      "to": "join",
+      "line": 724,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DeclaredIntentBuilder.build",
+      "to": "Evidence",
+      "line": 732,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "_read_text",
+      "to": "path.read_text",
+      "line": 739,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_scope_for",
+      "to": "list",
+      "line": 753,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_scope_for",
+      "to": "dict.fromkeys",
+      "line": 753,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_scope_for",
+      "to": "len",
+      "line": 756,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_scope_for",
+      "to": "parent.as_posix",
+      "line": 758,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_scope_for",
+      "to": "PurePosixPath",
+      "line": 758,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_scope_for",
+      "to": "len",
+      "line": 759,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_scope_for",
+      "to": "next",
+      "line": 760,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_scope_for",
+      "to": "iter",
+      "line": 760,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ShadowDocBuilder.build",
+      "to": "finding.path.replace",
+      "line": 780,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ShadowDocBuilder.build",
+      "to": "load_shadow_content",
+      "line": 781,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ShadowDocBuilder.build",
+      "to": "self._doc_anchored",
+      "line": 786,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ShadowDocBuilder.build",
+      "to": "evidence.append",
+      "line": 793,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ShadowDocBuilder.build",
+      "to": "Evidence",
+      "line": 794,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "ShadowDocBuilder.build",
+      "to": "ctx.config.shadow_path_for_dir",
+      "line": 804,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ShadowDocBuilder.build",
+      "to": "_read_text",
+      "line": 807,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ShadowDocBuilder.build",
+      "to": "evidence.append",
+      "line": 809,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ShadowDocBuilder.build",
+      "to": "Evidence",
+      "line": 810,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._doc_anchored",
+      "to": "self._referenced_sources",
+      "line": 824,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._doc_anchored",
+      "to": "_scope_for",
+      "line": 825,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._doc_anchored",
+      "to": "load_shadow_content",
+      "line": 827,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._doc_anchored",
+      "to": "_read_text",
+      "line": 830,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._doc_anchored",
+      "to": "ctx.config.shadow_path_for_dir",
+      "line": 831,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._doc_anchored",
+      "to": "_read_text",
+      "line": 835,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._doc_anchored",
+      "to": "ctx.config.shadow_path_for_dir",
+      "line": 835,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._doc_anchored",
+      "to": "Evidence",
+      "line": 840,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._referenced_sources",
+      "to": "_scanner_meta",
+      "line": 859,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._referenced_sources",
+      "to": "meta.get",
+      "line": 861,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._referenced_sources",
+      "to": "replace",
+      "line": 863,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._referenced_sources",
+      "to": "str",
+      "line": 863,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._referenced_sources",
+      "to": "sources.append",
+      "line": 865,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._referenced_sources",
+      "to": "meta.get",
+      "line": 866,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._referenced_sources",
+      "to": "replace",
+      "line": 867,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._referenced_sources",
+      "to": "str",
+      "line": 867,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._referenced_sources",
+      "to": "load_shadow_content",
+      "line": 868,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ShadowDocBuilder._referenced_sources",
+      "to": "sources.append",
+      "line": 869,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TypeSignatureBuilder.build",
+      "to": "_claim_text",
+      "line": 880,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TypeSignatureBuilder.build",
+      "to": "_extract_all_symbols_from_debris",
+      "line": 881,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TypeSignatureBuilder.build",
+      "to": "isupper",
+      "line": 882,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TypeSignatureBuilder.build",
+      "to": "s.isupper",
+      "line": 882,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TypeSignatureBuilder.build",
+      "to": "type_names.extend",
+      "line": 883,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TypeSignatureBuilder.build",
+      "to": "_infer_variable_type",
+      "line": 884,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TypeSignatureBuilder.build",
+      "to": "_lookup_type_definitions",
+      "line": 888,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TypeSignatureBuilder.build",
+      "to": "ctx.symbols",
+      "line": 888,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TypeSignatureBuilder.build",
+      "to": "Evidence",
+      "line": 889,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "BUILDERS.update",
+      "line": 892,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "CrossFileReferenceBuilder",
+      "line": 896,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "SurroundingCodeBuilder",
+      "line": 897,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DeclaredIntentBuilder",
+      "line": 898,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ShadowDocBuilder",
+      "line": 899,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "TypeSignatureBuilder",
+      "line": 900,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "self",
+      "member": "facts_db",
+      "line": 80
+    },
+    {
+      "container": "self",
+      "member": "symbols_by_file",
+      "line": 87
+    },
+    {
+      "container": "self",
+      "member": "_scan_truncated",
+      "line": 135
+    },
+    {
+      "container": "self",
+      "member": "_scan_files",
+      "line": 140
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "utf-8",
+      "line": 98,
+      "usage": "produced",
+      "context": "keyword argument to full.read_text"
+    },
+    {
+      "value": "replace",
+      "line": 98,
+      "usage": "produced",
+      "context": "keyword argument to full.read_text"
+    },
+    {
+      "value": "field",
+      "line": 153,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "defined",
+      "line": 153,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "never",
+      "line": 153,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "set",
+      "line": 153,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "used",
+      "line": 153,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "unused",
+      "line": 153,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dead",
+      "line": 153,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "code",
+      "line": 153,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "the",
+      "line": 154,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "and",
+      "line": 154,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "but",
+      "line": 154,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "not",
+      "line": 154,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "this",
+      "line": 154,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "that",
+      "line": 154,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "from",
+      "line": 154,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "with",
+      "line": 154,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "are",
+      "line": 154,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "was",
+      "line": 155,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "were",
+      "line": 155,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "has",
+      "line": 155,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "have",
+      "line": 155,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "been",
+      "line": 155,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "being",
+      "line": 155,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "`([\\w.]+)(?:\\(\\))?`",
+      "line": 166,
+      "usage": "produced",
+      "context": "argument to re.finditer"
+    },
+    {
+      "value": "\\w+",
+      "line": 179,
+      "usage": "produced",
+      "context": "argument to re.finditer"
+    },
+    {
+      "value": "[A-Z][a-z]",
+      "line": 181,
+      "usage": "produced",
+      "context": "argument to re.match"
+    },
+    {
+      "value": "[A-Z][a-z]",
+      "line": 181,
+      "usage": "produced",
+      "context": "argument to re.findall"
+    },
+    {
+      "value": ".,;:()",
+      "line": 188,
+      "usage": "produced",
+      "context": "argument to word.strip"
+    },
+    {
+      "value": "^[a-zA-Z_]\\w{2,}$",
+      "line": 189,
+      "usage": "produced",
+      "context": "argument to re.match"
+    },
+    {
+      "value": "name",
+      "line": 211,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "kind",
+      "line": 212,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "class",
+      "line": 212,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "type",
+      "line": 212,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "utf-8",
+      "line": 217,
+      "usage": "produced",
+      "context": "keyword argument to full_path.read_text"
+    },
+    {
+      "value": "line_start",
+      "line": 220,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "line_end",
+      "line": 221,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "`(\\w+)\\.\\w+`",
+      "line": 248,
+      "usage": "produced",
+      "context": "argument to re.finditer"
+    },
+    {
+      "value": "utf-8",
+      "line": 254,
+      "usage": "produced",
+      "context": "keyword argument to full_path.read_text"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 282,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ev.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "'\"`",
+      "line": 301,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ch"
+    },
+    {
+      "value": "`([\\w.]+)(?:\\(\\))?`",
+      "line": 328,
+      "usage": "produced",
+      "context": "argument to re.finditer"
+    },
+    {
+      "value": "scan_needles",
+      "line": 356,
+      "usage": "produced",
+      "context": "argument to get",
+      "kind": "identifier"
+    },
+    {
+      "value": "contract",
+      "line": 358,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "contract",
+      "line": 360,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "['\\\"]([^'\\\"\\n]{2,80})['\\\"]",
+      "line": 372,
+      "usage": "produced",
+      "context": "argument to re.finditer"
+    },
+    {
+      "value": "[\\w./\\\\-]+",
+      "line": 388,
+      "usage": "produced",
+      "context": "argument to re.findall"
+    },
+    {
+      "value": ".,;:'\"`",
+      "line": 391,
+      "usage": "produced",
+      "context": "argument to token.strip"
+    },
+    {
+      "value": "name",
+      "line": 401,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "line_start",
+      "line": 401,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "line_start",
+      "line": 413,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "line_end",
+      "line": 413,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "name",
+      "line": 417,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "kind",
+      "line": 417,
+      "usage": "produced",
+      "context": "argument to sym.get"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 449,
+      "usage": "defined",
+      "context": "constant kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "scan_needles",
+      "line": 464,
+      "usage": "produced",
+      "context": "argument to get",
+      "kind": "identifier"
+    },
+    {
+      "value": "facts",
+      "line": 479,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "\\w+",
+      "line": 488,
+      "usage": "produced",
+      "context": "argument to re.fullmatch"
+    },
+    {
+      "value": "priority_paths",
+      "line": 503,
+      "usage": "produced",
+      "context": "argument to get",
+      "kind": "identifier"
+    },
+    {
+      "value": "extensions",
+      "line": 514,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "text_match",
+      "line": 563,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "text_scan",
+      "line": 567,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "surrounding_code",
+      "line": 639,
+      "usage": "defined",
+      "context": "constant kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "lines",
+      "line": 647,
+      "usage": "defined",
+      "context": "constant anchor"
+    },
+    {
+      "value": "line_end",
+      "line": 653,
+      "usage": "produced",
+      "context": "argument to entry.get"
+    },
+    {
+      "value": "symbol",
+      "line": 654,
+      "usage": "defined",
+      "context": "constant anchor"
+    },
+    {
+      "value": "symbol",
+      "line": 659,
+      "usage": "defined",
+      "context": "constant anchor"
+    },
+    {
+      "value": "declared_intent",
+      "line": 693,
+      "usage": "defined",
+      "context": "constant kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "preceding_lines",
+      "line": 707,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "enclosing_head",
+      "line": 721,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "utf-8",
+      "line": 739,
+      "usage": "produced",
+      "context": "keyword argument to path.read_text"
+    },
+    {
+      "value": "root",
+      "line": 755,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "file",
+      "line": 757,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "directory",
+      "line": 760,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "root",
+      "line": 761,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "shadow_doc_claim",
+      "line": 777,
+      "usage": "defined",
+      "context": "constant kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "description",
+      "line": 785,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "file",
+      "line": 798,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "description",
+      "line": 803,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "directory",
+      "line": 814,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "file",
+      "line": 826,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "scope",
+      "kind": "identifier"
+    },
+    {
+      "value": "directory",
+      "line": 829,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "scope",
+      "kind": "identifier"
+    },
+    {
+      "value": "shadow_ref",
+      "line": 861,
+      "usage": "produced",
+      "context": "argument to meta.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "search_terms",
+      "line": 866,
+      "usage": "produced",
+      "context": "argument to meta.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "type_signature",
+      "line": 877,
+      "usage": "defined",
+      "context": "constant kind",
+      "kind": "identifier"
+    }
+  ],
+  "extraction_method": "ast"
+}

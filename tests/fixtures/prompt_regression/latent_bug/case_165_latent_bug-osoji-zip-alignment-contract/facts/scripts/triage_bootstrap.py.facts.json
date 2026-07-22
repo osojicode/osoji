@@ -1,0 +1,2045 @@
+{
+  "source": "scripts/triage_bootstrap.py",
+  "source_hash": "a93de0ddefb9c4f2",
+  "generated": "2026-07-22T10:56:12Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 44,
+      "is_reexport": false
+    },
+    {
+      "source": "argparse",
+      "names": [
+        "argparse"
+      ],
+      "line": 46,
+      "is_reexport": false
+    },
+    {
+      "source": "asyncio",
+      "names": [
+        "asyncio"
+      ],
+      "line": 47,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 48,
+      "is_reexport": false
+    },
+    {
+      "source": "shutil",
+      "names": [
+        "shutil"
+      ],
+      "line": 49,
+      "is_reexport": false
+    },
+    {
+      "source": "sys",
+      "names": [
+        "sys"
+      ],
+      "line": 50,
+      "is_reexport": false
+    },
+    {
+      "source": "tempfile",
+      "names": [
+        "tempfile"
+      ],
+      "line": 51,
+      "is_reexport": false
+    },
+    {
+      "source": "contextlib",
+      "names": [
+        "ExitStack"
+      ],
+      "line": 52,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "replace"
+      ],
+      "line": 53,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 54,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Any"
+      ],
+      "line": 55,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.config",
+      "names": [
+        "Config"
+      ],
+      "line": 60,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 61,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.triage",
+      "names": [
+        "TRIAGE_SYSTEM_PROMPT",
+        "Claim",
+        "Triage"
+      ],
+      "line": 62,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.claim_builder",
+      "names": [
+        "build_claims"
+      ],
+      "line": 156,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.evidence_builders",
+      "names": [
+        "BuildContext"
+      ],
+      "line": 157,
+      "is_reexport": false
+    },
+    {
+      "source": "claude_agent_sdk",
+      "names": [
+        "ClaudeAgentOptions",
+        "create_sdk_mcp_server",
+        "query",
+        "tool"
+      ],
+      "line": 242,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.claude_code",
+      "names": [
+        "ClaudeCodeProvider"
+      ],
+      "line": 249,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.tools",
+      "names": [
+        "GREP_TOOL",
+        "LIST_DIR_TOOL",
+        "READ_FILE_TOOL",
+        "SUBMIT_TRIAGE_VERDICT_TOOL"
+      ],
+      "line": 250,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.triage_exec",
+      "names": [
+        "ExplorationExecutor"
+      ],
+      "line": 256,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "REPO_ROOT",
+      "kind": "constant",
+      "line": 57,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "BOOTSTRAP_DIR",
+      "kind": "constant",
+      "line": 64,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DEFAULT_MANIFEST",
+      "kind": "constant",
+      "line": 65,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DEFAULT_TRACE_DIR",
+      "kind": "constant",
+      "line": 66,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "load_manifest",
+      "kind": "function",
+      "line": 69,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "entries_to_claims",
+      "kind": "function",
+      "line": 78,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "summarize",
+      "kind": "function",
+      "line": 90,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "build_claims_for_entries",
+      "kind": "function",
+      "line": 145,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "build_summary",
+      "kind": "function",
+      "line": 200,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "run_sdk_exploration",
+      "kind": "function",
+      "line": 225,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "run",
+      "kind": "function",
+      "line": 371,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "main",
+      "kind": "function",
+      "line": 573,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "resolve",
+      "line": 57,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Path",
+      "line": 57,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sys.path.insert",
+      "line": 58,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "str",
+      "line": 58,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "load_manifest",
+      "to": "json.loads",
+      "line": 70,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "load_manifest",
+      "to": "path.read_text",
+      "line": 70,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_manifest",
+      "to": "ValueError",
+      "line": 74,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_manifest",
+      "to": "entry.get",
+      "line": 74,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "entries_to_claims",
+      "to": "Finding.from_dict",
+      "line": 81,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "entries_to_claims",
+      "to": "replace",
+      "line": 85,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "entries_to_claims",
+      "to": "claims.append",
+      "line": 86,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "entries_to_claims",
+      "to": "Claim",
+      "line": 86,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "summarize",
+      "to": "zip",
+      "line": 95,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "summarize",
+      "to": "per_category.setdefault",
+      "line": 98,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "summarize",
+      "to": "int",
+      "line": 100,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "summarize",
+      "to": "int",
+      "line": 101,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "summarize",
+      "to": "rows.append",
+      "line": 102,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "summarize",
+      "to": "bool",
+      "line": 110,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "summarize",
+      "to": "entry.get",
+      "line": 110,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "summarize",
+      "to": "len",
+      "line": 113,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "summarize",
+      "to": "sum",
+      "line": 114,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "summarize",
+      "to": "sum",
+      "line": 120,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "summarize",
+      "to": "len",
+      "line": 120,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "summarize",
+      "to": "len",
+      "line": 122,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "_stage_fixture_root",
+      "to": "src_dir.exists",
+      "line": 136,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_stage_fixture_root",
+      "to": "src_dir.rglob",
+      "line": 138,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_stage_fixture_root",
+      "to": "src_file.is_file",
+      "line": 139,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_stage_fixture_root",
+      "to": "src_file.relative_to",
+      "line": 140,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_stage_fixture_root",
+      "to": "target.parent.mkdir",
+      "line": 141,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_stage_fixture_root",
+      "to": "shutil.copy2",
+      "line": 142,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "ExitStack",
+      "line": 161,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "replace",
+      "line": 165,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "Finding.from_dict",
+      "line": 165,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "entry.get",
+      "line": 166,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "fixture_ctxs.get",
+      "line": 168,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "Path",
+      "line": 170,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "stack.enter_context",
+      "line": 170,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "tempfile.TemporaryDirectory",
+      "line": 170,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "_stage_fixture_root",
+      "line": 173,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "BuildContext",
+      "line": 174,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "Config",
+      "line": 174,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "finding.path.startswith",
+      "line": 177,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "replace",
+      "line": 178,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "len",
+      "line": 178,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "BuildContext",
+      "line": 181,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "Config",
+      "line": 181,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "build_claims",
+      "line": 183,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "claims.append",
+      "line": 184,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "meta.append",
+      "line": 185,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "entry.get",
+      "line": 189,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "sorted",
+      "line": 191,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "build_claims_for_entries",
+      "to": "len",
+      "line": 192,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "build_summary",
+      "to": "per_category.setdefault",
+      "line": 205,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_summary",
+      "to": "int",
+      "line": 209,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "build_summary",
+      "to": "get",
+      "line": 211,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_summary",
+      "to": "len",
+      "line": 212,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "build_summary",
+      "to": "len",
+      "line": 217,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "build_summary",
+      "to": "sum",
+      "line": 219,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "run_sdk_exploration",
+      "to": "Config",
+      "line": 258,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "run_sdk_exploration",
+      "to": "ExplorationExecutor",
+      "line": 259,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "run_sdk_exploration",
+      "to": "config.model_for",
+      "line": 260,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_sdk_exploration",
+      "to": "ClaudeCodeProvider._neutral_cwd",
+      "line": 261,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_sdk_exploration",
+      "to": "asyncio.Semaphore",
+      "line": 262,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "replace",
+      "line": 265,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "Finding.from_dict",
+      "line": 265,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "entry.get",
+      "line": 271,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "ExplorationExecutor",
+      "line": 274,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "Config",
+      "line": 274,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "finding.path.startswith",
+      "line": 276,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "replace",
+      "line": 277,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "len",
+      "line": 277,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one.retrieval._t",
+      "to": "append",
+      "line": 286,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one.retrieval._t",
+      "to": "len",
+      "line": 287,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one.retrieval._t",
+      "to": "executor.run",
+      "line": 289,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one.retrieval._t",
+      "to": "tool",
+      "line": 284,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one.submit",
+      "to": "append",
+      "line": 298,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one.submit",
+      "to": "len",
+      "line": 299,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one.submit",
+      "to": "verdict.update",
+      "line": 301,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one.submit",
+      "to": "tool",
+      "line": 292,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "create_sdk_mcp_server",
+      "line": 304,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "retrieval",
+      "line": 306,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "retrieval",
+      "line": 306,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "retrieval",
+      "line": 307,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "ClaudeAgentOptions",
+      "line": 309,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "Triage._render_claim_block",
+      "line": 322,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "query",
+      "line": 332,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "getattr",
+      "line": 333,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "isinstance",
+      "line": 334,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "usage.get",
+      "line": 335,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "usage.get",
+      "line": 336,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "type",
+      "line": 337,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "getattr",
+      "line": 338,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "str",
+      "line": 343,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "round",
+      "line": 345,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "replace",
+      "line": 347,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "verdict.get",
+      "line": 349,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "verdict.get",
+      "line": 350,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "verdict.get",
+      "line": 351,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "verdict.get",
+      "line": 352,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "verdict.get",
+      "line": 353,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "replace",
+      "line": 356,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "print",
+      "line": 362,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "run_sdk_exploration.explore_one",
+      "to": "len",
+      "line": 362,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "run_sdk_exploration",
+      "to": "asyncio.gather",
+      "line": 365,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_sdk_exploration",
+      "to": "explore_one",
+      "line": 365,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run_sdk_exploration",
+      "to": "sum",
+      "line": 368,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "run_sdk_exploration",
+      "to": "sum",
+      "line": 368,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "run",
+      "to": "load_manifest",
+      "line": 372,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "set",
+      "line": 375,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "build_claims_for_entries",
+      "line": 384,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run",
+      "to": "build_summary",
+      "line": 385,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run",
+      "to": "args.out.mkdir",
+      "line": 386,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run",
+      "to": "zip",
+      "line": 387,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run",
+      "to": "claim.finding.to_dict",
+      "line": 392,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "write_text",
+      "line": 394,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run",
+      "to": "json.dumps",
+      "line": 395,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "run",
+      "to": "write_text",
+      "line": 398,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run",
+      "to": "json.dumps",
+      "line": 399,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "run",
+      "to": "print",
+      "line": 401,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "run",
+      "to": "sorted",
+      "line": 406,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "run",
+      "to": "items",
+      "line": 406,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run",
+      "to": "join",
+      "line": 407,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run",
+      "to": "sorted",
+      "line": 407,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "run",
+      "to": "items",
+      "line": 407,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run",
+      "to": "print",
+      "line": 408,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "run",
+      "to": "print",
+      "line": 410,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "run",
+      "to": "join",
+      "line": 410,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run",
+      "to": "print",
+      "line": 411,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "run",
+      "to": "run_sdk_exploration",
+      "line": 415,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "build_claims_for_entries",
+      "line": 423,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run",
+      "to": "entries_to_claims",
+      "line": 425,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "Config",
+      "line": 426,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "run",
+      "to": "Triage",
+      "line": 427,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "run",
+      "to": "len",
+      "line": 431,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "run.decide_chunk",
+      "to": "range",
+      "line": 434,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run.decide_chunk",
+      "to": "triage.decide_batch",
+      "line": 436,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run.decide_chunk",
+      "to": "print",
+      "line": 440,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "run.decide_chunk",
+      "to": "lower",
+      "line": 441,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run.decide_chunk",
+      "to": "str",
+      "line": 441,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run.decide_chunk",
+      "to": "len",
+      "line": 441,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "run.decide_chunk",
+      "to": "len",
+      "line": 443,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "run.decide_chunk",
+      "to": "decide_chunk",
+      "line": 444,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "run.decide_chunk",
+      "to": "decide_chunk",
+      "line": 445,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "run.decide_chunk",
+      "to": "left.findings.extend",
+      "line": 448,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run.decide_chunk",
+      "to": "left.exploration_traces.extend",
+      "line": 449,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run.decide_chunk",
+      "to": "replace",
+      "line": 450,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "run.decide_chunk",
+      "to": "asyncio.sleep",
+      "line": 456,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "range",
+      "line": 461,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run",
+      "to": "len",
+      "line": 461,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "run",
+      "to": "decide_chunk",
+      "line": 466,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "run",
+      "to": "failed.append",
+      "line": 468,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "len",
+      "line": 471,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "run",
+      "to": "print",
+      "line": 472,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "run",
+      "to": "len",
+      "line": 472,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "run",
+      "to": "decide_chunk",
+      "line": 476,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "run",
+      "to": "print",
+      "line": 478,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "run",
+      "to": "len",
+      "line": 479,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "run",
+      "to": "print",
+      "line": 482,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "run",
+      "to": "decided.get",
+      "line": 485,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "findings.extend",
+      "line": 489,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run",
+      "to": "findings.extend",
+      "line": 491,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run",
+      "to": "traces_by_id.update",
+      "line": 492,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "args.out.mkdir",
+      "line": 498,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run",
+      "to": "zip",
+      "line": 499,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run",
+      "to": "finding.to_dict",
+      "line": 504,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "traces_by_id.get",
+      "line": 505,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "out_path.write_text",
+      "line": 508,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "json.dumps",
+      "line": 509,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "run",
+      "to": "summarize",
+      "line": 513,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "build_summary",
+      "line": 518,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run",
+      "to": "json.loads",
+      "line": 524,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "run",
+      "to": "args.baseline.read_text",
+      "line": 524,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "base_verdicts.get",
+      "line": 530,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "gray_by_slug.get",
+      "line": 532,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "len",
+      "line": 541,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "run",
+      "to": "len",
+      "line": 541,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "run",
+      "to": "len",
+      "line": 544,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "run",
+      "to": "len",
+      "line": 544,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "run",
+      "to": "summary_path.write_text",
+      "line": 551,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "json.dumps",
+      "line": 552,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "run",
+      "to": "print",
+      "line": 555,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "run",
+      "to": "sorted",
+      "line": 556,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "run",
+      "to": "items",
+      "line": 556,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run",
+      "to": "print",
+      "line": 557,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "run",
+      "to": "print",
+      "line": 559,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "run",
+      "to": "print",
+      "line": 565,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "run",
+      "to": "summary.get",
+      "line": 566,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "run",
+      "to": "print",
+      "line": 567,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "run",
+      "to": "join",
+      "line": 567,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "run",
+      "to": "print",
+      "line": 568,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "run",
+      "to": "print",
+      "line": 569,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "main",
+      "to": "argparse.ArgumentParser",
+      "line": 574,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "parser.add_subparsers",
+      "line": 575,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "sub.add_parser",
+      "line": 582,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "p.set_defaults",
+      "line": 583,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "p.add_argument",
+      "line": 584,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "main",
+      "to": "p.add_argument",
+      "line": 585,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "main",
+      "to": "p.add_argument",
+      "line": 586,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "main",
+      "to": "p.add_argument",
+      "line": 587,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "main",
+      "to": "p.add_argument",
+      "line": 588,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "main",
+      "to": "p.add_argument",
+      "line": 590,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "main",
+      "to": "p.add_argument",
+      "line": 591,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "main",
+      "to": "p.add_argument",
+      "line": 592,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "main",
+      "to": "p.add_argument",
+      "line": 594,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "main",
+      "to": "p.add_argument",
+      "line": 596,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "main",
+      "to": "parser.parse_args",
+      "line": 598,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "asyncio.run",
+      "line": 599,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "run",
+      "line": 599,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "SystemExit",
+      "line": 603,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "main",
+      "line": 603,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "utf-8",
+      "line": 70,
+      "usage": "produced",
+      "context": "keyword argument to path.read_text"
+    },
+    {
+      "value": "slug",
+      "line": 72,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "category",
+      "line": 72,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "adjudicated_verdict",
+      "line": 72,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "finding",
+      "line": 72,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "slug",
+      "line": 74,
+      "usage": "produced",
+      "context": "argument to entry.get"
+    },
+    {
+      "value": "uncertain",
+      "line": 101,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "gray",
+      "line": 110,
+      "usage": "produced",
+      "context": "argument to entry.get"
+    },
+    {
+      "value": "source",
+      "line": 133,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "symbols",
+      "line": 133,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "facts",
+      "line": 134,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "fixture_root",
+      "line": 166,
+      "usage": "produced",
+      "context": "argument to entry.get"
+    },
+    {
+      "value": "osoji-bootstrap-",
+      "line": 171,
+      "usage": "produced",
+      "context": "keyword argument to tempfile.TemporaryDirectory",
+      "kind": "identifier"
+    },
+    {
+      "value": "origin",
+      "line": 189,
+      "usage": "produced",
+      "context": "argument to entry.get"
+    },
+    {
+      "value": "uncategorized",
+      "line": 219,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "medium",
+      "line": 260,
+      "usage": "produced",
+      "context": "argument to config.model_for"
+    },
+    {
+      "value": "fixture_root",
+      "line": 271,
+      "usage": "produced",
+      "context": "argument to entry.get"
+    },
+    {
+      "value": "text",
+      "line": 289,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "submit_triage_verdict",
+      "line": 299,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "text",
+      "line": 302,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Verdict recorded. You are done.",
+      "line": 302,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "message"
+    },
+    {
+      "value": "explore",
+      "line": 305,
+      "usage": "produced",
+      "context": "argument to create_sdk_mcp_server"
+    },
+    {
+      "value": "mcp__explore__read_file",
+      "line": 313,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "mcp__explore__grep",
+      "line": 313,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "mcp__explore__list_dir",
+      "line": 314,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "mcp__explore__submit_triage_verdict",
+      "line": 314,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "usage",
+      "line": 333,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "input_tokens",
+      "line": 335,
+      "usage": "produced",
+      "context": "argument to usage.get"
+    },
+    {
+      "value": "output_tokens",
+      "line": 336,
+      "usage": "produced",
+      "context": "argument to usage.get"
+    },
+    {
+      "value": "ResultMessage",
+      "line": 337,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "__name__",
+      "kind": "identifier"
+    },
+    {
+      "value": "total_cost_usd",
+      "line": 338,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "verdict",
+      "line": 349,
+      "usage": "produced",
+      "context": "argument to verdict.get"
+    },
+    {
+      "value": "confidence",
+      "line": 350,
+      "usage": "produced",
+      "context": "argument to verdict.get"
+    },
+    {
+      "value": "reasoning",
+      "line": 351,
+      "usage": "produced",
+      "context": "argument to verdict.get"
+    },
+    {
+      "value": "suggested_fix",
+      "line": 352,
+      "usage": "produced",
+      "context": "argument to verdict.get"
+    },
+    {
+      "value": "severity",
+      "line": 353,
+      "usage": "produced",
+      "context": "argument to verdict.get"
+    },
+    {
+      "value": "uncertain",
+      "line": 358,
+      "usage": "produced",
+      "context": "keyword argument to replace",
+      "kind": "identifier"
+    },
+    {
+      "value": "Exploration did not produce a verdict within the turn limit.",
+      "line": 360,
+      "usage": "produced",
+      "context": "keyword argument to replace",
+      "kind": "message"
+    },
+    {
+      "value": "build",
+      "line": 381,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "mode",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 396,
+      "usage": "produced",
+      "context": "keyword argument to write_text"
+    },
+    {
+      "value": "utf-8",
+      "line": 399,
+      "usage": "produced",
+      "context": "keyword argument to write_text"
+    },
+    {
+      "value": "exploration-sdk",
+      "line": 414,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "mode",
+      "kind": "identifier"
+    },
+    {
+      "value": "claim",
+      "line": 420,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "mode",
+      "kind": "identifier"
+    },
+    {
+      "value": "exploration",
+      "line": 425,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "mode",
+      "kind": "identifier"
+    },
+    {
+      "value": "claim",
+      "line": 431,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "mode",
+      "kind": "identifier"
+    },
+    {
+      "value": "too long",
+      "line": 441,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "claim",
+      "line": 471,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "mode",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 510,
+      "usage": "produced",
+      "context": "keyword argument to out_path.write_text"
+    },
+    {
+      "value": "utf-8",
+      "line": 524,
+      "usage": "produced",
+      "context": "keyword argument to args.baseline.read_text"
+    },
+    {
+      "value": "utf-8",
+      "line": 552,
+      "usage": "produced",
+      "context": "keyword argument to summary_path.write_text"
+    },
+    {
+      "value": "baseline_disagreement_rate",
+      "line": 558,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "summary"
+    },
+    {
+      "value": "no_verdict",
+      "line": 566,
+      "usage": "produced",
+      "context": "argument to summary.get"
+    },
+    {
+      "value": "command",
+      "line": 575,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_subparsers"
+    },
+    {
+      "value": "explore",
+      "line": 577,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "exploration",
+      "line": 577,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "explore-sdk",
+      "line": 578,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "exploration-sdk",
+      "line": 578,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "claim",
+      "line": 579,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "claim",
+      "line": 579,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "build",
+      "line": 580,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "build",
+      "line": 580,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "--manifest",
+      "line": 584,
+      "usage": "produced",
+      "context": "argument to p.add_argument"
+    },
+    {
+      "value": "--out",
+      "line": 585,
+      "usage": "produced",
+      "context": "argument to p.add_argument"
+    },
+    {
+      "value": "--provider",
+      "line": 586,
+      "usage": "produced",
+      "context": "argument to p.add_argument"
+    },
+    {
+      "value": "LLM provider (e.g. claude-code)",
+      "line": 586,
+      "usage": "produced",
+      "context": "keyword argument to p.add_argument"
+    },
+    {
+      "value": "--model",
+      "line": 587,
+      "usage": "produced",
+      "context": "argument to p.add_argument"
+    },
+    {
+      "value": "--baseline",
+      "line": 588,
+      "usage": "produced",
+      "context": "argument to p.add_argument"
+    },
+    {
+      "value": "explore-summary.json to measure verdict-disagreement against",
+      "line": 589,
+      "usage": "produced",
+      "context": "keyword argument to p.add_argument"
+    },
+    {
+      "value": "--only",
+      "line": 590,
+      "usage": "produced",
+      "context": "argument to p.add_argument"
+    },
+    {
+      "value": "restrict to these slugs",
+      "line": 590,
+      "usage": "produced",
+      "context": "keyword argument to p.add_argument"
+    },
+    {
+      "value": "--max-turns",
+      "line": 591,
+      "usage": "produced",
+      "context": "argument to p.add_argument"
+    },
+    {
+      "value": "--concurrency",
+      "line": 592,
+      "usage": "produced",
+      "context": "argument to p.add_argument"
+    },
+    {
+      "value": "parallel claims for explore-sdk",
+      "line": 593,
+      "usage": "produced",
+      "context": "keyword argument to p.add_argument"
+    },
+    {
+      "value": "--no-build",
+      "line": 594,
+      "usage": "produced",
+      "context": "argument to p.add_argument"
+    },
+    {
+      "value": "store_true",
+      "line": 594,
+      "usage": "produced",
+      "context": "keyword argument to p.add_argument"
+    },
+    {
+      "value": "claim mode: skip the Claim Builder, use manifest evidence",
+      "line": 595,
+      "usage": "produced",
+      "context": "keyword argument to p.add_argument"
+    },
+    {
+      "value": "--batch-size",
+      "line": 596,
+      "usage": "produced",
+      "context": "argument to p.add_argument"
+    },
+    {
+      "value": "claims per LLM call in claim mode",
+      "line": 597,
+      "usage": "produced",
+      "context": "keyword argument to p.add_argument"
+    },
+    {
+      "value": "__main__",
+      "line": 602,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "__name__"
+    },
+    {
+      "value": "confirmed",
+      "context": "adjudicated_verdict value in manifest schema docs",
+      "line": 22,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dismissed",
+      "context": "adjudicated_verdict value in manifest schema docs",
+      "line": 22,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

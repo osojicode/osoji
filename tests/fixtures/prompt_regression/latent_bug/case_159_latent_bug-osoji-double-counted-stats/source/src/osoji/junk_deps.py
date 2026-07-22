@@ -1,0 +1,817 @@
+"""Dead dependency detection via manifest parsing and import scanning."""
+
+import asyncio
+import json
+import re
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Callable
+
+from .config import ANTHROPIC_MODEL_SMALL, Config, SHADOW_DIR
+from .evidence_builders import BuildContext, _scanner_meta
+from .facts import FactsDB
+from .findings import Finding
+from .findings_adapter import finding_from_dep_candidate
+from .junk import JunkAnalyzer, JunkFinding, JunkAnalysisResult
+from .junk_triage import build_junk_claims, decide_junk_claims
+from .llm.base import LLMProvider
+from .llm.runtime import create_runtime
+from .llm.types import Message, MessageRole, CompletionOptions
+from .tools import get_resolve_import_names_tool_definitions, get_classify_deps_tool_definitions
+from .walker import list_repo_files, _matches_ignore
+
+
+
+@dataclass
+class DependencyCandidate:
+    """A dependency that may be unused."""
+
+    manifest_path: str        # e.g. "pyproject.toml"
+    package_name: str
+    import_names: list[str]   # resolved import names (may differ from package name)
+    import_hits: int = 0      # count of source files importing this
+    hit_files: list[str] = field(default_factory=list)
+    is_dev: bool = False
+    ecosystem: str = "python"
+    line_number: int = 1
+
+
+# --- Known package name -> import name mismatches (zero-cost cache) ---
+
+_IMPORT_NAME_CACHE: dict[str, list[str]] = {
+    "pillow": ["PIL"],
+    "scikit-learn": ["sklearn"],
+    "pyyaml": ["yaml"],
+    "beautifulsoup4": ["bs4"],
+    "python-dateutil": ["dateutil"],
+    "pyjwt": ["jwt"],
+    "opencv-python": ["cv2"],
+    "opencv-python-headless": ["cv2"],
+    "python-dotenv": ["dotenv"],
+    "attrs": ["attr", "attrs"],
+    "protobuf": ["google.protobuf", "google"],
+    "grpcio": ["grpc"],
+    "pymongo": ["pymongo", "bson"],
+    "python-magic": ["magic"],
+    "python-multipart": ["multipart"],
+    "python-jose": ["jose"],
+    "ruamel.yaml": ["ruamel"],
+    "msgpack-python": ["msgpack"],
+    "pyzmq": ["zmq"],
+    "websocket-client": ["websocket"],
+    "gitpython": ["git"],
+    "python-slugify": ["slugify"],
+    "py": ["py"],
+    "pycryptodome": ["Crypto"],
+    "pynacl": ["nacl"],
+}
+
+# --- Build tools cache (fast pre-filter before LLM classification) ---
+
+_BUILD_TOOLS_CACHE: set[str] = {
+    # Python build tools
+    "black", "ruff", "isort", "flake8", "pylint", "mypy", "pyright",
+    "pytest", "tox", "nox", "pre-commit", "twine", "build", "setuptools",
+    "wheel", "pip", "pip-tools", "sphinx", "mkdocs", "coverage", "bandit",
+    "autopep8", "yapf", "pyflakes", "pycodestyle", "pydocstyle",
+    "flit", "hatch", "hatchling", "poetry", "poetry-core",
+    "maturin", "setuptools-scm", "setuptools-rust", "cython",
+    "bump2version", "bumpversion", "towncrier",
+    "sphinx-rtd-theme", "sphinx-autodoc-typehints",
+    "pytest-cov", "pytest-xdist", "pytest-asyncio", "pytest-mock",
+    "pytest-timeout", "pytest-randomly", "pytest-sugar",
+    "ipython", "ipdb", "debugpy",
+    # Node build tools
+    "typescript", "ts-node", "tsx", "esbuild", "webpack", "rollup", "vite",
+    "parcel", "turbo", "eslint", "prettier", "jest", "mocha", "vitest",
+    "cypress", "playwright", "rimraf", "nodemon", "husky", "lint-staged",
+    "concurrently", "cross-env", "dotenv-cli", "ts-jest",
+    "@types/node", "@types/jest", "@types/mocha",
+    "babel-jest", "identity-obj-proxy",
+    "postcss", "autoprefixer", "tailwindcss", "sass", "less",
+    "webpack-cli", "webpack-dev-server",
+    "@babel/core", "@babel/cli", "@babel/preset-env", "@babel/preset-typescript",
+    "terser", "cssnano", "mini-css-extract-plugin",
+}
+
+
+def _resolve_import_names_heuristic(package_name: str, ecosystem: str) -> list[str]:
+    """Map package name to importable name(s)."""
+    lower = package_name.lower()
+
+    if ecosystem == "python":
+        if lower in _IMPORT_NAME_CACHE:
+            return _IMPORT_NAME_CACHE[lower]
+        # Heuristic: lowercase, hyphens to underscores
+        return [lower.replace("-", "_")]
+
+    if ecosystem == "node":
+        return [package_name]  # Use exact name including scoped packages
+
+    if ecosystem == "rust":
+        return [package_name.replace("-", "_")]
+
+    if ecosystem == "go":
+        # Last path segment of module path
+        parts = package_name.rsplit("/", 1)
+        return [parts[-1]]
+
+    return [lower.replace("-", "_")]
+
+
+
+# --- LLM-backed import name resolution ---
+
+_RESOLVE_IMPORTS_SYSTEM_PROMPT = """You are a package name resolution expert. For each package, return the importable module name(s) that would appear in import statements.
+
+Be precise — many packages have import names that differ from their package names:
+- Python: pillow->PIL, scikit-learn->sklearn, pyyaml->yaml, beautifulsoup4->bs4
+- Rust: hyphens become underscores (serde-json->serde_json)
+- Node: scoped packages keep their scope (@scope/pkg)
+- Go: last path segment of module path
+
+If unsure, use the standard heuristic: lowercase, hyphens to underscores.
+
+Provide a resolution for EVERY package listed."""
+
+
+async def _resolve_import_names_batch_async(
+    provider: LLMProvider,
+    packages: list[tuple[str, str]],  # (package_name, ecosystem)
+    config: Config | None = None,
+) -> tuple[dict[str, list[str]], int, int]:
+    """Batch small-model call to resolve package names to import names.
+
+    Returns (package_name -> import_names, input_tokens, output_tokens).
+    """
+    if not packages:
+        return {}, 0, 0
+
+    # Build user message
+    lines = ["Resolve these packages to their importable module names:\n"]
+    for pkg, eco in packages:
+        lines.append(f"- `{pkg}` ({eco})")
+
+    pkg_names = [pkg for pkg, _ in packages]
+    lines.append(f"\nProvide a resolution for EVERY package: {', '.join(f'`{p}`' for p in pkg_names)}")
+
+    expected = {pkg for pkg, _ in packages}
+
+    def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
+        if tool_name != "resolve_import_names":
+            return []
+        resolutions = tool_input.get("resolutions", [])
+        got = {r.get("package_name") for r in resolutions}
+        missing = expected - got
+        return [f"Missing resolution for package '{n}'" for n in sorted(missing)]
+
+    result = await provider.complete(
+        messages=[Message(role=MessageRole.USER, content="\n".join(lines))],
+        system=_RESOLVE_IMPORTS_SYSTEM_PROMPT,
+        options=CompletionOptions(
+            model=config.model_for("small") if config is not None else ANTHROPIC_MODEL_SMALL,
+            max_tokens=max(1024, len(packages) * 50),
+            reservation_key="junk_deps.resolve_import_names",
+            tools=get_resolve_import_names_tool_definitions(),
+            tool_choice={"type": "tool", "name": "resolve_import_names"},
+            tool_input_validators=[check_completeness],
+        ),
+    )
+
+    resolved: dict[str, list[str]] = {}
+    for tc in result.tool_calls:
+        if tc.name == "resolve_import_names":
+            for r in tc.input.get("resolutions", []):
+                pkg = r.get("package_name", "")
+                names = r.get("import_names", [])
+                if pkg and names:
+                    resolved[pkg] = names
+
+    return resolved, result.input_tokens, result.output_tokens
+
+
+# --- LLM-backed dependency classification ---
+
+_CLASSIFY_DEPS_SYSTEM_PROMPT = """You are a dependency usage classifier. For each zero-import dependency, determine HOW it is used based on its name and ecosystem context.
+
+Be conservative — if a package is clearly a build tool, linter, formatter, test framework, type stub, or plugin, classify it accordingly to avoid false positives in dead dependency detection.
+
+Only classify as `genuine_candidate` if the package does not fit any other category."""
+
+
+async def _classify_deps_batch_async(
+    provider: LLMProvider,
+    candidates: list[DependencyCandidate],
+    manifest_content: str,
+    config: Config | None = None,
+) -> tuple[list[DependencyCandidate], dict[str, str], int, int]:
+    """Batch small-model call to classify zero-import dependencies.
+
+    Returns (genuine_candidates, classification_map, input_tokens, output_tokens).
+    """
+    if not candidates:
+        return [], {}, 0, 0
+
+    lines = [f"## Manifest context\n```\n{manifest_content[:10000]}\n```\n"]
+    lines.append("## Zero-import dependencies to classify\n")
+    for c in candidates:
+        dev_tag = " (dev)" if c.is_dev else ""
+        lines.append(f"- `{c.package_name}`{dev_tag} ({c.ecosystem})")
+
+    pkg_names = [c.package_name for c in candidates]
+    lines.append(f"\nClassify EVERY dependency: {', '.join(f'`{p}`' for p in pkg_names)}")
+
+    expected = {c.package_name for c in candidates}
+
+    def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
+        if tool_name != "classify_deps":
+            return []
+        classifications = tool_input.get("classifications", [])
+        got = {c.get("package_name") for c in classifications}
+        missing = expected - got
+        return [f"Missing classification for '{n}'" for n in sorted(missing)]
+
+    result = await provider.complete(
+        messages=[Message(role=MessageRole.USER, content="\n".join(lines))],
+        system=_CLASSIFY_DEPS_SYSTEM_PROMPT,
+        options=CompletionOptions(
+            model=config.model_for("small") if config is not None else ANTHROPIC_MODEL_SMALL,
+            max_tokens=max(1024, len(candidates) * 80),
+            reservation_key="junk_deps.classify",
+            tools=get_classify_deps_tool_definitions(),
+            tool_choice={"type": "tool", "name": "classify_deps"},
+            tool_input_validators=[check_completeness],
+        ),
+    )
+
+    classification_map: dict[str, str] = {}
+    for tc in result.tool_calls:
+        if tc.name == "classify_deps":
+            for c in tc.input.get("classifications", []):
+                pkg = c.get("package_name", "")
+                cls = c.get("classification", "genuine_candidate")
+                if pkg:
+                    classification_map[pkg] = cls
+
+    genuine = [c for c in candidates if classification_map.get(c.package_name) == "genuine_candidate"]
+    return genuine, classification_map, result.input_tokens, result.output_tokens
+
+
+# --- Manifest discovery ---
+
+_MANIFEST_FILES: dict[str, str] = {
+    "pyproject.toml": "python",
+    "setup.cfg": "python",
+    "Pipfile": "python",
+    "package.json": "node",
+    "Cargo.toml": "rust",
+    "go.mod": "go",
+}
+
+_REQUIREMENTS_PATTERN = re.compile(r"^requirements(?:-\w+)?\.txt$")
+
+
+def discover_manifests(config: Config) -> list[tuple[str, str]]:
+    """Scan repo root for known manifest filenames.
+
+    Returns list of (relative_path, ecosystem).
+    """
+    manifests: list[tuple[str, str]] = []
+
+    # Check fixed filenames at root
+    for filename, ecosystem in _MANIFEST_FILES.items():
+        if (config.root_path / filename).is_file():
+            manifests.append((filename, ecosystem))
+
+    # Check requirements*.txt patterns
+    for child in config.root_path.iterdir():
+        if child.is_file() and _REQUIREMENTS_PATTERN.match(child.name):
+            manifests.append((child.name, "python"))
+
+    return manifests
+
+
+# --- Manifest parsers ---
+
+def _parse_requirements_txt(content: str, path: str) -> list[DependencyCandidate]:
+    """Parse requirements.txt format."""
+    candidates: list[DependencyCandidate] = []
+    for line_num, line in enumerate(content.splitlines(), 1):
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        # Skip directives
+        if line.startswith(("-r", "-c", "-e", "-f", "--")):
+            continue
+        # Strip version specifiers, extras, markers
+        # Package name is everything before first version specifier or extra
+        match = re.match(r"([A-Za-z0-9][\w.\-]*)", line)
+        if match:
+            pkg = match.group(1).strip(".")
+            if pkg:
+                candidates.append(DependencyCandidate(
+                    manifest_path=path,
+                    package_name=pkg,
+                    import_names=_resolve_import_names_heuristic(pkg, "python"),
+                    ecosystem="python",
+                    line_number=line_num,
+                ))
+    return candidates
+
+
+def _parse_pyproject_toml(content: str, path: str) -> list[DependencyCandidate]:
+    """Parse pyproject.toml for Python dependencies."""
+    try:
+        import tomllib
+    except ImportError:
+        try:
+            import tomli as tomllib  # type: ignore[no-redef]
+        except ImportError:
+            return []
+
+    try:
+        data = tomllib.loads(content)
+    except Exception:
+        return []
+
+    candidates: list[DependencyCandidate] = []
+    lines = content.splitlines()
+
+    def _find_line(pkg_name: str) -> int:
+        """Find approximate line number for a package in the TOML file."""
+        lower = pkg_name.lower()
+        for i, line in enumerate(lines, 1):
+            if lower in line.lower():
+                return i
+        return 1
+
+    def _extract_pkg_name(spec: str) -> str:
+        """Extract package name from a PEP 508 dependency specifier."""
+        match = re.match(r"([A-Za-z0-9][\w.\-]*)", spec)
+        return match.group(1) if match else ""
+
+    # project.dependencies
+    for spec in data.get("project", {}).get("dependencies", []):
+        pkg = _extract_pkg_name(spec)
+        if pkg:
+            candidates.append(DependencyCandidate(
+                manifest_path=path, package_name=pkg,
+                import_names=_resolve_import_names_heuristic(pkg, "python"),
+                ecosystem="python", line_number=_find_line(pkg),
+            ))
+
+    # project.optional-dependencies
+    _dev_group_names = {"dev", "develop", "development", "test", "testing", "lint", "docs"}
+    for group_name, group_deps in data.get("project", {}).get("optional-dependencies", {}).items():
+        is_dev = group_name.lower() in _dev_group_names
+        for spec in group_deps:
+            pkg = _extract_pkg_name(spec)
+            if pkg:
+                candidates.append(DependencyCandidate(
+                    manifest_path=path, package_name=pkg,
+                    import_names=_resolve_import_names_heuristic(pkg, "python"),
+                    ecosystem="python", line_number=_find_line(pkg), is_dev=is_dev,
+                ))
+
+    # tool.poetry.dependencies / tool.poetry.group.*.dependencies
+    poetry = data.get("tool", {}).get("poetry", {})
+    for pkg in poetry.get("dependencies", {}):
+        if pkg.lower() == "python":
+            continue
+        candidates.append(DependencyCandidate(
+            manifest_path=path, package_name=pkg,
+            import_names=_resolve_import_names_heuristic(pkg, "python"),
+            ecosystem="python", line_number=_find_line(pkg),
+        ))
+    for group_data in poetry.get("group", {}).values():
+        for pkg in group_data.get("dependencies", {}):
+            if pkg.lower() == "python":
+                continue
+            candidates.append(DependencyCandidate(
+                manifest_path=path, package_name=pkg,
+                import_names=_resolve_import_names_heuristic(pkg, "python"),
+                ecosystem="python", line_number=_find_line(pkg), is_dev=True,
+            ))
+
+    # build-system.requires
+    for spec in data.get("build-system", {}).get("requires", []):
+        pkg = _extract_pkg_name(spec)
+        if pkg:
+            candidates.append(DependencyCandidate(
+                manifest_path=path, package_name=pkg,
+                import_names=_resolve_import_names_heuristic(pkg, "python"),
+                ecosystem="python", line_number=_find_line(pkg), is_dev=True,
+            ))
+
+    return candidates
+
+
+def _parse_package_json(content: str, path: str) -> list[DependencyCandidate]:
+    """Parse package.json for Node dependencies."""
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError:
+        return []
+
+    candidates: list[DependencyCandidate] = []
+    lines = content.splitlines()
+
+    def _find_line(pkg_name: str) -> int:
+        for i, line in enumerate(lines, 1):
+            if f'"{pkg_name}"' in line:
+                return i
+        return 1
+
+    for section, is_dev in [
+        ("dependencies", False),
+        ("devDependencies", True),
+        ("peerDependencies", False),
+    ]:
+        for pkg in data.get(section, {}):
+            candidates.append(DependencyCandidate(
+                manifest_path=path, package_name=pkg,
+                import_names=_resolve_import_names_heuristic(pkg, "node"),
+                ecosystem="node", line_number=_find_line(pkg), is_dev=is_dev,
+            ))
+
+    return candidates
+
+
+def _parse_cargo_toml(content: str, path: str) -> list[DependencyCandidate]:
+    """Parse Cargo.toml for Rust dependencies."""
+    try:
+        import tomllib
+    except ImportError:
+        try:
+            import tomli as tomllib  # type: ignore[no-redef]
+        except ImportError:
+            return []
+
+    try:
+        data = tomllib.loads(content)
+    except Exception:
+        return []
+
+    candidates: list[DependencyCandidate] = []
+    lines = content.splitlines()
+
+    def _find_line(pkg_name: str) -> int:
+        for i, line in enumerate(lines, 1):
+            if pkg_name in line:
+                return i
+        return 1
+
+    for section, is_dev in [("dependencies", False), ("dev-dependencies", True)]:
+        for pkg, value in data.get(section, {}).items():
+            # Handle package renames: {package = "actual-name", ...}
+            actual_name = pkg
+            if isinstance(value, dict) and "package" in value:
+                actual_name = value["package"]
+            candidates.append(DependencyCandidate(
+                manifest_path=path, package_name=pkg,
+                import_names=_resolve_import_names_heuristic(actual_name, "rust"),
+                ecosystem="rust", line_number=_find_line(pkg), is_dev=is_dev,
+            ))
+
+    return candidates
+
+
+def _parse_go_mod(content: str, path: str) -> list[DependencyCandidate]:
+    """Parse go.mod for Go dependencies."""
+    candidates: list[DependencyCandidate] = []
+
+    # Match both single-line and block require
+    # Single: require github.com/foo/bar v1.2.3
+    # Block: require ( \n  github.com/foo/bar v1.2.3 \n )
+    in_require_block = False
+    for line_num, line in enumerate(content.splitlines(), 1):
+        stripped = line.strip()
+
+        if stripped.startswith("require ("):
+            in_require_block = True
+            continue
+        if in_require_block and stripped == ")":
+            in_require_block = False
+            continue
+
+        if in_require_block:
+            match = re.match(r"(\S+)\s+\S+", stripped)
+            if match:
+                mod_path = match.group(1)
+                candidates.append(DependencyCandidate(
+                    manifest_path=path, package_name=mod_path,
+                    import_names=_resolve_import_names_heuristic(mod_path, "go"),
+                    ecosystem="go", line_number=line_num,
+                ))
+        elif stripped.startswith("require ") and "(" not in stripped:
+            match = re.match(r"require\s+(\S+)\s+\S+", stripped)
+            if match:
+                mod_path = match.group(1)
+                candidates.append(DependencyCandidate(
+                    manifest_path=path, package_name=mod_path,
+                    import_names=_resolve_import_names_heuristic(mod_path, "go"),
+                    ecosystem="go", line_number=line_num,
+                ))
+
+    return candidates
+
+
+_PARSERS: dict[str, Callable] = {
+    "requirements.txt": _parse_requirements_txt,
+    "pyproject.toml": _parse_pyproject_toml,
+    "setup.cfg": _parse_requirements_txt,  # best-effort: only matches bare pkg==ver lines, misses INI structure
+    "Pipfile": _parse_requirements_txt,    # best-effort: only matches bare pkg lines, misses TOML structure
+    "package.json": _parse_package_json,
+    "Cargo.toml": _parse_cargo_toml,
+    "go.mod": _parse_go_mod,
+}
+
+
+def parse_manifest(content: str, path: str) -> list[DependencyCandidate]:
+    """Parse a manifest file and return dependency candidates."""
+    # Find parser by filename
+    filename = Path(path).name
+    if filename in _PARSERS:
+        return _PARSERS[filename](content, path)
+    # Requirements-like files
+    if _REQUIREMENTS_PATTERN.match(filename):
+        return _parse_requirements_txt(content, path)
+    return []
+
+
+# --- Import scanning ---
+
+def scan_imports(
+    config: Config,
+    candidates: list[DependencyCandidate],
+) -> list[DependencyCandidate]:
+    """Scan all source files for imports matching candidate dependencies.
+
+    Updates import_hits and hit_files on each candidate. Returns all candidates.
+    """
+    if not candidates:
+        return candidates
+
+    # Build pattern: map import_name -> list of candidate indices
+    import_to_candidates: dict[str, list[int]] = {}
+    for idx, cand in enumerate(candidates):
+        for imp_name in cand.import_names:
+            import_to_candidates.setdefault(imp_name, []).append(idx)
+
+    # Build regex for all import names
+    all_import_names = sorted(import_to_candidates.keys(), key=len, reverse=True)
+    if not all_import_names:
+        return candidates
+
+    escaped = [re.escape(name) for name in all_import_names]
+    pattern = re.compile(r"(?<!\w)(" + "|".join(escaped) + r")(?!\w)")
+
+    # Scan all repo files
+    all_paths, _ = list_repo_files(config)
+    osojiignore = config.load_osojiignore()
+
+    for path in all_paths:
+        if not path.is_absolute():
+            path = config.root_path / path
+
+        if not path.is_file():
+            continue
+
+        relative = path.relative_to(config.root_path)
+        rel_str = str(relative).replace("\\", "/")
+
+        if rel_str.startswith(SHADOW_DIR):
+            continue
+        if _matches_ignore(relative, config.ignore_patterns):
+            continue
+        if osojiignore and _matches_ignore(relative, osojiignore):
+            continue
+
+        # Skip manifest files themselves
+        if rel_str in {c.manifest_path for c in candidates}:
+            continue
+
+        try:
+            content = path.read_text(errors="ignore")
+        except OSError:
+            continue
+
+        # Find all import name matches in this file
+        found_names: set[str] = set()
+        for match in pattern.finditer(content):
+            found_names.add(match.group(1))
+
+        for name in found_names:
+            for idx in import_to_candidates.get(name, []):
+                if rel_str not in candidates[idx].hit_files:
+                    candidates[idx].hit_files.append(rel_str)
+                    candidates[idx].import_hits += 1
+
+    return candidates
+
+
+def _filter_zero_import(candidates: list[DependencyCandidate]) -> list[DependencyCandidate]:
+    """Return only candidates where import_hits == 0."""
+    return [c for c in candidates if c.import_hits == 0]
+
+
+
+# --- Full pipeline ---
+
+async def detect_dead_deps_async(
+    provider: LLMProvider,
+    config: Config,
+    on_progress: Callable[[int, int, Path, str], None] | None = None,
+) -> tuple[list[Finding], int]:
+    """Detect unused dependencies through the unified pipeline.
+
+    The retained propose stages (resolve import names, pre-filter build tools,
+    classify) whittle to *genuine* zero-import candidates; each becomes a
+    reachability Finding whose needles are the package name plus every resolved
+    import name. The Claim Builder gathers any non-import textual use and Triage
+    judges build-tool/plugin/CLI liveness before confirming dead.
+
+    Returns ``(decided Findings — all verdicts; callers keep ``confirmed`` —,
+    genuine candidates examined)``.
+    """
+    manifests = discover_manifests(config)
+    if not manifests:
+        print("  [skip] No manifest files found.", flush=True)
+        return [], 0
+
+    print(f"  Found {len(manifests)} manifest file(s)", flush=True)
+
+    # Parse all manifests
+    all_candidates: list[DependencyCandidate] = []
+    manifest_contents: dict[str, str] = {}
+
+    for manifest_path, ecosystem in manifests:
+        full_path = config.root_path / manifest_path
+        try:
+            content = full_path.read_text(errors="ignore")
+        except OSError:
+            continue
+        manifest_contents[manifest_path] = content
+        parsed = parse_manifest(content, manifest_path)
+        all_candidates.extend(parsed)
+
+    if not all_candidates:
+        print("  No dependencies found in manifests.", flush=True)
+        return [], 0
+
+    print(f"  Found {len(all_candidates)} dependency(ies) across all manifests", flush=True)
+
+    # --- LLM import name resolution ---
+    # Collect packages not already in cache
+    to_resolve: list[tuple[str, str]] = []
+    for cand in all_candidates:
+        if cand.package_name.lower() not in _IMPORT_NAME_CACHE:
+            to_resolve.append((cand.package_name, cand.ecosystem))
+
+    # Deduplicate
+    to_resolve = list(dict.fromkeys(to_resolve))
+
+    if to_resolve:
+        try:
+            # Batch up to 80 per call
+            llm_resolved: dict[str, list[str]] = {}
+            for i in range(0, len(to_resolve), 80):
+                batch = to_resolve[i:i + 80]
+                resolved, _in_tok, _out_tok = await _resolve_import_names_batch_async(
+                    provider, batch, config,
+                )
+                llm_resolved.update(resolved)
+
+            # Update candidate import names with LLM results
+            for cand in all_candidates:
+                if cand.package_name in llm_resolved:
+                    cand.import_names = llm_resolved[cand.package_name]
+
+            print(f"  LLM resolved import names for {len(llm_resolved)}/{len(to_resolve)} package(s)", flush=True)
+        except Exception as e:
+            print(f"  [warn] LLM import resolution failed, using heuristic: {e}", flush=True)
+
+    # Scan imports
+    scan_imports(config, all_candidates)
+
+    # Filter to zero-import candidates
+    zero_import = _filter_zero_import(all_candidates)
+
+    # Fast pre-filter: remove known build tools and @types packages
+    pre_filtered: list[DependencyCandidate] = []
+    for cand in zero_import:
+        lower = cand.package_name.lower()
+        if lower in _BUILD_TOOLS_CACHE:
+            continue
+        if cand.ecosystem == "node" and lower.startswith("@types/"):
+            continue
+        pre_filtered.append(cand)
+
+    print(
+        f"  {len(pre_filtered)} zero-import candidate(s) after pre-filter "
+        f"(from {len(all_candidates)} total, {len(zero_import)} zero-import)",
+        flush=True,
+    )
+
+    if not pre_filtered:
+        return [], 0
+
+    # --- LLM dependency classification ---
+    # Group by manifest for classification
+    by_manifest_classify: dict[str, list[DependencyCandidate]] = {}
+    for cand in pre_filtered:
+        by_manifest_classify.setdefault(cand.manifest_path, []).append(cand)
+
+    genuine_candidates: list[DependencyCandidate] = []
+    for manifest_path, cands in by_manifest_classify.items():
+        try:
+            # Batch up to 50 per call
+            for i in range(0, len(cands), 50):
+                batch = cands[i:i + 50]
+                genuine, _class_map, _in_tok, _out_tok = await _classify_deps_batch_async(
+                    provider, batch, manifest_contents.get(manifest_path, ""), config,
+                )
+                genuine_candidates.extend(genuine)
+        except Exception as e:
+            print(f"  [warn] Small-model classification failed for {manifest_path}, sending all to medium model: {e}", flush=True)
+            genuine_candidates.extend(cands)
+
+    print(
+        f"  {len(genuine_candidates)} genuine candidate(s) for medium-model verification "
+        f"(small model filtered {len(pre_filtered) - len(genuine_candidates)})",
+        flush=True,
+    )
+
+    if not genuine_candidates:
+        return [], 0
+
+    # Build claims and decide through unified Triage
+    findings = [finding_from_dep_candidate(c) for c in genuine_candidates]
+    ctx = BuildContext(config, facts_db=FactsDB(config))
+    claims = build_junk_claims(findings, ctx)
+    decided, _in_tok, _out_tok = await decide_junk_claims(
+        claims, config, provider, on_progress=on_progress
+    )
+    return decided, len(genuine_candidates)
+
+
+class DeadDepsAnalyzer(JunkAnalyzer):
+    """Junk analyzer that detects unused package dependencies."""
+
+    @property
+    def name(self) -> str:
+        return "dead_deps"
+
+    @property
+    def description(self) -> str:
+        return "Detect unused package dependencies"
+
+    @property
+    def cli_flag(self) -> str:
+        return "dead-deps"
+
+    def analyze(self, config):
+        """Sync wrapper — skip symbols-dir check (deps don't need symbols)."""
+
+        async def _run() -> JunkAnalysisResult:
+            logging_provider, _ = create_runtime(config)
+            try:
+                return await self.analyze_async(
+                    logging_provider, config, None
+                )
+            finally:
+                await logging_provider.close()
+
+        return asyncio.run(_run())
+
+    async def analyze_async(self, provider, config, on_progress=None):
+        decided, total = await detect_dead_deps_async(provider, config, on_progress)
+        findings = []
+        for f in decided:
+            if f.verdict != "confirmed":
+                continue
+            meta = _scanner_meta(f)
+            package_name = meta.get("package_name", f.symbol or "")
+            findings.append(JunkFinding(
+                source_path=f.path,
+                name=package_name,
+                kind="dependency",
+                category="dead_dependency",
+                line_start=f.line_start or 1,
+                line_end=None,
+                confidence=f.confidence if f.confidence is not None else 0.0,
+                reason=f.triage_reasoning or "",
+                remediation=f.suggested_fix or f"Remove `{package_name}` from `{f.path}`",
+                original_purpose=f"dependency `{package_name}`",
+                confidence_source="llm_inferred",
+                # usage_type died with the verify verdict; a confirmed finding is
+                # unused by definition, preserving the downstream key.
+                metadata={"usage_type": "unused"},
+                finding_id=f.id,
+                verdict=f.verdict,
+            ))
+        return JunkAnalysisResult(
+            findings=findings,
+            total_candidates=total,
+            analyzer_name=self.name,
+        )

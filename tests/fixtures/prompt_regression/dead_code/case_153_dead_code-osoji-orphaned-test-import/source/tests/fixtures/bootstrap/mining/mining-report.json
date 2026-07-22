@@ -1,0 +1,2989 @@
+{
+  "summary_file": "exploration-sdk-summary.json",
+  "n_mined": 48,
+  "excluded": [
+    {
+      "slug": "dead_parameter-case_002-error",
+      "reason": "gray"
+    },
+    {
+      "slug": "audit-obligation_implicit_contract-002",
+      "reason": "verdict miss"
+    },
+    {
+      "slug": "audit-obligation_implicit_contract-007",
+      "reason": "gray"
+    },
+    {
+      "slug": "audit-dead_parameter-002",
+      "reason": "gray"
+    },
+    {
+      "slug": "audit-latent_bug-002",
+      "reason": "gray"
+    },
+    {
+      "slug": "audit-stale_comment-002",
+      "reason": "gray"
+    }
+  ],
+  "by_category": {
+    "dead_code": {
+      "n_traces": 11,
+      "calls_mean": 4.5,
+      "calls_median": 4,
+      "calls_max": 11,
+      "grep_calls_by_shape": {
+        "symbol": 16,
+        "regex": 9,
+        "import_probe": 4
+      },
+      "read_calls_by_scope": {
+        "flagged_region": 13,
+        "same_file_other": 6,
+        "referencing_site": 1
+      },
+      "list_dir_calls": 1,
+      "trace_pct_with_grep_shape": {
+        "import_probe": 0.36,
+        "symbol": 0.82,
+        "regex": 0.36
+      },
+      "trace_pct_with_read_scope": {
+        "flagged_region": 1.0,
+        "same_file_other": 0.36,
+        "referencing_site": 0.09
+      },
+      "trace_pct_with_breadth": {
+        "repo_wide": 0.73,
+        "scoped": 0.36
+      },
+      "first_action_histogram": {
+        "grep:symbol": 8,
+        "read_file:flagged_region": 3
+      }
+    },
+    "dead_parameter": {
+      "n_traces": 6,
+      "calls_mean": 7.3,
+      "calls_median": 7.5,
+      "calls_max": 12,
+      "grep_calls_by_shape": {
+        "symbol": 13,
+        "regex": 5
+      },
+      "read_calls_by_scope": {
+        "flagged_region": 8,
+        "referencing_site": 7,
+        "same_file_other": 6
+      },
+      "list_dir_calls": 5,
+      "trace_pct_with_grep_shape": {
+        "symbol": 0.83,
+        "regex": 0.33
+      },
+      "trace_pct_with_read_scope": {
+        "flagged_region": 1.0,
+        "same_file_other": 0.67,
+        "referencing_site": 0.83
+      },
+      "trace_pct_with_breadth": {
+        "repo_wide": 0.5,
+        "scoped": 1.0
+      },
+      "first_action_histogram": {
+        "read_file:flagged_region": 6
+      }
+    },
+    "dead_symbol": {
+      "n_traces": 4,
+      "calls_mean": 6,
+      "calls_median": 5.5,
+      "calls_max": 10,
+      "grep_calls_by_shape": {
+        "symbol": 5,
+        "literal": 4,
+        "import_probe": 1,
+        "regex": 1
+      },
+      "read_calls_by_scope": {
+        "flagged_region": 5,
+        "referencing_site": 7,
+        "other_file": 1
+      },
+      "list_dir_calls": 0,
+      "trace_pct_with_grep_shape": {
+        "import_probe": 0.25,
+        "symbol": 1.0,
+        "literal": 0.5,
+        "regex": 0.25
+      },
+      "trace_pct_with_read_scope": {
+        "flagged_region": 1.0,
+        "referencing_site": 1.0,
+        "other_file": 0.25
+      },
+      "trace_pct_with_breadth": {
+        "repo_wide": 1.0,
+        "scoped": 0.25
+      },
+      "first_action_histogram": {
+        "grep:symbol": 3,
+        "read_file:flagged_region": 1
+      }
+    },
+    "doc_incorrect_content": {
+      "n_traces": 2,
+      "calls_mean": 4.5,
+      "calls_median": 4.5,
+      "calls_max": 5,
+      "grep_calls_by_shape": {
+        "symbol": 4,
+        "regex": 1
+      },
+      "read_calls_by_scope": {
+        "flagged_region": 2,
+        "other_file": 1,
+        "referencing_site": 1
+      },
+      "list_dir_calls": 0,
+      "trace_pct_with_grep_shape": {
+        "symbol": 1.0,
+        "regex": 0.5
+      },
+      "trace_pct_with_read_scope": {
+        "flagged_region": 1.0,
+        "referencing_site": 0.5,
+        "other_file": 0.5
+      },
+      "trace_pct_with_breadth": {
+        "repo_wide": 0.5,
+        "scoped": 0.5
+      },
+      "first_action_histogram": {
+        "read_file:flagged_region": 2
+      }
+    },
+    "doc_misleading_claim": {
+      "n_traces": 1,
+      "calls_mean": 3,
+      "calls_median": 3,
+      "calls_max": 3,
+      "grep_calls_by_shape": {
+        "regex": 1
+      },
+      "read_calls_by_scope": {
+        "flagged_region": 1,
+        "other_file": 1
+      },
+      "list_dir_calls": 0,
+      "trace_pct_with_grep_shape": {
+        "regex": 1.0
+      },
+      "trace_pct_with_read_scope": {
+        "flagged_region": 1.0,
+        "other_file": 1.0
+      },
+      "trace_pct_with_breadth": {
+        "scoped": 1.0
+      },
+      "first_action_histogram": {
+        "read_file:flagged_region": 1
+      }
+    },
+    "doc_obsolete_reference": {
+      "n_traces": 1,
+      "calls_mean": 5,
+      "calls_median": 5,
+      "calls_max": 5,
+      "grep_calls_by_shape": {
+        "symbol": 2,
+        "literal": 1
+      },
+      "read_calls_by_scope": {
+        "flagged_region": 1,
+        "referencing_site": 1
+      },
+      "list_dir_calls": 0,
+      "trace_pct_with_grep_shape": {
+        "symbol": 1.0,
+        "literal": 1.0
+      },
+      "trace_pct_with_read_scope": {
+        "flagged_region": 1.0,
+        "referencing_site": 1.0
+      },
+      "trace_pct_with_breadth": {
+        "repo_wide": 1.0
+      },
+      "first_action_histogram": {
+        "grep:symbol": 1
+      }
+    },
+    "doc_stale_content": {
+      "n_traces": 1,
+      "calls_mean": 10,
+      "calls_median": 10,
+      "calls_max": 10,
+      "grep_calls_by_shape": {
+        "literal": 1,
+        "regex": 3
+      },
+      "read_calls_by_scope": {
+        "flagged_region": 1,
+        "shadow_doc": 1
+      },
+      "list_dir_calls": 4,
+      "trace_pct_with_grep_shape": {
+        "literal": 1.0,
+        "regex": 1.0
+      },
+      "trace_pct_with_read_scope": {
+        "flagged_region": 1.0,
+        "shadow_doc": 1.0
+      },
+      "trace_pct_with_breadth": {
+        "scoped": 1.0
+      },
+      "first_action_histogram": {
+        "list_dir": 1
+      }
+    },
+    "latent_bug": {
+      "n_traces": 7,
+      "calls_mean": 4,
+      "calls_median": 3,
+      "calls_max": 8,
+      "grep_calls_by_shape": {
+        "symbol": 8,
+        "regex": 3
+      },
+      "read_calls_by_scope": {
+        "flagged_region": 7,
+        "referencing_site": 6,
+        "same_file_other": 2,
+        "other_file": 1
+      },
+      "list_dir_calls": 1,
+      "trace_pct_with_grep_shape": {
+        "symbol": 0.86,
+        "regex": 0.43
+      },
+      "trace_pct_with_read_scope": {
+        "flagged_region": 1.0,
+        "same_file_other": 0.29,
+        "referencing_site": 0.43,
+        "other_file": 0.14
+      },
+      "trace_pct_with_breadth": {
+        "repo_wide": 0.14,
+        "scoped": 0.86
+      },
+      "first_action_histogram": {
+        "grep:symbol": 3,
+        "read_file:flagged_region": 3,
+        "grep:regex": 1
+      }
+    },
+    "misleading_docstring": {
+      "n_traces": 2,
+      "calls_mean": 2.5,
+      "calls_median": 2.5,
+      "calls_max": 4,
+      "grep_calls_by_shape": {
+        "regex": 1
+      },
+      "read_calls_by_scope": {
+        "flagged_region": 2,
+        "same_file_other": 2
+      },
+      "list_dir_calls": 0,
+      "trace_pct_with_grep_shape": {
+        "regex": 0.5
+      },
+      "trace_pct_with_read_scope": {
+        "flagged_region": 1.0,
+        "same_file_other": 0.5
+      },
+      "trace_pct_with_breadth": {
+        "scoped": 0.5
+      },
+      "first_action_histogram": {
+        "read_file:flagged_region": 2
+      }
+    },
+    "obligation_implicit_contract": {
+      "n_traces": 6,
+      "calls_mean": 11,
+      "calls_median": 11.0,
+      "calls_max": 13,
+      "grep_calls_by_shape": {
+        "regex": 26,
+        "symbol": 5,
+        "import_probe": 1
+      },
+      "read_calls_by_scope": {
+        "referencing_site": 22,
+        "flagged_region": 10
+      },
+      "list_dir_calls": 2,
+      "trace_pct_with_grep_shape": {
+        "import_probe": 0.17,
+        "symbol": 0.5,
+        "regex": 1.0
+      },
+      "trace_pct_with_read_scope": {
+        "flagged_region": 1.0,
+        "referencing_site": 1.0
+      },
+      "trace_pct_with_breadth": {
+        "repo_wide": 0.17,
+        "scoped": 1.0
+      },
+      "first_action_histogram": {
+        "grep:regex": 5,
+        "grep:symbol": 1
+      }
+    },
+    "obligation_violation": {
+      "n_traces": 2,
+      "calls_mean": 6,
+      "calls_median": 6.0,
+      "calls_max": 8,
+      "grep_calls_by_shape": {
+        "symbol": 3,
+        "regex": 2
+      },
+      "read_calls_by_scope": {
+        "flagged_region": 2,
+        "referencing_site": 5
+      },
+      "list_dir_calls": 0,
+      "trace_pct_with_grep_shape": {
+        "symbol": 1.0,
+        "regex": 0.5
+      },
+      "trace_pct_with_read_scope": {
+        "flagged_region": 1.0,
+        "referencing_site": 1.0
+      },
+      "trace_pct_with_breadth": {
+        "repo_wide": 1.0,
+        "scoped": 0.5
+      },
+      "first_action_histogram": {
+        "grep:symbol": 2
+      }
+    },
+    "stale_comment": {
+      "n_traces": 2,
+      "calls_mean": 6.5,
+      "calls_median": 6.5,
+      "calls_max": 7,
+      "grep_calls_by_shape": {
+        "symbol": 5,
+        "regex": 1
+      },
+      "read_calls_by_scope": {
+        "flagged_region": 2,
+        "same_file_other": 3,
+        "referencing_site": 2
+      },
+      "list_dir_calls": 0,
+      "trace_pct_with_grep_shape": {
+        "symbol": 1.0,
+        "regex": 0.5
+      },
+      "trace_pct_with_read_scope": {
+        "flagged_region": 1.0,
+        "same_file_other": 0.5,
+        "referencing_site": 0.5
+      },
+      "trace_pct_with_breadth": {
+        "scoped": 1.0
+      },
+      "first_action_histogram": {
+        "read_file:flagged_region": 2
+      }
+    },
+    "unactuated_config": {
+      "n_traces": 3,
+      "calls_mean": 9.3,
+      "calls_median": 9,
+      "calls_max": 11,
+      "grep_calls_by_shape": {
+        "symbol": 6,
+        "literal": 2,
+        "import_probe": 1
+      },
+      "read_calls_by_scope": {
+        "flagged_region": 5,
+        "same_file_other": 8,
+        "other_file": 1
+      },
+      "list_dir_calls": 5,
+      "trace_pct_with_grep_shape": {
+        "import_probe": 0.33,
+        "symbol": 1.0,
+        "literal": 0.33
+      },
+      "trace_pct_with_read_scope": {
+        "flagged_region": 1.0,
+        "same_file_other": 0.67,
+        "other_file": 0.33
+      },
+      "trace_pct_with_breadth": {
+        "repo_wide": 1.0,
+        "scoped": 1.0
+      },
+      "first_action_histogram": {
+        "read_file:flagged_region": 2,
+        "grep:symbol": 1
+      }
+    }
+  },
+  "draft_proposal": {
+    "dead_code": {
+      "n_traces": 11,
+      "kinds": {
+        "cross_file_reference": {
+          "tier": "required",
+          "consult_rate_lower_bound": 0.82
+        },
+        "surrounding_code": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        }
+      }
+    },
+    "dead_parameter": {
+      "n_traces": 6,
+      "kinds": {
+        "cross_file_reference": {
+          "tier": "required",
+          "consult_rate_lower_bound": 0.83
+        },
+        "surrounding_code": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        }
+      }
+    },
+    "dead_symbol": {
+      "n_traces": 4,
+      "kinds": {
+        "cross_file_reference": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        },
+        "surrounding_code": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        }
+      }
+    },
+    "doc_incorrect_content": {
+      "n_traces": 2,
+      "kinds": {
+        "cross_file_reference": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        },
+        "surrounding_code": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        }
+      }
+    },
+    "doc_misleading_claim": {
+      "n_traces": 1,
+      "kinds": {
+        "cross_file_reference": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        },
+        "surrounding_code": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        }
+      }
+    },
+    "doc_obsolete_reference": {
+      "n_traces": 1,
+      "kinds": {
+        "cross_file_reference": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        },
+        "surrounding_code": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        }
+      }
+    },
+    "doc_stale_content": {
+      "n_traces": 1,
+      "kinds": {
+        "cross_file_reference": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        },
+        "surrounding_code": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        },
+        "shadow_doc_claim": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        }
+      }
+    },
+    "latent_bug": {
+      "n_traces": 7,
+      "kinds": {
+        "cross_file_reference": {
+          "tier": "required",
+          "consult_rate_lower_bound": 0.86
+        },
+        "surrounding_code": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        }
+      }
+    },
+    "misleading_docstring": {
+      "n_traces": 2,
+      "kinds": {
+        "cross_file_reference": {
+          "tier": "optional",
+          "consult_rate_lower_bound": 0.5
+        },
+        "surrounding_code": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        }
+      }
+    },
+    "obligation_implicit_contract": {
+      "n_traces": 6,
+      "kinds": {
+        "cross_file_reference": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        },
+        "surrounding_code": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        }
+      }
+    },
+    "obligation_violation": {
+      "n_traces": 2,
+      "kinds": {
+        "cross_file_reference": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        },
+        "surrounding_code": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        }
+      }
+    },
+    "stale_comment": {
+      "n_traces": 2,
+      "kinds": {
+        "cross_file_reference": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        },
+        "surrounding_code": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        }
+      }
+    },
+    "unactuated_config": {
+      "n_traces": 3,
+      "kinds": {
+        "cross_file_reference": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        },
+        "surrounding_code": {
+          "tier": "required",
+          "consult_rate_lower_bound": 1.0
+        }
+      }
+    }
+  },
+  "cross_check_mismatches": [],
+  "traces": [
+    {
+      "slug": "dead_code-case_001-get_file_tools",
+      "category": "dead_code",
+      "origin": "fixture",
+      "n_calls": 11,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "get_file_tools",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 1,
+          "name": "read_file",
+          "path": "src/osoji/tools.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 2,
+          "name": "grep",
+          "pattern": "get_\\w+_tools\\(\\)",
+          "shape": "regex",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 3,
+          "name": "grep",
+          "pattern": "from osoji\\.tools import|from \\.tools import|import tools",
+          "shape": "import_probe",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "get_\\w+_tool_definitions",
+          "shape": "regex",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 5,
+          "name": "grep",
+          "pattern": "get_file_tool_definitions|get_directory_tool_definitions",
+          "shape": "regex",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 6,
+          "name": "read_file",
+          "path": "src/osoji/tools.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 7,
+          "name": "grep",
+          "pattern": "__all__",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "src/osoji/tools.py"
+        },
+        {
+          "turn": 8,
+          "name": "grep",
+          "pattern": "get_file_tools|get_directory_tools|get_dead_code_tools\\b|get_match_doc_topics_tools\\b|get_verify_doc_finding_tools\\b",
+          "shape": "regex",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 9,
+          "name": "read_file",
+          "path": "src/osoji/tools.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 10,
+          "name": "grep",
+          "pattern": "get_file_tools",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "src/osoji/__init__.py"
+        }
+      ]
+    },
+    {
+      "slug": "dead_code-case_001-get_dead_code_tools",
+      "category": "dead_code",
+      "origin": "fixture",
+      "n_calls": 9,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "get_dead_code_tools",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 1,
+          "name": "read_file",
+          "path": "src/osoji/tools.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 2,
+          "name": "grep",
+          "pattern": "get_\\w+_tools\\(\\)",
+          "shape": "regex",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 3,
+          "name": "read_file",
+          "path": "src/osoji/tools.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "get_file_tools|get_directory_tools|get_match_doc_topics_tools|get_verify_doc_finding_tools|get_extract_obligations_tools|get_verify_actuation_tools",
+          "shape": "regex",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 5,
+          "name": "read_file",
+          "path": "src/osoji/tools.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 6,
+          "name": "grep",
+          "pattern": "get_file_tools\\(\\)|get_directory_tools\\(\\)|get_match_doc_topics_tools\\(\\)|get_verify_doc_finding_tools\\(\\)|get_extract_obligations_tools\\(\\)|get_verify_actuation_tools\\(\\)",
+          "shape": "regex",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 7,
+          "name": "grep",
+          "pattern": "get_dead_code_tool_definitions",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 8,
+          "name": "read_file",
+          "path": "src/osoji/tools.py",
+          "scope": "flagged_region"
+        }
+      ]
+    },
+    {
+      "slug": "dead_code-case_001-get_extract_obligations_tools",
+      "category": "dead_code",
+      "origin": "fixture",
+      "n_calls": 5,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "get_extract_obligations_tools",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 1,
+          "name": "read_file",
+          "path": "src/osoji/tools.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 2,
+          "name": "grep",
+          "pattern": "get_verify_actuation_tools\\b",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 3,
+          "name": "grep",
+          "pattern": "get_extract_obligations_tool_definitions|get_verify_actuation_tool_definitions",
+          "shape": "regex",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "from .tools import|from osoji.tools import",
+          "shape": "import_probe",
+          "breadth": "repo_wide"
+        }
+      ]
+    },
+    {
+      "slug": "dead_code-case_001-SUBMIT_SHADOW_DOC_TOOL",
+      "category": "dead_code",
+      "origin": "fixture",
+      "n_calls": 2,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "SUBMIT_SHADOW_DOC_TOOL",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 1,
+          "name": "read_file",
+          "path": "src/osoji/tools.py",
+          "scope": "flagged_region"
+        }
+      ]
+    },
+    {
+      "slug": "dead_code-case_001-VERIFY_DEAD_CODE_TOOL",
+      "category": "dead_code",
+      "origin": "fixture",
+      "n_calls": 5,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "VERIFY_DEAD_CODE_TOOL",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 1,
+          "name": "read_file",
+          "path": "src/osoji/tools.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "src/osoji/tools.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 3,
+          "name": "grep",
+          "pattern": "get_dead_code_tools",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "get_dead_code_tool_definitions|get_dead_code_tools",
+          "shape": "regex",
+          "breadth": "repo_wide"
+        }
+      ]
+    },
+    {
+      "slug": "dead_code-case_001-get_file_tool_definitions",
+      "category": "dead_code",
+      "origin": "fixture",
+      "n_calls": 2,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "get_file_tool_definitions",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 1,
+          "name": "read_file",
+          "path": "src/osoji/tools.py",
+          "scope": "flagged_region"
+        }
+      ]
+    },
+    {
+      "slug": "dead_code-case_002-AuditIssue",
+      "category": "dead_code",
+      "origin": "fixture",
+      "n_calls": 4,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "AuditIssue",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "AuditIssue",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 2,
+          "name": "grep",
+          "pattern": "from.*audit.*import|import.*audit",
+          "shape": "import_probe",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 3,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "flagged_region"
+        }
+      ]
+    },
+    {
+      "slug": "dead_code-case_002-AuditResult",
+      "category": "dead_code",
+      "origin": "fixture",
+      "n_calls": 7,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "AuditResult",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "from.*audit.*import|import.*audit",
+          "shape": "import_probe",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 3,
+          "name": "grep",
+          "pattern": "AuditResult",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "src/osoji/__init__.py"
+        },
+        {
+          "turn": 4,
+          "name": "list_dir",
+          "path": "src/osoji"
+        },
+        {
+          "turn": 5,
+          "name": "read_file",
+          "path": "src/osoji/cli.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 6,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "same_file_other"
+        }
+      ]
+    },
+    {
+      "slug": "dead_parameter-case_001-dead_code_results",
+      "category": "dead_parameter",
+      "origin": "fixture",
+      "n_calls": 10,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "src/osoji/scorecard.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "build_scorecard",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 3,
+          "name": "grep",
+          "pattern": "dead_code_results",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 4,
+          "name": "read_file",
+          "path": "src/osoji/scorecard.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 5,
+          "name": "grep",
+          "pattern": "dead_code_results",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 6,
+          "name": "grep",
+          "pattern": "build_scorecard",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 7,
+          "name": "list_dir",
+          "path": "."
+        },
+        {
+          "turn": 8,
+          "name": "list_dir",
+          "path": "src"
+        },
+        {
+          "turn": 9,
+          "name": "list_dir",
+          "path": "src/osoji"
+        }
+      ]
+    },
+    {
+      "slug": "dead_parameter-case_001-plumbing_result",
+      "category": "dead_parameter",
+      "origin": "fixture",
+      "n_calls": 11,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "src/osoji/scorecard.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "build_scorecard",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 3,
+          "name": "grep",
+          "pattern": "plumbing_result",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 4,
+          "name": "read_file",
+          "path": "src/osoji/scorecard.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 5,
+          "name": "grep",
+          "pattern": "plumbing_result",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 6,
+          "name": "grep",
+          "pattern": "build_scorecard",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 7,
+          "name": "list_dir",
+          "path": "."
+        },
+        {
+          "turn": 8,
+          "name": "list_dir",
+          "path": "src/osoji"
+        },
+        {
+          "turn": 9,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 10,
+          "name": "read_file",
+          "path": "src/osoji/scorecard.py",
+          "scope": "flagged_region"
+        }
+      ]
+    },
+    {
+      "slug": "dead_parameter-case_001-config",
+      "category": "dead_parameter",
+      "origin": "fixture",
+      "n_calls": 5,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "src/osoji/scorecard.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "build_scorecard",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "src/osoji/scorecard.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 3,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 4,
+          "name": "read_file",
+          "path": "src/osoji/scorecard.py",
+          "scope": "same_file_other"
+        }
+      ]
+    },
+    {
+      "slug": "dead_parameter-case_001-analysis_results",
+      "category": "dead_parameter",
+      "origin": "fixture",
+      "n_calls": 2,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "src/osoji/scorecard.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "analysis_results",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "src/osoji/scorecard.py"
+        }
+      ]
+    },
+    {
+      "slug": "latent_bug-case_001-n0",
+      "category": "latent_bug",
+      "origin": "fixture",
+      "n_calls": 3,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "record_token_usage",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "CompletionResult",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "example.py",
+          "scope": "flagged_region"
+        }
+      ]
+    },
+    {
+      "slug": "latent_bug-case_002-n0",
+      "category": "latent_bug",
+      "origin": "fixture",
+      "n_calls": 3,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "getElementById.*root",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "**/*.ts*"
+        },
+        {
+          "turn": 1,
+          "name": "list_dir",
+          "path": "."
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "main.ts",
+          "scope": "flagged_region"
+        }
+      ]
+    },
+    {
+      "slug": "latent_bug-case_003-n0",
+      "category": "latent_bug",
+      "origin": "fixture",
+      "n_calls": 2,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "getNodeLabel",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.ts"
+        },
+        {
+          "turn": 1,
+          "name": "read_file",
+          "path": "metrics.ts",
+          "scope": "flagged_region"
+        }
+      ]
+    },
+    {
+      "slug": "latent_bug-case_004-n0",
+      "category": "latent_bug",
+      "origin": "fixture",
+      "n_calls": 2,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "OnboardingPage",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.tsx"
+        },
+        {
+          "turn": 1,
+          "name": "read_file",
+          "path": "component.tsx",
+          "scope": "flagged_region"
+        }
+      ]
+    },
+    {
+      "slug": "unactuated_config-case_001-confidence",
+      "category": "unactuated_config",
+      "origin": "fixture",
+      "n_calls": 8,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "tools.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "confidence",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 2,
+          "name": "grep",
+          "pattern": "confidence",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 3,
+          "name": "read_file",
+          "path": "tools.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 4,
+          "name": "list_dir",
+          "path": "."
+        },
+        {
+          "turn": 5,
+          "name": "read_file",
+          "path": "tools.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 6,
+          "name": "read_file",
+          "path": "tools.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 7,
+          "name": "read_file",
+          "path": "tools.py",
+          "scope": "same_file_other"
+        }
+      ]
+    },
+    {
+      "slug": "unactuated_config-case_001-severity",
+      "category": "unactuated_config",
+      "origin": "fixture",
+      "n_calls": 11,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "tools.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "severity",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "tools.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 3,
+          "name": "grep",
+          "pattern": "severity",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.ts"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "severity",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 5,
+          "name": "list_dir",
+          "path": "."
+        },
+        {
+          "turn": 6,
+          "name": "read_file",
+          "path": "tools.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 7,
+          "name": "read_file",
+          "path": "tools.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 8,
+          "name": "read_file",
+          "path": "tools.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 9,
+          "name": "read_file",
+          "path": "tools.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 10,
+          "name": "read_file",
+          "path": "tools.py",
+          "scope": "flagged_region"
+        }
+      ]
+    },
+    {
+      "slug": "unactuated_config-case_002-Request",
+      "category": "unactuated_config",
+      "origin": "fixture",
+      "n_calls": 9,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "debugAdapterProtocol",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 1,
+          "name": "list_dir",
+          "path": "docs"
+        },
+        {
+          "turn": 2,
+          "name": "grep",
+          "pattern": "runtime-schema\\.json",
+          "shape": "literal",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 3,
+          "name": "grep",
+          "pattern": "docs/",
+          "shape": "literal",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 4,
+          "name": "list_dir",
+          "path": "src"
+        },
+        {
+          "turn": 5,
+          "name": "list_dir",
+          "path": "."
+        },
+        {
+          "turn": 6,
+          "name": "read_file",
+          "path": "docs/debugAdapterProtocol.json",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 7,
+          "name": "read_file",
+          "path": "src/runtime-schema.json",
+          "scope": "other_file"
+        },
+        {
+          "turn": 8,
+          "name": "grep",
+          "pattern": "require|import|load|readFile|readFileSync|schema",
+          "shape": "import_probe",
+          "breadth": "scoped",
+          "glob": "src/**/*"
+        }
+      ]
+    },
+    {
+      "slug": "audit-obligation_implicit_contract-000",
+      "category": "obligation_implicit_contract",
+      "origin": "audit",
+      "n_calls": 13,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "implicit_contract|violation",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 1,
+          "name": "list_dir",
+          "path": "src/osoji"
+        },
+        {
+          "turn": 2,
+          "name": "grep",
+          "pattern": "finding_type\\s*=\\s*[\"\\']|finding_type\\s*==\\s*[\"\\']",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/obligations.py"
+        },
+        {
+          "turn": 3,
+          "name": "grep",
+          "pattern": "finding_type\\s*==\\s*[\"\\']",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/audit.py"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "implicit_contract|[\"\\']violation[\"\\']",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/findings_adapter.py"
+        },
+        {
+          "turn": 5,
+          "name": "grep",
+          "pattern": "class ContractFinding|finding_type",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/findings.py"
+        },
+        {
+          "turn": 6,
+          "name": "grep",
+          "pattern": "finding_type|ContractFinding",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/findings.py"
+        },
+        {
+          "turn": 7,
+          "name": "grep",
+          "pattern": "finding_type|ContractFinding|implicit_contract|violation",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/findings_adapter.py"
+        },
+        {
+          "turn": 8,
+          "name": "grep",
+          "pattern": "class ContractFinding|finding_type",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/obligations.py"
+        },
+        {
+          "turn": 9,
+          "name": "grep",
+          "pattern": "FINDING_TYPE|VIOLATION|IMPLICIT_CONTRACT",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/*.py"
+        },
+        {
+          "turn": 10,
+          "name": "read_file",
+          "path": "src/osoji/obligations.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 11,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 12,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "flagged_region"
+        }
+      ]
+    },
+    {
+      "slug": "audit-obligation_implicit_contract-001",
+      "category": "obligation_implicit_contract",
+      "origin": "audit",
+      "n_calls": 11,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "OSOJI_TOKEN|claude-code|default_provider",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 1,
+          "name": "read_file",
+          "path": "src/osoji/init.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "tests/test_init.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 3,
+          "name": "grep",
+          "pattern": "OSOJI_TOKEN|claude-code|default_provider",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/init.py"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "OSOJI_TOKEN\\s*=|CLAUDE_CODE\\s*=|DEFAULT_PROVIDER\\s*=",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 5,
+          "name": "read_file",
+          "path": "src/osoji/init.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 6,
+          "name": "read_file",
+          "path": "src/osoji/llm/registry.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 7,
+          "name": "read_file",
+          "path": "src/osoji/config.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 8,
+          "name": "read_file",
+          "path": "src/osoji/config.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 9,
+          "name": "grep",
+          "pattern": "ENV_PROVIDER|ENV_MODEL|ENV_TOKEN|OSOJI_TOKEN",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/*.py"
+        },
+        {
+          "turn": 10,
+          "name": "grep",
+          "pattern": "OSOJI_TOKEN",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "src/osoji/push.py"
+        }
+      ]
+    },
+    {
+      "slug": "audit-obligation_implicit_contract-003",
+      "category": "obligation_implicit_contract",
+      "origin": "audit",
+      "n_calls": 12,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "missing|stale",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/diff.py"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "missing|stale",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "tests/test_impl_hash.py"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "src/osoji/diff.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 3,
+          "name": "grep",
+          "pattern": "staleness_reason|def staleness_reason",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/shadow.py"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "staleness_reason",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "src/osoji/diff.py"
+        },
+        {
+          "turn": 5,
+          "name": "read_file",
+          "path": "src/osoji/shadow.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 6,
+          "name": "read_file",
+          "path": "src/osoji/diff.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 7,
+          "name": "grep",
+          "pattern": "from.*diff|import.*diff|check_stale_shadows|StaleShadow",
+          "shape": "import_probe",
+          "breadth": "scoped",
+          "glob": "tests/**/*.py"
+        },
+        {
+          "turn": 8,
+          "name": "read_file",
+          "path": "tests/test_diff_json.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 9,
+          "name": "grep",
+          "pattern": "\"missing\"|\"stale\"|status.*missing|status.*stale",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "tests/test_diff_json.py"
+        },
+        {
+          "turn": 10,
+          "name": "read_file",
+          "path": "tests/test_impl_hash.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 11,
+          "name": "read_file",
+          "path": "src/osoji/diff.py",
+          "scope": "referencing_site"
+        }
+      ]
+    },
+    {
+      "slug": "audit-obligation_implicit_contract-004",
+      "category": "obligation_implicit_contract",
+      "origin": "audit",
+      "n_calls": 9,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "orphaned.files",
+          "shape": "regex",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 1,
+          "name": "read_file",
+          "path": "src/osoji/junk_orphan.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "tests/test_junk_orphan.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 3,
+          "name": "grep",
+          "pattern": "orphaned.files",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/*.py"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "ORPHANED|orphaned_files\\s*=\\s*['\\\"]",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/*.py"
+        },
+        {
+          "turn": 5,
+          "name": "grep",
+          "pattern": "analyzer\\.name ==|analyzer\\.cli_flag ==",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "tests/*.py"
+        },
+        {
+          "turn": 6,
+          "name": "grep",
+          "pattern": "return \\\"dead.code\\\"|return \\\"dead.params\\\"|return \\\"dead.plumbing\\\"|return \\\"dead.deps\\\"|return \\\"dead.cicd\\\"",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/*.py"
+        },
+        {
+          "turn": 7,
+          "name": "read_file",
+          "path": "tests/fixtures/bootstrap/manifest-audit.json",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 8,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "referencing_site"
+        }
+      ]
+    },
+    {
+      "slug": "audit-obligation_implicit_contract-005",
+      "category": "obligation_implicit_contract",
+      "origin": "audit",
+      "n_calls": 10,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "openai|openrouter",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/llm/registry.py"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "openai|openrouter",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "tests/test_llm_provider.py"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "src/osoji/llm/registry.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 3,
+          "name": "read_file",
+          "path": "tests/test_llm_provider.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "OPENAI|OPENROUTER|openai_name|openrouter_name|PROVIDER_NAME",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/llm/*.py"
+        },
+        {
+          "turn": 5,
+          "name": "list_dir",
+          "path": "src/osoji/llm"
+        },
+        {
+          "turn": 6,
+          "name": "read_file",
+          "path": "src/osoji/llm/openai.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 7,
+          "name": "read_file",
+          "path": "src/osoji/llm/openrouter.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 8,
+          "name": "read_file",
+          "path": "tests/test_llm_provider.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 9,
+          "name": "read_file",
+          "path": "tests/test_llm_provider.py",
+          "scope": "flagged_region"
+        }
+      ]
+    },
+    {
+      "slug": "audit-obligation_implicit_contract-006",
+      "category": "obligation_implicit_contract",
+      "origin": "audit",
+      "n_calls": 11,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "ast",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "src/osoji/shadow.py"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "ast",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "tests/test_plugin_python.py"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "src/osoji/shadow.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 3,
+          "name": "read_file",
+          "path": "tests/test_plugin_python.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "extraction_method",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 5,
+          "name": "read_file",
+          "path": "src/osoji/plugins/base.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 6,
+          "name": "read_file",
+          "path": "src/osoji/facts.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 7,
+          "name": "read_file",
+          "path": "src/osoji/plugins/base.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 8,
+          "name": "read_file",
+          "path": "src/osoji/deadcode.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 9,
+          "name": "grep",
+          "pattern": "extraction_method.*llm|llm.*extraction_method|\\\"llm\\\"",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/**/*.py"
+        },
+        {
+          "turn": 10,
+          "name": "read_file",
+          "path": "src/osoji/shadow.py",
+          "scope": "referencing_site"
+        }
+      ]
+    },
+    {
+      "slug": "audit-obligation_violation-000",
+      "category": "obligation_violation",
+      "origin": "audit",
+      "n_calls": 8,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "obligation_implicit_contract",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "obligation_implicit_contract",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "src/**/*.py"
+        },
+        {
+          "turn": 2,
+          "name": "grep",
+          "pattern": "category.*obligation",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/**/*.py"
+        },
+        {
+          "turn": 3,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "finding_type.*implicit_contract|implicit_contract.*finding_type",
+          "shape": "regex",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 5,
+          "name": "read_file",
+          "path": "tests/fixtures/bootstrap/manifest-audit.json",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 6,
+          "name": "read_file",
+          "path": "src/osoji/obligations.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 7,
+          "name": "read_file",
+          "path": "src/osoji/obligations.py",
+          "scope": "referencing_site"
+        }
+      ]
+    },
+    {
+      "slug": "audit-obligation_violation-001",
+      "category": "obligation_violation",
+      "origin": "audit",
+      "n_calls": 4,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "tool_result",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 1,
+          "name": "read_file",
+          "path": "src/osoji/llm/google.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "src/osoji/llm/_provider_base.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 3,
+          "name": "read_file",
+          "path": "src/osoji/triage.py",
+          "scope": "referencing_site"
+        }
+      ]
+    },
+    {
+      "slug": "audit-dead_symbol-000",
+      "category": "dead_symbol",
+      "origin": "audit",
+      "n_calls": 5,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "JunkAnalyzer",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 1,
+          "name": "read_file",
+          "path": "src/osoji/junk.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 2,
+          "name": "grep",
+          "pattern": "\\.analyze\\(",
+          "shape": "literal",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 3,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 4,
+          "name": "read_file",
+          "path": "src/osoji/junk.py",
+          "scope": "flagged_region"
+        }
+      ]
+    },
+    {
+      "slug": "audit-dead_symbol-001",
+      "category": "dead_symbol",
+      "origin": "audit",
+      "n_calls": 3,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "get_rate_limit_summary",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 1,
+          "name": "read_file",
+          "path": "src/osoji/llm/rate_limited.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "src/osoji/llm/logging.py",
+          "scope": "referencing_site"
+        }
+      ]
+    },
+    {
+      "slug": "audit-dead_symbol-002",
+      "category": "dead_symbol",
+      "origin": "audit",
+      "n_calls": 6,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "EvidenceBuilder",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 1,
+          "name": "read_file",
+          "path": "src/osoji/evidence.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "src/osoji/findings_adapter.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 3,
+          "name": "grep",
+          "pattern": "BUILDERS",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 4,
+          "name": "read_file",
+          "path": "src/osoji/claim_builder.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 5,
+          "name": "grep",
+          "pattern": "from .evidence import|from osoji.evidence import|import evidence",
+          "shape": "import_probe",
+          "breadth": "repo_wide"
+        }
+      ]
+    },
+    {
+      "slug": "audit-dead_symbol-003",
+      "category": "dead_symbol",
+      "origin": "audit",
+      "n_calls": 10,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "src/osoji/junk_cicd.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "DeadCICDAnalyzer",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 2,
+          "name": "grep",
+          "pattern": "\\.analyze\\(",
+          "shape": "literal",
+          "breadth": "scoped",
+          "glob": "src/osoji/audit.py"
+        },
+        {
+          "turn": 3,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 4,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "other_file"
+        },
+        {
+          "turn": 5,
+          "name": "grep",
+          "pattern": "analyze_async|\\.analyze",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/audit.py"
+        },
+        {
+          "turn": 6,
+          "name": "read_file",
+          "path": "tests/test_junk_cicd.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 7,
+          "name": "grep",
+          "pattern": "\\.analyze\\b",
+          "shape": "literal",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 8,
+          "name": "grep",
+          "pattern": "def analyze",
+          "shape": "literal",
+          "breadth": "scoped",
+          "glob": "src/osoji/junk*.py"
+        },
+        {
+          "turn": 9,
+          "name": "read_file",
+          "path": "src/osoji/junk.py",
+          "scope": "referencing_site"
+        }
+      ]
+    },
+    {
+      "slug": "audit-dead_parameter-000",
+      "category": "dead_parameter",
+      "origin": "audit",
+      "n_calls": 12,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "src/osoji/findings_adapter.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "finding_from_junk",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "tests/test_findings_adapter.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 3,
+          "name": "grep",
+          "pattern": "finding_from_junk.*root",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "finding_from_junk",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 5,
+          "name": "read_file",
+          "path": "src/osoji/findings_adapter.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 6,
+          "name": "grep",
+          "pattern": "_norm_path",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 7,
+          "name": "read_file",
+          "path": "src/osoji/findings_adapter.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 8,
+          "name": "grep",
+          "pattern": "finding_from_(contract|doc|debris|junk).*root",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 9,
+          "name": "read_file",
+          "path": "src/osoji/findings_adapter.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 10,
+          "name": "read_file",
+          "path": "src/osoji/claim_builder.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 11,
+          "name": "grep",
+          "pattern": "finding_from_junk|finding_from_contract|finding_from_doc",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/**/*.py"
+        }
+      ]
+    },
+    {
+      "slug": "audit-dead_parameter-001",
+      "category": "dead_parameter",
+      "origin": "audit",
+      "n_calls": 4,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "src/osoji/triage.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "Triage\\s*\\(",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 2,
+          "name": "grep",
+          "pattern": "executor\\s*=",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 3,
+          "name": "read_file",
+          "path": "scripts/triage_bootstrap.py",
+          "scope": "referencing_site"
+        }
+      ]
+    },
+    {
+      "slug": "audit-dead_code-000",
+      "category": "dead_code",
+      "origin": "audit",
+      "n_calls": 1,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "src/osoji/async_utils.py",
+          "scope": "flagged_region"
+        }
+      ]
+    },
+    {
+      "slug": "audit-dead_code-001",
+      "category": "dead_code",
+      "origin": "audit",
+      "n_calls": 2,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "flagged_region"
+        }
+      ]
+    },
+    {
+      "slug": "audit-dead_code-002",
+      "category": "dead_code",
+      "origin": "audit",
+      "n_calls": 2,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "src/osoji/claim_builder.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "Path",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "src/osoji/claim_builder.py"
+        }
+      ]
+    },
+    {
+      "slug": "audit-latent_bug-000",
+      "category": "latent_bug",
+      "origin": "audit",
+      "n_calls": 5,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "scripts/triage_bootstrap.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "decide_batch",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "src/osoji/triage.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 3,
+          "name": "read_file",
+          "path": "scripts/triage_bootstrap.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 4,
+          "name": "read_file",
+          "path": "src/osoji/triage.py",
+          "scope": "other_file"
+        }
+      ]
+    },
+    {
+      "slug": "audit-latent_bug-001",
+      "category": "latent_bug",
+      "origin": "audit",
+      "n_calls": 8,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "priority_score",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "src/osoji/doc_prompts.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 3,
+          "name": "read_file",
+          "path": "src/osoji/doc_prompts.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "_compute_priority",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 5,
+          "name": "grep",
+          "pattern": "_deserialize_doc_prompts|deserialize_doc_prompts",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 6,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 7,
+          "name": "read_file",
+          "path": "src/osoji/doc_prompts.py",
+          "scope": "referencing_site"
+        }
+      ]
+    },
+    {
+      "slug": "audit-latent_bug-003",
+      "category": "latent_bug",
+      "origin": "audit",
+      "n_calls": 5,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "src/osoji/init.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "BUILTIN_PROVIDER_MODELS",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "src/osoji/config.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 3,
+          "name": "read_file",
+          "path": "src/osoji/config.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "BUILTIN_PROVIDER_MODELS\\s*=|BUILTIN_PROVIDER_MODELS\\[|BUILTIN_PROVIDER_MODELS\\.update",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        }
+      ]
+    },
+    {
+      "slug": "audit-stale_comment-000",
+      "category": "stale_comment",
+      "origin": "audit",
+      "n_calls": 6,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "src/osoji/deadparam.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "class_for_method",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "src/osoji/deadparam.py"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "src/osoji/deadparam.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 3,
+          "name": "read_file",
+          "path": "src/osoji/deadparam.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "__init__",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "src/osoji/deadparam.py"
+        },
+        {
+          "turn": 5,
+          "name": "read_file",
+          "path": "src/osoji/deadparam.py",
+          "scope": "same_file_other"
+        }
+      ]
+    },
+    {
+      "slug": "audit-stale_comment-001",
+      "category": "stale_comment",
+      "origin": "audit",
+      "n_calls": 7,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "src/osoji/findings_adapter.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "findings_adapter",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "**/*.py"
+        },
+        {
+          "turn": 2,
+          "name": "grep",
+          "pattern": "findings_adapter|finding_from_debris",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/audit.py"
+        },
+        {
+          "turn": 3,
+          "name": "grep",
+          "pattern": "claim_builder",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "src/osoji/audit.py"
+        },
+        {
+          "turn": 4,
+          "name": "read_file",
+          "path": "src/osoji/audit.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 5,
+          "name": "read_file",
+          "path": "src/osoji/claim_builder.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 6,
+          "name": "grep",
+          "pattern": "finding_from_debris",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "src/osoji/claim_builder.py"
+        }
+      ]
+    },
+    {
+      "slug": "audit-misleading_docstring-000",
+      "category": "misleading_docstring",
+      "origin": "audit",
+      "n_calls": 4,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "src/osoji/deadparam.py",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "Phase 1|phase_1|phase1|_phase1|collect_call_sites|find_candidates",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/deadparam.py"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "src/osoji/deadparam.py",
+          "scope": "same_file_other"
+        },
+        {
+          "turn": 3,
+          "name": "read_file",
+          "path": "src/osoji/deadparam.py",
+          "scope": "same_file_other"
+        }
+      ]
+    },
+    {
+      "slug": "audit-misleading_docstring-001",
+      "category": "misleading_docstring",
+      "origin": "audit",
+      "n_calls": 1,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "src/osoji/scorecard.py",
+          "scope": "flagged_region"
+        }
+      ]
+    },
+    {
+      "slug": "audit-doc_incorrect_content-000",
+      "category": "doc_incorrect_content",
+      "origin": "audit",
+      "n_calls": 4,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": ".claude/skills/osoji-triage/SKILL.md",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "SYSTEM_PROMPT",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "src/osoji/tools.py"
+        },
+        {
+          "turn": 2,
+          "name": "grep",
+          "pattern": "SYSTEM_PROMPT",
+          "shape": "symbol",
+          "breadth": "scoped",
+          "glob": "src/osoji/*.py"
+        },
+        {
+          "turn": 3,
+          "name": "grep",
+          "pattern": "^def |^class |^[A-Z_]+ =",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/tools.py"
+        }
+      ]
+    },
+    {
+      "slug": "audit-doc_incorrect_content-001",
+      "category": "doc_incorrect_content",
+      "origin": "audit",
+      "n_calls": 5,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": "docs/explanatory/facts-database-and-import-graphs.md",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "read_file",
+          "path": "src/osoji/observatory.py",
+          "scope": "other_file"
+        },
+        {
+          "turn": 2,
+          "name": "grep",
+          "pattern": "build_import_graph",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 3,
+          "name": "grep",
+          "pattern": "_build_import_graph_edges",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 4,
+          "name": "read_file",
+          "path": "src/osoji/facts.py",
+          "scope": "referencing_site"
+        }
+      ]
+    },
+    {
+      "slug": "audit-doc_misleading_claim-000",
+      "category": "doc_misleading_claim",
+      "origin": "audit",
+      "n_calls": 3,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "read_file",
+          "path": ".claude/skills/osoji-sweep/SKILL.md",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 1,
+          "name": "read_file",
+          "path": "src/osoji/push.py",
+          "scope": "other_file"
+        },
+        {
+          "turn": 2,
+          "name": "grep",
+          "pattern": "LOCAL_CONFIG_FILENAME|PROJECT_CONFIG_FILENAME",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/osoji/config.py"
+        }
+      ]
+    },
+    {
+      "slug": "audit-doc_stale_content-000",
+      "category": "doc_stale_content",
+      "origin": "audit",
+      "n_calls": 10,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "list_dir",
+          "path": "."
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "Key architecture",
+          "shape": "literal",
+          "breadth": "scoped",
+          "glob": "**/*.md"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "CLAUDE.md",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 3,
+          "name": "list_dir",
+          "path": "src/osoji"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "claim_builder|evidence\\.py|findings\\.py|findings_adapter|triage\\.py|triage_exec",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "src/**/*.py"
+        },
+        {
+          "turn": 5,
+          "name": "grep",
+          "pattern": "claim_builder|evidence\\.py|findings\\.py|findings_adapter|triage\\.py|triage_exec",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": "**/*.shadow.md"
+        },
+        {
+          "turn": 6,
+          "name": "list_dir",
+          "path": ".osoji"
+        },
+        {
+          "turn": 7,
+          "name": "list_dir",
+          "path": ".osoji/shadow"
+        },
+        {
+          "turn": 8,
+          "name": "grep",
+          "pattern": "claim_builder|evidence|findings|triage",
+          "shape": "regex",
+          "breadth": "scoped",
+          "glob": ".osoji/shadow/_root.shadow.md"
+        },
+        {
+          "turn": 9,
+          "name": "read_file",
+          "path": ".osoji/shadow/_root.shadow.md",
+          "scope": "shadow_doc"
+        }
+      ]
+    },
+    {
+      "slug": "audit-doc_obsolete_reference-000",
+      "category": "doc_obsolete_reference",
+      "origin": "audit",
+      "n_calls": 5,
+      "calls": [
+        {
+          "turn": 0,
+          "name": "grep",
+          "pattern": "LiteLLMProvider",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 1,
+          "name": "grep",
+          "pattern": "DirectProvider",
+          "shape": "symbol",
+          "breadth": "repo_wide"
+        },
+        {
+          "turn": 2,
+          "name": "read_file",
+          "path": "docs/explanatory/llm-tool-schemas-and-validation.md",
+          "scope": "flagged_region"
+        },
+        {
+          "turn": 3,
+          "name": "read_file",
+          "path": "src/osoji/llm/_provider_base.py",
+          "scope": "referencing_site"
+        },
+        {
+          "turn": 4,
+          "name": "grep",
+          "pattern": "class LiteLLMProvider",
+          "shape": "literal",
+          "breadth": "repo_wide"
+        }
+      ]
+    }
+  ]
+}

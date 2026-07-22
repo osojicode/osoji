@@ -1,0 +1,495 @@
+{
+  "source": "src/osoji/llm/_provider_base.py",
+  "source_hash": "63c68c8c795d6cdf",
+  "generated": "2026-07-22T10:56:13Z",
+  "file_role": "service",
+  "symbols": [
+    {
+      "name": "_ParsedResponse",
+      "kind": "class",
+      "line_start": 35,
+      "line_end": 42,
+      "visibility": "internal"
+    },
+    {
+      "name": "_disable_wmi_if_needed",
+      "kind": "function",
+      "line_start": 45,
+      "line_end": 64,
+      "visibility": "internal",
+      "parameters": []
+    },
+    {
+      "name": "_MAX_TOOL_VALIDATION_ATTEMPTS",
+      "kind": "constant",
+      "line_start": 29,
+      "line_end": 29,
+      "visibility": "internal"
+    },
+    {
+      "name": "_DEFAULT_LLM_TIMEOUT",
+      "kind": "constant",
+      "line_start": 30,
+      "line_end": 30,
+      "visibility": "internal"
+    },
+    {
+      "name": "logger",
+      "kind": "variable",
+      "line_start": 32,
+      "line_end": 32,
+      "visibility": "internal"
+    },
+    {
+      "name": "DirectProvider",
+      "kind": "class",
+      "line_start": 67,
+      "line_end": 621,
+      "visibility": "public"
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "line_start": 70,
+      "line_end": 76,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "_call_api",
+      "kind": "function",
+      "line_start": 79,
+      "line_end": 81,
+      "visibility": "internal",
+      "parameters": []
+    },
+    {
+      "name": "_build_request_kwargs",
+      "kind": "function",
+      "line_start": 84,
+      "line_end": 95,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "messages",
+          "optional": false
+        },
+        {
+          "name": "system",
+          "optional": false
+        },
+        {
+          "name": "options",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_parse_sdk_response",
+      "kind": "function",
+      "line_start": 97,
+      "line_end": 100,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "response",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "close",
+      "kind": "function",
+      "line_start": 102,
+      "line_end": 103,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "set_interaction_log_path",
+      "kind": "function",
+      "line_start": 105,
+      "line_end": 112,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "path",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "llm_timeout",
+      "kind": "function",
+      "line_start": 115,
+      "line_end": 116,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "complete",
+      "kind": "function",
+      "line_start": 122,
+      "line_end": 213,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "messages",
+          "optional": false
+        },
+        {
+          "name": "system",
+          "optional": false
+        },
+        {
+          "name": "options",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_request_and_parse",
+      "kind": "function",
+      "line_start": 219,
+      "line_end": 232,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "request_kwargs",
+          "optional": false
+        },
+        {
+          "name": "attempt",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_log_interaction",
+      "kind": "function",
+      "line_start": 234,
+      "line_end": 285,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "request_kwargs",
+          "optional": false
+        },
+        {
+          "name": "attempt",
+          "optional": false
+        },
+        {
+          "name": "parsed",
+          "optional": true
+        },
+        {
+          "name": "error",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "_parse_anthropic_response",
+      "kind": "function",
+      "line_start": 291,
+      "line_end": 331,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "response",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_parse_openai_response",
+      "kind": "function",
+      "line_start": 333,
+      "line_end": 378,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "response",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_convert_tools_anthropic",
+      "kind": "function",
+      "line_start": 384,
+      "line_end": 392,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "tools",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_convert_tools_openai",
+      "kind": "function",
+      "line_start": 394,
+      "line_end": 405,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "tools",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_convert_tool_choice_openai",
+      "kind": "function",
+      "line_start": 407,
+      "line_end": 413,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "tool_choice",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_required_tool_name",
+      "kind": "function",
+      "line_start": 419,
+      "line_end": 424,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "options",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_has_required_tool_call",
+      "kind": "function",
+      "line_start": 426,
+      "line_end": 427,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "tool_calls",
+          "optional": false
+        },
+        {
+          "name": "required",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_maybe_expand_missing_tool_max_tokens",
+      "kind": "function",
+      "line_start": 429,
+      "line_end": 440,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "current_max_tokens",
+          "optional": false
+        },
+        {
+          "name": "base_max_tokens",
+          "optional": false
+        },
+        {
+          "name": "stop_reason",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_build_tool_feedback",
+      "kind": "function",
+      "line_start": 442,
+      "line_end": 478,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "tool_calls",
+          "optional": false
+        },
+        {
+          "name": "schema_by_name",
+          "optional": false
+        },
+        {
+          "name": "validators",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_build_retry_messages",
+      "kind": "function",
+      "line_start": 480,
+      "line_end": 512,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "request_messages",
+          "optional": false
+        },
+        {
+          "name": "assistant_message",
+          "optional": false
+        },
+        {
+          "name": "tool_feedback",
+          "optional": false
+        },
+        {
+          "name": "response_format",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_build_missing_tool_retry_messages",
+      "kind": "function",
+      "line_start": 514,
+      "line_end": 536,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "request_messages",
+          "optional": false
+        },
+        {
+          "name": "assistant_message",
+          "optional": false
+        },
+        {
+          "name": "tool_name",
+          "optional": false
+        },
+        {
+          "name": "stop_reason",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_messages_from_api_payload",
+      "kind": "function",
+      "line_start": 538,
+      "line_end": 549,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "messages",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_enforce_input_token_budget",
+      "kind": "function",
+      "line_start": 551,
+      "line_end": 571,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "messages",
+          "optional": false
+        },
+        {
+          "name": "system",
+          "optional": false
+        },
+        {
+          "name": "options",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_normalize_openai_content",
+      "kind": "function",
+      "line_start": 577,
+      "line_end": 591,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "content",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_decode_tool_arguments",
+      "kind": "function",
+      "line_start": 593,
+      "line_end": 604,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "arguments",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_stringify_arguments",
+      "kind": "function",
+      "line_start": 606,
+      "line_end": 609,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "arguments",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_usage_value",
+      "kind": "function",
+      "line_start": 611,
+      "line_end": 616,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "response",
+          "optional": false
+        },
+        {
+          "name": "primary_key",
+          "optional": false
+        },
+        {
+          "name": "fallback_key",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_field",
+      "kind": "function",
+      "line_start": 618,
+      "line_end": 621,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "obj",
+          "optional": false
+        },
+        {
+          "name": "key",
+          "optional": false
+        },
+        {
+          "name": "default",
+          "optional": true
+        }
+      ]
+    }
+  ]
+}

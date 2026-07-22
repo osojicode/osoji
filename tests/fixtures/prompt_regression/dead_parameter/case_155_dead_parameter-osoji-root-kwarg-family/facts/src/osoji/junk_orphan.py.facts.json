@@ -1,0 +1,1696 @@
+{
+  "source": "src/osoji/junk_orphan.py",
+  "source_hash": "a8c4f191254b5dcf",
+  "generated": "2026-07-22T10:55:42Z",
+  "imports": [
+    {
+      "source": "asyncio",
+      "names": [
+        "asyncio"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "re",
+      "names": [
+        "re"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "collections",
+      "names": [
+        "deque"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "field"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Callable"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config",
+        "SHADOW_DIR"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": ".evidence_builders",
+      "names": [
+        "BuildContext",
+        "_scanner_meta"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": ".facts",
+      "names": [
+        "FactsDB"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 14,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings_adapter",
+      "names": [
+        "finding_from_orphan_candidate"
+      ],
+      "line": 15,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk",
+      "names": [
+        "JunkAnalyzer",
+        "JunkFinding",
+        "JunkAnalysisResult"
+      ],
+      "line": 16,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk_triage",
+      "names": [
+        "build_junk_claims",
+        "decide_junk_claims"
+      ],
+      "line": 17,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.base",
+      "names": [
+        "LLMProvider"
+      ],
+      "line": 18,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.runtime",
+      "names": [
+        "create_runtime"
+      ],
+      "line": 19,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.types",
+      "names": [
+        "Message",
+        "MessageRole",
+        "CompletionOptions"
+      ],
+      "line": 20,
+      "is_reexport": false
+    },
+    {
+      "source": ".symbols",
+      "names": [
+        "load_all_symbols",
+        "load_file_roles"
+      ],
+      "line": 21,
+      "is_reexport": false
+    },
+    {
+      "source": ".tools",
+      "names": [
+        "get_identify_entry_points_tool_definitions",
+        "get_identify_relationships_tool_definitions"
+      ],
+      "line": 22,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "OrphanCandidate",
+      "kind": "class",
+      "line": 30,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "find_orphans",
+      "kind": "function",
+      "line": 250,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "detect_orphaned_files_async",
+      "kind": "function",
+      "line": 298,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "OrphanedFilesAnalyzer",
+      "kind": "class",
+      "line": 420,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "JunkAnalyzer"
+      ]
+    },
+    {
+      "name": "OrphanedFilesAnalyzer.name",
+      "kind": "function",
+      "line": 424,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "OrphanedFilesAnalyzer.description",
+      "kind": "function",
+      "line": 428,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "OrphanedFilesAnalyzer.cli_flag",
+      "kind": "function",
+      "line": 432,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "OrphanedFilesAnalyzer.analyze",
+      "kind": "function",
+      "line": 435,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "OrphanedFilesAnalyzer.analyze_async",
+      "kind": "function",
+      "line": 453,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "OrphanCandidate",
+      "to": "field",
+      "line": 37,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "set",
+      "line": 52,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "all_symbols.items",
+      "line": 54,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "source_path.replace",
+      "line": 55,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "adjacency.setdefault",
+      "line": 56,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "set",
+      "line": 56,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "all_symbol_names.add",
+      "line": 59,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "append",
+      "line": 60,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "symbol_to_files.setdefault",
+      "line": 60,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "sorted",
+      "line": 66,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "re.escape",
+      "line": 67,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "re.compile",
+      "line": 68,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "join",
+      "line": 68,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "source_path.replace",
+      "line": 72,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "full_path.read_text",
+      "line": 75,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "set",
+      "line": 79,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "pattern.finditer",
+      "line": 80,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "found_names.add",
+      "line": 81,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "m.group",
+      "line": 81,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "symbol_to_files.get",
+      "line": 85,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "add",
+      "line": 87,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "adjacency.setdefault",
+      "line": 87,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "set",
+      "line": 87,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "add",
+      "line": 88,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "adjacency.setdefault",
+      "line": 88,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_build_import_edges",
+      "to": "set",
+      "line": 88,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "set",
+      "line": 115,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "set",
+      "line": 117,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "range",
+      "line": 120,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "len",
+      "line": 120,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "lines.append",
+      "line": 125,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "sig.get",
+      "line": 126,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "sig.get",
+      "line": 127,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "lines.append",
+      "line": 131,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "join",
+      "line": 131,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "sorted",
+      "line": 131,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_identify_entry_points_async.check_completeness",
+      "to": "tool_input.get",
+      "line": 136,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_identify_entry_points_async.check_completeness",
+      "to": "e.get",
+      "line": 137,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_identify_entry_points_async.check_completeness",
+      "to": "sorted",
+      "line": 139,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "provider.complete",
+      "line": 141,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "Message",
+      "line": 142,
+      "call_sites": 67
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "join",
+      "line": 142,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "CompletionOptions",
+      "line": 144,
+      "call_sites": 60
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "config.model_for",
+      "line": 145,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "max",
+      "line": 146,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "len",
+      "line": 146,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "get_identify_entry_points_tool_definitions",
+      "line": 148,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "tc.input.get",
+      "line": 156,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "ep.get",
+      "line": 157,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_identify_entry_points_async",
+      "to": "entry_points.add",
+      "line": 158,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_identify_entry_points_heuristic",
+      "to": "set",
+      "line": 165,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "_identify_entry_points_heuristic",
+      "to": "sig.get",
+      "line": 167,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_identify_entry_points_heuristic",
+      "to": "Path",
+      "line": 169,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_identify_entry_points_heuristic",
+      "to": "entry_points.add",
+      "line": 172,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_identify_entry_points_heuristic",
+      "to": "entry_points.add",
+      "line": 174,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_identify_entry_points_heuristic",
+      "to": "entry_points.add",
+      "line": 176,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_identify_entry_points_heuristic",
+      "to": "name.startswith",
+      "line": 177,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_identify_entry_points_heuristic",
+      "to": "name.endswith",
+      "line": 177,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_identify_entry_points_heuristic",
+      "to": "entry_points.add",
+      "line": 178,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "range",
+      "line": 212,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "len",
+      "line": 212,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "lines.append",
+      "line": 217,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "d.get",
+      "line": 217,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "d.get",
+      "line": 217,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "lines.append",
+      "line": 219,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "lines.append",
+      "line": 221,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "c.get",
+      "line": 221,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "c.get",
+      "line": 221,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "lines.append",
+      "line": 223,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "provider.complete",
+      "line": 225,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "Message",
+      "line": 226,
+      "call_sites": 67
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "join",
+      "line": 226,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "CompletionOptions",
+      "line": 228,
+      "call_sites": 60
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "config.model_for",
+      "line": 229,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "max",
+      "line": 230,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "len",
+      "line": 230,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "get_identify_relationships_tool_definitions",
+      "line": 232,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "tc.input.get",
+      "line": 239,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "rel.get",
+      "line": 240,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "rel.get",
+      "line": 241,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_identify_relationships_async",
+      "to": "relationships.append",
+      "line": 243,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "find_orphans",
+      "to": "set",
+      "line": 252,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "find_orphans",
+      "to": "adjacency.keys",
+      "line": 252,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "find_orphans",
+      "to": "set",
+      "line": 253,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "find_orphans",
+      "to": "deque",
+      "line": 254,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "find_orphans",
+      "to": "visited.add",
+      "line": 259,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "find_orphans",
+      "to": "queue.append",
+      "line": 260,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "find_orphans",
+      "to": "queue.popleft",
+      "line": 264,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "find_orphans",
+      "to": "adjacency.get",
+      "line": 265,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "find_orphans",
+      "to": "set",
+      "line": 265,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "find_orphans",
+      "to": "visited.add",
+      "line": 267,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "find_orphans",
+      "to": "queue.append",
+      "line": 268,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "find_orphans",
+      "to": "sorted",
+      "line": 270,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_load_signatures",
+      "to": "sig_dir.exists",
+      "line": 279,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_signatures",
+      "to": "sig_dir.rglob",
+      "line": 282,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_signatures",
+      "to": "json.loads",
+      "line": 286,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_signatures",
+      "to": "sig_file.read_text",
+      "line": 286,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_signatures",
+      "to": "data.get",
+      "line": 287,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_load_signatures",
+      "to": "sigs.append",
+      "line": 289,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "load_all_symbols",
+      "line": 317,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "load_file_roles",
+      "line": 318,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "_load_signatures",
+      "line": 319,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "print",
+      "line": 322,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "_build_import_edges",
+      "line": 328,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "set",
+      "line": 329,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "adjacency.keys",
+      "line": 329,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "print",
+      "line": 330,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "len",
+      "line": 330,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "sum",
+      "line": 330,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "len",
+      "line": 330,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "adjacency.values",
+      "line": 330,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "sorted",
+      "line": 337,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "sig_by_path.get",
+      "line": 338,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "all_sigs.append",
+      "line": 339,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "file_roles.get",
+      "line": 341,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "sig.get",
+      "line": 342,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "sig.get",
+      "line": 343,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "sig.get",
+      "line": 344,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "_identify_entry_points_async",
+      "line": 349,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "print",
+      "line": 352,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "len",
+      "line": 352,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "print",
+      "line": 354,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "_identify_entry_points_heuristic",
+      "line": 355,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "print",
+      "line": 356,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "len",
+      "line": 356,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "print",
+      "line": 359,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "find_orphans",
+      "line": 363,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "print",
+      "line": 364,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "len",
+      "line": 364,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "set",
+      "line": 370,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "set",
+      "line": 371,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "_identify_relationships_async",
+      "line": 374,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "add",
+      "line": 379,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "adjacency.setdefault",
+      "line": 379,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "set",
+      "line": 379,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "add",
+      "line": 380,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "adjacency.setdefault",
+      "line": 380,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "set",
+      "line": 380,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "print",
+      "line": 381,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "len",
+      "line": 381,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "print",
+      "line": 383,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "find_orphans",
+      "line": 388,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "print",
+      "line": 389,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "len",
+      "line": 389,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "sig_by_path.get",
+      "line": 399,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "orphans.append",
+      "line": 400,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "OrphanCandidate",
+      "line": 400,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "sig.get",
+      "line": 402,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "sig.get",
+      "line": 403,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "file_roles.get",
+      "line": 404,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "sig.get",
+      "line": 405,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "len",
+      "line": 408,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "finding_from_orphan_candidate",
+      "line": 411,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "BuildContext",
+      "line": 412,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "FactsDB",
+      "line": 412,
+      "call_sites": 90
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "build_junk_claims",
+      "line": 413,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "detect_orphaned_files_async",
+      "to": "decide_junk_claims",
+      "line": 414,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "OrphanedFilesAnalyzer.analyze",
+      "to": "symbols_dir.exists",
+      "line": 438,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "OrphanedFilesAnalyzer.analyze",
+      "to": "print",
+      "line": 439,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "OrphanedFilesAnalyzer.analyze",
+      "to": "JunkAnalysisResult",
+      "line": 440,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "OrphanedFilesAnalyzer.analyze._run",
+      "to": "create_runtime",
+      "line": 443,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "OrphanedFilesAnalyzer.analyze._run",
+      "to": "self.analyze_async",
+      "line": 445,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "OrphanedFilesAnalyzer.analyze._run",
+      "to": "logging_provider.close",
+      "line": 449,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "OrphanedFilesAnalyzer.analyze",
+      "to": "asyncio.run",
+      "line": 451,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "OrphanedFilesAnalyzer.analyze",
+      "to": "_run",
+      "line": 451,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "OrphanedFilesAnalyzer.analyze_async",
+      "to": "detect_orphaned_files_async",
+      "line": 454,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "OrphanedFilesAnalyzer.analyze_async",
+      "to": "Path",
+      "line": 459,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "OrphanedFilesAnalyzer.analyze_async",
+      "to": "findings.append",
+      "line": 460,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "OrphanedFilesAnalyzer.analyze_async",
+      "to": "JunkFinding",
+      "line": 460,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "OrphanedFilesAnalyzer.analyze_async",
+      "to": "JunkAnalysisResult",
+      "line": 475,
+      "call_sites": 20
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "ignore",
+      "line": 75,
+      "usage": "produced",
+      "context": "keyword argument to full_path.read_text"
+    },
+    {
+      "value": "You are identifying entry points in a software project.\n\nAn entry point is a file that is invoked directly rather than only imported:\n- CLI scripts, main modules (__main__.py, manage.py)\n- Test files (test_*.py, *_test.py, conftest.py)\n- Package __init__.py files\n- Framework entry points (app.py, wsgi.py, asgi.py)\n- Configuration that's loaded by tools (setup.py, setup.cfg processing)\n- Build/task scripts\n\nUse the file_role hint but make your own judgment. Provide a verdict for EVERY file.",
+      "line": 95,
+      "usage": "defined",
+      "context": "constant _ENTRY_POINTS_SYSTEM_PROMPT"
+    },
+    {
+      "value": "Identify which of these files are entry points:\n",
+      "line": 123,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "file_role",
+      "line": 126,
+      "usage": "produced",
+      "context": "argument to sig.get"
+    },
+    {
+      "value": "unknown",
+      "line": 126,
+      "usage": "produced",
+      "context": "argument to sig.get"
+    },
+    {
+      "value": "purpose",
+      "line": 127,
+      "usage": "produced",
+      "context": "argument to sig.get"
+    },
+    {
+      "value": "no purpose",
+      "line": 127,
+      "usage": "produced",
+      "context": "argument to sig.get"
+    },
+    {
+      "value": "identify_entry_points",
+      "line": 134,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "entry_points",
+      "line": 136,
+      "usage": "produced",
+      "context": "argument to tool_input.get"
+    },
+    {
+      "value": "source_path",
+      "line": 137,
+      "usage": "produced",
+      "context": "argument to e.get"
+    },
+    {
+      "value": "small",
+      "line": 145,
+      "usage": "produced",
+      "context": "argument to config.model_for",
+      "kind": "identifier"
+    },
+    {
+      "value": "junk_orphan.identify_entry_points",
+      "line": 147,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions",
+      "kind": "identifier"
+    },
+    {
+      "value": "tool",
+      "line": 149,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "identify_entry_points",
+      "line": 149,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "identify_entry_points",
+      "line": 155,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tc.name",
+      "kind": "identifier"
+    },
+    {
+      "value": "entry_points",
+      "line": 156,
+      "usage": "produced",
+      "context": "argument to tc.input.get"
+    },
+    {
+      "value": "is_entry_point",
+      "line": 157,
+      "usage": "produced",
+      "context": "argument to ep.get"
+    },
+    {
+      "value": "file_role",
+      "line": 167,
+      "usage": "produced",
+      "context": "argument to sig.get"
+    },
+    {
+      "value": "entry",
+      "line": 171,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "test",
+      "line": 171,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "__init__.py",
+      "line": 173,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "name"
+    },
+    {
+      "value": "__main__.py",
+      "line": 175,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "manage.py",
+      "line": 175,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "setup.py",
+      "line": 175,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "conftest.py",
+      "line": 175,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "test_",
+      "line": 177,
+      "usage": "produced",
+      "context": "argument to name.startswith"
+    },
+    {
+      "value": "_test.py",
+      "line": 177,
+      "usage": "produced",
+      "context": "argument to name.endswith"
+    },
+    {
+      "value": "You are identifying semantic relationships between source files.\n\nYou are given:\n1. **disconnected**: Files not reachable from any entry point via import edges\n2. **connected**: Files that ARE reachable\n\nFor each disconnected file, determine if it relates to any connected file based on\ntheir purposes and topics. Only report confident relationships \u2014 it's OK to leave\ndisconnected files without a match (they may genuinely be orphaned).",
+      "line": 185,
+      "usage": "defined",
+      "context": "constant _RELATIONSHIPS_SYSTEM_PROMPT"
+    },
+    {
+      "value": "## Disconnected files (not reachable via imports)\n",
+      "line": 215,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "purpose",
+      "line": 217,
+      "usage": "produced",
+      "context": "argument to d.get"
+    },
+    {
+      "value": "unknown",
+      "line": 217,
+      "usage": "produced",
+      "context": "argument to d.get"
+    },
+    {
+      "value": "topics",
+      "line": 217,
+      "usage": "produced",
+      "context": "argument to d.get"
+    },
+    {
+      "value": "\n## Connected files (reachable via imports)\n",
+      "line": 219,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "purpose",
+      "line": 221,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "unknown",
+      "line": 221,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "topics",
+      "line": 221,
+      "usage": "produced",
+      "context": "argument to c.get"
+    },
+    {
+      "value": "\nIdentify semantic relationships between disconnected and connected files.",
+      "line": 223,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "small",
+      "line": 229,
+      "usage": "produced",
+      "context": "argument to config.model_for",
+      "kind": "identifier"
+    },
+    {
+      "value": "junk_orphan.identify_relationships",
+      "line": 231,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions",
+      "kind": "identifier"
+    },
+    {
+      "value": "tool",
+      "line": 233,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "identify_relationships",
+      "line": 233,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "identify_relationships",
+      "line": 238,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tc.name",
+      "kind": "identifier"
+    },
+    {
+      "value": "relationships",
+      "line": 239,
+      "usage": "produced",
+      "context": "argument to tc.input.get"
+    },
+    {
+      "value": "source_path",
+      "line": 240,
+      "usage": "produced",
+      "context": "argument to rel.get"
+    },
+    {
+      "value": "related_to",
+      "line": 241,
+      "usage": "produced",
+      "context": "argument to rel.get"
+    },
+    {
+      "value": "*.signature.json",
+      "line": 282,
+      "usage": "produced",
+      "context": "argument to sig_dir.rglob"
+    },
+    {
+      "value": "_directory.signature.json",
+      "line": 283,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "sig_file.name"
+    },
+    {
+      "value": "utf-8",
+      "line": 286,
+      "usage": "produced",
+      "context": "keyword argument to sig_file.read_text"
+    },
+    {
+      "value": "path",
+      "line": 287,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "  [skip] No symbols data found.",
+      "line": 322,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "unknown",
+      "line": 341,
+      "usage": "produced",
+      "context": "argument to file_roles.get"
+    },
+    {
+      "value": "purpose",
+      "line": 342,
+      "usage": "produced",
+      "context": "argument to sig.get"
+    },
+    {
+      "value": "topics",
+      "line": 343,
+      "usage": "produced",
+      "context": "argument to sig.get"
+    },
+    {
+      "value": "public_surface",
+      "line": 344,
+      "usage": "produced",
+      "context": "argument to sig.get"
+    },
+    {
+      "value": "  [warn] No entry points identified, skipping orphan detection.",
+      "line": 359,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "purpose",
+      "line": 402,
+      "usage": "produced",
+      "context": "argument to sig.get"
+    },
+    {
+      "value": "topics",
+      "line": 403,
+      "usage": "produced",
+      "context": "argument to sig.get"
+    },
+    {
+      "value": "unknown",
+      "line": 404,
+      "usage": "produced",
+      "context": "argument to file_roles.get"
+    },
+    {
+      "value": "public_surface",
+      "line": 405,
+      "usage": "produced",
+      "context": "argument to sig.get"
+    },
+    {
+      "value": "orphaned_files",
+      "line": 425,
+      "usage": "produced",
+      "context": "return value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Detect orphaned source files with no reachable purpose",
+      "line": 429,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "orphaned-files",
+      "line": 433,
+      "usage": "produced",
+      "context": "return value",
+      "kind": "identifier"
+    },
+    {
+      "value": "  [skip] No symbols data found. Run 'osoji shadow .' first.",
+      "line": 439,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "confirmed",
+      "line": 457,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "file",
+      "line": 463,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "orphaned_file",
+      "line": 464,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "llm_inferred",
+      "line": 471,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    }
+  ],
+  "extraction_method": "ast"
+}

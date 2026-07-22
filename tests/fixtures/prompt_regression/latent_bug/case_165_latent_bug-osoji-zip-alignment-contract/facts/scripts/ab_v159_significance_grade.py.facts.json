@@ -1,0 +1,726 @@
+{
+  "source": "scripts/ab_v159_significance_grade.py",
+  "source_hash": "73191c365b90df9b",
+  "generated": "2026-07-22T10:55:45Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 32,
+      "is_reexport": false
+    },
+    {
+      "source": "argparse",
+      "names": [
+        "argparse"
+      ],
+      "line": 34,
+      "is_reexport": false
+    },
+    {
+      "source": "asyncio",
+      "names": [
+        "asyncio"
+      ],
+      "line": 35,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 36,
+      "is_reexport": false
+    },
+    {
+      "source": "sys",
+      "names": [
+        "sys"
+      ],
+      "line": 37,
+      "is_reexport": false
+    },
+    {
+      "source": "collections",
+      "names": [
+        "Counter"
+      ],
+      "line": 38,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 39,
+      "is_reexport": false
+    },
+    {
+      "source": "dotenv",
+      "names": [
+        "load_dotenv"
+      ],
+      "line": 44,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.claim_builder",
+      "names": [
+        "build_debris_claims"
+      ],
+      "line": 46,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.config",
+      "names": [
+        "Config"
+      ],
+      "line": 47,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.runtime",
+      "names": [
+        "create_runtime"
+      ],
+      "line": 48,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.triage",
+      "names": [
+        "TRIAGE_SYSTEM_PROMPT"
+      ],
+      "line": 49,
+      "is_reexport": false
+    },
+    {
+      "source": "measure_debris_cutover",
+      "names": [
+        "load_debris_ignoring_impl_hash"
+      ],
+      "line": 201,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.junk_triage",
+      "names": [
+        "decide_junk_claims"
+      ],
+      "line": 224,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "REPO_ROOT",
+      "kind": "constant",
+      "line": 41,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "THREE_PREDICATE_TRIAGE_SYSTEM_PROMPT",
+      "kind": "constant",
+      "line": 54,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "main",
+      "kind": "function",
+      "line": 250,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "resolve",
+      "line": 41,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Path",
+      "line": 41,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sys.path.insert",
+      "line": 42,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "str",
+      "line": 42,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sys.path.insert",
+      "line": 200,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "str",
+      "line": 200,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "create_runtime",
+      "line": 226,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "decide_junk_claims",
+      "line": 228,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "list",
+      "line": 229,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "provider.close",
+      "line": 232,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "sum",
+      "line": 233,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "Counter",
+      "line": 234,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "print",
+      "line": 235,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "len",
+      "line": 236,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "dict",
+      "line": 237,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "dict",
+      "line": 244,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "dict",
+      "line": 245,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "Counter",
+      "line": 245,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_run_side",
+      "to": "_finding_row",
+      "line": 246,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "argparse.ArgumentParser",
+      "line": 251,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "parser.add_argument",
+      "line": 252,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "main",
+      "to": "parser.add_argument",
+      "line": 253,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "main",
+      "to": "parser.add_argument",
+      "line": 254,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "main",
+      "to": "parser.parse_args",
+      "line": 259,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "load_dotenv",
+      "line": 261,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "Path",
+      "line": 261,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "main",
+      "to": "Config",
+      "line": 263,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "main",
+      "to": "Path",
+      "line": 264,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "main",
+      "to": "load_debris_ignoring_impl_hash",
+      "line": 269,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "build_debris_claims",
+      "line": 270,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 271,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "main",
+      "to": "len",
+      "line": 272,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "main",
+      "to": "len",
+      "line": 272,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "main",
+      "to": "SystemExit",
+      "line": 277,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "asyncio.run",
+      "line": 280,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "main",
+      "to": "_run_side",
+      "line": 280,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "main",
+      "to": "asyncio.run",
+      "line": 281,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "main",
+      "to": "_run_side",
+      "line": 281,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "main",
+      "to": "asyncio.run",
+      "line": 284,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "main",
+      "to": "_run_side",
+      "line": 284,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "main",
+      "to": "asyncio.run",
+      "line": 285,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "main",
+      "to": "_run_side",
+      "line": 285,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "main",
+      "to": "zip",
+      "line": 290,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "changed.append",
+      "line": 303,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "demotions.append",
+      "line": 306,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "len",
+      "line": 310,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "main",
+      "to": "len",
+      "line": 312,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "main",
+      "to": "len",
+      "line": 313,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "main",
+      "to": "Path",
+      "line": 318,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "main",
+      "to": "out_path.parent.mkdir",
+      "line": 319,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "out_path.write_text",
+      "line": 320,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "json.dumps",
+      "line": 320,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 321,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "main",
+      "to": "len",
+      "line": 321,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "main",
+      "to": "len",
+      "line": 321,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 323,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "main",
+      "to": "len",
+      "line": 323,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 326,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 328,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "main",
+      "line": 332,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "You are osoji's Triage stage: the single verifier for every code-quality finding.\n\nEvery finding is a hypothesis about a GAP between what the code claims and what it does:\n- reachability \u2014 declared/claimed to be used, but actually unreachable\n  (dead code, dead parameters, unactuated config, orphaned files, unused deps).\n- description \u2014 described one way (comment, docstring, name, type), behaves another\n  (stale comments, misleading docstrings, latent bugs that violate a stated contract).\n- contract \u2014 an implicit cross-component agreement (shared string, schema, ABI) is broken\n  (obligation violations, cross-file string drift).\n- uncategorized \u2014 does not fit cleanly; decide on the merits and say so.\n\nA finding is a TRUE POSITIVE iff all three predicates hold:\n- Reality \u2014 the gap actually exists in the code (the evidence supports it).\n- Significance \u2014 closing the gap improves the codebase; widening it would harm.\n- Actionability \u2014 there is a concrete fix.\nConfirm only when all three hold. Dismiss when any fails. Use 'uncertain' when the\nassembled evidence genuinely cannot decide.\n\nWeigh the assembled evidence. For reachability claims, a cross-file reference that is a\nreal import/call/use refutes the gap (dismiss); a reference that is only an unrelated\ncomment, a doc mention, or a same-named-but-different symbol does not (confirm). A hit\ninside a quoted string (marked [match is inside a quoted string]) needs care: when the\nflagged symbol's exact name appears as a string in executable code, it may be a\ndynamic-dispatch key \u2014 reflection, name-based lookup, a registry, a command/RPC/config\ntable. Examine the surrounding lines; if the string plausibly feeds a mechanism that can\nreach the symbol, the symbol is reachable \u2014 dismiss. Account for framework registration,\nre-exports, and within-file transitive liveness. Do not dismiss on hypothetical outside\nconsumers: \"external callers might use it\" counts only when an explicit export mechanism\nmakes the symbol consumable beyond the scanned scope. When reachability evidence is\npositive but marginal and the flagged symbol is a small delegating member of a uniform\ninterface surface, removing it is unlikely to improve the codebase \u2014 dismiss on\nSignificance. (Zero-hit sweeps carry no such doubt: an honest zero over a real scan\nscope is the canonical case FOR confirming.)\n\nFor parameter reachability claims specifically: the parameter is alive iff some caller\nsupplies a real value (keyword, positional, or a spread/dynamic pass-through). Reads of\nthe parameter inside its own function \u2014 including branches guarded by its default \u2014 do\nnot refute the gap; a branch gated exclusively by a never-passed parameter is itself\npermanently dead code, which is exactly the significance of the finding. A stated\nbackward-compatibility intent explains why the gap exists but does not close it.\n\nFor unactuated-config reachability claims specifically: the gap is about enforcement,\nnot mere reference. The field is alive only if some code uses its value to CAUSE the\ndeclared effect (actuation). A reference that only reads, stores, forwards, restructures,\nlogs, or displays the value is NOT actuation and does not refute the gap \u2014 a value that\nis plumbed everywhere but never reaches the enforcing operation leaves the obligation\nunmet, and that unenforced obligation is the significance of the finding. Passing the\nvalue to a component documented to enforce it \u2014 a library call, or a cross-process\nhandoff (env var \u2192 container \u2192 subprocess) \u2014 IS actuation when the receiving side\nenforces. Confirm when the assembled references show the value flowing without any site\nthat enforces it.\n\nAn unactuated-config gap exists only for obligations the project itself declares. A\nschema or field defined in vendored or third-party reference material \u2014 content the\nproject stores or mirrors but does not consume as its own configuration \u2014 creates no\nobligation for this project to actuate; dismiss it regardless of reference counts, and\nweigh whether the containing file participates in the project's own configuration\nloading.\n\nFor orphaned-file reachability claims specifically: reachability can be file-level, not\nonly symbol-level. A whole file may be reached by convention rather than by an import\nedge \u2014 discovered by a framework or tool (such as test, fixture, migration, or template\ndiscovery), loaded dynamically, named in configuration or CI, or invoked as a script or\nentry point. A missing import edge does not by itself confirm an orphan; confirm only\nwhen no such conventional or dynamic pathway plausibly reaches the file. An honest zero\nover a real sweep of the file's name and exported symbols is the case FOR confirming.\n\nFor dead-CI/CD reachability claims specifically: a missing referenced path is the\nprimary signal but not dispositive. Weigh whether the element's real work depends on the\nmissing path or merely mentions it among operations that are inherently external or\ndynamically resolved (such as dependency installation, whole-repo linters, dynamic test\ndiscovery, external deploy or registry targets, or conventional phony targets). An\nelement whose entire purpose rests on what is now gone is far more likely dead than one\nthat references the missing path incidentally; decide on the balance of the element's\ndependence on what is actually missing.\n\nFor contract gaps over hard-coded literals, classify the literal before deciding:\n- Named project obligation \u2014 a constant exists; another site duplicates its bare literal.\n  Confirm; suggest using the existing constant.\n- Unnamed project obligation \u2014 two sites share a bare literal in clearly-related roles, no\n  constant yet. Confirm; suggest extracting a shared constant.\n- Ecosystem convention \u2014 meaning defined outside the project (HTTP codes, file modes,\n  MIME types, RFC strings). Dismiss; the contract is with the external standard.\n- Magic-constant duplication (ambiguous) \u2014 examine: confirm if the sites should agree,\n  dismiss if coincidental.\n- Coincidental duplication \u2014 same literal, unrelated roles. Dismiss as coincidence.\n\nFor every contract-gap claim, emit a `contract_class` alongside the verdict \u2014 one of\nnamed_obligation, unnamed_obligation, ecosystem_convention, magic_constant, coincidence,\nor other. Reason over the whole assembled file tuple, not only the pair named in the\nclaim header: every file that produces, checks, or defines the shared literal rides along\nwith its surrounding code, and a third file that independently emits the same literal is\nitself a drift risk even when the header names the best-attested coupling. Shared-literal\ndrift fails SILENTLY at the value level \u2014 a mismatched string, no error \u2014 and confirming\nbinds the sites to one definition so the next rename fails LOUDLY at the name level; that\nconversion, not \"extract a constant\" for its own sake, is the significance. When the\nliteral fits none of the five classes, set `contract_class` to `other` and say why:\n`other` is the taxonomy's safety valve \u2014 a request for review, never shoehorned into the\nnearest class \u2014 and its rate is a tracked signal of the taxonomy's adequacy.\n\nWhen a single claim bundles several shared literals for one file pair, judge the bundle by\nits strongest constituent: if any bundled literal is a genuine project obligation (named or\nunnamed), confirm the claim and set `contract_class` to that strongest class, noting in the\nreasoning which literals carry the contract and which are incidental. Dismiss a bundle only\nwhen every constituent literal is an ecosystem convention or coincidence.\n\nA literal whose meaning is fixed by an external API, wire format, or protocol is an\necosystem convention no matter which side of the boundary emitted it: a value your code\nsends and a value it receives back are governed alike by the external contract, not by any\nproject obligation. Judge such strings by the protocol that defines them, and apply that\njudgement consistently across the protocol's whole vocabulary \u2014 do not confirm one member\nof an external message/status/finish-reason vocabulary while dismissing its siblings.\n\n--- Description gaps in prose documentation (V1-5d) ---\nFor a description gap where the claim is that a documentation file (README, guide,\nspec, or other prose that describes code behavior) contradicts what the code does,\nweigh it against these principles:\n- A description gap requires a positive assertion in the documentation that the code\n  contradicts \u2014 the doc states something and the code does otherwise. The mere absence\n  of a mention is not such a gap: that a doc could usefully describe something it\n  currently omits is a coverage question, owned by a different subsystem, and is\n  dismissed here no matter how valuable adding the mention would be. Adjudicate only\n  what the doc affirmatively claims; never fault it for what it leaves unsaid.\n- Shadow docs are compressed summaries, not exhaustive. A documented command, flag,\n  config key, path, or entry point that is absent from a shadow doc is NOT thereby\n  absent from the project \u2014 it may be defined in a file the summary omits (a config\n  file, build manifest, registration table, or a sibling module). If the assembled\n  cross-file evidence shows the documented thing genuinely exists, dismiss on Reality;\n  confirm only when the evidence positively shows the doc is wrong.\n- When counter-evidence is partial \u2014 the doc is imprecise but not plainly false \u2014\n  prefer keeping the finding at lower severity (warning) over dropping it; reserve\n  dismissal for claims the evidence actively refutes.\n- Documentation that describes intended, planned, or roadmap behavior is not a\n  description gap merely because the current code does not yet implement it; dismiss\n  unless the doc presents the behavior as already current.\n- Deliberate simplification in learning-oriented material is not an inaccuracy; a\n  tutorial that omits or streamlines detail to teach is correct for its purpose \u2014\n  confirm only when it states something false about current behavior.\n- Illustrative example code is not a normative contract; divergence between an\n  example and the implementation is not a gap unless the doc claims the example is\n  exhaustive or authoritative.\n--- end description-gap guidance ---\n\nCapture your reasoning verbatim. Provide a verdict for EVERY claim.",
+      "line": 54,
+      "usage": "defined",
+      "context": "constant THREE_PREDICATE_TRIAGE_SYSTEM_PROMPT"
+    },
+    {
+      "value": "confirmed",
+      "line": 234,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "--root",
+      "line": 252,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "checkout holding .osoji/ with the corpus",
+      "line": 252,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "--out",
+      "line": 253,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "scratch/ab-v159-raw.json",
+      "line": 253,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument",
+      "kind": "identifier"
+    },
+    {
+      "value": "--control",
+      "line": 255,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "store_true",
+      "line": 255,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "variance control: decide the corpus twice under side A's prompt (same prompt, same chunking) instead of running the A/B",
+      "line": 256,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "anthropic",
+      "line": 265,
+      "usage": "produced",
+      "context": "keyword argument to Config",
+      "kind": "config"
+    },
+    {
+      "value": "no claims \u2014 corpus missing?",
+      "line": 277,
+      "usage": "produced",
+      "context": "argument to SystemExit"
+    },
+    {
+      "value": "A control-1",
+      "line": 280,
+      "usage": "produced",
+      "context": "argument to _run_side"
+    },
+    {
+      "value": "A control-2",
+      "line": 281,
+      "usage": "produced",
+      "context": "argument to _run_side"
+    },
+    {
+      "value": "control_1",
+      "line": 282,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "control_2",
+      "line": 282,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "A three-predicate",
+      "line": 284,
+      "usage": "produced",
+      "context": "argument to _run_side"
+    },
+    {
+      "value": "B grade-not-gate",
+      "line": 285,
+      "usage": "produced",
+      "context": "argument to _run_side"
+    },
+    {
+      "value": "side_a_three_predicate",
+      "line": 286,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "side_b_grade_not_gate",
+      "line": 286,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "verdict",
+      "line": 300,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "confidence",
+      "line": 300,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "severity",
+      "line": 300,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "reasoning",
+      "line": 300,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "verdict",
+      "line": 301,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "confidence",
+      "line": 301,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "severity",
+      "line": 301,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "reasoning",
+      "line": 301,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dismissed",
+      "line": 304,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 304,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "info",
+      "line": 305,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 320,
+      "usage": "produced",
+      "context": "keyword argument to out_path.write_text"
+    },
+    {
+      "value": "__main__",
+      "line": 331,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "__name__"
+    },
+    {
+      "value": "control",
+      "context": "Mode label written to output JSON",
+      "line": 309,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "ab",
+      "context": "Mode label written to output JSON",
+      "line": 309,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

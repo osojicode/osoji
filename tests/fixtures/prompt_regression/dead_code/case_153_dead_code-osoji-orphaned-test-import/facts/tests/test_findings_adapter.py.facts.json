@@ -1,0 +1,3499 @@
+{
+  "source": "tests/test_findings_adapter.py",
+  "source_hash": "02f1570f3233bde2",
+  "generated": "2026-07-22T10:55:55Z",
+  "imports": [
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "pytest",
+      "names": [
+        "pytest"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.doc_analysis",
+      "names": [
+        "DocFinding"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "CATEGORY_TO_GAP_TYPE",
+        "finding_from_contract",
+        "finding_from_debris",
+        "finding_from_doc",
+        "finding_from_junk",
+        "findings_from_debris",
+        "gap_type_for"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.junk",
+      "names": [
+        "JunkFinding"
+      ],
+      "line": 18,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.obligations",
+      "names": [
+        "ContractFinding"
+      ],
+      "line": 19,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.tools",
+      "names": [
+        "ANALYZE_DOCUMENT_TOOL",
+        "SUBMIT_SHADOW_DOC_TOOL"
+      ],
+      "line": 20,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.deadcode",
+      "names": [
+        "DeadCodeCandidate",
+        "GrepHit"
+      ],
+      "line": 330,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.deadparam",
+      "names": [
+        "CallSite",
+        "DeadParamCandidate"
+      ],
+      "line": 349,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dead_code_candidate"
+      ],
+      "line": 368,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dead_code_candidate"
+      ],
+      "line": 380,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dead_code_candidate"
+      ],
+      "line": 390,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dead_code_candidate"
+      ],
+      "line": 397,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dead_code_candidate"
+      ],
+      "line": 407,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dead_code_candidate"
+      ],
+      "line": 415,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dead_param_candidate"
+      ],
+      "line": 424,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dead_param_candidate"
+      ],
+      "line": 438,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dead_param_candidate"
+      ],
+      "line": 445,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dead_param_candidate"
+      ],
+      "line": 452,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dead_param_candidate"
+      ],
+      "line": 463,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dead_param_candidate"
+      ],
+      "line": 470,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.plumbing",
+      "names": [
+        "ConfigObligation"
+      ],
+      "line": 481,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.junk_orphan",
+      "names": [
+        "OrphanCandidate"
+      ],
+      "line": 497,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.junk_deps",
+      "names": [
+        "DependencyCandidate"
+      ],
+      "line": 511,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.junk_cicd",
+      "names": [
+        "CICDCandidate"
+      ],
+      "line": 526,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_config_obligation"
+      ],
+      "line": 544,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_config_obligation"
+      ],
+      "line": 556,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_config_obligation"
+      ],
+      "line": 564,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_config_obligation"
+      ],
+      "line": 571,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_orphan_candidate"
+      ],
+      "line": 583,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_orphan_candidate"
+      ],
+      "line": 593,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_orphan_candidate"
+      ],
+      "line": 601,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_orphan_candidate"
+      ],
+      "line": 610,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dep_candidate"
+      ],
+      "line": 619,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dep_candidate"
+      ],
+      "line": 629,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dep_candidate"
+      ],
+      "line": 637,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dep_candidate"
+      ],
+      "line": 643,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_cicd_candidate"
+      ],
+      "line": 654,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_cicd_candidate"
+      ],
+      "line": 664,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_cicd_candidate"
+      ],
+      "line": 672,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "TestJunkAdapter",
+      "kind": "class",
+      "line": 89,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestJunkAdapter.test_detector_name_and_reachability",
+      "kind": "function",
+      "line": 101,
+      "decorators": [
+        "pytest.mark.parametrize"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestJunkAdapter.test_path_normalized",
+      "kind": "function",
+      "line": 106,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestJunkAdapter.test_symbol_and_lines",
+      "kind": "function",
+      "line": 110,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestJunkAdapter.test_triage_fields_left_none",
+      "kind": "function",
+      "line": 116,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestJunkAdapter.test_priors_preserved_as_scanner_metadata_evidence",
+      "kind": "function",
+      "line": 126,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestJunkAdapter.test_returns_finding",
+      "kind": "function",
+      "line": 137,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestContractAdapter",
+      "kind": "class",
+      "line": 141,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestContractAdapter.test_violation_to_contract",
+      "kind": "function",
+      "line": 142,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestContractAdapter.test_implicit_contract_to_contract",
+      "kind": "function",
+      "line": 149,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestContractAdapter.test_persisted_categories_route_to_contract",
+      "kind": "function",
+      "line": 154,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestContractAdapter.test_path_from_consumer_file",
+      "kind": "function",
+      "line": 160,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestContractAdapter.test_symbol_from_value_and_lines_none",
+      "kind": "function",
+      "line": 164,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestContractAdapter.test_priors_preserved",
+      "kind": "function",
+      "line": 169,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestContractAdapter.test_scanner_metadata_carries_needles_and_priority",
+      "kind": "function",
+      "line": 179,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestContractAdapter.test_grouped_needles_and_sharers",
+      "kind": "function",
+      "line": 187,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestContractAdapter.test_violation_sentinel_producer_dropped_from_priority",
+      "kind": "function",
+      "line": 207,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDocAdapter",
+      "kind": "class",
+      "line": 217,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDocAdapter.test_each_category_to_description",
+      "kind": "function",
+      "line": 222,
+      "decorators": [
+        "pytest.mark.parametrize"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDocAdapter.test_path_from_doc_path",
+      "kind": "function",
+      "line": 227,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDocAdapter.test_observed_from_evidence_quote",
+      "kind": "function",
+      "line": 231,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDocAdapter.test_priors_preserved",
+      "kind": "function",
+      "line": 237,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDebrisAdapter",
+      "kind": "class",
+      "line": 247,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDebrisAdapter.test_each_category",
+      "kind": "function",
+      "line": 259,
+      "decorators": [
+        "pytest.mark.parametrize"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDebrisAdapter.test_unknown_category_uncategorized",
+      "kind": "function",
+      "line": 264,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDebrisAdapter.test_source_used_for_path_and_lines_preserved",
+      "kind": "function",
+      "line": 268,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDebrisAdapter.test_priors_preserved",
+      "kind": "function",
+      "line": 273,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDebrisAdapter.test_no_valid_skip",
+      "kind": "function",
+      "line": 281,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestGapTypeTable",
+      "kind": "class",
+      "line": 289,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestGapTypeTable._category_enum",
+      "kind": "function",
+      "line": 304,
+      "decorators": [
+        "staticmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "TestGapTypeTable.test_all_emitted_categories_classified_or_intentional_fallback",
+      "kind": "function",
+      "line": 309,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestGapTypeTable.test_latent_bug_is_uncategorized",
+      "kind": "function",
+      "line": 318,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestGapTypeTable.test_debris_categories_present",
+      "kind": "function",
+      "line": 321,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadCodeCandidateAdapter",
+      "kind": "class",
+      "line": 366,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadCodeCandidateAdapter.test_basic_mapping",
+      "kind": "function",
+      "line": 367,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadCodeCandidateAdapter.test_scanner_metadata_carries_needles_and_priority",
+      "kind": "function",
+      "line": 379,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadCodeCandidateAdapter.test_bare_name_needle_not_duplicated",
+      "kind": "function",
+      "line": 389,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadCodeCandidateAdapter.test_ast_proven_changes_scan_and_observation",
+      "kind": "function",
+      "line": 396,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadCodeCandidateAdapter.test_id_stable_under_line_drift",
+      "kind": "function",
+      "line": 406,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadCodeCandidateAdapter.test_id_stable_across_ref_count_changes",
+      "kind": "function",
+      "line": 413,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadParamCandidateAdapter",
+      "kind": "class",
+      "line": 422,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadParamCandidateAdapter.test_basic_mapping",
+      "kind": "function",
+      "line": 423,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadParamCandidateAdapter.test_needles_are_param_first_then_function_names",
+      "kind": "function",
+      "line": 434,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadParamCandidateAdapter.test_plain_function_needles",
+      "kind": "function",
+      "line": 444,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadParamCandidateAdapter.test_priority_paths_source_then_call_sites_then_importers",
+      "kind": "function",
+      "line": 451,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadParamCandidateAdapter.test_same_param_name_different_functions_distinct_ids",
+      "kind": "function",
+      "line": 462,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadParamCandidateAdapter.test_id_stable_under_param_line_drift",
+      "kind": "function",
+      "line": 469,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestConfigObligationAdapter",
+      "kind": "class",
+      "line": 542,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestConfigObligationAdapter.test_basic_mapping",
+      "kind": "function",
+      "line": 543,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestConfigObligationAdapter.test_needles_field_first_then_schema",
+      "kind": "function",
+      "line": 555,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestConfigObligationAdapter.test_needles_omit_empty_schema",
+      "kind": "function",
+      "line": 563,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestConfigObligationAdapter.test_scanner_metadata_roundtrip_fields",
+      "kind": "function",
+      "line": 570,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestOrphanCandidateAdapter",
+      "kind": "class",
+      "line": 581,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestOrphanCandidateAdapter.test_basic_mapping",
+      "kind": "function",
+      "line": 582,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestOrphanCandidateAdapter.test_needles_basename_stem_then_public_surface",
+      "kind": "function",
+      "line": 592,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestOrphanCandidateAdapter.test_needles_capped_at_five",
+      "kind": "function",
+      "line": 600,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestOrphanCandidateAdapter.test_path_normalized",
+      "kind": "function",
+      "line": 609,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDepCandidateAdapter",
+      "kind": "class",
+      "line": 617,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDepCandidateAdapter.test_basic_mapping",
+      "kind": "function",
+      "line": 618,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDepCandidateAdapter.test_needles_package_then_import_names",
+      "kind": "function",
+      "line": 628,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDepCandidateAdapter.test_dev_dependency_wording",
+      "kind": "function",
+      "line": 636,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDepCandidateAdapter.test_scanner_metadata_roundtrip_fields",
+      "kind": "function",
+      "line": 642,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCICDCandidateAdapter",
+      "kind": "class",
+      "line": 652,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCICDCandidateAdapter.test_basic_mapping",
+      "kind": "function",
+      "line": 653,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCICDCandidateAdapter.test_needles_element_first_then_missing_path_basenames",
+      "kind": "function",
+      "line": 663,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestCICDCandidateAdapter.test_element_content_not_carried",
+      "kind": "function",
+      "line": 671,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "_junk",
+      "to": "dict",
+      "line": 24,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_junk",
+      "to": "kwargs.update",
+      "line": 38,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_junk",
+      "to": "JunkFinding",
+      "line": 39,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "_contract",
+      "to": "dict",
+      "line": 43,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_contract",
+      "to": "kwargs.update",
+      "line": 56,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_contract",
+      "to": "ContractFinding",
+      "line": 57,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_doc",
+      "to": "dict",
+      "line": 61,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_doc",
+      "to": "kwargs.update",
+      "line": 70,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_doc",
+      "to": "DocFinding",
+      "line": 71,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_debris",
+      "to": "dict",
+      "line": 75,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_debris",
+      "to": "d.update",
+      "line": 85,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestJunkAdapter.test_detector_name_and_reachability",
+      "to": "finding_from_junk",
+      "line": 102,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestJunkAdapter.test_detector_name_and_reachability",
+      "to": "_junk",
+      "line": 102,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestJunkAdapter.test_detector_name_and_reachability",
+      "to": "pytest.mark.parametrize",
+      "line": 90,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestJunkAdapter.test_path_normalized",
+      "to": "finding_from_junk",
+      "line": 107,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestJunkAdapter.test_path_normalized",
+      "to": "_junk",
+      "line": 107,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestJunkAdapter.test_symbol_and_lines",
+      "to": "finding_from_junk",
+      "line": 111,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestJunkAdapter.test_symbol_and_lines",
+      "to": "_junk",
+      "line": 111,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestJunkAdapter.test_triage_fields_left_none",
+      "to": "finding_from_junk",
+      "line": 117,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestJunkAdapter.test_triage_fields_left_none",
+      "to": "_junk",
+      "line": 117,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestJunkAdapter.test_priors_preserved_as_scanner_metadata_evidence",
+      "to": "finding_from_junk",
+      "line": 127,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestJunkAdapter.test_priors_preserved_as_scanner_metadata_evidence",
+      "to": "_junk",
+      "line": 127,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestJunkAdapter.test_priors_preserved_as_scanner_metadata_evidence",
+      "to": "len",
+      "line": 128,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestJunkAdapter.test_returns_finding",
+      "to": "isinstance",
+      "line": 138,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestJunkAdapter.test_returns_finding",
+      "to": "finding_from_junk",
+      "line": 138,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestJunkAdapter.test_returns_finding",
+      "to": "_junk",
+      "line": 138,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_violation_to_contract",
+      "to": "finding_from_contract",
+      "line": 145,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_violation_to_contract",
+      "to": "_contract",
+      "line": 145,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_implicit_contract_to_contract",
+      "to": "finding_from_contract",
+      "line": 150,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_implicit_contract_to_contract",
+      "to": "_contract",
+      "line": 150,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_persisted_categories_route_to_contract",
+      "to": "gap_type_for",
+      "line": 157,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_persisted_categories_route_to_contract",
+      "to": "gap_type_for",
+      "line": 158,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_path_from_consumer_file",
+      "to": "finding_from_contract",
+      "line": 161,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_path_from_consumer_file",
+      "to": "_contract",
+      "line": 161,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_symbol_from_value_and_lines_none",
+      "to": "finding_from_contract",
+      "line": 165,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_symbol_from_value_and_lines_none",
+      "to": "_contract",
+      "line": 165,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_priors_preserved",
+      "to": "finding_from_contract",
+      "line": 170,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_priors_preserved",
+      "to": "_contract",
+      "line": 170,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_scanner_metadata_carries_needles_and_priority",
+      "to": "finding_from_contract",
+      "line": 182,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_scanner_metadata_carries_needles_and_priority",
+      "to": "_contract",
+      "line": 182,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_grouped_needles_and_sharers",
+      "to": "finding_from_contract",
+      "line": 190,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_grouped_needles_and_sharers",
+      "to": "_contract",
+      "line": 190,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_violation_sentinel_producer_dropped_from_priority",
+      "to": "finding_from_contract",
+      "line": 208,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "TestContractAdapter.test_violation_sentinel_producer_dropped_from_priority",
+      "to": "_contract",
+      "line": 208,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDocAdapter.test_each_category_to_description",
+      "to": "finding_from_doc",
+      "line": 223,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "TestDocAdapter.test_each_category_to_description",
+      "to": "_doc",
+      "line": 223,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDocAdapter.test_each_category_to_description",
+      "to": "Path",
+      "line": 223,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDocAdapter.test_each_category_to_description",
+      "to": "pytest.mark.parametrize",
+      "line": 218,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestDocAdapter.test_path_from_doc_path",
+      "to": "finding_from_doc",
+      "line": 228,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "TestDocAdapter.test_path_from_doc_path",
+      "to": "_doc",
+      "line": 228,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDocAdapter.test_path_from_doc_path",
+      "to": "Path",
+      "line": 228,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDocAdapter.test_observed_from_evidence_quote",
+      "to": "finding_from_doc",
+      "line": 232,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "TestDocAdapter.test_observed_from_evidence_quote",
+      "to": "_doc",
+      "line": 232,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDocAdapter.test_priors_preserved",
+      "to": "finding_from_doc",
+      "line": 238,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "TestDocAdapter.test_priors_preserved",
+      "to": "_doc",
+      "line": 238,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDebrisAdapter.test_each_category",
+      "to": "finding_from_debris",
+      "line": 260,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestDebrisAdapter.test_each_category",
+      "to": "_debris",
+      "line": 260,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestDebrisAdapter.test_each_category",
+      "to": "pytest.mark.parametrize",
+      "line": 248,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestDebrisAdapter.test_unknown_category_uncategorized",
+      "to": "finding_from_debris",
+      "line": 265,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestDebrisAdapter.test_unknown_category_uncategorized",
+      "to": "_debris",
+      "line": 265,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestDebrisAdapter.test_source_used_for_path_and_lines_preserved",
+      "to": "finding_from_debris",
+      "line": 269,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestDebrisAdapter.test_source_used_for_path_and_lines_preserved",
+      "to": "_debris",
+      "line": 269,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestDebrisAdapter.test_priors_preserved",
+      "to": "finding_from_debris",
+      "line": 274,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestDebrisAdapter.test_priors_preserved",
+      "to": "_debris",
+      "line": 274,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestDebrisAdapter.test_no_valid_skip",
+      "to": "_debris",
+      "line": 284,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestDebrisAdapter.test_no_valid_skip",
+      "to": "_debris",
+      "line": 284,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestDebrisAdapter.test_no_valid_skip",
+      "to": "findings_from_debris",
+      "line": 285,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestDebrisAdapter.test_no_valid_skip",
+      "to": "len",
+      "line": 286,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestGapTypeTable.test_all_emitted_categories_classified_or_intentional_fallback",
+      "to": "set",
+      "line": 310,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestGapTypeTable.test_all_emitted_categories_classified_or_intentional_fallback",
+      "to": "self._category_enum",
+      "line": 310,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestGapTypeTable.test_all_emitted_categories_classified_or_intentional_fallback",
+      "to": "set",
+      "line": 311,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestGapTypeTable.test_all_emitted_categories_classified_or_intentional_fallback",
+      "to": "self._category_enum",
+      "line": 311,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestGapTypeTable.test_latent_bug_is_uncategorized",
+      "to": "gap_type_for",
+      "line": 319,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestGapTypeTable.test_debris_categories_present",
+      "to": "self._category_enum",
+      "line": 323,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_dc_candidate",
+      "to": "dict",
+      "line": 332,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_dc_candidate",
+      "to": "GrepHit",
+      "line": 340,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_dc_candidate",
+      "to": "GrepHit",
+      "line": 341,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_dc_candidate",
+      "to": "kwargs.update",
+      "line": 344,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_dc_candidate",
+      "to": "DeadCodeCandidate",
+      "line": 345,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_dp_candidate",
+      "to": "dict",
+      "line": 351,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_dp_candidate",
+      "to": "CallSite",
+      "line": 358,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_dp_candidate",
+      "to": "CallSite",
+      "line": 359,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_dp_candidate",
+      "to": "kwargs.update",
+      "line": 362,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_dp_candidate",
+      "to": "DeadParamCandidate",
+      "line": 363,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestDeadCodeCandidateAdapter.test_basic_mapping",
+      "to": "finding_from_dead_code_candidate",
+      "line": 370,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestDeadCodeCandidateAdapter.test_basic_mapping",
+      "to": "_dc_candidate",
+      "line": 370,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDeadCodeCandidateAdapter.test_scanner_metadata_carries_needles_and_priority",
+      "to": "finding_from_dead_code_candidate",
+      "line": 382,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestDeadCodeCandidateAdapter.test_scanner_metadata_carries_needles_and_priority",
+      "to": "_dc_candidate",
+      "line": 382,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDeadCodeCandidateAdapter.test_bare_name_needle_not_duplicated",
+      "to": "finding_from_dead_code_candidate",
+      "line": 392,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestDeadCodeCandidateAdapter.test_bare_name_needle_not_duplicated",
+      "to": "_dc_candidate",
+      "line": 392,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDeadCodeCandidateAdapter.test_ast_proven_changes_scan_and_observation",
+      "to": "finding_from_dead_code_candidate",
+      "line": 399,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestDeadCodeCandidateAdapter.test_ast_proven_changes_scan_and_observation",
+      "to": "_dc_candidate",
+      "line": 400,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDeadCodeCandidateAdapter.test_id_stable_under_line_drift",
+      "to": "finding_from_dead_code_candidate",
+      "line": 409,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestDeadCodeCandidateAdapter.test_id_stable_under_line_drift",
+      "to": "_dc_candidate",
+      "line": 409,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDeadCodeCandidateAdapter.test_id_stable_under_line_drift",
+      "to": "finding_from_dead_code_candidate",
+      "line": 410,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestDeadCodeCandidateAdapter.test_id_stable_under_line_drift",
+      "to": "_dc_candidate",
+      "line": 410,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDeadCodeCandidateAdapter.test_id_stable_across_ref_count_changes",
+      "to": "finding_from_dead_code_candidate",
+      "line": 417,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestDeadCodeCandidateAdapter.test_id_stable_across_ref_count_changes",
+      "to": "_dc_candidate",
+      "line": 417,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDeadCodeCandidateAdapter.test_id_stable_across_ref_count_changes",
+      "to": "finding_from_dead_code_candidate",
+      "line": 418,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "TestDeadCodeCandidateAdapter.test_id_stable_across_ref_count_changes",
+      "to": "_dc_candidate",
+      "line": 418,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDeadParamCandidateAdapter.test_basic_mapping",
+      "to": "finding_from_dead_param_candidate",
+      "line": 426,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestDeadParamCandidateAdapter.test_basic_mapping",
+      "to": "_dp_candidate",
+      "line": 426,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDeadParamCandidateAdapter.test_needles_are_param_first_then_function_names",
+      "to": "finding_from_dead_param_candidate",
+      "line": 440,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestDeadParamCandidateAdapter.test_needles_are_param_first_then_function_names",
+      "to": "_dp_candidate",
+      "line": 440,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDeadParamCandidateAdapter.test_plain_function_needles",
+      "to": "finding_from_dead_param_candidate",
+      "line": 447,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestDeadParamCandidateAdapter.test_plain_function_needles",
+      "to": "_dp_candidate",
+      "line": 447,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDeadParamCandidateAdapter.test_priority_paths_source_then_call_sites_then_importers",
+      "to": "finding_from_dead_param_candidate",
+      "line": 454,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestDeadParamCandidateAdapter.test_priority_paths_source_then_call_sites_then_importers",
+      "to": "_dp_candidate",
+      "line": 455,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDeadParamCandidateAdapter.test_same_param_name_different_functions_distinct_ids",
+      "to": "finding_from_dead_param_candidate",
+      "line": 465,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestDeadParamCandidateAdapter.test_same_param_name_different_functions_distinct_ids",
+      "to": "_dp_candidate",
+      "line": 465,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDeadParamCandidateAdapter.test_same_param_name_different_functions_distinct_ids",
+      "to": "finding_from_dead_param_candidate",
+      "line": 466,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestDeadParamCandidateAdapter.test_same_param_name_different_functions_distinct_ids",
+      "to": "_dp_candidate",
+      "line": 466,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDeadParamCandidateAdapter.test_id_stable_under_param_line_drift",
+      "to": "finding_from_dead_param_candidate",
+      "line": 472,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestDeadParamCandidateAdapter.test_id_stable_under_param_line_drift",
+      "to": "_dp_candidate",
+      "line": 472,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDeadParamCandidateAdapter.test_id_stable_under_param_line_drift",
+      "to": "finding_from_dead_param_candidate",
+      "line": 473,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "TestDeadParamCandidateAdapter.test_id_stable_under_param_line_drift",
+      "to": "_dp_candidate",
+      "line": 473,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_obligation",
+      "to": "dict",
+      "line": 483,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_obligation",
+      "to": "kwargs.update",
+      "line": 492,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_obligation",
+      "to": "ConfigObligation",
+      "line": 493,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_orphan_candidate",
+      "to": "dict",
+      "line": 499,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_orphan_candidate",
+      "to": "kwargs.update",
+      "line": 506,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_orphan_candidate",
+      "to": "OrphanCandidate",
+      "line": 507,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_dep_candidate",
+      "to": "dict",
+      "line": 513,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_dep_candidate",
+      "to": "kwargs.update",
+      "line": 521,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_dep_candidate",
+      "to": "DependencyCandidate",
+      "line": 522,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "_cicd_candidate",
+      "to": "dict",
+      "line": 528,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_cicd_candidate",
+      "to": "kwargs.update",
+      "line": 538,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_cicd_candidate",
+      "to": "CICDCandidate",
+      "line": 539,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestConfigObligationAdapter.test_basic_mapping",
+      "to": "finding_from_config_obligation",
+      "line": 546,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestConfigObligationAdapter.test_basic_mapping",
+      "to": "_obligation",
+      "line": 546,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestConfigObligationAdapter.test_needles_field_first_then_schema",
+      "to": "finding_from_config_obligation",
+      "line": 558,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestConfigObligationAdapter.test_needles_field_first_then_schema",
+      "to": "_obligation",
+      "line": 558,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestConfigObligationAdapter.test_needles_omit_empty_schema",
+      "to": "finding_from_config_obligation",
+      "line": 566,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestConfigObligationAdapter.test_needles_omit_empty_schema",
+      "to": "_obligation",
+      "line": 566,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestConfigObligationAdapter.test_scanner_metadata_roundtrip_fields",
+      "to": "finding_from_config_obligation",
+      "line": 573,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestConfigObligationAdapter.test_scanner_metadata_roundtrip_fields",
+      "to": "_obligation",
+      "line": 573,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestConfigObligationAdapter.test_scanner_metadata_roundtrip_fields",
+      "to": "startswith",
+      "line": 578,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestOrphanCandidateAdapter.test_basic_mapping",
+      "to": "finding_from_orphan_candidate",
+      "line": 585,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestOrphanCandidateAdapter.test_basic_mapping",
+      "to": "_orphan_candidate",
+      "line": 585,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestOrphanCandidateAdapter.test_needles_basename_stem_then_public_surface",
+      "to": "finding_from_orphan_candidate",
+      "line": 595,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestOrphanCandidateAdapter.test_needles_basename_stem_then_public_surface",
+      "to": "_orphan_candidate",
+      "line": 595,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestOrphanCandidateAdapter.test_needles_capped_at_five",
+      "to": "finding_from_orphan_candidate",
+      "line": 603,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestOrphanCandidateAdapter.test_needles_capped_at_five",
+      "to": "_orphan_candidate",
+      "line": 603,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestOrphanCandidateAdapter.test_path_normalized",
+      "to": "finding_from_orphan_candidate",
+      "line": 612,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestOrphanCandidateAdapter.test_path_normalized",
+      "to": "_orphan_candidate",
+      "line": 612,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDepCandidateAdapter.test_basic_mapping",
+      "to": "finding_from_dep_candidate",
+      "line": 621,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestDepCandidateAdapter.test_basic_mapping",
+      "to": "_dep_candidate",
+      "line": 621,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDepCandidateAdapter.test_needles_package_then_import_names",
+      "to": "finding_from_dep_candidate",
+      "line": 631,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestDepCandidateAdapter.test_needles_package_then_import_names",
+      "to": "_dep_candidate",
+      "line": 631,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDepCandidateAdapter.test_dev_dependency_wording",
+      "to": "finding_from_dep_candidate",
+      "line": 639,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestDepCandidateAdapter.test_dev_dependency_wording",
+      "to": "_dep_candidate",
+      "line": 639,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDepCandidateAdapter.test_scanner_metadata_roundtrip_fields",
+      "to": "finding_from_dep_candidate",
+      "line": 645,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestDepCandidateAdapter.test_scanner_metadata_roundtrip_fields",
+      "to": "_dep_candidate",
+      "line": 645,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestCICDCandidateAdapter.test_basic_mapping",
+      "to": "finding_from_cicd_candidate",
+      "line": 656,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestCICDCandidateAdapter.test_basic_mapping",
+      "to": "_cicd_candidate",
+      "line": 656,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestCICDCandidateAdapter.test_needles_element_first_then_missing_path_basenames",
+      "to": "finding_from_cicd_candidate",
+      "line": 666,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestCICDCandidateAdapter.test_needles_element_first_then_missing_path_basenames",
+      "to": "_cicd_candidate",
+      "line": 666,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestCICDCandidateAdapter.test_element_content_not_carried",
+      "to": "finding_from_cicd_candidate",
+      "line": 674,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestCICDCandidateAdapter.test_element_content_not_carried",
+      "to": "_cicd_candidate",
+      "line": 674,
+      "call_sites": 3
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "dead_symbol",
+      "line": 23,
+      "usage": "produced",
+      "context": "default parameter"
+    },
+    {
+      "value": "src/osoji/foo.py",
+      "line": 25,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "old_func",
+      "line": 26,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "function",
+      "line": 27,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "no references",
+      "line": 32,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "remove it",
+      "line": 33,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "exported helper",
+      "line": 34,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "ast_proven",
+      "line": 35,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "violation",
+      "line": 42,
+      "usage": "produced",
+      "context": "default parameter"
+    },
+    {
+      "value": "string_contract",
+      "line": 45,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "failed",
+      "line": 46,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "src/osoji/a.py",
+      "line": 47,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "src/osoji/b.py",
+      "line": 48,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "warning",
+      "line": 50,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "value 'failed' produced in a.py, checked in b.py",
+      "line": 52,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "failed",
+      "line": 53,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "raise",
+      "line": 53,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "assert",
+      "line": 53,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "extract a shared constant",
+      "line": 54,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "stale_content",
+      "line": 60,
+      "usage": "produced",
+      "context": "default parameter"
+    },
+    {
+      "value": "warning",
+      "line": 63,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "README claims stateless workers",
+      "line": 64,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "src/osoji/worker.py",
+      "line": 65,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "worker.py caches per-request state",
+      "line": 66,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "update the README",
+      "line": 67,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "stateless",
+      "line": 68,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "worker",
+      "line": 68,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "stale_comment",
+      "line": 74,
+      "usage": "produced",
+      "context": "default parameter"
+    },
+    {
+      "value": "src/osoji/foo.py",
+      "line": 76,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "warning",
+      "line": 80,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "comment says sorted; code uses a set",
+      "line": 81,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "fix the comment",
+      "line": 82,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "reachability",
+      "line": 104,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "category,producer",
+      "line": 91,
+      "usage": "produced",
+      "context": "argument to pytest.mark.parametrize"
+    },
+    {
+      "value": "dead_symbol",
+      "line": 93,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "deadcode",
+      "line": 93,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dead_parameter",
+      "line": 94,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "deadparam",
+      "line": 94,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "unactuated_config",
+      "line": 95,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "plumbing",
+      "line": 95,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dead_dependency",
+      "line": 96,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "deps",
+      "line": 96,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dead_cicd",
+      "line": 97,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cicd",
+      "line": 97,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "orphaned_file",
+      "line": 98,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "orphan",
+      "line": 98,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src\\osoji\\foo.py",
+      "line": 107,
+      "usage": "produced",
+      "context": "keyword argument to _junk"
+    },
+    {
+      "value": "src/osoji/foo.py",
+      "line": 108,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.path"
+    },
+    {
+      "value": "old_func",
+      "line": 112,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.symbol"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 130,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ev.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "remove it",
+      "line": 132,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "ast_proven",
+      "line": 134,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "violation",
+      "line": 145,
+      "usage": "produced",
+      "context": "keyword argument to _contract"
+    },
+    {
+      "value": "obligations:obligation_violation",
+      "line": 146,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.detector",
+      "kind": "identifier"
+    },
+    {
+      "value": "contract",
+      "line": 147,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "implicit_contract",
+      "line": 150,
+      "usage": "produced",
+      "context": "keyword argument to _contract"
+    },
+    {
+      "value": "obligations:obligation_implicit_contract",
+      "line": 151,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.detector",
+      "kind": "identifier"
+    },
+    {
+      "value": "contract",
+      "line": 152,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "obligation_violation",
+      "line": 157,
+      "usage": "produced",
+      "context": "argument to gap_type_for"
+    },
+    {
+      "value": "contract",
+      "line": 157,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "obligation_implicit_contract",
+      "line": 158,
+      "usage": "produced",
+      "context": "argument to gap_type_for"
+    },
+    {
+      "value": "contract",
+      "line": 158,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/osoji/b.py",
+      "line": 162,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.path"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 172,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ev.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "warning",
+      "line": 174,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "extract a shared constant",
+      "line": 175,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/osoji/a.py",
+      "line": 176,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "failed",
+      "line": 177,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 183,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "failed",
+      "line": 184,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/osoji/b.py",
+      "line": 185,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/osoji/a.py",
+      "line": 185,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/osoji/prod.py",
+      "line": 192,
+      "usage": "produced",
+      "context": "keyword argument to _contract"
+    },
+    {
+      "value": "src/osoji/cons.py",
+      "line": 193,
+      "usage": "produced",
+      "context": "keyword argument to _contract"
+    },
+    {
+      "value": "alpha",
+      "line": 195,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "beta",
+      "line": 195,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/osoji/prod.py",
+      "line": 197,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/osoji/prod2.py",
+      "line": 197,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/osoji/cons.py",
+      "line": 198,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 202,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "alpha",
+      "line": 203,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "beta",
+      "line": 203,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/osoji/prod2.py",
+      "line": 204,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/osoji/cons.py",
+      "line": 205,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "violation",
+      "line": 209,
+      "usage": "produced",
+      "context": "keyword argument to _contract"
+    },
+    {
+      "value": "(no producer found)",
+      "line": 210,
+      "usage": "produced",
+      "context": "keyword argument to _contract",
+      "kind": "identifier"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 212,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "(no producer found)",
+      "line": 213,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/osoji/b.py",
+      "line": 214,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "docs/README.md",
+      "line": 223,
+      "usage": "produced",
+      "context": "argument to Path"
+    },
+    {
+      "value": "description",
+      "line": 225,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "category",
+      "line": 219,
+      "usage": "produced",
+      "context": "argument to pytest.mark.parametrize"
+    },
+    {
+      "value": "stale_content",
+      "line": 220,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "incorrect_content",
+      "line": 220,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "obsolete_reference",
+      "line": 220,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "misleading_claim",
+      "line": 220,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "docs/README.md",
+      "line": 228,
+      "usage": "produced",
+      "context": "argument to Path"
+    },
+    {
+      "value": "docs/README.md",
+      "line": 229,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.path"
+    },
+    {
+      "value": "docs/README.md",
+      "line": 232,
+      "usage": "produced",
+      "context": "argument to finding_from_doc"
+    },
+    {
+      "value": "worker.py caches per-request state",
+      "line": 233,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.observed_behavior"
+    },
+    {
+      "value": "docs/README.md",
+      "line": 238,
+      "usage": "produced",
+      "context": "argument to finding_from_doc"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 240,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ev.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "warning",
+      "line": 241,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "update the README",
+      "line": 242,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "stateless",
+      "line": 243,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "worker",
+      "line": 243,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/osoji/worker.py",
+      "line": 244,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "category,gap",
+      "line": 249,
+      "usage": "produced",
+      "context": "argument to pytest.mark.parametrize"
+    },
+    {
+      "value": "dead_code",
+      "line": 251,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "reachability",
+      "line": 251,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "stale_comment",
+      "line": 252,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "description",
+      "line": 252,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "misleading_docstring",
+      "line": 253,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "description",
+      "line": 253,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "commented_out_code",
+      "line": 254,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "description",
+      "line": 254,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "expired_todo",
+      "line": 255,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "description",
+      "line": 255,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "latent_bug",
+      "line": 256,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "uncategorized",
+      "line": 256,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "brand_new_kind",
+      "line": 265,
+      "usage": "produced",
+      "context": "keyword argument to _debris"
+    },
+    {
+      "value": "uncategorized",
+      "line": 266,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "src\\osoji\\foo.py",
+      "line": 269,
+      "usage": "produced",
+      "context": "keyword argument to _debris"
+    },
+    {
+      "value": "src/osoji/foo.py",
+      "line": 270,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.path"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 276,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ev.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "warning",
+      "line": 277,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "fix the comment",
+      "line": 278,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "dead_symbol",
+      "line": 295,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dead_parameter",
+      "line": 296,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "unactuated_config",
+      "line": 297,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dead_dependency",
+      "line": 298,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dead_cicd",
+      "line": 299,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "orphaned_file",
+      "line": 300,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "latent_bug",
+      "line": 315,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "category",
+      "kind": "identifier"
+    },
+    {
+      "value": "latent_bug",
+      "line": 319,
+      "usage": "produced",
+      "context": "argument to gap_type_for",
+      "kind": "identifier"
+    },
+    {
+      "value": "uncategorized",
+      "line": 319,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "stale_comment",
+      "line": 323,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "src/osoji/foo.py",
+      "line": 333,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "Widget.render",
+      "line": 334,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "method",
+      "line": 335,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "src/osoji/b.py",
+      "line": 340,
+      "usage": "produced",
+      "context": "keyword argument to GrepHit"
+    },
+    {
+      "value": "w.render()",
+      "line": 340,
+      "usage": "produced",
+      "context": "keyword argument to GrepHit"
+    },
+    {
+      "value": "src/osoji/a.py",
+      "line": 341,
+      "usage": "produced",
+      "context": "keyword argument to GrepHit"
+    },
+    {
+      "value": "# render",
+      "line": 341,
+      "usage": "produced",
+      "context": "keyword argument to GrepHit"
+    },
+    {
+      "value": "src/osoji/foo.py",
+      "line": 352,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "Widget.render",
+      "line": 353,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "verbose",
+      "line": 354,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "src/osoji/b.py",
+      "line": 358,
+      "usage": "produced",
+      "context": "keyword argument to CallSite"
+    },
+    {
+      "value": "w.render()",
+      "line": 358,
+      "usage": "produced",
+      "context": "keyword argument to CallSite"
+    },
+    {
+      "value": "src/osoji/b.py",
+      "line": 359,
+      "usage": "produced",
+      "context": "keyword argument to CallSite"
+    },
+    {
+      "value": "w.render(1)",
+      "line": 359,
+      "usage": "produced",
+      "context": "keyword argument to CallSite"
+    },
+    {
+      "value": "deadcode:dead_symbol",
+      "line": 371,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.detector",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 372,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/osoji/foo.py",
+      "line": 373,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.path"
+    },
+    {
+      "value": "Widget.render",
+      "line": 374,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.symbol"
+    },
+    {
+      "value": "symbol declaration",
+      "line": 375,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.contract_source",
+      "kind": "identifier"
+    },
+    {
+      "value": "`Widget.render` (method)",
+      "line": 376,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.contract_claim"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 383,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "Widget.render",
+      "line": 384,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "render",
+      "line": 384,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/osoji/a.py",
+      "line": 385,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/osoji/b.py",
+      "line": 385,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "grep",
+      "line": 386,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "lonely",
+      "line": 392,
+      "usage": "produced",
+      "context": "keyword argument to _dc_candidate"
+    },
+    {
+      "value": "function",
+      "line": 392,
+      "usage": "produced",
+      "context": "keyword argument to _dc_candidate"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 393,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "lonely",
+      "line": 394,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 402,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "ast",
+      "line": 403,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "AST graph",
+      "line": 404,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.observed_behavior"
+    },
+    {
+      "value": "deadparam:dead_parameter",
+      "line": 427,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.detector",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 428,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "Widget.render.verbose",
+      "line": 429,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.symbol"
+    },
+    {
+      "value": "function signature",
+      "line": 430,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.contract_source",
+      "kind": "identifier"
+    },
+    {
+      "value": "`verbose`",
+      "line": 432,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.contract_claim"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 441,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "verbose",
+      "line": 442,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "render",
+      "line": 442,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Widget",
+      "line": 442,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "run",
+      "line": 447,
+      "usage": "produced",
+      "context": "keyword argument to _dp_candidate"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 448,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "verbose",
+      "line": 449,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "run",
+      "line": 449,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/osoji/b.py",
+      "line": 455,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/osoji/c.py",
+      "line": 455,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 457,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/osoji/foo.py",
+      "line": 459,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/osoji/b.py",
+      "line": 459,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/osoji/c.py",
+      "line": 459,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "alpha",
+      "line": 465,
+      "usage": "produced",
+      "context": "keyword argument to _dp_candidate"
+    },
+    {
+      "value": "beta",
+      "line": 466,
+      "usage": "produced",
+      "context": "keyword argument to _dp_candidate"
+    },
+    {
+      "value": "src/trial.ts",
+      "line": 484,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "taskTimeoutMs",
+      "line": 485,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "TrialSettingsSchema",
+      "line": 486,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "Enforce max elapsed time for task execution",
+      "line": 489,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "timer/deadline/abort/kill",
+      "line": 490,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "src/osoji/plugins/foo.py",
+      "line": 500,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "A plugin",
+      "line": 501,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "plugin",
+      "line": 502,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "utility",
+      "line": 503,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "FooPlugin",
+      "line": 504,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "register",
+      "line": 504,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pyproject.toml",
+      "line": 514,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "pillow",
+      "line": 515,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "PIL",
+      "line": 516,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "python",
+      "line": 518,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": ".github/workflows/ci.yml",
+      "line": 529,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "deploy",
+      "line": 530,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "workflow_job",
+      "line": 531,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "deploy/scripts/run.sh",
+      "line": 534,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "infra/old.yml",
+      "line": 534,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "  deploy:\n    run: bash deploy/scripts/run.sh\n",
+      "line": 535,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "name: CI\njobs:\n  deploy:\n    run: bash deploy/scripts/run.sh\n",
+      "line": 536,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "plumbing:unactuated_config",
+      "line": 547,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.detector",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 548,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/trial.ts",
+      "line": 549,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.path"
+    },
+    {
+      "value": "taskTimeoutMs",
+      "line": 550,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.symbol"
+    },
+    {
+      "value": "must enforce",
+      "line": 553,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.contract_claim"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 559,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "taskTimeoutMs",
+      "line": 560,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "TrialSettingsSchema",
+      "line": 560,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 567,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "taskTimeoutMs",
+      "line": 568,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 574,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "TrialSettingsSchema",
+      "line": 575,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "taskTimeoutMs",
+      "line": 576,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "Enforce",
+      "line": 578,
+      "usage": "produced",
+      "context": "argument to startswith"
+    },
+    {
+      "value": "orphan:orphaned_file",
+      "line": 586,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.detector",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 587,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/osoji/plugins/foo.py",
+      "line": 588,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.path"
+    },
+    {
+      "value": "foo.py",
+      "line": 589,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.symbol"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 596,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "foo.py",
+      "line": 597,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "foo",
+      "line": 597,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "FooPlugin",
+      "line": 597,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "register",
+      "line": 597,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 606,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "foo.py",
+      "line": 607,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "foo",
+      "line": 607,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src\\osoji\\bar.py",
+      "line": 612,
+      "usage": "produced",
+      "context": "keyword argument to _orphan_candidate"
+    },
+    {
+      "value": "src/osoji/bar.py",
+      "line": 613,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.path"
+    },
+    {
+      "value": "bar.py",
+      "line": 614,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.symbol"
+    },
+    {
+      "value": "deps:dead_dependency",
+      "line": 622,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.detector",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 623,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "pyproject.toml",
+      "line": 624,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.path"
+    },
+    {
+      "value": "pillow",
+      "line": 625,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.symbol"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 632,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "pillow",
+      "line": 633,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "PIL",
+      "line": 633,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "a dev dependency",
+      "line": 640,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.contract_claim"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 646,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "pillow",
+      "line": 647,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "PIL",
+      "line": 648,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cicd:dead_cicd",
+      "line": 657,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.detector",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 658,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.gap_type",
+      "kind": "identifier"
+    },
+    {
+      "value": ".github/workflows/ci.yml",
+      "line": 659,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.path"
+    },
+    {
+      "value": "deploy",
+      "line": 660,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.symbol"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 667,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "deploy",
+      "line": 668,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "run.sh",
+      "line": 668,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "old.yml",
+      "line": 668,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "scanner_metadata",
+      "line": 675,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "element_content",
+      "line": 676,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "meta.payload"
+    },
+    {
+      "value": "full_file_content",
+      "line": 677,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "meta.payload"
+    },
+    {
+      "value": "deploy/scripts/run.sh",
+      "line": 678,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "infra/old.yml",
+      "line": 678,
+      "usage": "produced",
+      "context": "collection element"
+    }
+  ],
+  "extraction_method": "ast"
+}

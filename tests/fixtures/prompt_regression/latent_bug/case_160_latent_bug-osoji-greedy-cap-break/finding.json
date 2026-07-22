@@ -1,0 +1,20 @@
+{
+  "detector": "debris:latent_bug",
+  "gap_type": "uncategorized",
+  "path": "src/osoji/doc_analysis.py",
+  "line_start": 553,
+  "line_end": 555,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "Shadow char cap enforcement uses `break` on first overflow. If a large shadow doc causes total_chars to exceed _SHADOW_CHAR_CAP, all subsequent source files are silently skipped — even if they are individually small and would fit within the cap. A `continue` (skip-and-try-next) would be more accurate to the stated intent of capping total content.",
+  "observed_behavior": "Shadow char cap enforcement uses `break` on first overflow. If a large shadow doc causes total_chars to exceed _SHADOW_CHAR_CAP, all subsequent source files are silently skipped — even if they are individually small and would fit within the cap. A `continue` (skip-and-try-next) would be more accurate to the stated intent of capping total content.",
+  "evidence": [],
+  "id": "f04f62bd530d5175",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

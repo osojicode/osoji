@@ -1,0 +1,660 @@
+{
+  "source": "scripts/migrate_bootstrap_corpus.py",
+  "source_hash": "b8f271016b87ed00",
+  "generated": "2026-07-22T10:58:44Z",
+  "file_role": "entry",
+  "symbols": [
+    {
+      "name": "REPO_ROOT",
+      "kind": "constant",
+      "line_start": 84,
+      "line_end": 84,
+      "visibility": "public"
+    },
+    {
+      "name": "BOOTSTRAP_DIR",
+      "kind": "constant",
+      "line_start": 108,
+      "line_end": 108,
+      "visibility": "public"
+    },
+    {
+      "name": "DEFAULT_MANIFEST",
+      "kind": "constant",
+      "line_start": 109,
+      "line_end": 109,
+      "visibility": "public"
+    },
+    {
+      "name": "MANIFEST_FIXTURES",
+      "kind": "constant",
+      "line_start": 110,
+      "line_end": 110,
+      "visibility": "public"
+    },
+    {
+      "name": "MANIFEST_AUDIT",
+      "kind": "constant",
+      "line_start": 111,
+      "line_end": 111,
+      "visibility": "public"
+    },
+    {
+      "name": "CORPUS_ROOT",
+      "kind": "constant",
+      "line_start": 113,
+      "line_end": 113,
+      "visibility": "public"
+    },
+    {
+      "name": "CORPUS_ROOT_REL",
+      "kind": "constant",
+      "line_start": 114,
+      "line_end": 114,
+      "visibility": "public"
+    },
+    {
+      "name": "DEFAULT_DEST",
+      "kind": "constant",
+      "line_start": 115,
+      "line_end": 115,
+      "visibility": "public"
+    },
+    {
+      "name": "FALLBACK_ADJUDICATED_AT",
+      "kind": "constant",
+      "line_start": 119,
+      "line_end": 119,
+      "visibility": "public"
+    },
+    {
+      "name": "ADJUDICATED_BY",
+      "kind": "constant",
+      "line_start": 120,
+      "line_end": 120,
+      "visibility": "public"
+    },
+    {
+      "name": "SWEEP_RUN",
+      "kind": "constant",
+      "line_start": 121,
+      "line_end": 121,
+      "visibility": "public"
+    },
+    {
+      "name": "_TRIAGE_OUTPUT_FIELDS",
+      "kind": "constant",
+      "line_start": 125,
+      "line_end": 133,
+      "visibility": "internal"
+    },
+    {
+      "name": "_iso_from_manifest_date",
+      "kind": "function",
+      "line_start": 141,
+      "line_end": 146,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "date_str",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_adjudicated_reasoning",
+      "kind": "function",
+      "line_start": 149,
+      "line_end": 168,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "entry",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_load_finding_or_none",
+      "kind": "function",
+      "line_start": 171,
+      "line_end": 182,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "finding_blob",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_finding_for_case",
+      "kind": "function",
+      "line_start": 185,
+      "line_end": 196,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "finding",
+          "optional": false
+        },
+        {
+          "name": "path",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_build_case_json",
+      "kind": "function",
+      "line_start": 199,
+      "line_end": 226,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "entry",
+          "optional": false
+        },
+        {
+          "name": "gap_type",
+          "optional": false
+        },
+        {
+          "name": "detector_producer",
+          "optional": false
+        },
+        {
+          "name": "language",
+          "optional": false
+        },
+        {
+          "name": "snapshot_ref",
+          "optional": false
+        },
+        {
+          "name": "commit",
+          "optional": false
+        },
+        {
+          "name": "swept_at",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_build_expected_json",
+      "kind": "function",
+      "line_start": 229,
+      "line_end": 240,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "entry",
+          "optional": false
+        },
+        {
+          "name": "adjudicated_at",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_case_dir_for",
+      "kind": "function",
+      "line_start": 243,
+      "line_end": 244,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "dest",
+          "optional": false
+        },
+        {
+          "name": "entry",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_case_already_handled",
+      "kind": "function",
+      "line_start": 247,
+      "line_end": 270,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "entry",
+          "optional": false
+        },
+        {
+          "name": "dest",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_git_show_exists",
+      "kind": "function",
+      "line_start": 278,
+      "line_end": 284,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "commit",
+          "optional": false
+        },
+        {
+          "name": "path",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_git_show_bytes",
+      "kind": "function",
+      "line_start": 287,
+      "line_end": 295,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "commit",
+          "optional": false
+        },
+        {
+          "name": "path",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_normalize_snapshot_bytes",
+      "kind": "function",
+      "line_start": 298,
+      "line_end": 321,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "data",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_safe_relative_posix",
+      "kind": "function",
+      "line_start": 324,
+      "line_end": 334,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "raw",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_evidence_paths_at_commit",
+      "kind": "function",
+      "line_start": 337,
+      "line_end": 356,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "finding_blob",
+          "optional": false
+        },
+        {
+          "name": "commit",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_write_facts_sidecars",
+      "kind": "function",
+      "line_start": 365,
+      "line_end": 407,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "case_dir",
+          "optional": false
+        },
+        {
+          "name": "source_root",
+          "optional": false
+        },
+        {
+          "name": "generated_at",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "MigrationOutcome",
+      "kind": "class",
+      "line_start": 433,
+      "line_end": 439,
+      "visibility": "public"
+    },
+    {
+      "name": "_FixtureValidation",
+      "kind": "class",
+      "line_start": 442,
+      "line_end": 446,
+      "visibility": "internal"
+    },
+    {
+      "name": "_validate_fixture_entry",
+      "kind": "function",
+      "line_start": 449,
+      "line_end": 480,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "entry",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "migrate_fixture_entry",
+      "kind": "function",
+      "line_start": 483,
+      "line_end": 514,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "entry",
+          "optional": false
+        },
+        {
+          "name": "dest",
+          "optional": false
+        },
+        {
+          "name": "adjudicated_at",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_status_fixture_entry",
+      "kind": "function",
+      "line_start": 517,
+      "line_end": 533,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "entry",
+          "optional": false
+        },
+        {
+          "name": "dest",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_AuditValidation",
+      "kind": "class",
+      "line_start": 536,
+      "line_end": 540,
+      "visibility": "internal"
+    },
+    {
+      "name": "_validate_audit_entry",
+      "kind": "function",
+      "line_start": 543,
+      "line_end": 566,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "entry",
+          "optional": false
+        },
+        {
+          "name": "commit",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "migrate_audit_entry",
+      "kind": "function",
+      "line_start": 569,
+      "line_end": 625,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "entry",
+          "optional": false
+        },
+        {
+          "name": "dest",
+          "optional": false
+        },
+        {
+          "name": "commit",
+          "optional": false
+        },
+        {
+          "name": "adjudicated_at",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_status_audit_entry",
+      "kind": "function",
+      "line_start": 628,
+      "line_end": 638,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "entry",
+          "optional": false
+        },
+        {
+          "name": "dest",
+          "optional": false
+        },
+        {
+          "name": "commit",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_cross_check",
+      "kind": "function",
+      "line_start": 646,
+      "line_end": 680,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "manifest",
+          "optional": false
+        },
+        {
+          "name": "split_path",
+          "optional": false
+        },
+        {
+          "name": "origin",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "StatusRow",
+      "kind": "variable",
+      "line_start": 695,
+      "line_end": 695,
+      "visibility": "public"
+    },
+    {
+      "name": "_status_rows",
+      "kind": "function",
+      "line_start": 698,
+      "line_end": 710,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "fixture_entries",
+          "optional": false
+        },
+        {
+          "name": "audit_entries",
+          "optional": false
+        },
+        {
+          "name": "fixture_status",
+          "optional": false
+        },
+        {
+          "name": "audit_status",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_count_facts_sidecars",
+      "kind": "function",
+      "line_start": 713,
+      "line_end": 717,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "dest",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_render_report",
+      "kind": "function",
+      "line_start": 720,
+      "line_end": 847,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "manifest",
+          "optional": false
+        },
+        {
+          "name": "commit",
+          "optional": false
+        },
+        {
+          "name": "dest",
+          "optional": false
+        },
+        {
+          "name": "fixture_entries",
+          "optional": false
+        },
+        {
+          "name": "audit_entries",
+          "optional": false
+        },
+        {
+          "name": "fixture_status",
+          "optional": false
+        },
+        {
+          "name": "audit_status",
+          "optional": false
+        },
+        {
+          "name": "fixture_cross_check",
+          "optional": false
+        },
+        {
+          "name": "audit_cross_check",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_render_skipped_md",
+      "kind": "function",
+      "line_start": 850,
+      "line_end": 869,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "fixture_entries",
+          "optional": false
+        },
+        {
+          "name": "audit_entries",
+          "optional": false
+        },
+        {
+          "name": "fixture_status",
+          "optional": false
+        },
+        {
+          "name": "audit_status",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_render_run_summary",
+      "kind": "function",
+      "line_start": 872,
+      "line_end": 898,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "only",
+          "optional": false
+        },
+        {
+          "name": "fixture_write_outcomes",
+          "optional": false
+        },
+        {
+          "name": "audit_write_outcomes",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_parse_only",
+      "kind": "function",
+      "line_start": 906,
+      "line_end": 909,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "raw",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "build_arg_parser",
+      "kind": "function",
+      "line_start": 912,
+      "line_end": 932,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "main",
+      "kind": "function",
+      "line_start": 935,
+      "line_end": 1011,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "argv",
+          "optional": true
+        }
+      ]
+    }
+  ]
+}

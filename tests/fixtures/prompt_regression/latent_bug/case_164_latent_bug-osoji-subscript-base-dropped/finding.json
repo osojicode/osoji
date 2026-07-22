@@ -1,0 +1,20 @@
+{
+  "detector": "debris:latent_bug",
+  "gap_type": "uncategorized",
+  "path": "src/osoji/plugins/_legacy_python_ast.py",
+  "line_start": 281,
+  "line_end": 281,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "At L281, `_decorator_name` is reused to resolve class base names: `bases = [n for b in node.bases if (n := _decorator_name(b))]`. `_decorator_name` is designed for decorator nodes (Name, Attribute, Call) and works correctly for simple base class references (e.g., `ast.Name`, `ast.Attribute`), but the function name is semantically misleading in this context. No crash, but the reuse is architecturally confusing and could yield incorrect results for complex base expressions (subscripts like `Generic[T]`). A subscript base (e.g., `List[int]`) would return `\"\"` and be silently dropped.",
+  "observed_behavior": "At L281, `_decorator_name` is reused to resolve class base names: `bases = [n for b in node.bases if (n := _decorator_name(b))]`. `_decorator_name` is designed for decorator nodes (Name, Attribute, Call) and works correctly for simple base class references (e.g., `ast.Name`, `ast.Attribute`), but the function name is semantically misleading in this context. No crash, but the reuse is architecturally confusing and could yield incorrect results for complex base expressions (subscripts like `Generic[T]`). A subscript base (e.g., `List[int]`) would return `\"\"` and be silently dropped.",
+  "evidence": [],
+  "id": "477c90b2553f9c8d",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

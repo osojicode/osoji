@@ -1,0 +1,3319 @@
+{
+  "source": "src/osoji/tools.py",
+  "source_hash": "a92fc8f0e37574f7",
+  "generated": "2026-07-22T10:56:12Z",
+  "imports": [
+    {
+      "source": "typing",
+      "names": [
+        "Any"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.types",
+      "names": [
+        "ToolDefinition"
+      ],
+      "line": 5,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "SUBMIT_SHADOW_DOC_TOOL",
+      "kind": "constant",
+      "line": 9,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SUBMIT_DIRECTORY_SHADOW_DOC_TOOL",
+      "kind": "constant",
+      "line": 301,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MATCH_DOC_TOPICS_TOOL",
+      "kind": "constant",
+      "line": 345,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ANALYZE_DOCUMENT_TOOL",
+      "kind": "constant",
+      "line": 383,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "get_file_tool_definitions",
+      "kind": "function",
+      "line": 489,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "get_directory_tool_definitions",
+      "kind": "function",
+      "line": 494,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "get_match_doc_topics_tool_definitions",
+      "kind": "function",
+      "line": 499,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "get_analyze_document_tool_definitions",
+      "kind": "function",
+      "line": 504,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "EXTRACT_OBLIGATIONS_TOOL",
+      "kind": "constant",
+      "line": 510,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "get_extract_obligations_tool_definitions",
+      "kind": "function",
+      "line": 575,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RESOLVE_IMPORT_NAMES_TOOL",
+      "kind": "constant",
+      "line": 583,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "CLASSIFY_DEPS_TOOL",
+      "kind": "constant",
+      "line": 627,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "EXTRACT_CICD_ELEMENTS_TOOL",
+      "kind": "constant",
+      "line": 678,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "IDENTIFY_ENTRY_POINTS_TOOL",
+      "kind": "constant",
+      "line": 733,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "IDENTIFY_RELATIONSHIPS_TOOL",
+      "kind": "constant",
+      "line": 779,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "get_resolve_import_names_tool_definitions",
+      "kind": "function",
+      "line": 824,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "get_classify_deps_tool_definitions",
+      "kind": "function",
+      "line": 829,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "get_extract_cicd_elements_tool_definitions",
+      "kind": "function",
+      "line": 834,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "get_identify_entry_points_tool_definitions",
+      "kind": "function",
+      "line": 839,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "get_identify_relationships_tool_definitions",
+      "kind": "function",
+      "line": 844,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "BUILD_CONCEPT_INVENTORY_TOOL",
+      "kind": "constant",
+      "line": 851,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GENERATE_WRITING_PROMPTS_TOOL",
+      "kind": "constant",
+      "line": 917,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "get_concept_inventory_tool_definitions",
+      "kind": "function",
+      "line": 973,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "get_writing_prompts_tool_definitions",
+      "kind": "function",
+      "line": 978,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SUBMIT_TRIAGE_VERDICTS_TOOL",
+      "kind": "constant",
+      "line": 1043,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SUBMIT_TRIAGE_VERDICT_TOOL",
+      "kind": "constant",
+      "line": 1087,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "READ_FILE_TOOL",
+      "kind": "constant",
+      "line": 1104,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GREP_TOOL",
+      "kind": "constant",
+      "line": 1119,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "LIST_DIR_TOOL",
+      "kind": "constant",
+      "line": 1133,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "get_triage_claim_tool_definitions",
+      "kind": "function",
+      "line": 1146,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "get_triage_exploration_tool_definitions",
+      "kind": "function",
+      "line": 1151,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "_dict_to_tool_definition",
+      "to": "ToolDefinition",
+      "line": 482,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "get_file_tool_definitions",
+      "to": "_dict_to_tool_definition",
+      "line": 491,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "get_directory_tool_definitions",
+      "to": "_dict_to_tool_definition",
+      "line": 496,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "get_match_doc_topics_tool_definitions",
+      "to": "_dict_to_tool_definition",
+      "line": 501,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "get_analyze_document_tool_definitions",
+      "to": "_dict_to_tool_definition",
+      "line": 506,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "get_extract_obligations_tool_definitions",
+      "to": "_dict_to_tool_definition",
+      "line": 577,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "get_resolve_import_names_tool_definitions",
+      "to": "_dict_to_tool_definition",
+      "line": 826,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "get_classify_deps_tool_definitions",
+      "to": "_dict_to_tool_definition",
+      "line": 831,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "get_extract_cicd_elements_tool_definitions",
+      "to": "_dict_to_tool_definition",
+      "line": 836,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "get_identify_entry_points_tool_definitions",
+      "to": "_dict_to_tool_definition",
+      "line": 841,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "get_identify_relationships_tool_definitions",
+      "to": "_dict_to_tool_definition",
+      "line": 846,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "get_concept_inventory_tool_definitions",
+      "to": "_dict_to_tool_definition",
+      "line": 975,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "get_writing_prompts_tool_definitions",
+      "to": "_dict_to_tool_definition",
+      "line": 980,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "dict",
+      "line": 1096,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "get_triage_claim_tool_definitions",
+      "to": "_dict_to_tool_definition",
+      "line": 1148,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "get_triage_exploration_tool_definitions",
+      "to": "_dict_to_tool_definition",
+      "line": 1154,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "get_triage_exploration_tool_definitions",
+      "to": "_dict_to_tool_definition",
+      "line": 1155,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "get_triage_exploration_tool_definitions",
+      "to": "_dict_to_tool_definition",
+      "line": 1156,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "get_triage_exploration_tool_definitions",
+      "to": "_dict_to_tool_definition",
+      "line": 1157,
+      "call_sites": 17
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "submit_shadow_doc",
+      "line": 10,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Submit a shadow documentation summary for a source file.\n\nThe shadow doc should be a semantically dense summary optimized for AI agent consumption.\nInclude:\n- Primary purpose and responsibility of the file\n- Key classes, functions, and their roles (with line numbers)\n- Important dependencies and relationships\n- Notable patterns or architectural decisions\n- Any critical invariants or constraints\n\nBe concise but comprehensive. Focus on what an AI agent would need to understand\nto work with this code effectively.",
+      "line": 11,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 24,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 27,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "The shadow documentation content (markdown format, without header)",
+      "line": 28,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 31,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Code quality issues found during analysis. Report stale comments, misleading docstrings, commented-out code blocks, expired TODOs, dead code, and latent bugs. Always include this field, using an empty array if none are found.",
+      "line": 32,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 34,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 37,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "stale_comment",
+      "line": 39,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "misleading_docstring",
+      "line": 40,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "commented_out_code",
+      "line": 41,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "expired_todo",
+      "line": 42,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dead_code",
+      "line": 43,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "latent_bug",
+      "line": 44,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "integer",
+      "line": 47,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "integer",
+      "line": 48,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 50,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "error",
+      "line": 51,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "warning",
+      "line": 51,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "string",
+      "line": 53,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 55,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "What should be done to fix this issue",
+      "line": 56,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "boolean",
+      "line": 59,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Set to false to retract this finding if on reflection it is incorrect. Defaults to true.",
+      "line": 62,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "boolean",
+      "line": 67,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Set true when this finding references behavior in OTHER files that cannot be verified from the current file alone.",
+      "line": 70,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "category",
+      "line": 75,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "line_start",
+      "line": 75,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "line_end",
+      "line": 75,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "severity",
+      "line": 75,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "description",
+      "line": 75,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "array",
+      "line": 79,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "All symbols defined in this file \u2014 both public/exported and internal/private. Include functions, classes, constants, and module-level variables.",
+      "line": 80,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 82,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 85,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Symbol name as it appears in code",
+      "line": 86,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 89,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 90,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "class",
+      "line": 90,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "constant",
+      "line": 90,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "variable",
+      "line": 90,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "integer",
+      "line": 92,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "integer",
+      "line": 93,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 95,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 96,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "internal",
+      "line": 96,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "public = importable/exported API; internal = private helpers, underscored functions, file-local utilities",
+      "line": 97,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 100,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "For function/method symbols: list all parameters. Omit for classes, constants, variables.",
+      "line": 101,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 103,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 105,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Parameter name",
+      "line": 105,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "boolean",
+      "line": 107,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "true if parameter has a default value or is typed as optional (e.g. = None, ?: , Optional[T], default arguments in any language)",
+      "line": 108,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "name",
+      "line": 111,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "optional",
+      "line": 111,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "name",
+      "line": 115,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "kind",
+      "line": 115,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "line_start",
+      "line": 115,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "visibility",
+      "line": 115,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "string",
+      "line": 119,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "schema",
+      "line": 121,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "types",
+      "line": 122,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "config",
+      "line": 123,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "service",
+      "line": 124,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "adapter",
+      "line": 125,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "utility",
+      "line": 126,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "test",
+      "line": 127,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "entry",
+      "line": 128,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Classify this file's primary architectural role:\n- schema: Defines validated data shapes with runtime enforcement (Zod, Pydantic, JSON Schema, protobuf, marshmallow, io-ts)\n- types: Type-only definitions without runtime validation (interfaces, type aliases, enums, .d.ts)\n- config: Configuration loading, parsing, resolution, environment variable handling\n- service: Core business logic, orchestration, controllers, domain operations\n- adapter: External system integration \u2014 I/O, APIs, databases, file system, network\n- utility: Stateless helpers, formatters, pure functions, shared constants\n- test: Test files (unit, integration, e2e)\n- entry: CLI entry points, main files, script runners",
+      "line": 131,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 149,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Fixed-format summary for coverage analysis",
+      "line": 150,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 153,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "One sentence: what this file/module does. Max 30 words.",
+      "line": 154,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 157,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 158,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "3-7 key concepts, features, or responsibilities. Short noun phrases.",
+      "line": 159,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "purpose",
+      "line": 162,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "topics",
+      "line": 162,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "array",
+      "line": 165,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "All imports in this file.",
+      "line": 166,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 168,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 171,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Import specifier as written (relative path, package name, stdlib module)",
+      "line": 172,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 175,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 176,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Imported identifiers. Use [\"default\"] for default imports, [\"*\"] for wildcard.",
+      "line": 177,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "boolean",
+      "line": 180,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "True if imported only to re-export (barrel files, __init__.py re-exports)",
+      "line": 181,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "source",
+      "line": 184,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "names",
+      "line": 184,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "is_reexport",
+      "line": 184,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "array",
+      "line": 188,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Public API surface \u2014 names importable by other files.",
+      "line": 189,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 191,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 193,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 195,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 196,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "class",
+      "line": 196,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "constant",
+      "line": 196,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "variable",
+      "line": 196,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "type",
+      "line": 196,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "integer",
+      "line": 198,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "name",
+      "line": 200,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "kind",
+      "line": 200,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "line",
+      "line": 200,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "array",
+      "line": 204,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Significant cross-file function/method calls from exported symbols and module-level code. Skip same-file and internal helper calls.",
+      "line": 205,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 207,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 210,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Calling function/method name. Use \"<module>\" for top-level calls.",
+      "line": 211,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 214,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Target identifier: module.function, ClassName.method, or package.function",
+      "line": 215,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "integer",
+      "line": 217,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "integer",
+      "line": 219,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Number of distinct call sites across the project; omit if unknown.",
+      "line": 221,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "from_symbol",
+      "line": 224,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "to",
+      "line": 224,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "line",
+      "line": 224,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "array",
+      "line": 228,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Cross-file relevant writes to object/class/dataclass fields, e.g. obj.status = 'done'. Include writes that could prove a field is used from another file.",
+      "line": 229,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 231,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 234,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Object/expression whose member is written, e.g. 'scorecard' or 'result.metrics'",
+      "line": 235,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 238,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Field/property name being written",
+      "line": 239,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "integer",
+      "line": 241,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "container",
+      "line": 243,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "member",
+      "line": 243,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "line",
+      "line": 243,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "array",
+      "line": 247,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Notable string constants that participate in cross-file contracts: identifiers, messages, config values. NOT every string \u2014 skip file paths, import specifiers, docstrings, test data, filename/path sentinels, serialized-data keys, and external protocol literals.",
+      "line": 248,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 250,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 252,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 254,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Brief description of how this string is used",
+      "line": 255,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "integer",
+      "line": 257,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 259,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "identifier",
+      "line": 260,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "message",
+      "line": 260,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "config",
+      "line": 260,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pattern",
+      "line": 260,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "identifier = project-internal name, category, discriminant, or action verb used in dispatch/routing within this project's own code; message = user-facing or log text; config = fixed external protocol value, database code, MIME type, environment name, HTTP method/status, third-party SDK constant, or any value whose meaning is defined OUTSIDE this project; pattern = regex or glob pattern.",
+      "line": 261,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 270,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "produced",
+      "line": 271,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "checked",
+      "line": 271,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "defined",
+      "line": 271,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "external_input",
+      "line": 271,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "unknown",
+      "line": 271,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "produced = emitted/returned/appended, including dict/mapping values, default parameter values, collection literal elements, and type union/literal type members (TypeScript union literals, Python Literal types) (these are all production sites even if the same string is also checked); checked = membership test/equality against an internal project value; defined = assigned to constant; external_input = string enters from outside the project at runtime (environment variables, CLI arguments/flags, HTTP request fields, DOM/browser events, wire protocol method names, OS signals) \u2014 not hardcoded string literals; unknown = can't tell. Always skip well-known external conventions (language names, test framework patterns, standard extensions), filename/path sentinels, serialized-data keys, and external protocol literals \u2014 do not extract them.",
+      "line": 272,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 288,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "What the string is compared against. For 'checked' strings: the variable or expression on the other side of ==, in, not in, .get(), etc. Examples: 'tool_call.name', 'os.environ', 'schema[key]', 'analyzer.name'. Omit for non-checked strings.",
+      "line": 289,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "value",
+      "line": 292,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "context",
+      "line": 292,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "line",
+      "line": 292,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "kind",
+      "line": 292,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "usage",
+      "line": 292,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "content",
+      "line": 296,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "findings",
+      "line": 296,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "file_role",
+      "line": 296,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "submit_directory_shadow_doc",
+      "line": 302,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Submit a shadow documentation summary for a directory.\n\nThis is a roll-up summary synthesizing the shadow docs of all files in the directory.\nInclude:\n- Overall purpose and responsibility of this module/package\n- Key components and how they relate\n- Public API surface (main entry points)\n- Internal organization and data flow\n- Important patterns or conventions\n\nBe concise but comprehensive. Focus on helping an AI agent understand the\nmodule's role in the larger system.",
+      "line": 303,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 316,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 319,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "The directory shadow documentation content (markdown format, without header)",
+      "line": 320,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 323,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Fixed-format summary for coverage analysis",
+      "line": 324,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 327,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "One sentence: what this directory/module does. Max 30 words.",
+      "line": 328,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 331,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 332,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "3-7 key concepts, features, or responsibilities. Short noun phrases.",
+      "line": 333,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "purpose",
+      "line": 336,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "topics",
+      "line": 336,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "content",
+      "line": 339,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "match_doc_topics",
+      "line": 346,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Return the source file paths whose code is relevant to this documentation file.\n\nReview the doc content and the directory summaries provided. Select directories whose\ncode is discussed, referenced, or relevant to the documentation \u2014 even if the doc\ndoesn't explicitly name the files.",
+      "line": 347,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 353,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 356,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 357,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Source file paths whose code is relevant to this doc",
+      "line": 358,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 361,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Fixed-format summary for coverage analysis",
+      "line": 362,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 365,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "One sentence: what this documentation covers. Max 30 words.",
+      "line": 366,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 369,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 370,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "3-7 key concepts, features, or responsibilities. Short noun phrases.",
+      "line": 371,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "purpose",
+      "line": 374,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "topics",
+      "line": 374,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "relevant_paths",
+      "line": 377,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "analyze_document",
+      "line": 384,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Classify a documentation file and validate its accuracy against shadow docs.\n\nClassification (Diataxis framework):\n- **reference**: Precise technical information (API docs, specs, ADRs, design docs)\n- **tutorial**: Learning-oriented walkthrough for beginners\n- **how-to**: Task-oriented guide for specific goals\n- **explanatory**: Understanding-oriented discussion of concepts\n- **process_artifact**: Inherently temporary file created for a one-time action\n\nA document with outdated content but ongoing purpose is stale, not debris. Classify it under its Diataxis category.\n\nValidation: check for contradictions between the doc and the shadow docs (source of truth).\nReport findings with evidence from shadow docs. Always include the `findings` field, using an empty array if no issues are found.",
+      "line": 385,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 399,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 402,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "reference",
+      "line": 403,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "tutorial",
+      "line": 403,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "how-to",
+      "line": 403,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "explanatory",
+      "line": 403,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "process_artifact",
+      "line": 403,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "number",
+      "line": 406,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 411,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Brief explanation of classification",
+      "line": 412,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 415,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Accuracy issues found by comparing doc against shadow docs. Empty if none.",
+      "line": 416,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 418,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 421,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "stale_content",
+      "line": 423,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "incorrect_content",
+      "line": 424,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "obsolete_reference",
+      "line": 425,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "misleading_claim",
+      "line": 426,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "string",
+      "line": 430,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "error",
+      "line": 431,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "warning",
+      "line": 431,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "string",
+      "line": 434,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "What is wrong in the documentation",
+      "line": 435,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 438,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Source path of shadow doc providing evidence",
+      "line": 439,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 442,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Brief quote from shadow doc that contradicts the doc",
+      "line": 443,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 446,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "How to fix the documentation",
+      "line": 447,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "boolean",
+      "line": 450,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Set to true only if this is a genuine contradiction. Set to false if on reflection the doc and shadow docs are consistent, the evidence is inconclusive, or no action is needed.",
+      "line": 451,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 454,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 455,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Technical identifiers this finding makes claims about (command names, function names, config keys, flags, etc.). These will be searched across the full project for verification.",
+      "line": 456,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "category",
+      "line": 462,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "severity",
+      "line": 463,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "description",
+      "line": 464,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "evidence_shadow_path",
+      "line": 465,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "evidence_quote",
+      "line": 466,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "remediation",
+      "line": 467,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "confirmed",
+      "line": 468,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "search_terms",
+      "line": 469,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "classification",
+      "line": 474,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "confidence",
+      "line": 474,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "classification_reason",
+      "line": 474,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "findings",
+      "line": 474,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "extract_obligations",
+      "line": 511,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Identify fields in a schema file that declare behavioral obligations.\n\nAn \"obligation\" is a field whose name and context promise the system will enforce a runtime\nbehavior. Examples: timeout fields, rate limits, max retries, size limits.\n\nExclude purely descriptive or identity fields (name, description, id, label, etc.)\nand purely quantitative fields with no enforcement implication (count, total, etc.).\n\nFor each obligation-bearing field, describe what enforcement the system should perform\nand what actuation pattern would satisfy the obligation.",
+      "line": 512,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 523,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 526,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 528,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 531,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "The field name as it appears in the schema",
+      "line": 532,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 535,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "The schema/type name containing this field",
+      "line": 536,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "integer",
+      "line": 538,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "integer",
+      "line": 540,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "End line of the field definition (may be same as line_start)",
+      "line": 541,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 544,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "What the field promises the system will enforce at runtime",
+      "line": 545,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 548,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "What enforcement code would look like (e.g. 'timer/deadline/abort/kill', 'counter check/loop guard')",
+      "line": 549,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 552,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Direct quote from the schema text (description, comment, or constraint) that establishes this obligation. If you cannot quote specific text, this is NOT an obligation.",
+      "line": 553,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "field_name",
+      "line": 559,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "schema_name",
+      "line": 560,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "line_start",
+      "line": 561,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "line_end",
+      "line": 562,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "obligation",
+      "line": 563,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "expected_actuation",
+      "line": 564,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "evidence",
+      "line": 565,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "obligations",
+      "line": 570,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "resolve_import_names",
+      "line": 584,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Resolve package names to their importable module names.\n\nFor each package, return the name(s) that would appear in import statements.\nExamples:\n- pillow (python) \u2192 [\"PIL\"]\n- scikit-learn (python) \u2192 [\"sklearn\"]\n- beautifulsoup4 (python) \u2192 [\"bs4\"]\n- serde-json (rust) \u2192 [\"serde_json\"]\n- @scope/pkg (node) \u2192 [\"@scope/pkg\"]\n\nIf a package installs multiple importable names, list all of them.\nIf you don't know the import name, use the heuristic: lowercase, hyphens to underscores.\n\nProvide a resolution for EVERY package listed.",
+      "line": 585,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 600,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 603,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 605,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 608,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "The package name as given",
+      "line": 609,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 612,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 613,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Importable module name(s) for this package",
+      "line": 614,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "package_name",
+      "line": 617,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "import_names",
+      "line": 617,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "resolutions",
+      "line": 621,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "classify_deps",
+      "line": 628,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Classify zero-import dependencies by their usage pattern.\n\nFor each dependency that has zero import matches in source code, determine HOW it is used:\n\n- **build_tool**: Invoked from CLI, not imported (black, ruff, pytest, eslint, webpack, cargo-edit)\n- **plugin**: Auto-discovered by a framework (pytest-cov, babel-plugin-*, postcss-*)\n- **cli_tool**: Provides a command-line binary (alembic, celery, gunicorn, nodemon)\n- **type_package**: Type stubs only (@types/*, types-requests, mypy type stubs)\n- **build_system**: Required by build backend (setuptools, wheel, hatchling, flit-core)\n- **genuine_candidate**: None of the above \u2014 this dependency MAY be truly unused\n\nOnly `genuine_candidate` items will proceed to further verification. Be conservative:\nif a package is clearly a build tool or plugin, classify it as such to avoid false positives.\n\nProvide a classification for EVERY dependency listed.",
+      "line": 629,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 645,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 648,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 650,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 653,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "The package name being classified",
+      "line": 654,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 657,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "build_tool",
+      "line": 659,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "plugin",
+      "line": 659,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cli_tool",
+      "line": 659,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "type_package",
+      "line": 660,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "build_system",
+      "line": 660,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "genuine_candidate",
+      "line": 660,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "string",
+      "line": 664,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "One-line explanation of the classification",
+      "line": 665,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "package_name",
+      "line": 668,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "classification",
+      "line": 668,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "brief_reason",
+      "line": 668,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "classifications",
+      "line": 672,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "extract_cicd_elements",
+      "line": 679,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Extract structured elements from a CI/CD configuration file.\n\nParse the file and identify each discrete pipeline element (job, stage, target, etc.).\nFor each element, extract:\n- Name and type\n- Line range in the file\n- Any file paths referenced (scripts, directories, config files)\n- Any commands or actions referenced\n\nBe thorough \u2014 extract ALL elements, not just the first few.",
+      "line": 680,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 691,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 694,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 696,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 699,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Name of the pipeline element",
+      "line": 700,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 703,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Type of element (e.g. 'job', 'stage', 'pipeline', 'step')",
+      "line": 704,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "integer",
+      "line": 706,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "integer",
+      "line": 707,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 709,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 710,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "File paths or directories referenced by this element",
+      "line": 711,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 714,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 715,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Commands or actions this element runs",
+      "line": 716,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "element_name",
+      "line": 720,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "element_type",
+      "line": 720,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "line_start",
+      "line": 721,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "line_end",
+      "line": 721,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "referenced_paths",
+      "line": 722,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "referenced_commands",
+      "line": 722,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "elements",
+      "line": 727,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "identify_entry_points",
+      "line": 734,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Identify which source files are entry points in the project.\n\nAn entry point is a file that is invoked directly rather than imported by other files:\n- CLI scripts and main modules (__main__.py, bin scripts, console_scripts)\n- Test files (test_*.py, *_test.py, *.test.ts, spec files)\n- Framework endpoints (Django views registered in urls.py, Flask app files)\n- Configuration files that are loaded by tools (conftest.py, setup.py, manage.py)\n- Build/task scripts (Makefile targets, task runners)\n- Package __init__.py files (entry point for the package namespace)\n\nUse the file_role hint as a signal but make your own judgment based on the full context.\n\nProvide a verdict for EVERY file listed.",
+      "line": 735,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 749,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 752,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 754,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 757,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Relative path of the file",
+      "line": 758,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "boolean",
+      "line": 761,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "True if this file is an entry point",
+      "line": 762,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 765,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Brief explanation",
+      "line": 766,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "source_path",
+      "line": 769,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "is_entry_point",
+      "line": 769,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "reason",
+      "line": 769,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "entry_points",
+      "line": 773,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "identify_relationships",
+      "line": 780,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Identify semantic relationships between disconnected files and the connected graph.\n\nYou are given two lists:\n1. **disconnected**: Files not reachable via import edges from any entry point\n2. **connected**: Files that ARE reachable\n\nFor each disconnected file, determine if it semantically relates to any connected file\nbased on their purposes and topics. A relationship means the disconnected file likely\nsupports, extends, or is used by the connected file through non-import mechanisms\n(dynamic loading, convention-based discovery, configuration, etc.).\n\nOnly report relationships you are confident about. It is OK to leave a disconnected\nfile without any relationship \u2014 that means it may be orphaned.",
+      "line": 781,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 795,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 798,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 800,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 803,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Path of the disconnected file",
+      "line": 804,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 807,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Path of the connected file it relates to",
+      "line": 808,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 811,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Why these files are related",
+      "line": 812,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "source_path",
+      "line": 815,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "related_to",
+      "line": 815,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "reason",
+      "line": 815,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "relationships",
+      "line": 819,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "build_concept_inventory",
+      "line": 852,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Build a codebase concept inventory from file-level topic signatures.\n\nEach concept represents a coherent, documentable unit. Cluster related files into\nhigher-level concepts, classify each concept's role, and determine which Diataxis\ndocumentation types are appropriate.",
+      "line": 853,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 859,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 862,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 864,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 867,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "URL-safe slug, e.g. 'breakpoint-lifecycle'",
+      "line": 868,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 871,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Human-readable name, e.g. 'Breakpoint Lifecycle'",
+      "line": 872,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 875,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "1-2 sentence description of this concept",
+      "line": 876,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 879,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 880,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Source file paths contributing to this concept",
+      "line": 881,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 884,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public_api",
+      "line": 886,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cli_command",
+      "line": 886,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "configuration",
+      "line": 886,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "architectural_pattern",
+      "line": 887,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "internal_utility",
+      "line": 887,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "integration_point",
+      "line": 888,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "data_model",
+      "line": 888,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "error_handling",
+      "line": 889,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "testing_infrastructure",
+      "line": 889,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "array",
+      "line": 893,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 895,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "reference",
+      "line": 896,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "tutorial",
+      "line": 896,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "how-to",
+      "line": 896,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "explanatory",
+      "line": 896,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "string",
+      "line": 900,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Why these doc types are appropriate for this concept",
+      "line": 901,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "concept_id",
+      "line": 905,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "concept_name",
+      "line": 905,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "concept_description",
+      "line": 905,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "source_files",
+      "line": 906,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "concept_role",
+      "line": 906,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "appropriate_doc_types",
+      "line": 906,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "appropriateness_rationale",
+      "line": 907,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "concepts",
+      "line": 912,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "generate_writing_prompts",
+      "line": 918,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Generate self-contained writing prompts for documentation gaps.\n\nFor each gap (concept \u00d7 missing Diataxis type), produce a prompt that another agent\ncan execute without re-auditing the codebase. Include task, audience, scope, quality\ncriteria, and consistency guidance.",
+      "line": 919,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 925,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 928,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 930,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 933,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Unique ID, e.g. 'breakpoint-lifecycle-tutorial'",
+      "line": 934,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 937,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 938,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "concept_ids covered by this prompt (usually 1, >1 for clusters)",
+      "line": 939,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 942,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "reference",
+      "line": 943,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "tutorial",
+      "line": 943,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "how-to",
+      "line": 943,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "explanatory",
+      "line": 943,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "string",
+      "line": 946,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Complete, self-contained writing prompt",
+      "line": 947,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 950,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "What is in/out of scope for this doc",
+      "line": 951,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 954,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 956,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 957,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "prompt_id",
+      "line": 962,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "target_concept_ids",
+      "line": 962,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "diataxis_type",
+      "line": 962,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "prompt_text",
+      "line": 963,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "scope_constraints",
+      "line": 963,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "output_guidance",
+      "line": 963,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "prompts",
+      "line": 968,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "string",
+      "line": 997,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "confirmed",
+      "line": 998,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "dismissed",
+      "line": 998,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "uncertain",
+      "line": 998,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed = the gap is real and actionable (grade how much it matters via severity); dismissed = false positive; uncertain = evidence insufficient to decide.",
+      "line": 999,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "number",
+      "line": 1004,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Confidence in the verdict (1.0 = certain).",
+      "line": 1007,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 1010,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "The reasoning trace for this verdict \u2014 captured verbatim onto the finding. Weigh the evidence against reality and actionability.",
+      "line": 1011,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 1015,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Concrete remediation if confirmed (e.g. 'remove the function', 'use the existing MAX_RETRIES constant'). Omit or empty if dismissed.",
+      "line": 1016,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 1020,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "error",
+      "line": 1021,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "warning",
+      "line": 1021,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "info",
+      "line": 1021,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Severity of the confirmed finding \u2014 this is where significance lives: 'info' marks a real-but-minor finding (demoted, never dismissed, for insignificance). Omit if dismissed.",
+      "line": 1022,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 1027,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "named_obligation",
+      "line": 1029,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "unnamed_obligation",
+      "line": 1029,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "ecosystem_convention",
+      "line": 1029,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "magic_constant",
+      "line": 1030,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "coincidence",
+      "line": 1030,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "other",
+      "line": 1030,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "CONTRACT-gap claims only: the string-contract class of the shared literal. Emit 'other' when no class fits \u2014 a request for review, never shoehorned into the nearest class. Omit for non-contract claims.",
+      "line": 1032,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 1044,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Submit a triage verdict for EVERY claim in the batch.\n\nEach claim is a gap hypothesis (reachability / description / contract) with evidence\nassembled for you. Decide each against the two true-positive predicates:\n- Reality: does the gap actually exist in the code, now?\n- Actionability: is there a concrete fix?\nSignificance grades the confirmed finding's severity (real-but-minor = 'info');\nit is never grounds for dismissal.\n\nReturn one verdict per claim, identified by its batch_index. When a claim shows a\nSymbol line, echo it in the verdict's symbol field \u2014 sibling claims (e.g. two\nparameters of the same function) are easy to cross-wire by index alone.",
+      "line": 1045,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 1058,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "array",
+      "line": 1061,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 1063,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "integer",
+      "line": 1066,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "0-based index of the claim being judged, as listed in the prompt.",
+      "line": 1068,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 1071,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "The claim's Symbol line, echoed exactly as shown. Omit for claims without one.",
+      "line": 1072,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "batch_index",
+      "line": 1077,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "verdict",
+      "line": 1077,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "confidence",
+      "line": 1077,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "reasoning",
+      "line": 1077,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "verdicts",
+      "line": 1081,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "submit_triage_verdict",
+      "line": 1088,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Submit the final verdict for the single claim under exploration.\n\nCall this once you have gathered enough evidence with read_file / grep / list_dir to\ndecide the claim against the two predicates (reality / actionability); significance\ngrades the confirmed finding's severity, never the verdict.",
+      "line": 1089,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 1095,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "verdict",
+      "line": 1097,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "confidence",
+      "line": 1097,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "reasoning",
+      "line": 1097,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "read_file",
+      "line": 1105,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Read a file in the repository. Optionally restrict to a 1-based, inclusive line range with start/end.",
+      "line": 1106,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 1109,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 1111,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Repository-relative file path.",
+      "line": 1111,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "integer",
+      "line": 1112,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "First line (1-based, inclusive).",
+      "line": 1112,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "integer",
+      "line": 1113,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Last line (1-based, inclusive).",
+      "line": 1113,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "path",
+      "line": 1115,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "grep",
+      "line": 1120,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Search file contents under the repository root for a regular expression. Returns path:line: text rows.",
+      "line": 1121,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 1124,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 1126,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "A regular expression.",
+      "line": 1126,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 1127,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Optional glob to restrict files, e.g. '**/*.py'.",
+      "line": 1127,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "pattern",
+      "line": 1129,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "list_dir",
+      "line": 1134,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "List the entries of a directory under the repository root.",
+      "line": 1135,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "object",
+      "line": 1137,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "string",
+      "line": 1139,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Repository-relative directory path (default repo root).",
+      "line": 1139,
+      "usage": "produced",
+      "context": "dict value"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,1421 @@
+{
+  "source": "src/osoji/facts.py",
+  "source_hash": "5e25a8a0d8542d53",
+  "generated": "2026-07-22T10:55:56Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "field"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config",
+        "SHADOW_DIR"
+      ],
+      "line": 9,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "FileFacts",
+      "kind": "class",
+      "line": 13,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FactsDB",
+      "kind": "class",
+      "line": 39,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FactsDB.__init__",
+      "kind": "function",
+      "line": 46,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FactsDB._load",
+      "kind": "function",
+      "line": 51,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FactsDB.get_file",
+      "kind": "function",
+      "line": 77,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FactsDB.all_files",
+      "kind": "function",
+      "line": 81,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FactsDB.resolve_import_source",
+      "kind": "function",
+      "line": 85,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FactsDB._find_file",
+      "kind": "function",
+      "line": 152,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FactsDB.doc_files",
+      "kind": "function",
+      "line": 174,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FactsDB.docs_referencing",
+      "kind": "function",
+      "line": 178,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FactsDB.importers_of",
+      "kind": "function",
+      "line": 196,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FactsDB.imports_of",
+      "kind": "function",
+      "line": 212,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FactsDB.exported_names",
+      "kind": "function",
+      "line": 225,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FactsDB.unused_exports",
+      "kind": "function",
+      "line": 233,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FactsDB.strings_by_usage",
+      "kind": "function",
+      "line": 256,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FactsDB.string_entries_by_usage",
+      "kind": "function",
+      "line": 268,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FactsDB.cross_file_references",
+      "kind": "function",
+      "line": 280,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FactsDB.build_import_graph",
+      "kind": "function",
+      "line": 359,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "FileFacts",
+      "to": "field",
+      "line": 23,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FileFacts",
+      "to": "field",
+      "line": 24,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FileFacts",
+      "to": "field",
+      "line": 25,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FileFacts",
+      "to": "field",
+      "line": 26,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FileFacts",
+      "to": "field",
+      "line": 27,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_only_dicts",
+      "to": "isinstance",
+      "line": 36,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.__init__",
+      "to": "self._load",
+      "line": 49,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "facts_dir.exists",
+      "line": 53,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "facts_dir.rglob",
+      "line": 55,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "json.loads",
+      "line": 57,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "facts_file.read_text",
+      "line": 57,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "data.get",
+      "line": 58,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "source.replace",
+      "line": 61,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "FileFacts",
+      "line": 62,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "data.get",
+      "line": 64,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "_only_dicts",
+      "line": 65,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "data.get",
+      "line": 65,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "_only_dicts",
+      "line": 66,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "data.get",
+      "line": 66,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "_only_dicts",
+      "line": 67,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "data.get",
+      "line": 67,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "_only_dicts",
+      "line": 68,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "data.get",
+      "line": 68,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "_only_dicts",
+      "line": 69,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "data.get",
+      "line": 69,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "data.get",
+      "line": 70,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "data.get",
+      "line": 71,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB._load",
+      "to": "data.get",
+      "line": 72,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB.get_file",
+      "to": "self._files.get",
+      "line": 79,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "FactsDB.get_file",
+      "to": "path.replace",
+      "line": 79,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.all_files",
+      "to": "list",
+      "line": 83,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB.all_files",
+      "to": "self._files.keys",
+      "line": 83,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "source_specifier.startswith",
+      "line": 91,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "replace",
+      "line": 92,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "str",
+      "line": 92,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "Path",
+      "line": 92,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "source_specifier.split",
+      "line": 97,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "len",
+      "line": 98,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "source_specifier.startswith",
+      "line": 98,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "replace",
+      "line": 106,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "Path",
+      "line": 108,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "range",
+      "line": 109,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "replace",
+      "line": 111,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "str",
+      "line": 111,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "resolve",
+      "line": 117,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "replace",
+      "line": 119,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "str",
+      "line": 119,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "resolved.relative_to",
+      "line": 119,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "replace",
+      "line": 122,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "str",
+      "line": 122,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "Path",
+      "line": 122,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "self._find_file",
+      "line": 124,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "split",
+      "line": 127,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "source_specifier.replace",
+      "line": 127,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "known_file.replace",
+      "line": 133,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "known_parts.removesuffix",
+      "line": 135,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "known_parts.endswith",
+      "line": 136,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "source_specifier.replace",
+      "line": 136,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "len",
+      "line": 140,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "join",
+      "line": 140,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.resolve_import_source",
+      "to": "self._find_file",
+      "line": 146,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB._find_file",
+      "to": "candidate_base.rstrip",
+      "line": 154,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.doc_files",
+      "to": "self._files.items",
+      "line": 176,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "FactsDB.docs_referencing",
+      "to": "source_path.replace",
+      "line": 185,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB.docs_referencing",
+      "to": "self._files.items",
+      "line": 187,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "FactsDB.docs_referencing",
+      "to": "replace",
+      "line": 191,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "FactsDB.docs_referencing",
+      "to": "imp.get",
+      "line": 191,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB.docs_referencing",
+      "to": "result.append",
+      "line": 192,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB.importers_of",
+      "to": "source_path.replace",
+      "line": 198,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB.importers_of",
+      "to": "self._files.items",
+      "line": 200,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "FactsDB.importers_of",
+      "to": "self.resolve_import_source",
+      "line": 206,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB.importers_of",
+      "to": "imp.get",
+      "line": 206,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB.importers_of",
+      "to": "importers.append",
+      "line": 208,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.imports_of",
+      "to": "file_path.replace",
+      "line": 214,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB.imports_of",
+      "to": "self._files.get",
+      "line": 215,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "FactsDB.imports_of",
+      "to": "self.resolve_import_source",
+      "line": 220,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB.imports_of",
+      "to": "imp.get",
+      "line": 220,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB.imports_of",
+      "to": "result.append",
+      "line": 222,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB.imports_of",
+      "to": "list",
+      "line": 223,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB.imports_of",
+      "to": "set",
+      "line": 223,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "FactsDB.exported_names",
+      "to": "file_path.replace",
+      "line": 227,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB.exported_names",
+      "to": "self._files.get",
+      "line": 228,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "FactsDB.exported_names",
+      "to": "set",
+      "line": 230,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "FactsDB.unused_exports",
+      "to": "self._files.items",
+      "line": 237,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "FactsDB.unused_exports",
+      "to": "self.resolve_import_source",
+      "line": 239,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB.unused_exports",
+      "to": "imp.get",
+      "line": 239,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB.unused_exports",
+      "to": "set",
+      "line": 241,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "FactsDB.unused_exports",
+      "to": "imp.get",
+      "line": 241,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB.unused_exports",
+      "to": "update",
+      "line": 242,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.unused_exports",
+      "to": "imported_from.setdefault",
+      "line": 242,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.unused_exports",
+      "to": "set",
+      "line": 242,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "FactsDB.unused_exports",
+      "to": "self._files.items",
+      "line": 245,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "FactsDB.unused_exports",
+      "to": "imported_from.get",
+      "line": 246,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.unused_exports",
+      "to": "set",
+      "line": 246,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "FactsDB.unused_exports",
+      "to": "export.get",
+      "line": 251,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.unused_exports",
+      "to": "unused.append",
+      "line": 253,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.strings_by_usage",
+      "to": "self._files.items",
+      "line": 259,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "FactsDB.strings_by_usage",
+      "to": "sl.get",
+      "line": 261,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB.strings_by_usage",
+      "to": "sl.get",
+      "line": 263,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB.strings_by_usage",
+      "to": "add",
+      "line": 265,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.strings_by_usage",
+      "to": "result.setdefault",
+      "line": 265,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB.strings_by_usage",
+      "to": "set",
+      "line": 265,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "FactsDB.strings_by_usage",
+      "to": "sl.get",
+      "line": 265,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB.string_entries_by_usage",
+      "to": "self._files.items",
+      "line": 271,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "FactsDB.string_entries_by_usage",
+      "to": "sl.get",
+      "line": 273,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB.string_entries_by_usage",
+      "to": "sl.get",
+      "line": 275,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB.string_entries_by_usage",
+      "to": "append",
+      "line": 277,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.string_entries_by_usage",
+      "to": "result.setdefault",
+      "line": 277,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "source_file.replace",
+      "line": 287,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "self._files.items",
+      "line": 289,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "imp.get",
+      "line": 294,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "imp.get",
+      "line": 295,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "name_map.values",
+      "line": 297,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "self.resolve_import_source",
+      "line": 298,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "imp.get",
+      "line": 298,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "refs.append",
+      "line": 299,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "imp.get",
+      "line": 302,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "call.get",
+      "line": 307,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "target.endswith",
+      "line": 309,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "refs.append",
+      "line": 310,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "call.get",
+      "line": 313,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "any",
+      "line": 319,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "symbol_name.rsplit",
+      "line": 323,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "any",
+      "line": 324,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "endswith",
+      "line": 325,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "call.get",
+      "line": 325,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "any",
+      "line": 329,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "self.resolve_import_source",
+      "line": 330,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "imp.get",
+      "line": 330,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "refs.append",
+      "line": 334,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "write.get",
+      "line": 341,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "write.get",
+      "line": 343,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "refs.append",
+      "line": 344,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "write.get",
+      "line": 347,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "exp.get",
+      "line": 351,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FactsDB.cross_file_references",
+      "to": "refs.append",
+      "line": 352,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FactsDB.build_import_graph",
+      "to": "set",
+      "line": 363,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "FactsDB.build_import_graph",
+      "to": "self.imports_of",
+      "line": 363,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "self",
+      "member": "_config",
+      "line": 48
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "*.facts.json",
+      "line": 55,
+      "usage": "produced",
+      "context": "argument to facts_dir.rglob"
+    },
+    {
+      "value": "utf-8",
+      "line": 57,
+      "usage": "produced",
+      "context": "keyword argument to facts_file.read_text"
+    },
+    {
+      "value": "source",
+      "line": 58,
+      "usage": "produced",
+      "context": "argument to data.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "source_hash",
+      "line": 64,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "imports",
+      "line": 65,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "exports",
+      "line": 66,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "calls",
+      "line": 67,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "member_writes",
+      "line": 68,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "string_literals",
+      "line": 69,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "extraction_method",
+      "line": 70,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "classification",
+      "line": 71,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "topics",
+      "line": 72,
+      "usage": "produced",
+      "context": "argument to data.get"
+    },
+    {
+      "value": "./",
+      "line": 98,
+      "usage": "produced",
+      "context": "argument to source_specifier.startswith"
+    },
+    {
+      "value": ".tsx",
+      "line": 134,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".jsx",
+      "line": 134,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".ts",
+      "line": 134,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".js",
+      "line": 134,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".py",
+      "line": 134,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/",
+      "line": 141,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".py",
+      "line": 161,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".ts",
+      "line": 161,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".tsx",
+      "line": 161,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".js",
+      "line": 161,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".jsx",
+      "line": 161,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".go",
+      "line": 161,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".rs",
+      "line": 161,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "__init__.py",
+      "line": 167,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "index.ts",
+      "line": 167,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "index.js",
+      "line": 167,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "index.tsx",
+      "line": 167,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "mod.rs",
+      "line": 167,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "source",
+      "line": 191,
+      "usage": "produced",
+      "context": "argument to imp.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "source",
+      "line": 206,
+      "usage": "produced",
+      "context": "argument to imp.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "source",
+      "line": 220,
+      "usage": "produced",
+      "context": "argument to imp.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "name",
+      "line": 231,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "e"
+    },
+    {
+      "value": "source",
+      "line": 239,
+      "usage": "produced",
+      "context": "argument to imp.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "names",
+      "line": 241,
+      "usage": "produced",
+      "context": "argument to imp.get"
+    },
+    {
+      "value": "name",
+      "line": 251,
+      "usage": "produced",
+      "context": "argument to export.get"
+    },
+    {
+      "value": "usage",
+      "line": 261,
+      "usage": "produced",
+      "context": "argument to sl.get"
+    },
+    {
+      "value": "kind",
+      "line": 263,
+      "usage": "produced",
+      "context": "argument to sl.get"
+    },
+    {
+      "value": "value",
+      "line": 265,
+      "usage": "produced",
+      "context": "argument to sl.get"
+    },
+    {
+      "value": "usage",
+      "line": 273,
+      "usage": "produced",
+      "context": "argument to sl.get"
+    },
+    {
+      "value": "kind",
+      "line": 275,
+      "usage": "produced",
+      "context": "argument to sl.get"
+    },
+    {
+      "value": "names",
+      "line": 294,
+      "usage": "produced",
+      "context": "argument to imp.get"
+    },
+    {
+      "value": "name_map",
+      "line": 295,
+      "usage": "produced",
+      "context": "argument to imp.get"
+    },
+    {
+      "value": "source",
+      "line": 298,
+      "usage": "produced",
+      "context": "argument to imp.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "import",
+      "line": 301,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "source",
+      "line": 302,
+      "usage": "produced",
+      "context": "argument to imp.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "to",
+      "line": 307,
+      "usage": "produced",
+      "context": "argument to call.get"
+    },
+    {
+      "value": "call",
+      "line": 312,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "line",
+      "line": 313,
+      "usage": "produced",
+      "context": "argument to call.get"
+    },
+    {
+      "value": "call",
+      "line": 320,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "to",
+      "line": 325,
+      "usage": "produced",
+      "context": "argument to call.get"
+    },
+    {
+      "value": "source",
+      "line": 330,
+      "usage": "produced",
+      "context": "argument to imp.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "call",
+      "line": 336,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "member",
+      "line": 341,
+      "usage": "produced",
+      "context": "argument to write.get"
+    },
+    {
+      "value": "container",
+      "line": 343,
+      "usage": "produced",
+      "context": "argument to write.get"
+    },
+    {
+      "value": "member_write",
+      "line": 346,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "line",
+      "line": 347,
+      "usage": "produced",
+      "context": "argument to write.get"
+    },
+    {
+      "value": "name",
+      "line": 351,
+      "usage": "produced",
+      "context": "argument to exp.get"
+    },
+    {
+      "value": "export",
+      "line": 354,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "ast",
+      "context": "extraction_method discriminant value (comment)",
+      "line": 28,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "llm",
+      "context": "extraction_method discriminant value (comment)",
+      "line": 28,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "*",
+      "context": "wildcard import name; if present, all exports are considered used",
+      "line": 248,
+      "kind": "identifier",
+      "usage": "checked"
+    }
+  ],
+  "extraction_method": "ast"
+}

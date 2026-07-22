@@ -1,0 +1,415 @@
+{
+  "source": "src/osoji/safety/paths.py",
+  "source_hash": "1b2ad52f15f72075",
+  "generated": "2026-07-22T10:55:16Z",
+  "imports": [
+    {
+      "source": "re",
+      "names": [
+        "re"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": ".models",
+      "names": [
+        "PathFinding"
+      ],
+      "line": 14,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "PATTERNS",
+      "kind": "constant",
+      "line": 20,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PATTERN_DESCRIPTIONS",
+      "kind": "constant",
+      "line": 58,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "check_file_for_paths",
+      "kind": "function",
+      "line": 68,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "get_pattern_descriptions",
+      "kind": "function",
+      "line": 115,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "self_test",
+      "kind": "function",
+      "line": 124,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "re.compile",
+      "line": 24,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "re.compile",
+      "line": 30,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "re.compile",
+      "line": 36,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "re.compile",
+      "line": 43,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "re.compile",
+      "line": 47,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "re.compile",
+      "line": 54,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "check_file_for_paths",
+      "to": "file_path.read_text",
+      "line": 78,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "check_file_for_paths",
+      "to": "_scan_content",
+      "line": 83,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_scan_content",
+      "to": "content.split",
+      "line": 97,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_scan_content",
+      "to": "enumerate",
+      "line": 99,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_scan_content",
+      "to": "PATTERNS.items",
+      "line": 100,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_scan_content",
+      "to": "pattern.finditer",
+      "line": 101,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_scan_content",
+      "to": "findings.append",
+      "line": 102,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_scan_content",
+      "to": "PathFinding",
+      "line": 103,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_scan_content",
+      "to": "line.strip",
+      "line": 106,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_scan_content",
+      "to": "match.group",
+      "line": 108,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "get_pattern_descriptions",
+      "to": "PATTERN_DESCRIPTIONS.copy",
+      "line": 121,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "self_test",
+      "to": "Path",
+      "line": 135,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "self_test",
+      "to": "check_file_for_paths",
+      "line": 136,
+      "call_sites": 25
+    },
+    {
+      "from_symbol": "self_test",
+      "to": "startswith",
+      "line": 144,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "self_test",
+      "to": "line.strip",
+      "line": 144,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "self_test",
+      "to": "startswith",
+      "line": 147,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "self_test",
+      "to": "line.strip",
+      "line": 147,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "self_test",
+      "to": "line.lower",
+      "line": 152,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "self_test",
+      "to": "real_findings.append",
+      "line": 159,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "self_test",
+      "to": "len",
+      "line": 161,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "[Cc]:[\\\\\\/]Users[\\\\\\/](?!test[\\\\\\/]|user[\\\\\\/]|example[\\\\\\/]|runner[\\\\\\/])[a-zA-Z0-9._-]+[\\\\\\/]",
+      "line": 25,
+      "usage": "produced",
+      "context": "argument to re.compile"
+    },
+    {
+      "value": "/(?:Users|home)/(?!test/|user/|example/|runner/|ubuntu/)[a-zA-Z0-9._-]+/",
+      "line": 31,
+      "usage": "produced",
+      "context": "argument to re.compile"
+    },
+    {
+      "value": "[\\\\\\/](?:Dropbox|OneDrive|Google\\s*Drive|iCloud|Box|pCloud)[\\\\\\/][^\\\\\\/]+[\\\\\\/]",
+      "line": 37,
+      "usage": "produced",
+      "context": "argument to re.compile"
+    },
+    {
+      "value": "[\\\\\\/]\\d{6}\\s+[A-Z]+[\\\\\\/]",
+      "line": 43,
+      "usage": "produced",
+      "context": "argument to re.compile"
+    },
+    {
+      "value": "[\\\\\\/](?:Documents|Desktop|Downloads|Pictures|Videos)[\\\\\\/][^\\\\\\/]+[\\\\\\/]",
+      "line": 48,
+      "usage": "produced",
+      "context": "argument to re.compile"
+    },
+    {
+      "value": "[\\\\\\/]My\\s+[A-Za-z0-9]+[\\\\\\/]",
+      "line": 54,
+      "usage": "produced",
+      "context": "argument to re.compile"
+    },
+    {
+      "value": "Windows user directory (C:\\Users\\username\\)",
+      "line": 59,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Unix/Mac home directory (/home/username/ or /Users/username/)",
+      "line": 60,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Cloud storage path (Dropbox, OneDrive, Google Drive, iCloud, Box, pCloud)",
+      "line": 61,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Dated project folder (e.g., /260124 MYPROJECT/)",
+      "line": 62,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Personal folder (Documents, Desktop, Downloads, Pictures, Videos)",
+      "line": 63,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "\"My X\" folder pattern (My Projects, My Documents, etc.)",
+      "line": 64,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "utf-8",
+      "line": 78,
+      "usage": "produced",
+      "context": "keyword argument to file_path.read_text"
+    },
+    {
+      "value": "replace",
+      "line": 78,
+      "usage": "produced",
+      "context": "keyword argument to file_path.read_text"
+    },
+    {
+      "value": "Catches:",
+      "line": 150,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "line"
+    },
+    {
+      "value": "Excludes:",
+      "line": 150,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "line"
+    },
+    {
+      "value": "e.g.,",
+      "line": 150,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "line"
+    },
+    {
+      "value": "example",
+      "line": 152,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "home/username",
+      "line": 155,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "line",
+      "kind": "identifier"
+    },
+    {
+      "value": "Users/username",
+      "line": 155,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "line",
+      "kind": "identifier"
+    },
+    {
+      "value": "\"unix_home\":",
+      "line": 157,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "line",
+      "kind": "identifier"
+    },
+    {
+      "value": "\"windows_user\":",
+      "line": 157,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "line",
+      "kind": "identifier"
+    },
+    {
+      "value": "windows_user",
+      "context": "Key in PATTERNS and PATTERN_DESCRIPTIONS dicts; also checked in self_test filter",
+      "line": 24,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "unix_home",
+      "context": "Key in PATTERNS and PATTERN_DESCRIPTIONS dicts; also checked in self_test filter",
+      "line": 30,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "cloud_storage",
+      "context": "Key in PATTERNS and PATTERN_DESCRIPTIONS dicts",
+      "line": 36,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dated_folder",
+      "context": "Key in PATTERNS and PATTERN_DESCRIPTIONS dicts",
+      "line": 43,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "personal_folder",
+      "context": "Key in PATTERNS and PATTERN_DESCRIPTIONS dicts",
+      "line": 47,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "my_folder",
+      "context": "Key in PATTERNS and PATTERN_DESCRIPTIONS dicts",
+      "line": 54,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

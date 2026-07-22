@@ -1,0 +1,3021 @@
+{
+  "source": "tests/test_junk_deps.py",
+  "source_hash": "afc93c7e08cb6721",
+  "generated": "2026-07-22T10:56:26Z",
+  "imports": [
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "unittest.mock",
+      "names": [
+        "AsyncMock"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "pytest",
+      "names": [
+        "pytest"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.config",
+      "names": [
+        "Config"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.junk",
+      "names": [
+        "JunkAnalysisResult"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.junk_deps",
+      "names": [
+        "DeadDepsAnalyzer",
+        "DependencyCandidate",
+        "_BUILD_TOOLS_CACHE",
+        "_IMPORT_NAME_CACHE",
+        "_classify_deps_batch_async",
+        "_filter_zero_import",
+        "_parse_package_json",
+        "_parse_pyproject_toml",
+        "_parse_requirements_txt",
+        "_resolve_import_names_batch_async",
+        "_resolve_import_names_heuristic",
+        "detect_dead_deps_async",
+        "discover_manifests",
+        "scan_imports"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.types",
+      "names": [
+        "CompletionResult",
+        "ToolCall"
+      ],
+      "line": 26,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.junk",
+      "names": [
+        "JunkAnalyzer"
+      ],
+      "line": 638,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "TestDiscoverManifests",
+      "kind": "class",
+      "line": 63,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDiscoverManifests.test_finds_pyproject_toml",
+      "kind": "function",
+      "line": 64,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDiscoverManifests.test_finds_requirements_txt",
+      "kind": "function",
+      "line": 71,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDiscoverManifests.test_finds_requirements_dev_txt",
+      "kind": "function",
+      "line": 78,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDiscoverManifests.test_finds_package_json",
+      "kind": "function",
+      "line": 85,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDiscoverManifests.test_ignores_missing_files",
+      "kind": "function",
+      "line": 94,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestParseRequirements",
+      "kind": "class",
+      "line": 102,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestParseRequirements.test_parses_simple_packages",
+      "kind": "function",
+      "line": 103,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestParseRequirements.test_parses_versions_and_extras",
+      "kind": "function",
+      "line": 110,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestParseRequirements.test_skips_comments_and_blanks",
+      "kind": "function",
+      "line": 117,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestParseRequirements.test_skips_directives",
+      "kind": "function",
+      "line": 123,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestParseRequirements.test_line_numbers",
+      "kind": "function",
+      "line": 129,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestParsePyproject",
+      "kind": "class",
+      "line": 138,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestParsePyproject.test_project_dependencies",
+      "kind": "function",
+      "line": 139,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestParsePyproject.test_optional_dependencies",
+      "kind": "function",
+      "line": 149,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestParsePyproject.test_poetry_dependencies",
+      "kind": "function",
+      "line": 160,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestParsePyproject.test_poetry_group_dependencies",
+      "kind": "function",
+      "line": 172,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestParsePyproject.test_build_system_requires",
+      "kind": "function",
+      "line": 182,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestParsePackageJson",
+      "kind": "class",
+      "line": 195,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestParsePackageJson.test_dependencies",
+      "kind": "function",
+      "line": 196,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestParsePackageJson.test_dev_dependencies",
+      "kind": "function",
+      "line": 206,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestParsePackageJson.test_peer_dependencies",
+      "kind": "function",
+      "line": 215,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestParsePackageJson.test_scoped_packages",
+      "kind": "function",
+      "line": 223,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestResolveImportNames",
+      "kind": "class",
+      "line": 235,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestResolveImportNames.test_known_mismatch_pillow",
+      "kind": "function",
+      "line": 236,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestResolveImportNames.test_known_mismatch_scikit_learn",
+      "kind": "function",
+      "line": 240,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestResolveImportNames.test_known_mismatch_pyyaml",
+      "kind": "function",
+      "line": 244,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestResolveImportNames.test_heuristic_fallback",
+      "kind": "function",
+      "line": 248,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestResolveImportNames.test_node_exact_name",
+      "kind": "function",
+      "line": 252,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestResolveImportNames.test_node_scoped_package",
+      "kind": "function",
+      "line": 256,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestResolveImportNames.test_rust_hyphens_to_underscores",
+      "kind": "function",
+      "line": 260,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestResolveImportNames.test_go_last_segment",
+      "kind": "function",
+      "line": 264,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestScanImports",
+      "kind": "class",
+      "line": 271,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestScanImports.test_finds_import",
+      "kind": "function",
+      "line": 272,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestScanImports.test_word_boundary",
+      "kind": "function",
+      "line": 285,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestScanImports.test_scoped_npm_package",
+      "kind": "function",
+      "line": 300,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestScanImports.test_multiple_import_names",
+      "kind": "function",
+      "line": 317,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFilterZeroImport",
+      "kind": "class",
+      "line": 332,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFilterZeroImport.test_keeps_zero_import",
+      "kind": "function",
+      "line": 337,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFilterZeroImport.test_keeps_genuine_zero_import",
+      "kind": "function",
+      "line": 354,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestFilterZeroImport.test_excludes_imported_packages",
+      "kind": "function",
+      "line": 365,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestBuildToolsCache",
+      "kind": "class",
+      "line": 379,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestBuildToolsCache.test_python_build_tools_in_cache",
+      "kind": "function",
+      "line": 382,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestBuildToolsCache.test_node_build_tools_in_cache",
+      "kind": "function",
+      "line": 388,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestBuildToolsCache.test_import_name_cache_has_known_mismatches",
+      "kind": "function",
+      "line": 393,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestHaikuImportResolution",
+      "kind": "class",
+      "line": 401,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestHaikuImportResolution.test_batch_resolve_returns_mappings",
+      "kind": "function",
+      "line": 403,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestHaikuImportResolution.test_empty_input_returns_empty",
+      "kind": "function",
+      "line": 428,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestHaikuDepClassification",
+      "kind": "class",
+      "line": 440,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestHaikuDepClassification.test_classify_filters_build_tools",
+      "kind": "function",
+      "line": 442,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestHaikuDepClassification.test_empty_input_returns_empty",
+      "kind": "function",
+      "line": 478,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDetectDeadDepsAsync",
+      "kind": "class",
+      "line": 497,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDetectDeadDepsAsync.test_full_pipeline_with_mock",
+      "kind": "function",
+      "line": 499,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDetectDeadDepsAsync.test_empty_manifests",
+      "kind": "function",
+      "line": 551,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDetectDeadDepsAsync.test_no_zero_import_packages",
+      "kind": "function",
+      "line": 559,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadDepsAnalyzer",
+      "kind": "class",
+      "line": 571,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadDepsAnalyzer.test_analyze_async_returns_junk_result",
+      "kind": "function",
+      "line": 573,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadDepsAnalyzer.test_analyzer_properties",
+      "kind": "function",
+      "line": 631,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TestDeadDepsAnalyzer.test_is_junk_analyzer_subclass",
+      "kind": "function",
+      "line": 637,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "_triage_verdicts",
+      "to": "len",
+      "line": 32,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_triage_verdicts",
+      "to": "validator",
+      "line": 32,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_triage_verdicts",
+      "to": "range",
+      "line": 34,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_triage_verdicts",
+      "to": "verdicts_by_index.get",
+      "line": 35,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_triage_verdicts",
+      "to": "verdicts.append",
+      "line": 38,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_triage_verdicts",
+      "to": "CompletionResult",
+      "line": 42,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "_triage_verdicts",
+      "to": "ToolCall",
+      "line": 44,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "_write_source",
+      "to": "full.parent.mkdir",
+      "line": 57,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_source",
+      "to": "full.write_text",
+      "line": 58,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestDiscoverManifests.test_finds_pyproject_toml",
+      "to": "_write_source",
+      "line": 65,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestDiscoverManifests.test_finds_pyproject_toml",
+      "to": "Config",
+      "line": 66,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestDiscoverManifests.test_finds_pyproject_toml",
+      "to": "discover_manifests",
+      "line": 67,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestDiscoverManifests.test_finds_requirements_txt",
+      "to": "_write_source",
+      "line": 72,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestDiscoverManifests.test_finds_requirements_txt",
+      "to": "Config",
+      "line": 73,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestDiscoverManifests.test_finds_requirements_txt",
+      "to": "discover_manifests",
+      "line": 74,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestDiscoverManifests.test_finds_requirements_dev_txt",
+      "to": "_write_source",
+      "line": 79,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestDiscoverManifests.test_finds_requirements_dev_txt",
+      "to": "Config",
+      "line": 80,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestDiscoverManifests.test_finds_requirements_dev_txt",
+      "to": "discover_manifests",
+      "line": 81,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestDiscoverManifests.test_finds_package_json",
+      "to": "_write_source",
+      "line": 86,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestDiscoverManifests.test_finds_package_json",
+      "to": "Config",
+      "line": 87,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestDiscoverManifests.test_finds_package_json",
+      "to": "discover_manifests",
+      "line": 88,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestDiscoverManifests.test_ignores_missing_files",
+      "to": "Config",
+      "line": 95,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestDiscoverManifests.test_ignores_missing_files",
+      "to": "discover_manifests",
+      "line": 96,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestParseRequirements.test_parses_simple_packages",
+      "to": "_parse_requirements_txt",
+      "line": 105,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestParseRequirements.test_parses_versions_and_extras",
+      "to": "_parse_requirements_txt",
+      "line": 112,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestParseRequirements.test_skips_comments_and_blanks",
+      "to": "_parse_requirements_txt",
+      "line": 119,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestParseRequirements.test_skips_directives",
+      "to": "_parse_requirements_txt",
+      "line": 125,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestParseRequirements.test_line_numbers",
+      "to": "_parse_requirements_txt",
+      "line": 131,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "TestParsePyproject.test_project_dependencies",
+      "to": "_parse_pyproject_toml",
+      "line": 144,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestParsePyproject.test_optional_dependencies",
+      "to": "_parse_pyproject_toml",
+      "line": 154,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestParsePyproject.test_optional_dependencies",
+      "to": "all",
+      "line": 158,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestParsePyproject.test_poetry_dependencies",
+      "to": "_parse_pyproject_toml",
+      "line": 166,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestParsePyproject.test_poetry_group_dependencies",
+      "to": "_parse_pyproject_toml",
+      "line": 177,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestParsePyproject.test_build_system_requires",
+      "to": "_parse_pyproject_toml",
+      "line": 187,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestParsePackageJson.test_dependencies",
+      "to": "json.dumps",
+      "line": 197,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestParsePackageJson.test_dependencies",
+      "to": "_parse_package_json",
+      "line": 200,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestParsePackageJson.test_dependencies",
+      "to": "any",
+      "line": 204,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestParsePackageJson.test_dev_dependencies",
+      "to": "json.dumps",
+      "line": 207,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestParsePackageJson.test_dev_dependencies",
+      "to": "_parse_package_json",
+      "line": 210,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestParsePackageJson.test_dev_dependencies",
+      "to": "all",
+      "line": 213,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestParsePackageJson.test_peer_dependencies",
+      "to": "json.dumps",
+      "line": 216,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestParsePackageJson.test_peer_dependencies",
+      "to": "_parse_package_json",
+      "line": 219,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestParsePackageJson.test_scoped_packages",
+      "to": "json.dumps",
+      "line": 224,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestParsePackageJson.test_scoped_packages",
+      "to": "_parse_package_json",
+      "line": 227,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestResolveImportNames.test_known_mismatch_pillow",
+      "to": "_resolve_import_names_heuristic",
+      "line": 237,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestResolveImportNames.test_known_mismatch_scikit_learn",
+      "to": "_resolve_import_names_heuristic",
+      "line": 241,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestResolveImportNames.test_known_mismatch_pyyaml",
+      "to": "_resolve_import_names_heuristic",
+      "line": 245,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestResolveImportNames.test_heuristic_fallback",
+      "to": "_resolve_import_names_heuristic",
+      "line": 249,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestResolveImportNames.test_node_exact_name",
+      "to": "_resolve_import_names_heuristic",
+      "line": 253,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestResolveImportNames.test_node_scoped_package",
+      "to": "_resolve_import_names_heuristic",
+      "line": 257,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestResolveImportNames.test_rust_hyphens_to_underscores",
+      "to": "_resolve_import_names_heuristic",
+      "line": 261,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestResolveImportNames.test_go_last_segment",
+      "to": "_resolve_import_names_heuristic",
+      "line": 265,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanImports.test_finds_import",
+      "to": "Config",
+      "line": 273,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestScanImports.test_finds_import",
+      "to": "_write_source",
+      "line": 274,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanImports.test_finds_import",
+      "to": "_write_source",
+      "line": 275,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanImports.test_finds_import",
+      "to": "DependencyCandidate",
+      "line": 277,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestScanImports.test_finds_import",
+      "to": "scan_imports",
+      "line": 281,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestScanImports.test_word_boundary",
+      "to": "Config",
+      "line": 286,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestScanImports.test_word_boundary",
+      "to": "_write_source",
+      "line": 287,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanImports.test_word_boundary",
+      "to": "_write_source",
+      "line": 288,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanImports.test_word_boundary",
+      "to": "DependencyCandidate",
+      "line": 290,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestScanImports.test_word_boundary",
+      "to": "scan_imports",
+      "line": 294,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestScanImports.test_scoped_npm_package",
+      "to": "Config",
+      "line": 302,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestScanImports.test_scoped_npm_package",
+      "to": "_write_source",
+      "line": 303,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanImports.test_scoped_npm_package",
+      "to": "_write_source",
+      "line": 307,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanImports.test_scoped_npm_package",
+      "to": "DependencyCandidate",
+      "line": 309,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestScanImports.test_scoped_npm_package",
+      "to": "scan_imports",
+      "line": 313,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestScanImports.test_multiple_import_names",
+      "to": "Config",
+      "line": 318,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestScanImports.test_multiple_import_names",
+      "to": "_write_source",
+      "line": 319,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanImports.test_multiple_import_names",
+      "to": "_write_source",
+      "line": 320,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestScanImports.test_multiple_import_names",
+      "to": "DependencyCandidate",
+      "line": 322,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestScanImports.test_multiple_import_names",
+      "to": "scan_imports",
+      "line": 326,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "TestFilterZeroImport.test_keeps_zero_import",
+      "to": "DependencyCandidate",
+      "line": 339,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestFilterZeroImport.test_keeps_zero_import",
+      "to": "DependencyCandidate",
+      "line": 344,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestFilterZeroImport.test_keeps_zero_import",
+      "to": "_filter_zero_import",
+      "line": 350,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestFilterZeroImport.test_keeps_zero_import",
+      "to": "len",
+      "line": 352,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestFilterZeroImport.test_keeps_genuine_zero_import",
+      "to": "DependencyCandidate",
+      "line": 356,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestFilterZeroImport.test_keeps_genuine_zero_import",
+      "to": "_filter_zero_import",
+      "line": 362,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestFilterZeroImport.test_keeps_genuine_zero_import",
+      "to": "len",
+      "line": 363,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestFilterZeroImport.test_excludes_imported_packages",
+      "to": "DependencyCandidate",
+      "line": 367,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestFilterZeroImport.test_excludes_imported_packages",
+      "to": "_filter_zero_import",
+      "line": 373,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestFilterZeroImport.test_excludes_imported_packages",
+      "to": "len",
+      "line": 374,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestHaikuImportResolution.test_batch_resolve_returns_mappings",
+      "to": "AsyncMock",
+      "line": 404,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestHaikuImportResolution.test_batch_resolve_returns_mappings",
+      "to": "CompletionResult",
+      "line": 405,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "TestHaikuImportResolution.test_batch_resolve_returns_mappings",
+      "to": "ToolCall",
+      "line": 407,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "TestHaikuImportResolution.test_batch_resolve_returns_mappings",
+      "to": "_resolve_import_names_batch_async",
+      "line": 420,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestHaikuImportResolution.test_empty_input_returns_empty",
+      "to": "AsyncMock",
+      "line": 429,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestHaikuImportResolution.test_empty_input_returns_empty",
+      "to": "_resolve_import_names_batch_async",
+      "line": 430,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestHaikuImportResolution.test_empty_input_returns_empty",
+      "to": "mock_provider.complete.assert_not_called",
+      "line": 435,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestHaikuDepClassification.test_classify_filters_build_tools",
+      "to": "AsyncMock",
+      "line": 443,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestHaikuDepClassification.test_classify_filters_build_tools",
+      "to": "CompletionResult",
+      "line": 444,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "TestHaikuDepClassification.test_classify_filters_build_tools",
+      "to": "ToolCall",
+      "line": 446,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "TestHaikuDepClassification.test_classify_filters_build_tools",
+      "to": "DependencyCandidate",
+      "line": 460,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestHaikuDepClassification.test_classify_filters_build_tools",
+      "to": "DependencyCandidate",
+      "line": 464,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "TestHaikuDepClassification.test_classify_filters_build_tools",
+      "to": "_classify_deps_batch_async",
+      "line": 469,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestHaikuDepClassification.test_classify_filters_build_tools",
+      "to": "len",
+      "line": 472,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestHaikuDepClassification.test_empty_input_returns_empty",
+      "to": "AsyncMock",
+      "line": 479,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestHaikuDepClassification.test_empty_input_returns_empty",
+      "to": "_classify_deps_batch_async",
+      "line": 480,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestHaikuDepClassification.test_empty_input_returns_empty",
+      "to": "mock_provider.complete.assert_not_called",
+      "line": 485,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_full_pipeline_with_mock",
+      "to": "Config",
+      "line": 500,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_full_pipeline_with_mock",
+      "to": "_write_source",
+      "line": 501,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_full_pipeline_with_mock",
+      "to": "_write_source",
+      "line": 502,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_full_pipeline_with_mock.mock_complete",
+      "to": "kwargs.get",
+      "line": 507,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_full_pipeline_with_mock.mock_complete",
+      "to": "tool_choice.get",
+      "line": 509,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_full_pipeline_with_mock.mock_complete",
+      "to": "CompletionResult",
+      "line": 512,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_full_pipeline_with_mock.mock_complete",
+      "to": "ToolCall",
+      "line": 514,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_full_pipeline_with_mock.mock_complete",
+      "to": "CompletionResult",
+      "line": 524,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_full_pipeline_with_mock.mock_complete",
+      "to": "ToolCall",
+      "line": 526,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_full_pipeline_with_mock.mock_complete",
+      "to": "_triage_verdicts",
+      "line": 537,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_full_pipeline_with_mock",
+      "to": "AsyncMock",
+      "line": 541,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_full_pipeline_with_mock",
+      "to": "detect_dead_deps_async",
+      "line": 544,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_full_pipeline_with_mock",
+      "to": "len",
+      "line": 547,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_empty_manifests",
+      "to": "Config",
+      "line": 552,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_empty_manifests",
+      "to": "AsyncMock",
+      "line": 554,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_empty_manifests",
+      "to": "detect_dead_deps_async",
+      "line": 555,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_no_zero_import_packages",
+      "to": "Config",
+      "line": 560,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_no_zero_import_packages",
+      "to": "_write_source",
+      "line": 561,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_no_zero_import_packages",
+      "to": "_write_source",
+      "line": 562,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_no_zero_import_packages",
+      "to": "AsyncMock",
+      "line": 564,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDetectDeadDepsAsync.test_no_zero_import_packages",
+      "to": "detect_dead_deps_async",
+      "line": 565,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "Config",
+      "line": 574,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "_write_source",
+      "line": 575,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "_write_source",
+      "line": 576,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyze_async_returns_junk_result.mock_complete",
+      "to": "kwargs.get",
+      "line": 579,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyze_async_returns_junk_result.mock_complete",
+      "to": "tool_choice.get",
+      "line": 581,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyze_async_returns_junk_result.mock_complete",
+      "to": "CompletionResult",
+      "line": 584,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyze_async_returns_junk_result.mock_complete",
+      "to": "ToolCall",
+      "line": 586,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyze_async_returns_junk_result.mock_complete",
+      "to": "CompletionResult",
+      "line": 596,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyze_async_returns_junk_result.mock_complete",
+      "to": "ToolCall",
+      "line": 598,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyze_async_returns_junk_result.mock_complete",
+      "to": "_triage_verdicts",
+      "line": 609,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "AsyncMock",
+      "line": 613,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "DeadDepsAnalyzer",
+      "line": 616,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "analyzer.analyze_async",
+      "line": 617,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "isinstance",
+      "line": 619,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyze_async_returns_junk_result",
+      "to": "len",
+      "line": 621,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyzer_properties",
+      "to": "DeadDepsAnalyzer",
+      "line": 632,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyzer_properties",
+      "to": "analyzer.description.lower",
+      "line": 635,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_analyzer_properties",
+      "to": "analyzer.description.lower",
+      "line": 635,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "TestDeadDepsAnalyzer.test_is_junk_analyzer_subclass",
+      "to": "issubclass",
+      "line": 639,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "mock_provider.complete",
+      "member": "return_value",
+      "line": 405
+    },
+    {
+      "container": "mock_provider.complete",
+      "member": "return_value",
+      "line": 444
+    },
+    {
+      "container": "mock_provider.complete",
+      "member": "side_effect",
+      "line": 542
+    },
+    {
+      "container": "mock_provider.complete",
+      "member": "side_effect",
+      "line": 614
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "submit_triage_verdicts",
+      "line": 32,
+      "usage": "produced",
+      "context": "argument to validator",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 36,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "no import or config use",
+      "line": 36,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "triage",
+      "line": 45,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 45,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "test",
+      "line": 48,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 48,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "pyproject.toml",
+      "line": 65,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "[project]\nname = 'foo'\n",
+      "line": 65,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "pyproject.toml",
+      "line": 69,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "paths"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 72,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "requests>=2.0\n",
+      "line": 72,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 76,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "paths"
+    },
+    {
+      "value": "requirements-dev.txt",
+      "line": 79,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "pytest\n",
+      "line": 79,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "requirements-dev.txt",
+      "line": 83,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "paths"
+    },
+    {
+      "value": "package.json",
+      "line": 86,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "{\"dependencies\": {}}\n",
+      "line": 86,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "package.json",
+      "line": 90,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "paths"
+    },
+    {
+      "value": "node",
+      "line": 92,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "requests\nflask\n",
+      "line": 104,
+      "usage": "defined",
+      "context": "constant content"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 105,
+      "usage": "produced",
+      "context": "argument to _parse_requirements_txt"
+    },
+    {
+      "value": "requests",
+      "line": 107,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "flask",
+      "line": 108,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "requests>=2.0,<3.0\nflask[async]>=2.0\n",
+      "line": 111,
+      "usage": "defined",
+      "context": "constant content"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 112,
+      "usage": "produced",
+      "context": "argument to _parse_requirements_txt"
+    },
+    {
+      "value": "requests",
+      "line": 114,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "flask",
+      "line": 115,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "# comment\n\nrequests\n  # another\n",
+      "line": 118,
+      "usage": "defined",
+      "context": "constant content"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 119,
+      "usage": "produced",
+      "context": "argument to _parse_requirements_txt"
+    },
+    {
+      "value": "requests",
+      "line": 121,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "-r other.txt\n-c constraints.txt\n-e .\n-f http://example.com\nrequests\n",
+      "line": 124,
+      "usage": "defined",
+      "context": "constant content"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 125,
+      "usage": "produced",
+      "context": "argument to _parse_requirements_txt"
+    },
+    {
+      "value": "requests",
+      "line": 127,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "requests\nflask\n",
+      "line": 130,
+      "usage": "defined",
+      "context": "constant content"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 131,
+      "usage": "produced",
+      "context": "argument to _parse_requirements_txt"
+    },
+    {
+      "value": "\n[project]\ndependencies = [\"requests>=2.0\", \"click\"]\n",
+      "line": 140,
+      "usage": "defined",
+      "context": "constant content"
+    },
+    {
+      "value": "pyproject.toml",
+      "line": 144,
+      "usage": "produced",
+      "context": "argument to _parse_pyproject_toml"
+    },
+    {
+      "value": "requests",
+      "line": 146,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "click",
+      "line": 147,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "\n[project.optional-dependencies]\ndev = [\"pytest\", \"black\"]\n",
+      "line": 150,
+      "usage": "defined",
+      "context": "constant content"
+    },
+    {
+      "value": "pyproject.toml",
+      "line": 154,
+      "usage": "produced",
+      "context": "argument to _parse_pyproject_toml"
+    },
+    {
+      "value": "pytest",
+      "line": 156,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "black",
+      "line": 157,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "\n[tool.poetry.dependencies]\npython = \"^3.10\"\nrequests = \"^2.28\"\n",
+      "line": 161,
+      "usage": "defined",
+      "context": "constant content"
+    },
+    {
+      "value": "pyproject.toml",
+      "line": 166,
+      "usage": "produced",
+      "context": "argument to _parse_pyproject_toml"
+    },
+    {
+      "value": "requests",
+      "line": 168,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "python",
+      "line": 170,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names",
+      "kind": "identifier"
+    },
+    {
+      "value": "\n[tool.poetry.group.dev.dependencies]\npytest = \"^7.0\"\n",
+      "line": 173,
+      "usage": "defined",
+      "context": "constant content"
+    },
+    {
+      "value": "pyproject.toml",
+      "line": 177,
+      "usage": "produced",
+      "context": "argument to _parse_pyproject_toml"
+    },
+    {
+      "value": "pytest",
+      "line": 179,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "\n[build-system]\nrequires = [\"setuptools>=68.0\", \"wheel\"]\n",
+      "line": 183,
+      "usage": "defined",
+      "context": "constant content"
+    },
+    {
+      "value": "pyproject.toml",
+      "line": 187,
+      "usage": "produced",
+      "context": "argument to _parse_pyproject_toml"
+    },
+    {
+      "value": "setuptools",
+      "line": 189,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "wheel",
+      "line": 190,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "^4.0",
+      "line": 198,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "^4.17",
+      "line": 198,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "package.json",
+      "line": 200,
+      "usage": "produced",
+      "context": "argument to _parse_package_json"
+    },
+    {
+      "value": "express",
+      "line": 202,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "lodash",
+      "line": 203,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "^29.0",
+      "line": 208,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "^5.0",
+      "line": 208,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "package.json",
+      "line": 210,
+      "usage": "produced",
+      "context": "argument to _parse_package_json"
+    },
+    {
+      "value": "jest",
+      "line": 212,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "^18.0",
+      "line": 217,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "package.json",
+      "line": 219,
+      "usage": "produced",
+      "context": "argument to _parse_package_json"
+    },
+    {
+      "value": "react",
+      "line": 221,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "^20.0",
+      "line": 225,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "^1.0",
+      "line": 225,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "package.json",
+      "line": 227,
+      "usage": "produced",
+      "context": "argument to _parse_package_json"
+    },
+    {
+      "value": "@types/node",
+      "line": 229,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "@scope/pkg",
+      "line": 230,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "names"
+    },
+    {
+      "value": "Pillow",
+      "line": 237,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic"
+    },
+    {
+      "value": "python",
+      "line": 237,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "PIL",
+      "line": 238,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "scikit-learn",
+      "line": 241,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic"
+    },
+    {
+      "value": "python",
+      "line": 241,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "sklearn",
+      "line": 242,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "PyYAML",
+      "line": 245,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic"
+    },
+    {
+      "value": "python",
+      "line": 245,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "yaml",
+      "line": 246,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "my-package",
+      "line": 249,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic"
+    },
+    {
+      "value": "python",
+      "line": 249,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "my_package",
+      "line": 250,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result"
+    },
+    {
+      "value": "express",
+      "line": 253,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic"
+    },
+    {
+      "value": "node",
+      "line": 253,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "express",
+      "line": 254,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "@scope/name",
+      "line": 257,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic"
+    },
+    {
+      "value": "node",
+      "line": 257,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "@scope/name",
+      "line": 258,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "serde-json",
+      "line": 261,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic"
+    },
+    {
+      "value": "rust",
+      "line": 261,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "serde_json",
+      "line": 262,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "github.com/foo/bar",
+      "line": 265,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic"
+    },
+    {
+      "value": "go",
+      "line": 265,
+      "usage": "produced",
+      "context": "argument to _resolve_import_names_heuristic",
+      "kind": "identifier"
+    },
+    {
+      "value": "bar",
+      "line": 266,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "src/app.py",
+      "line": 274,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "import requests\nrequests.get('http://example.com')\n",
+      "line": 274,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 275,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "requests\n",
+      "line": 275,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 278,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "requests",
+      "line": 278,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "requests",
+      "line": 279,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "python",
+      "line": 279,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/app.py",
+      "line": 283,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "hit_files"
+    },
+    {
+      "value": "src/app.py",
+      "line": 287,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "# not_requests, just a comment\n",
+      "line": 287,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 288,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "requests\n",
+      "line": 288,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 291,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "requests",
+      "line": 291,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "requests",
+      "line": 292,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "python",
+      "line": 292,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/server.ts",
+      "line": 304,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "import { Server } from '@modelcontextprotocol/sdk/server/index.js'\n",
+      "line": 305,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "package.json",
+      "line": 307,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "{\"dependencies\":{\"@modelcontextprotocol/sdk\":\"^1.0\"}}\n",
+      "line": 307,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "package.json",
+      "line": 310,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "@modelcontextprotocol/sdk",
+      "line": 310,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "@modelcontextprotocol/sdk",
+      "line": 311,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "node",
+      "line": 311,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/server.ts",
+      "line": 315,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "hit_files"
+    },
+    {
+      "value": "src/app.py",
+      "line": 319,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "from PIL import Image\n",
+      "line": 319,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 320,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "Pillow\n",
+      "line": 320,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 323,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "Pillow",
+      "line": 323,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "PIL",
+      "line": 324,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "python",
+      "line": 324,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 340,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "black",
+      "line": 340,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "black",
+      "line": 341,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "python",
+      "line": 341,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 345,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "some-unused-lib",
+      "line": 345,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "some_unused_lib",
+      "line": 346,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "python",
+      "line": 346,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 357,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "unused-pkg",
+      "line": 357,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "unused_pkg",
+      "line": 358,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "python",
+      "line": 358,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 368,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "requests",
+      "line": 368,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "requests",
+      "line": 369,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "python",
+      "line": 369,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "a.py",
+      "line": 370,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "b.py",
+      "line": 370,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "c.py",
+      "line": 370,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "black",
+      "line": 383,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "_BUILD_TOOLS_CACHE"
+    },
+    {
+      "value": "ruff",
+      "line": 384,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "_BUILD_TOOLS_CACHE"
+    },
+    {
+      "value": "pytest",
+      "line": 385,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "_BUILD_TOOLS_CACHE"
+    },
+    {
+      "value": "mypy",
+      "line": 386,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "_BUILD_TOOLS_CACHE"
+    },
+    {
+      "value": "typescript",
+      "line": 389,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "_BUILD_TOOLS_CACHE"
+    },
+    {
+      "value": "eslint",
+      "line": 390,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "_BUILD_TOOLS_CACHE"
+    },
+    {
+      "value": "webpack",
+      "line": 391,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "_BUILD_TOOLS_CACHE"
+    },
+    {
+      "value": "pillow",
+      "line": 394,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "_IMPORT_NAME_CACHE"
+    },
+    {
+      "value": "PIL",
+      "line": 395,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "scikit-learn",
+      "line": 396,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "_IMPORT_NAME_CACHE"
+    },
+    {
+      "value": "tc1",
+      "line": 408,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "resolve_import_names",
+      "line": 408,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "my-pkg",
+      "line": 411,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "my_pkg",
+      "line": 411,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "another",
+      "line": 412,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "another",
+      "line": 412,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "test",
+      "line": 417,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 417,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "my-pkg",
+      "line": 421,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "python",
+      "line": 421,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "another",
+      "line": 421,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "python",
+      "line": 421,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "my_pkg",
+      "line": 423,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "another",
+      "line": 424,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "tc1",
+      "line": 447,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "classify_deps",
+      "line": 447,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "some-linter",
+      "line": 450,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "build_tool",
+      "line": 450,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Linting tool",
+      "line": 450,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "unused-lib",
+      "line": 451,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "genuine_candidate",
+      "line": 451,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Not a known tool",
+      "line": 451,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test",
+      "line": 456,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 456,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 461,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "some-linter",
+      "line": 461,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "some_linter",
+      "line": 462,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "python",
+      "line": 462,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 465,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "unused-lib",
+      "line": 465,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate"
+    },
+    {
+      "value": "unused_lib",
+      "line": 466,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "python",
+      "line": 466,
+      "usage": "produced",
+      "context": "keyword argument to DependencyCandidate",
+      "kind": "identifier"
+    },
+    {
+      "value": "some-linter\nunused-lib\n",
+      "line": 470,
+      "usage": "produced",
+      "context": "argument to _classify_deps_batch_async"
+    },
+    {
+      "value": "unused-lib",
+      "line": 473,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "package_name"
+    },
+    {
+      "value": "build_tool",
+      "line": 474,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "genuine_candidate",
+      "line": 475,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 501,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "requests\nold-unused\n",
+      "line": 501,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "src/app.py",
+      "line": 502,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "import requests\nrequests.get('http://example.com')\n",
+      "line": 502,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "options",
+      "line": 507,
+      "usage": "produced",
+      "context": "argument to kwargs.get"
+    },
+    {
+      "value": "name",
+      "line": 509,
+      "usage": "produced",
+      "context": "argument to tool_choice.get"
+    },
+    {
+      "value": "resolve_import_names",
+      "line": 511,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "tc1",
+      "line": 515,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "resolve_import_names",
+      "line": 515,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "old-unused",
+      "line": 517,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "old_unused",
+      "line": 517,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "test",
+      "line": 521,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 521,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "classify_deps",
+      "line": 523,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "tc2",
+      "line": 527,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "classify_deps",
+      "line": 527,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "old-unused",
+      "line": 529,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "genuine_candidate",
+      "line": 529,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Not a known tool",
+      "line": 530,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test",
+      "line": 534,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 534,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "confirmed",
+      "line": 538,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "no imports found",
+      "line": 538,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "confirmed",
+      "line": 546,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "old-unused",
+      "line": 548,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "symbol"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 561,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "requests\n",
+      "line": 561,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "src/app.py",
+      "line": 562,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "import requests\n",
+      "line": 562,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 575,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "old-lib\n",
+      "line": 575,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "src/app.py",
+      "line": 576,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "print('hello')\n",
+      "line": 576,
+      "usage": "produced",
+      "context": "argument to _write_source"
+    },
+    {
+      "value": "options",
+      "line": 579,
+      "usage": "produced",
+      "context": "argument to kwargs.get"
+    },
+    {
+      "value": "name",
+      "line": 581,
+      "usage": "produced",
+      "context": "argument to tool_choice.get"
+    },
+    {
+      "value": "resolve_import_names",
+      "line": 583,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "tc1",
+      "line": 587,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "resolve_import_names",
+      "line": 587,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "old-lib",
+      "line": 589,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "old_lib",
+      "line": 589,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "test",
+      "line": 593,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 593,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "classify_deps",
+      "line": 595,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "tc2",
+      "line": 599,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "classify_deps",
+      "line": 599,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "old-lib",
+      "line": 601,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "genuine_candidate",
+      "line": 601,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Unknown package",
+      "line": 602,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "test",
+      "line": 606,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 606,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "confirmed",
+      "line": 610,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "No imports found",
+      "line": 610,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dead_deps",
+      "line": 620,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "result.analyzer_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "requirements.txt",
+      "line": 624,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.source_path"
+    },
+    {
+      "value": "old-lib",
+      "line": 625,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.name"
+    },
+    {
+      "value": "dependency",
+      "line": 626,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead_dependency",
+      "line": 627,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "finding.category",
+      "kind": "identifier"
+    },
+    {
+      "value": "unused",
+      "line": 629,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead_deps",
+      "line": 633,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "analyzer.name",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead-deps",
+      "line": 634,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "analyzer.cli_flag",
+      "kind": "identifier"
+    },
+    {
+      "value": "dependencies",
+      "line": 635,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "deps",
+      "line": 635,
+      "usage": "checked",
+      "context": "equality comparison"
+    }
+  ],
+  "extraction_method": "ast"
+}

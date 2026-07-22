@@ -1,0 +1,1450 @@
+{
+  "source": "tests/test_junk_reachability_cutover.py",
+  "source_hash": "361a88732078b008",
+  "generated": "2026-07-22T10:56:00Z",
+  "imports": [
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 20,
+      "is_reexport": false
+    },
+    {
+      "source": "pytest",
+      "names": [
+        "pytest"
+      ],
+      "line": 22,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.config",
+      "names": [
+        "Config"
+      ],
+      "line": 24,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.deadcode",
+      "names": [
+        "DeadCodeAnalyzer"
+      ],
+      "line": 25,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.evidence_builders",
+      "names": [
+        "BuildContext"
+      ],
+      "line": 26,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings_adapter",
+      "names": [
+        "finding_from_dead_code_candidate"
+      ],
+      "line": 27,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.junk_triage",
+      "names": [
+        "build_junk_claims",
+        "decide_junk_claims"
+      ],
+      "line": 28,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.types",
+      "names": [
+        "CompletionResult",
+        "ToolCall"
+      ],
+      "line": 29,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.triage",
+      "names": [
+        "TRIAGE_SYSTEM_PROMPT"
+      ],
+      "line": 30,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.deadcode",
+      "names": [
+        "DeadCodeCandidate"
+      ],
+      "line": 214,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.audit_manifest",
+      "names": [
+        "VerdictSession"
+      ],
+      "line": 314,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.audit_manifest",
+      "names": [
+        "VerdictSession"
+      ],
+      "line": 336,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "FakeProvider",
+      "kind": "class",
+      "line": 73,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeProvider.__init__",
+      "kind": "function",
+      "line": 76,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeProvider.complete",
+      "kind": "function",
+      "line": 84,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_ast_clean_zero_confirms_without_llm",
+      "kind": "function",
+      "line": 127,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_ast_string_literal_hit_demotes_to_triage",
+      "kind": "function",
+      "line": 141,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_unified_rubric_prompt_identity",
+      "kind": "function",
+      "line": 162,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_uncertain_and_dismissed_are_dropped",
+      "kind": "function",
+      "line": 184,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_claims_split_into_bounded_chunks",
+      "kind": "function",
+      "line": 229,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_failing_chunk_bisects_then_keeps_claims_undecided",
+      "kind": "function",
+      "line": 243,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_symbol_echo_mismatch_is_a_validation_error",
+      "kind": "function",
+      "line": 259,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_session_cache_hits_skip_llm_and_are_counted",
+      "kind": "function",
+      "line": 313,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_session_harvests_fresh_verdicts",
+      "kind": "function",
+      "line": 335,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_no_session_leaves_behavior_unchanged",
+      "kind": "function",
+      "line": 358,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "_write",
+      "to": "path.parent.mkdir",
+      "line": 38,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write",
+      "to": "path.write_text",
+      "line": 39,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_symbols",
+      "to": "_write",
+      "line": 43,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_write_symbols",
+      "to": "json.dumps",
+      "line": 46,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_write_facts",
+      "to": "source.replace",
+      "line": 56,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_facts",
+      "to": "_write",
+      "line": 57,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_write_facts",
+      "to": "json.dumps",
+      "line": 60,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FakeProvider.complete",
+      "to": "len",
+      "line": 91,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "FakeProvider.complete",
+      "to": "validator",
+      "line": 91,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "FakeProvider.complete",
+      "to": "self.batch_sizes.append",
+      "line": 92,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProvider.complete",
+      "to": "self._verdicts_per_call.pop",
+      "line": 94,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProvider.complete",
+      "to": "range",
+      "line": 99,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "FakeProvider.complete",
+      "to": "CompletionResult",
+      "line": 101,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "FakeProvider.complete",
+      "to": "ToolCall",
+      "line": 103,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "_ast_dead_symbol_env",
+      "to": "_write",
+      "line": 114,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_ast_dead_symbol_env",
+      "to": "_write_symbols",
+      "line": 115,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_ast_dead_symbol_env",
+      "to": "_write_facts",
+      "line": 119,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_ast_clean_zero_confirms_without_llm",
+      "to": "Config",
+      "line": 128,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_ast_clean_zero_confirms_without_llm",
+      "to": "_ast_dead_symbol_env",
+      "line": 129,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_ast_clean_zero_confirms_without_llm",
+      "to": "FakeProvider",
+      "line": 130,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_ast_clean_zero_confirms_without_llm",
+      "to": "analyze_async",
+      "line": 132,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_ast_clean_zero_confirms_without_llm",
+      "to": "DeadCodeAnalyzer",
+      "line": 132,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_ast_string_literal_hit_demotes_to_triage",
+      "to": "Config",
+      "line": 142,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_ast_string_literal_hit_demotes_to_triage",
+      "to": "_ast_dead_symbol_env",
+      "line": 143,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_ast_string_literal_hit_demotes_to_triage",
+      "to": "_write",
+      "line": 146,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_ast_string_literal_hit_demotes_to_triage",
+      "to": "FakeProvider",
+      "line": 148,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_ast_string_literal_hit_demotes_to_triage",
+      "to": "analyze_async",
+      "line": 153,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_ast_string_literal_hit_demotes_to_triage",
+      "to": "DeadCodeAnalyzer",
+      "line": 153,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_unified_rubric_prompt_identity",
+      "to": "Config",
+      "line": 163,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_unified_rubric_prompt_identity",
+      "to": "_write",
+      "line": 165,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_unified_rubric_prompt_identity",
+      "to": "_write",
+      "line": 166,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_unified_rubric_prompt_identity",
+      "to": "_write_symbols",
+      "line": 167,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_unified_rubric_prompt_identity",
+      "to": "_write_facts",
+      "line": 171,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_unified_rubric_prompt_identity",
+      "to": "FakeProvider",
+      "line": 173,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_unified_rubric_prompt_identity",
+      "to": "analyze_async",
+      "line": 175,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_unified_rubric_prompt_identity",
+      "to": "DeadCodeAnalyzer",
+      "line": 175,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_uncertain_and_dismissed_are_dropped",
+      "to": "Config",
+      "line": 185,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_uncertain_and_dismissed_are_dropped",
+      "to": "_write",
+      "line": 186,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_uncertain_and_dismissed_are_dropped",
+      "to": "_write",
+      "line": 188,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_uncertain_and_dismissed_are_dropped",
+      "to": "_write_symbols",
+      "line": 189,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_uncertain_and_dismissed_are_dropped",
+      "to": "_write_facts",
+      "line": 195,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "test_uncertain_and_dismissed_are_dropped",
+      "to": "FakeProvider",
+      "line": 197,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_uncertain_and_dismissed_are_dropped",
+      "to": "analyze_async",
+      "line": 204,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "test_uncertain_and_dismissed_are_dropped",
+      "to": "DeadCodeAnalyzer",
+      "line": 204,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_trivial_claims",
+      "to": "finding_from_dead_code_candidate",
+      "line": 217,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_trivial_claims",
+      "to": "DeadCodeCandidate",
+      "line": 217,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_trivial_claims",
+      "to": "range",
+      "line": 221,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_trivial_claims",
+      "to": "BuildContext",
+      "line": 223,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "_trivial_claims",
+      "to": "build_junk_claims",
+      "line": 225,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "test_claims_split_into_bounded_chunks",
+      "to": "Config",
+      "line": 230,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_claims_split_into_bounded_chunks",
+      "to": "_write",
+      "line": 231,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_claims_split_into_bounded_chunks",
+      "to": "_trivial_claims",
+      "line": 232,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_claims_split_into_bounded_chunks",
+      "to": "FakeProvider",
+      "line": 233,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_claims_split_into_bounded_chunks",
+      "to": "decide_junk_claims",
+      "line": 235,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_claims_split_into_bounded_chunks",
+      "to": "len",
+      "line": 238,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_claims_split_into_bounded_chunks",
+      "to": "all",
+      "line": 239,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_failing_chunk_bisects_then_keeps_claims_undecided",
+      "to": "Config",
+      "line": 244,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_failing_chunk_bisects_then_keeps_claims_undecided",
+      "to": "_write",
+      "line": 245,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_failing_chunk_bisects_then_keeps_claims_undecided",
+      "to": "_trivial_claims",
+      "line": 246,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_failing_chunk_bisects_then_keeps_claims_undecided",
+      "to": "FakeProvider",
+      "line": 247,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_failing_chunk_bisects_then_keeps_claims_undecided",
+      "to": "RuntimeError",
+      "line": 247,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_failing_chunk_bisects_then_keeps_claims_undecided",
+      "to": "decide_junk_claims",
+      "line": 249,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_failing_chunk_bisects_then_keeps_claims_undecided",
+      "to": "len",
+      "line": 253,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_failing_chunk_bisects_then_keeps_claims_undecided",
+      "to": "all",
+      "line": 254,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_symbol_echo_mismatch_is_a_validation_error",
+      "to": "Config",
+      "line": 261,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_symbol_echo_mismatch_is_a_validation_error",
+      "to": "_write",
+      "line": 262,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_symbol_echo_mismatch_is_a_validation_error",
+      "to": "_trivial_claims",
+      "line": 263,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "ProbingProvider.complete",
+      "to": "validator",
+      "line": 276,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProbingProvider.complete",
+      "to": "validator",
+      "line": 283,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ProbingProvider.complete",
+      "to": "complete",
+      "line": 284,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ProbingProvider.complete",
+      "to": "super",
+      "line": 284,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_symbol_echo_mismatch_is_a_validation_error",
+      "to": "ProbingProvider",
+      "line": 286,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_symbol_echo_mismatch_is_a_validation_error",
+      "to": "decide_junk_claims",
+      "line": 287,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_symbol_echo_mismatch_is_a_validation_error",
+      "to": "len",
+      "line": 289,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_symbol_echo_mismatch_is_a_validation_error",
+      "to": "len",
+      "line": 292,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_session_cache_hits_skip_llm_and_are_counted",
+      "to": "Config",
+      "line": 316,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_session_cache_hits_skip_llm_and_are_counted",
+      "to": "_write",
+      "line": 317,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_session_cache_hits_skip_llm_and_are_counted",
+      "to": "_trivial_claims",
+      "line": 318,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_session_cache_hits_skip_llm_and_are_counted",
+      "to": "VerdictSession",
+      "line": 319,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_session_cache_hits_skip_llm_and_are_counted",
+      "to": "_session_cache_for",
+      "line": 319,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_session_cache_hits_skip_llm_and_are_counted",
+      "to": "FakeProvider",
+      "line": 321,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_session_cache_hits_skip_llm_and_are_counted",
+      "to": "RuntimeError",
+      "line": 321,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_session_cache_hits_skip_llm_and_are_counted",
+      "to": "decide_junk_claims",
+      "line": 323,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_session_cache_hits_skip_llm_and_are_counted",
+      "to": "all",
+      "line": 326,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_session_cache_hits_skip_llm_and_are_counted",
+      "to": "all",
+      "line": 327,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_session_harvests_fresh_verdicts",
+      "to": "Config",
+      "line": 338,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_session_harvests_fresh_verdicts",
+      "to": "_write",
+      "line": 339,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_session_harvests_fresh_verdicts",
+      "to": "_trivial_claims",
+      "line": 340,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_session_harvests_fresh_verdicts",
+      "to": "VerdictSession",
+      "line": 341,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_session_harvests_fresh_verdicts",
+      "to": "FakeProvider",
+      "line": 343,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_session_harvests_fresh_verdicts",
+      "to": "decide_junk_claims",
+      "line": 345,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_session_harvests_fresh_verdicts",
+      "to": "set",
+      "line": 350,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_no_session_leaves_behavior_unchanged",
+      "to": "Config",
+      "line": 359,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_no_session_leaves_behavior_unchanged",
+      "to": "_write",
+      "line": 360,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "test_no_session_leaves_behavior_unchanged",
+      "to": "_trivial_claims",
+      "line": 361,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_no_session_leaves_behavior_unchanged",
+      "to": "FakeProvider",
+      "line": 362,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_no_session_leaves_behavior_unchanged",
+      "to": "decide_junk_claims",
+      "line": 364,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_no_session_leaves_behavior_unchanged",
+      "to": "all",
+      "line": 367,
+      "call_sites": 5
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "self",
+      "member": "calls",
+      "line": 77
+    },
+    {
+      "container": "self",
+      "member": "last_system",
+      "line": 78
+    },
+    {
+      "container": "self",
+      "member": "last_user",
+      "line": 79
+    },
+    {
+      "container": "self",
+      "member": "batch_sizes",
+      "line": 80
+    },
+    {
+      "container": "self",
+      "member": "_verdicts_per_call",
+      "line": 81
+    },
+    {
+      "container": "self",
+      "member": "_error",
+      "line": 82
+    },
+    {
+      "container": "self",
+      "member": "last_system",
+      "line": 86
+    },
+    {
+      "container": "self",
+      "member": "last_user",
+      "line": 87
+    },
+    {
+      "container": "config",
+      "member": "verdict_session",
+      "line": 320
+    },
+    {
+      "container": "config",
+      "member": "verdict_session",
+      "line": 342
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "utf-8",
+      "line": 39,
+      "usage": "produced",
+      "context": "keyword argument to path.write_text"
+    },
+    {
+      "value": "abc",
+      "line": 48,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "service",
+      "line": 49,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "ast",
+      "line": 55,
+      "usage": "produced",
+      "context": "default parameter",
+      "kind": "identifier"
+    },
+    {
+      "value": "__",
+      "line": 56,
+      "usage": "produced",
+      "context": "argument to source.replace"
+    },
+    {
+      "value": "abc",
+      "line": 62,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 91,
+      "usage": "produced",
+      "context": "argument to validator",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 97,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "No references",
+      "line": 98,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 104,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "test",
+      "line": 108,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 108,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "src/lib.py",
+      "line": 114,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "def dead_func():\n    return 1\n",
+      "line": 114,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "src/lib.py",
+      "line": 115,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "dead_func",
+      "line": 116,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 116,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 117,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/lib.py",
+      "line": 119,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": "dead_func",
+      "line": 120,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 120,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "dead_func",
+      "line": 135,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "ast_proven",
+      "line": 136,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "confidence_source",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/registry.py",
+      "line": 146,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "handler = getattr(lib, \"dead_func\")\n",
+      "line": 147,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "dismissed",
+      "line": 149,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Reachable via getattr string dispatch",
+      "line": 150,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "[match is inside a quoted string]",
+      "line": 158,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "provider.last_user",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/lib.py",
+      "line": 165,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "def dead_func():\n    return 1\n",
+      "line": 165,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "src/other.py",
+      "line": 166,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "print('unrelated')\n",
+      "line": 166,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "src/lib.py",
+      "line": 167,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "dead_func",
+      "line": 168,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 168,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 169,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/lib.py",
+      "line": 171,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": "llm",
+      "line": 171,
+      "usage": "produced",
+      "context": "keyword argument to _write_facts",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead_func",
+      "line": 172,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 172,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "dead_func",
+      "line": 179,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "llm_inferred",
+      "line": 180,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "confidence_source",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/lib.py",
+      "line": 186,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "def func_a():\n    return 1\n\ndef func_b():\n    return 2\n",
+      "line": 187,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "src/other.py",
+      "line": 188,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "print('unrelated')\n",
+      "line": 188,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "src/lib.py",
+      "line": 189,
+      "usage": "produced",
+      "context": "argument to _write_symbols"
+    },
+    {
+      "value": "func_a",
+      "line": 190,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 190,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 191,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "func_b",
+      "line": 192,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 192,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "public",
+      "line": 193,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/lib.py",
+      "line": 195,
+      "usage": "produced",
+      "context": "argument to _write_facts"
+    },
+    {
+      "value": "llm",
+      "line": 195,
+      "usage": "produced",
+      "context": "keyword argument to _write_facts",
+      "kind": "identifier"
+    },
+    {
+      "value": "func_a",
+      "line": 196,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "func_b",
+      "line": 196,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "uncertain",
+      "line": 198,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Cannot decide",
+      "line": 199,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "dismissed",
+      "line": 200,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Framework dispatch",
+      "line": 201,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "function",
+      "line": 218,
+      "usage": "produced",
+      "context": "keyword argument to DeadCodeCandidate"
+    },
+    {
+      "value": "src/anchor.py",
+      "line": 231,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "print('corpus is non-empty')\n",
+      "line": 231,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "confirmed",
+      "line": 239,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/anchor.py",
+      "line": 245,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "print('corpus is non-empty')\n",
+      "line": 245,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "boom",
+      "line": 247,
+      "usage": "produced",
+      "context": "argument to RuntimeError"
+    },
+    {
+      "value": "src/anchor.py",
+      "line": 262,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "print('corpus is non-empty')\n",
+      "line": 262,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "confirmed",
+      "line": 272,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "dismissed",
+      "line": 274,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 276,
+      "usage": "produced",
+      "context": "argument to validator",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 279,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "dismissed",
+      "line": 281,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 283,
+      "usage": "produced",
+      "context": "argument to validator",
+      "kind": "identifier"
+    },
+    {
+      "value": "re-check",
+      "line": 290,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 301,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "cached",
+      "line": 303,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "warning",
+      "line": 305,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/anchor.py",
+      "line": 317,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "print('corpus is non-empty')\n",
+      "line": 317,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "LLM must not be called",
+      "line": 321,
+      "usage": "produced",
+      "context": "argument to RuntimeError"
+    },
+    {
+      "value": "confirmed",
+      "line": 326,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "cached",
+      "line": 327,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.triage_reasoning",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/anchor.py",
+      "line": 339,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "print('corpus is non-empty')\n",
+      "line": 339,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "confirmed",
+      "line": 352,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "deadcode:dead_symbol",
+      "line": 354,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/anchor.py",
+      "line": 360,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "print('corpus is non-empty')\n",
+      "line": 360,
+      "usage": "produced",
+      "context": "argument to _write"
+    },
+    {
+      "value": "confirmed",
+      "line": 367,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.verdict",
+      "kind": "identifier"
+    }
+  ],
+  "extraction_method": "ast"
+}

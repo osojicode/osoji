@@ -1,0 +1,2247 @@
+{
+  "source": "tests/test_triage.py",
+  "source_hash": "088c2db55b509e9d",
+  "generated": "2026-07-22T10:56:19Z",
+  "imports": [
+    {
+      "source": "dataclasses",
+      "names": [
+        "replace"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "pytest",
+      "names": [
+        "pytest"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.config",
+      "names": [
+        "Config"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.evidence",
+      "names": [
+        "Evidence"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 14,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.llm.types",
+      "names": [
+        "CompletionResult",
+        "ToolCall"
+      ],
+      "line": 15,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.triage",
+      "names": [
+        "Claim",
+        "Triage",
+        "TriageBatchResult",
+        "_render_evidence"
+      ],
+      "line": 16,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "config",
+      "kind": "function",
+      "line": 23,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "make_finding",
+      "kind": "function",
+      "line": 27,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeProvider",
+      "kind": "class",
+      "line": 43,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeProvider.__init__",
+      "kind": "function",
+      "line": 49,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeProvider.complete",
+      "kind": "function",
+      "line": 53,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FakeProvider.close",
+      "kind": "function",
+      "line": 57,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "verdicts_result",
+      "kind": "function",
+      "line": 61,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_claim_mode_fills_all_verdict_fields",
+      "kind": "function",
+      "line": 77,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_claim_mode_maps_by_batch_index_not_finding_id",
+      "kind": "function",
+      "line": 105,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_claim_mode_empty_batch_makes_no_call",
+      "kind": "function",
+      "line": 130,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_claim_mode_renders_evidence_into_prompt",
+      "kind": "function",
+      "line": 139,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_claim_mode_uses_supplied_system_prompt",
+      "kind": "function",
+      "line": 160,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_symbolless_claim_renders_location_echo",
+      "kind": "function",
+      "line": 173,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_completeness_validator_catches_cross_wired_symbolless_claims",
+      "kind": "function",
+      "line": 189,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_render_surrounding_code_evidence",
+      "kind": "function",
+      "line": 223,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_render_declared_intent_evidence",
+      "kind": "function",
+      "line": 240,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_render_zero_hit_scan_scope_states_absence",
+      "kind": "function",
+      "line": 253,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_render_export_surface",
+      "kind": "function",
+      "line": 266,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_render_shadow_doc_excerpt_payload",
+      "kind": "function",
+      "line": 277,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "tool_use_result",
+      "kind": "function",
+      "line": 290,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "explore_repo",
+      "kind": "function",
+      "line": 302,
+      "decorators": [
+        "pytest.fixture"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "test_exploration_runs_tools_then_applies_verdict",
+      "kind": "function",
+      "line": 310,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_exploration_uses_auto_tool_choice",
+      "kind": "function",
+      "line": 342,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_exploration_turn_limit_yields_uncertain",
+      "kind": "function",
+      "line": 353,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_cache_hit_short_circuits_llm",
+      "kind": "function",
+      "line": 371,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_none_fingerprint_is_cache_ineligible",
+      "kind": "function",
+      "line": 392,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_insufficient_evidence_passes_through_by_default",
+      "kind": "function",
+      "line": 413,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_insufficient_evidence_escalates_when_enabled",
+      "kind": "function",
+      "line": 428,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_decide_batch_appends_decided_findings_to_ledger",
+      "kind": "function",
+      "line": 450,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "test_decide_batch_without_ledger_attached_does_not_crash",
+      "kind": "function",
+      "line": 471,
+      "decorators": [
+        "pytest.mark.asyncio"
+      ],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "config",
+      "to": "Config",
+      "line": 24,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "make_finding",
+      "to": "dict",
+      "line": 28,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "make_finding",
+      "to": "base.update",
+      "line": 39,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "make_finding",
+      "to": "Finding",
+      "line": 40,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "FakeProvider.__init__",
+      "to": "list",
+      "line": 50,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProvider.complete",
+      "to": "self.calls.append",
+      "line": 54,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "FakeProvider.complete",
+      "to": "self._results.pop",
+      "line": 55,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "verdicts_result",
+      "to": "CompletionResult",
+      "line": 63,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "verdicts_result",
+      "to": "ToolCall",
+      "line": 65,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "test_claim_mode_fills_all_verdict_fields",
+      "to": "Claim",
+      "line": 78,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_claim_mode_fills_all_verdict_fields",
+      "to": "make_finding",
+      "line": 78,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_claim_mode_fills_all_verdict_fields",
+      "to": "Claim",
+      "line": 78,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_claim_mode_fills_all_verdict_fields",
+      "to": "make_finding",
+      "line": 78,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_claim_mode_fills_all_verdict_fields",
+      "to": "FakeProvider",
+      "line": 79,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_claim_mode_fills_all_verdict_fields",
+      "to": "verdicts_result",
+      "line": 80,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_claim_mode_fills_all_verdict_fields",
+      "to": "Triage",
+      "line": 87,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_claim_mode_fills_all_verdict_fields",
+      "to": "triage.decide_batch",
+      "line": 89,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_claim_mode_fills_all_verdict_fields",
+      "to": "isinstance",
+      "line": 91,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_claim_mode_fills_all_verdict_fields",
+      "to": "len",
+      "line": 101,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_claim_mode_maps_by_batch_index_not_finding_id",
+      "to": "make_finding",
+      "line": 108,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_claim_mode_maps_by_batch_index_not_finding_id",
+      "to": "make_finding",
+      "line": 109,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_claim_mode_maps_by_batch_index_not_finding_id",
+      "to": "Claim",
+      "line": 112,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_claim_mode_maps_by_batch_index_not_finding_id",
+      "to": "Claim",
+      "line": 112,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_claim_mode_maps_by_batch_index_not_finding_id",
+      "to": "FakeProvider",
+      "line": 113,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_claim_mode_maps_by_batch_index_not_finding_id",
+      "to": "verdicts_result",
+      "line": 114,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_claim_mode_maps_by_batch_index_not_finding_id",
+      "to": "Triage",
+      "line": 119,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_claim_mode_maps_by_batch_index_not_finding_id",
+      "to": "triage.decide_batch",
+      "line": 121,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_claim_mode_empty_batch_makes_no_call",
+      "to": "FakeProvider",
+      "line": 131,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_claim_mode_empty_batch_makes_no_call",
+      "to": "Triage",
+      "line": 132,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_claim_mode_empty_batch_makes_no_call",
+      "to": "triage.decide_batch",
+      "line": 133,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_claim_mode_renders_evidence_into_prompt",
+      "to": "make_finding",
+      "line": 140,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_claim_mode_renders_evidence_into_prompt",
+      "to": "Evidence",
+      "line": 141,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_claim_mode_renders_evidence_into_prompt",
+      "to": "FakeProvider",
+      "line": 147,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_claim_mode_renders_evidence_into_prompt",
+      "to": "verdicts_result",
+      "line": 148,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_claim_mode_renders_evidence_into_prompt",
+      "to": "Triage",
+      "line": 150,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_claim_mode_renders_evidence_into_prompt",
+      "to": "triage.decide_batch",
+      "line": 152,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_claim_mode_renders_evidence_into_prompt",
+      "to": "Claim",
+      "line": 152,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_claim_mode_uses_supplied_system_prompt",
+      "to": "FakeProvider",
+      "line": 161,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_claim_mode_uses_supplied_system_prompt",
+      "to": "verdicts_result",
+      "line": 162,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_claim_mode_uses_supplied_system_prompt",
+      "to": "Triage",
+      "line": 164,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_claim_mode_uses_supplied_system_prompt",
+      "to": "triage.decide_batch",
+      "line": 165,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_claim_mode_uses_supplied_system_prompt",
+      "to": "Claim",
+      "line": 165,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_claim_mode_uses_supplied_system_prompt",
+      "to": "make_finding",
+      "line": 165,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_symbolless_claim_renders_location_echo",
+      "to": "make_finding",
+      "line": 176,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_symbolless_claim_renders_location_echo",
+      "to": "FakeProvider",
+      "line": 177,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_symbolless_claim_renders_location_echo",
+      "to": "verdicts_result",
+      "line": 178,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_symbolless_claim_renders_location_echo",
+      "to": "Triage",
+      "line": 180,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_symbolless_claim_renders_location_echo",
+      "to": "triage.decide_batch",
+      "line": 182,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_symbolless_claim_renders_location_echo",
+      "to": "Claim",
+      "line": 182,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_completeness_validator_catches_cross_wired_symbolless_claims",
+      "to": "Claim",
+      "line": 194,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_completeness_validator_catches_cross_wired_symbolless_claims",
+      "to": "make_finding",
+      "line": 194,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_completeness_validator_catches_cross_wired_symbolless_claims",
+      "to": "Claim",
+      "line": 195,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_completeness_validator_catches_cross_wired_symbolless_claims",
+      "to": "make_finding",
+      "line": 195,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_completeness_validator_catches_cross_wired_symbolless_claims",
+      "to": "FakeProvider",
+      "line": 197,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_completeness_validator_catches_cross_wired_symbolless_claims",
+      "to": "verdicts_result",
+      "line": 198,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_completeness_validator_catches_cross_wired_symbolless_claims",
+      "to": "Triage",
+      "line": 203,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_completeness_validator_catches_cross_wired_symbolless_claims",
+      "to": "triage.decide_batch",
+      "line": 204,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_completeness_validator_catches_cross_wired_symbolless_claims",
+      "to": "validator",
+      "line": 207,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_completeness_validator_catches_cross_wired_symbolless_claims",
+      "to": "len",
+      "line": 211,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_completeness_validator_catches_cross_wired_symbolless_claims",
+      "to": "validator",
+      "line": 213,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_render_surrounding_code_evidence",
+      "to": "Evidence",
+      "line": 224,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_render_surrounding_code_evidence",
+      "to": "_render_evidence",
+      "line": 233,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_render_surrounding_code_evidence",
+      "to": "out.startswith",
+      "line": 234,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_render_declared_intent_evidence",
+      "to": "Evidence",
+      "line": 241,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_render_declared_intent_evidence",
+      "to": "_render_evidence",
+      "line": 247,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_render_declared_intent_evidence",
+      "to": "out.startswith",
+      "line": 248,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_render_zero_hit_scan_scope_states_absence",
+      "to": "Evidence",
+      "line": 255,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_render_zero_hit_scan_scope_states_absence",
+      "to": "_render_evidence",
+      "line": 260,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_render_export_surface",
+      "to": "Evidence",
+      "line": 267,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_render_export_surface",
+      "to": "_render_evidence",
+      "line": 273,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "test_render_export_surface",
+      "to": "out.lower",
+      "line": 274,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_render_shadow_doc_excerpt_payload",
+      "to": "Evidence",
+      "line": 279,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "test_render_shadow_doc_excerpt_payload",
+      "to": "_render_evidence",
+      "line": 283,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "tool_use_result",
+      "to": "CompletionResult",
+      "line": 291,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "tool_use_result",
+      "to": "ToolCall",
+      "line": 293,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "explore_repo",
+      "to": "mkdir",
+      "line": 304,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "explore_repo",
+      "to": "write_text",
+      "line": 305,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "explore_repo",
+      "to": "Config",
+      "line": 306,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "test_exploration_runs_tools_then_applies_verdict",
+      "to": "FakeProvider",
+      "line": 311,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_exploration_runs_tools_then_applies_verdict",
+      "to": "tool_use_result",
+      "line": 312,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_exploration_runs_tools_then_applies_verdict",
+      "to": "tool_use_result",
+      "line": 313,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_exploration_runs_tools_then_applies_verdict",
+      "to": "Triage",
+      "line": 319,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_exploration_runs_tools_then_applies_verdict",
+      "to": "triage.decide_batch",
+      "line": 321,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_exploration_runs_tools_then_applies_verdict",
+      "to": "Claim",
+      "line": 321,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_exploration_runs_tools_then_applies_verdict",
+      "to": "make_finding",
+      "line": 321,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_exploration_runs_tools_then_applies_verdict",
+      "to": "len",
+      "line": 329,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_exploration_runs_tools_then_applies_verdict",
+      "to": "join",
+      "line": 331,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_exploration_runs_tools_then_applies_verdict",
+      "to": "block.get",
+      "line": 332,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_exploration_runs_tools_then_applies_verdict",
+      "to": "isinstance",
+      "line": 334,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_exploration_runs_tools_then_applies_verdict",
+      "to": "block.get",
+      "line": 336,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "test_exploration_uses_auto_tool_choice",
+      "to": "FakeProvider",
+      "line": 343,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_exploration_uses_auto_tool_choice",
+      "to": "tool_use_result",
+      "line": 344,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_exploration_uses_auto_tool_choice",
+      "to": "Triage",
+      "line": 347,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_exploration_uses_auto_tool_choice",
+      "to": "triage.decide_batch",
+      "line": 348,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_exploration_uses_auto_tool_choice",
+      "to": "Claim",
+      "line": 348,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_exploration_uses_auto_tool_choice",
+      "to": "make_finding",
+      "line": 348,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_exploration_turn_limit_yields_uncertain",
+      "to": "FakeProvider",
+      "line": 355,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_exploration_turn_limit_yields_uncertain",
+      "to": "tool_use_result",
+      "line": 356,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_exploration_turn_limit_yields_uncertain",
+      "to": "range",
+      "line": 357,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_exploration_turn_limit_yields_uncertain",
+      "to": "Triage",
+      "line": 359,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_exploration_turn_limit_yields_uncertain",
+      "to": "triage.decide_batch",
+      "line": 361,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_exploration_turn_limit_yields_uncertain",
+      "to": "Claim",
+      "line": 361,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_exploration_turn_limit_yields_uncertain",
+      "to": "make_finding",
+      "line": 361,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_exploration_turn_limit_yields_uncertain",
+      "to": "len",
+      "line": 364,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_cache_hit_short_circuits_llm",
+      "to": "make_finding",
+      "line": 372,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_cache_hit_short_circuits_llm",
+      "to": "FakeProvider",
+      "line": 380,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_cache_hit_short_circuits_llm",
+      "to": "Triage",
+      "line": 381,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_cache_hit_short_circuits_llm",
+      "to": "triage.decide_batch",
+      "line": 383,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_cache_hit_short_circuits_llm",
+      "to": "Claim",
+      "line": 383,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_none_fingerprint_is_cache_ineligible",
+      "to": "make_finding",
+      "line": 395,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_none_fingerprint_is_cache_ineligible",
+      "to": "FakeProvider",
+      "line": 397,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_none_fingerprint_is_cache_ineligible",
+      "to": "verdicts_result",
+      "line": 398,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_none_fingerprint_is_cache_ineligible",
+      "to": "Triage",
+      "line": 400,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_none_fingerprint_is_cache_ineligible",
+      "to": "triage.decide_batch",
+      "line": 402,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_none_fingerprint_is_cache_ineligible",
+      "to": "Claim",
+      "line": 402,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_none_fingerprint_is_cache_ineligible",
+      "to": "len",
+      "line": 404,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_insufficient_evidence_passes_through_by_default",
+      "to": "FakeProvider",
+      "line": 415,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_insufficient_evidence_passes_through_by_default",
+      "to": "Triage",
+      "line": 416,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_insufficient_evidence_passes_through_by_default",
+      "to": "triage.decide_batch",
+      "line": 418,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_insufficient_evidence_passes_through_by_default",
+      "to": "Claim",
+      "line": 419,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_insufficient_evidence_passes_through_by_default",
+      "to": "make_finding",
+      "line": 419,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_insufficient_evidence_escalates_when_enabled",
+      "to": "FakeProvider",
+      "line": 429,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_insufficient_evidence_escalates_when_enabled",
+      "to": "tool_use_result",
+      "line": 430,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "test_insufficient_evidence_escalates_when_enabled",
+      "to": "Triage",
+      "line": 433,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_insufficient_evidence_escalates_when_enabled",
+      "to": "triage.decide_batch",
+      "line": 435,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_insufficient_evidence_escalates_when_enabled",
+      "to": "Claim",
+      "line": 436,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_insufficient_evidence_escalates_when_enabled",
+      "to": "make_finding",
+      "line": 436,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_insufficient_evidence_escalates_when_enabled",
+      "to": "len",
+      "line": 443,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_decide_batch_appends_decided_findings_to_ledger",
+      "to": "Claim",
+      "line": 452,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_decide_batch_appends_decided_findings_to_ledger",
+      "to": "make_finding",
+      "line": 452,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_decide_batch_appends_decided_findings_to_ledger",
+      "to": "Claim",
+      "line": 452,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_decide_batch_appends_decided_findings_to_ledger",
+      "to": "make_finding",
+      "line": 452,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_decide_batch_appends_decided_findings_to_ledger",
+      "to": "FakeProvider",
+      "line": 453,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_decide_batch_appends_decided_findings_to_ledger",
+      "to": "verdicts_result",
+      "line": 454,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_decide_batch_appends_decided_findings_to_ledger",
+      "to": "Triage",
+      "line": 459,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_decide_batch_appends_decided_findings_to_ledger",
+      "to": "triage.decide_batch",
+      "line": 461,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_decide_batch_appends_decided_findings_to_ledger",
+      "to": "len",
+      "line": 463,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "test_decide_batch_without_ledger_attached_does_not_crash",
+      "to": "hasattr",
+      "line": 475,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "test_decide_batch_without_ledger_attached_does_not_crash",
+      "to": "Claim",
+      "line": 476,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "test_decide_batch_without_ledger_attached_does_not_crash",
+      "to": "make_finding",
+      "line": 476,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "test_decide_batch_without_ledger_attached_does_not_crash",
+      "to": "FakeProvider",
+      "line": 477,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "test_decide_batch_without_ledger_attached_does_not_crash",
+      "to": "verdicts_result",
+      "line": 478,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "test_decide_batch_without_ledger_attached_does_not_crash",
+      "to": "Triage",
+      "line": 482,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "test_decide_batch_without_ledger_attached_does_not_crash",
+      "to": "triage.decide_batch",
+      "line": 484,
+      "call_sites": 16
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "self",
+      "member": "_results",
+      "line": 50
+    },
+    {
+      "container": "self",
+      "member": "calls",
+      "line": 51
+    },
+    {
+      "container": "config",
+      "member": "decided_ledger",
+      "line": 451
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "debris:dead_code",
+      "line": 29,
+      "usage": "produced",
+      "context": "keyword argument to dict",
+      "kind": "identifier"
+    },
+    {
+      "value": "reachability",
+      "line": 30,
+      "usage": "produced",
+      "context": "keyword argument to dict",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/x.py",
+      "line": 31,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "old_helper",
+      "line": 34,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "code",
+      "line": 35,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "old_helper is exported but unused",
+      "line": 36,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "no references in any indexed file",
+      "line": 37,
+      "usage": "produced",
+      "context": "keyword argument to dict"
+    },
+    {
+      "value": "tc1",
+      "line": 65,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 65,
+      "usage": "produced",
+      "context": "keyword argument to ToolCall",
+      "kind": "identifier"
+    },
+    {
+      "value": "test",
+      "line": 68,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 69,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "confirmed",
+      "line": 81,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "no live path",
+      "line": 82,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "remove it",
+      "line": 82,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "warning",
+      "line": 82,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "dismissed",
+      "line": 83,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "used via dispatch",
+      "line": 84,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "claim",
+      "line": 89,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 93,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "a.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "no live path",
+      "line": 95,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "a.triage_reasoning"
+    },
+    {
+      "value": "remove it",
+      "line": 96,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "a.suggested_fix"
+    },
+    {
+      "value": "warning",
+      "line": 97,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "a.severity",
+      "kind": "identifier"
+    },
+    {
+      "value": "dismissed",
+      "line": 98,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "b.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "dup claim",
+      "line": 108,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "dup claim",
+      "line": 109,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "dismissed",
+      "line": 115,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "first",
+      "line": 115,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "confirmed",
+      "line": 116,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "second",
+      "line": 116,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "claim",
+      "line": 121,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch",
+      "kind": "identifier"
+    },
+    {
+      "value": "dismissed",
+      "line": 123,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "first",
+      "line": 124,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "triage_reasoning"
+    },
+    {
+      "value": "confirmed",
+      "line": 125,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "second",
+      "line": 126,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "triage_reasoning"
+    },
+    {
+      "value": "claim",
+      "line": 133,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch",
+      "kind": "identifier"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 142,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/y.py",
+      "line": 143,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "import",
+      "line": 143,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "from x import old_helper",
+      "line": 144,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "dismissed",
+      "line": 148,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "ok",
+      "line": 148,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "claim",
+      "line": 152,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/y.py",
+      "line": 155,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "user_msg"
+    },
+    {
+      "value": "old_helper",
+      "line": 156,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "user_msg"
+    },
+    {
+      "value": "confirmed",
+      "line": 162,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "claim",
+      "line": 165,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch",
+      "kind": "identifier"
+    },
+    {
+      "value": "CUSTOM-RUBRIC",
+      "line": 165,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch",
+      "kind": "identifier"
+    },
+    {
+      "value": "CUSTOM-RUBRIC",
+      "line": 166,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/x.py",
+      "line": 176,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "confirmed",
+      "line": 178,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead",
+      "line": 178,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "claim",
+      "line": 182,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch",
+      "kind": "identifier"
+    },
+    {
+      "value": "Symbol: `src/x.py:10`",
+      "line": 185,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "user_msg",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/a.py",
+      "line": 194,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "src/b.py",
+      "line": 195,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "confirmed",
+      "line": 199,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "dismissed",
+      "line": 200,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "claim",
+      "line": 204,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch",
+      "kind": "identifier"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 207,
+      "usage": "produced",
+      "context": "argument to validator",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/b.py:7",
+      "line": 208,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "confirmed",
+      "line": 208,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/a.py:3",
+      "line": 209,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "dismissed",
+      "line": 209,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 213,
+      "usage": "produced",
+      "context": "argument to validator",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/a.py:3",
+      "line": 214,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "confirmed",
+      "line": 214,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/b.py:7",
+      "line": 215,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "dismissed",
+      "line": 215,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "surrounding_code",
+      "line": 225,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/x.py",
+      "line": 227,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "10: def old_helper():",
+      "line": 228,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "symbol",
+      "line": 228,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Outer",
+      "line": 229,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "class",
+      "line": 229,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "src/x.py",
+      "line": 235,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "out"
+    },
+    {
+      "value": "def old_helper():",
+      "line": 236,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "out"
+    },
+    {
+      "value": "Outer",
+      "line": 237,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "out"
+    },
+    {
+      "value": "declared_intent",
+      "line": 242,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/x.py",
+      "line": 243,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "preceding_lines",
+      "line": 244,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "# NOTE: legacy shim",
+      "line": 245,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "NOTE: legacy shim",
+      "line": 249,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "out"
+    },
+    {
+      "value": "preceding",
+      "line": 250,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "out"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 256,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "old_helper",
+      "line": 258,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "No references",
+      "line": 261,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "out"
+    },
+    {
+      "value": "312",
+      "line": 262,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "out"
+    },
+    {
+      "value": "old_helper",
+      "line": 263,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "out"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 268,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "export",
+      "line": 274,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "shadow_doc_claim",
+      "line": 280,
+      "usage": "produced",
+      "context": "keyword argument to Evidence",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/x.py",
+      "line": 281,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "file",
+      "line": 281,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Purpose: helpers.",
+      "line": 281,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Purpose: helpers.",
+      "line": 284,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "out"
+    },
+    {
+      "value": "test",
+      "line": 296,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "tool_use",
+      "line": 297,
+      "usage": "produced",
+      "context": "keyword argument to CompletionResult"
+    },
+    {
+      "value": "def old_helper():\n    return 'DISTINCTIVE-MARKER'\n",
+      "line": 305,
+      "usage": "produced",
+      "context": "argument to write_text"
+    },
+    {
+      "value": "utf-8",
+      "line": 305,
+      "usage": "produced",
+      "context": "keyword argument to write_text"
+    },
+    {
+      "value": "read_file",
+      "line": 312,
+      "usage": "produced",
+      "context": "argument to tool_use_result",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/x.py",
+      "line": 312,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "r1",
+      "line": 312,
+      "usage": "produced",
+      "context": "keyword argument to tool_use_result"
+    },
+    {
+      "value": "submit_triage_verdict",
+      "line": 314,
+      "usage": "produced",
+      "context": "argument to tool_use_result",
+      "kind": "identifier"
+    },
+    {
+      "value": "dismissed",
+      "line": 315,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "found a use",
+      "line": 315,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "v1",
+      "line": 316,
+      "usage": "produced",
+      "context": "keyword argument to tool_use_result"
+    },
+    {
+      "value": "exploration",
+      "line": 321,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch",
+      "kind": "identifier"
+    },
+    {
+      "value": "dismissed",
+      "line": 323,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "found a use",
+      "line": 324,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "triage_reasoning"
+    },
+    {
+      "value": "read_file",
+      "line": 327,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "submit_triage_verdict",
+      "line": 327,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "content",
+      "line": 332,
+      "usage": "produced",
+      "context": "argument to block.get"
+    },
+    {
+      "value": "type",
+      "line": 336,
+      "usage": "produced",
+      "context": "argument to block.get"
+    },
+    {
+      "value": "tool_result",
+      "line": 336,
+      "usage": "checked",
+      "context": "equality comparison"
+    },
+    {
+      "value": "DISTINCTIVE-MARKER",
+      "line": 338,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "fed_back",
+      "kind": "identifier"
+    },
+    {
+      "value": "submit_triage_verdict",
+      "line": 344,
+      "usage": "produced",
+      "context": "argument to tool_use_result",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 345,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "dead",
+      "line": 345,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "v1",
+      "line": 345,
+      "usage": "produced",
+      "context": "keyword argument to tool_use_result"
+    },
+    {
+      "value": "exploration",
+      "line": 348,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch",
+      "kind": "identifier"
+    },
+    {
+      "value": "auto",
+      "line": 349,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "read_file",
+      "line": 356,
+      "usage": "produced",
+      "context": "argument to tool_use_result",
+      "kind": "identifier"
+    },
+    {
+      "value": "src/x.py",
+      "line": 356,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "exploration",
+      "line": 361,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch",
+      "kind": "identifier"
+    },
+    {
+      "value": "uncertain",
+      "line": 363,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "fp-1",
+      "line": 372,
+      "usage": "produced",
+      "context": "keyword argument to make_finding"
+    },
+    {
+      "value": "fp-1",
+      "line": 374,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dismissed",
+      "line": 375,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "cached: alive via dispatch",
+      "line": 376,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "info",
+      "line": 377,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "claim",
+      "line": 383,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch",
+      "kind": "identifier"
+    },
+    {
+      "value": "dismissed",
+      "line": 386,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "cached: alive via dispatch",
+      "line": 387,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "triage_reasoning"
+    },
+    {
+      "value": "dismissed",
+      "line": 396,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 398,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "fresh",
+      "line": 398,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "claim",
+      "line": 402,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 405,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "claim",
+      "line": 419,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch",
+      "kind": "identifier"
+    },
+    {
+      "value": "submit_triage_verdict",
+      "line": 430,
+      "usage": "produced",
+      "context": "argument to tool_use_result",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 431,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "explored",
+      "line": 431,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "v1",
+      "line": 431,
+      "usage": "produced",
+      "context": "keyword argument to tool_use_result"
+    },
+    {
+      "value": "claim",
+      "line": 437,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 441,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 455,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "no live path",
+      "line": 455,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "dismissed",
+      "line": 456,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "used via dispatch",
+      "line": 456,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "claim",
+      "line": 461,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 465,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "dismissed",
+      "line": 467,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "decided_ledger",
+      "line": 475,
+      "usage": "produced",
+      "context": "argument to hasattr"
+    },
+    {
+      "value": "confirmed",
+      "line": 479,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "no live path",
+      "line": 479,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "claim",
+      "line": 484,
+      "usage": "produced",
+      "context": "keyword argument to triage.decide_batch",
+      "kind": "identifier"
+    },
+    {
+      "value": "confirmed",
+      "line": 486,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "verdict",
+      "kind": "identifier"
+    }
+  ],
+  "extraction_method": "ast"
+}

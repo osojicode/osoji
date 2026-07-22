@@ -1,0 +1,912 @@
+{
+  "source": "src/osoji/audit.py",
+  "source_hash": "5e57593a3a0ff854",
+  "generated": "2026-07-22T10:56:21Z",
+  "file_role": "service",
+  "symbols": [
+    {
+      "name": "AuditIssue",
+      "kind": "class",
+      "line_start": 102,
+      "line_end": 125,
+      "visibility": "public"
+    },
+    {
+      "name": "AuditResult",
+      "kind": "class",
+      "line_start": 128,
+      "line_end": 147,
+      "visibility": "public"
+    },
+    {
+      "name": "_format_tokens_short",
+      "kind": "function",
+      "line_start": 150,
+      "line_end": 160,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "input_tokens",
+          "optional": false
+        },
+        {
+          "name": "output_tokens",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_serialize_json",
+      "kind": "function",
+      "line_start": 163,
+      "line_end": 166,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "path",
+          "optional": false
+        },
+        {
+          "name": "data",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_emit",
+      "kind": "function",
+      "line_start": 169,
+      "line_end": 174,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "message",
+          "optional": true
+        },
+        {
+          "name": "end",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "_record_degradation",
+      "kind": "function",
+      "line_start": 177,
+      "line_end": 186,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "phase",
+          "optional": false
+        },
+        {
+          "name": "exc",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_degraded_phases",
+      "kind": "function",
+      "line_start": 189,
+      "line_end": 194,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_make_progress_default",
+      "kind": "function",
+      "line_start": 197,
+      "line_end": 220,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "rate_limiter",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "_make_progress_verbose",
+      "kind": "function",
+      "line_start": 223,
+      "line_end": 243,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "rate_limiter",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "_resolve_enabled_flags",
+      "kind": "function",
+      "line_start": 246,
+      "line_end": 274,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "dead_code",
+          "optional": true
+        },
+        {
+          "name": "dead_params",
+          "optional": true
+        },
+        {
+          "name": "dead_plumbing",
+          "optional": true
+        },
+        {
+          "name": "dead_deps",
+          "optional": true
+        },
+        {
+          "name": "dead_cicd",
+          "optional": true
+        },
+        {
+          "name": "orphaned_files",
+          "optional": true
+        },
+        {
+          "name": "junk",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "_serialize_junk_results",
+      "kind": "function",
+      "line_start": 277,
+      "line_end": 302,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "analyzer_name",
+          "optional": false
+        },
+        {
+          "name": "result",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "run_audit",
+      "kind": "function",
+      "line_start": 305,
+      "line_end": 339,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "fix_shadow",
+          "optional": true
+        },
+        {
+          "name": "dead_code",
+          "optional": true
+        },
+        {
+          "name": "dead_params",
+          "optional": true
+        },
+        {
+          "name": "dead_plumbing",
+          "optional": true
+        },
+        {
+          "name": "dead_deps",
+          "optional": true
+        },
+        {
+          "name": "dead_cicd",
+          "optional": true
+        },
+        {
+          "name": "orphaned_files",
+          "optional": true
+        },
+        {
+          "name": "junk",
+          "optional": true
+        },
+        {
+          "name": "obligations",
+          "optional": true
+        },
+        {
+          "name": "doc_prompts",
+          "optional": true
+        },
+        {
+          "name": "verbose",
+          "optional": true
+        },
+        {
+          "name": "exclude",
+          "optional": true
+        },
+        {
+          "name": "incremental",
+          "optional": true
+        },
+        {
+          "name": "since",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "run_audit_async",
+      "kind": "function",
+      "line_start": 342,
+      "line_end": 791,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "fix_shadow",
+          "optional": true
+        },
+        {
+          "name": "dead_code",
+          "optional": true
+        },
+        {
+          "name": "dead_params",
+          "optional": true
+        },
+        {
+          "name": "dead_plumbing",
+          "optional": true
+        },
+        {
+          "name": "dead_deps",
+          "optional": true
+        },
+        {
+          "name": "dead_cicd",
+          "optional": true
+        },
+        {
+          "name": "orphaned_files",
+          "optional": true
+        },
+        {
+          "name": "junk",
+          "optional": true
+        },
+        {
+          "name": "obligations",
+          "optional": true
+        },
+        {
+          "name": "doc_prompts",
+          "optional": true
+        },
+        {
+          "name": "verbose",
+          "optional": true
+        },
+        {
+          "name": "exclude",
+          "optional": true
+        },
+        {
+          "name": "incremental",
+          "optional": true
+        },
+        {
+          "name": "since",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "_load_raw_debris",
+      "kind": "function",
+      "line_start": 794,
+      "line_end": 825,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "osojiignore",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_run_phase2_async",
+      "kind": "function",
+      "line_start": 828,
+      "line_end": 841,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "rate_limiter",
+          "optional": false
+        },
+        {
+          "name": "progress_cb",
+          "optional": false
+        },
+        {
+          "name": "verbose",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_run_phase3_async",
+      "kind": "function",
+      "line_start": 844,
+      "line_end": 908,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "raw_debris",
+          "optional": false
+        },
+        {
+          "name": "rate_limiter",
+          "optional": false
+        },
+        {
+          "name": "verbose",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_overlay_verdict",
+      "kind": "function",
+      "line_start": 911,
+      "line_end": 933,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "cf",
+          "optional": false
+        },
+        {
+          "name": "decided",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_run_phase3_5_async",
+      "kind": "function",
+      "line_start": 936,
+      "line_end": 1005,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "obligations_enabled",
+          "optional": false
+        },
+        {
+          "name": "rate_limiter",
+          "optional": false
+        },
+        {
+          "name": "verbose",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_run_phase4_async",
+      "kind": "function",
+      "line_start": 1008,
+      "line_end": 1063,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "rate_limiter",
+          "optional": false
+        },
+        {
+          "name": "enabled_flags",
+          "optional": false
+        },
+        {
+          "name": "progress_cb",
+          "optional": false
+        },
+        {
+          "name": "verbose",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "serialize_audit_result",
+      "kind": "function",
+      "line_start": 1066,
+      "line_end": 1071,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "result",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "load_audit_result",
+      "kind": "function",
+      "line_start": 1074,
+      "line_end": 1167,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_table",
+      "kind": "function",
+      "line_start": 1170,
+      "line_end": 1172,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "headers",
+          "optional": false
+        },
+        {
+          "name": "rows",
+          "optional": false
+        },
+        {
+          "name": "fmt",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "_format_scorecard_section",
+      "kind": "function",
+      "line_start": 1175,
+      "line_end": 1304,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "scorecard",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_is_test_path",
+      "kind": "function",
+      "line_start": 1307,
+      "line_end": 1310,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "path",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_IMPLICIT_CONTRACT_PREAMBLE",
+      "kind": "constant",
+      "line_start": 1313,
+      "line_end": 1328,
+      "visibility": "internal"
+    },
+    {
+      "name": "format_audit_report",
+      "kind": "function",
+      "line_start": 1331,
+      "line_end": 1425,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "result",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "format_audit_json",
+      "kind": "function",
+      "line_start": 1428,
+      "line_end": 1462,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "result",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_HANKO_SVG",
+      "kind": "constant",
+      "line_start": 1469,
+      "line_end": 1477,
+      "visibility": "internal"
+    },
+    {
+      "name": "_AUDIT_CSS",
+      "kind": "constant",
+      "line_start": 1479,
+      "line_end": 1743,
+      "visibility": "internal"
+    },
+    {
+      "name": "_h",
+      "kind": "function",
+      "line_start": 1746,
+      "line_end": 1748,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "s",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_issue_loc",
+      "kind": "function",
+      "line_start": 1751,
+      "line_end": 1761,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "issue",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_color_for_pct",
+      "kind": "function",
+      "line_start": 1764,
+      "line_end": 1770,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "pct",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_html_metric_card",
+      "kind": "function",
+      "line_start": 1773,
+      "line_end": 1781,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "label",
+          "optional": false
+        },
+        {
+          "name": "value",
+          "optional": false
+        },
+        {
+          "name": "detail",
+          "optional": false
+        },
+        {
+          "name": "href",
+          "optional": false
+        },
+        {
+          "name": "color",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_serialize_doc_prompts",
+      "kind": "function",
+      "line_start": 1784,
+      "line_end": 1828,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "dp",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_deserialize_doc_prompts",
+      "kind": "function",
+      "line_start": 1831,
+      "line_end": 1881,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "data",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_html_doc_prompts_section",
+      "kind": "function",
+      "line_start": 1884,
+      "line_end": 1970,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "result",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_html_coverage_section",
+      "kind": "function",
+      "line_start": 1973,
+      "line_end": 2072,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "scorecard",
+          "optional": false
+        },
+        {
+          "name": "shadow_content",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "_html_accuracy_section",
+      "kind": "function",
+      "line_start": 2075,
+      "line_end": 2116,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "result",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_html_junk_section",
+      "kind": "function",
+      "line_start": 2119,
+      "line_end": 2178,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "result",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_html_file_health_section",
+      "kind": "function",
+      "line_start": 2181,
+      "line_end": 2265,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "result",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_html_config_section",
+      "kind": "function",
+      "line_start": 2268,
+      "line_end": 2292,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "result",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_html_dead_docs_section",
+      "kind": "function",
+      "line_start": 2295,
+      "line_end": 2310,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "scorecard",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_html_enforcement_section",
+      "kind": "function",
+      "line_start": 2313,
+      "line_end": 2333,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "scorecard",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_html_info_section",
+      "kind": "function",
+      "line_start": 2336,
+      "line_end": 2382,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "result",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_THEME_TOGGLE_ONCLICK",
+      "kind": "constant",
+      "line_start": 2385,
+      "line_end": 2389,
+      "visibility": "internal"
+    },
+    {
+      "name": "_BODY_ONLOAD",
+      "kind": "constant",
+      "line_start": 2391,
+      "line_end": 2397,
+      "visibility": "internal"
+    },
+    {
+      "name": "_THEME_TOGGLE_BTN",
+      "kind": "constant",
+      "line_start": 2399,
+      "line_end": 2411,
+      "visibility": "internal"
+    },
+    {
+      "name": "_GUIDE_HTML",
+      "kind": "constant",
+      "line_start": 2413,
+      "line_end": 2419,
+      "visibility": "internal"
+    },
+    {
+      "name": "format_audit_html",
+      "kind": "function",
+      "line_start": 2422,
+      "line_end": 2531,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "result",
+          "optional": false
+        },
+        {
+          "name": "config",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "JUNK_ANALYZERS",
+      "kind": "constant",
+      "line_start": 72,
+      "line_end": 79,
+      "visibility": "public"
+    },
+    {
+      "name": "EXCLUDABLE_PHASES",
+      "kind": "constant",
+      "line_start": 82,
+      "line_end": 84,
+      "visibility": "public"
+    },
+    {
+      "name": "_JUNK_NAME_TO_CLI_FLAG",
+      "kind": "variable",
+      "line_start": 87,
+      "line_end": 87,
+      "visibility": "internal"
+    },
+    {
+      "name": "_CLI_FLAG_TO_PRODUCER",
+      "kind": "variable",
+      "line_start": 92,
+      "line_end": 99,
+      "visibility": "internal"
+    },
+    {
+      "name": "_tabulate",
+      "kind": "function",
+      "line_start": 56,
+      "line_end": 68,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "rows",
+          "optional": false
+        },
+        {
+          "name": "headers",
+          "optional": false
+        },
+        {
+          "name": "tablefmt",
+          "optional": true
+        }
+      ]
+    }
+  ]
+}

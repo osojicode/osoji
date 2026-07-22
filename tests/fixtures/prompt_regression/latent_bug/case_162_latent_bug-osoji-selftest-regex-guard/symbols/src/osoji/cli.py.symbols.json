@@ -1,0 +1,617 @@
+{
+  "source": "src/osoji/cli.py",
+  "source_hash": "461b3917f690800b",
+  "generated": "2026-07-22T10:56:14Z",
+  "file_role": "entry",
+  "symbols": [
+    {
+      "name": "_LLM_PROVIDER_CHOICE",
+      "kind": "variable",
+      "line_start": 28,
+      "line_end": 28,
+      "visibility": "internal"
+    },
+    {
+      "name": "CLIState",
+      "kind": "class",
+      "line_start": 32,
+      "line_end": 36,
+      "visibility": "public"
+    },
+    {
+      "name": "_build_llm_config",
+      "kind": "function",
+      "line_start": 39,
+      "line_end": 57,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "path",
+          "optional": false
+        },
+        {
+          "name": "force",
+          "optional": true
+        },
+        {
+          "name": "no_gitignore",
+          "optional": true
+        },
+        {
+          "name": "provider",
+          "optional": true
+        },
+        {
+          "name": "model",
+          "optional": true
+        },
+        {
+          "name": "verbose",
+          "optional": true
+        },
+        {
+          "name": "quiet",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "_configure_utf8_output",
+      "kind": "function",
+      "line_start": 60,
+      "line_end": 74,
+      "visibility": "internal",
+      "parameters": []
+    },
+    {
+      "name": "_cli_state",
+      "kind": "function",
+      "line_start": 77,
+      "line_end": 81,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "ctx",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_emit_config_banner",
+      "kind": "function",
+      "line_start": 84,
+      "line_end": 89,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "kind": "function",
+      "line_start": 97,
+      "line_end": 108,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "ctx",
+          "optional": false
+        },
+        {
+          "name": "verbose",
+          "optional": false
+        },
+        {
+          "name": "quiet",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "init",
+      "kind": "function",
+      "line_start": 115,
+      "line_end": 132,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "path",
+          "optional": false
+        },
+        {
+          "name": "non_interactive",
+          "optional": false
+        },
+        {
+          "name": "provider",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "shadow",
+      "kind": "function",
+      "line_start": 143,
+      "line_end": 169,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "ctx",
+          "optional": false
+        },
+        {
+          "name": "path",
+          "optional": false
+        },
+        {
+          "name": "force",
+          "optional": false
+        },
+        {
+          "name": "dry_run",
+          "optional": false
+        },
+        {
+          "name": "provider",
+          "optional": false
+        },
+        {
+          "name": "model",
+          "optional": false
+        },
+        {
+          "name": "no_gitignore",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "check",
+      "kind": "function",
+      "line_start": 177,
+      "line_end": 225,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "ctx",
+          "optional": false
+        },
+        {
+          "name": "path",
+          "optional": false
+        },
+        {
+          "name": "dry_run",
+          "optional": false
+        },
+        {
+          "name": "no_gitignore",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "diff",
+      "kind": "function",
+      "line_start": 235,
+      "line_end": 287,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "ctx",
+          "optional": false
+        },
+        {
+          "name": "base_ref",
+          "optional": false
+        },
+        {
+          "name": "update",
+          "optional": false
+        },
+        {
+          "name": "output_format",
+          "optional": false
+        },
+        {
+          "name": "provider",
+          "optional": false
+        },
+        {
+          "name": "model",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "stats",
+      "kind": "function",
+      "line_start": 296,
+      "line_end": 320,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "ctx",
+          "optional": false
+        },
+        {
+          "name": "path",
+          "optional": false
+        },
+        {
+          "name": "provider",
+          "optional": false
+        },
+        {
+          "name": "model",
+          "optional": false
+        },
+        {
+          "name": "no_gitignore",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "audit",
+      "kind": "function",
+      "line_start": 350,
+      "line_end": 424,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "ctx",
+          "optional": false
+        },
+        {
+          "name": "path",
+          "optional": false
+        },
+        {
+          "name": "fix",
+          "optional": false
+        },
+        {
+          "name": "output_format",
+          "optional": false
+        },
+        {
+          "name": "dead_code",
+          "optional": false
+        },
+        {
+          "name": "dead_params",
+          "optional": false
+        },
+        {
+          "name": "dead_plumbing",
+          "optional": false
+        },
+        {
+          "name": "dead_deps",
+          "optional": false
+        },
+        {
+          "name": "dead_cicd",
+          "optional": false
+        },
+        {
+          "name": "orphaned_files",
+          "optional": false
+        },
+        {
+          "name": "junk",
+          "optional": false
+        },
+        {
+          "name": "obligations",
+          "optional": false
+        },
+        {
+          "name": "doc_prompts",
+          "optional": false
+        },
+        {
+          "name": "provider",
+          "optional": false
+        },
+        {
+          "name": "model",
+          "optional": false
+        },
+        {
+          "name": "no_gitignore",
+          "optional": false
+        },
+        {
+          "name": "full",
+          "optional": false
+        },
+        {
+          "name": "exclude_phases",
+          "optional": false
+        },
+        {
+          "name": "force",
+          "optional": false
+        },
+        {
+          "name": "incremental",
+          "optional": false
+        },
+        {
+          "name": "since_ref",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "report",
+      "kind": "function",
+      "line_start": 431,
+      "line_end": 457,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "ctx",
+          "optional": false
+        },
+        {
+          "name": "path",
+          "optional": false
+        },
+        {
+          "name": "output_format",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "push",
+      "kind": "function",
+      "line_start": 465,
+      "line_end": 482,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "ctx",
+          "optional": false
+        },
+        {
+          "name": "project",
+          "optional": false
+        },
+        {
+          "name": "token",
+          "optional": false
+        },
+        {
+          "name": "endpoint",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "export_bundle",
+      "kind": "function",
+      "line_start": 494,
+      "line_end": 501,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "path",
+          "optional": false
+        },
+        {
+          "name": "output",
+          "optional": false
+        },
+        {
+          "name": "no_gitignore",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "corpus",
+      "kind": "function",
+      "line_start": 505,
+      "line_end": 507,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "corpus_emit",
+      "kind": "function",
+      "line_start": 530,
+      "line_end": 565,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "path",
+          "optional": false
+        },
+        {
+          "name": "finding_id",
+          "optional": false
+        },
+        {
+          "name": "slug",
+          "optional": false
+        },
+        {
+          "name": "expected_verdict",
+          "optional": false
+        },
+        {
+          "name": "reasoning",
+          "optional": false
+        },
+        {
+          "name": "gray",
+          "optional": false
+        },
+        {
+          "name": "include",
+          "optional": false
+        },
+        {
+          "name": "dest",
+          "optional": false
+        },
+        {
+          "name": "language",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "hooks",
+      "kind": "function",
+      "line_start": 569,
+      "line_end": 571,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "hooks_install",
+      "kind": "function",
+      "line_start": 580,
+      "line_end": 616,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "path",
+          "optional": false
+        },
+        {
+          "name": "force",
+          "optional": false
+        },
+        {
+          "name": "pre_commit",
+          "optional": false
+        },
+        {
+          "name": "pre_push",
+          "optional": false
+        },
+        {
+          "name": "post_commit",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "hooks_uninstall",
+      "kind": "function",
+      "line_start": 621,
+      "line_end": 629,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "path",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "safety",
+      "kind": "function",
+      "line_start": 633,
+      "line_end": 635,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "safety_check",
+      "kind": "function",
+      "line_start": 641,
+      "line_end": 660,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "ctx",
+          "optional": false
+        },
+        {
+          "name": "files",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "safety_self_test",
+      "kind": "function",
+      "line_start": 664,
+      "line_end": 700,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "safety_patterns",
+      "kind": "function",
+      "line_start": 704,
+      "line_end": 730,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "config_cmd",
+      "kind": "function",
+      "line_start": 734,
+      "line_end": 736,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "config_show",
+      "kind": "function",
+      "line_start": 742,
+      "line_end": 747,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "ctx",
+          "optional": false
+        },
+        {
+          "name": "path",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "skills",
+      "kind": "function",
+      "line_start": 751,
+      "line_end": 753,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "skills_list",
+      "kind": "function",
+      "line_start": 757,
+      "line_end": 767,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "skills_show",
+      "kind": "function",
+      "line_start": 772,
+      "line_end": 783,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "name",
+          "optional": false
+        }
+      ]
+    }
+  ]
+}

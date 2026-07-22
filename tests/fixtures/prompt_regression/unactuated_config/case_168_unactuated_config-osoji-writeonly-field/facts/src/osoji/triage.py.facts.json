@@ -1,0 +1,1838 @@
+{
+  "source": "src/osoji/triage.py",
+  "source_hash": "b904fa7ef37f5348",
+  "generated": "2026-07-22T10:56:23Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 36,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 38,
+      "is_reexport": false
+    },
+    {
+      "source": "collections.abc",
+      "names": [
+        "Collection"
+      ],
+      "line": 39,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "field",
+        "replace"
+      ],
+      "line": 40,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Any"
+      ],
+      "line": 41,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config"
+      ],
+      "line": 43,
+      "is_reexport": false
+    },
+    {
+      "source": ".evidence",
+      "names": [
+        "Evidence"
+      ],
+      "line": 44,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 45,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.runtime",
+      "names": [
+        "create_runtime"
+      ],
+      "line": 46,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.types",
+      "names": [
+        "CompletionOptions",
+        "Message",
+        "MessageRole"
+      ],
+      "line": 47,
+      "is_reexport": false
+    },
+    {
+      "source": ".tools",
+      "names": [
+        "get_triage_claim_tool_definitions",
+        "get_triage_exploration_tool_definitions"
+      ],
+      "line": 48,
+      "is_reexport": false
+    },
+    {
+      "source": ".triage_exec",
+      "names": [
+        "ExplorationExecutor"
+      ],
+      "line": 52,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "TRIAGE_PROMPT_SECTIONS",
+      "kind": "constant",
+      "line": 63,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TRIAGE_SYSTEM_PROMPT",
+      "kind": "constant",
+      "line": 251,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "render_triage_prompt",
+      "kind": "function",
+      "line": 254,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Claim",
+      "kind": "class",
+      "line": 270,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "TriageBatchResult",
+      "kind": "class",
+      "line": 285,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Triage",
+      "kind": "class",
+      "line": 316,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Triage.__init__",
+      "kind": "function",
+      "line": 323,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Triage.decide_batch",
+      "kind": "function",
+      "line": 336,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Triage._get_provider",
+      "kind": "function",
+      "line": 428,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Triage._run_claim_batch",
+      "kind": "function",
+      "line": 438,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Triage._render_claim_batch",
+      "kind": "function",
+      "line": 499,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "Triage._render_claim_block",
+      "kind": "function",
+      "line": 511,
+      "decorators": [
+        "staticmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "Triage._run_exploration",
+      "kind": "function",
+      "line": 528,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "join",
+      "line": 251,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "TRIAGE_PROMPT_SECTIONS.values",
+      "line": 251,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "render_triage_prompt",
+      "to": "set",
+      "line": 260,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "render_triage_prompt",
+      "to": "TRIAGE_PROMPT_SECTIONS.keys",
+      "line": 260,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "render_triage_prompt",
+      "to": "ValueError",
+      "line": 262,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "render_triage_prompt",
+      "to": "sorted",
+      "line": 262,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "render_triage_prompt",
+      "to": "join",
+      "line": 263,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "render_triage_prompt",
+      "to": "TRIAGE_PROMPT_SECTIONS.items",
+      "line": 264,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "TriageBatchResult",
+      "to": "field",
+      "line": 293,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.__init__",
+      "to": "ExplorationExecutor",
+      "line": 333,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "len",
+      "line": 358,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "sum",
+      "line": 360,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "enumerate",
+      "line": 366,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "_apply_cached",
+      "line": 369,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "explore_route.append",
+      "line": 373,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "explore_route.append",
+      "line": 376,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "claim_route.append",
+      "line": 379,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "self._get_provider",
+      "line": 385,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "self._run_claim_batch",
+      "line": 388,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "zip",
+      "line": 391,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "self._run_exploration",
+      "line": 396,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "traces.append",
+      "line": 402,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "provider.close",
+      "line": 405,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "getattr",
+      "line": 412,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "ledger.extend",
+      "line": 414,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "f.to_dict",
+      "line": 414,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage.decide_batch",
+      "to": "TriageBatchResult",
+      "line": 417,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._get_provider",
+      "to": "create_runtime",
+      "line": 433,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "len",
+      "line": 441,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "self._render_claim_batch",
+      "line": 442,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch.check_completeness",
+      "to": "v.get",
+      "line": 448,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch.check_completeness",
+      "to": "tool_input.get",
+      "line": 448,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch.check_completeness",
+      "to": "range",
+      "line": 451,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch.check_completeness",
+      "to": "enumerate",
+      "line": 457,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch.check_completeness",
+      "to": "get",
+      "line": 458,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch.check_completeness",
+      "to": "by_index.get",
+      "line": 458,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch.check_completeness",
+      "to": "_claim_echo",
+      "line": 459,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch.check_completeness",
+      "to": "errors.append",
+      "line": 461,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "provider.complete",
+      "line": 467,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "Message",
+      "line": 468,
+      "call_sites": 67
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "CompletionOptions",
+      "line": 470,
+      "call_sites": 60
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "self.config.model_for",
+      "line": 471,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "max",
+      "line": 477,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "get_triage_claim_tool_definitions",
+      "line": 479,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "tc.input.get",
+      "line": 488,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "v.get",
+      "line": 489,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "_apply_verdict",
+      "line": 494,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_claim_batch",
+      "to": "enumerate",
+      "line": 495,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "Triage._render_claim_batch",
+      "to": "enumerate",
+      "line": 501,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "Triage._render_claim_batch",
+      "to": "parts.append",
+      "line": 502,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._render_claim_batch",
+      "to": "self._render_claim_block",
+      "line": 502,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._render_claim_batch",
+      "to": "parts.append",
+      "line": 503,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._render_claim_batch",
+      "to": "len",
+      "line": 504,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "Triage._render_claim_batch",
+      "to": "join",
+      "line": 508,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "Triage._render_claim_block",
+      "to": "lines.append",
+      "line": 516,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "Triage._render_claim_block",
+      "to": "_claim_echo",
+      "line": 516,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._render_claim_block",
+      "to": "lines.append",
+      "line": 517,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "Triage._render_claim_block",
+      "to": "lines.append",
+      "line": 518,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "Triage._render_claim_block",
+      "to": "lines.append",
+      "line": 520,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "Triage._render_claim_block",
+      "to": "lines.append",
+      "line": 522,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "Triage._render_claim_block",
+      "to": "_render_evidence",
+      "line": 522,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "Triage._render_claim_block",
+      "to": "lines.append",
+      "line": 523,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "Triage._render_claim_block",
+      "to": "join",
+      "line": 524,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "self._render_claim_block",
+      "line": 544,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "Message",
+      "line": 548,
+      "call_sites": 67
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "get_triage_exploration_tool_definitions",
+      "line": 550,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "range",
+      "line": 554,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "provider.complete",
+      "line": 555,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "CompletionOptions",
+      "line": 558,
+      "call_sites": 60
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "self.config.model_for",
+      "line": 559,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "assistant_content.append",
+      "line": 573,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "assistant_content.append",
+      "line": 575,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "messages.append",
+      "line": 578,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "Message",
+      "line": 578,
+      "call_sites": 67
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "append",
+      "line": 581,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "self.executor.run",
+      "line": 591,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "messages.append",
+      "line": 595,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "Message",
+      "line": 595,
+      "call_sites": 67
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "_apply_verdict",
+      "line": 598,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "Triage._run_exploration",
+      "to": "replace",
+      "line": 600,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_apply_verdict",
+      "to": "replace",
+      "line": 615,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_apply_verdict",
+      "to": "v.get",
+      "line": 617,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_apply_verdict",
+      "to": "v.get",
+      "line": 618,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_apply_verdict",
+      "to": "v.get",
+      "line": 619,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_apply_verdict",
+      "to": "v.get",
+      "line": 620,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_apply_verdict",
+      "to": "v.get",
+      "line": 621,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_apply_verdict",
+      "to": "v.get",
+      "line": 622,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_apply_cached",
+      "to": "replace",
+      "line": 629,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_apply_cached",
+      "to": "cached.get",
+      "line": 631,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_apply_cached",
+      "to": "cached.get",
+      "line": 632,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_apply_cached",
+      "to": "cached.get",
+      "line": 633,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_apply_cached",
+      "to": "cached.get",
+      "line": 634,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_apply_cached",
+      "to": "cached.get",
+      "line": 635,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_apply_cached",
+      "to": "cached.get",
+      "line": 636,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ev.payload.get",
+      "line": 644,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ev.payload.get",
+      "line": 645,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "out.append",
+      "line": 648,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ref.get",
+      "line": 650,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ref.get",
+      "line": 651,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ref.get",
+      "line": 652,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ref.get",
+      "line": 653,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "out.append",
+      "line": 654,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ref.get",
+      "line": 655,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ref.get",
+      "line": 655,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ref.get",
+      "line": 656,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "scope.get",
+      "line": 659,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ref.get",
+      "line": 662,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "shown.get",
+      "line": 663,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "join",
+      "line": 664,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "shown.get",
+      "line": 666,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "totals.items",
+      "line": 667,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "join",
+      "line": 668,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "scope.get",
+      "line": 668,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "out.append",
+      "line": 669,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "scope.get",
+      "line": 670,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "scope.get",
+      "line": 678,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "out.append",
+      "line": 681,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "scope.get",
+      "line": 682,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "join",
+      "line": 683,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "scope.get",
+      "line": 683,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "scope.get",
+      "line": 685,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "out.append",
+      "line": 686,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ev.payload.get",
+      "line": 690,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "surface.get",
+      "line": 692,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "out.append",
+      "line": 693,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "surface.get",
+      "line": 694,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "items",
+      "line": 698,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "ev.payload.get",
+      "line": 698,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "out.append",
+      "line": 699,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "join",
+      "line": 701,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 706,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 707,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 707,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 707,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 709,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "out.append",
+      "line": 711,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "enclosing.get",
+      "line": 712,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "enclosing.get",
+      "line": 712,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "enclosing.get",
+      "line": 713,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "enclosing.get",
+      "line": 713,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "out.append",
+      "line": 715,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 715,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "join",
+      "line": 716,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 719,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 720,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "block.get",
+      "line": 721,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "out.append",
+      "line": 722,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "block.get",
+      "line": 723,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "block.get",
+      "line": 723,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "block.get",
+      "line": 724,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "join",
+      "line": 726,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 729,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 729,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 729,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 732,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 733,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 733,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "p.get",
+      "line": 734,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_render_evidence",
+      "to": "json.dumps",
+      "line": 735,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "self",
+      "member": "config",
+      "line": 331
+    },
+    {
+      "container": "self",
+      "member": "rate_limiter",
+      "line": 332
+    },
+    {
+      "container": "self",
+      "member": "executor",
+      "line": 333
+    },
+    {
+      "container": "self",
+      "member": "_provider",
+      "line": 334
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "You are osoji's Triage stage: the single verifier for every code-quality finding.\n\nEvery finding is a hypothesis about a GAP between what the code claims and what it does:\n- reachability \u2014 declared/claimed to be used, but actually unreachable\n  (dead code, dead parameters, unactuated config, orphaned files, unused deps).\n- description \u2014 described one way (comment, docstring, name, type), behaves another\n  (stale comments, misleading docstrings, latent bugs that violate a stated contract).\n- contract \u2014 an implicit cross-component agreement (shared string, schema, ABI) is broken\n  (obligation violations, cross-file string drift).\n- uncategorized \u2014 does not fit cleanly; decide on the merits and say so.\n\n",
+      "line": 64,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "A finding is a TRUE POSITIVE iff both predicates hold:\n- Reality \u2014 the gap actually exists in the code, NOW (the evidence supports it).\n  Code that matches its own documented, intended design is not a gap \u2014 an\n  intent-documented behavior fails Reality, however improvable it may be. So does a\n  not-yet-real observation: future fragility or robustness advice about code that\n  currently behaves correctly describes a gap that does not exist yet.\n- Actionability \u2014 there is a concrete fix.\nConfirm when both hold. Dismiss when either fails. Use 'uncertain' when the\nassembled evidence genuinely cannot decide.\n\n",
+      "line": 77,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Significance GRADES a confirmed finding; it never gates one. Set severity by how much\nclosing the gap improves the codebase: 'error' when the gap corrupts behavior or\nmisleads (silent contract breaks, docs that state falsehoods), 'warning' for the\ntypical real gap, 'info' when the gap is real and fixable but minor. Never dismiss a\nreal, actionable finding for being minor \u2014 it is not Triage's job to adjudicate\nbetween correct findings; ordering work belongs to the consumer of the report.\n\n",
+      "line": 89,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Weigh the assembled evidence. For reachability claims, a cross-file reference that is a\nreal import/call/use refutes the gap (dismiss); a reference that is only an unrelated\ncomment, a doc mention, or a same-named-but-different symbol does not (confirm). A hit\ninside a quoted string (marked [match is inside a quoted string]) needs care: when the\nflagged symbol's exact name appears as a string in executable code, it may be a\ndynamic-dispatch key \u2014 reflection, name-based lookup, a registry, a command/RPC/config\ntable. Examine the surrounding lines; if the string plausibly feeds a mechanism that can\nreach the symbol, the symbol is reachable \u2014 dismiss. Account for framework registration,\nre-exports, and within-file transitive liveness. Do not dismiss on hypothetical outside\nconsumers: \"external callers might use it\" counts only when an explicit export mechanism\nmakes the symbol consumable beyond the scanned scope. When reachability evidence is\npositive but marginal and the flagged symbol is a small delegating member of a uniform\ninterface surface, the mechanism that reaches its siblings plausibly reaches it too \u2014\nthe gap's Reality is not established; dismiss on Reality, not on the smallness of the\nwin. (Zero-hit sweeps carry no such doubt: an honest zero over a real scan scope is\nthe canonical case FOR confirming \u2014 and a confirmed minor gap grades 'info', it does\nnot get dismissed.)\n\n",
+      "line": 98,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "For parameter reachability claims specifically: the parameter is alive iff some caller\nsupplies a real value (keyword, positional, or a spread/dynamic pass-through). Reads of\nthe parameter inside its own function \u2014 including branches guarded by its default \u2014 do\nnot refute the gap; a branch gated exclusively by a never-passed parameter is itself\npermanently dead code, which is exactly the significance of the finding. A stated\nbackward-compatibility intent explains why the gap exists but does not close it.\n\n",
+      "line": 118,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "For unactuated-config reachability claims specifically: the gap is about enforcement,\nnot mere reference. The field is alive only if some code uses its value to CAUSE the\ndeclared effect (actuation). A reference that only reads, stores, forwards, restructures,\nlogs, or displays the value is NOT actuation and does not refute the gap \u2014 a value that\nis plumbed everywhere but never reaches the enforcing operation leaves the obligation\nunmet, and that unenforced obligation is the significance of the finding. Passing the\nvalue to a component documented to enforce it \u2014 a library call, or a cross-process\nhandoff (env var \u2192 container \u2192 subprocess) \u2014 IS actuation when the receiving side\nenforces. Confirm when the assembled references show the value flowing without any site\nthat enforces it.\n\n",
+      "line": 127,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "An unactuated-config gap exists only for obligations the project itself declares. A\nschema or field defined in vendored or third-party reference material \u2014 content the\nproject stores or mirrors but does not consume as its own configuration \u2014 creates no\nobligation for this project to actuate; dismiss it regardless of reference counts, and\nweigh whether the containing file participates in the project's own configuration\nloading.\n\n",
+      "line": 140,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "For orphaned-file reachability claims specifically: reachability can be file-level, not\nonly symbol-level. A whole file may be reached by convention rather than by an import\nedge \u2014 discovered by a framework or tool (such as test, fixture, migration, or template\ndiscovery), loaded dynamically, named in configuration or CI, or invoked as a script or\nentry point. A missing import edge does not by itself confirm an orphan; confirm only\nwhen no such conventional or dynamic pathway plausibly reaches the file. An honest zero\nover a real sweep of the file's name and exported symbols is the case FOR confirming.\n\n",
+      "line": 149,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "For dead-CI/CD reachability claims specifically: a missing referenced path is the\nprimary signal but not dispositive. Weigh whether the element's real work depends on the\nmissing path or merely mentions it among operations that are inherently external or\ndynamically resolved (such as dependency installation, whole-repo linters, dynamic test\ndiscovery, external deploy or registry targets, or conventional phony targets). An\nelement whose entire purpose rests on what is now gone is far more likely dead than one\nthat references the missing path incidentally; decide on the balance of the element's\ndependence on what is actually missing.\n\n",
+      "line": 159,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "For contract gaps over hard-coded literals, classify the literal before deciding:\n- Named project obligation \u2014 a constant exists; another site duplicates its bare literal.\n  Confirm; suggest using the existing constant.\n- Unnamed project obligation \u2014 two sites share a bare literal in clearly-related roles, no\n  constant yet. Confirm; suggest extracting a shared constant.\n- Ecosystem convention \u2014 meaning defined outside the project (HTTP codes, file modes,\n  MIME types, RFC strings). Dismiss; the contract is with the external standard.\n- Magic-constant duplication (ambiguous) \u2014 examine: confirm if the sites should agree,\n  dismiss if coincidental.\n- Coincidental duplication \u2014 same literal, unrelated roles. Dismiss as coincidence.\n\n",
+      "line": 170,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "For every contract-gap claim, emit a `contract_class` alongside the verdict \u2014 one of\nnamed_obligation, unnamed_obligation, ecosystem_convention, magic_constant, coincidence,\nor other. Reason over the whole assembled file tuple, not only the pair named in the\nclaim header: every file that produces, checks, or defines the shared literal rides along\nwith its surrounding code, and a third file that independently emits the same literal is\nitself a drift risk even when the header names the best-attested coupling. Shared-literal\ndrift fails SILENTLY at the value level \u2014 a mismatched string, no error \u2014 and confirming\nbinds the sites to one definition so the next rename fails LOUDLY at the name level; that\nconversion, not \"extract a constant\" for its own sake, is the significance. When the\nliteral fits none of the five classes, set `contract_class` to `other` and say why:\n`other` is the taxonomy's safety valve \u2014 a request for review, never shoehorned into the\nnearest class \u2014 and its rate is a tracked signal of the taxonomy's adequacy.\n\n",
+      "line": 183,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "When a single claim bundles several shared literals for one file pair, judge the bundle by\nits strongest constituent: if any bundled literal is a genuine project obligation (named or\nunnamed), confirm the claim and set `contract_class` to that strongest class, noting in the\nreasoning which literals carry the contract and which are incidental. Dismiss a bundle only\nwhen every constituent literal is an ecosystem convention or coincidence.\n\n",
+      "line": 198,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "A literal whose meaning is fixed by an external API, wire format, or protocol is an\necosystem convention no matter which side of the boundary emitted it: a value your code\nsends and a value it receives back are governed alike by the external contract, not by any\nproject obligation. Judge such strings by the protocol that defines them, and apply that\njudgement consistently across the protocol's whole vocabulary \u2014 do not confirm one member\nof an external message/status/finish-reason vocabulary while dismissing its siblings.\n\n",
+      "line": 206,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "--- Description gaps in prose documentation (V1-5d) ---\nFor a description gap where the claim is that a documentation file (README, guide,\nspec, or other prose that describes code behavior) contradicts what the code does,\nweigh it against these principles:\n- A description gap requires a positive assertion in the documentation that the code\n  contradicts \u2014 the doc states something and the code does otherwise. The mere absence\n  of a mention is not such a gap: that a doc could usefully describe something it\n  currently omits is a coverage question, owned by a different subsystem, and is\n  dismissed here no matter how valuable adding the mention would be. Adjudicate only\n  what the doc affirmatively claims; never fault it for what it leaves unsaid.\n- Shadow docs are compressed summaries, not exhaustive. A documented command, flag,\n  config key, path, or entry point that is absent from a shadow doc is NOT thereby\n  absent from the project \u2014 it may be defined in a file the summary omits (a config\n  file, build manifest, registration table, or a sibling module). If the assembled\n  cross-file evidence shows the documented thing genuinely exists, dismiss on Reality;\n  confirm only when the evidence positively shows the doc is wrong.\n- When counter-evidence is partial \u2014 the doc is imprecise but not plainly false \u2014\n  prefer keeping the finding at lower severity (warning) over dropping it; reserve\n  dismissal for claims the evidence actively refutes.\n- Documentation that describes intended, planned, or roadmap behavior is not a\n  description gap merely because the current code does not yet implement it; dismiss\n  unless the doc presents the behavior as already current.\n- Deliberate simplification in learning-oriented material is not an inaccuracy; a\n  tutorial that omits or streamlines detail to teach is correct for its purpose \u2014\n  confirm only when it states something false about current behavior.\n- Illustrative example code is not a normative contract; divergence between an\n  example and the implementation is not a gap unless the doc claims the example is\n  exhaustive or authoritative.\n--- end description-gap guidance ---\n\n",
+      "line": 215,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "Capture your reasoning verbatim. Provide a verdict for EVERY claim.",
+      "line": 247,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "claim",
+      "line": 340,
+      "usage": "produced",
+      "context": "default parameter",
+      "kind": "identifier"
+    },
+    {
+      "value": "exploration",
+      "line": 372,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "mode",
+      "kind": "identifier"
+    },
+    {
+      "value": "decided_ledger",
+      "line": 412,
+      "usage": "produced",
+      "context": "argument to getattr",
+      "kind": "identifier"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 445,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tool_name",
+      "kind": "identifier"
+    },
+    {
+      "value": "batch_index",
+      "line": 448,
+      "usage": "produced",
+      "context": "argument to v.get"
+    },
+    {
+      "value": "verdicts",
+      "line": 448,
+      "usage": "produced",
+      "context": "argument to tool_input.get"
+    },
+    {
+      "value": "symbol",
+      "line": 458,
+      "usage": "produced",
+      "context": "argument to get"
+    },
+    {
+      "value": "medium",
+      "line": 471,
+      "usage": "produced",
+      "context": "argument to self.config.model_for",
+      "kind": "identifier"
+    },
+    {
+      "value": "audit.triage",
+      "line": 478,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions",
+      "kind": "identifier"
+    },
+    {
+      "value": "tool",
+      "line": 480,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 480,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "submit_triage_verdicts",
+      "line": 487,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tc.name",
+      "kind": "identifier"
+    },
+    {
+      "value": "verdicts",
+      "line": 488,
+      "usage": "produced",
+      "context": "argument to tc.input.get"
+    },
+    {
+      "value": "batch_index",
+      "line": 489,
+      "usage": "produced",
+      "context": "argument to v.get"
+    },
+    {
+      "value": "## Claims to triage\n",
+      "line": 500,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Evidence:",
+      "line": 520,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "medium",
+      "line": 559,
+      "usage": "produced",
+      "context": "argument to self.config.model_for",
+      "kind": "identifier"
+    },
+    {
+      "value": "audit.triage.explore",
+      "line": 561,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions",
+      "kind": "identifier"
+    },
+    {
+      "value": "auto",
+      "line": 563,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "text",
+      "line": 573,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "tool_use",
+      "line": 576,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "submit_triage_verdict",
+      "line": 582,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tc.name",
+      "kind": "identifier"
+    },
+    {
+      "value": "tool_result",
+      "line": 589,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "uncertain",
+      "line": 602,
+      "usage": "produced",
+      "context": "keyword argument to replace",
+      "kind": "identifier"
+    },
+    {
+      "value": "Exploration did not produce a verdict within the turn limit.",
+      "line": 604,
+      "usage": "produced",
+      "context": "keyword argument to replace"
+    },
+    {
+      "value": "verdict",
+      "line": 617,
+      "usage": "produced",
+      "context": "argument to v.get"
+    },
+    {
+      "value": "confidence",
+      "line": 618,
+      "usage": "produced",
+      "context": "argument to v.get"
+    },
+    {
+      "value": "reasoning",
+      "line": 619,
+      "usage": "produced",
+      "context": "argument to v.get"
+    },
+    {
+      "value": "suggested_fix",
+      "line": 620,
+      "usage": "produced",
+      "context": "argument to v.get"
+    },
+    {
+      "value": "severity",
+      "line": 621,
+      "usage": "produced",
+      "context": "argument to v.get"
+    },
+    {
+      "value": "contract_class",
+      "line": 622,
+      "usage": "produced",
+      "context": "argument to v.get"
+    },
+    {
+      "value": "verdict",
+      "line": 631,
+      "usage": "produced",
+      "context": "argument to cached.get"
+    },
+    {
+      "value": "confidence",
+      "line": 632,
+      "usage": "produced",
+      "context": "argument to cached.get"
+    },
+    {
+      "value": "triage_reasoning",
+      "line": 633,
+      "usage": "produced",
+      "context": "argument to cached.get"
+    },
+    {
+      "value": "suggested_fix",
+      "line": 634,
+      "usage": "produced",
+      "context": "argument to cached.get"
+    },
+    {
+      "value": "severity",
+      "line": 635,
+      "usage": "produced",
+      "context": "argument to cached.get"
+    },
+    {
+      "value": "contract_class",
+      "line": 636,
+      "usage": "produced",
+      "context": "argument to cached.get"
+    },
+    {
+      "value": "cross_file_reference",
+      "line": 643,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ev.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "references",
+      "line": 644,
+      "usage": "produced",
+      "context": "argument to ev.payload.get"
+    },
+    {
+      "value": "scan_scope",
+      "line": 645,
+      "usage": "produced",
+      "context": "argument to ev.payload.get"
+    },
+    {
+      "value": "Cross-file references:",
+      "line": 648,
+      "usage": "produced",
+      "context": "argument to out.append"
+    },
+    {
+      "value": "resolves_to_source",
+      "line": 650,
+      "usage": "produced",
+      "context": "argument to ref.get"
+    },
+    {
+      "value": "same_file",
+      "line": 651,
+      "usage": "produced",
+      "context": "argument to ref.get"
+    },
+    {
+      "value": "in_string_literal",
+      "line": 652,
+      "usage": "produced",
+      "context": "argument to ref.get"
+    },
+    {
+      "value": "line",
+      "line": 653,
+      "usage": "produced",
+      "context": "argument to ref.get"
+    },
+    {
+      "value": "file",
+      "line": 655,
+      "usage": "produced",
+      "context": "argument to ref.get"
+    },
+    {
+      "value": "kind",
+      "line": 655,
+      "usage": "produced",
+      "context": "argument to ref.get"
+    },
+    {
+      "value": "context",
+      "line": 656,
+      "usage": "produced",
+      "context": "argument to ref.get"
+    },
+    {
+      "value": "needle_totals",
+      "line": 659,
+      "usage": "produced",
+      "context": "argument to scope.get"
+    },
+    {
+      "value": "needle",
+      "line": 662,
+      "usage": "produced",
+      "context": "argument to ref.get"
+    },
+    {
+      "value": "needles",
+      "line": 668,
+      "usage": "produced",
+      "context": "argument to scope.get"
+    },
+    {
+      "value": "files_scanned",
+      "line": 670,
+      "usage": "produced",
+      "context": "argument to scope.get"
+    },
+    {
+      "value": "same_file_swept",
+      "line": 678,
+      "usage": "produced",
+      "context": "argument to scope.get"
+    },
+    {
+      "value": "files_scanned",
+      "line": 682,
+      "usage": "produced",
+      "context": "argument to scope.get"
+    },
+    {
+      "value": "needles",
+      "line": 683,
+      "usage": "produced",
+      "context": "argument to scope.get"
+    },
+    {
+      "value": "truncated",
+      "line": 685,
+      "usage": "produced",
+      "context": "argument to scope.get"
+    },
+    {
+      "value": "CAUTION: the scan corpus was TRUNCATED at its size cap \u2014 this zero is not evidence-of-absence for the whole repository.",
+      "line": 687,
+      "usage": "produced",
+      "context": "argument to out.append"
+    },
+    {
+      "value": "export_surface",
+      "line": 690,
+      "usage": "produced",
+      "context": "argument to ev.payload.get"
+    },
+    {
+      "value": "exported_from_flagged_file",
+      "line": 692,
+      "usage": "produced",
+      "context": "argument to surface.get"
+    },
+    {
+      "value": "symbol",
+      "line": 694,
+      "usage": "produced",
+      "context": "argument to surface.get"
+    },
+    {
+      "value": "shadow_excerpts",
+      "line": 698,
+      "usage": "produced",
+      "context": "argument to ev.payload.get"
+    },
+    {
+      "value": "Cross-file references: none gathered.",
+      "line": 702,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "surrounding_code",
+      "line": 703,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ev.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "file",
+      "line": 706,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "line_start",
+      "line": 707,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "line_end",
+      "line": 707,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "anchor",
+      "line": 707,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "enclosing_symbol",
+      "line": 709,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "kind",
+      "line": 712,
+      "usage": "produced",
+      "context": "argument to enclosing.get"
+    },
+    {
+      "value": "name",
+      "line": 712,
+      "usage": "produced",
+      "context": "argument to enclosing.get"
+    },
+    {
+      "value": "line_start",
+      "line": 713,
+      "usage": "produced",
+      "context": "argument to enclosing.get"
+    },
+    {
+      "value": "line_end",
+      "line": 713,
+      "usage": "produced",
+      "context": "argument to enclosing.get"
+    },
+    {
+      "value": "snippet",
+      "line": 715,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "declared_intent",
+      "line": 717,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ev.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "file",
+      "line": 719,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "blocks",
+      "line": 720,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "symbol",
+      "line": 721,
+      "usage": "produced",
+      "context": "argument to block.get"
+    },
+    {
+      "value": "label",
+      "line": 723,
+      "usage": "produced",
+      "context": "argument to block.get"
+    },
+    {
+      "value": "line_start",
+      "line": 723,
+      "usage": "produced",
+      "context": "argument to block.get"
+    },
+    {
+      "value": "text",
+      "line": 724,
+      "usage": "produced",
+      "context": "argument to block.get"
+    },
+    {
+      "value": "type_signature",
+      "line": 727,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ev.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "type_name",
+      "line": 729,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "file",
+      "line": 729,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "source",
+      "line": 729,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "shadow_doc_claim",
+      "line": 730,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "ev.kind",
+      "kind": "identifier"
+    },
+    {
+      "value": "scope",
+      "line": 732,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "excerpt",
+      "line": 733,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "content",
+      "line": 733,
+      "usage": "produced",
+      "context": "argument to p.get"
+    },
+    {
+      "value": "file",
+      "line": 734,
+      "usage": "produced",
+      "context": "argument to p.get"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,1828 @@
+{
+  "source": "src/osoji/llm/_provider_base.py",
+  "source_hash": "63c68c8c795d6cdf",
+  "generated": "2026-07-22T10:56:13Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "logging",
+      "names": [
+        "logging"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "os",
+      "names": [
+        "os"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "abc",
+      "names": [
+        "abstractmethod"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": "datetime",
+      "names": [
+        "datetime",
+        "timezone"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Any",
+        "Callable"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": ".base",
+      "names": [
+        "LLMProvider"
+      ],
+      "line": 14,
+      "is_reexport": false
+    },
+    {
+      "source": ".tokens",
+      "names": [
+        "estimate_completion_input_tokens_offline"
+      ],
+      "line": 15,
+      "is_reexport": false
+    },
+    {
+      "source": ".types",
+      "names": [
+        "CompletionOptions",
+        "CompletionResult",
+        "Message",
+        "MessageRole",
+        "PromptTooLargeError",
+        "RequiredToolCallError",
+        "ToolCall",
+        "ToolDefinition",
+        "ToolSchemaValidationError"
+      ],
+      "line": 16,
+      "is_reexport": false
+    },
+    {
+      "source": ".validate",
+      "names": [
+        "validate_tool_input"
+      ],
+      "line": 27,
+      "is_reexport": false
+    },
+    {
+      "source": "sys",
+      "names": [
+        "sys"
+      ],
+      "line": 57,
+      "is_reexport": false
+    },
+    {
+      "source": "platform",
+      "names": [
+        "platform"
+      ],
+      "line": 60,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "logger",
+      "kind": "variable",
+      "line": 32,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider",
+      "kind": "class",
+      "line": 67,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "LLMProvider"
+      ]
+    },
+    {
+      "name": "DirectProvider.__init__",
+      "kind": "function",
+      "line": 70,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._call_api",
+      "kind": "function",
+      "line": 79,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DirectProvider._build_request_kwargs",
+      "kind": "function",
+      "line": 84,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DirectProvider._parse_sdk_response",
+      "kind": "function",
+      "line": 98,
+      "decorators": [
+        "abstractmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DirectProvider.close",
+      "kind": "function",
+      "line": 102,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider.set_interaction_log_path",
+      "kind": "function",
+      "line": 105,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider.llm_timeout",
+      "kind": "function",
+      "line": 115,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DirectProvider.complete",
+      "kind": "function",
+      "line": 122,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._request_and_parse",
+      "kind": "function",
+      "line": 219,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._log_interaction",
+      "kind": "function",
+      "line": 234,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._parse_anthropic_response",
+      "kind": "function",
+      "line": 291,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._parse_openai_response",
+      "kind": "function",
+      "line": 333,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._convert_tools_anthropic",
+      "kind": "function",
+      "line": 384,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._convert_tools_openai",
+      "kind": "function",
+      "line": 394,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._convert_tool_choice_openai",
+      "kind": "function",
+      "line": 407,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._required_tool_name",
+      "kind": "function",
+      "line": 419,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._has_required_tool_call",
+      "kind": "function",
+      "line": 426,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._maybe_expand_missing_tool_max_tokens",
+      "kind": "function",
+      "line": 429,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._build_tool_feedback",
+      "kind": "function",
+      "line": 442,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._build_retry_messages",
+      "kind": "function",
+      "line": 480,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._build_missing_tool_retry_messages",
+      "kind": "function",
+      "line": 514,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._messages_from_api_payload",
+      "kind": "function",
+      "line": 538,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._enforce_input_token_budget",
+      "kind": "function",
+      "line": 551,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._normalize_openai_content",
+      "kind": "function",
+      "line": 577,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._decode_tool_arguments",
+      "kind": "function",
+      "line": 593,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._stringify_arguments",
+      "kind": "function",
+      "line": 606,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._usage_value",
+      "kind": "function",
+      "line": 611,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DirectProvider._field",
+      "kind": "function",
+      "line": 618,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "logging.getLogger",
+      "line": 32,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_disable_wmi_if_needed",
+      "to": "getattr",
+      "line": 61,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_disable_wmi_if_needed",
+      "to": "logger.debug",
+      "line": 64,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider.__init__",
+      "to": "_disable_wmi_if_needed",
+      "line": 71,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider.__init__",
+      "to": "os.environ.get",
+      "line": 74,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider.__init__",
+      "to": "self.set_interaction_log_path",
+      "line": 76,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider.set_interaction_log_path",
+      "to": "Path",
+      "line": 110,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider.set_interaction_log_path",
+      "to": "resolved.parent.mkdir",
+      "line": 111,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider.llm_timeout",
+      "to": "int",
+      "line": 116,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider.llm_timeout",
+      "to": "os.environ.get",
+      "line": 116,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "self._build_request_kwargs",
+      "line": 128,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "self._enforce_input_token_budget",
+      "line": 129,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "self._request_and_parse",
+      "line": 132,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "self._required_tool_name",
+      "line": 136,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "list",
+      "line": 141,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "self._has_required_tool_call",
+      "line": 145,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "RequiredToolCallError",
+      "line": 147,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "self._build_missing_tool_retry_messages",
+      "line": 153,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "self._messages_from_api_payload",
+      "line": 159,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "self._enforce_input_token_budget",
+      "line": 160,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "self._maybe_expand_missing_tool_max_tokens",
+      "line": 161,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "dict",
+      "line": 166,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "self._request_and_parse",
+      "line": 169,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "self._build_tool_feedback",
+      "line": 175,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "CompletionResult",
+      "line": 181,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "ToolSchemaValidationError",
+      "line": 192,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "self._build_retry_messages",
+      "line": 194,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "self._messages_from_api_payload",
+      "line": 200,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "self._enforce_input_token_budget",
+      "line": 201,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "self._maybe_expand_missing_tool_max_tokens",
+      "line": 202,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "dict",
+      "line": 207,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider.complete",
+      "to": "self._request_and_parse",
+      "line": 210,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DirectProvider._request_and_parse",
+      "to": "self._call_api",
+      "line": 226,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._request_and_parse",
+      "to": "self._log_interaction",
+      "line": 228,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._request_and_parse",
+      "to": "self._parse_sdk_response",
+      "line": 230,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._request_and_parse",
+      "to": "self._log_interaction",
+      "line": 231,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._log_interaction",
+      "to": "strftime",
+      "line": 246,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._log_interaction",
+      "to": "datetime.now",
+      "line": 246,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._log_interaction",
+      "to": "request_kwargs.get",
+      "line": 251,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DirectProvider._log_interaction",
+      "to": "request_kwargs.get",
+      "line": 252,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DirectProvider._log_interaction",
+      "to": "request_kwargs.get",
+      "line": 253,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DirectProvider._log_interaction",
+      "to": "request_kwargs.get",
+      "line": 254,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DirectProvider._log_interaction",
+      "to": "request_kwargs.get",
+      "line": 255,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DirectProvider._log_interaction",
+      "to": "request_kwargs.get",
+      "line": 256,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DirectProvider._log_interaction",
+      "to": "type",
+      "line": 274,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._log_interaction",
+      "to": "str",
+      "line": 274,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._log_interaction",
+      "to": "self._interaction_log_path.parent.mkdir",
+      "line": 276,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._log_interaction",
+      "to": "self._interaction_log_path.open",
+      "line": 277,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._log_interaction",
+      "to": "handle.write",
+      "line": 278,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._log_interaction",
+      "to": "json.dumps",
+      "line": 278,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._log_interaction",
+      "to": "handle.write",
+      "line": 279,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._log_interaction",
+      "to": "logger.warning",
+      "line": 281,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "self._field",
+      "line": 296,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "self._field",
+      "line": 297,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "self._field",
+      "line": 299,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "text_blocks.append",
+      "line": 300,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "assistant_blocks.append",
+      "line": 301,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "self._field",
+      "line": 303,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "assistant_blocks.append",
+      "line": 304,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "self._field",
+      "line": 306,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "self._field",
+      "line": 307,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "tool_calls.append",
+      "line": 310,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "ToolCall",
+      "line": 310,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "self._field",
+      "line": 311,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "self._field",
+      "line": 312,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "CompletionResult",
+      "line": 316,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "join",
+      "line": 317,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "self._usage_value",
+      "line": 319,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "self._usage_value",
+      "line": 320,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "self._field",
+      "line": 321,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "self._field",
+      "line": 322,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_anthropic_response",
+      "to": "_ParsedResponse",
+      "line": 327,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._field",
+      "line": 334,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._field",
+      "line": 336,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._normalize_openai_content",
+      "line": 337,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._field",
+      "line": 337,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._field",
+      "line": 341,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._field",
+      "line": 342,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._field",
+      "line": 343,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._decode_tool_arguments",
+      "line": 344,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "tool_calls.append",
+      "line": 345,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "ToolCall",
+      "line": 345,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._field",
+      "line": 346,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._field",
+      "line": 347,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "assistant_tool_calls.append",
+      "line": 350,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._field",
+      "line": 351,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._field",
+      "line": 352,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._field",
+      "line": 354,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._stringify_arguments",
+      "line": 355,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "CompletionResult",
+      "line": 359,
+      "call_sites": 44
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._usage_value",
+      "line": 362,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._usage_value",
+      "line": 363,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._field",
+      "line": 364,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._field",
+      "line": 365,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "self._field",
+      "line": 366,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._parse_openai_response",
+      "to": "_ParsedResponse",
+      "line": 374,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DirectProvider._convert_tool_choice_openai",
+      "to": "tool_choice.get",
+      "line": 408,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._required_tool_name",
+      "to": "options.tool_choice.get",
+      "line": 422,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._required_tool_name",
+      "to": "options.tool_choice.get",
+      "line": 424,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._has_required_tool_call",
+      "to": "any",
+      "line": 427,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._maybe_expand_missing_tool_max_tokens",
+      "to": "max",
+      "line": 440,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._build_tool_feedback",
+      "to": "schema_by_name.get",
+      "line": 453,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._build_tool_feedback",
+      "to": "errors.extend",
+      "line": 455,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._build_tool_feedback",
+      "to": "validate_tool_input",
+      "line": 455,
+      "call_sites": 42
+    },
+    {
+      "from_symbol": "DirectProvider._build_tool_feedback",
+      "to": "errors.extend",
+      "line": 457,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._build_tool_feedback",
+      "to": "validator",
+      "line": 457,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._build_tool_feedback",
+      "to": "tool_errors.setdefault",
+      "line": 460,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._build_tool_feedback",
+      "to": "append",
+      "line": 463,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._build_tool_feedback",
+      "to": "join",
+      "line": 470,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DirectProvider._build_tool_feedback",
+      "to": "tool_feedback.append",
+      "line": 476,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._build_retry_messages",
+      "to": "list",
+      "line": 487,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DirectProvider._build_retry_messages",
+      "to": "retry_messages.append",
+      "line": 488,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DirectProvider._build_retry_messages",
+      "to": "retry_messages.append",
+      "line": 491,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DirectProvider._build_retry_messages",
+      "to": "item.get",
+      "line": 498,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._build_retry_messages",
+      "to": "retry_messages.append",
+      "line": 506,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DirectProvider._build_missing_tool_retry_messages",
+      "to": "list",
+      "line": 521,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DirectProvider._build_missing_tool_retry_messages",
+      "to": "retry_messages.append",
+      "line": 523,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DirectProvider._build_missing_tool_retry_messages",
+      "to": "lines.insert",
+      "line": 531,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._build_missing_tool_retry_messages",
+      "to": "retry_messages.append",
+      "line": 535,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DirectProvider._build_missing_tool_retry_messages",
+      "to": "join",
+      "line": 535,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DirectProvider._messages_from_api_payload",
+      "to": "msg.get",
+      "line": 544,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._messages_from_api_payload",
+      "to": "converted.append",
+      "line": 545,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._messages_from_api_payload",
+      "to": "Message",
+      "line": 545,
+      "call_sites": 67
+    },
+    {
+      "from_symbol": "DirectProvider._messages_from_api_payload",
+      "to": "MessageRole",
+      "line": 546,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._messages_from_api_payload",
+      "to": "msg.get",
+      "line": 547,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._enforce_input_token_budget",
+      "to": "estimate_completion_input_tokens_offline",
+      "line": 559,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._enforce_input_token_budget",
+      "to": "PromptTooLargeError",
+      "line": 566,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._normalize_openai_content",
+      "to": "isinstance",
+      "line": 580,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DirectProvider._normalize_openai_content",
+      "to": "isinstance",
+      "line": 582,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DirectProvider._normalize_openai_content",
+      "to": "self._field",
+      "line": 585,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._normalize_openai_content",
+      "to": "self._field",
+      "line": 587,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._normalize_openai_content",
+      "to": "self._field",
+      "line": 587,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._normalize_openai_content",
+      "to": "isinstance",
+      "line": 588,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DirectProvider._normalize_openai_content",
+      "to": "parts.append",
+      "line": 589,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._normalize_openai_content",
+      "to": "join",
+      "line": 590,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DirectProvider._normalize_openai_content",
+      "to": "str",
+      "line": 591,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._decode_tool_arguments",
+      "to": "isinstance",
+      "line": 594,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DirectProvider._decode_tool_arguments",
+      "to": "isinstance",
+      "line": 598,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DirectProvider._decode_tool_arguments",
+      "to": "json.loads",
+      "line": 600,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._decode_tool_arguments",
+      "to": "isinstance",
+      "line": 603,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DirectProvider._stringify_arguments",
+      "to": "isinstance",
+      "line": 607,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DirectProvider._stringify_arguments",
+      "to": "json.dumps",
+      "line": 609,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._usage_value",
+      "to": "self._field",
+      "line": 612,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._usage_value",
+      "to": "self._field",
+      "line": 613,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._usage_value",
+      "to": "self._field",
+      "line": 615,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DirectProvider._usage_value",
+      "to": "int",
+      "line": 616,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DirectProvider._field",
+      "to": "isinstance",
+      "line": 619,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DirectProvider._field",
+      "to": "obj.get",
+      "line": 620,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DirectProvider._field",
+      "to": "getattr",
+      "line": 621,
+      "call_sites": 2
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "platform",
+      "member": "_wmi",
+      "line": 63
+    },
+    {
+      "container": "self",
+      "member": "_interaction_log_sequence",
+      "line": 73
+    },
+    {
+      "container": "self",
+      "member": "_interaction_log_path",
+      "line": 108
+    },
+    {
+      "container": "self",
+      "member": "_interaction_log_path",
+      "line": 112
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "win32",
+      "line": 58,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "sys.platform"
+    },
+    {
+      "value": "_wmi",
+      "line": 61,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "Disabled platform._wmi to prevent WMI deadlock (Python 3.13+ on Windows)",
+      "line": 64,
+      "usage": "produced",
+      "context": "argument to logger.debug"
+    },
+    {
+      "value": "OSOJI_LLM_LOG_PATH",
+      "line": 74,
+      "usage": "produced",
+      "context": "argument to os.environ.get",
+      "kind": "config"
+    },
+    {
+      "value": "OSOJI_LLM_TIMEOUT",
+      "line": 116,
+      "usage": "produced",
+      "context": "argument to os.environ.get",
+      "kind": "config"
+    },
+    {
+      "value": "%Y-%m-%dT%H:%M:%SZ",
+      "line": 246,
+      "usage": "produced",
+      "context": "argument to strftime"
+    },
+    {
+      "value": "model",
+      "line": 251,
+      "usage": "produced",
+      "context": "argument to request_kwargs.get"
+    },
+    {
+      "value": "messages",
+      "line": 252,
+      "usage": "produced",
+      "context": "argument to request_kwargs.get"
+    },
+    {
+      "value": "max_tokens",
+      "line": 253,
+      "usage": "produced",
+      "context": "argument to request_kwargs.get"
+    },
+    {
+      "value": "temperature",
+      "line": 254,
+      "usage": "produced",
+      "context": "argument to request_kwargs.get"
+    },
+    {
+      "value": "tools",
+      "line": 255,
+      "usage": "produced",
+      "context": "argument to request_kwargs.get"
+    },
+    {
+      "value": "tool_choice",
+      "line": 256,
+      "usage": "produced",
+      "context": "argument to request_kwargs.get"
+    },
+    {
+      "value": "utf-8",
+      "line": 277,
+      "usage": "produced",
+      "context": "keyword argument to self._interaction_log_path.open"
+    },
+    {
+      "value": "Failed to write LLM interaction log to %s: %s",
+      "line": 282,
+      "usage": "produced",
+      "context": "argument to logger.warning"
+    },
+    {
+      "value": "content",
+      "line": 296,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "type",
+      "line": 297,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "text",
+      "line": 298,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "block_type"
+    },
+    {
+      "value": "text",
+      "line": 299,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "text",
+      "line": 301,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "tool_use",
+      "line": 302,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "block_type"
+    },
+    {
+      "value": "input",
+      "line": 303,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "tool_use",
+      "line": 305,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "id",
+      "line": 306,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "name",
+      "line": 307,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "id",
+      "line": 311,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "name",
+      "line": 312,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "input_tokens",
+      "line": 319,
+      "usage": "produced",
+      "context": "argument to self._usage_value"
+    },
+    {
+      "value": "prompt_tokens",
+      "line": 319,
+      "usage": "produced",
+      "context": "argument to self._usage_value"
+    },
+    {
+      "value": "output_tokens",
+      "line": 320,
+      "usage": "produced",
+      "context": "argument to self._usage_value"
+    },
+    {
+      "value": "completion_tokens",
+      "line": 320,
+      "usage": "produced",
+      "context": "argument to self._usage_value"
+    },
+    {
+      "value": "model",
+      "line": 321,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "stop_reason",
+      "line": 322,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "assistant",
+      "line": 325,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "anthropic",
+      "line": 330,
+      "usage": "produced",
+      "context": "keyword argument to _ParsedResponse",
+      "kind": "identifier"
+    },
+    {
+      "value": "choices",
+      "line": 334,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "message",
+      "line": 336,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "content",
+      "line": 337,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "tool_calls",
+      "line": 341,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "function",
+      "line": 342,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "arguments",
+      "line": 343,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "{}",
+      "line": 343,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "id",
+      "line": 346,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "name",
+      "line": 347,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "id",
+      "line": 351,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "type",
+      "line": 352,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "function",
+      "line": 352,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "name",
+      "line": 354,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "prompt_tokens",
+      "line": 362,
+      "usage": "produced",
+      "context": "argument to self._usage_value"
+    },
+    {
+      "value": "input_tokens",
+      "line": 362,
+      "usage": "produced",
+      "context": "argument to self._usage_value"
+    },
+    {
+      "value": "completion_tokens",
+      "line": 363,
+      "usage": "produced",
+      "context": "argument to self._usage_value"
+    },
+    {
+      "value": "output_tokens",
+      "line": 363,
+      "usage": "produced",
+      "context": "argument to self._usage_value"
+    },
+    {
+      "value": "model",
+      "line": 364,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "finish_reason",
+      "line": 366,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "stop_reason",
+      "line": 366,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "assistant",
+      "line": 371,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "openai",
+      "line": 377,
+      "usage": "produced",
+      "context": "keyword argument to _ParsedResponse",
+      "kind": "identifier"
+    },
+    {
+      "value": "function",
+      "line": 397,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "type",
+      "line": 408,
+      "usage": "produced",
+      "context": "argument to tool_choice.get"
+    },
+    {
+      "value": "tool",
+      "line": 409,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "choice_type",
+      "kind": "identifier"
+    },
+    {
+      "value": "function",
+      "line": 410,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "auto",
+      "line": 411,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "none",
+      "line": 411,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "required",
+      "line": 411,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "type",
+      "line": 422,
+      "usage": "produced",
+      "context": "argument to options.tool_choice.get"
+    },
+    {
+      "value": "tool",
+      "line": 422,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "name",
+      "line": 424,
+      "usage": "produced",
+      "context": "argument to options.tool_choice.get"
+    },
+    {
+      "value": "length",
+      "line": 436,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "stop_reason",
+      "kind": "identifier"
+    },
+    {
+      "value": "OK",
+      "line": 475,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "anthropic",
+      "line": 490,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "response_format",
+      "kind": "identifier"
+    },
+    {
+      "value": "user",
+      "line": 492,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "tool_result",
+      "line": 495,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "is_error",
+      "line": 498,
+      "usage": "produced",
+      "context": "argument to item.get"
+    },
+    {
+      "value": "tool",
+      "line": 507,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Call that tool now.",
+      "line": 527,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "Do not answer with plain text.",
+      "line": 528,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "length",
+      "line": 530,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "stop_reason",
+      "kind": "identifier"
+    },
+    {
+      "value": "Your previous response hit the output token limit before the tool call.",
+      "line": 533,
+      "usage": "produced",
+      "context": "argument to lines.insert"
+    },
+    {
+      "value": "user",
+      "line": 535,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "role",
+      "line": 544,
+      "usage": "produced",
+      "context": "argument to msg.get"
+    },
+    {
+      "value": "content",
+      "line": 547,
+      "usage": "produced",
+      "context": "argument to msg.get"
+    },
+    {
+      "value": "type",
+      "line": 585,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "text",
+      "line": 586,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "output_text",
+      "line": 586,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "text",
+      "line": 587,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "content",
+      "line": 587,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "usage",
+      "line": 612,
+      "usage": "produced",
+      "context": "argument to self._field"
+    },
+    {
+      "value": "Schema validation errors - please re-call the tool with corrected values:\n",
+      "context": "User-facing tool error feedback message prefix",
+      "line": 468,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "You did not call the required tool `{tool_name}` in your previous response.",
+      "context": "User-facing retry prompt for missing required tool",
+      "line": 526,
+      "kind": "message",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

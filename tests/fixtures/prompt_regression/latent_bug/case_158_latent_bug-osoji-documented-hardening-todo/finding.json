@@ -1,0 +1,20 @@
+{
+  "detector": "debris:latent_bug",
+  "gap_type": "uncategorized",
+  "path": "src/osoji/triage_exec.py",
+  "line_start": 179,
+  "line_end": 196,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "_iter_files accepts a caller-supplied (LLM-provided) glob pattern and passes it directly to self.root.glob() without any root-containment check via _resolve. The docstring itself acknowledges this gap (L183-188), noting it is a V1-4 hardening item. A crafted glob could potentially yield files outside expected boundaries or trigger ReDoS via pathological patterns.",
+  "observed_behavior": "_iter_files accepts a caller-supplied (LLM-provided) glob pattern and passes it directly to self.root.glob() without any root-containment check via _resolve. The docstring itself acknowledges this gap (L183-188), noting it is a V1-4 hardening item. A crafted glob could potentially yield files outside expected boundaries or trigger ReDoS via pathological patterns.",
+  "evidence": [],
+  "id": "ace392101bc2cd82",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

@@ -1,0 +1,2315 @@
+{
+  "source": "src/osoji/junk_cicd.py",
+  "source_hash": "b6e9f5f7104725e9",
+  "generated": "2026-07-22T10:56:04Z",
+  "imports": [
+    {
+      "source": "asyncio",
+      "names": [
+        "asyncio"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "re",
+      "names": [
+        "re"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "field"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Callable"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "ANTHROPIC_MODEL_SMALL",
+        "Config"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": ".evidence_builders",
+      "names": [
+        "BuildContext",
+        "_scanner_meta"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": ".facts",
+      "names": [
+        "FactsDB"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings_adapter",
+      "names": [
+        "finding_from_cicd_candidate"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk",
+      "names": [
+        "JunkAnalyzer",
+        "JunkFinding",
+        "JunkAnalysisResult"
+      ],
+      "line": 14,
+      "is_reexport": false
+    },
+    {
+      "source": ".junk_triage",
+      "names": [
+        "build_junk_claims",
+        "decide_junk_claims"
+      ],
+      "line": 15,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.base",
+      "names": [
+        "LLMProvider"
+      ],
+      "line": 16,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.runtime",
+      "names": [
+        "create_runtime"
+      ],
+      "line": 17,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm.types",
+      "names": [
+        "Message",
+        "MessageRole",
+        "CompletionOptions"
+      ],
+      "line": 18,
+      "is_reexport": false
+    },
+    {
+      "source": ".tools",
+      "names": [
+        "get_extract_cicd_elements_tool_definitions"
+      ],
+      "line": 19,
+      "is_reexport": false
+    },
+    {
+      "source": ".walker",
+      "names": [
+        "list_repo_files"
+      ],
+      "line": 20,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "CICDElement",
+      "kind": "class",
+      "line": 25,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "CICDCandidate",
+      "kind": "class",
+      "line": 39,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "discover_cicd_files",
+      "kind": "function",
+      "line": 54,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "detect_dead_cicd_async",
+      "kind": "function",
+      "line": 510,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DeadCICDAnalyzer",
+      "kind": "class",
+      "line": 597,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "JunkAnalyzer"
+      ]
+    },
+    {
+      "name": "DeadCICDAnalyzer.name",
+      "kind": "function",
+      "line": 601,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DeadCICDAnalyzer.description",
+      "kind": "function",
+      "line": 605,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DeadCICDAnalyzer.cli_flag",
+      "kind": "function",
+      "line": 609,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "DeadCICDAnalyzer.analyze",
+      "kind": "function",
+      "line": 612,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DeadCICDAnalyzer.analyze_async",
+      "kind": "function",
+      "line": 630,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "CICDElement",
+      "to": "field",
+      "line": 33,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "CICDElement",
+      "to": "field",
+      "line": 34,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "CICDElement",
+      "to": "field",
+      "line": 35,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "discover_cicd_files",
+      "to": "workflows_dir.is_dir",
+      "line": 67,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "discover_cicd_files",
+      "to": "workflows_dir.iterdir",
+      "line": 68,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "discover_cicd_files",
+      "to": "child.is_file",
+      "line": 69,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "discover_cicd_files",
+      "to": "found.append",
+      "line": 70,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "discover_cicd_files",
+      "to": "p.is_file",
+      "line": 75,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "discover_cicd_files",
+      "to": "found.append",
+      "line": 76,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "discover_cicd_files",
+      "to": "p.is_file",
+      "line": 80,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "discover_cicd_files",
+      "to": "found.append",
+      "line": 81,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "discover_cicd_files",
+      "to": "p.is_file",
+      "line": 85,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "discover_cicd_files",
+      "to": "found.append",
+      "line": 86,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "discover_cicd_files",
+      "to": "p.is_file",
+      "line": 90,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "discover_cicd_files",
+      "to": "found.append",
+      "line": 91,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "discover_cicd_files",
+      "to": "p.is_file",
+      "line": 95,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "discover_cicd_files",
+      "to": "found.append",
+      "line": 96,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "discover_cicd_files",
+      "to": "p.is_file",
+      "line": 100,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "discover_cicd_files",
+      "to": "found.append",
+      "line": 101,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "content.splitlines",
+      "line": 114,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "enumerate",
+      "line": 118,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "re.match",
+      "line": 119,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "re.compile",
+      "line": 127,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "range",
+      "line": 130,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "len",
+      "line": 130,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "job_re.match",
+      "line": 131,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "jobs.append",
+      "line": 135,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "m.group",
+      "line": 135,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "len",
+      "line": 135,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "strip",
+      "line": 137,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "startswith",
+      "line": 137,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "startswith",
+      "line": 137,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "jline.strip",
+      "line": 152,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "re.match",
+      "line": 155,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "strip",
+      "line": 157,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "strip",
+      "line": 157,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "run_match.group",
+      "line": 157,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "commands.append",
+      "line": 159,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "paths.extend",
+      "line": 160,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "_extract_paths_from_command",
+      "line": 160,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "len",
+      "line": 165,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "len",
+      "line": 165,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "jline.lstrip",
+      "line": 165,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "len",
+      "line": 169,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "len",
+      "line": 169,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "jline.lstrip",
+      "line": 169,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "commands.append",
+      "line": 171,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "paths.extend",
+      "line": 172,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "_extract_paths_from_command",
+      "line": 172,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "re.match",
+      "line": 179,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "commands.append",
+      "line": 181,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "strip",
+      "line": 181,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "uses_match.group",
+      "line": 181,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "elements.append",
+      "line": 183,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_github_workflow",
+      "to": "CICDElement",
+      "line": 183,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_makefile",
+      "to": "content.splitlines",
+      "line": 199,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_makefile",
+      "to": "re.compile",
+      "line": 201,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_makefile._flush",
+      "to": "elements.append",
+      "line": 209,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_makefile._flush",
+      "to": "CICDElement",
+      "line": 209,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_makefile._flush",
+      "to": "len",
+      "line": 214,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_parse_makefile",
+      "to": "enumerate",
+      "line": 219,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_makefile",
+      "to": "target_re.match",
+      "line": 220,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_makefile",
+      "to": "_flush",
+      "line": 222,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_makefile",
+      "to": "m.group",
+      "line": 223,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_makefile",
+      "to": "line.startswith",
+      "line": 230,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_makefile",
+      "to": "strip",
+      "line": 231,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_makefile",
+      "to": "cmd.startswith",
+      "line": 232,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_makefile",
+      "to": "current_commands.append",
+      "line": 233,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_makefile",
+      "to": "current_paths.extend",
+      "line": 234,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_makefile",
+      "to": "_extract_paths_from_command",
+      "line": 234,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_parse_makefile",
+      "to": "_flush",
+      "line": 236,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "content.splitlines",
+      "line": 244,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "re.compile",
+      "line": 256,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "enumerate",
+      "line": 259,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "job_re.match",
+      "line": 260,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "m.group",
+      "line": 262,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "jobs.append",
+      "line": 265,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "enumerate",
+      "line": 267,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "len",
+      "line": 268,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "len",
+      "line": 268,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "jline.strip",
+      "line": 276,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "stripped.startswith",
+      "line": 277,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "stripped.startswith",
+      "line": 281,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "strip",
+      "line": 282,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "commands.append",
+      "line": 283,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "paths.extend",
+      "line": 284,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "_extract_paths_from_command",
+      "line": 284,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "stripped.startswith",
+      "line": 285,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "jline.startswith",
+      "line": 285,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "elements.append",
+      "line": 288,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_gitlab_ci",
+      "to": "CICDElement",
+      "line": 288,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_cicd_via_llm",
+      "to": "provider.complete",
+      "line": 329,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_cicd_via_llm",
+      "to": "Message",
+      "line": 330,
+      "call_sites": 67
+    },
+    {
+      "from_symbol": "_parse_cicd_via_llm",
+      "to": "join",
+      "line": 330,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_parse_cicd_via_llm",
+      "to": "CompletionOptions",
+      "line": 332,
+      "call_sites": 60
+    },
+    {
+      "from_symbol": "_parse_cicd_via_llm",
+      "to": "config.model_for",
+      "line": 333,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_cicd_via_llm",
+      "to": "get_extract_cicd_elements_tool_definitions",
+      "line": 336,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_cicd_via_llm",
+      "to": "tc.input.get",
+      "line": 344,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_cicd_via_llm",
+      "to": "elements.append",
+      "line": 345,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_parse_cicd_via_llm",
+      "to": "CICDElement",
+      "line": 345,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_cicd_via_llm",
+      "to": "elem.get",
+      "line": 347,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_cicd_via_llm",
+      "to": "elem.get",
+      "line": 348,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_cicd_via_llm",
+      "to": "elem.get",
+      "line": 349,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_cicd_via_llm",
+      "to": "elem.get",
+      "line": 350,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_cicd_via_llm",
+      "to": "elem.get",
+      "line": 351,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_parse_cicd_via_llm",
+      "to": "elem.get",
+      "line": 352,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_extract_paths_from_command",
+      "to": "re.sub",
+      "line": 378,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_extract_paths_from_command",
+      "to": "re.sub",
+      "line": 379,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_extract_paths_from_command",
+      "to": "re.sub",
+      "line": 380,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_extract_paths_from_command",
+      "to": "re.sub",
+      "line": 381,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_extract_paths_from_command",
+      "to": "cleaned.split",
+      "line": 384,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_paths_from_command",
+      "to": "token.strip",
+      "line": 388,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_paths_from_command",
+      "to": "token.startswith",
+      "line": 391,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_paths_from_command",
+      "to": "re.match",
+      "line": 395,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_extract_paths_from_command",
+      "to": "len",
+      "line": 399,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_extract_paths_from_command",
+      "to": "token.lower",
+      "line": 403,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_paths_from_command",
+      "to": "re.search",
+      "line": 413,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_extract_paths_from_command",
+      "to": "paths.append",
+      "line": 414,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "list_repo_files",
+      "line": 430,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "set",
+      "line": 431,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "p.is_absolute",
+      "line": 434,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "replace",
+      "line": 436,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "str",
+      "line": 436,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "p.relative_to",
+      "line": 436,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "known_files.add",
+      "line": 437,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "github_dir.is_dir",
+      "line": 441,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "github_dir.rglob",
+      "line": 442,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "child.is_file",
+      "line": 443,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "replace",
+      "line": 444,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "str",
+      "line": 444,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "child.relative_to",
+      "line": 444,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "known_files.add",
+      "line": 445,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "set",
+      "line": 448,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "f.split",
+      "line": 450,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "range",
+      "line": 451,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "len",
+      "line": 451,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "known_dirs.add",
+      "line": 452,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "join",
+      "line": 452,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "replace",
+      "line": 458,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "ref_path.removeprefix",
+      "line": 458,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "rstrip",
+      "line": 464,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "normalized.split",
+      "line": 464,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_check_path_references",
+      "to": "element.missing_paths.append",
+      "line": 466,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_candidates",
+      "to": "file_contents.get",
+      "line": 482,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_candidates",
+      "to": "full_content.splitlines",
+      "line": 483,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_candidates",
+      "to": "join",
+      "line": 485,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_build_candidates",
+      "to": "candidates.append",
+      "line": 487,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_candidates",
+      "to": "CICDCandidate",
+      "line": 487,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "discover_cicd_files",
+      "line": 528,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "print",
+      "line": 530,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "print",
+      "line": 533,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "len",
+      "line": 533,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "abs_path.read_text",
+      "line": 541,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "replace",
+      "line": 545,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "str",
+      "line": 545,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "abs_path.relative_to",
+      "line": 545,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "_CICD_PARSERS.get",
+      "line": 548,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "parser",
+      "line": 550,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "all_elements.extend",
+      "line": 551,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "_parse_cicd_via_llm",
+      "line": 555,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "all_elements.extend",
+      "line": 558,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "print",
+      "line": 560,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "len",
+      "line": 560,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "print",
+      "line": 562,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "print",
+      "line": 565,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "print",
+      "line": 568,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "len",
+      "line": 568,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "_check_path_references",
+      "line": 571,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "_build_candidates",
+      "line": 574,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "print",
+      "line": 576,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "len",
+      "line": 577,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "len",
+      "line": 578,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "len",
+      "line": 582,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "finding_from_cicd_candidate",
+      "line": 588,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "BuildContext",
+      "line": 589,
+      "call_sites": 56
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "FactsDB",
+      "line": 589,
+      "call_sites": 90
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "build_junk_claims",
+      "line": 590,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "detect_dead_cicd_async",
+      "to": "decide_junk_claims",
+      "line": 591,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DeadCICDAnalyzer.analyze",
+      "to": "discover_cicd_files",
+      "line": 614,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "DeadCICDAnalyzer.analyze",
+      "to": "print",
+      "line": 616,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DeadCICDAnalyzer.analyze",
+      "to": "JunkAnalysisResult",
+      "line": 617,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "DeadCICDAnalyzer.analyze._run",
+      "to": "create_runtime",
+      "line": 620,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "DeadCICDAnalyzer.analyze._run",
+      "to": "self.analyze_async",
+      "line": 622,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadCICDAnalyzer.analyze._run",
+      "to": "logging_provider.close",
+      "line": 626,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadCICDAnalyzer.analyze",
+      "to": "asyncio.run",
+      "line": 628,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadCICDAnalyzer.analyze",
+      "to": "_run",
+      "line": 628,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadCICDAnalyzer.analyze_async",
+      "to": "detect_dead_cicd_async",
+      "line": 631,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DeadCICDAnalyzer.analyze_async",
+      "to": "_scanner_meta",
+      "line": 638,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DeadCICDAnalyzer.analyze_async",
+      "to": "meta.get",
+      "line": 639,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DeadCICDAnalyzer.analyze_async",
+      "to": "meta.get",
+      "line": 640,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DeadCICDAnalyzer.analyze_async",
+      "to": "findings.append",
+      "line": 641,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DeadCICDAnalyzer.analyze_async",
+      "to": "JunkFinding",
+      "line": 641,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DeadCICDAnalyzer.analyze_async",
+      "to": "JunkAnalysisResult",
+      "line": 656,
+      "call_sites": 20
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "element",
+      "member": "missing_paths",
+      "line": 455
+    }
+  ],
+  "string_literals": [
+    {
+      "value": ".yml",
+      "line": 69,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": ".yaml",
+      "line": 69,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "github_workflow",
+      "line": 70,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "Makefile",
+      "line": 73,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "GNUmakefile",
+      "line": 73,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "makefile",
+      "line": 73,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "makefile",
+      "line": 76,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "gitlab_ci",
+      "line": 81,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "jenkinsfile",
+      "line": 86,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "circleci",
+      "line": 91,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "azure_pipelines",
+      "line": 96,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "travis_ci",
+      "line": 101,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "^jobs:\\s*$",
+      "line": 119,
+      "usage": "produced",
+      "context": "argument to re.match"
+    },
+    {
+      "value": "^  ([a-zA-Z_][\\w-]*):\\s*$",
+      "line": 127,
+      "usage": "produced",
+      "context": "argument to re.compile"
+    },
+    {
+      "value": "^-?\\s*run:\\s*(.*)",
+      "line": 155,
+      "usage": "produced",
+      "context": "argument to re.match"
+    },
+    {
+      "value": "^-?\\s*uses:\\s*(.*)",
+      "line": 179,
+      "usage": "produced",
+      "context": "argument to re.match"
+    },
+    {
+      "value": "workflow_job",
+      "line": 185,
+      "usage": "produced",
+      "context": "keyword argument to CICDElement",
+      "kind": "identifier"
+    },
+    {
+      "value": "^([a-zA-Z_][\\w.\\-]*)(?:\\s+[a-zA-Z_][\\w.\\-]*)?\\s*:(?!=)",
+      "line": 201,
+      "usage": "produced",
+      "context": "argument to re.compile"
+    },
+    {
+      "value": "makefile_target",
+      "line": 211,
+      "usage": "produced",
+      "context": "keyword argument to CICDElement",
+      "kind": "identifier"
+    },
+    {
+      "value": "stages",
+      "line": 247,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "variables",
+      "line": 247,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "default",
+      "line": 247,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "include",
+      "line": 247,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "image",
+      "line": 247,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "services",
+      "line": 247,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "before_script",
+      "line": 248,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "after_script",
+      "line": 248,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cache",
+      "line": 248,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "workflow",
+      "line": 248,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pages",
+      "line": 249,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "trigger",
+      "line": 249,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "resource_group",
+      "line": 249,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "retry",
+      "line": 249,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "timeout",
+      "line": 249,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "interruptible",
+      "line": 250,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "artifacts",
+      "line": 250,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "dependencies",
+      "line": 250,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "needs",
+      "line": 250,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "environment",
+      "line": 251,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "release",
+      "line": 251,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "coverage",
+      "line": 251,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "parallel",
+      "line": 251,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "tags",
+      "line": 251,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "only",
+      "line": 252,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "except",
+      "line": 252,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "rules",
+      "line": 252,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "when",
+      "line": 252,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "allow_failure",
+      "line": 252,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "^([a-zA-Z_][\\w.\\-/]*):\\s*",
+      "line": 256,
+      "usage": "produced",
+      "context": "argument to re.compile"
+    },
+    {
+      "value": "script:",
+      "line": 277,
+      "usage": "produced",
+      "context": "argument to stripped.startswith"
+    },
+    {
+      "value": "- ",
+      "line": 281,
+      "usage": "produced",
+      "context": "argument to stripped.startswith"
+    },
+    {
+      "value": "  ",
+      "line": 285,
+      "usage": "produced",
+      "context": "argument to jline.startswith"
+    },
+    {
+      "value": "gitlab_job",
+      "line": 290,
+      "usage": "produced",
+      "context": "keyword argument to CICDElement",
+      "kind": "identifier"
+    },
+    {
+      "value": "You are a CI/CD configuration parser. Extract all discrete pipeline elements from the given configuration file.\n\nFor each element (job, stage, target, step, pipeline), identify:\n1. Its name and type\n2. The line range it occupies in the file\n3. Any file paths it references (scripts, directories, config files)\n4. Any commands it runs\n\nBe thorough \u2014 extract ALL elements. For line numbers, count from line 1.",
+      "line": 301,
+      "usage": "defined",
+      "context": "constant _EXTRACT_CICD_SYSTEM_PROMPT"
+    },
+    {
+      "value": "Extract ALL pipeline elements from this file.",
+      "line": 326,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "small",
+      "line": 333,
+      "usage": "produced",
+      "context": "argument to config.model_for"
+    },
+    {
+      "value": "junk_cicd.extract_elements",
+      "line": 335,
+      "usage": "produced",
+      "context": "keyword argument to CompletionOptions",
+      "kind": "identifier"
+    },
+    {
+      "value": "tool",
+      "line": 337,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "extract_cicd_elements",
+      "line": 337,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "extract_cicd_elements",
+      "line": 343,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "tc.name",
+      "kind": "identifier"
+    },
+    {
+      "value": "elements",
+      "line": 344,
+      "usage": "produced",
+      "context": "argument to tc.input.get"
+    },
+    {
+      "value": "element_type",
+      "line": 347,
+      "usage": "produced",
+      "context": "argument to elem.get"
+    },
+    {
+      "value": "element_name",
+      "line": 348,
+      "usage": "produced",
+      "context": "argument to elem.get"
+    },
+    {
+      "value": "unknown",
+      "line": 348,
+      "usage": "produced",
+      "context": "argument to elem.get"
+    },
+    {
+      "value": "line_start",
+      "line": 349,
+      "usage": "produced",
+      "context": "argument to elem.get"
+    },
+    {
+      "value": "line_end",
+      "line": 350,
+      "usage": "produced",
+      "context": "argument to elem.get"
+    },
+    {
+      "value": "referenced_paths",
+      "line": 351,
+      "usage": "produced",
+      "context": "argument to elem.get"
+    },
+    {
+      "value": "referenced_commands",
+      "line": 352,
+      "usage": "produced",
+      "context": "argument to elem.get"
+    },
+    {
+      "value": "echo",
+      "line": 362,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cd",
+      "line": 362,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "mkdir",
+      "line": 362,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "rm",
+      "line": 362,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cp",
+      "line": 362,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "mv",
+      "line": 362,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "ls",
+      "line": 362,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cat",
+      "line": 362,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "grep",
+      "line": 362,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "sed",
+      "line": 362,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "awk",
+      "line": 363,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "find",
+      "line": 363,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "chmod",
+      "line": 363,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "chown",
+      "line": 363,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "export",
+      "line": 363,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "source",
+      "line": 363,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "eval",
+      "line": 363,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "exec",
+      "line": 363,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "if",
+      "line": 364,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "then",
+      "line": 364,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "else",
+      "line": 364,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "fi",
+      "line": 364,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "for",
+      "line": 364,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "do",
+      "line": 364,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "done",
+      "line": 364,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "while",
+      "line": 364,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "case",
+      "line": 364,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "esac",
+      "line": 365,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "true",
+      "line": 365,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "false",
+      "line": 365,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "exit",
+      "line": 365,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "return",
+      "line": 365,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "set",
+      "line": 365,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "unset",
+      "line": 365,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "test",
+      "line": 365,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pip",
+      "line": 366,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pip3",
+      "line": 366,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "python",
+      "line": 366,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "python3",
+      "line": 366,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "node",
+      "line": 366,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "npm",
+      "line": 366,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "npx",
+      "line": 366,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "yarn",
+      "line": 366,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "pnpm",
+      "line": 367,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cargo",
+      "line": 367,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "go",
+      "line": 367,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "make",
+      "line": 367,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "git",
+      "line": 367,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "docker",
+      "line": 367,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "kubectl",
+      "line": 367,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "curl",
+      "line": 368,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "wget",
+      "line": 368,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "tar",
+      "line": 368,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "unzip",
+      "line": 368,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "gzip",
+      "line": 368,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "sudo",
+      "line": 369,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "env",
+      "line": 369,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "bash",
+      "line": 369,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "sh",
+      "line": 369,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "zsh",
+      "line": 369,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "\\$\\{[^}]*\\}",
+      "line": 378,
+      "usage": "produced",
+      "context": "argument to re.sub"
+    },
+    {
+      "value": "\\$\\([^)]*\\)",
+      "line": 379,
+      "usage": "produced",
+      "context": "argument to re.sub"
+    },
+    {
+      "value": "`[^`]*`",
+      "line": 380,
+      "usage": "produced",
+      "context": "argument to re.sub"
+    },
+    {
+      "value": "\\$\\w+",
+      "line": 381,
+      "usage": "produced",
+      "context": "argument to re.sub"
+    },
+    {
+      "value": "'\"",
+      "line": 388,
+      "usage": "produced",
+      "context": "argument to token.strip"
+    },
+    {
+      "value": "https?://",
+      "line": 395,
+      "usage": "produced",
+      "context": "argument to re.match"
+    },
+    {
+      "value": "[a-zA-Z]",
+      "line": 413,
+      "usage": "produced",
+      "context": "argument to re.search"
+    },
+    {
+      "value": "./",
+      "line": 458,
+      "usage": "produced",
+      "context": "argument to ref_path.removeprefix"
+    },
+    {
+      "value": "  [skip] No CI/CD configuration files found.",
+      "line": 530,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "ignore",
+      "line": 541,
+      "usage": "produced",
+      "context": "keyword argument to abs_path.read_text"
+    },
+    {
+      "value": "  No CI/CD elements found to analyze.",
+      "line": 565,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "dead_cicd",
+      "line": 602,
+      "usage": "produced",
+      "context": "return value",
+      "kind": "identifier"
+    },
+    {
+      "value": "Detect stale CI/CD pipeline elements",
+      "line": 606,
+      "usage": "produced",
+      "context": "return value"
+    },
+    {
+      "value": "dead-cicd",
+      "line": 610,
+      "usage": "produced",
+      "context": "return value",
+      "kind": "identifier"
+    },
+    {
+      "value": "  [skip] No CI/CD configuration files found.",
+      "line": 616,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "confirmed",
+      "line": 636,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "f.verdict",
+      "kind": "identifier"
+    },
+    {
+      "value": "element_name",
+      "line": 639,
+      "usage": "produced",
+      "context": "argument to meta.get"
+    },
+    {
+      "value": "element_type",
+      "line": 640,
+      "usage": "produced",
+      "context": "argument to meta.get"
+    },
+    {
+      "value": "dead_cicd",
+      "line": 645,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    },
+    {
+      "value": "llm_inferred",
+      "line": 652,
+      "usage": "produced",
+      "context": "keyword argument to JunkFinding",
+      "kind": "identifier"
+    }
+  ],
+  "extraction_method": "ast"
+}

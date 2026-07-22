@@ -1,0 +1,907 @@
+{
+  "source": "scripts/corpus_replay.py",
+  "source_hash": "eb2a17a3c27e9486",
+  "generated": "2026-07-22T10:55:45Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 17,
+      "is_reexport": false
+    },
+    {
+      "source": "argparse",
+      "names": [
+        "argparse"
+      ],
+      "line": 19,
+      "is_reexport": false
+    },
+    {
+      "source": "asyncio",
+      "names": [
+        "asyncio"
+      ],
+      "line": 20,
+      "is_reexport": false
+    },
+    {
+      "source": "sys",
+      "names": [
+        "sys"
+      ],
+      "line": 21,
+      "is_reexport": false
+    },
+    {
+      "source": "tempfile",
+      "names": [
+        "tempfile"
+      ],
+      "line": 22,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 23,
+      "is_reexport": false
+    },
+    {
+      "source": "eval_lib",
+      "names": [
+        "eval_lib"
+      ],
+      "line": 29,
+      "is_reexport": false
+    },
+    {
+      "source": "eval_lib",
+      "names": [
+        "CORPUS_ROOT",
+        "GateReport",
+        "check_gepa_gate",
+        "evaluate_corpus",
+        "load_splits",
+        "resolve_variant",
+        "select_cases",
+        "write_verdict_ndjson"
+      ],
+      "line": 30,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.config",
+      "names": [
+        "Config"
+      ],
+      "line": 40,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "REPO_ROOT",
+      "kind": "constant",
+      "line": 25,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DEFAULT_BOOTSTRAP_MANIFEST",
+      "kind": "constant",
+      "line": 44,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SPLIT_CHOICES",
+      "kind": "constant",
+      "line": 46,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "build_arg_parser",
+      "kind": "function",
+      "line": 84,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "_Utf8BytesWriter.write",
+      "kind": "function",
+      "line": 139,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "main",
+      "kind": "function",
+      "line": 144,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "resolve",
+      "line": 25,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Path",
+      "line": 25,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sys.path.insert",
+      "line": 26,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "str",
+      "line": 26,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sys.path.insert",
+      "line": 27,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "str",
+      "line": 27,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_only",
+      "to": "tuple",
+      "line": 52,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_only",
+      "to": "key.strip",
+      "line": 52,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_only",
+      "to": "raw.split",
+      "line": 52,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_only",
+      "to": "key.strip",
+      "line": 52,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_variants",
+      "to": "set",
+      "line": 62,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_variants",
+      "to": "resolve_variant",
+      "line": 64,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_variants",
+      "to": "ValueError",
+      "line": 66,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_variants",
+      "to": "seen.add",
+      "line": 67,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_variants",
+      "to": "variants.append",
+      "line": 68,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_print_gate_report",
+      "to": "print",
+      "line": 74,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_print_gate_report",
+      "to": "print",
+      "line": 75,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_print_gate_report",
+      "to": "print",
+      "line": 76,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_print_gate_report",
+      "to": "print",
+      "line": 77,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_print_gate_report",
+      "to": "print",
+      "line": 79,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_print_gate_report",
+      "to": "join",
+      "line": 79,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_print_gate_report",
+      "to": "print",
+      "line": 81,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "_print_gate_report",
+      "to": "join",
+      "line": 81,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "argparse.ArgumentParser",
+      "line": 85,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 86,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 89,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 92,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 96,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 100,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 101,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 102,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 103,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 106,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 107,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 108,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 109,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 110,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 111,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_load_splits_for",
+      "to": "load_splits",
+      "line": 121,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_Utf8BytesWriter.write",
+      "to": "self._buffer.write",
+      "line": 140,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_Utf8BytesWriter.write",
+      "to": "text.encode",
+      "line": 140,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_Utf8BytesWriter.write",
+      "to": "self._buffer.flush",
+      "line": 141,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "build_arg_parser",
+      "line": 145,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "parser.parse_args",
+      "line": 146,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 153,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 163,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "main",
+      "to": "_parse_only",
+      "line": 170,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "_parse_variants",
+      "line": 173,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 175,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "main",
+      "to": "_load_splits_for",
+      "line": 181,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 183,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "main",
+      "to": "splits.get",
+      "line": 186,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 187,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "main",
+      "to": "sorted",
+      "line": 189,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "splits.get",
+      "line": 189,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "select_cases",
+      "line": 199,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 209,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 213,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "main",
+      "to": "_load_splits_for",
+      "line": 221,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 223,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "main",
+      "to": "check_gepa_gate",
+      "line": 225,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "_print_gate_report",
+      "line": 226,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "eval_lib.default_run_id",
+      "line": 229,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main._config_factory",
+      "to": "Config",
+      "line": 232,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "main",
+      "to": "tempfile.TemporaryDirectory",
+      "line": 240,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "asyncio.run",
+      "line": 241,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "evaluate_corpus",
+      "line": 242,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "Path",
+      "line": 249,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 257,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "main",
+      "to": "write_verdict_ndjson",
+      "line": 261,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "_Utf8BytesWriter",
+      "line": 261,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "write_verdict_ndjson",
+      "line": 263,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "Path",
+      "line": 263,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "SystemExit",
+      "line": 268,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "main",
+      "line": 268,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "self",
+      "member": "_buffer",
+      "line": 137
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "train",
+      "line": 46,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "val",
+      "line": 46,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "holdout",
+      "line": 46,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "baseline=@default",
+      "line": 63,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "--corpus",
+      "line": 87,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "corpus-case/1 root directory",
+      "line": 87,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "--bootstrap",
+      "line": 90,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "bootstrap manifest.json (see --source)",
+      "line": 90,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "--source",
+      "line": 93,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "corpus",
+      "line": 93,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "bootstrap",
+      "line": 93,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "both",
+      "line": 93,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "corpus",
+      "line": 93,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument",
+      "kind": "identifier"
+    },
+    {
+      "value": "which case source(s) to replay",
+      "line": 94,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "--variant",
+      "line": 97,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "append",
+      "line": 97,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "name=value",
+      "line": 97,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "repeatable; e.g. baseline=@default. Defaults to baseline=@default.",
+      "line": 98,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "--repeats",
+      "line": 100,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "--repeat-offset",
+      "line": 101,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "--run-id",
+      "line": 102,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "default: eval-YYYYMMDD-<8hex>",
+      "line": 102,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "--split",
+      "line": 104,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "requires <corpus>/splits.json",
+      "line": 104,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "--only",
+      "line": 106,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "key1,key2",
+      "line": 106,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "--exclude-gray",
+      "line": 107,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "store_true",
+      "line": 107,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "--provider",
+      "line": 108,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "anthropic",
+      "line": 108,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument",
+      "kind": "identifier"
+    },
+    {
+      "value": "--model",
+      "line": 109,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "override the resolved model",
+      "line": 109,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "--out",
+      "line": 110,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "NDJSON output path, or - for stdout",
+      "line": 110,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "--gate-check",
+      "line": 112,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "store_true",
+      "line": 112,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "print the GEPA gate report for the current selection and exit 0/1 \u2014 no provider construction, no LLM calls",
+      "line": 113,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "utf-8",
+      "line": 140,
+      "usage": "produced",
+      "context": "argument to text.encode"
+    },
+    {
+      "value": "error: --gate-check evaluates the entire corpus; remove --split/--only/--exclude-gray",
+      "line": 154,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "bootstrap",
+      "line": 162,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "args.source",
+      "kind": "identifier"
+    },
+    {
+      "value": "error: --split only applies to the corpus source (splits.json has no bootstrap assignments); drop --split or use --source corpus/both",
+      "line": 164,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "ratios",
+      "line": 186,
+      "usage": "produced",
+      "context": "argument to splits.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "ratios",
+      "line": 189,
+      "usage": "produced",
+      "context": "argument to splits.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "bootstrap",
+      "line": 195,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "both",
+      "line": 195,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "error: empty case selection",
+      "line": 213,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "osoji-corpus-replay-",
+      "line": 240,
+      "usage": "produced",
+      "context": "keyword argument to tempfile.TemporaryDirectory"
+    },
+    {
+      "value": "__main__",
+      "line": 267,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "__name__"
+    },
+    {
+      "value": "-",
+      "context": "Sentinel for stdout output in --out argument",
+      "line": 110,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "-",
+      "context": "Checked against args.out to decide stdout vs file output",
+      "line": 260,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "args.out"
+    }
+  ],
+  "extraction_method": "ast"
+}

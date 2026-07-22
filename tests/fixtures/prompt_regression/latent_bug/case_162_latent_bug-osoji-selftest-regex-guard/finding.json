@@ -1,0 +1,20 @@
+{
+  "detector": "debris:latent_bug",
+  "gap_type": "uncategorized",
+  "path": "src/osoji/safety/paths.py",
+  "line_start": 155,
+  "line_end": 158,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "self_test() heuristic filter only checks for 'unix_home' and 'windows_user' string literals in the line (L157) to skip pattern description strings. Other patterns like 'cloud_storage', 'dated_folder', 'personal_folder', 'my_folder' in PATTERN_DESCRIPTIONS (L58-65) could produce matches that aren't filtered. For example, the string 'Documents, Desktop, Downloads, Pictures, Videos' at L63 could match 'personal_folder'. If those patterns match their own description strings in PATTERN_DESCRIPTIONS, self_test() may incorrectly report real findings.",
+  "observed_behavior": "self_test() heuristic filter only checks for 'unix_home' and 'windows_user' string literals in the line (L157) to skip pattern description strings. Other patterns like 'cloud_storage', 'dated_folder', 'personal_folder', 'my_folder' in PATTERN_DESCRIPTIONS (L58-65) could produce matches that aren't filtered. For example, the string 'Documents, Desktop, Downloads, Pictures, Videos' at L63 could match 'personal_folder'. If those patterns match their own description strings in PATTERN_DESCRIPTIONS, self_test() may incorrectly report real findings.",
+  "evidence": [],
+  "id": "1a3d756429cba61b",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

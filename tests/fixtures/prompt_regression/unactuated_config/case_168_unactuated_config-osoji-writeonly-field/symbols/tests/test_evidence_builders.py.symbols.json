@@ -1,0 +1,647 @@
+{
+  "source": "tests/test_evidence_builders.py",
+  "source_hash": "23495ba65730395c",
+  "generated": "2026-07-22T10:58:09Z",
+  "file_role": "test",
+  "symbols": [
+    {
+      "name": "config",
+      "kind": "function",
+      "line_start": 28,
+      "line_end": 30,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "FakeFacts",
+      "kind": "class",
+      "line_start": 33,
+      "line_end": 48,
+      "visibility": "internal"
+    },
+    {
+      "name": "make_finding",
+      "kind": "function",
+      "line_start": 51,
+      "line_end": 64,
+      "visibility": "internal",
+      "parameters": []
+    },
+    {
+      "name": "write",
+      "kind": "function",
+      "line_start": 67,
+      "line_end": 71,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "root",
+          "optional": false
+        },
+        {
+          "name": "rel",
+          "optional": false
+        },
+        {
+          "name": "text",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_new_evidence_kinds_are_registered",
+      "kind": "function",
+      "line_start": 77,
+      "line_end": 79,
+      "visibility": "internal",
+      "parameters": []
+    },
+    {
+      "name": "test_every_produced_kind_has_a_builder",
+      "kind": "function",
+      "line_start": 82,
+      "line_end": 91,
+      "visibility": "internal",
+      "parameters": []
+    },
+    {
+      "name": "test_cross_file_reference_uses_facts_db",
+      "kind": "function",
+      "line_start": 97,
+      "line_end": 107,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_cross_file_reference_text_scan_when_facts_empty",
+      "kind": "function",
+      "line_start": 110,
+      "line_end": 118,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_text_scan_sweeps_beyond_flagged_file_pair",
+      "kind": "function",
+      "line_start": 121,
+      "line_end": 129,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_text_scan_reports_same_file_usage_outside_flagged_region",
+      "kind": "function",
+      "line_start": 132,
+      "line_end": 146,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_symbolless_finding_uses_quoted_literals_as_needles",
+      "kind": "function",
+      "line_start": 149,
+      "line_end": 169,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_zero_hit_scan_is_evidence_of_absence_with_scope",
+      "kind": "function",
+      "line_start": 172,
+      "line_end": 187,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_empty_scope_yields_no_evidence",
+      "kind": "function",
+      "line_start": 190,
+      "line_end": 195,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_export_surface_reported_when_facts_know_the_file",
+      "kind": "function",
+      "line_start": 198,
+      "line_end": 208,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_literal_needles_use_word_boundaries",
+      "kind": "function",
+      "line_start": 211,
+      "line_end": 223,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_claim_named_files_are_scanned_first",
+      "kind": "function",
+      "line_start": 226,
+      "line_end": 241,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_scan_scope_reports_per_needle_totals",
+      "kind": "function",
+      "line_start": 244,
+      "line_end": 255,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_scan_context_lines_are_length_capped",
+      "kind": "function",
+      "line_start": 258,
+      "line_end": 268,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_scan_hits_are_capped_per_file_for_diversity",
+      "kind": "function",
+      "line_start": 271,
+      "line_end": 283,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_surrounding_code_extracts_flagged_region",
+      "kind": "function",
+      "line_start": 289,
+      "line_end": 299,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_surrounding_code_symbol_anchor_survives_line_drift",
+      "kind": "function",
+      "line_start": 302,
+      "line_end": 316,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_surrounding_code_missing_file_returns_empty",
+      "kind": "function",
+      "line_start": 319,
+      "line_end": 321,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_declared_intent_captures_preceding_block_and_enclosing_head",
+      "kind": "function",
+      "line_start": 327,
+      "line_end": 353,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_declared_intent_missing_file_returns_empty",
+      "kind": "function",
+      "line_start": 356,
+      "line_end": 358,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_shadow_doc_builder_degrades_to_empty_without_shadow",
+      "kind": "function",
+      "line_start": 364,
+      "line_end": 366,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_shadow_doc_builder_reads_file_shadow",
+      "kind": "function",
+      "line_start": 369,
+      "line_end": 375,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_shadow_doc_builder_adds_directory_shadow_for_description_gaps",
+      "kind": "function",
+      "line_start": 378,
+      "line_end": 387,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_type_signature_builder_matches_legacy_helpers",
+      "kind": "function",
+      "line_start": 393,
+      "line_end": 415,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_builders_never_raise_on_missing_file",
+      "kind": "function",
+      "line_start": 421,
+      "line_end": 426,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "_with_scanner_meta",
+      "kind": "function",
+      "line_start": 432,
+      "line_end": 443,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "finding",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_scanner_supplied_needles_override_symbol",
+      "kind": "function",
+      "line_start": 446,
+      "line_end": 463,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_scanner_supplied_needles_feed_facts_lookups",
+      "kind": "function",
+      "line_start": 466,
+      "line_end": 476,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_priority_paths_survive_the_hit_cap",
+      "kind": "function",
+      "line_start": 479,
+      "line_end": 494,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_text_hit_inside_quoted_string_is_flagged",
+      "kind": "function",
+      "line_start": 497,
+      "line_end": 506,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_match_in_quotes_positional_check",
+      "kind": "function",
+      "line_start": 509,
+      "line_end": 517,
+      "visibility": "internal",
+      "parameters": []
+    },
+    {
+      "name": "test_backticked_dotted_names_yield_qualified_and_bare_needles",
+      "kind": "function",
+      "line_start": 520,
+      "line_end": 539,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_backticked_call_forms_yield_the_function_needle",
+      "kind": "function",
+      "line_start": 542,
+      "line_end": 556,
+      "visibility": "internal",
+      "parameters": []
+    },
+    {
+      "name": "test_dotted_name_does_not_derive_degenerate_bare_segment",
+      "kind": "function",
+      "line_start": 559,
+      "line_end": 567,
+      "visibility": "internal",
+      "parameters": []
+    },
+    {
+      "name": "test_call_form_function_referenced_only_in_package_init_is_found",
+      "kind": "function",
+      "line_start": 570,
+      "line_end": 594,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_sweep_orders_by_proximity_to_flagged_file",
+      "kind": "function",
+      "line_start": 597,
+      "line_end": 612,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_scan_corpus_uses_walker_and_skips_osoji_artifacts",
+      "kind": "function",
+      "line_start": 615,
+      "line_end": 622,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_truncated_corpus_is_flagged_and_flagged_file_still_swept",
+      "kind": "function",
+      "line_start": 625,
+      "line_end": 643,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        },
+        {
+          "name": "monkeypatch",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "test_truncated_zero_sweep_is_not_a_mechanical_proof",
+      "kind": "function",
+      "line_start": 646,
+      "line_end": 663,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        },
+        {
+          "name": "temp_dir",
+          "optional": false
+        },
+        {
+          "name": "monkeypatch",
+          "optional": false
+        }
+      ]
+    }
+  ]
+}

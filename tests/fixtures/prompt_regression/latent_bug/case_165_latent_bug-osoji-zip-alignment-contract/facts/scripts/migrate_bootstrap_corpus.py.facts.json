@@ -1,0 +1,2561 @@
+{
+  "source": "scripts/migrate_bootstrap_corpus.py",
+  "source_hash": "b8f271016b87ed00",
+  "generated": "2026-07-22T10:58:44Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 74,
+      "is_reexport": false
+    },
+    {
+      "source": "argparse",
+      "names": [
+        "argparse"
+      ],
+      "line": 76,
+      "is_reexport": false
+    },
+    {
+      "source": "shutil",
+      "names": [
+        "shutil"
+      ],
+      "line": 77,
+      "is_reexport": false
+    },
+    {
+      "source": "subprocess",
+      "names": [
+        "subprocess"
+      ],
+      "line": 78,
+      "is_reexport": false
+    },
+    {
+      "source": "sys",
+      "names": [
+        "sys"
+      ],
+      "line": 79,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "replace"
+      ],
+      "line": 80,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 81,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Any"
+      ],
+      "line": 82,
+      "is_reexport": false
+    },
+    {
+      "source": "triage_bootstrap",
+      "names": [
+        "load_manifest"
+      ],
+      "line": 88,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji",
+      "names": [
+        "__version__"
+      ],
+      "line": 90,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.corpus_emit",
+      "names": [
+        "CORPUS_CASE_SCHEMA",
+        "CORPUS_EXPECTED_SCHEMA",
+        "MAX_FILES",
+        "_git",
+        "_language_for",
+        "_posix_join",
+        "_producer_of",
+        "_to_posix",
+        "_walk_strings",
+        "_write_json"
+      ],
+      "line": 91,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 103,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.hasher",
+      "names": [
+        "compute_file_hash"
+      ],
+      "line": 104,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.plugins.base",
+      "names": [
+        "FactsExtractionError",
+        "PluginUnavailableError"
+      ],
+      "line": 105,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji.plugins.python_plugin",
+      "names": [
+        "PythonPlugin"
+      ],
+      "line": 106,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "REPO_ROOT",
+      "kind": "constant",
+      "line": 84,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "BOOTSTRAP_DIR",
+      "kind": "constant",
+      "line": 108,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DEFAULT_MANIFEST",
+      "kind": "constant",
+      "line": 109,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MANIFEST_FIXTURES",
+      "kind": "constant",
+      "line": 110,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MANIFEST_AUDIT",
+      "kind": "constant",
+      "line": 111,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "CORPUS_ROOT",
+      "kind": "constant",
+      "line": 113,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "CORPUS_ROOT_REL",
+      "kind": "constant",
+      "line": 114,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DEFAULT_DEST",
+      "kind": "constant",
+      "line": 115,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "FALLBACK_ADJUDICATED_AT",
+      "kind": "constant",
+      "line": 119,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ADJUDICATED_BY",
+      "kind": "constant",
+      "line": 120,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SWEEP_RUN",
+      "kind": "constant",
+      "line": 121,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MigrationOutcome",
+      "kind": "class",
+      "line": 433,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MigrationOutcome.__init__",
+      "kind": "function",
+      "line": 436,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "migrate_fixture_entry",
+      "kind": "function",
+      "line": 483,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "migrate_audit_entry",
+      "kind": "function",
+      "line": 569,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "StatusRow",
+      "kind": "variable",
+      "line": 695,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "build_arg_parser",
+      "kind": "function",
+      "line": 912,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "main",
+      "kind": "function",
+      "line": 935,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "resolve",
+      "line": 84,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Path",
+      "line": 84,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sys.path.insert",
+      "line": 85,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "str",
+      "line": 85,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sys.path.insert",
+      "line": 86,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "str",
+      "line": 86,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_adjudicated_reasoning",
+      "to": "entry.get",
+      "line": 164,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_adjudicated_reasoning",
+      "to": "entry.get",
+      "line": 165,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_load_finding_or_none",
+      "to": "Finding.from_dict",
+      "line": 176,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_load_finding_or_none",
+      "to": "Finding.from_dict",
+      "line": 177,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "_load_finding_or_none",
+      "to": "finding.to_dict",
+      "line": 177,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_finding_for_case",
+      "to": "replace",
+      "line": 190,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_finding_for_case",
+      "to": "stripped.to_dict",
+      "line": 196,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_case_json",
+      "to": "_git",
+      "line": 218,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_build_expected_json",
+      "to": "_adjudicated_reasoning",
+      "line": 233,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_expected_json",
+      "to": "bool",
+      "line": 234,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_expected_json",
+      "to": "entry.get",
+      "line": 234,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_build_expected_json",
+      "to": "entry.get",
+      "line": 235,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_case_already_handled",
+      "to": "exists",
+      "line": 265,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_case_already_handled",
+      "to": "_case_dir_for",
+      "line": 265,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_case_already_handled",
+      "to": "category_dir.is_dir",
+      "line": 268,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_case_already_handled",
+      "to": "any",
+      "line": 270,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_case_already_handled",
+      "to": "category_dir.glob",
+      "line": 270,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_git_show_exists",
+      "to": "subprocess.run",
+      "line": 279,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_git_show_bytes",
+      "to": "subprocess.run",
+      "line": 288,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_normalize_snapshot_bytes",
+      "to": "data.decode",
+      "line": 318,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_normalize_snapshot_bytes",
+      "to": "encode",
+      "line": 321,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_normalize_snapshot_bytes",
+      "to": "replace",
+      "line": 321,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_normalize_snapshot_bytes",
+      "to": "text.replace",
+      "line": 321,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_safe_relative_posix",
+      "to": "_to_posix",
+      "line": 329,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_safe_relative_posix",
+      "to": "posix.startswith",
+      "line": 330,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_safe_relative_posix",
+      "to": "any",
+      "line": 332,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_safe_relative_posix",
+      "to": "posix.split",
+      "line": 332,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_evidence_paths_at_commit",
+      "to": "set",
+      "line": 347,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_evidence_paths_at_commit",
+      "to": "finding_blob.get",
+      "line": 348,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_evidence_paths_at_commit",
+      "to": "isinstance",
+      "line": 349,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_evidence_paths_at_commit",
+      "to": "ev.get",
+      "line": 349,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_evidence_paths_at_commit",
+      "to": "isinstance",
+      "line": 350,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_evidence_paths_at_commit",
+      "to": "_walk_strings",
+      "line": 352,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_evidence_paths_at_commit",
+      "to": "_safe_relative_posix",
+      "line": 353,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_evidence_paths_at_commit",
+      "to": "_git_show_exists",
+      "line": 354,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_evidence_paths_at_commit",
+      "to": "found.add",
+      "line": 355,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_facts_sidecars",
+      "to": "sorted",
+      "line": 372,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_write_facts_sidecars",
+      "to": "source_root.rglob",
+      "line": 372,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_facts_sidecars",
+      "to": "PythonPlugin",
+      "line": 376,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_write_facts_sidecars",
+      "to": "plugin.check_available",
+      "line": 378,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_facts_sidecars",
+      "to": "plugin.extract_project_facts",
+      "line": 383,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_facts_sidecars",
+      "to": "sorted",
+      "line": 388,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_write_facts_sidecars",
+      "to": "extracted.items",
+      "line": 388,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_write_facts_sidecars",
+      "to": "compute_file_hash",
+      "line": 389,
+      "call_sites": 27
+    },
+    {
+      "from_symbol": "_write_facts_sidecars",
+      "to": "_posix_join",
+      "line": 403,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_write_facts_sidecars",
+      "to": "_write_json",
+      "line": 404,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_write_facts_sidecars",
+      "to": "written.append",
+      "line": 405,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_FixtureValidation",
+      "to": "dataclass",
+      "line": 442,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_validate_fixture_entry",
+      "to": "entry.get",
+      "line": 454,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_validate_fixture_entry",
+      "to": "_to_posix",
+      "line": 458,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_validate_fixture_entry",
+      "to": "is_dir",
+      "line": 459,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_validate_fixture_entry",
+      "to": "fixture_root_posix.startswith",
+      "line": 463,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_validate_fixture_entry",
+      "to": "len",
+      "line": 465,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_validate_fixture_entry",
+      "to": "_load_finding_or_none",
+      "line": 467,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_validate_fixture_entry",
+      "to": "_to_posix",
+      "line": 472,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_validate_fixture_entry",
+      "to": "raw_path.startswith",
+      "line": 473,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_validate_fixture_entry",
+      "to": "len",
+      "line": 478,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_validate_fixture_entry",
+      "to": "_FixtureValidation",
+      "line": 480,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "migrate_fixture_entry",
+      "to": "_case_dir_for",
+      "line": 487,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "migrate_fixture_entry",
+      "to": "_case_already_handled",
+      "line": 488,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "migrate_fixture_entry",
+      "to": "MigrationOutcome",
+      "line": 489,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "migrate_fixture_entry",
+      "to": "_validate_fixture_entry",
+      "line": 494,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "migrate_fixture_entry",
+      "to": "MigrationOutcome",
+      "line": 496,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "migrate_fixture_entry",
+      "to": "_build_case_json",
+      "line": 498,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "migrate_fixture_entry",
+      "to": "_producer_of",
+      "line": 501,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "migrate_fixture_entry",
+      "to": "_language_for",
+      "line": 502,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "migrate_fixture_entry",
+      "to": "_finding_for_case",
+      "line": 507,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "migrate_fixture_entry",
+      "to": "_build_expected_json",
+      "line": 508,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "migrate_fixture_entry",
+      "to": "_write_json",
+      "line": 510,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "migrate_fixture_entry",
+      "to": "_write_json",
+      "line": 511,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "migrate_fixture_entry",
+      "to": "_write_json",
+      "line": 512,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "migrate_fixture_entry",
+      "to": "MigrationOutcome",
+      "line": 514,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "_status_fixture_entry",
+      "to": "_case_already_handled",
+      "line": 528,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_status_fixture_entry",
+      "to": "_validate_fixture_entry",
+      "line": 530,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_AuditValidation",
+      "to": "dataclass",
+      "line": 536,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_validate_audit_entry",
+      "to": "_load_finding_or_none",
+      "line": 551,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_validate_audit_entry",
+      "to": "_to_posix",
+      "line": 555,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_validate_audit_entry",
+      "to": "_git_show_exists",
+      "line": 556,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_validate_audit_entry",
+      "to": "_evidence_paths_at_commit",
+      "line": 559,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_validate_audit_entry",
+      "to": "len",
+      "line": 560,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_validate_audit_entry",
+      "to": "len",
+      "line": 562,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_validate_audit_entry",
+      "to": "_AuditValidation",
+      "line": 566,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_validate_audit_entry",
+      "to": "frozenset",
+      "line": 566,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "_case_dir_for",
+      "line": 575,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "_case_already_handled",
+      "line": 576,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "MigrationOutcome",
+      "line": 577,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "_validate_audit_entry",
+      "line": 582,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "MigrationOutcome",
+      "line": 584,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "sorted",
+      "line": 589,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "_git_show_bytes",
+      "line": 590,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "MigrationOutcome",
+      "line": 592,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "_normalize_snapshot_bytes",
+      "line": 595,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "contents.items",
+      "line": 599,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "_posix_join",
+      "line": 600,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "dest_file.parent.mkdir",
+      "line": 601,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "dest_file.write_bytes",
+      "line": 602,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "_build_case_json",
+      "line": 604,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "_producer_of",
+      "line": 607,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "_language_for",
+      "line": 608,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "_finding_for_case",
+      "line": 613,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "_build_expected_json",
+      "line": 614,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "_write_json",
+      "line": 616,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "_write_json",
+      "line": 617,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "_write_json",
+      "line": 618,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "_write_facts_sidecars",
+      "line": 620,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "shutil.rmtree",
+      "line": 622,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "MigrationOutcome",
+      "line": 625,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "migrate_audit_entry",
+      "to": "len",
+      "line": 625,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_status_audit_entry",
+      "to": "_case_already_handled",
+      "line": 633,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_status_audit_entry",
+      "to": "_validate_audit_entry",
+      "line": 635,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_cross_check",
+      "to": "split_path.exists",
+      "line": 651,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_cross_check",
+      "to": "load_manifest",
+      "line": 654,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_cross_check",
+      "to": "split_data.get",
+      "line": 655,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_cross_check",
+      "to": "sorted",
+      "line": 661,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_cross_check",
+      "to": "set",
+      "line": 661,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_cross_check",
+      "to": "set",
+      "line": 661,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_cross_check",
+      "to": "sorted",
+      "line": 662,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_cross_check",
+      "to": "set",
+      "line": 662,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_cross_check",
+      "to": "set",
+      "line": 662,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_cross_check",
+      "to": "lines.append",
+      "line": 664,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_cross_check",
+      "to": "lines.append",
+      "line": 666,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_cross_check",
+      "to": "sorted",
+      "line": 668,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_cross_check",
+      "to": "set",
+      "line": 670,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_cross_check",
+      "to": "set",
+      "line": 670,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_cross_check",
+      "to": "lines.append",
+      "line": 674,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_cross_check",
+      "to": "len",
+      "line": 675,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_cross_check",
+      "to": "join",
+      "line": 677,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_status_rows",
+      "to": "rows.sort",
+      "line": 709,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_count_facts_sidecars",
+      "to": "sum",
+      "line": 717,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_count_facts_sidecars",
+      "to": "dest.glob",
+      "line": 717,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_render_report._tally",
+      "to": "sum",
+      "line": 733,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_report._tally",
+      "to": "status.values",
+      "line": 733,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_render_report._tally",
+      "to": "sum",
+      "line": 734,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_report._tally",
+      "to": "status.values",
+      "line": 734,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_render_report._tally",
+      "to": "sum",
+      "line": 735,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_report._tally",
+      "to": "status.values",
+      "line": 735,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "_tally",
+      "line": 738,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "_tally",
+      "line": 739,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "_count_facts_sidecars",
+      "line": 740,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 743,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 744,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 745,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 752,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 753,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 754,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "manifest.get",
+      "line": 754,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "manifest.get",
+      "line": 754,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 755,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "as_posix",
+      "line": 757,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "dest.relative_to",
+      "line": 757,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "str",
+      "line": 759,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 760,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 761,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 762,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 763,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 764,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 765,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 766,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "len",
+      "line": 767,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 769,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "len",
+      "line": 770,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 772,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "len",
+      "line": 773,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "len",
+      "line": 773,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 776,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 777,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 785,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 786,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 787,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 789,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 790,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "_status_rows",
+      "line": 791,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 795,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 797,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 799,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 800,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 802,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 803,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "_status_rows",
+      "line": 806,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 813,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 815,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 816,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 818,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 819,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 820,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 821,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 823,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 824,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 825,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 826,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 828,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 829,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 831,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 832,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 833,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "lines.append",
+      "line": 845,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_report",
+      "to": "join",
+      "line": 847,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_render_skipped_md",
+      "to": "_status_rows",
+      "line": 859,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_render_skipped_md",
+      "to": "lines.append",
+      "line": 865,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_skipped_md",
+      "to": "lines.append",
+      "line": 868,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_skipped_md",
+      "to": "join",
+      "line": 869,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_render_run_summary",
+      "to": "sorted",
+      "line": 885,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_run_summary",
+      "to": "all_outcomes.items",
+      "line": 885,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_render_run_summary",
+      "to": "sorted",
+      "line": 886,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_run_summary",
+      "to": "all_outcomes.items",
+      "line": 886,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_render_run_summary",
+      "to": "sorted",
+      "line": 887,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "_render_run_summary",
+      "to": "all_outcomes.items",
+      "line": 887,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "_render_run_summary",
+      "to": "lines.append",
+      "line": 891,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_run_summary",
+      "to": "len",
+      "line": 891,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_render_run_summary",
+      "to": "lines.append",
+      "line": 892,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_run_summary",
+      "to": "len",
+      "line": 893,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_render_run_summary",
+      "to": "len",
+      "line": 893,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_render_run_summary",
+      "to": "len",
+      "line": 893,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "_render_run_summary",
+      "to": "lines.append",
+      "line": 896,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_run_summary",
+      "to": "join",
+      "line": 896,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_render_run_summary",
+      "to": "lines.append",
+      "line": 897,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "_render_run_summary",
+      "to": "join",
+      "line": 898,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "_parse_only",
+      "to": "set",
+      "line": 908,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "_parse_only",
+      "to": "slug.strip",
+      "line": 909,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_parse_only",
+      "to": "raw.split",
+      "line": 909,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_parse_only",
+      "to": "slug.strip",
+      "line": 909,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "argparse.ArgumentParser",
+      "line": 913,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 914,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 917,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 923,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "build_arg_parser",
+      "to": "parser.add_argument",
+      "line": 929,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "main",
+      "to": "parse_args",
+      "line": 936,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "build_arg_parser",
+      "line": 936,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "args.dest.is_absolute",
+      "line": 938,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "dest.mkdir",
+      "line": 939,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "load_manifest",
+      "line": 940,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "manifest.get",
+      "line": 941,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 943,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "main",
+      "to": "_iso_from_manifest_date",
+      "line": 946,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "manifest.get",
+      "line": 946,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "main",
+      "to": "_parse_only",
+      "line": 953,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 959,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "main",
+      "to": "sorted",
+      "line": 959,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "main",
+      "to": "migrate_fixture_entry",
+      "line": 964,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "migrate_audit_entry",
+      "line": 969,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 973,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "main",
+      "to": "_render_run_summary",
+      "line": 974,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 980,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "main",
+      "to": "_status_fixture_entry",
+      "line": 985,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "_status_audit_entry",
+      "line": 986,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "_cross_check",
+      "line": 988,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "_cross_check",
+      "line": 989,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "_render_report",
+      "line": 991,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "print",
+      "line": 1002,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "main",
+      "to": "write_text",
+      "line": 1004,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "write_text",
+      "line": 1005,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "_render_skipped_md",
+      "line": 1006,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "SystemExit",
+      "line": 1015,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "main",
+      "line": 1015,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "self",
+      "member": "status",
+      "line": 437
+    },
+    {
+      "container": "self",
+      "member": "reason",
+      "line": 438
+    },
+    {
+      "container": "self",
+      "member": "facts_written",
+      "line": 439
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "tests/fixtures/prompt_regression",
+      "line": 114,
+      "usage": "defined",
+      "context": "constant CORPUS_ROOT_REL"
+    },
+    {
+      "value": "2026-07-03T00:00:00Z",
+      "line": 119,
+      "usage": "defined",
+      "context": "constant FALLBACK_ADJUDICATED_AT",
+      "kind": "identifier"
+    },
+    {
+      "value": "bootstrap-manifest",
+      "line": 120,
+      "usage": "defined",
+      "context": "constant ADJUDICATED_BY",
+      "kind": "identifier"
+    },
+    {
+      "value": "bootstrap-manifest-migration",
+      "line": 121,
+      "usage": "defined",
+      "context": "constant SWEEP_RUN",
+      "kind": "identifier"
+    },
+    {
+      "value": "verdict",
+      "line": 126,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "confidence",
+      "line": 127,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "triage_reasoning",
+      "line": 128,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "suggested_fix",
+      "line": 129,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "severity",
+      "line": 130,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "contract_class",
+      "line": 131,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "evidence_fingerprint",
+      "line": 132,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "adjudication_notes",
+      "line": 164,
+      "usage": "produced",
+      "context": "argument to entry.get"
+    },
+    {
+      "value": "adjudication_reasoning",
+      "line": 165,
+      "usage": "produced",
+      "context": "argument to entry.get"
+    },
+    {
+      "value": "finding blob's id did not survive a Finding.from_dict/to_dict round-trip",
+      "line": 181,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "osoji",
+      "line": 217,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "remote",
+      "line": 218,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "get-url",
+      "line": 218,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "origin",
+      "line": 218,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "rebuild",
+      "line": 225,
+      "usage": "produced",
+      "context": "dict value",
+      "kind": "identifier"
+    },
+    {
+      "value": "gray",
+      "line": 234,
+      "usage": "produced",
+      "context": "argument to entry.get"
+    },
+    {
+      "value": "gray_reason",
+      "line": 235,
+      "usage": "produced",
+      "context": "argument to entry.get"
+    },
+    {
+      "value": "git",
+      "line": 280,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "cat-file",
+      "line": 280,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "-e",
+      "line": 280,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "git",
+      "line": 289,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "show",
+      "line": 289,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "utf-8",
+      "line": 318,
+      "usage": "produced",
+      "context": "argument to data.decode"
+    },
+    {
+      "value": "\r\n",
+      "line": 321,
+      "usage": "produced",
+      "context": "argument to text.replace"
+    },
+    {
+      "value": "utf-8",
+      "line": 321,
+      "usage": "produced",
+      "context": "argument to encode"
+    },
+    {
+      "value": "..",
+      "line": 332,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "part"
+    },
+    {
+      "value": "evidence",
+      "line": 348,
+      "usage": "produced",
+      "context": "argument to finding_blob.get"
+    },
+    {
+      "value": "payload",
+      "line": 349,
+      "usage": "produced",
+      "context": "argument to ev.get"
+    },
+    {
+      "value": "*.py",
+      "line": 372,
+      "usage": "produced",
+      "context": "argument to source_root.rglob"
+    },
+    {
+      "value": "status",
+      "line": 434,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "reason",
+      "line": 434,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "facts_written",
+      "line": 434,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "fixture_root",
+      "line": 454,
+      "usage": "produced",
+      "context": "argument to entry.get"
+    },
+    {
+      "value": "fixture-origin entry has no fixture_root field",
+      "line": 456,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "exists",
+      "line": 490,
+      "usage": "produced",
+      "context": "argument to MigrationOutcome",
+      "kind": "identifier"
+    },
+    {
+      "value": "case directory already exists (rerun) or already accepted into the corpus \u2014 left untouched",
+      "line": 490,
+      "usage": "produced",
+      "context": "argument to MigrationOutcome"
+    },
+    {
+      "value": "skipped",
+      "line": 496,
+      "usage": "produced",
+      "context": "argument to MigrationOutcome",
+      "kind": "identifier"
+    },
+    {
+      "value": "migrated",
+      "line": 514,
+      "usage": "produced",
+      "context": "argument to MigrationOutcome",
+      "kind": "identifier"
+    },
+    {
+      "value": "present",
+      "line": 529,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "pending",
+      "line": 532,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "validated OK but not yet migrated to this destination",
+      "line": 532,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "skipped",
+      "line": 533,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "exists",
+      "line": 578,
+      "usage": "produced",
+      "context": "argument to MigrationOutcome",
+      "kind": "identifier"
+    },
+    {
+      "value": "case directory already exists (rerun) or already accepted into the corpus \u2014 left untouched",
+      "line": 578,
+      "usage": "produced",
+      "context": "argument to MigrationOutcome"
+    },
+    {
+      "value": "skipped",
+      "line": 584,
+      "usage": "produced",
+      "context": "argument to MigrationOutcome",
+      "kind": "identifier"
+    },
+    {
+      "value": "skipped",
+      "line": 593,
+      "usage": "produced",
+      "context": "argument to MigrationOutcome",
+      "kind": "identifier"
+    },
+    {
+      "value": "migrated",
+      "line": 625,
+      "usage": "produced",
+      "context": "argument to MigrationOutcome",
+      "kind": "identifier"
+    },
+    {
+      "value": "present",
+      "line": 634,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "pending",
+      "line": 637,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "validated OK but not yet migrated to this destination",
+      "line": 637,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "skipped",
+      "line": 638,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "entries",
+      "line": 655,
+      "usage": "produced",
+      "context": "argument to split_data.get"
+    },
+    {
+      "value": "*/case_*/facts/**/*.facts.json",
+      "line": 717,
+      "usage": "produced",
+      "context": "argument to dest.glob"
+    },
+    {
+      "value": "present",
+      "line": 733,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "s",
+      "kind": "identifier"
+    },
+    {
+      "value": "skipped",
+      "line": 734,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "s",
+      "kind": "identifier"
+    },
+    {
+      "value": "pending",
+      "line": 735,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "s",
+      "kind": "identifier"
+    },
+    {
+      "value": "# Bootstrap corpus migration report",
+      "line": 743,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "Generated by `scripts/migrate_bootstrap_corpus.py` (V1-7 evaluator, Track 1 PR-6). This report is a deterministic function of the manifest and the current `_holding/` contents \u2014 not of what any one invocation did \u2014 so it is byte-identical across any number of reruns over an unchanged tree, `--only` or not.",
+      "line": 746,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "- Manifest: `tests/fixtures/bootstrap/manifest.json`",
+      "line": 753,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "commit",
+      "line": 754,
+      "usage": "produced",
+      "context": "argument to manifest.get"
+    },
+    {
+      "value": "audited",
+      "line": 754,
+      "usage": "produced",
+      "context": "argument to manifest.get"
+    },
+    {
+      "value": "## Summary (current state of `_holding/`, full manifest)",
+      "line": 762,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "| class | total | present | skipped | pending |",
+      "line": 764,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "| --- | --- | --- | --- | --- |",
+      "line": 765,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "`pending` = validated OK (would migrate cleanly) but no case_dir exists at this destination yet \u2014 only possible when a prior run's `--only` excluded an entry that has never otherwise been migrated; 0 in steady state. `present` cases were migrated at some point (this run or a prior one) \u2014 not distinguished here, since that distinction is run-history, not tree state.",
+      "line": 778,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "## Per-entry status (full manifest, sorted by slug)",
+      "line": 789,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "present",
+      "line": 794,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "status",
+      "kind": "identifier"
+    },
+    {
+      "value": "pending",
+      "line": 796,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "status",
+      "kind": "identifier"
+    },
+    {
+      "value": "## Skipped entries",
+      "line": 802,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "skipped",
+      "line": 809,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "status",
+      "kind": "identifier"
+    },
+    {
+      "value": "(none)",
+      "line": 815,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "## Cross-check: manifest.json vs the split manifests",
+      "line": 818,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "### manifest-fixtures.json (fixture-origin subset)",
+      "line": 820,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "exact match \u2014 no discrepancies",
+      "line": 822,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "### manifest-audit.json (audit-origin subset)",
+      "line": 825,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "exact match \u2014 no discrepancies",
+      "line": 827,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "## Sidecar extraction (audit-origin only)",
+      "line": 831,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "`facts/` sidecars are regenerated deterministically via `osoji.plugins.python_plugin.PythonPlugin.extract_project_facts` (tree-sitter, `extraction_method: \"ast\"`, zero LLM calls) for every `.py` file under each migrated case's `source/`. `symbols/` and `shadow/` sidecars are skipped entirely \u2014 investigated, not forced: `.osoji/symbols/*.symbols.json` requires LLM-assigned `file_role` and per-symbol `visibility` (`shadow.py`'s `generate_file_shadow_doc_async`); no mechanical/AST-only entry point produces that shape. Sidecars are always optional per the corpus README \u2014 evidence rebuild works from `source/` text alone.",
+      "line": 834,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "# Skipped bootstrap-manifest entries",
+      "line": 856,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "skipped",
+      "line": 862,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "status",
+      "kind": "identifier"
+    },
+    {
+      "value": "(none)",
+      "line": 865,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "migrated",
+      "line": 885,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "o.status",
+      "kind": "identifier"
+    },
+    {
+      "value": "exists",
+      "line": 886,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "o.status",
+      "kind": "identifier"
+    },
+    {
+      "value": "skipped",
+      "line": 887,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "o.status",
+      "kind": "identifier"
+    },
+    {
+      "value": "--- this run ---",
+      "line": 889,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "(MIGRATION-REPORT.md/MIGRATION-SKIPPED.md reflect the full manifest, not just this run)",
+      "line": 897,
+      "usage": "produced",
+      "context": "argument to lines.append"
+    },
+    {
+      "value": "--only",
+      "line": 915,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "comma-separated slugs to restrict migration to",
+      "line": 915,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "--dest",
+      "line": 918,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "corpus holding directory (default: tests/fixtures/prompt_regression/_holding)",
+      "line": 921,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "--commit",
+      "line": 924,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "commit to snapshot audit-origin entries from (default: the manifest's own 'commit' field)",
+      "line": 927,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "--manifest",
+      "line": 930,
+      "usage": "produced",
+      "context": "argument to parser.add_argument"
+    },
+    {
+      "value": "bootstrap manifest.json path",
+      "line": 930,
+      "usage": "produced",
+      "context": "keyword argument to parser.add_argument"
+    },
+    {
+      "value": "commit",
+      "line": 941,
+      "usage": "produced",
+      "context": "argument to manifest.get"
+    },
+    {
+      "value": "error: no --commit given and manifest has no 'commit' field",
+      "line": 943,
+      "usage": "produced",
+      "context": "argument to print"
+    },
+    {
+      "value": "audited",
+      "line": 946,
+      "usage": "produced",
+      "context": "argument to manifest.get"
+    },
+    {
+      "value": "fixture",
+      "line": 949,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "audit",
+      "line": 950,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "fixture",
+      "line": 963,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "audit",
+      "line": 968,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "fixture",
+      "line": 988,
+      "usage": "produced",
+      "context": "argument to _cross_check",
+      "kind": "identifier"
+    },
+    {
+      "value": "audit",
+      "line": 989,
+      "usage": "produced",
+      "context": "argument to _cross_check",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 1004,
+      "usage": "produced",
+      "context": "keyword argument to write_text"
+    },
+    {
+      "value": "utf-8",
+      "line": 1007,
+      "usage": "produced",
+      "context": "keyword argument to write_text"
+    },
+    {
+      "value": "__main__",
+      "line": 1014,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "__name__"
+    },
+    {
+      "value": "ast",
+      "context": "extraction_method field value in facts sidecar JSON",
+      "line": 401,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

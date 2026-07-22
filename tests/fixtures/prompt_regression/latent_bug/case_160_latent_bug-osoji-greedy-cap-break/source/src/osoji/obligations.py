@@ -1,0 +1,882 @@
+"""Obligation checking — detects cross-file contract violations and fragile implicit contracts."""
+
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, replace
+from pathlib import PurePosixPath
+
+from .facts import FactsDB
+
+
+# ---------------------------------------------------------------------------
+# Data models
+# ---------------------------------------------------------------------------
+
+@dataclass
+class ObligationViolation:
+    """A detected cross-file contract violation (backward-compatible model)."""
+
+    obligation_type: str       # "string_contract"
+    source_file: str           # file containing the producer/definition
+    checking_file: str         # file checking against this string
+    description: str
+    evidence: dict             # {value, producer_context, checker_context}
+    severity: str = "warning"  # heuristic, not definitive
+    confidence: float = 0.5
+
+
+@dataclass
+class StringOccurrence:
+    file: str
+    line: int
+    context: str
+    comparison_source: str | None = None
+
+
+@dataclass
+class StringContractData:
+    producers: dict[str, list[StringOccurrence]]   # value -> occurrences
+    checked: dict[str, list[StringOccurrence]]      # value -> occurrences
+    defined: dict[str, list[StringOccurrence]]      # value -> occurrences
+    all_produced_values: set[str]                    # union of produced + defined values
+
+
+@dataclass
+class ContractFinding:
+    finding_type: str          # "violation" or "implicit_contract"
+    contract_type: str         # "string_contract", etc.
+    value: str | None          # single value, or None for grouped findings
+    producer_file: str
+    consumer_file: str
+    definer_file: str | None
+    severity: str
+    confidence: float
+    description: str
+    evidence: dict
+    remediation: str
+    # Filled by unified Triage (V1-5c) when the finding is routed through
+    # Phase 3.5; one of the string-contract taxonomy classes or "other".
+    contract_class: str | None = None
+    # Triage outputs, threaded onto the product boundary additively.
+    # ``severity``/``confidence``/``remediation`` above stay heuristic (see
+    # ``_overlay_verdict``'s docstring); ``triage_confidence`` is a distinct
+    # field precisely so it does not collide with — or get sorted/weighted by
+    # — the pre-existing heuristic ``confidence``.
+    finding_id: str | None = None
+    verdict: str | None = None
+    triage_confidence: float | None = None
+    triage_reasoning: str | None = None
+    suggested_fix: str | None = None
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _is_test_file(path: str) -> bool:
+    """Check if path is a test file."""
+    parts = path.replace("\\", "/").split("/")
+    return any(p == "tests" or p == "test" for p in parts) or parts[-1].startswith("test_")
+
+
+def _collect_tool_names() -> set[str]:
+    """Collect all LLM tool names from tool definition functions in tools.py."""
+    try:
+        from . import tools as tools_mod
+        names: set[str] = set()
+        for attr_name in dir(tools_mod):
+            if attr_name.startswith("get_") and attr_name.endswith("_tool_definitions"):
+                fn = getattr(tools_mod, attr_name)
+                try:
+                    for td in fn():
+                        if hasattr(td, "name"):
+                            names.add(td.name)
+                        elif isinstance(td, dict) and "name" in td:
+                            names.add(td["name"])
+                except Exception:
+                    pass
+        return names
+    except ImportError:
+        return set()
+
+
+def _collect_tool_schema_keys() -> set[str]:
+    """Collect property names, enum values, and top-level tool definition keys from LLM tool schemas.
+
+    These form an external contract with the LLM — code that does
+    data.get("imports") on LLM-generated JSON has the tool schema as
+    its producer, not internal code.
+    """
+    try:
+        from . import tools as tools_mod
+        keys: set[str] = set()
+        for attr_name in dir(tools_mod):
+            obj = getattr(tools_mod, attr_name)
+            if isinstance(obj, dict) and "input_schema" in obj:
+                keys.update(obj.keys())
+                _extract_schema_keys(obj["input_schema"], keys)
+        return keys
+    except ImportError:
+        return set()
+
+
+def _extract_schema_keys(schema: dict, keys: set[str]) -> None:
+    """Recursively extract property names and enum values from a JSON Schema."""
+    if not isinstance(schema, dict):
+        return
+    if "properties" in schema:
+        for prop_name, prop_schema in schema["properties"].items():
+            keys.add(prop_name)
+            _extract_schema_keys(prop_schema, keys)
+    if "enum" in schema:
+        for val in schema["enum"]:
+            if isinstance(val, str):
+                keys.add(val)
+    if "items" in schema and isinstance(schema["items"], dict):
+        _extract_schema_keys(schema["items"], keys)
+
+
+_RUNTIME_GLOBALS = {
+    "process",      # Node.js: process.env, process.argv
+    "os",           # Python: os.environ, os.getenv
+    "sys",          # Python: sys.argv
+    "req",          # HTTP: req.url, req.method, req.headers
+    "request",      # HTTP: request.url, request.method
+    "res",          # HTTP: res.statusCode
+    "response",     # HTTP: response.status
+    "event",        # DOM: event.key, event.type
+    "e",            # DOM: e.key, e.type (common shorthand)
+    "window",       # Browser: window.location
+    "document",     # Browser: document.cookie
+    "globalThis",   # Universal global
+    "self",         # Web Worker global
+    "Deno",         # Deno runtime
+}
+
+
+_COMMON_STRINGS = {
+    "id", "name", "type", "error", "status", "value", "key", "data",
+    "result", "message", "path", "file", "url", "true", "false", "none",
+    "null", "ok", "yes", "no",
+    # JSON Schema standard vocabulary
+    "enum", "minimum", "maximum", "required", "properties", "items",
+    "string", "integer", "number", "boolean", "array", "object",
+    # Common format/output names
+    "json", "html", "text", "xml", "csv", "yaml",
+}
+
+_FILE_PATH_ROOTS = {
+    "file_name", "filename", "name_lower", "suffix", "suffix_lower",
+    "path", "file_path", "parts", "parts_lower",
+}
+
+_FILE_PATH_HINTS = {
+    "directory", "filename", "suffix", "extension", "basename",
+    "glob", "prefix check", "name prefix", "name check", "path part",
+}
+
+_SERIALIZED_KEY_ROOTS = {
+    "data", "item", "entry", "payload", "json", "record", "row", "obj",
+}
+
+_SERIALIZED_KEY_HINTS = {
+    "json", "schema", "serialized", "payload", "mapping", "dict", "key",
+    "tool input", "tool output", "facts",
+}
+
+_EXTERNAL_PROTOCOL_HINTS = {
+    "api", "protocol", "wire", "request", "response", "event",
+    "role string", "tool use", "tool result", "anthropic",
+}
+
+
+def _comparison_root(expr: str | None) -> str:
+    """Extract the root identifier from a comparison expression."""
+    if not expr:
+        return ""
+    return expr.split(".")[0].split("[")[0].split("(")[0].strip()
+
+
+def _occurrence_text(context: str, comparison_source: str | None) -> str:
+    """Normalize occurrence context for heuristic matching."""
+    return " ".join(part.strip().lower() for part in (context, comparison_source or "") if part)
+
+
+def _contains_any(text: str, needles: set[str]) -> bool:
+    """Check whether any hint string appears in the normalized text."""
+    return any(needle in text for needle in needles)
+
+
+# ---------------------------------------------------------------------------
+# ABC
+# ---------------------------------------------------------------------------
+
+class ContractChecker(ABC):
+    """Base class for contract checkers.
+
+    Each subclass detects a specific type of cross-file contract issue
+    (violations, fragile implicit contracts, etc.).
+    """
+
+    def __init__(self, facts_db: FactsDB):
+        self.facts = facts_db
+
+    @property
+    @abstractmethod
+    def contract_type(self) -> str: ...
+
+    @property
+    @abstractmethod
+    def description(self) -> str: ...
+
+    @abstractmethod
+    def find_contracts(self) -> list[ContractFinding]: ...
+
+
+# ---------------------------------------------------------------------------
+# String contract checker
+# ---------------------------------------------------------------------------
+
+class StringContractChecker(ContractChecker):
+    """Detect mismatches between string producers and consumers across files.
+
+    Uses a ratio-based set algorithm: if zero of N checked strings in a file
+    match any global producer, the entire set is external and skipped. Partial
+    matches indicate internal contracts with drift — only the unmatched strings
+    are flagged.
+
+    Also detects *fragile implicit contracts*: values that are both produced and
+    checked across files with no shared definition linking them.
+    """
+
+    def __init__(self, facts_db: FactsDB):
+        super().__init__(facts_db)
+        self._tool_names = _collect_tool_names()
+        self._tool_schema_keys = _collect_tool_schema_keys()
+        self._data: StringContractData | None = None
+
+    @property
+    def contract_type(self) -> str:
+        return "string_contract"
+
+    @property
+    def description(self) -> str:
+        return "Cross-file string contract checking"
+
+    # --- Public API ---
+
+    def find_contracts(self) -> list[ContractFinding]:
+        """Return all findings: violations + fragile implicit contracts."""
+        data = self._collect_contract_data()
+        findings: list[ContractFinding] = []
+        findings.extend(self._check_violations(data))
+        findings.extend(self._check_fragility(data))
+        return findings
+
+    def check(self) -> list[ObligationViolation]:
+        """Backward-compatible wrapper — returns violations as ObligationViolation."""
+        data = self._collect_contract_data()
+        return self._violations_as_legacy(self._check_violations(data))
+
+    # --- Data collection (cached) ---
+
+    def _collect_contract_data(self) -> StringContractData:
+        if self._data is not None:
+            return self._data
+
+        producers: dict[str, list[StringOccurrence]] = {}
+        checked: dict[str, list[StringOccurrence]] = {}
+        defined: dict[str, list[StringOccurrence]] = {}
+
+        for file_path in self.facts.all_files():
+            file_facts = self.facts.get_file(file_path)
+            if not file_facts:
+                continue
+            for sl in file_facts.string_literals:
+                if sl.get("kind") != "identifier":
+                    continue
+                value = sl.get("value", "")
+                if not value:
+                    continue
+                occ = StringOccurrence(
+                    file=file_path,
+                    line=sl.get("line", 0),
+                    context=sl.get("context", ""),
+                    comparison_source=sl.get("comparison_source"),
+                )
+                usage = sl.get("usage", "")
+                if usage == "produced":
+                    producers.setdefault(value, []).append(occ)
+                elif usage == "checked":
+                    checked.setdefault(value, []).append(occ)
+                elif usage == "defined":
+                    defined.setdefault(value, []).append(occ)
+
+        all_produced_values = set(producers.keys()) | set(defined.keys())
+
+        self._data = StringContractData(
+            producers=producers,
+            checked=checked,
+            defined=defined,
+            all_produced_values=all_produced_values,
+        )
+        return self._data
+
+    # --- Violation detection (ratio algorithm) ---
+
+    def _check_violations(self, data: StringContractData) -> list[ContractFinding]:
+        """Ratio-based violation detection. Reimplements check() using StringContractData."""
+        findings: list[ContractFinding] = []
+
+        # Build per-file checked entries (need the full entry dicts for comparison_source)
+        per_file_checked = self.facts.string_entries_by_usage("checked", kind="identifier")
+
+        for file_path, checked_entries in per_file_checked.items():
+            if _is_test_file(file_path):
+                continue
+
+            relevant_entries = [
+                entry
+                for entry in checked_entries
+                if not self._should_ignore_checked_occurrence(
+                    file_path,
+                    StringOccurrence(
+                        file=file_path,
+                        line=entry.get("line", 0),
+                        context=entry.get("context", ""),
+                        comparison_source=entry.get("comparison_source"),
+                    ),
+                )
+            ]
+
+            if not relevant_entries:
+                continue
+
+            checked_values = {e["value"] for e in relevant_entries}
+            checked_values -= self._tool_names
+
+            matched = checked_values & data.all_produced_values
+            unmatched = checked_values - matched
+
+            # Filter noise from unmatched (after ratio computation to preserve
+            # partial-match logic — schema keys can still anchor the match ratio)
+            unmatched -= self._tool_schema_keys
+            unmatched -= {v for v in unmatched if v.lower() in _COMMON_STRINGS}
+            unmatched -= {v for v in unmatched if len(v) < 3}
+
+            if not unmatched:
+                continue
+            if not matched:
+                continue
+
+            match_ratio = len(matched) / len(checked_values)
+            seen_values: set[str] = set()
+            for entry in relevant_entries:
+                if entry["value"] not in unmatched:
+                    continue
+                if entry["value"] in seen_values:
+                    continue
+                seen_values.add(entry["value"])
+
+                checker_context = entry.get("context")
+                findings.append(ContractFinding(
+                    finding_type="violation",
+                    contract_type="string_contract",
+                    value=entry["value"],
+                    producer_file="(no producer found)",
+                    consumer_file=file_path,
+                    definer_file=None,
+                    severity="warning",
+                    confidence=round(match_ratio, 2),
+                    description=f'String "{entry["value"]}" is checked but never produced or defined in any project file',
+                    evidence={
+                        "value": entry["value"],
+                        "producer_context": None,
+                        "checker_context": checker_context,
+                    },
+                    remediation="Check string contract with (no producer found)",
+                ))
+
+        findings.sort(key=lambda f: (-f.confidence, f.consumer_file))
+        return findings
+
+    def _should_ignore_checked_occurrence(self, file_path: str, occ: StringOccurrence) -> bool:
+        """Return True when a checked string clearly is not an internal repo contract."""
+        if self._is_external_origin(file_path, occ.comparison_source):
+            return True
+        if self._looks_like_file_or_path_occurrence(occ):
+            return True
+        if self._looks_like_serialized_key_occurrence(occ):
+            return True
+        if self._looks_like_external_protocol_occurrence(occ):
+            return True
+        if self._looks_like_duck_typing_or_config_access(occ):
+            return True
+        return False
+
+    def _looks_like_duck_typing_or_config_access(self, occ: StringOccurrence) -> bool:
+        """Heuristic filter for duck-typing checks (getattr) and config/dict key access (.get())."""
+        cs = occ.comparison_source
+        if not cs:
+            return False
+        # getattr(obj, "method") — duck-typing, not a project contract
+        if "getattr(" in cs:
+            return True
+        # obj.get("key") — dict/config access pattern
+        if ".get(" in cs:
+            return True
+        return False
+
+    def _should_ignore_produced_occurrence(self, occ: StringOccurrence) -> bool:
+        """Return True when a produced string is clearly an external protocol or sentinel."""
+        if self._looks_like_file_or_path_occurrence(occ):
+            return True
+        if self._looks_like_external_protocol_occurrence(occ):
+            return True
+        return False
+
+    def _looks_like_file_or_path_occurrence(self, occ: StringOccurrence) -> bool:
+        """Heuristic filter for filename/path sentinels and directory checks."""
+        text = _occurrence_text(occ.context, occ.comparison_source)
+        root = _comparison_root(occ.comparison_source)
+        return root in _FILE_PATH_ROOTS or _contains_any(text, _FILE_PATH_HINTS)
+
+    def _looks_like_serialized_key_occurrence(self, occ: StringOccurrence) -> bool:
+        """Heuristic filter for object/JSON key reads from serialized data."""
+        text = _occurrence_text(occ.context, occ.comparison_source)
+        root = _comparison_root(occ.comparison_source)
+        if root not in _SERIALIZED_KEY_ROOTS:
+            return False
+        return _contains_any(text, _SERIALIZED_KEY_HINTS)
+
+    def _looks_like_external_protocol_occurrence(self, occ: StringOccurrence) -> bool:
+        """Heuristic filter for wire/API protocol literals."""
+        text = _occurrence_text(occ.context, occ.comparison_source)
+        return _contains_any(text, _EXTERNAL_PROTOCOL_HINTS)
+
+    # --- Fragility detection ---
+
+    def _check_fragility(self, data: StringContractData) -> list[ContractFinding]:
+        """Detect implicit contracts: values produced and checked across files with no shared definer.
+
+        Emits **one finding per (checker, value)**: when several files emit the
+        same literal, the checker genuinely couples to only one of them (the
+        producer it imports/reads from). Naming that producer as the tuple head —
+        rather than emitting one arbitrary finding per producer×checker pair —
+        fixes the residual where a diff↔test pair was reported but the test
+        actually coupled to shadow.py. All co-producers/checkers ride along in
+        the evidence so no sharer is lost; the flagged SET of (checker, value)
+        pairs is unchanged (attribution/count only — see signal conservation).
+        """
+        raw_findings: list[ContractFinding] = []
+
+        shared_values = set(data.producers.keys()) & set(data.checked.keys())
+
+        for value in shared_values:
+            if not self._is_plausible_identifier(value):
+                continue
+
+            producer_occurrences = [
+                occ for occ in data.producers[value]
+                if not self._should_ignore_produced_occurrence(occ)
+            ]
+            checker_occurrences = [
+                occ for occ in data.checked[value]
+                if not self._should_ignore_checked_occurrence(occ.file, occ)
+            ]
+            if not producer_occurrences or not checker_occurrences:
+                continue
+
+            producer_files = {occ.file for occ in producer_occurrences}
+            checker_files = {occ.file for occ in checker_occurrences}
+            definer_files = {occ.file for occ in data.defined.get(value, [])}
+
+            for checker_file in checker_files:
+                candidates = [p for p in producer_files if p != checker_file]
+                # Trigger unchanged: the value is a fragile contract for this
+                # checker iff at least one producer forms a non-robust pair.
+                fragile = [
+                    p for p in candidates
+                    if not self._pair_robust(p, checker_file, definer_files)
+                ]
+                if not fragile:
+                    continue
+
+                # Attribution: head the tuple with the fragile producer the
+                # checker actually reads from (import-linked = the genuine data
+                # source), then definer membership, occurrence count, then path
+                # for a deterministic tie-break.
+                best = max(fragile, key=lambda p: (
+                    self._files_are_linked(checker_file, p),
+                    p in definer_files,
+                    sum(1 for o in producer_occurrences if o.file == p),
+                    p,
+                ))
+
+                producer_occ = next(o for o in producer_occurrences if o.file == best)
+                checker_occ = next(o for o in checker_occurrences if o.file == checker_file)
+
+                raw_findings.append(ContractFinding(
+                    finding_type="implicit_contract",
+                    contract_type="string_contract",
+                    value=value,
+                    producer_file=best,
+                    consumer_file=checker_file,
+                    definer_file=None,
+                    severity="info",
+                    confidence=0.5,
+                    description=f'Implicit contract: "{value}" is produced in {best} and checked in {checker_file} with no shared definition',
+                    evidence={
+                        "value": value,
+                        "producer_context": producer_occ.context,
+                        "checker_context": checker_occ.context,
+                        "producer_line": producer_occ.line,
+                        "checker_line": checker_occ.line,
+                        # All co-producers/checkers/definers of the literal —
+                        # the full file tuple the Claim Builder sweeps as context.
+                        "producer_files": sorted(producer_files),
+                        "checker_files": sorted(checker_files),
+                        "definer_files": sorted(definer_files),
+                    },
+                    remediation=self._suggest_remediation(best, checker_file),
+                ))
+
+        return self._group_findings(raw_findings)
+
+    def _pair_robust(self, producer_file: str, checker_file: str, definer_files: set[str]) -> bool:
+        """A (producer, checker) pair is robust iff both link to a shared definer.
+
+        With no definer the pair is fragile by definition — the shared literal
+        has no single source of truth — so the loop falls through to ``False``.
+        """
+        for definer_file in definer_files:
+            producer_linked = (
+                producer_file == definer_file
+                or self._files_are_linked(producer_file, definer_file)
+            )
+            checker_linked = (
+                checker_file == definer_file
+                or self._files_are_linked(checker_file, definer_file)
+            )
+            if producer_linked and checker_linked:
+                return True
+        return False
+
+    def _files_are_linked(self, file_a: str, file_b: str) -> bool:
+        """Check if file_a imports from file_b (directly or one hop)."""
+        return _imports_link(self.facts, file_a, file_b)
+
+    def _is_plausible_identifier(self, value: str) -> bool:
+        """Filter out noise — strings too short or too common to be meaningful contracts."""
+        if len(value) < 3:
+            return False
+        if value.lower() in _COMMON_STRINGS:
+            return False
+        if value in self._tool_names:
+            return False
+        if value in self._tool_schema_keys:
+            return False
+        return True
+
+    def _group_findings(self, findings: list[ContractFinding]) -> list[ContractFinding]:
+        """Group findings by (producer_file, consumer_file) pair.
+
+        Multi-value groups get a single finding with all values listed.
+        Confidence scales with count.
+        """
+        if not findings:
+            return []
+
+        groups: dict[tuple[str, str], list[ContractFinding]] = {}
+        for f in findings:
+            key = (f.producer_file, f.consumer_file)
+            groups.setdefault(key, []).append(f)
+
+        grouped: list[ContractFinding] = []
+        for (producer, consumer), group in groups.items():
+            if len(group) == 1:
+                grouped.append(group[0])
+                continue
+
+            values = sorted({f.value for f in group if f.value})
+            count = len(values)
+            confidence = min(0.9, 0.5 + 0.1 * count)
+            values_str = ", ".join(f'"{v}"' for v in values[:5])
+            if count > 5:
+                values_str += f" (+{count - 5} more)"
+
+            if count > 3:
+                remediation = (
+                    f"These files share {count} implicit string contracts. "
+                    f"If they have a known dependency (e.g. one file tests the other), "
+                    f"this may be expected. Otherwise, consider extracting shared values "
+                    f"to a common definition so a rename triggers an import error instead of a silent mismatch."
+                )
+            else:
+                remediation = self._suggest_remediation(producer, consumer)
+
+            # Union the per-value sharer sets so a grouped finding still carries
+            # the full file tuple for the Claim Builder / Triage.
+            grouped_producers = sorted({pf for f in group for pf in f.evidence.get("producer_files", [])})
+            grouped_checkers = sorted({cf for f in group for cf in f.evidence.get("checker_files", [])})
+            grouped_definers = sorted({df for f in group for df in f.evidence.get("definer_files", [])})
+
+            grouped.append(ContractFinding(
+                finding_type="implicit_contract",
+                contract_type="string_contract",
+                value=None,
+                producer_file=producer,
+                consumer_file=consumer,
+                definer_file=None,
+                severity="info",
+                confidence=round(confidence, 2),
+                description=f"{count} implicit contracts between {producer} and {consumer}: {values_str}",
+                evidence={
+                    "values": values,
+                    "count": count,
+                    "producer_files": grouped_producers,
+                    "checker_files": grouped_checkers,
+                    "definer_files": grouped_definers,
+                },
+                remediation=remediation,
+            ))
+
+        grouped.sort(key=lambda f: (-f.confidence, f.consumer_file))
+        return grouped
+
+    def _suggest_remediation(self, producer_file: str, consumer_file: str) -> str:
+        """Suggest remediation based on file relationship."""
+        producer_parts = PurePosixPath(producer_file).parts
+        consumer_parts = PurePosixPath(consumer_file).parts
+
+        # Find common prefix (package directory)
+        common = []
+        for a, b in zip(producer_parts, consumer_parts):
+            if a == b:
+                common.append(a)
+            else:
+                break
+
+        if common:
+            pkg = "/".join(common)
+            return f"Extract shared constants to a module in {pkg}/ so a rename triggers an import error instead of a silent mismatch"
+        return "Extract shared constants to a common module so a rename triggers an import error instead of a silent mismatch"
+
+    # --- Legacy conversion ---
+
+    @staticmethod
+    def _violations_as_legacy(findings: list[ContractFinding]) -> list[ObligationViolation]:
+        """Convert ContractFindings back to ObligationViolation for backward compat."""
+        violations: list[ObligationViolation] = []
+        for f in findings:
+            if f.finding_type != "violation":
+                continue
+            violations.append(ObligationViolation(
+                obligation_type=f.contract_type,
+                source_file=f.producer_file,
+                checking_file=f.consumer_file,
+                description=f.description,
+                evidence=f.evidence,
+                severity=f.severity,
+                confidence=f.confidence,
+            ))
+        return violations
+
+    # --- External origin detection ---
+
+    def _is_external_origin(self, file_path: str, comparison_source: str | None) -> bool:
+        """Check if comparison_source traces to an external import or runtime global."""
+        if not comparison_source:
+            return False
+        root = comparison_source.split(".")[0].split("[")[0].split("(")[0].strip()
+        if not root:
+            return False
+
+        # Safety net: well-known runtime globals that are external by definition
+        if root in _RUNTIME_GLOBALS:
+            return True
+
+        file_facts = self.facts.get_file(file_path)
+        if not file_facts:
+            return False
+        for imp in file_facts.imports:
+            source = imp.get("source", "")
+            names = imp.get("names", [])
+            if root in names and self._is_external_package(file_path, source):
+                return True
+            if root == source.split(".")[-1] and self._is_external_package(file_path, source):
+                return True
+            if "*" in names and self._is_external_package(file_path, source):
+                return True
+        return False
+
+    def _is_external_package(self, importing_file: str, source: str) -> bool:
+        """Check if an import source is external (not a project file)."""
+        if not source:
+            return False
+        if source.startswith("."):
+            return False  # relative imports are always internal
+        resolved = self.facts.resolve_import_source(importing_file, source)
+        return resolved is None
+
+
+# ---------------------------------------------------------------------------
+# Cross-pair contract clustering (V1-5c deeper fix)
+# ---------------------------------------------------------------------------
+#
+# The per-pair findings above answer "which (producer, consumer) pairs share a
+# fragile literal." But the SAME distinct contract — the same shared literal, or
+# the same shared literal SET — is routinely emitted as several near-duplicate
+# pair-findings (a literal produced in one file and checked from N others yields
+# N findings). Routed to Triage independently, every instance of a genuine
+# contract can be dismissed on thin per-pair context, leaving no surviving
+# representative (the config-source Literal family; the orphaned-files /
+# orphaned_files hyphen-drift — both observed lost in the V1-5c A/B gate).
+#
+# This pass clusters findings by contract identity ACROSS file pairs and emits
+# ONE canonical finding per distinct contract, anchored at the best-attested
+# pair, carrying every other sharing site as case-FOR evidence (more sharers =
+# stronger contract). Downstream, one claim represents the whole cluster and its
+# single verdict governs it: a distinct contract is dropped only by an explicit
+# verdict on a claim that actually represents it. Detection is untouched — this
+# is grouping/claim-shaping over the per-pair findings the checkers already
+# produced (signal conservation).
+
+
+def _imports_link(facts_db: FactsDB, file_a: str, file_b: str) -> bool:
+    """Return True if ``file_a`` imports from ``file_b`` (directly or one hop)."""
+    imports_a = facts_db.imports_of(file_a)
+    if file_b in imports_a:
+        return True
+    for intermediate in imports_a:
+        if file_b in facts_db.imports_of(intermediate):
+            return True
+    return False
+
+
+def _contract_identity(f: ContractFinding) -> frozenset[str]:
+    """The distinct-contract key: the shared literal value, or a bundle's value set."""
+    if f.value is not None:
+        return frozenset((f.value,))
+    return frozenset(f.evidence.get("values", ()))
+
+
+def _sharer_files(f: ContractFinding) -> set[str]:
+    """Every file that produces/checks/defines the contract's literal(s)."""
+    files: set[str] = set()
+    for key in ("producer_files", "checker_files", "definer_files"):
+        files.update(f.evidence.get(key, ()))
+    for path in (f.producer_file, f.consumer_file, f.definer_file):
+        if path and path != "(no producer found)":
+            files.add(path)
+    return files
+
+
+def _merge_cluster(group: list[ContractFinding], facts_db: FactsDB) -> ContractFinding:
+    """Collapse several pair-findings of one distinct contract into one canonical
+    finding, anchored at the best-attested pair.
+
+    Anchor ranking reuses ``_check_fragility``'s attribution order: the pair
+    whose consumer actually imports its producer (genuine coupling) wins, then
+    heuristic confidence, then sharer breadth, then a deterministic path
+    tie-break. All co-sharers across the cluster are unioned so the adapter's
+    reference sweep still covers the full file tuple, and every site rides along
+    in ``evidence["contract_sites"]`` so Triage sees the contract's full reach.
+    """
+
+    def rank(f: ContractFinding) -> tuple:
+        return (
+            _imports_link(facts_db, f.consumer_file, f.producer_file),
+            f.confidence,
+            len(_sharer_files(f)),
+            f.producer_file,
+            f.consumer_file,
+        )
+
+    anchor = max(group, key=rank)
+
+    producer_files = sorted({p for f in group for p in f.evidence.get("producer_files", ())}
+                            | {f.producer_file for f in group
+                               if f.producer_file and f.producer_file != "(no producer found)"})
+    checker_files = sorted({c for f in group for c in f.evidence.get("checker_files", ())}
+                           | {f.consumer_file for f in group if f.consumer_file})
+    definer_files = sorted({d for f in group for d in f.evidence.get("definer_files", ())}
+                           | {f.definer_file for f in group if f.definer_file})
+
+    sites = sorted(
+        {(f.producer_file, f.consumer_file) for f in group},
+        key=lambda pc: (pc != (anchor.producer_file, anchor.consumer_file), pc),
+    )
+    other = [f"{p} -> {c}" for p, c in sites
+             if (p, c) != (anchor.producer_file, anchor.consumer_file)]
+
+    evidence = dict(anchor.evidence)
+    evidence["producer_files"] = producer_files
+    evidence["checker_files"] = checker_files
+    evidence["definer_files"] = definer_files
+    evidence["contract_sites"] = [{"producer": p, "consumer": c} for p, c in sites]
+    evidence["site_count"] = len(sites)
+
+    description = anchor.description
+    if other:
+        description += (
+            f" — the same contract binds {len(sites)} sites in total "
+            f"(also at: {'; '.join(other)})"
+        )
+
+    return replace(anchor, description=description, evidence=evidence)
+
+
+def _cluster_by_contract(
+    findings: list[ContractFinding], facts_db: FactsDB
+) -> list[ContractFinding]:
+    """Reduce per-pair findings to one canonical finding per distinct contract.
+
+    Clusters share a ``(finding_type, literal-set)`` identity; a single-member
+    cluster passes through untouched. Multi-member clusters collapse to one
+    anchored finding via :func:`_merge_cluster`.
+    """
+    if not findings:
+        return []
+
+    clusters: dict[tuple[str, frozenset[str]], list[ContractFinding]] = {}
+    order: list[tuple[str, frozenset[str]]] = []
+    for f in findings:
+        key = (f.finding_type, _contract_identity(f))
+        if key not in clusters:
+            clusters[key] = []
+            order.append(key)
+        clusters[key].append(f)
+
+    canonical: list[ContractFinding] = []
+    for key in order:
+        group = clusters[key]
+        canonical.append(group[0] if len(group) == 1 else _merge_cluster(group, facts_db))
+
+    canonical.sort(key=lambda f: (-f.confidence, f.consumer_file, f.producer_file))
+    return canonical
+
+
+# ---------------------------------------------------------------------------
+# Registry and entry point
+# ---------------------------------------------------------------------------
+
+CONTRACT_CHECKERS: list[type[ContractChecker]] = [
+    StringContractChecker,
+]
+
+
+def run_all_contract_checks(facts_db: FactsDB) -> list[ContractFinding]:
+    """Run all registered contract checkers and return one finding per contract.
+
+    Each checker still proposes per-pair findings; this entry point then clusters
+    them across file pairs (:func:`_cluster_by_contract`) so every distinct
+    shared-literal contract is represented by exactly one canonical finding —
+    and, downstream, one Triage claim whose verdict governs the whole cluster.
+    """
+    findings: list[ContractFinding] = []
+    for checker_cls in CONTRACT_CHECKERS:
+        checker = checker_cls(facts_db)
+        findings.extend(checker.find_contracts())
+    return _cluster_by_contract(findings, facts_db)

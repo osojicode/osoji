@@ -1,0 +1,418 @@
+{
+  "source": "src/osoji/audit_manifest.py",
+  "source_hash": "87d1c53c95fbe1dc",
+  "generated": "2026-07-22T10:55:19Z",
+  "imports": [
+    {
+      "source": "__future__",
+      "names": [
+        "annotations"
+      ],
+      "line": 19,
+      "is_reexport": false
+    },
+    {
+      "source": "json",
+      "names": [
+        "json"
+      ],
+      "line": 21,
+      "is_reexport": false
+    },
+    {
+      "source": "subprocess",
+      "names": [
+        "subprocess"
+      ],
+      "line": 22,
+      "is_reexport": false
+    },
+    {
+      "source": "collections.abc",
+      "names": [
+        "Iterable"
+      ],
+      "line": 23,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass",
+        "field"
+      ],
+      "line": 24,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 25,
+      "is_reexport": false
+    },
+    {
+      "source": ".claim_builder",
+      "names": [
+        "CLAIM_BUILDER_SCHEMA_VERSION"
+      ],
+      "line": 27,
+      "is_reexport": false
+    },
+    {
+      "source": ".findings",
+      "names": [
+        "Finding"
+      ],
+      "line": 28,
+      "is_reexport": false
+    },
+    {
+      "source": ".hasher",
+      "names": [
+        "compute_impl_hash"
+      ],
+      "line": 29,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "MANIFEST_SCHEMA",
+      "kind": "constant",
+      "line": 32,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "IncrementalAuditError",
+      "kind": "class",
+      "line": 35,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "RuntimeError"
+      ]
+    },
+    {
+      "name": "current_version",
+      "kind": "function",
+      "line": 39,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "get_head_commit",
+      "kind": "function",
+      "line": 45,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "load_manifest",
+      "kind": "function",
+      "line": 63,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "write_manifest",
+      "kind": "function",
+      "line": 79,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "cache_from_verdicts",
+      "kind": "function",
+      "line": 100,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "merge_verdicts",
+      "kind": "function",
+      "line": 120,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "VerdictSession",
+      "kind": "class",
+      "line": 143,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "VerdictSession.harvest",
+      "kind": "function",
+      "line": 156,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "VerdictSession.hit_rate",
+      "kind": "function",
+      "line": 176,
+      "decorators": [
+        "property"
+      ],
+      "exclude_from_dead_analysis": true
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "current_version",
+      "to": "compute_impl_hash",
+      "line": 42,
+      "call_sites": 32
+    },
+    {
+      "from_symbol": "get_head_commit",
+      "to": "subprocess.run",
+      "line": 49,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "get_head_commit",
+      "to": "str",
+      "line": 50,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "get_head_commit",
+      "to": "result.stdout.strip",
+      "line": 59,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_manifest",
+      "to": "json.loads",
+      "line": 67,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_manifest",
+      "to": "path.read_text",
+      "line": 67,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "load_manifest",
+      "to": "isinstance",
+      "line": 70,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "load_manifest",
+      "to": "data.get",
+      "line": 72,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "load_manifest",
+      "to": "isinstance",
+      "line": 74,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "load_manifest",
+      "to": "data.get",
+      "line": 74,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "write_manifest",
+      "to": "path.parent.mkdir",
+      "line": 88,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "write_manifest",
+      "to": "path.with_suffix",
+      "line": 95,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "write_manifest",
+      "to": "tmp.write_text",
+      "line": 96,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "write_manifest",
+      "to": "json.dumps",
+      "line": 96,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "write_manifest",
+      "to": "tmp.replace",
+      "line": 97,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "cache_from_verdicts",
+      "to": "verdicts.items",
+      "line": 109,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "cache_from_verdicts",
+      "to": "isinstance",
+      "line": 110,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "cache_from_verdicts",
+      "to": "entry.get",
+      "line": 110,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_producer",
+      "to": "detector.split",
+      "line": 117,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "merge_verdicts",
+      "to": "previous.items",
+      "line": 134,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "merge_verdicts",
+      "to": "isinstance",
+      "line": 135,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "merge_verdicts",
+      "to": "_producer",
+      "line": 136,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "merge_verdicts",
+      "to": "str",
+      "line": 136,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "merge_verdicts",
+      "to": "entry.get",
+      "line": 136,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "merge_verdicts",
+      "to": "merged.update",
+      "line": 138,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "VerdictSession",
+      "to": "field",
+      "line": 151,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "VerdictSession",
+      "to": "field",
+      "line": 152,
+      "call_sites": 2
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "git",
+      "line": 50,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "-C",
+      "line": 50,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "rev-parse",
+      "line": 50,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "HEAD",
+      "line": 50,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "utf-8",
+      "line": 67,
+      "usage": "produced",
+      "context": "keyword argument to path.read_text"
+    },
+    {
+      "value": "schema",
+      "line": 72,
+      "usage": "produced",
+      "context": "argument to data.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "verdicts",
+      "line": 74,
+      "usage": "produced",
+      "context": "argument to data.get",
+      "kind": "identifier"
+    },
+    {
+      "value": ".json.tmp",
+      "line": 95,
+      "usage": "produced",
+      "context": "argument to path.with_suffix"
+    },
+    {
+      "value": "utf-8",
+      "line": 96,
+      "usage": "produced",
+      "context": "keyword argument to tmp.write_text"
+    },
+    {
+      "value": "evidence_fingerprint",
+      "line": 110,
+      "usage": "produced",
+      "context": "argument to entry.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "detector",
+      "line": 136,
+      "usage": "produced",
+      "context": "argument to entry.get",
+      "kind": "identifier"
+    },
+    {
+      "value": "audited_commit",
+      "kind": "identifier",
+      "line": 91,
+      "context": "Field written to manifest payload recording the git commit SHA at audit time",
+      "usage": "produced"
+    },
+    {
+      "value": "osoji_version",
+      "kind": "identifier",
+      "line": 92,
+      "context": "Field written to manifest payload recording the osoji logic version stamp",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

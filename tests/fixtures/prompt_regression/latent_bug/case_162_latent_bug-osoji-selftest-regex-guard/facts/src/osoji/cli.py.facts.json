@@ -1,0 +1,3641 @@
+{
+  "source": "src/osoji/cli.py",
+  "source_hash": "461b3917f690800b",
+  "generated": "2026-07-22T10:56:14Z",
+  "imports": [
+    {
+      "source": "asyncio",
+      "names": [
+        "asyncio"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "sys",
+      "names": [
+        "sys"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "dataclasses",
+      "names": [
+        "dataclass"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "pathlib",
+      "names": [
+        "Path"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "click",
+      "names": [
+        "click"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "dotenv",
+      "names": [
+        "load_dotenv"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": ".audit",
+      "names": [
+        "run_audit",
+        "format_audit_report",
+        "format_audit_json",
+        "format_audit_html",
+        "load_audit_result"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": ".config",
+      "names": [
+        "Config"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": ".corpus_emit",
+      "names": [
+        "CorpusEmitError",
+        "emit_case",
+        "resolve_dest"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": ".diff",
+      "names": [
+        "run_diff",
+        "format_diff_report",
+        "format_diff_json"
+      ],
+      "line": 14,
+      "is_reexport": false
+    },
+    {
+      "source": ".shadow",
+      "names": [
+        "generate_shadow_docs_async",
+        "generate_shadow_docs",
+        "check_shadow_docs",
+        "mark_stale_docs",
+        "dry_run_shadow"
+      ],
+      "line": 15,
+      "is_reexport": false
+    },
+    {
+      "source": ".stats",
+      "names": [
+        "gather_stats",
+        "format_stats_report"
+      ],
+      "line": 16,
+      "is_reexport": false
+    },
+    {
+      "source": ".observatory",
+      "names": [
+        "write_observatory_bundle"
+      ],
+      "line": 17,
+      "is_reexport": false
+    },
+    {
+      "source": ".hooks",
+      "names": [
+        "install_hooks",
+        "uninstall_hooks"
+      ],
+      "line": 18,
+      "is_reexport": false
+    },
+    {
+      "source": ".push",
+      "names": [
+        "run_push"
+      ],
+      "line": 19,
+      "is_reexport": false
+    },
+    {
+      "source": ".init",
+      "names": [
+        "run_init"
+      ],
+      "line": 20,
+      "is_reexport": false
+    },
+    {
+      "source": ".llm",
+      "names": [
+        "provider_names"
+      ],
+      "line": 21,
+      "is_reexport": false
+    },
+    {
+      "source": ".safety",
+      "names": [
+        "check_staged_files",
+        "safety_check_files"
+      ],
+      "line": 22,
+      "is_reexport": false,
+      "name_map": {
+        "safety_check_files": "check_files"
+      }
+    },
+    {
+      "source": ".safety.checker",
+      "names": [
+        "format_check_result"
+      ],
+      "line": 23,
+      "is_reexport": false
+    },
+    {
+      "source": ".safety.secrets",
+      "names": [
+        "secrets_available"
+      ],
+      "line": 24,
+      "is_reexport": false,
+      "name_map": {
+        "secrets_available": "is_available"
+      }
+    },
+    {
+      "source": ".safety.paths",
+      "names": [
+        "get_pattern_descriptions",
+        "PATTERNS",
+        "paths_self_test"
+      ],
+      "line": 25,
+      "is_reexport": false,
+      "name_map": {
+        "paths_self_test": "self_test"
+      }
+    },
+    {
+      "source": ".audit",
+      "names": [
+        "EXCLUDABLE_PHASES"
+      ],
+      "line": 381,
+      "is_reexport": false
+    },
+    {
+      "source": "osoji",
+      "names": [
+        "osoji"
+      ],
+      "line": 673,
+      "is_reexport": false
+    },
+    {
+      "source": ".skills",
+      "names": [
+        "_list_skills"
+      ],
+      "line": 759,
+      "is_reexport": false,
+      "name_map": {
+        "_list_skills": "list_skills"
+      }
+    },
+    {
+      "source": ".skills",
+      "names": [
+        "get_skill"
+      ],
+      "line": 774,
+      "is_reexport": false
+    },
+    {
+      "source": ".skills",
+      "names": [
+        "_list_skills"
+      ],
+      "line": 778,
+      "is_reexport": false,
+      "name_map": {
+        "_list_skills": "list_skills"
+      }
+    }
+  ],
+  "exports": [
+    {
+      "name": "CLIState",
+      "kind": "class",
+      "line": 32,
+      "decorators": [
+        "dataclass"
+      ],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "main",
+      "kind": "function",
+      "line": 97,
+      "decorators": [
+        "click.group",
+        "click.version_option",
+        "click.option",
+        "click.option",
+        "click.pass_context"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "init",
+      "kind": "function",
+      "line": 115,
+      "decorators": [
+        "main.command",
+        "click.argument",
+        "click.option",
+        "click.option"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "shadow",
+      "kind": "function",
+      "line": 143,
+      "decorators": [
+        "main.command",
+        "click.argument",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.pass_context"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "check",
+      "kind": "function",
+      "line": 177,
+      "decorators": [
+        "main.command",
+        "click.argument",
+        "click.option",
+        "click.option",
+        "click.pass_context"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "diff",
+      "kind": "function",
+      "line": 235,
+      "decorators": [
+        "main.command",
+        "click.argument",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.pass_context"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "stats",
+      "kind": "function",
+      "line": 296,
+      "decorators": [
+        "main.command",
+        "click.argument",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.pass_context"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "audit",
+      "kind": "function",
+      "line": 350,
+      "decorators": [
+        "main.command",
+        "click.argument",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.pass_context"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "report",
+      "kind": "function",
+      "line": 431,
+      "decorators": [
+        "main.command",
+        "click.argument",
+        "click.option",
+        "click.pass_context"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "push",
+      "kind": "function",
+      "line": 465,
+      "decorators": [
+        "main.command",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.pass_context"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "export_bundle",
+      "kind": "function",
+      "line": 494,
+      "decorators": [
+        "main.command",
+        "click.argument",
+        "click.option",
+        "click.option"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "corpus",
+      "kind": "function",
+      "line": 505,
+      "decorators": [
+        "main.group"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "corpus_emit",
+      "kind": "function",
+      "line": 530,
+      "decorators": [
+        "corpus.command",
+        "click.argument",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "hooks",
+      "kind": "function",
+      "line": 569,
+      "decorators": [
+        "main.group"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "hooks_install",
+      "kind": "function",
+      "line": 580,
+      "decorators": [
+        "hooks.command",
+        "click.argument",
+        "click.option",
+        "click.option",
+        "click.option",
+        "click.option"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "hooks_uninstall",
+      "kind": "function",
+      "line": 621,
+      "decorators": [
+        "hooks.command",
+        "click.argument"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "safety",
+      "kind": "function",
+      "line": 633,
+      "decorators": [
+        "main.group"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "safety_check",
+      "kind": "function",
+      "line": 641,
+      "decorators": [
+        "safety.command",
+        "click.argument",
+        "click.pass_context"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "safety_self_test",
+      "kind": "function",
+      "line": 664,
+      "decorators": [
+        "safety.command"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "safety_patterns",
+      "kind": "function",
+      "line": 704,
+      "decorators": [
+        "safety.command"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "config_cmd",
+      "kind": "function",
+      "line": 734,
+      "decorators": [
+        "main.group"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "config_show",
+      "kind": "function",
+      "line": 742,
+      "decorators": [
+        "config_cmd.command",
+        "click.argument",
+        "click.pass_context"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "skills",
+      "kind": "function",
+      "line": 751,
+      "decorators": [
+        "main.group"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "skills_list",
+      "kind": "function",
+      "line": 757,
+      "decorators": [
+        "skills.command"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "skills_show",
+      "kind": "function",
+      "line": 772,
+      "decorators": [
+        "skills.command",
+        "click.argument"
+      ],
+      "exclude_from_dead_analysis": true
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "click.Choice",
+      "line": 28,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "provider_names",
+      "line": 28,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "CLIState",
+      "to": "dataclass",
+      "line": 31,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_build_llm_config",
+      "to": "Config",
+      "line": 49,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "_build_llm_config",
+      "to": "path.resolve",
+      "line": 50,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "_configure_utf8_output",
+      "to": "getattr",
+      "line": 68,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_configure_utf8_output",
+      "to": "reconfigure",
+      "line": 72,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_cli_state",
+      "to": "ctx.find_object",
+      "line": 80,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "_cli_state",
+      "to": "CLIState",
+      "line": 81,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "_emit_config_banner",
+      "to": "click.echo",
+      "line": 89,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "_emit_config_banner",
+      "to": "config.format_resolution_banner",
+      "line": 89,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "_configure_utf8_output",
+      "line": 104,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "main",
+      "to": "load_dotenv",
+      "line": 105,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "click.UsageError",
+      "line": 107,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "CLIState",
+      "line": 108,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "main",
+      "to": "click.group",
+      "line": 92,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "click.version_option",
+      "line": 93,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "main",
+      "to": "click.option",
+      "line": 94,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "main",
+      "to": "click.option",
+      "line": 95,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "init",
+      "to": "run_init",
+      "line": 128,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "init",
+      "to": "path.resolve",
+      "line": 129,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "init",
+      "to": "main.command",
+      "line": 111,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "init",
+      "to": "click.argument",
+      "line": 112,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "init",
+      "to": "click.Path",
+      "line": 112,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "init",
+      "to": "click.option",
+      "line": 113,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "init",
+      "to": "click.option",
+      "line": 114,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "shadow",
+      "to": "_cli_state",
+      "line": 148,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "shadow",
+      "to": "_build_llm_config",
+      "line": 149,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "shadow",
+      "to": "_emit_config_banner",
+      "line": 158,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "shadow",
+      "to": "dry_run_shadow",
+      "line": 161,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "shadow",
+      "to": "asyncio.run",
+      "line": 165,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "shadow",
+      "to": "generate_shadow_docs_async",
+      "line": 165,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "shadow",
+      "to": "click.ClickException",
+      "line": 167,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "shadow",
+      "to": "str",
+      "line": 167,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "shadow",
+      "to": "click.ClickException",
+      "line": 169,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "shadow",
+      "to": "main.command",
+      "line": 135,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "shadow",
+      "to": "click.argument",
+      "line": 136,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "shadow",
+      "to": "click.Path",
+      "line": 136,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "shadow",
+      "to": "click.option",
+      "line": 137,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "shadow",
+      "to": "click.option",
+      "line": 138,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "shadow",
+      "to": "click.option",
+      "line": 139,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "shadow",
+      "to": "click.option",
+      "line": 140,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "shadow",
+      "to": "click.option",
+      "line": 141,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "check",
+      "to": "_cli_state",
+      "line": 185,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "check",
+      "to": "_build_llm_config",
+      "line": 186,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "check",
+      "to": "check_shadow_docs",
+      "line": 194,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "check",
+      "to": "click.echo",
+      "line": 197,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "check",
+      "to": "click.echo",
+      "line": 200,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "check",
+      "to": "len",
+      "line": 200,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "check",
+      "to": "status_colors.get",
+      "line": 204,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "check",
+      "to": "click.echo",
+      "line": 205,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "check",
+      "to": "click.style",
+      "line": 205,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "check",
+      "to": "click.echo",
+      "line": 207,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "check",
+      "to": "mark_stale_docs",
+      "line": 210,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "check",
+      "to": "click.echo",
+      "line": 213,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "check",
+      "to": "click.echo",
+      "line": 216,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "check",
+      "to": "len",
+      "line": 216,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "check",
+      "to": "status_colors.get",
+      "line": 220,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "check",
+      "to": "click.echo",
+      "line": 221,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "check",
+      "to": "click.style",
+      "line": 221,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "check",
+      "to": "click.echo",
+      "line": 223,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "check",
+      "to": "click.echo",
+      "line": 224,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "check",
+      "to": "click.echo",
+      "line": 225,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "check",
+      "to": "main.command",
+      "line": 172,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "check",
+      "to": "click.argument",
+      "line": 173,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "check",
+      "to": "click.Path",
+      "line": 173,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "check",
+      "to": "click.option",
+      "line": 174,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "check",
+      "to": "click.option",
+      "line": 175,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "diff",
+      "to": "_cli_state",
+      "line": 252,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "diff",
+      "to": "_build_llm_config",
+      "line": 253,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "diff",
+      "to": "Path",
+      "line": 254,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "diff",
+      "to": "run_diff",
+      "line": 261,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "diff",
+      "to": "click.ClickException",
+      "line": 263,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "diff",
+      "to": "str",
+      "line": 263,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "diff",
+      "to": "click.echo",
+      "line": 266,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "diff",
+      "to": "_emit_config_banner",
+      "line": 270,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "diff",
+      "to": "click.echo",
+      "line": 271,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "diff",
+      "to": "generate_shadow_docs",
+      "line": 273,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "diff",
+      "to": "click.ClickException",
+      "line": 275,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "diff",
+      "to": "run_diff",
+      "line": 277,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "diff",
+      "to": "click.ClickException",
+      "line": 279,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "diff",
+      "to": "str",
+      "line": 279,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "diff",
+      "to": "click.echo",
+      "line": 282,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "diff",
+      "to": "format_diff_json",
+      "line": 282,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "diff",
+      "to": "click.echo",
+      "line": 284,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "diff",
+      "to": "format_diff_report",
+      "line": 284,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "diff",
+      "to": "SystemExit",
+      "line": 287,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "diff",
+      "to": "main.command",
+      "line": 228,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "diff",
+      "to": "click.argument",
+      "line": 229,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "diff",
+      "to": "click.option",
+      "line": 230,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "diff",
+      "to": "click.option",
+      "line": 231,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "diff",
+      "to": "click.Choice",
+      "line": 231,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "diff",
+      "to": "click.option",
+      "line": 232,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "diff",
+      "to": "click.option",
+      "line": 233,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "stats",
+      "to": "_cli_state",
+      "line": 304,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "stats",
+      "to": "_build_llm_config",
+      "line": 305,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "stats",
+      "to": "_emit_config_banner",
+      "line": 313,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "stats",
+      "to": "click.echo",
+      "line": 316,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "stats",
+      "to": "gather_stats",
+      "line": 317,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "stats",
+      "to": "format_stats_report",
+      "line": 319,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "stats",
+      "to": "click.echo",
+      "line": 320,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "stats",
+      "to": "main.command",
+      "line": 290,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "stats",
+      "to": "click.argument",
+      "line": 291,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "stats",
+      "to": "click.Path",
+      "line": 291,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "stats",
+      "to": "click.option",
+      "line": 292,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "stats",
+      "to": "click.option",
+      "line": 293,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "stats",
+      "to": "click.option",
+      "line": 294,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "set",
+      "line": 382,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "audit",
+      "to": "exclude_phases.split",
+      "line": 384,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "audit",
+      "to": "phase.strip",
+      "line": 385,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.UsageError",
+      "line": 389,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "audit",
+      "to": "join",
+      "line": 390,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "audit",
+      "to": "exclude.add",
+      "line": 392,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "audit",
+      "to": "_cli_state",
+      "line": 394,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "audit",
+      "to": "_build_llm_config",
+      "line": 395,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "audit",
+      "to": "_emit_config_banner",
+      "line": 404,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "audit",
+      "to": "run_audit",
+      "line": 407,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.ClickException",
+      "line": 409,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "audit",
+      "to": "str",
+      "line": 409,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.echo",
+      "line": 412,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "audit",
+      "to": "format_audit_json",
+      "line": 412,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "audit",
+      "to": "format_audit_html",
+      "line": 414,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "audit",
+      "to": "out_path.parent.mkdir",
+      "line": 416,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "audit",
+      "to": "out_path.write_text",
+      "line": 417,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.echo",
+      "line": 418,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "audit",
+      "to": "format_audit_report",
+      "line": 420,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.echo",
+      "line": 421,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "audit",
+      "to": "SystemExit",
+      "line": 424,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "audit",
+      "to": "main.command",
+      "line": 323,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.argument",
+      "line": 324,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.Path",
+      "line": 324,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 325,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 326,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.Choice",
+      "line": 326,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 327,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 328,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 329,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 330,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 331,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 332,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 333,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 334,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 335,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 336,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 337,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 338,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 339,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 340,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 344,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 345,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "audit",
+      "to": "click.option",
+      "line": 347,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "report",
+      "to": "_cli_state",
+      "line": 437,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "report",
+      "to": "Config",
+      "line": 438,
+      "call_sites": 248
+    },
+    {
+      "from_symbol": "report",
+      "to": "path.resolve",
+      "line": 438,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "report",
+      "to": "load_audit_result",
+      "line": 440,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "report",
+      "to": "click.ClickException",
+      "line": 442,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "report",
+      "to": "click.echo",
+      "line": 445,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "report",
+      "to": "format_audit_json",
+      "line": 445,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "report",
+      "to": "format_audit_html",
+      "line": 447,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "report",
+      "to": "out_path.parent.mkdir",
+      "line": 449,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "report",
+      "to": "out_path.write_text",
+      "line": 450,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "report",
+      "to": "click.echo",
+      "line": 451,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "report",
+      "to": "format_audit_report",
+      "line": 453,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "report",
+      "to": "click.echo",
+      "line": 454,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "report",
+      "to": "SystemExit",
+      "line": 457,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "report",
+      "to": "main.command",
+      "line": 427,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "report",
+      "to": "click.argument",
+      "line": 428,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "report",
+      "to": "click.Path",
+      "line": 428,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "report",
+      "to": "click.option",
+      "line": 429,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "report",
+      "to": "click.Choice",
+      "line": 429,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "push",
+      "to": "_cli_state",
+      "line": 467,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "push",
+      "to": "run_push",
+      "line": 469,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "push",
+      "to": "resolve",
+      "line": 473,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "push",
+      "to": "Path",
+      "line": 473,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "push",
+      "to": "click.echo",
+      "line": 478,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "push",
+      "to": "click.echo",
+      "line": 480,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "push",
+      "to": "click.echo",
+      "line": 482,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "push",
+      "to": "main.command",
+      "line": 460,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "push",
+      "to": "click.option",
+      "line": 461,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "push",
+      "to": "click.option",
+      "line": 462,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "push",
+      "to": "click.option",
+      "line": 463,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "export_bundle",
+      "to": "write_observatory_bundle",
+      "line": 496,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "export_bundle",
+      "to": "click.echo",
+      "line": 501,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "export_bundle",
+      "to": "main.command",
+      "line": 485,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "export_bundle",
+      "to": "click.argument",
+      "line": 486,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "export_bundle",
+      "to": "click.Path",
+      "line": 486,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "export_bundle",
+      "to": "click.option",
+      "line": 487,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "export_bundle",
+      "to": "click.Path",
+      "line": 490,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "export_bundle",
+      "to": "click.option",
+      "line": 493,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "corpus",
+      "to": "main.group",
+      "line": 504,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "path.resolve",
+      "line": 547,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "resolve_dest",
+      "line": 549,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "emit_case",
+      "line": 550,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "click.ClickException",
+      "line": 562,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "str",
+      "line": 562,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "click.echo",
+      "line": 564,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "click.echo",
+      "line": 565,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "corpus.command",
+      "line": 510,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "click.argument",
+      "line": 511,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "click.Path",
+      "line": 511,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "click.option",
+      "line": 512,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "click.option",
+      "line": 513,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "click.option",
+      "line": 514,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "click.Choice",
+      "line": 516,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "click.option",
+      "line": 520,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "click.option",
+      "line": 521,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "click.option",
+      "line": 522,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "click.option",
+      "line": 523,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "click.Path",
+      "line": 525,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "corpus_emit",
+      "to": "click.option",
+      "line": 529,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "hooks",
+      "to": "main.group",
+      "line": 568,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "hooks_install",
+      "to": "install_hooks",
+      "line": 596,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "hooks_install",
+      "to": "path.resolve",
+      "line": 597,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "hooks_install",
+      "to": "click.echo",
+      "line": 607,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "hooks_install",
+      "to": "click.echo",
+      "line": 609,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "hooks_install",
+      "to": "click.echo",
+      "line": 613,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "hooks_install",
+      "to": "click.echo",
+      "line": 614,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "hooks_install",
+      "to": "click.echo",
+      "line": 616,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "hooks_install",
+      "to": "hooks.command",
+      "line": 574,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "hooks_install",
+      "to": "click.argument",
+      "line": 575,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "hooks_install",
+      "to": "click.Path",
+      "line": 575,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "hooks_install",
+      "to": "click.option",
+      "line": 576,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "hooks_install",
+      "to": "click.option",
+      "line": 577,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "hooks_install",
+      "to": "click.option",
+      "line": 578,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "hooks_install",
+      "to": "click.option",
+      "line": 579,
+      "call_sites": 55
+    },
+    {
+      "from_symbol": "hooks_uninstall",
+      "to": "uninstall_hooks",
+      "line": 623,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "hooks_uninstall",
+      "to": "path.resolve",
+      "line": 623,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "hooks_uninstall",
+      "to": "click.echo",
+      "line": 627,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "hooks_uninstall",
+      "to": "click.echo",
+      "line": 629,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "hooks_uninstall",
+      "to": "hooks.command",
+      "line": 619,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "hooks_uninstall",
+      "to": "click.argument",
+      "line": 620,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "hooks_uninstall",
+      "to": "click.Path",
+      "line": 620,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "safety",
+      "to": "main.group",
+      "line": 632,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "safety_check",
+      "to": "safety_check_files",
+      "line": 652,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "safety_check",
+      "to": "f.resolve",
+      "line": 652,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "safety_check",
+      "to": "check_staged_files",
+      "line": 654,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "safety_check",
+      "to": "format_check_result",
+      "line": 656,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "safety_check",
+      "to": "_cli_state",
+      "line": 656,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "safety_check",
+      "to": "click.echo",
+      "line": 657,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_check",
+      "to": "SystemExit",
+      "line": 660,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "safety_check",
+      "to": "safety.command",
+      "line": 638,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "safety_check",
+      "to": "click.argument",
+      "line": 639,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "safety_check",
+      "to": "click.Path",
+      "line": 639,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "safety_self_test",
+      "to": "Path",
+      "line": 675,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "safety_self_test",
+      "to": "click.echo",
+      "line": 677,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_self_test",
+      "to": "package_dir.rglob",
+      "line": 682,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "safety_self_test",
+      "to": "safety_check_files",
+      "line": 683,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "safety_self_test",
+      "to": "paths_self_test",
+      "line": 686,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "safety_self_test",
+      "to": "format_check_result",
+      "line": 688,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "safety_self_test",
+      "to": "click.echo",
+      "line": 689,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_self_test",
+      "to": "click.echo",
+      "line": 692,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_self_test",
+      "to": "click.echo",
+      "line": 694,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_self_test",
+      "to": "click.echo",
+      "line": 697,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_self_test",
+      "to": "click.echo",
+      "line": 699,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_self_test",
+      "to": "SystemExit",
+      "line": 700,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "safety_self_test",
+      "to": "safety.command",
+      "line": 663,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "click.echo",
+      "line": 710,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "click.echo",
+      "line": 711,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "click.echo",
+      "line": 712,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "get_pattern_descriptions",
+      "line": 714,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "PATTERNS.items",
+      "line": 716,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "descriptions.get",
+      "line": 717,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "click.echo",
+      "line": 718,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "click.echo",
+      "line": 719,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "click.echo",
+      "line": 720,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "click.echo",
+      "line": 721,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "click.echo",
+      "line": 723,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "click.echo",
+      "line": 724,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "len",
+      "line": 724,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "secrets_available",
+      "line": 726,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "click.echo",
+      "line": 727,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "click.echo",
+      "line": 729,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "click.echo",
+      "line": 730,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "safety_patterns",
+      "to": "safety.command",
+      "line": 703,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "config_cmd",
+      "to": "main.group",
+      "line": 733,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "config_show",
+      "to": "_cli_state",
+      "line": 745,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "config_show",
+      "to": "_build_llm_config",
+      "line": 746,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "config_show",
+      "to": "click.echo",
+      "line": 747,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "config_show",
+      "to": "config.format_resolution_banner",
+      "line": 747,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "config_show",
+      "to": "config_cmd.command",
+      "line": 739,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "config_show",
+      "to": "click.argument",
+      "line": 740,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "config_show",
+      "to": "click.Path",
+      "line": 740,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "skills",
+      "to": "main.group",
+      "line": 750,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "skills_list",
+      "to": "_list_skills",
+      "line": 761,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "skills_list",
+      "to": "click.echo",
+      "line": 763,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "skills_list",
+      "to": "max",
+      "line": 765,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "skills_list",
+      "to": "len",
+      "line": 765,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "skills_list",
+      "to": "click.echo",
+      "line": 767,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "skills_list",
+      "to": "skills.command",
+      "line": 756,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "skills_show",
+      "to": "get_skill",
+      "line": 776,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "skills_show",
+      "to": "_list_skills",
+      "line": 779,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "skills_show",
+      "to": "click.ClickException",
+      "line": 780,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "skills_show",
+      "to": "join",
+      "line": 781,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "skills_show",
+      "to": "click.echo",
+      "line": 783,
+      "call_sites": 59
+    },
+    {
+      "from_symbol": "skills_show",
+      "to": "skills.command",
+      "line": 770,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "skills_show",
+      "to": "click.argument",
+      "line": 771,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "main",
+      "line": 787,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "ctx",
+      "member": "obj",
+      "line": 108
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "reconfigure",
+      "line": 68,
+      "usage": "produced",
+      "context": "argument to getattr"
+    },
+    {
+      "value": "utf-8",
+      "line": 72,
+      "usage": "produced",
+      "context": "keyword argument to reconfigure"
+    },
+    {
+      "value": "replace",
+      "line": 72,
+      "usage": "produced",
+      "context": "keyword argument to reconfigure"
+    },
+    {
+      "value": "Cannot use --verbose and --quiet together.",
+      "line": 107,
+      "usage": "produced",
+      "context": "argument to click.UsageError"
+    },
+    {
+      "value": "osojicode",
+      "line": 93,
+      "usage": "produced",
+      "context": "keyword argument to click.version_option"
+    },
+    {
+      "value": "--verbose",
+      "line": 94,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "-v",
+      "line": 94,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Show detailed output",
+      "line": 94,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--quiet",
+      "line": 95,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "-q",
+      "line": 95,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Suppress nonessential diagnostic output",
+      "line": 95,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "path",
+      "line": 112,
+      "usage": "produced",
+      "context": "argument to click.argument"
+    },
+    {
+      "value": "--non-interactive",
+      "line": 113,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Skip prompts, write templates with placeholders",
+      "line": 113,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--provider",
+      "line": 114,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "anthropic",
+      "line": 114,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "LLM provider (determines which API key to configure)",
+      "line": 114,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "Some files or directories failed to process (see errors above)",
+      "line": 169,
+      "usage": "produced",
+      "context": "argument to click.ClickException"
+    },
+    {
+      "value": "path",
+      "line": 136,
+      "usage": "produced",
+      "context": "argument to click.argument"
+    },
+    {
+      "value": "--force",
+      "line": 137,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "-f",
+      "line": 137,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Regenerate all files, ignoring cached hashes",
+      "line": 137,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--dry-run",
+      "line": 138,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Show what would be processed without making LLM calls",
+      "line": 138,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--provider",
+      "line": 139,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "LLM provider to use",
+      "line": 139,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--model",
+      "line": 140,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Model ID to use for LLM requests",
+      "line": 140,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--no-gitignore",
+      "line": 141,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Don't use .gitignore for file filtering",
+      "line": 141,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "All shadow documentation is up to date.",
+      "line": 197,
+      "usage": "produced",
+      "context": "argument to click.echo"
+    },
+    {
+      "value": "yellow",
+      "line": 202,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "red",
+      "line": 202,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "cyan",
+      "line": 202,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "red",
+      "line": 204,
+      "usage": "produced",
+      "context": "argument to status_colors.get"
+    },
+    {
+      "value": "All shadow documentation is up to date.",
+      "line": 213,
+      "usage": "produced",
+      "context": "argument to click.echo"
+    },
+    {
+      "value": "yellow",
+      "line": 218,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "red",
+      "line": 218,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "cyan",
+      "line": 218,
+      "usage": "produced",
+      "context": "dict value"
+    },
+    {
+      "value": "red",
+      "line": 220,
+      "usage": "produced",
+      "context": "argument to status_colors.get"
+    },
+    {
+      "value": "path",
+      "line": 173,
+      "usage": "produced",
+      "context": "argument to click.argument"
+    },
+    {
+      "value": "--dry-run",
+      "line": 174,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Just print report, no file modifications",
+      "line": 174,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--no-gitignore",
+      "line": 175,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Don't use .gitignore for file filtering",
+      "line": 175,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "No changes found.",
+      "line": 266,
+      "usage": "produced",
+      "context": "argument to click.echo"
+    },
+    {
+      "value": "Osoji: Regenerating stale shadow documentation...",
+      "line": 271,
+      "usage": "produced",
+      "context": "argument to click.echo"
+    },
+    {
+      "value": "Some files or directories failed to process (see errors above)",
+      "line": 275,
+      "usage": "produced",
+      "context": "argument to click.ClickException"
+    },
+    {
+      "value": "json",
+      "line": 281,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "output_format",
+      "kind": "identifier"
+    },
+    {
+      "value": "base_ref",
+      "line": 229,
+      "usage": "produced",
+      "context": "argument to click.argument"
+    },
+    {
+      "value": "main",
+      "line": 229,
+      "usage": "produced",
+      "context": "keyword argument to click.argument"
+    },
+    {
+      "value": "--update",
+      "line": 230,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Regenerate stale shadow docs",
+      "line": 230,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--format",
+      "line": 231,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "output_format",
+      "line": 231,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "text",
+      "line": 231,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "json",
+      "line": 231,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "text",
+      "line": 231,
+      "usage": "produced",
+      "context": "keyword argument to click.option",
+      "kind": "identifier"
+    },
+    {
+      "value": "Output format",
+      "line": 231,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--provider",
+      "line": 232,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "LLM provider to use for shadow regeneration",
+      "line": 232,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--model",
+      "line": 233,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Model ID to use for shadow regeneration",
+      "line": 233,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "Gathering token statistics...",
+      "line": 316,
+      "usage": "produced",
+      "context": "argument to click.echo"
+    },
+    {
+      "value": "path",
+      "line": 291,
+      "usage": "produced",
+      "context": "argument to click.argument"
+    },
+    {
+      "value": "--provider",
+      "line": 292,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "LLM provider to use for token counting",
+      "line": 292,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--model",
+      "line": 293,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Model ID to use for provider-aware token counting",
+      "line": 293,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--no-gitignore",
+      "line": 294,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Don't use .gitignore for file filtering",
+      "line": 294,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "json",
+      "line": 411,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "output_format",
+      "kind": "identifier"
+    },
+    {
+      "value": "html",
+      "line": 413,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "output_format",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 417,
+      "usage": "produced",
+      "context": "keyword argument to out_path.write_text"
+    },
+    {
+      "value": "path",
+      "line": 324,
+      "usage": "produced",
+      "context": "argument to click.argument"
+    },
+    {
+      "value": "--fix/--no-fix",
+      "line": 325,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Auto-fix shadow docs (default: yes)",
+      "line": 325,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--format",
+      "line": 326,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "output_format",
+      "line": 326,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "text",
+      "line": 326,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "json",
+      "line": 326,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "html",
+      "line": 326,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "text",
+      "line": 326,
+      "usage": "produced",
+      "context": "keyword argument to click.option",
+      "kind": "identifier"
+    },
+    {
+      "value": "Output format",
+      "line": 326,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--dead-code",
+      "line": 327,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Detect cross-file dead code (LLM calls for ambiguous candidates)",
+      "line": 327,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--dead-params",
+      "line": 328,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Detect dead function parameters (LLM calls)",
+      "line": 328,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--dead-plumbing",
+      "line": 329,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Detect unactuated config obligations (LLM calls)",
+      "line": 329,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--dead-deps",
+      "line": 330,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Detect unused package dependencies (LLM calls)",
+      "line": 330,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--dead-cicd",
+      "line": 331,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Detect stale CI/CD pipeline elements (LLM calls)",
+      "line": 331,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--orphaned-files",
+      "line": 332,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Detect orphaned source files (LLM calls)",
+      "line": 332,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--junk",
+      "line": 333,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Run all junk code analysis phases",
+      "line": 333,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--obligations",
+      "line": 334,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Check cross-file string contracts (no LLM calls)",
+      "line": 334,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--doc-prompts",
+      "line": 335,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Generate concept-centric coverage + writing prompts (LLM calls)",
+      "line": 335,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--provider",
+      "line": 336,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "LLM provider to use",
+      "line": 336,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--model",
+      "line": 337,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Model ID to use for LLM requests",
+      "line": 337,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--no-gitignore",
+      "line": 338,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Don't use .gitignore for file filtering",
+      "line": 338,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--full",
+      "line": 339,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Run all optional audit phases",
+      "line": 339,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--exclude",
+      "line": 340,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "exclude_phases",
+      "line": 340,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Comma-separated phases to skip. Valid phases: shadow, doc-analysis, debris, obligations, doc-prompts, dead-code, dead-params, dead-plumbing, dead-deps, dead-cicd, orphaned-files",
+      "line": 341,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--force",
+      "line": 344,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "-f",
+      "line": 344,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Regenerate all shadow docs and findings from scratch",
+      "line": 344,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--incremental",
+      "line": 345,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Reuse cached Triage verdicts from .osoji/audit-manifest.json for findings whose evidence is unchanged",
+      "line": 346,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--since",
+      "line": 347,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "since_ref",
+      "line": 347,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "REF",
+      "line": 347,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "Report files changed since REF (git); implies --incremental",
+      "line": 348,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "No cached audit result. Run 'osoji audit' first.",
+      "line": 442,
+      "usage": "produced",
+      "context": "argument to click.ClickException"
+    },
+    {
+      "value": "json",
+      "line": 444,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "output_format",
+      "kind": "identifier"
+    },
+    {
+      "value": "html",
+      "line": 446,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "output_format",
+      "kind": "identifier"
+    },
+    {
+      "value": "utf-8",
+      "line": 450,
+      "usage": "produced",
+      "context": "keyword argument to out_path.write_text"
+    },
+    {
+      "value": "path",
+      "line": 428,
+      "usage": "produced",
+      "context": "argument to click.argument"
+    },
+    {
+      "value": "--format",
+      "line": 429,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "output_format",
+      "line": 429,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "text",
+      "line": 429,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "json",
+      "line": 429,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "html",
+      "line": 429,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "text",
+      "line": 429,
+      "usage": "produced",
+      "context": "keyword argument to click.option",
+      "kind": "identifier"
+    },
+    {
+      "value": "Output format",
+      "line": 429,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--project",
+      "line": 461,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Project slug (default: from config or git remote)",
+      "line": 461,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--token",
+      "line": 462,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "API token (default: OSOJI_TOKEN env var)",
+      "line": 462,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--endpoint",
+      "line": 463,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "API endpoint URL (default: OSOJI_ENDPOINT env var)",
+      "line": 463,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "export",
+      "line": 485,
+      "usage": "produced",
+      "context": "keyword argument to main.command"
+    },
+    {
+      "value": "path",
+      "line": 486,
+      "usage": "produced",
+      "context": "argument to click.argument"
+    },
+    {
+      "value": "--output",
+      "line": 488,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "-o",
+      "line": 489,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Write the observatory bundle to this file (defaults to .osoji/analysis/observatory.json).",
+      "line": 491,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--no-gitignore",
+      "line": 493,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Don't use .gitignore for file filtering",
+      "line": 493,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "Review it, then `git mv` it into <category>/case_NNN_<slug>/ to accept.",
+      "line": 565,
+      "usage": "produced",
+      "context": "argument to click.echo"
+    },
+    {
+      "value": "emit",
+      "line": 510,
+      "usage": "produced",
+      "context": "argument to corpus.command"
+    },
+    {
+      "value": "path",
+      "line": 511,
+      "usage": "produced",
+      "context": "argument to click.argument"
+    },
+    {
+      "value": "--id",
+      "line": 512,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "finding_id",
+      "line": 512,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Finding id from .osoji/analysis/decided-findings.json",
+      "line": 512,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--slug",
+      "line": 513,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Case slug for the new directory ([a-z0-9_-]+)",
+      "line": 513,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--expected-verdict",
+      "line": 515,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "confirmed",
+      "line": 516,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "dismissed",
+      "line": 516,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "Ground-truth verdict (required when the decided verdict is uncertain or undecided)",
+      "line": 518,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--reasoning",
+      "line": 520,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Adjudicator reasoning (default: the decided triage_reasoning)",
+      "line": 520,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--gray",
+      "line": 521,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Mark the case gray (a genuinely debatable verdict)",
+      "line": 521,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--include",
+      "line": 522,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "include",
+      "line": 522,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "REL",
+      "line": 522,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "Extra repo-relative file to snapshot (repeatable)",
+      "line": 522,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--dest",
+      "line": 524,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Corpus holding directory (default: $OSOJI_CORPUS_DEST or <path>/tests/fixtures/prompt_regression/_holding)",
+      "line": 527,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--language",
+      "line": 529,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Language label for case.json (default: inferred from the file extension)",
+      "line": 529,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "\nHooks installed successfully.",
+      "line": 613,
+      "usage": "produced",
+      "context": "argument to click.echo"
+    },
+    {
+      "value": "Shadow docs will be updated automatically on commit.",
+      "line": 614,
+      "usage": "produced",
+      "context": "argument to click.echo"
+    },
+    {
+      "value": "\nSome hooks could not be installed.",
+      "line": 616,
+      "usage": "produced",
+      "context": "argument to click.echo"
+    },
+    {
+      "value": "install",
+      "line": 574,
+      "usage": "produced",
+      "context": "argument to hooks.command"
+    },
+    {
+      "value": "path",
+      "line": 575,
+      "usage": "produced",
+      "context": "argument to click.argument"
+    },
+    {
+      "value": "--force",
+      "line": 576,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "-f",
+      "line": 576,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Overwrite existing hooks",
+      "line": 576,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--pre-commit/--no-pre-commit",
+      "line": 577,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Install pre-commit hook (default: yes)",
+      "line": 577,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--pre-push/--no-pre-push",
+      "line": 578,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Install pre-push hook (default: yes)",
+      "line": 578,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "--post-commit/--no-post-commit",
+      "line": 579,
+      "usage": "produced",
+      "context": "argument to click.option"
+    },
+    {
+      "value": "Install post-commit hook (default: no)",
+      "line": 579,
+      "usage": "produced",
+      "context": "keyword argument to click.option"
+    },
+    {
+      "value": "uninstall",
+      "line": 619,
+      "usage": "produced",
+      "context": "argument to hooks.command"
+    },
+    {
+      "value": "path",
+      "line": 620,
+      "usage": "produced",
+      "context": "argument to click.argument"
+    },
+    {
+      "value": "check",
+      "line": 638,
+      "usage": "produced",
+      "context": "argument to safety.command"
+    },
+    {
+      "value": "files",
+      "line": 639,
+      "usage": "produced",
+      "context": "argument to click.argument"
+    },
+    {
+      "value": "*.py",
+      "line": 682,
+      "usage": "produced",
+      "context": "argument to package_dir.rglob"
+    },
+    {
+      "value": "\npaths.py self-test found issues:",
+      "line": 692,
+      "usage": "produced",
+      "context": "argument to click.echo"
+    },
+    {
+      "value": "\nSelf-test passed: No personal paths found in osoji package.",
+      "line": 697,
+      "usage": "produced",
+      "context": "argument to click.echo"
+    },
+    {
+      "value": "\nSelf-test FAILED: Personal paths found in osoji package!",
+      "line": 699,
+      "usage": "produced",
+      "context": "argument to click.echo"
+    },
+    {
+      "value": "self-test",
+      "line": 663,
+      "usage": "produced",
+      "context": "argument to safety.command"
+    },
+    {
+      "value": "Personal Path Patterns",
+      "line": 710,
+      "usage": "produced",
+      "context": "argument to click.echo"
+    },
+    {
+      "value": "No description",
+      "line": 717,
+      "usage": "produced",
+      "context": "argument to descriptions.get"
+    },
+    {
+      "value": "\ndetect-secrets: installed (secrets will be checked)",
+      "line": 727,
+      "usage": "produced",
+      "context": "argument to click.echo"
+    },
+    {
+      "value": "\ndetect-secrets: not installed",
+      "line": 729,
+      "usage": "produced",
+      "context": "argument to click.echo"
+    },
+    {
+      "value": "  Install with: pip install 'osoji[safety]'",
+      "line": 730,
+      "usage": "produced",
+      "context": "argument to click.echo"
+    },
+    {
+      "value": "patterns",
+      "line": 703,
+      "usage": "produced",
+      "context": "argument to safety.command"
+    },
+    {
+      "value": "config",
+      "line": 733,
+      "usage": "produced",
+      "context": "argument to main.group"
+    },
+    {
+      "value": "show",
+      "line": 739,
+      "usage": "produced",
+      "context": "argument to config_cmd.command"
+    },
+    {
+      "value": "path",
+      "line": 740,
+      "usage": "produced",
+      "context": "argument to click.argument"
+    },
+    {
+      "value": "No bundled skills found.",
+      "line": 763,
+      "usage": "produced",
+      "context": "argument to click.echo"
+    },
+    {
+      "value": "list",
+      "line": 756,
+      "usage": "produced",
+      "context": "argument to skills.command"
+    },
+    {
+      "value": "show",
+      "line": 770,
+      "usage": "produced",
+      "context": "argument to skills.command"
+    },
+    {
+      "value": "name",
+      "line": 771,
+      "usage": "produced",
+      "context": "argument to click.argument"
+    },
+    {
+      "value": "__main__",
+      "line": 786,
+      "usage": "checked",
+      "context": "equality comparison",
+      "comparison_source": "__name__"
+    },
+    {
+      "value": "stale",
+      "context": "Status key for shadow doc staleness, used in status_colors dict and iteration",
+      "line": 202,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "missing",
+      "context": "Status key for missing shadow docs in status_colors dict",
+      "line": 202,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "stale-impl",
+      "context": "Status key for stale implementation shadow docs in status_colors dict",
+      "line": 202,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}
