@@ -1375,7 +1375,7 @@ def format_audit_report(result: AuditResult) -> str:
             lines.append(f"**Category**: {issue.category}")
             lines.append(f"**Issue**: {issue.message}")
             lines.append(f"**Remediation**: {issue.remediation}")
-            if issue.suggested_fix:
+            if issue.suggested_fix and issue.suggested_fix != issue.remediation:
                 meta = []
                 if issue.verdict is not None:
                     meta.append(issue.verdict)
@@ -2104,7 +2104,7 @@ def _html_accuracy_section(result: "AuditResult") -> str:
         parts.append('<ul class="file-list">')
         for issue in by_cat[cat]:
             fix_tag = ""
-            if issue.suggested_fix:
+            if issue.suggested_fix and issue.suggested_fix != issue.remediation:
                 fix_tag = (
                     f'<br><span style="color:var(--text-3)">'
                     f'Suggested fix (triage): {_h(issue.suggested_fix)}</span>'
