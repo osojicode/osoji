@@ -1,11 +1,9 @@
-"""Bridge from legacy per-detector outputs to the unified :class:`Finding`.
+"""Bridge from per-detector native outputs to the unified :class:`Finding`.
 
-V1-2 introduces the ``Finding`` schema but does not change any detector. This
-module is the bridge: pure functions that convert each detector's current native
-output shape into a ``Finding`` so downstream consumers (Triage in V1-3) can be
-migrated incrementally. It is **not** wired into ``audit.py``'s live path in this
-PR — it is exercised by unit tests only, which is what keeps the
-``prompt_regression`` baselines byte-identical.
+This module is on the live audit path: every detector's native output shape
+converts to a ``Finding`` here before the Claim Builder gathers evidence and
+Triage decides. The adapters are pure functions, exercised both by the audit
+orchestrator and directly by unit tests.
 
 Two design rules carried from the V1-2 plan / C&C review:
 
