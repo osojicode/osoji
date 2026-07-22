@@ -244,6 +244,32 @@ def _case_dir_for(dest: Path, entry: dict[str, Any]) -> Path:
     return dest / entry["category"] / f"case_{entry['slug']}"
 
 
+def _case_already_handled(entry: dict[str, Any], dest: Path) -> bool:
+    """True if this entry has a case dir under ``dest`` (the ordinary rerun
+    case) OR has already been accepted out of holding into the live corpus
+    (``<CORPUS_ROOT>/<category>/case_<NNN>_<slug>/`` per the corpus README's
+    acceptance flow, which renames the directory and moves it out of
+    ``_holding/`` entirely).
+
+    Without this second check, a rerun over an unchanged manifest would see
+    no ``case_<slug>`` dir left under ``_holding/<category>/`` for an
+    accepted entry (it moved and was renamed) and treat it as never
+    migrated — re-validating and re-writing a fresh ``accepted: false``
+    holding copy right next to the one already accepted, silently
+    resurrecting reviewed cases. Matching is by category + slug (the part
+    of the accepted name after the ``case_<NNN>_`` prefix), independent of
+    ``dest`` — acceptance always targets the real corpus root, never a
+    ``--dest`` override.
+    """
+
+    if _case_dir_for(dest, entry).exists():
+        return True
+    category_dir = CORPUS_ROOT / entry["category"]
+    if not category_dir.is_dir():
+        return False
+    return any(category_dir.glob(f"case_*_{entry['slug']}"))
+
+
 # ---------------------------------------------------------------------------
 # git-show snapshotting (audit-origin entries)
 # ---------------------------------------------------------------------------
@@ -459,8 +485,11 @@ def migrate_fixture_entry(entry: dict[str, Any], dest: Path, adjudicated_at: str
     ``snapshot_ref`` — no new ``source/`` is written."""
 
     case_dir = _case_dir_for(dest, entry)
-    if case_dir.exists():
-        return MigrationOutcome("exists", "case directory already exists (rerun) — left untouched")
+    if _case_already_handled(entry, dest):
+        return MigrationOutcome(
+            "exists", "case directory already exists (rerun) or already accepted into the "
+            "corpus — left untouched"
+        )
 
     validation, err = _validate_fixture_entry(entry)
     if validation is None:
@@ -490,9 +519,13 @@ def _status_fixture_entry(entry: dict[str, Any], dest: Path) -> tuple[str, str |
     Returns ``("present", None)``, ``("skipped", reason)``, or
     ``("pending", reason)`` (validation would succeed but this destination
     has no case_dir for it yet — only possible when a prior run never
-    covered it, e.g. an earlier ``--only`` excluded it)."""
+    covered it, e.g. an earlier ``--only`` excluded it). ``"present"`` also
+    covers an entry already accepted out of ``_holding/`` into the live
+    corpus (see ``_case_already_handled``) — it no longer has a case_dir
+    under ``dest``, but is just as much "nothing to do" as a holding-dir
+    rerun hit."""
 
-    if _case_dir_for(dest, entry).exists():
+    if _case_already_handled(entry, dest):
         return "present", None
     _, err = _validate_fixture_entry(entry)
     if err is None:
@@ -540,8 +573,11 @@ def migrate_audit_entry(
     files) via ``git show <commit>:<path>``, then regenerate ``facts/``."""
 
     case_dir = _case_dir_for(dest, entry)
-    if case_dir.exists():
-        return MigrationOutcome("exists", "case directory already exists (rerun) — left untouched")
+    if _case_already_handled(entry, dest):
+        return MigrationOutcome(
+            "exists", "case directory already exists (rerun) or already accepted into the "
+            "corpus — left untouched"
+        )
 
     validation, err = _validate_audit_entry(entry, commit)
     if validation is None:
@@ -592,9 +628,9 @@ def migrate_audit_entry(
 def _status_audit_entry(entry: dict[str, Any], dest: Path, commit: str) -> tuple[str, str | None]:
     """Report-path status for an audit-origin entry — never writes, never
     fetches file bytes (existence checks only). See ``_status_fixture_entry``
-    for the ``"pending"`` semantics."""
+    for the ``"pending"`` and already-accepted ``"present"`` semantics."""
 
-    if _case_dir_for(dest, entry).exists():
+    if _case_already_handled(entry, dest):
         return "present", None
     _, err = _validate_audit_entry(entry, commit)
     if err is None:
