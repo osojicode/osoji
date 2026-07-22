@@ -385,10 +385,11 @@ Before any fix touches a file, snapshot the current audit result:
 osoji verify --snapshot
 ```
 
-This writes the closure ledger that Phase 5.5's post-fix `osoji verify` will
-diff against to prove which findings actually closed. It is stored outside
-`analysis/` deliberately — Phase 5.5's re-audit wipes that directory, and a
-baseline written inside it would not survive to be diffed against.
+This writes `.osoji/audit-baseline.json`, the closure ledger that Phase 5.5's
+post-fix `osoji verify` will diff against to prove which findings actually
+closed. It is stored outside `analysis/` deliberately — Phase 5.5's re-audit
+wipes that directory, and a baseline written inside it would not survive to
+be diffed against.
 
 ---
 
