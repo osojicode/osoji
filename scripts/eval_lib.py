@@ -3,8 +3,8 @@
 On-disk corpus-case loading, snapshot staging, claim construction,
 deterministic metrics, and the LLM-orchestration layer
 (:func:`evaluate_corpus`) that decides claims through unified Triage. Consumed
-by ``corpus_replay.py`` (osojicode/work#67), the proctor corpus-replay
-harness (osojicode/work#63), and the GEPA adapter (osojicode/work#68).
+by ``corpus_replay.py`` (osojicode/work#67), the corpus-replay harness
+(osojicode/work#63), and the GEPA adapter (osojicode/work#68).
 
 Formats this module reads and writes are documented in
 ``tests/fixtures/prompt_regression/README.md``:
@@ -556,7 +556,17 @@ def check_thresholds(metrics: dict, baseline: dict) -> list[str]:
     - A metric whose value isn't a plain ``int``/``float`` (e.g. the nested
       ``tp_rate_by_detector`` dict, or a ``bool`` masquerading as an int) is
       skipped — bounds compare scalars only.
+
+    A third case is not tolerated silently: a baseline entry that isn't a
+    ``{"min": ..., "max": ...}``-shaped dict of numbers (e.g. a bare number or
+    string, from a hand-edited or corrupted ``evaluate-baseline.json``) is
+    surfaced as its own violation string naming the metric and the malformed
+    value, through this same return channel, rather than raising ``TypeError``
+    and rather than being silently skipped like the two cases above.
     """
+
+    def _is_numeric(v: object) -> bool:
+        return isinstance(v, (int, float)) and not isinstance(v, bool)
 
     violations: list[str] = []
     for name, bounds in baseline.items():
@@ -564,6 +574,25 @@ def check_thresholds(metrics: dict, baseline: dict) -> list[str]:
             continue
         value = metrics[name]
         if isinstance(value, bool) or not isinstance(value, (int, float)):
+            continue
+
+        if not isinstance(bounds, dict) or not ("max" in bounds or "min" in bounds):
+            violations.append(
+                f"{name}: malformed baseline entry {bounds!r} "
+                "(expected a dict with a numeric 'min' and/or 'max')"
+            )
+            continue
+
+        bad_bounds = [
+            f"{key}={bounds[key]!r}"
+            for key in ("max", "min")
+            if key in bounds and not _is_numeric(bounds[key])
+        ]
+        if bad_bounds:
+            violations.append(
+                f"{name}: malformed baseline bound(s) {', '.join(bad_bounds)} "
+                "(expected numeric)"
+            )
             continue
 
         if "max" in bounds and value > bounds["max"]:
