@@ -660,7 +660,7 @@ async def test_corpus_evaluate(tmp_path, evaluate_mode, evaluate_out):
     --evaluate is passed, so this is the only thing that runs). Spends real
     LLM tokens against the whole corpus in one variant/one repeat — never
     fires in the default suite or in CI, and skips before any provider is
-    constructed when the corpus is empty (true today) or --evaluate wasn't
+    constructed when the corpus is empty or --evaluate wasn't
     passed, so it needs no API key in either of those cases.
     """
     if not evaluate_mode:

@@ -541,6 +541,33 @@ def test_class_dotted_base_extracted(plugin, project):
     assert cls_export.get("bases") == ["abc.ABC"]
 
 
+def test_class_subscripted_base_extracted(plugin, project):
+    """Subscripted (generic) bases resolve to the base name, not dropped."""
+    project.add("mod.py", """\
+        from repo import CRUDBase, User
+        import typing
+
+        class C(Base[int]):
+            pass
+
+        class UserRepo(CRUDBase[User]):
+            pass
+
+        class Mapping(typing.Mapping[str, int]):
+            pass
+    """)
+    result = plugin.extract_project_facts(project.root, project.files)
+    exports = result["mod.py"].exports
+
+    c_export = next(e for e in exports if e["name"] == "C")
+    repo_export = next(e for e in exports if e["name"] == "UserRepo")
+    mapping_export = next(e for e in exports if e["name"] == "Mapping")
+
+    assert c_export.get("bases") == ["Base"]
+    assert repo_export.get("bases") == ["CRUDBase"]
+    assert mapping_export.get("bases") == ["typing.Mapping"]
+
+
 def test_class_no_bases_omits_field(plugin, project):
     """Classes without bases don't have a 'bases' field."""
     project.add("mod.py", """\

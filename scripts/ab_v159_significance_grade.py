@@ -25,7 +25,7 @@ Usage (from the branch checkout; --root points at a checkout holding the
 corpus in .osoji/):
 
     PYTHONUTF8=1 python scripts/ab_v159_significance_grade.py \
-        --root C:/Users/johnf/projects/osoji \
+        --root /path/to/repo \
         --out scratch/ab-v159-raw.json [--control]
 """
 

@@ -108,6 +108,16 @@ def test_list_dir_lists_entries(repo):
     assert "b.py" in out
 
 
+def test_list_dir_bounds_entries(repo):
+    ex = ExplorationExecutor(repo, max_list_entries=2)
+    (repo.root_path / "pkg" / "c.py").write_text("c = 1\n", encoding="utf-8")
+    out = ex.list_dir("pkg")
+    # at most max_list_entries entry lines (a truncation notice is appended)
+    entry_lines = [ln for ln in out.splitlines() if not ln.startswith("…")]
+    assert len(entry_lines) <= 2
+    assert "truncated" in out
+
+
 def test_list_dir_rejects_escape(repo):
     ex = ExplorationExecutor(repo)
     out = ex.list_dir("..")

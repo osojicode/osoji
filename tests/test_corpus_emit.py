@@ -337,9 +337,8 @@ def test_emit_case_file_cap_exceeded_raises(tmp_path):
         emit_case(repo, big.id, "too-big", dest)
 
     # --include is additive-only -- it can never narrow the file set below
-    # the cap, so the error must not suggest it as a fix (task-6 review
-    # MINOR 1). The message should instead be honest that there is no
-    # narrowing knob today.
+    # the cap, so the error must not suggest it as a fix. The message should
+    # instead be honest that there is no narrowing knob today.
     message = str(excinfo.value)
     assert "--include" not in message
     assert "too many files" in message or "targeted evidence" in message
@@ -358,7 +357,7 @@ def test_emit_case_missing_finding_path_file_names_no_such_file(tmp_path):
         emit_case(repo, confirmed.id, "missing-file", dest)
 
     assert "outside the repo" not in str(excinfo.value)
-    # task-6 review round 3: the finding-path check used to live inside the
+    # The finding-path check used to live inside the
     # copy loop, so an alphabetically-earlier file (caller.py, from
     # confirmed's evidence) was already copied under case_dir by the time
     # util.py's absence raised -- leaving a half-written case directory

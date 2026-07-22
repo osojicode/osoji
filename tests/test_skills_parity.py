@@ -10,6 +10,8 @@ other.
 
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).parent.parent
 
 MIRRORED_SKILLS = ("osoji-sweep", "osoji-triage")
@@ -25,9 +27,6 @@ def _assert_in_sync(name: str) -> None:
     )
 
 
-def test_osoji_sweep_skill_in_sync() -> None:
-    _assert_in_sync("osoji-sweep")
-
-
-def test_osoji_triage_skill_in_sync() -> None:
-    _assert_in_sync("osoji-triage")
+@pytest.mark.parametrize("name", MIRRORED_SKILLS)
+def test_mirrored_skill_in_sync(name: str) -> None:
+    _assert_in_sync(name)

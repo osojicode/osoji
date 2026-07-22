@@ -532,9 +532,10 @@ class Triage:
 
         The model is given the claim plus read-only retrieval tools and a terminal
         ``submit_triage_verdict`` tool. Every tool call is recorded to the trace
-        (for V1-4 mining). Reaching the turn limit without a verdict yields
-        ``uncertain``. Tool results are fed back as Anthropic content blocks — the
-        provider passes ``Message.content`` straight through (see
+        (persisted for corpus building and debugging). Reaching the turn limit
+        without a verdict yields ``uncertain``. Tool results are fed back as
+        Anthropic content blocks — the provider passes ``Message.content``
+        straight through (see
         ``llm/anthropic.py``), so assistant ``tool_use`` and user ``tool_result``
         blocks round-trip without a dedicated message role.
         """
