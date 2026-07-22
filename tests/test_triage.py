@@ -13,7 +13,13 @@ from osoji.config import Config
 from osoji.evidence import Evidence
 from osoji.findings import Finding
 from osoji.llm.types import CompletionResult, ToolCall
-from osoji.triage import Claim, Triage, TriageBatchResult, _render_evidence
+from osoji.triage import (
+    Claim,
+    Triage,
+    TriageBatchResult,
+    _apply_verdict,
+    _render_evidence,
+)
 
 
 # --- helpers ---------------------------------------------------------------
@@ -484,3 +490,139 @@ async def test_decide_batch_without_ledger_attached_does_not_crash(config):
     result = await triage.decide_batch(claims, mode="claim")
 
     assert result.findings[0].verdict == "confirmed"
+
+
+# --- verdict/reasoning consistency guard (work#78) -------------------------
+
+
+def test_confirmed_with_trailing_dismissal_reasoning_routes_to_uncertain():
+    f = _apply_verdict(make_finding(), {
+        "batch_index": 0,
+        "verdict": "confirmed",
+        "confidence": 0.85,
+        "reasoning": "The symbol has no live references. Dismissing on Reality.",
+    })
+    assert f.verdict == "uncertain"
+    assert "Dismissing on Reality." in f.triage_reasoning
+    assert "triage-guard" in f.triage_reasoning
+
+
+def test_dismissed_with_trailing_confirm_reasoning_routes_to_uncertain():
+    f = _apply_verdict(make_finding(), {
+        "batch_index": 0,
+        "verdict": "dismissed",
+        "confidence": 0.8,
+        "reasoning": "Both predicates hold. Confirming on Reality and Actionability.",
+    })
+    assert f.verdict == "uncertain"
+    assert "triage-guard" in f.triage_reasoning
+
+
+def test_confirmed_with_negated_dismissal_language_is_untouched():
+    reasoning = (
+        "The cross-file hits are comments only; nothing justifies dismissing. "
+        "Confirming on both predicates."
+    )
+    f = _apply_verdict(make_finding(), {
+        "batch_index": 0,
+        "verdict": "confirmed",
+        "confidence": 0.9,
+        "reasoning": reasoning,
+    })
+    assert f.verdict == "confirmed"
+    assert f.triage_reasoning == reasoning
+
+
+def test_single_sentence_negated_dismissal_is_untouched():
+    reasoning = "The evidence gives no ground for dismissing this gap."
+    f = _apply_verdict(make_finding(), {
+        "batch_index": 0,
+        "verdict": "confirmed",
+        "confidence": 0.75,
+        "reasoning": reasoning,
+    })
+    assert f.verdict == "confirmed"
+    assert f.triage_reasoning == reasoning
+
+
+def test_matching_verdict_and_reasoning_unchanged():
+    confirmed = _apply_verdict(make_finding(), {
+        "batch_index": 0,
+        "verdict": "confirmed",
+        "confidence": 0.9,
+        "reasoning": "No live path reaches the symbol. Confirming on both predicates.",
+    })
+    assert confirmed.verdict == "confirmed"
+    dismissed = _apply_verdict(make_finding(), {
+        "batch_index": 0,
+        "verdict": "dismissed",
+        "confidence": 0.9,
+        "reasoning": "The import at src/y.py:3 is a real use. Dismissing on Reality.",
+    })
+    assert dismissed.verdict == "dismissed"
+
+
+def test_missing_reasoning_leaves_verdict_unchanged():
+    f = _apply_verdict(make_finding(), {
+        "batch_index": 0,
+        "verdict": "confirmed",
+        "confidence": 0.9,
+    })
+    assert f.verdict == "confirmed"
+    assert f.triage_reasoning is None
+
+
+def test_uncertain_verdict_never_rewritten():
+    f = _apply_verdict(make_finding(), {
+        "batch_index": 0,
+        "verdict": "uncertain",
+        "confidence": 0.4,
+        "reasoning": "Dismissing feels wrong but confirming lacks a path.",
+    })
+    assert f.verdict == "uncertain"
+    assert "triage-guard" not in f.triage_reasoning
+
+
+# --- malformed verdict shapes (observed in live replays) --------------------
+
+
+@pytest.mark.asyncio
+async def test_completeness_validator_rejects_malformed_verdict_shapes(config):
+    # Live corpus replays observed models emitting the verdicts array
+    # JSON-encoded as one string, or entries as bare strings; the validator
+    # crashed (AttributeError) and the whole chunk's claims went undecided.
+    # Malformed shape must be a validation error (re-ask), never an exception.
+    claims = [Claim(make_finding(symbol="a"))]
+    provider = FakeProvider([
+        verdicts_result([{"batch_index": 0, "verdict": "confirmed", "confidence": 0.9, "reasoning": "x"}])
+    ])
+    triage = Triage(config, provider=provider)
+    await triage.decide_batch(claims, mode="claim")
+    validator = provider.calls[0]["options"].tool_input_validators[0]
+
+    as_string = validator("submit_triage_verdicts", {"verdicts": '[{"batch_index": 0}]'})
+    assert as_string and all(isinstance(e, str) for e in as_string)
+
+    entry_string = validator("submit_triage_verdicts", {"verdicts": ["confirmed"]})
+    assert entry_string and all(isinstance(e, str) for e in entry_string)
+
+    non_list = validator("submit_triage_verdicts", {"verdicts": 42})
+    assert non_list and all(isinstance(e, str) for e in non_list)
+
+
+@pytest.mark.asyncio
+async def test_malformed_verdict_entries_do_not_crash_the_batch(config):
+    # Defense in depth for the parse loop: if a malformed entry survives
+    # validation (provider without validator support), the batch must still
+    # decide the well-formed entries and leave the malformed one undecided.
+    claims = [Claim(make_finding(symbol="a")), Claim(make_finding(symbol="b"))]
+    provider = FakeProvider([
+        verdicts_result([
+            "confirmed",
+            {"batch_index": 1, "verdict": "dismissed", "confidence": 0.8, "reasoning": "used via dispatch"},
+        ])
+    ])
+    triage = Triage(config, provider=provider)
+    result = await triage.decide_batch(claims, mode="claim")
+    assert result.findings[0].verdict is None
+    assert result.findings[1].verdict == "dismissed"

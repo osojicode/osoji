@@ -16,10 +16,11 @@ from osoji.triage import (
     render_triage_prompt,
 )
 
-# sha256 of TRIAGE_SYSTEM_PROMPT at the work#66 sectioning refactor. A
-# deliberate rubric change must update this hash in the same PR and carry its
-# A/B evidence (wiki decisions/0022).
-FROZEN_SHA = "16b45f611fc84fb76d60d8bc9ec0ce0c0f65af93c8d2d137014554a4354ed4da"
+# sha256 of TRIAGE_SYSTEM_PROMPT. A deliberate rubric change must update this
+# hash in the same PR and carry its A/B evidence (wiki decisions/0022).
+# History: 16b45f61… at the work#66 sectioning refactor; current hash is the
+# work#78/work#79 change (confirmed-verdict semantics + latent_bug rigor).
+FROZEN_SHA = "67141f5531e49c51a33aba677b1b2966971935ca26d1165f0b6ffff7da9847e9"
 
 
 def test_assembled_prompt_is_byte_identical() -> None:
@@ -32,7 +33,7 @@ def test_full_render_matches_constant() -> None:
 
 
 def test_sections_are_nonempty() -> None:
-    assert len(TRIAGE_PROMPT_SECTIONS) == 15
+    assert len(TRIAGE_PROMPT_SECTIONS) == 16
     for name, text in TRIAGE_PROMPT_SECTIONS.items():
         assert text, f"empty section: {name}"
 

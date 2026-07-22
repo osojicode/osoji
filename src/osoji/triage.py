@@ -36,6 +36,7 @@ findings that collide on ``id`` cannot reuse a stale verdict.
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Collection
 from dataclasses import dataclass, field, replace
 from typing import Any
@@ -83,7 +84,10 @@ A finding is a TRUE POSITIVE iff both predicates hold:
   currently behaves correctly describes a gap that does not exist yet.
 - Actionability — there is a concrete fix.
 Confirm when both hold. Dismiss when either fails. Use 'uncertain' when the
-assembled evidence genuinely cannot decide.
+assembled evidence genuinely cannot decide. A 'confirmed' verdict asserts
+exactly one thing: the finding's claim about the code is true — if your
+reasoning concludes the claim fails, the matching verdict is 'dismissed',
+never 'confirmed'.
 
 """,
     "significance": """\
@@ -210,6 +214,19 @@ sends and a value it receives back are governed alike by the external contract, 
 project obligation. Judge such strings by the protocol that defines them, and apply that
 judgement consistently across the protocol's whole vocabulary — do not confirm one member
 of an external message/status/finish-reason vocabulary while dismissing its siblings.
+
+""",
+    "latent_bug": """\
+A latent-bug claim asserts the code can currently misbehave. Confirm one only
+when you can state the concrete trigger — the specific input, state, or call
+sequence that reaches the failure, and the wrong outcome it produces. If no
+such path can be stated from the assembled evidence — the failure sits behind
+a guard that already handles it, or requires a state the program cannot
+reach — the gap is not real NOW: dismiss on Reality, or use 'uncertain' when
+the evidence genuinely cannot decide. A deliberately pinned value asserted in
+a test-role file (a snapshot pin, a golden value, a self-test expectation) is
+a guard doing its job, not a magic-number bug: read it as declared intent for
+the pinned value, scoped to files whose role is verification.
 
 """,
     "prose_doc_gaps": """\
@@ -444,9 +461,27 @@ class Triage:
         def check_completeness(tool_name: str, tool_input: dict) -> list[str]:
             if tool_name != "submit_triage_verdicts":
                 return []
-            by_index = {
-                v.get("batch_index"): v for v in tool_input.get("verdicts", [])
-            }
+            verdicts = tool_input.get("verdicts", [])
+            # Models occasionally emit the array JSON-encoded as one string,
+            # or entries as bare strings (observed in live corpus replays);
+            # malformed shape must re-ask, never raise.
+            if not isinstance(verdicts, list):
+                return [
+                    "'verdicts' must be a JSON array of verdict objects "
+                    f"(got {type(verdicts).__name__}); resubmit as structured objects"
+                ]
+            malformed = [
+                f"index {j} is a {type(v).__name__}"
+                for j, v in enumerate(verdicts)
+                if not isinstance(v, dict)
+            ]
+            if malformed:
+                return [
+                    "non-object entries in 'verdicts' ("
+                    + "; ".join(malformed)
+                    + "); every entry must be a verdict object"
+                ]
+            by_index = {v.get("batch_index"): v for v in verdicts}
             errors = [
                 f"Missing verdict for batch_index {i}" for i in range(n) if i not in by_index
             ]
@@ -485,7 +520,13 @@ class Triage:
         verdict_by_index: dict[int, dict] = {}
         for tc in result.tool_calls:
             if tc.name == "submit_triage_verdicts":
-                for v in tc.input.get("verdicts", []):
+                raw = tc.input.get("verdicts", [])
+                # Defense in depth behind the validator: a provider without
+                # validator support can still hand back malformed entries;
+                # skip them (undecided) rather than crash the whole batch.
+                for v in raw if isinstance(raw, list) else []:
+                    if not isinstance(v, dict):
+                        continue
                     bi = v.get("batch_index")
                     if bi is not None:
                         verdict_by_index[bi] = v
@@ -610,14 +651,66 @@ class Triage:
 # -- module helpers --------------------------------------------------------
 
 
-def _apply_verdict(finding: Finding, v: dict) -> Finding:
-    """Return a copy of ``finding`` with triage outputs from a verdict dict."""
+_DISMISSAL_WORD = re.compile(r"\bdismiss\w*\b", re.IGNORECASE)
+_CONFIRM_WORD = re.compile(r"\bconfirm\w*\b", re.IGNORECASE)
+_NEGATION_WORD = re.compile(
+    r"\b(?:not|no|none|nothing|never|nor|cannot|can't|don't|doesn't|won't"
+    r"|wouldn't|without|than|instead|rather|avoid\w*|refus\w*)\b",
+    re.IGNORECASE,
+)
 
+
+def _reasoning_contradicts_verdict(verdict: str | None, reasoning: str | None) -> bool:
+    """True when the reasoning's closing statement asserts the opposite verdict.
+
+    The observed failure mode (work#78) is a reasoning that ends "Dismissing on
+    Reality" shipped under ``verdict=confirmed``. Only the final sentence is
+    examined — that is where the rubric's verdict statement lands — and a
+    negation before the verdict word ("nothing justifies dismissing") means the
+    sentence rejects that verdict rather than stating it. High precision over
+    recall: the guard must never demote a verdict whose reasoning merely
+    discusses the opposite outcome.
+    """
+
+    if verdict == "confirmed":
+        opposite = _DISMISSAL_WORD
+    elif verdict == "dismissed":
+        opposite = _CONFIRM_WORD
+    else:
+        return False
+    if not reasoning:
+        return False
+    sentences = [s for s in re.split(r"(?<=[.!?])\s+|\n+", reasoning.strip()) if s.strip()]
+    if not sentences:
+        return False
+    last = sentences[-1]
+    m = opposite.search(last)
+    if not m:
+        return False
+    return not _NEGATION_WORD.search(last[: m.start()])
+
+
+def _apply_verdict(finding: Finding, v: dict) -> Finding:
+    """Return a copy of ``finding`` with triage outputs from a verdict dict.
+
+    Routes verdict/reasoning contradictions to ``uncertain`` (work#78) — a
+    review flag, never a suppression. ``_apply_cached`` replays entries that
+    already passed this guard when first decided, so it stays unguarded.
+    """
+
+    verdict = v.get("verdict")
+    reasoning = v.get("reasoning")
+    if _reasoning_contradicts_verdict(verdict, reasoning):
+        verdict = "uncertain"
+        reasoning = (
+            f"{reasoning} [triage-guard: reasoning contradicts the submitted "
+            f"'{v.get('verdict')}' verdict; routed to uncertain for review]"
+        )
     return replace(
         finding,
-        verdict=v.get("verdict"),
+        verdict=verdict,
         confidence=v.get("confidence"),
-        triage_reasoning=v.get("reasoning"),
+        triage_reasoning=reasoning,
         suggested_fix=v.get("suggested_fix"),
         severity=v.get("severity"),
         contract_class=v.get("contract_class"),
