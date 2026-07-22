@@ -17,6 +17,8 @@ running inside the osoji checkout.
 
 from __future__ import annotations
 
+import errno
+import fnmatch
 import json
 import os
 import re
@@ -29,6 +31,7 @@ from typing import Any
 
 from . import __version__
 from .config import SHADOW_DIR
+from .walker import is_under_corpus_snapshot
 
 CORPUS_CASE_SCHEMA = "corpus-case/1"
 CORPUS_EXPECTED_SCHEMA = "corpus-expected/1"
@@ -201,18 +204,67 @@ def _evidence_paths(finding: dict, repo_root: Path) -> set[str]:
     filtering of which strings might be "path-shaped" -- existence on disk
     (within the repo) is the only test, matching the brief's "mechanical
     walk... strings only" instruction.
+
+    One exception (osojicode/work#85): a string that resolves into a committed
+    corpus-case snapshot tree is dropped. Those files are frozen copies, and
+    snapshotting a deep snapshot path under the new (already deep) case dir is
+    what triggers the Windows MAX_PATH crash this module exists to avoid.
     """
 
     found: set[str] = set()
+    root_resolved = repo_root.resolve()
+    snapshot_cache: dict[Path, bool] = {}
     for ev in finding.get("evidence") or []:
         payload = ev.get("payload") if isinstance(ev, dict) else None
         if not isinstance(payload, dict):
             continue
         for s in _walk_strings(payload):
             resolved = _resolve_within_repo(repo_root, _to_posix(s)) if s else None
-            if resolved is not None:
-                found.add(_to_posix(s))
+            if resolved is None:
+                continue
+            if is_under_corpus_snapshot(resolved, root_resolved, snapshot_cache):
+                continue
+            found.add(_to_posix(s))
     return found
+
+
+def _is_path_length_error(exc: OSError) -> bool:
+    """True for an OS "path/filename too long" failure, cross-platform:
+    Windows ``ERROR_FILENAME_EXCED_RANGE`` (206) or POSIX ``ENAMETOOLONG``.
+    """
+
+    if getattr(exc, "winerror", None) == 206:
+        return True
+    return exc.errno == errno.ENAMETOOLONG
+
+
+def _exclude_matches(rel: str, pattern: str) -> bool:
+    """Match a repo-relative POSIX path against an ``--exclude`` value: an exact
+    path or an fnmatch glob, compared case-sensitively (repo paths are
+    case-sensitive contracts, so ``fnmatchcase`` -- not ``fnmatch`` -- is used).
+    """
+
+    return fnmatch.fnmatchcase(rel, pattern)
+
+
+def _safe_copy(src: Path, dest: Path) -> None:
+    """Copy ``src`` -> ``dest`` (creating parents), converting an OS
+    path-length failure into a readable :class:`CorpusEmitError` that names the
+    offending destination and points at ``--exclude``. Any other ``OSError``
+    propagates unchanged, for the caller's cleanup-on-failure block to handle.
+    """
+
+    try:
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dest)
+    except OSError as exc:
+        if _is_path_length_error(exc):
+            raise CorpusEmitError(
+                f"destination path too long: {dest} exceeds this platform's "
+                "path-length limit (e.g. Windows MAX_PATH). Narrow the snapshot "
+                "with --exclude <repo-relative-path-or-glob> and retry."
+            ) from exc
+        raise
 
 
 def _language_for(path: str, override: str | None) -> str:
@@ -391,6 +443,7 @@ def emit_case(
     reasoning: str | None = None,
     gray: bool = False,
     include: Sequence[str] = (),
+    exclude: Sequence[str] = (),
     language: str | None = None,
 ) -> Path:
     """Snapshot one decided finding into a ``corpus-case/1`` stub under ``dest``.
@@ -402,9 +455,10 @@ def emit_case(
     layout documented in ``tests/fixtures/prompt_regression/README.md``.
 
     Every input is validated before any file is written -- a rejected slug,
-    missing finding, oversized file set, missing ``--include`` file, a
-    finding path that is missing or escapes the repo, or an undecided verdict
-    without ``--expected-verdict`` all raise :class:`CorpusEmitError` before
+    missing finding, oversized file set, missing ``--include`` file, an
+    ``--exclude`` pattern that would drop the finding's own path, a finding
+    path that is missing or escapes the repo, or an undecided verdict without
+    ``--expected-verdict`` all raise :class:`CorpusEmitError` before
     ``case_dir`` is even checked for existence, so a failed call never leaves
     a half-written case behind. As a second line of defense against a
     residual race between that pre-flight check and the actual copy (a file
@@ -421,8 +475,31 @@ def emit_case(
     finding = _find_finding(ledger, finding_id)
 
     finding_path = _to_posix(finding.get("path", ""))
+    evidence_paths = _evidence_paths(finding, repo_root)
+
+    # --exclude (osojicode/work#85): the subtractive twin of --include. Each
+    # value is an exact repo-relative path or an fnmatch glob; it filters the
+    # EVIDENCE-derived set BEFORE the MAX_FILES cap, so an over-cap finding can
+    # be narrowed into a self-contained case. Excluding the finding's own
+    # flagged path is an error -- that file is the subject of the case and must
+    # be snapshotted.
+    exclude_patterns = [_to_posix(x) for x in exclude]
+    for pat in exclude_patterns:
+        if finding_path and _exclude_matches(finding_path, pat):
+            raise CorpusEmitError(
+                f"--exclude {pat!r} would drop the finding's own path "
+                f"{finding_path!r}, which must be snapshotted; narrow the "
+                "evidence files instead"
+            )
+    if exclude_patterns:
+        evidence_paths = {
+            p
+            for p in evidence_paths
+            if not any(_exclude_matches(p, pat) for pat in exclude_patterns)
+        }
+
     relevant: set[str] = {finding_path} if finding_path else set()
-    relevant |= _evidence_paths(finding, repo_root)
+    relevant |= evidence_paths
 
     for raw in include:
         rel = _to_posix(raw)
@@ -431,17 +508,16 @@ def emit_case(
         relevant.add(rel)
 
     if len(relevant) > MAX_FILES:
-        # --include is additive-only (it can only grow `relevant`, never
-        # narrow it), so it is never a fix here -- the finding's own evidence
-        # already references too many files for a self-contained case. There
-        # is currently no knob to narrow that automatically; the options are
-        # to emit a different (more targeted) finding, or extend this tool.
+        # --include is additive-only (it can only grow `relevant`, never narrow
+        # it), so it is never a fix here. --exclude (applied above, before this
+        # check) is the narrowing knob: drop the evidence files that bloat the
+        # set, or emit a different (more targeted) finding.
         raise CorpusEmitError(
             f"{len(relevant)} files exceeds the corpus-emit cap of {MAX_FILES} "
             "(snapshot-bloat guard): the finding's evidence references too "
-            "many files for a self-contained case. Emit a different finding "
-            "with more targeted evidence, or extend corpus_emit.py to support "
-            "narrowing the selection."
+            "many files for a self-contained case. Narrow the evidence set with "
+            "--exclude <repo-relative-path-or-glob>, or emit a different finding "
+            "with more targeted evidence."
         )
 
     # Pre-flight: every path in `relevant` must resolve to an existing,
@@ -490,16 +566,14 @@ def emit_case(
         for rel in sorted(relevant):
             src = resolved_sources[rel]
             dest_file = _posix_join(source_root, rel)
-            dest_file.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, dest_file)
+            _safe_copy(src, dest_file)
 
             for subdir, suffix in _SIDECARS:
                 sidecar_rel = f"{SHADOW_DIR}/{subdir}/{rel}{suffix}"
                 sidecar_src = _posix_join(repo_root, sidecar_rel)
                 if sidecar_src.is_file():
                     sidecar_dest = _posix_join(case_dir, f"{subdir}/{rel}{suffix}")
-                    sidecar_dest.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(sidecar_src, sidecar_dest)
+                    _safe_copy(sidecar_src, sidecar_dest)
 
         finding_out = dict(finding)
         finding_out["path"] = finding_path
