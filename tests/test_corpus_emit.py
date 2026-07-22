@@ -412,6 +412,169 @@ def test_emit_case_mid_copy_failure_removes_partial_case_dir(tmp_path, monkeypat
 
 
 # ---------------------------------------------------------------------------
+# --exclude narrowing knob + snapshot exclusion + path-length error
+# (osojicode/work#85)
+# ---------------------------------------------------------------------------
+
+
+def _append_finding(repo: Path, finding: Finding) -> None:
+    ledger_path = repo / ".osoji" / "analysis" / "decided-findings.json"
+    ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+    ledger["findings"].append(finding.to_dict())
+    ledger_path.write_text(json.dumps(ledger), encoding="utf-8")
+
+
+def _over_cap_finding(repo: Path) -> Finding:
+    """A finding whose evidence references MAX_FILES+5 real files under
+    ``src/extra/`` (over the cap) plus the default ``src/app/util.py`` path."""
+
+    refs = []
+    for i in range(MAX_FILES + 5):
+        rel = f"src/extra/file_{i}.py"
+        _write(repo, rel, f"# extra {i}\n")
+        refs.append({"file": rel, "kind": "import", "context": "referenced"})
+    big = _make_finding(
+        symbol="big_symbol",
+        contract_claim="big claim referencing many files",
+        verdict="confirmed",
+        triage_reasoning="r",
+        evidence=[Evidence(kind="cross_file_reference", payload={"references": refs})],
+    )
+    _append_finding(repo, big)
+    return big
+
+
+def test_emit_case_exclude_narrows_over_cap_finding(tmp_path):
+    repo, _, _ = _build_repo(tmp_path)
+    big = _over_cap_finding(repo)
+    dest = tmp_path / "corpus" / "_holding"
+
+    # Without --exclude the finding is over-cap and cannot be emitted.
+    with pytest.raises(CorpusEmitError, match="exceeds the corpus-emit cap"):
+        emit_case(repo, big.id, "over-cap", dest)
+
+    # --exclude drops the src/extra/* evidence files BEFORE the cap check,
+    # bringing the set under MAX_FILES so the case emits.
+    case_dir = emit_case(repo, big.id, "narrowed", dest, exclude=["src/extra/*.py"])
+    assert case_dir.exists()
+
+    source_files = sorted(
+        p.relative_to(case_dir / "source").as_posix()
+        for p in (case_dir / "source").rglob("*")
+        if p.is_file()
+    )
+    # the finding's own flagged path survives; the excluded evidence is gone
+    assert "src/app/util.py" in source_files
+    assert not any(s.startswith("src/extra/") for s in source_files)
+
+
+def test_emit_case_exclude_exact_path_narrows(tmp_path):
+    repo, confirmed, _ = _build_repo(tmp_path)
+    dest = tmp_path / "corpus" / "_holding"
+
+    # confirmed's evidence references src/app/caller.py; exclude it by exact path.
+    case_dir = emit_case(
+        repo, confirmed.id, "exact-exclude", dest, exclude=["src/app/caller.py"]
+    )
+    source_files = sorted(
+        p.relative_to(case_dir / "source").as_posix()
+        for p in (case_dir / "source").rglob("*")
+        if p.is_file()
+    )
+    assert source_files == ["src/app/util.py"]
+
+
+def test_emit_case_exclude_own_path_raises(tmp_path):
+    repo, confirmed, _ = _build_repo(tmp_path)
+    dest = tmp_path / "corpus" / "_holding"
+
+    with pytest.raises(CorpusEmitError, match="finding's own path"):
+        emit_case(repo, confirmed.id, "exclude-self", dest, exclude=["src/app/util.py"])
+
+    assert not (dest / "dead_symbol" / "case_exclude-self").exists()
+
+
+def test_emit_case_exclude_glob_matching_own_path_raises(tmp_path):
+    repo, confirmed, _ = _build_repo(tmp_path)
+    dest = tmp_path / "corpus" / "_holding"
+
+    # A glob that also swallows the finding's own path is rejected too.
+    with pytest.raises(CorpusEmitError, match="finding's own path"):
+        emit_case(repo, confirmed.id, "exclude-glob-self", dest, exclude=["src/app/*.py"])
+
+
+def test_emit_case_drops_evidence_under_corpus_snapshot(tmp_path):
+    repo, _, _ = _build_repo(tmp_path)
+
+    # A committed corpus-case snapshot living inside the repo (short paths, so
+    # that WITHOUT the fix the frozen file is copied and enumerable -- the
+    # assertion below then genuinely fails, rather than being masked by the
+    # Windows MAX_PATH crash the fix exists to prevent).
+    _write(repo, "data/case_001/case.json", '{"schema": "corpus-case/1", "slug": "x"}\n')
+    _write(repo, "data/case_001/source/frozen.py", "def frozen():\n    pass\n")
+
+    finding = _make_finding(
+        symbol="snapshot_ref_symbol",
+        contract_claim="references a frozen corpus-snapshot file",
+        line_start=50,
+        line_end=52,
+        verdict="confirmed",
+        triage_reasoning="r",
+        evidence=[
+            Evidence(
+                kind="cross_file_reference",
+                payload={
+                    "references": [
+                        {"file": "src/app/caller.py", "kind": "comment", "context": "x"},
+                        {
+                            "file": "data/case_001/source/frozen.py",
+                            "kind": "import",
+                            "context": "x",
+                        },
+                    ]
+                },
+            )
+        ],
+    )
+    _append_finding(repo, finding)
+    dest = tmp_path / "corpus" / "_holding"
+
+    case_dir = emit_case(repo, finding.id, "drops-snapshot", dest)
+    source_files = sorted(
+        p.relative_to(case_dir / "source").as_posix()
+        for p in (case_dir / "source").rglob("*")
+        if p.is_file()
+    )
+    # the live evidence file is kept; the corpus-snapshot evidence file dropped
+    assert "src/app/caller.py" in source_files
+    assert not any("case_001" in s for s in source_files)
+
+
+def test_emit_case_path_length_failure_gives_readable_error(tmp_path, monkeypatch):
+    repo, confirmed, _ = _build_repo(tmp_path)
+    dest = tmp_path / "corpus" / "_holding"
+
+    import osoji.corpus_emit as corpus_emit_module
+
+    def raise_path_too_long(src, dst, *args, **kwargs):
+        err = OSError("The filename or extension is too long")
+        err.winerror = 206  # ERROR_FILENAME_EXCED_RANGE
+        raise err
+
+    monkeypatch.setattr(corpus_emit_module.shutil, "copy2", raise_path_too_long)
+
+    with pytest.raises(CorpusEmitError) as excinfo:
+        emit_case(repo, confirmed.id, "too-long", dest)
+
+    message = str(excinfo.value)
+    assert "--exclude" in message
+    # the offending destination path is named
+    assert "case_too-long" in message
+    # cleanup-on-failure still ran -- no half-written case directory left
+    assert not (dest / "dead_symbol" / "case_too-long").exists()
+
+
+# ---------------------------------------------------------------------------
 # category derivation (osojicode/work#75: suffix-derived, matches the
 # accepted corpus directories)
 # ---------------------------------------------------------------------------
@@ -589,3 +752,21 @@ def test_cli_corpus_emit_creates_case_and_prints_reminder(tmp_path):
     assert result.exit_code == 0, result.output
     assert "git mv" in result.output
     assert (dest / "dead_symbol" / "case_cli-case" / "case.json").exists()
+
+
+def test_cli_corpus_emit_exclude_flag_drops_evidence_file(tmp_path):
+    repo, confirmed, _ = _build_repo(tmp_path)
+    dest = tmp_path / "corpus" / "_holding"
+    runner = CliRunner()
+
+    result = runner.invoke(main, [
+        "corpus", "emit", str(repo),
+        "--id", confirmed.id, "--slug", "cli-exclude",
+        "--dest", str(dest),
+        "--exclude", "src/app/caller.py",
+    ])
+
+    assert result.exit_code == 0, result.output
+    case_dir = dest / "dead_symbol" / "case_cli-exclude"
+    assert (case_dir / "source" / "src" / "app" / "util.py").is_file()
+    assert not (case_dir / "source" / "src" / "app" / "caller.py").exists()

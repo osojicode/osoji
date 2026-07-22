@@ -1,6 +1,7 @@
 """File discovery with ignore patterns and bottom-up sorting."""
 
 import fnmatch
+import json
 import subprocess
 from collections.abc import Iterable
 from pathlib import Path
@@ -76,12 +77,80 @@ def _git_ls_files(root: Path, *, quiet: bool = False) -> list[Path] | None:
     return paths
 
 
+#: Structural marker of a committed corpus-case snapshot root: a directory
+#: holding a ``case.json`` whose parsed JSON ``schema`` starts ``corpus-case/``.
+#: The exclusion below keys on this marker, never on a path convention (e.g.
+#: ``tests/fixtures``), so it stays language- and layout-agnostic
+#: (osojicode/work#85).
+_CORPUS_CASE_MARKER = "case.json"
+_CORPUS_CASE_SCHEMA_PREFIX = "corpus-case/"
+
+
+def is_corpus_case_root(directory: Path, cache: dict[Path, bool]) -> bool:
+    """True if ``directory`` is a corpus-case snapshot root.
+
+    A snapshot root carries a ``case.json`` whose parsed JSON has a ``schema``
+    string starting ``corpus-case/``. Results are memoized in ``cache`` (keyed
+    by directory) so a repeated ancestor walk over the same tree costs one
+    stat+parse per directory.
+    """
+    cached = cache.get(directory)
+    if cached is not None:
+        return cached
+
+    result = False
+    marker = directory / _CORPUS_CASE_MARKER
+    try:
+        if marker.is_file():
+            data = json.loads(marker.read_text(encoding="utf-8"))
+            schema = data.get("schema") if isinstance(data, dict) else None
+            result = isinstance(schema, str) and schema.startswith(
+                _CORPUS_CASE_SCHEMA_PREFIX
+            )
+    except (OSError, ValueError):
+        result = False
+
+    cache[directory] = result
+    return result
+
+
+def is_under_corpus_snapshot(
+    path: Path, root: Path, cache: dict[Path, bool]
+) -> bool:
+    """True if any ancestor of ``path`` (up to, but excluding, ``root``) is a
+    corpus-case snapshot root. ``cache`` memoizes the per-directory check.
+    """
+    current = path.parent
+    while current != root:
+        if is_corpus_case_root(current, cache):
+            return True
+        parent = current.parent
+        if parent == current:  # reached the filesystem root without meeting `root`
+            return False
+        current = parent
+    return False
+
+
+def _exclude_corpus_snapshots(paths: list[Path], root: Path) -> list[Path]:
+    """Drop every path that lies under a corpus-case snapshot root.
+
+    Committed corpus-case snapshots are frozen copies of production files;
+    auditing them is pure noise and, worse, their presence in ``git ls-files``
+    pollutes FactsDB cross-references (a production file binds to its own
+    frozen snapshot copy). Excluding them at the walker is default-on for every
+    audited repo (osojicode/work#85).
+    """
+    cache: dict[Path, bool] = {}
+    return [p for p in paths if not is_under_corpus_snapshot(p, root, cache)]
+
+
 def list_repo_files(config: Config) -> tuple[Iterable[Path], bool]:
     """Shared entry point for git-aware file listing.
 
     Returns (paths, used_git) where used_git indicates whether
     git ls-files was used (True) or rglob fallback (False).
     Results are cached per (root_path, respect_gitignore) so git ls-files only runs once.
+    Corpus-case snapshot subtrees are excluded from both discovery paths.
     """
     key = (config.root_path, config.respect_gitignore)
 
@@ -92,10 +161,13 @@ def list_repo_files(config: Config) -> tuple[Iterable[Path], bool]:
     if config.respect_gitignore:
         git_files = _git_ls_files(config.root_path, quiet=config.quiet)
         if git_files is not None:
+            git_files = _exclude_corpus_snapshots(git_files, config.root_path)
             _repo_files_cache[key] = (git_files, True)
             return list(git_files), True
 
-    fallback = list(config.root_path.rglob("*"))
+    fallback = _exclude_corpus_snapshots(
+        list(config.root_path.rglob("*")), config.root_path
+    )
     _repo_files_cache[key] = (fallback, False)
     return list(fallback), False
 
