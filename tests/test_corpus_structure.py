@@ -376,3 +376,52 @@ def test_check_thresholds_skips_non_scalar_metric_values():
 
 def test_check_thresholds_empty_baseline_yields_no_violations():
     assert eval_lib.check_thresholds({"fp_rate": 0.99}, {}) == []
+
+
+def test_check_thresholds_reports_non_dict_bounds_as_violation():
+    """A bare-number/string baseline entry (malformed JSON, not the
+    ``{"max": ...}``/``{"min": ...}`` shape) must surface as a violation
+    naming the metric and the malformed value, not raise TypeError."""
+    metrics = {"fp_rate": 0.1}
+    baseline = {"fp_rate": 0.2}
+
+    violations = eval_lib.check_thresholds(metrics, baseline)
+
+    assert len(violations) == 1
+    assert "fp_rate" in violations[0]
+    assert "0.2" in violations[0]
+
+
+def test_check_thresholds_reports_dict_bounds_missing_min_and_max():
+    metrics = {"fp_rate": 0.1}
+    baseline = {"fp_rate": {"note": "todo"}}
+
+    violations = eval_lib.check_thresholds(metrics, baseline)
+
+    assert len(violations) == 1
+    assert "fp_rate" in violations[0]
+
+
+def test_check_thresholds_reports_non_numeric_bound_value():
+    metrics = {"fp_rate": 0.1}
+    baseline = {"fp_rate": {"max": "high"}}
+
+    violations = eval_lib.check_thresholds(metrics, baseline)
+
+    assert len(violations) == 1
+    assert "fp_rate" in violations[0]
+    assert "high" in violations[0]
+
+
+def test_check_thresholds_malformed_entry_does_not_block_other_metrics():
+    """One malformed baseline entry must not raise and must not prevent a
+    sibling metric's own (valid) violation from being reported."""
+    metrics = {"fp_rate": 0.35, "tp_rate": 0.9}
+    baseline = {"fp_rate": "not-a-dict", "tp_rate": {"min": 0.95}}
+
+    violations = eval_lib.check_thresholds(metrics, baseline)
+
+    assert len(violations) == 2
+    joined = "\n".join(violations)
+    assert "fp_rate" in joined
+    assert "tp_rate" in joined
