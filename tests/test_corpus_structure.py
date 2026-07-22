@@ -27,6 +27,7 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 
 import eval_lib  # noqa: E402
 from osoji.findings import Finding  # noqa: E402
+from osoji.findings_adapter import CATEGORY_TO_GAP_TYPE  # noqa: E402
 
 BASELINE_PATH = eval_lib.CORPUS_ROOT / "evaluate-baseline.json"
 
@@ -90,6 +91,59 @@ def test_every_finding_json_round_trips_through_finding_preserving_id():
             assert finding.id == data["id"], (
                 f"{finding_path}: a non-empty stored id must survive from_dict verbatim"
             )
+
+
+# ---------------------------------------------------------------------------
+# gap_type matches CATEGORY_TO_GAP_TYPE (osojicode/work#35)
+# ---------------------------------------------------------------------------
+#
+# The V1-7 bootstrap migration synthesized case.json/finding.json data whose
+# ``detector`` field carries a prefixed ``"<producer>:<category>"`` spelling
+# (e.g. ``audit:obligation_implicit_contract``, ``audit:doc_obsolete_reference``),
+# but stamped ``gap_type`` by looking up the persisted-category-shaped keys
+# ``CATEGORY_TO_GAP_TYPE`` actually contains (unprefixed, no ``doc_`` prefix).
+# That mismatch is exactly what let 14/68 cases land in the corpus tagged
+# ``uncategorized`` instead of their real gap_type. This guard derives the
+# expected gap_type from each finding's detector suffix the same way, so a
+# repeat of that migration bug fails CI instead of quietly recurring.
+
+
+def _expected_gap_type_from_detector(detector: str) -> str:
+    """Candidate category derivation mirroring the corpus-correction script:
+    the raw detector suffix, then that suffix with a leading ``doc_`` stripped."""
+
+    suffix = detector.split(":", 1)[1] if ":" in detector else detector
+    candidates = [suffix]
+    if suffix.startswith("doc_"):
+        candidates.append(suffix[len("doc_") :])
+    for candidate in candidates:
+        if candidate in CATEGORY_TO_GAP_TYPE:
+            return CATEGORY_TO_GAP_TYPE[candidate]
+    return "uncategorized"
+
+
+def test_every_case_gap_type_matches_category_to_gap_type():
+    violations = []
+    for case_json_path in _case_json_paths():
+        case_data = json.loads(case_json_path.read_text(encoding="utf-8"))
+        finding_path = case_json_path.parent / "finding.json"
+        finding_data = json.loads(finding_path.read_text(encoding="utf-8"))
+
+        detector = finding_data.get("detector", "")
+        expected = _expected_gap_type_from_detector(detector)
+
+        if case_data.get("gap_type") != expected:
+            violations.append(
+                f"{case_json_path}: gap_type={case_data.get('gap_type')!r}, "
+                f"expected {expected!r} from detector {detector!r}"
+            )
+        if finding_data.get("gap_type") != expected:
+            violations.append(
+                f"{finding_path}: gap_type={finding_data.get('gap_type')!r}, "
+                f"expected {expected!r} from detector {detector!r}"
+            )
+
+    assert not violations, "\n".join(violations)
 
 
 # ---------------------------------------------------------------------------
