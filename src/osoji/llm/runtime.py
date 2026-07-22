@@ -35,6 +35,9 @@ def create_runtime(
         provider,
         resolved_rate_limiter,
         token_counter=token_counter,
+        # The audit orchestrator attaches a shared breaker to config so every
+        # phase's provider short-circuits after the first permanent error.
+        circuit_breaker=getattr(config, "provider_circuit_breaker", None),
     )
     logging_provider = LoggingProvider(rate_limited_provider, verbose=verbose)
     return logging_provider, resolved_rate_limiter

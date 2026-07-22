@@ -61,6 +61,30 @@ class PromptTooLargeError(RuntimeError):
         )
 
 
+class ProviderPermanentError(RuntimeError):
+    """Raised when a provider fails permanently — every retry fails identically.
+
+    Billing/credit exhaustion and auth/permission failures are not transient:
+    once seen, every subsequent call to the same account fails the same way.
+    Classifying them into this typed error lets the audit orchestrator trip a
+    circuit breaker and skip the remaining LLM work instead of burning
+    wall-clock on doomed calls (see osoji issue #160).
+    """
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        reason: str,
+        provider: str | None = None,
+        status_code: int | None = None,
+    ) -> None:
+        self.reason = reason  # "billing" | "auth"
+        self.provider = provider
+        self.status_code = status_code
+        super().__init__(message)
+
+
 class ToolSchemaValidationError(RuntimeError):
     """Raised when a forced tool call stays invalid after all retry attempts."""
 

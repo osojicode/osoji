@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from ..rate_limiter import RateLimiter
 from .base import LLMProvider
+from .errors import ProviderCircuitBreaker, classify_permanent_error
 from .tokens import TokenCounter, estimate_tokens_offline
 from .types import CompletionOptions, CompletionResult, Message, RateLimitMetadata
 
@@ -34,10 +35,16 @@ class RateLimitedProvider(LLMProvider):
         rate_limiter: RateLimiter,
         *,
         token_counter: TokenCounter | None = None,
+        circuit_breaker: ProviderCircuitBreaker | None = None,
     ) -> None:
         self._provider = provider
         self._rate_limiter = rate_limiter
         self._token_counter = token_counter
+        # Optional shared latch: once a permanent (billing/auth) error is seen,
+        # every subsequent call short-circuits instead of issuing a doomed
+        # request. None outside the multi-phase audit (create_runtime supplies
+        # one only when the orchestrator attached it to config).
+        self._circuit_breaker = circuit_breaker
 
     @property
     def name(self) -> str:
@@ -51,6 +58,11 @@ class RateLimitedProvider(LLMProvider):
     ) -> CompletionResult:
         reservation_key = options.reservation_key or "default"
         retry_count = 0
+
+        # Circuit open: a prior call already hit a permanent failure. Fail fast
+        # without reserving budget or issuing another doomed request.
+        if self._circuit_breaker is not None and self._circuit_breaker.tripped:
+            raise self._circuit_breaker.error
 
         while True:
             estimated_input_tokens = await self._estimate_input_tokens(
@@ -75,6 +87,14 @@ class RateLimitedProvider(LLMProvider):
             except Exception as exc:
                 if not self._is_retryable_error(exc):
                     await self._rate_limiter.finalize_failure(ticket, is_rate_limit=False)
+                    # Billing/auth-class failures are permanent: raise the typed
+                    # error and trip the shared breaker so the rest of the run
+                    # short-circuits rather than retrying identically-doomed calls.
+                    permanent = classify_permanent_error(exc)
+                    if permanent is not None:
+                        if self._circuit_breaker is not None:
+                            self._circuit_breaker.trip(permanent)
+                        raise permanent from exc
                     raise
                 retry_after = self._extract_retry_after(exc) or min(30.0, float(2 ** retry_count))
                 await self._rate_limiter.finalize_failure(
