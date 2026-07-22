@@ -13,7 +13,13 @@ from osoji.config import Config
 from osoji.evidence import Evidence
 from osoji.findings import Finding
 from osoji.llm.types import CompletionResult, ToolCall
-from osoji.triage import Claim, Triage, TriageBatchResult, _render_evidence
+from osoji.triage import (
+    Claim,
+    Triage,
+    TriageBatchResult,
+    _apply_verdict,
+    _render_evidence,
+)
 
 
 # --- helpers ---------------------------------------------------------------
@@ -484,3 +490,94 @@ async def test_decide_batch_without_ledger_attached_does_not_crash(config):
     result = await triage.decide_batch(claims, mode="claim")
 
     assert result.findings[0].verdict == "confirmed"
+
+
+# --- verdict/reasoning consistency guard (work#78) -------------------------
+
+
+def test_confirmed_with_trailing_dismissal_reasoning_routes_to_uncertain():
+    f = _apply_verdict(make_finding(), {
+        "batch_index": 0,
+        "verdict": "confirmed",
+        "confidence": 0.85,
+        "reasoning": "The symbol has no live references. Dismissing on Reality.",
+    })
+    assert f.verdict == "uncertain"
+    assert "Dismissing on Reality." in f.triage_reasoning
+    assert "triage-guard" in f.triage_reasoning
+
+
+def test_dismissed_with_trailing_confirm_reasoning_routes_to_uncertain():
+    f = _apply_verdict(make_finding(), {
+        "batch_index": 0,
+        "verdict": "dismissed",
+        "confidence": 0.8,
+        "reasoning": "Both predicates hold. Confirming on Reality and Actionability.",
+    })
+    assert f.verdict == "uncertain"
+    assert "triage-guard" in f.triage_reasoning
+
+
+def test_confirmed_with_negated_dismissal_language_is_untouched():
+    reasoning = (
+        "The cross-file hits are comments only; nothing justifies dismissing. "
+        "Confirming on both predicates."
+    )
+    f = _apply_verdict(make_finding(), {
+        "batch_index": 0,
+        "verdict": "confirmed",
+        "confidence": 0.9,
+        "reasoning": reasoning,
+    })
+    assert f.verdict == "confirmed"
+    assert f.triage_reasoning == reasoning
+
+
+def test_single_sentence_negated_dismissal_is_untouched():
+    reasoning = "The evidence gives no ground for dismissing this gap."
+    f = _apply_verdict(make_finding(), {
+        "batch_index": 0,
+        "verdict": "confirmed",
+        "confidence": 0.75,
+        "reasoning": reasoning,
+    })
+    assert f.verdict == "confirmed"
+    assert f.triage_reasoning == reasoning
+
+
+def test_matching_verdict_and_reasoning_unchanged():
+    confirmed = _apply_verdict(make_finding(), {
+        "batch_index": 0,
+        "verdict": "confirmed",
+        "confidence": 0.9,
+        "reasoning": "No live path reaches the symbol. Confirming on both predicates.",
+    })
+    assert confirmed.verdict == "confirmed"
+    dismissed = _apply_verdict(make_finding(), {
+        "batch_index": 0,
+        "verdict": "dismissed",
+        "confidence": 0.9,
+        "reasoning": "The import at src/y.py:3 is a real use. Dismissing on Reality.",
+    })
+    assert dismissed.verdict == "dismissed"
+
+
+def test_missing_reasoning_leaves_verdict_unchanged():
+    f = _apply_verdict(make_finding(), {
+        "batch_index": 0,
+        "verdict": "confirmed",
+        "confidence": 0.9,
+    })
+    assert f.verdict == "confirmed"
+    assert f.triage_reasoning is None
+
+
+def test_uncertain_verdict_never_rewritten():
+    f = _apply_verdict(make_finding(), {
+        "batch_index": 0,
+        "verdict": "uncertain",
+        "confidence": 0.4,
+        "reasoning": "Dismissing feels wrong but confirming lacks a path.",
+    })
+    assert f.verdict == "uncertain"
+    assert "triage-guard" not in f.triage_reasoning

@@ -36,6 +36,7 @@ findings that collide on ``id`` cannot reuse a stale verdict.
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Collection
 from dataclasses import dataclass, field, replace
 from typing import Any
@@ -83,7 +84,10 @@ A finding is a TRUE POSITIVE iff both predicates hold:
   currently behaves correctly describes a gap that does not exist yet.
 - Actionability — there is a concrete fix.
 Confirm when both hold. Dismiss when either fails. Use 'uncertain' when the
-assembled evidence genuinely cannot decide.
+assembled evidence genuinely cannot decide. A 'confirmed' verdict asserts
+exactly one thing: the finding's claim about the code is true — if your
+reasoning concludes the claim fails, the matching verdict is 'dismissed',
+never 'confirmed'.
 
 """,
     "significance": """\
@@ -210,6 +214,19 @@ sends and a value it receives back are governed alike by the external contract, 
 project obligation. Judge such strings by the protocol that defines them, and apply that
 judgement consistently across the protocol's whole vocabulary — do not confirm one member
 of an external message/status/finish-reason vocabulary while dismissing its siblings.
+
+""",
+    "latent_bug": """\
+A latent-bug claim asserts the code can currently misbehave. Confirm one only
+when you can state the concrete trigger — the specific input, state, or call
+sequence that reaches the failure, and the wrong outcome it produces. If no
+such path can be stated from the assembled evidence — the failure sits behind
+a guard that already handles it, or requires a state the program cannot
+reach — the gap is not real NOW: dismiss on Reality, or use 'uncertain' when
+the evidence genuinely cannot decide. A deliberately pinned value asserted in
+a test-role file (a snapshot pin, a golden value, a self-test expectation) is
+a guard doing its job, not a magic-number bug: read it as declared intent for
+the pinned value, scoped to files whose role is verification.
 
 """,
     "prose_doc_gaps": """\
@@ -610,14 +627,66 @@ class Triage:
 # -- module helpers --------------------------------------------------------
 
 
-def _apply_verdict(finding: Finding, v: dict) -> Finding:
-    """Return a copy of ``finding`` with triage outputs from a verdict dict."""
+_DISMISSAL_WORD = re.compile(r"\bdismiss\w*\b", re.IGNORECASE)
+_CONFIRM_WORD = re.compile(r"\bconfirm\w*\b", re.IGNORECASE)
+_NEGATION_WORD = re.compile(
+    r"\b(?:not|no|none|nothing|never|nor|cannot|can't|don't|doesn't|won't"
+    r"|wouldn't|without|than|instead|rather|avoid\w*|refus\w*)\b",
+    re.IGNORECASE,
+)
 
+
+def _reasoning_contradicts_verdict(verdict: str | None, reasoning: str | None) -> bool:
+    """True when the reasoning's closing statement asserts the opposite verdict.
+
+    The observed failure mode (work#78) is a reasoning that ends "Dismissing on
+    Reality" shipped under ``verdict=confirmed``. Only the final sentence is
+    examined — that is where the rubric's verdict statement lands — and a
+    negation before the verdict word ("nothing justifies dismissing") means the
+    sentence rejects that verdict rather than stating it. High precision over
+    recall: the guard must never demote a verdict whose reasoning merely
+    discusses the opposite outcome.
+    """
+
+    if verdict == "confirmed":
+        opposite = _DISMISSAL_WORD
+    elif verdict == "dismissed":
+        opposite = _CONFIRM_WORD
+    else:
+        return False
+    if not reasoning:
+        return False
+    sentences = [s for s in re.split(r"(?<=[.!?])\s+|\n+", reasoning.strip()) if s.strip()]
+    if not sentences:
+        return False
+    last = sentences[-1]
+    m = opposite.search(last)
+    if not m:
+        return False
+    return not _NEGATION_WORD.search(last[: m.start()])
+
+
+def _apply_verdict(finding: Finding, v: dict) -> Finding:
+    """Return a copy of ``finding`` with triage outputs from a verdict dict.
+
+    Routes verdict/reasoning contradictions to ``uncertain`` (work#78) — a
+    review flag, never a suppression. ``_apply_cached`` replays entries that
+    already passed this guard when first decided, so it stays unguarded.
+    """
+
+    verdict = v.get("verdict")
+    reasoning = v.get("reasoning")
+    if _reasoning_contradicts_verdict(verdict, reasoning):
+        verdict = "uncertain"
+        reasoning = (
+            f"{reasoning} [triage-guard: reasoning contradicts the submitted "
+            f"'{v.get('verdict')}' verdict; routed to uncertain for review]"
+        )
     return replace(
         finding,
-        verdict=v.get("verdict"),
+        verdict=verdict,
         confidence=v.get("confidence"),
-        triage_reasoning=v.get("reasoning"),
+        triage_reasoning=reasoning,
         suggested_fix=v.get("suggested_fix"),
         severity=v.get("severity"),
         contract_class=v.get("contract_class"),
