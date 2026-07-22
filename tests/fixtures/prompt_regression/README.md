@@ -25,10 +25,19 @@ language, any project, replays the same way.
 ## `corpus-case/1` — one case directory
 
 Path: `tests/fixtures/prompt_regression/<category>/case_NNN_<slug>/`, where
-`<category>` is the native detector category (`dead_code`, `dead_params`,
-`plumbing`, `obligations`, ...) and `NNN` numbers from `101` up, unique within
-the whole corpus (not per category) so a case's directory name never collides
-across categories once cases move around.
+`<category>` is the native detector category (`dead_symbol`, `dead_parameter`,
+`unactuated_config`, `obligation_implicit_contract`, `doc_stale_content`, ...)
+and `NNN` numbers from `101` up, unique within the whole corpus (not per
+category) so a case's directory name never collides across categories once
+cases move around.
+
+The category is the `:category` suffix of the finding's
+`<producer>:<category>` detector string, with two wrinkles: `doc:` findings
+carry unprefixed suffixes (`doc:stale_content`), so their category gains the
+canonical `doc_` scorecard prefix (`doc_stale_content`); and `debris:`
+findings keep the legacy debris vocabulary (`dead_code`, `latent_bug`,
+`stale_comment`, ...) as-is, which is why debris-swept cases sit in
+`dead_code/` alongside the dedicated detector's `dead_symbol/`.
 
 A case directory contains:
 

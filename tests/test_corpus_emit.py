@@ -139,7 +139,7 @@ def test_emit_case_creates_full_stub_layout(tmp_path):
 
     case_dir = emit_case(repo, confirmed.id, "unused-helper", dest)
 
-    assert case_dir == dest / "dead_code" / "case_unused-helper"
+    assert case_dir == dest / "dead_symbol" / "case_unused-helper"
     assert case_dir.exists()
 
     # source/: the flagged file plus the evidence-referenced file, nothing else.
@@ -159,7 +159,7 @@ def test_emit_case_creates_full_stub_layout(tmp_path):
     case_json = json.loads((case_dir / "case.json").read_text(encoding="utf-8"))
     assert case_json["schema"] == "corpus-case/1"
     assert case_json["slug"] == "unused-helper"
-    assert case_json["category"] == "dead_code"
+    assert case_json["category"] == "dead_symbol"
     assert case_json["detector"] == "deadcode"
     assert case_json["gap_type"] == "reachability"
     assert case_json["language"] == "python"
@@ -265,7 +265,7 @@ def test_emit_case_missing_id_raises_with_near_miss_listing(tmp_path):
     assert confirmed.path in message
     assert confirmed.id in message
     assert uncertain.id in message
-    assert not (dest / "dead_code" / "case_whatever").exists()
+    assert not (dest / "dead_symbol" / "case_whatever").exists()
 
 
 def test_emit_case_uncertain_verdict_requires_expected_verdict_override(tmp_path):
@@ -276,7 +276,7 @@ def test_emit_case_uncertain_verdict_requires_expected_verdict_override(tmp_path
         emit_case(repo, uncertain.id, "uncertain-case", dest)
 
     # nothing partially written
-    assert not (dest / "dead_code" / "case_uncertain-case").exists()
+    assert not (dest / "dead_symbol" / "case_uncertain-case").exists()
 
     case_dir = emit_case(repo, uncertain.id, "uncertain-case", dest, expected_verdict="dismissed")
     expected_json = json.loads((case_dir / "expected.json").read_text(encoding="utf-8"))
@@ -298,7 +298,7 @@ def test_emit_case_include_nonexistent_file_raises(tmp_path):
     with pytest.raises(CorpusEmitError, match="does not exist"):
         emit_case(repo, confirmed.id, "bad-include", dest, include=["does/not/exist.py"])
 
-    assert not (dest / "dead_code" / "case_bad-include").exists()
+    assert not (dest / "dead_symbol" / "case_bad-include").exists()
 
 
 def test_emit_case_duplicate_dir_raises(tmp_path):
@@ -344,7 +344,7 @@ def test_emit_case_file_cap_exceeded_raises(tmp_path):
     assert "--include" not in message
     assert "too many files" in message or "targeted evidence" in message
 
-    assert not (dest / "dead_code" / "case_too-big").exists()
+    assert not (dest / "dead_symbol" / "case_too-big").exists()
 
 
 def test_emit_case_missing_finding_path_file_names_no_such_file(tmp_path):
@@ -363,7 +363,7 @@ def test_emit_case_missing_finding_path_file_names_no_such_file(tmp_path):
     # confirmed's evidence) was already copied under case_dir by the time
     # util.py's absence raised -- leaving a half-written case directory
     # behind. Now validated pre-flight, before case_dir is created at all.
-    assert not (dest / "dead_code" / "case_missing-file").exists()
+    assert not (dest / "dead_symbol" / "case_missing-file").exists()
 
 
 def test_emit_case_finding_path_escaping_repo_names_outside_repo(tmp_path):
@@ -380,7 +380,7 @@ def test_emit_case_finding_path_escaping_repo_names_outside_repo(tmp_path):
         emit_case(repo, confirmed.id, "escaping-path", dest)
 
     assert "no such file" not in str(excinfo.value)
-    assert not (dest / "dead_code" / "case_escaping-path").exists()
+    assert not (dest / "dead_symbol" / "case_escaping-path").exists()
 
 
 def test_emit_case_mid_copy_failure_removes_partial_case_dir(tmp_path, monkeypatch):
@@ -409,39 +409,44 @@ def test_emit_case_mid_copy_failure_removes_partial_case_dir(tmp_path, monkeypat
     with pytest.raises(OSError, match="simulated mid-copy failure"):
         emit_case(repo, confirmed.id, "mid-copy-fail", dest)
 
-    assert not (dest / "dead_code" / "case_mid-copy-fail").exists()
+    assert not (dest / "dead_symbol" / "case_mid-copy-fail").exists()
 
 
 # ---------------------------------------------------------------------------
-# category derivation (task-6 review: plumbing/dead_plumbing collision)
+# category derivation (osojicode/work#75: suffix-derived, matches the
+# accepted corpus directories)
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
     ("detector", "expected_category"),
     [
-        # JunkAnalyzer-backed producers (findings_adapter.py's _JUNK_PRODUCER
-        # + each analyzer's own .name / .cli_flag).
-        ("deadcode:dead_symbol", "dead_code"),
-        ("deadparam:dead_parameter", "dead_params"),
-        # The collision the reviewer caught: DeadPlumbingAnalyzer.name is
-        # "dead_plumbing", but the corpus taxonomy (README example list) and
-        # the legacy debris:plumbing path both call this category "plumbing".
-        ("plumbing:unactuated_config", "plumbing"),
-        ("orphan:orphaned_file", "orphaned_files"),
-        ("deps:dead_dependency", "dead_deps"),
+        # JunkAnalyzer-backed producers (findings_adapter.py's detector
+        # literals): the category is the detector's ``:category`` suffix,
+        # which is exactly how the accepted corpus directories are named
+        # (dead_symbol/, dead_parameter/, unactuated_config/, ...).
+        ("deadcode:dead_symbol", "dead_symbol"),
+        ("deadparam:dead_parameter", "dead_parameter"),
+        ("plumbing:unactuated_config", "unactuated_config"),
+        ("orphan:orphaned_file", "orphaned_file"),
+        ("deps:dead_dependency", "dead_dependency"),
         ("cicd:dead_cicd", "dead_cicd"),
-        # Non-JunkAnalyzer producers (findings_adapter.py: obligations.py's
-        # finding_type, doc_analysis.py's DocFinding.category).
-        ("obligations:obligation_violation", "obligations"),
-        ("obligations:obligation_implicit_contract", "obligations"),
-        ("doc:stale_content", "doc_analysis"),
-        ("doc:misleading_claim", "doc_analysis"),
+        # obligations: suffixes arrive already obligation_-prefixed
+        # (findings_adapter.py prepends it), matching the corpus dirs.
+        ("obligations:obligation_violation", "obligation_violation"),
+        ("obligations:obligation_implicit_contract", "obligation_implicit_contract"),
+        # doc: suffixes arrive UNprefixed (DocFinding.category), but the
+        # corpus dirs and the scorecard spelling (audit.py's
+        # ``f"doc_{finding.category}"``) carry the doc_ prefix.
+        ("doc:stale_content", "doc_stale_content"),
+        ("doc:misleading_claim", "doc_misleading_claim"),
         # debris:<category> (findings_adapter.py's finding_from_debris):
         # today's live tools.py schema enum, plus the corpus README's
         # "legacy bespoke case dirs" names (dead_params, plumbing) that
-        # predate that schema -- both must round-trip as themselves, which
-        # is exactly what would have caught the plumbing collision above.
+        # predate that schema -- the legacy debris vocabulary round-trips
+        # as itself, which is how the accepted corpus stores debris cases
+        # (dead_code/, latent_bug/) alongside the fine-grained detector
+        # dirs (dead_symbol/, unactuated_config/).
         ("debris:dead_code", "dead_code"),
         ("debris:latent_bug", "latent_bug"),
         ("debris:stale_comment", "stale_comment"),
@@ -452,16 +457,8 @@ def test_emit_case_mid_copy_failure_removes_partial_case_dir(tmp_path, monkeypat
         ("debris:plumbing", "plumbing"),
     ],
 )
-def test_category_of_matches_corpus_taxonomy(detector, expected_category):
+def test_category_of_derives_category_from_detector_suffix(detector, expected_category):
     assert _category_of(detector) == expected_category
-
-
-def test_category_of_plumbing_producer_agrees_with_debris_producer():
-    # The two producers that can both describe an unactuated-config /
-    # plumbing-style gap must agree on the corpus directory they file into --
-    # this is the exact invariant the reviewer's plumbing/dead_plumbing
-    # collision violated.
-    assert _category_of("plumbing:unactuated_config") == _category_of("debris:plumbing")
 
 
 # ---------------------------------------------------------------------------
@@ -514,14 +511,14 @@ def test_emitted_case_loads_and_stages_after_acceptance(tmp_path):
     expected["accepted"] = True
     expected_path.write_text(json.dumps(expected), encoding="utf-8")
 
-    accepted_dir = corpus_root / "dead_code" / "case_101_accepted-case"
+    accepted_dir = corpus_root / "dead_symbol" / "case_101_accepted-case"
     accepted_dir.parent.mkdir(parents=True, exist_ok=True)
     shutil.move(str(case_dir), str(accepted_dir))
 
     cases = load_corpus(corpus_root)
     assert len(cases) == 1
     case = cases[0]
-    assert case.key == "dead_code/case_101_accepted-case"
+    assert case.key == "dead_symbol/case_101_accepted-case"
     assert case.finding.symbol == "unused_helper"
     assert case.expected_verdict == "confirmed"
 
@@ -592,4 +589,4 @@ def test_cli_corpus_emit_creates_case_and_prints_reminder(tmp_path):
 
     assert result.exit_code == 0, result.output
     assert "git mv" in result.output
-    assert (dest / "dead_code" / "case_cli-case" / "case.json").exists()
+    assert (dest / "dead_symbol" / "case_cli-case" / "case.json").exists()

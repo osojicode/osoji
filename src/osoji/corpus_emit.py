@@ -28,7 +28,6 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 
 from . import __version__
-from .audit import _CLI_FLAG_TO_PRODUCER, _JUNK_NAME_TO_CLI_FLAG
 from .config import SHADOW_DIR
 
 CORPUS_CASE_SCHEMA = "corpus-case/1"
@@ -229,38 +228,6 @@ def _language_for(path: str, override: str | None) -> str:
     return "unknown"
 
 
-# Producer -> corpus category, derived from audit.py's own registries rather
-# than a hand-maintained duplicate: _CLI_FLAG_TO_PRODUCER maps a CLI flag to
-# the producer prefix Finding.detector carries; _JUNK_NAME_TO_CLI_FLAG maps
-# each JunkAnalyzer's .name (its corpus-category spelling, e.g. "dead_code")
-# to that same flag. Chaining producer -> flag -> name gives the category a
-# human already sees in --exclude / CLI help, with zero drift risk since both
-# tables are read live off audit.py's registries.
-_PRODUCER_TO_CLI_FLAG: dict[str, str] = {v: k for k, v in _CLI_FLAG_TO_PRODUCER.items()}
-_CLI_FLAG_TO_CATEGORY: dict[str, str] = {v: k for k, v in _JUNK_NAME_TO_CLI_FLAG.items()}
-
-# The CLI-flag registry chain above is a UI naming convention (--exclude flag
-# identifiers via JunkAnalyzer.name), not the corpus taxonomy -- it happens to
-# already agree with the corpus README's example categories and the legacy
-# debris:<category> vocabulary for five of six JunkAnalyzers, but
-# DeadPlumbingAnalyzer.name is "dead_plumbing" while the corpus taxonomy (the
-# README's own example list, and the legacy debris:plumbing path handled
-# below) calls this category "plumbing". The registry chain cannot be
-# trusted verbatim as the corpus taxonomy -- override the one confirmed
-# collision explicitly rather than silently emitting the wrong directory name.
-_CATEGORY_OVERRIDES: dict[str, str] = {
-    "dead_plumbing": "plumbing",
-}
-
-# Producers outside the JUNK_ANALYZERS registry: Phase 2 (doc analysis),
-# Phase 3 (debris), and Phase 3.5 (obligations) are not JunkAnalyzer
-# subclasses, so they carry no CLI-flag registry entry.
-_SPECIAL_CATEGORY_PRODUCERS: dict[str, str] = {
-    "obligations": "obligations",
-    "doc": "doc_analysis",
-}
-
-
 def _producer_of(detector: str) -> str:
     """The producer half of a ``"<producer>:<category>"`` detector string."""
 
@@ -271,26 +238,28 @@ def _producer_of(detector: str) -> str:
 def _category_of(detector: str) -> str:
     """The corpus directory category for a finding's ``detector`` string.
 
-    ``debris:<category>`` findings (Phase 3) already carry the legacy debris
-    taxonomy (``dead_code`` / ``dead_params`` / ``plumbing`` / ``latent_bug``)
-    as their detector suffix -- the exact category vocabulary the corpus
-    README illustrates -- so that suffix is used directly. Every other
-    producer routes through the CLI-flag chain above; an unrecognized
-    producer falls back to itself so an unknown/future detector never raises.
+    The corpus taxonomy is fine-grained: the accepted case directories
+    (``dead_symbol/``, ``dead_parameter/``, ``unactuated_config/``,
+    ``obligation_implicit_contract/``, ...) are named after the detector's
+    ``:category`` suffix, so that suffix is the category (osojicode/work#75).
+    The legacy debris vocabulary (``debris:dead_code``, ``debris:plumbing``,
+    ...) round-trips as itself under the same rule.
+
+    One producer needs a spelling fix: live doc findings carry unprefixed
+    suffixes (``doc:stale_content``), but the corpus directories use the
+    canonical scorecard spelling audit.py mints (``f"doc_{finding.category}"``
+    -> ``doc_stale_content``), so ``doc:`` suffixes gain that prefix here.
+
+    A suffix-less detector falls back to the producer itself so an
+    unknown/future detector never raises.
     """
 
     producer, _, suffix = (detector or "").partition(":")
     if not producer:
         return "uncategorized"
-    if producer == "debris":
-        return suffix or "debris"
-    if producer in _SPECIAL_CATEGORY_PRODUCERS:
-        return _SPECIAL_CATEGORY_PRODUCERS[producer]
-    cli_flag = _PRODUCER_TO_CLI_FLAG.get(producer)
-    if cli_flag is not None:
-        category = _CLI_FLAG_TO_CATEGORY.get(cli_flag, producer)
-        return _CATEGORY_OVERRIDES.get(category, category)
-    return producer
+    if producer == "doc" and suffix:
+        return f"doc_{suffix}"
+    return suffix or producer
 
 
 def _validate_slug(slug: str) -> None:
