@@ -14,6 +14,7 @@ from osoji.evidence import Evidence
 from osoji.findings import Finding
 from osoji.llm.types import CompletionResult, ToolCall
 from osoji.triage import (
+    TRIAGE_SYSTEM_PROMPT,
     Claim,
     Triage,
     TriageBatchResult,
@@ -170,6 +171,71 @@ async def test_claim_mode_uses_supplied_system_prompt(config):
     triage = Triage(config, provider=provider)
     await triage.decide_batch([Claim(make_finding())], mode="claim", system_prompt="CUSTOM-RUBRIC")
     assert provider.calls[0]["system"] == "CUSTOM-RUBRIC"
+
+
+# --- maintainer-declared project rules -> triage user message (work#35) -----
+
+
+async def _claim_user_and_system(config, **decide_kwargs) -> tuple[str, str]:
+    """Run one claim-mode batch; return (user_message, system_prompt)."""
+    provider = FakeProvider([
+        verdicts_result([{"batch_index": 0, "verdict": "confirmed",
+                          "confidence": 1.0, "reasoning": "x"}])
+    ])
+    triage = Triage(config, provider=provider)
+    await triage.decide_batch([Claim(make_finding())], mode="claim", **decide_kwargs)
+    call = provider.calls[0]
+    return call["messages"][0].content, call["system"]
+
+
+@pytest.mark.asyncio
+async def test_project_rules_prepends_intent_block_before_claims(config):
+    rules = "Prefer deleting dead code over commenting it out."
+    with_rules, _ = await _claim_user_and_system(config, project_rules=rules)
+    baseline, _ = await _claim_user_and_system(config)
+
+    # The maintainer's rules ride through verbatim, inside a delimited block.
+    assert rules in with_rules
+    assert "maintainer-declared rules" in with_rules
+    # The block precedes the claims; the claims portion is byte-identical.
+    assert with_rules.index("maintainer-declared rules") < with_rules.index("## Claims to triage")
+    assert with_rules.endswith(baseline)
+
+
+@pytest.mark.asyncio
+async def test_absent_project_rules_leaves_user_message_byte_identical(config):
+    baseline, _ = await _claim_user_and_system(config)
+    with_none, _ = await _claim_user_and_system(config, project_rules=None)
+    with_empty, _ = await _claim_user_and_system(config, project_rules="")
+    with_blank, _ = await _claim_user_and_system(config, project_rules="   \n  ")
+
+    assert with_none == baseline
+    assert with_empty == baseline
+    assert with_blank == baseline
+
+
+@pytest.mark.asyncio
+async def test_project_rules_do_not_touch_system_prompt(config):
+    _, sys_without = await _claim_user_and_system(config)
+    _, sys_with = await _claim_user_and_system(
+        config, project_rules="Prefer deleting dead code over commenting it out."
+    )
+    assert sys_with == sys_without == TRIAGE_SYSTEM_PROMPT
+
+
+@pytest.mark.asyncio
+async def test_project_rules_prepend_in_exploration_mode(explore_repo):
+    rules = "Prefer deleting dead code over commenting it out."
+    provider = FakeProvider([
+        tool_use_result("submit_triage_verdict",
+                        {"verdict": "confirmed", "confidence": 1.0, "reasoning": "dead"},
+                        call_id="v1"),
+    ])
+    triage = Triage(explore_repo, provider=provider)
+    await triage.decide_batch([Claim(make_finding())], mode="exploration", project_rules=rules)
+    user_msg = provider.calls[0]["messages"][0].content
+    assert rules in user_msg
+    assert "maintainer-declared rules" in user_msg
 
 
 # --- cross-wiring guard for symbol-less claims (work#57) --------------------

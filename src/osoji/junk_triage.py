@@ -60,12 +60,19 @@ async def decide_junk_claims(
     *,
     batch_size: int = BATCH_SIZE,
     system_prompt: str = TRIAGE_SYSTEM_PROMPT,
+    project_rules: str | None = None,
     on_progress: Callable[[int, int, Path, str], None] | None = None,
 ) -> tuple[list[Finding], int, int]:
     """Decide claims through Triage in bounded concurrent chunks.
 
     Returns ``(findings, input_tokens, output_tokens)`` with ``findings``
     aligned 1:1 with ``claims``.
+
+    ``project_rules`` (work#35) forwards maintainer-declared project rules to
+    every chunk's :meth:`Triage.decide_batch` call so they are weighed as
+    declared intent. Defaults to ``None``: the source wiring (where the rules
+    text is read from) is intentionally deferred, so today every production
+    caller uses the default.
     """
 
     if not claims:
@@ -107,6 +114,7 @@ async def decide_junk_claims(
                 chunk,
                 mode="claim",
                 system_prompt=system_prompt,
+                project_rules=project_rules,
                 verdict_cache=session.cache if session is not None else None,
             )
         except Exception as exc:
