@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `[audit] exclude` in `.osoji.toml` — repo-relative glob patterns that
+  remove matching paths from repository discovery entirely, scoping
+  expensive analysis away from low-value trees (e.g. `docs/archive/**`)
+
 ### Changed
 
 - LLM providers migrated from LiteLLM to direct SDKs (`anthropic`, `openai`,

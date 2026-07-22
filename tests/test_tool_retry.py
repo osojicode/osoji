@@ -17,7 +17,7 @@ from osoji.llm.types import (
 from osoji.llm.anthropic import AnthropicProvider
 
 
-def _make_response(content_blocks, input_tokens=100, output_tokens=50):
+def _make_response(content_blocks, input_tokens=100, output_tokens=50, stop_reason="tool_use"):
     """Build a fake Anthropic API response."""
     blocks = []
     for b in content_blocks:
@@ -26,7 +26,7 @@ def _make_response(content_blocks, input_tokens=100, output_tokens=50):
         content=blocks,
         usage=SimpleNamespace(input_tokens=input_tokens, output_tokens=output_tokens),
         model="claude-test",
-        stop_reason="tool_use",
+        stop_reason=stop_reason,
     )
 
 
@@ -225,6 +225,78 @@ class TestInvalidInputTriggersRetry:
         tool_result_block = retry_messages[2]["content"][0]
         assert tool_result_block["is_error"] is True
         assert "expected object" in tool_result_block["content"]
+
+    def test_retry_expands_max_tokens_on_anthropic_truncation_stop_reason(self, provider):
+        """Anthropic's raw stop_reason is "max_tokens", not the "length" OpenAI/Google
+        use — the retry-budget expansion must still fire so the resend doesn't repeat
+        the identical truncated request into the same cap."""
+        bad_input = {"value": "not-an-object"}
+        first_response = _make_response(
+            [_tool_use_block("tc1", "test_tool", bad_input)],
+            input_tokens=100,
+            output_tokens=50,
+            stop_reason="max_tokens",
+        )
+        good_input = {"value": {"x": "fixed"}}
+        second_response = _make_response(
+            [_tool_use_block("tc2", "test_tool", good_input)],
+            input_tokens=120,
+            output_tokens=60,
+        )
+        provider._client.messages.create = AsyncMock(
+            side_effect=[first_response, second_response]
+        )
+
+        options = CompletionOptions(
+            model="claude-test",
+            max_tokens=128,
+            tools=[TOOL_DEF],
+            tool_choice=FORCED_CHOICE,
+        )
+        messages = [Message(role=MessageRole.USER, content="test")]
+
+        result = asyncio.run(provider.complete(messages, None, options))
+
+        assert provider._client.messages.create.call_count == 2
+        assert provider._client.messages.create.call_args_list[1].kwargs["max_tokens"] == 256
+        assert result.tool_calls[0].input == good_input
+
+
+class TestMaybeExpandMissingToolMaxTokens:
+    """Direct unit tests for the truncation-detection guard.
+
+    Provider stop-reason vocabularies differ: OpenAI's finish_reason is "length",
+    google.py normalizes Google's MAX_TOKENS to "length", but Anthropic's SDK
+    passes its raw stop_reason "max_tokens" straight through. Both must be
+    treated as truncation.
+    """
+
+    @pytest.mark.parametrize("stop_reason", ["length", "max_tokens"])
+    def test_doubles_cap_on_truncation_stop_reasons(self, provider, stop_reason):
+        expanded = provider._maybe_expand_missing_tool_max_tokens(
+            current_max_tokens=128,
+            base_max_tokens=128,
+            stop_reason=stop_reason,
+        )
+        assert expanded == 256
+
+    @pytest.mark.parametrize("stop_reason", ["end_turn", None, "tool_use", "stop"])
+    def test_unchanged_for_non_truncation_stop_reasons(self, provider, stop_reason):
+        expanded = provider._maybe_expand_missing_tool_max_tokens(
+            current_max_tokens=128,
+            base_max_tokens=128,
+            stop_reason=stop_reason,
+        )
+        assert expanded == 128
+
+    def test_never_expands_past_base_times_two(self, provider):
+        # Already expanded in a prior retry attempt -> stays put, doesn't double again.
+        expanded = provider._maybe_expand_missing_tool_max_tokens(
+            current_max_tokens=256,
+            base_max_tokens=128,
+            stop_reason="max_tokens",
+        )
+        assert expanded == 256
 
 
 class TestTokenSumming:

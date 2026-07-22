@@ -144,13 +144,54 @@ def _exclude_corpus_snapshots(paths: list[Path], root: Path) -> list[Path]:
     return [p for p in paths if not is_under_corpus_snapshot(p, root, cache)]
 
 
+def _matches_exclude_pattern(relative_posix: str, patterns: list[str]) -> bool:
+    """True if a root-relative POSIX path matches any user exclude glob.
+
+    Patterns are matched with ``fnmatch.fnmatch``, which treats ``*`` as
+    matching any run of characters -- including ``/`` -- since it has no
+    concept of a path separator. That means ``**`` behaves identically to a
+    single ``*``; it's accepted for readability and familiarity with
+    shell-glob conventions (e.g. ``docs/archive/**``), not because it adds
+    recursion a lone ``*`` doesn't already have.
+    """
+    return any(fnmatch.fnmatch(relative_posix, pattern) for pattern in patterns)
+
+
+def _exclude_configured_globs(paths: list[Path], root: Path, patterns: list[str]) -> list[Path]:
+    """Drop every path matching a user-configured ``[audit] exclude`` glob.
+
+    Patterns come from ``.osoji.toml``'s ``[audit].exclude``
+    (``Config.load_audit_exclude()``) and are matched against each path's
+    POSIX-style location relative to ``root``. Because matching is always
+    against that in-root relative string, an absolute or ``../``-prefixed
+    pattern can never reach outside ``root`` -- it simply never matches a
+    real path. Language-agnostic by construction: these are user-supplied
+    path patterns, no built-in catalog, no default excludes. Exclusion here
+    is an explicit, user-declared scope decision -- the config IS declared
+    intent -- not a silent heuristic (osojicode/work#90).
+    """
+    if not patterns:
+        return paths
+    kept: list[Path] = []
+    for path in paths:
+        try:
+            relative = path.relative_to(root).as_posix()
+        except ValueError:
+            kept.append(path)
+            continue
+        if not _matches_exclude_pattern(relative, patterns):
+            kept.append(path)
+    return kept
+
+
 def list_repo_files(config: Config) -> tuple[Iterable[Path], bool]:
     """Shared entry point for git-aware file listing.
 
     Returns (paths, used_git) where used_git indicates whether
     git ls-files was used (True) or rglob fallback (False).
     Results are cached per (root_path, respect_gitignore) so git ls-files only runs once.
-    Corpus-case snapshot subtrees are excluded from both discovery paths.
+    Corpus-case snapshot subtrees and paths matching the project's
+    `[audit] exclude` globs are excluded from both discovery paths.
     """
     key = (config.root_path, config.respect_gitignore)
 
@@ -158,16 +199,20 @@ def list_repo_files(config: Config) -> tuple[Iterable[Path], bool]:
         cached_paths, used_git = _repo_files_cache[key]
         return list(cached_paths), used_git
 
+    exclude_patterns = config.load_audit_exclude()
+
     if config.respect_gitignore:
         git_files = _git_ls_files(config.root_path, quiet=config.quiet)
         if git_files is not None:
             git_files = _exclude_corpus_snapshots(git_files, config.root_path)
+            git_files = _exclude_configured_globs(git_files, config.root_path, exclude_patterns)
             _repo_files_cache[key] = (git_files, True)
             return list(git_files), True
 
     fallback = _exclude_corpus_snapshots(
         list(config.root_path.rglob("*")), config.root_path
     )
+    fallback = _exclude_configured_globs(fallback, config.root_path, exclude_patterns)
     _repo_files_cache[key] = (fallback, False)
     return list(fallback), False
 

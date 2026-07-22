@@ -221,6 +221,28 @@ def _read_optional_str(value: Any, *, context: str) -> str | None:
     return stripped or None
 
 
+def _read_exclude_patterns(value: Any, *, context: str) -> list[str]:
+    """Validate and normalize an `[audit] exclude` glob list.
+
+    Must be a list of strings when present; blank entries are dropped.
+    A missing value (key absent) normalizes to an empty list -- not an
+    error, since absent means "no change".
+    """
+
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        raise RuntimeError(f"{context} must be a list of glob patterns.")
+    patterns: list[str] = []
+    for item in value:
+        if not isinstance(item, str):
+            raise RuntimeError(f"{context} entries must be strings.")
+        stripped = item.strip()
+        if stripped:
+            patterns.append(stripped)
+    return patterns
+
+
 def _normalize_provider(value: str, *, context: str) -> str:
     """Normalize and validate a provider name."""
 
@@ -887,6 +909,42 @@ class Config:
                 if normalized:
                     extra_patterns.append(normalized)
         return extra_patterns
+
+    def load_audit_exclude(self) -> list[str]:
+        """Load `[audit] exclude` glob patterns from the committed project
+        config (.osoji.toml).
+
+        Patterns are repo-relative fnmatch globs the walker uses to remove
+        matching paths from repository discovery entirely (see
+        `walker._exclude_configured_globs`). This is a project-scoped,
+        user-declared decision (osojicode/work#90) -- there is no built-in
+        catalog and no default excludes, so an absent file, an absent
+        `[audit]` table, or an absent/empty `exclude` key all mean
+        "no change" (empty list). A malformed shape raises a clear
+        RuntimeError, consistent with the rest of config.py's TOML loading.
+        """
+
+        path = self.root_path / PROJECT_CONFIG_FILENAME
+        if not path.exists():
+            return []
+        try:
+            data = tomllib.loads(path.read_text(encoding="utf-8"))
+        except tomllib.TOMLDecodeError as exc:
+            raise RuntimeError(f"Invalid Osoji config file {path}: {exc}") from exc
+        except OSError as exc:
+            raise RuntimeError(f"Failed to read Osoji config file {path}: {exc}") from exc
+
+        if not isinstance(data, dict):
+            raise RuntimeError(f"Osoji config file {path} must contain a TOML table.")
+
+        audit_section = data.get("audit")
+        if audit_section is None:
+            return []
+        if not isinstance(audit_section, dict):
+            raise RuntimeError(f"{path}: [audit] must be a TOML table.")
+
+        return _read_exclude_patterns(audit_section.get("exclude"), context=f"{path}: audit.exclude")
+
     def is_doc_candidate(self, path: Path) -> bool:
         """Check if a path is a documentation file candidate.
 
