@@ -418,7 +418,11 @@ async def _analyze_document_async(
         system=_ANALYZE_SYSTEM_PROMPT,
         options=CompletionOptions(
             model=config.model_for("large"),
-            max_tokens=2048,
+            # 2048 truncated mid-tool-call on doc-heavy repos (57 analyze_document
+            # failures, stop_reason=max_tokens, missing `findings`); the retried
+            # resend of the ~100K-token large-tier input is the real cost, so a
+            # bigger first-attempt cap avoids paying for a doomed-to-fail retry.
+            max_tokens=4096,
             max_input_tokens=input_budget_for_config(config),
             reservation_key="doc.analyze",
             tools=get_analyze_document_tool_definitions(),

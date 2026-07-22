@@ -29,6 +29,13 @@ from .validate import validate_tool_input
 _MAX_TOOL_VALIDATION_ATTEMPTS = 3
 _DEFAULT_LLM_TIMEOUT = 600  # seconds; override with OSOJI_LLM_TIMEOUT env var
 
+# Provider stop-reason vocabularies for output-token truncation differ: OpenAI's
+# finish_reason is "length", google.py normalizes Google's MAX_TOKENS to "length",
+# but the anthropic SDK passes its raw stop_reason "max_tokens" straight through
+# (deliberately left unnormalized — other consumers match on the raw value). Both
+# must be recognized here so the retry-budget expansion fires on every provider.
+_TRUNCATION_STOP_REASONS = frozenset({"length", "max_tokens"})
+
 logger = logging.getLogger(__name__)
 
 
@@ -433,7 +440,7 @@ class DirectProvider(LLMProvider):
         base_max_tokens: int,
         stop_reason: str | None,
     ) -> int:
-        if stop_reason != "length":
+        if stop_reason not in _TRUNCATION_STOP_REASONS:
             return current_max_tokens
         if current_max_tokens > base_max_tokens:
             return current_max_tokens
