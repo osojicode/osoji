@@ -1,6 +1,6 @@
 """Zero-LLM closure diff — did the fixes actually close the findings?
 
-``osoji verify`` (Track 2 PR-D, osojicode/work#35) answers a single question
+``osoji verify`` (osojicode/work#35) answers a single question
 without any model call: given a *baseline* audit result and the *current* one,
 which prior findings closed, which are still open, and which are new. The sweep
 workflow snapshots a baseline before fixing, then verifies closure after.
