@@ -828,6 +828,17 @@ class Config:
         return self.root_path / SHADOW_DIR / "audit-manifest.json"
 
     @property
+    def audit_baseline_path(self) -> Path:
+        """Path to the closure-diff baseline audit result (``osoji verify``).
+
+        Lives directly under ``.osoji/`` — NOT under ``analysis_root``, which
+        the audit wipes at the start of every run — so the snapshotted baseline
+        survives a re-audit and can be diffed against the fresh result.
+        """
+
+        return self.root_path / SHADOW_DIR / "audit-baseline.json"
+
+    @property
     def rules_path(self) -> Path:
         """Path to natural language rules file."""
 
