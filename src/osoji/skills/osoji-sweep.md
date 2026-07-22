@@ -377,6 +377,22 @@ Present the plan as a numbered list before executing. Example format:
 
 ---
 
+## Phase 4.5: Snapshot Baseline
+
+Before any fix touches a file, snapshot the current audit result:
+
+```bash
+osoji verify --snapshot
+```
+
+This writes `.osoji/audit-baseline.json`, the closure ledger that Phase 5.5's
+post-fix `osoji verify` will diff against to prove which findings actually
+closed. It is stored outside `analysis/` deliberately — Phase 5.5's re-audit
+wipes that directory, and a baseline written inside it would not survive to
+be diffed against.
+
+---
+
 ## Phase 5: Execute Fixes
 
 Apply every fix in the plan:
@@ -422,6 +438,28 @@ state.
   summary with the reason.
 - If a fix is genuinely ambiguous (multiple valid interpretations), flag it in the
   summary. But the default is to fix, not skip.
+
+---
+
+## Phase 5.5: Verify Closure
+
+Re-audit and mechanically confirm which findings actually closed:
+
+```bash
+osoji audit --full --incremental . 2>&1 | tail -40
+osoji verify
+```
+
+`--incremental` bounds the re-audit cost to what changed since the baseline
+snapshot (the V1-9 incremental cache). `osoji verify` diffs the current
+result against the Phase 4.5 baseline and prints `closed / closed_by_dismissal
+/ still_open / new` counts; it exits 1 while `still_open > 0`.
+
+If `still_open > 0`: iterate **once** — fix the still-open findings, re-run
+the project's test suite (same command as Phase 5), re-run
+`osoji audit --full --incremental .`, then re-run `osoji verify`. If findings
+are still open after that single iteration, stop — do not loop further.
+Record the remainder in the Phase 7 summary as unresolved.
 
 ---
 
@@ -607,6 +645,13 @@ For each fix:
 ### Test Results
 - PASS / FAIL / no test runner detected
 - (details if failures)
+
+### Finding Lifecycle (from final `osoji verify`)
+| closed | closed_by_dismissal | still_open | new |
+|---|---|---|---|
+| X | Y | Z | W |
+(if `still_open > 0` after the Phase 5.5 iteration, list each remaining
+finding as **file:line** — category, under Items Requiring Manual Attention)
 
 ### GitHub Issues Filed
 For each issue:
