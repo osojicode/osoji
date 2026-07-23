@@ -751,6 +751,85 @@ class TestTriageFieldsInJSON:
         assert payload["issues"][0]["confidence"] == 0.0
 
 
+class TestUntriagedDebrisFloor:
+    """osoji#168 interim floor: kept debris findings without a Triage verdict
+    are tagged [untriaged] in the report and counted on the scorecard."""
+
+    @staticmethod
+    def _issue(**over):
+        base = dict(
+            path=Path("src/x.py"), severity="error", category="dead_code",
+            message="L1-2: dead code", remediation="remove it",
+            exclude_key="debris",
+        )
+        base.update(over)
+        return AuditIssue(**base)
+
+    def test_error_untriaged_debris_is_tagged(self):
+        report = format_audit_report(AuditResult(issues=[self._issue()]))
+        assert "[untriaged]" in report
+
+    def test_error_triaged_debris_is_not_tagged(self):
+        report = format_audit_report(AuditResult(issues=[
+            self._issue(verdict="confirmed", confidence=0.9),
+        ]))
+        assert "[untriaged]" not in report
+
+    def test_warning_untriaged_debris_is_tagged(self):
+        report = format_audit_report(AuditResult(issues=[
+            self._issue(severity="warning"),
+        ]))
+        assert "[untriaged]" in report
+
+    def test_non_debris_verdictless_issue_is_not_tagged(self):
+        # Only the debris seam has a triage path; other phases' verdict-None
+        # issues are not "untriaged", they were never candidates.
+        report = format_audit_report(AuditResult(issues=[
+            self._issue(exclude_key="doc-analysis", category="doc_stale_content"),
+            self._issue(severity="warning", exclude_key="shadow", category="stale_shadow"),
+        ]))
+        assert "[untriaged]" not in report
+
+    def test_scorecard_row_renders_only_when_field_set(self):
+        with_field = format_audit_report(AuditResult(
+            issues=[], scorecard=_minimal_scorecard(debris_untriaged=3),
+        ))
+        assert "Untriaged debris" in with_field
+        assert "3" in with_field
+
+        without_field = format_audit_report(AuditResult(
+            issues=[], scorecard=_minimal_scorecard(),
+        ))
+        assert "Untriaged debris" not in without_field
+
+    def test_debris_untriaged_round_trips(self, temp_dir):
+        from osoji.config import Config
+
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        original = AuditResult(
+            issues=[], scorecard=_minimal_scorecard(debris_untriaged=2),
+        )
+        serialize_audit_result(config, original)
+        loaded = load_audit_result(config)
+        assert loaded.scorecard.debris_untriaged == 2
+
+    def test_debris_untriaged_absent_in_old_payload_loads_as_none(self, temp_dir):
+        from osoji.config import Config
+
+        config = Config(root_path=temp_dir, respect_gitignore=False)
+        serialize_audit_result(
+            config, AuditResult(issues=[], scorecard=_minimal_scorecard()),
+        )
+        # Simulate a pre-#168 payload: strip the key entirely.
+        result_path = config.analysis_root / "audit-result.json"
+        payload = json.loads(result_path.read_text(encoding="utf-8"))
+        payload["scorecard"].pop("debris_untriaged", None)
+        result_path.write_text(json.dumps(payload), encoding="utf-8")
+
+        loaded = load_audit_result(config)
+        assert loaded.scorecard.debris_untriaged is None
+
+
 class TestErrorReportSuggestedFix:
     """The Errors (blocking) markdown section surfaces the Triage suggested fix."""
 

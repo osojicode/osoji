@@ -21,7 +21,7 @@ from .scorecard import merge_ranges
 from .walker import discover_directories, discover_files
 
 OBSERVATORY_SCHEMA_NAME = "osoji-observatory"
-OBSERVATORY_SCHEMA_VERSION = "1.4.0"
+OBSERVATORY_SCHEMA_VERSION = "1.5.0"
 _DEFAULT_OUTPUT_NAME = "observatory.json"
 _SEVERITY_ORDER = {"error": 0, "warning": 1, "info": 2}
 

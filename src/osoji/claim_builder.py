@@ -17,10 +17,12 @@ this schema invalidates the whole cache (see osojicode/wiki
 and an empty-bundle fingerprint would let two distinct findings share a cached
 verdict (decision 0014).
 
-``build_debris_claims`` remains the audit Phase-3 entry point with its V1-3
-contract intact; it now runs on the generalized builders with the legacy
-sufficiency semantics (refs OR type definitions) encoded as ``require_any``
-overrides in :data:`DEBRIS_SCHEMA`.
+``build_debris_claims`` remains the audit Phase-3 entry point. Since osoji#168
+it admits every debris category on the general schema table — the V1-3
+eligibility gate and its legacy sufficiency overrides are retired; what
+survives of decision 0014 is the kept-unverified pass-through for findings
+whose ``require_any`` gate is unmet (tallied as ``would_escalate``, never
+escalated here).
 """
 
 from __future__ import annotations
@@ -45,7 +47,7 @@ from .triage import Claim
 #: Version tag of the Claim Builder schema (kind set + tables below). Part of
 #: every evidence_fingerprint; bump on any schema change so the V1-9 verdict
 #: cache invalidates rather than serving verdicts produced by an older schema.
-CLAIM_BUILDER_SCHEMA_VERSION = "cb-3"
+CLAIM_BUILDER_SCHEMA_VERSION = "cb-4"
 
 
 @dataclass(frozen=True)
@@ -111,6 +113,8 @@ CLAIM_BUILDER_SCHEMA: dict[str, SchemaEntry] = {
     # actually emits", not a uniform prefix convention.
     "stale_comment": _DESCRIPTION_ENTRY,
     "misleading_docstring": _DESCRIPTION_ENTRY,
+    "commented_out_code": _DESCRIPTION_ENTRY,
+    "expired_todo": _DESCRIPTION_ENTRY,
     "incorrect_content": _DESCRIPTION_ENTRY,
     "misleading_claim": _DESCRIPTION_ENTRY,
     "stale_content": _DESCRIPTION_ENTRY,
@@ -129,18 +133,6 @@ DEFAULT_SCHEMA_BY_GAP_TYPE: dict[str, SchemaEntry] = {
         require_any=frozenset({"surrounding_code", "cross_file_reference"}),
     ),
 }
-
-#: Debris cutover schema: the ratified kind lists with the LEGACY sufficiency
-#: gate (a claim existed iff cross-file refs OR type definitions were
-#: gatherable) so the V1-3 would_escalate semantics carry over unchanged.
-DEBRIS_SCHEMA: dict[str, SchemaEntry] = {
-    "dead_code": _REACHABILITY_ENTRY,
-    "stale_comment": replace(
-        _DESCRIPTION_ENTRY, require_any=frozenset({"cross_file_reference"})
-    ),
-    "latent_bug": _LATENT_BUG_ENTRY,
-}
-
 
 def category_of(finding: Finding) -> str:
     """The native category: the part of ``detector`` after ``<producer>:``."""
@@ -216,18 +208,7 @@ def build_claims(
     return claims
 
 
-# --- debris wrapper (V1-3 contract preserved) --------------------------------
-
-
-def _is_eligible(finding: dict) -> bool:
-    """Same eligibility gate as the legacy debris verify step."""
-
-    category = finding.get("category", "")
-    if category in ("dead_code", "latent_bug"):
-        return True
-    if category == "stale_comment" and finding.get("cross_file_verification_needed"):
-        return True
-    return False
+# --- debris wrapper ----------------------------------------------------------
 
 
 def build_debris_claims(
@@ -239,12 +220,16 @@ def build_debris_claims(
 ) -> tuple[list[Claim], list[int], int]:
     """Assemble debris Claims through the mechanized builders.
 
+    Every debris category is admitted (osoji#168 retired the V1-3 eligibility
+    gate and its DEBRIS_SCHEMA sufficiency overrides — migration-era detail,
+    not part of decision 0014's ruling).
+
     Returns ``(claims, original_indices, would_escalate)`` where
     ``original_indices[k]`` is the index into ``raw_debris`` of ``claims[k]`` —
     the unambiguous join used to map dismissed verdicts back to suppressions.
-    ``would_escalate`` counts eligible findings whose ``require_any`` gate was
-    unmet (the builders could not gather deciding evidence); they pass through
-    unverified, never escalated here (decision 0014).
+    ``would_escalate`` counts findings whose ``require_any`` gate was unmet
+    (the builders could not gather deciding evidence) or that carry no source
+    at all; they pass through unverified, never escalated here (decision 0014).
     """
 
     ctx = BuildContext(config, facts_db=facts_db, symbols_by_file=symbols_by_file)
@@ -254,13 +239,11 @@ def build_debris_claims(
     would_escalate = 0
 
     for i, finding in enumerate(raw_debris):
-        if not _is_eligible(finding):
-            continue
         if not (finding.get("source") or finding.get("source_path")):
             would_escalate += 1
             continue
         finding_obj = finding_from_debris(finding, root=config.root_path)
-        claim = build_claims([finding_obj], ctx, schema=DEBRIS_SCHEMA)[0]
+        claim = build_claims([finding_obj], ctx)[0]
         if claim.insufficient_evidence:
             would_escalate += 1
         else:

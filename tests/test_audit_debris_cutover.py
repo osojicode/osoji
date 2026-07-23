@@ -80,7 +80,9 @@ def test_dismissed_verdicts_suppress_correct_indices(temp_dir):
     config = Config(root_path=temp_dir, respect_gitignore=False)
     raw = [
         _debris("dead_code", "`old_helper` is defined but never used"),     # idx0 → claim0
-        _debris("commented_out_code", "a dead code block"),                 # idx1 ineligible
+        # idx1: eligible since #168, but src/x.py is not on disk and the
+        # description yields no needles → require_any unmet → pass-through.
+        _debris("commented_out_code", "a dead code block"),
         _debris("latent_bug", "`Foo` accessed but has no such attribute"),  # idx2 → claim1
     ]
     provider = FakeProvider(_verdicts_result([
@@ -91,7 +93,7 @@ def test_dismissed_verdicts_suppress_correct_indices(temp_dir):
     suppressed, phase_tokens, decided = _run(config, raw, provider)
 
     # Only the dismissed dead_code finding (raw index 0) is suppressed;
-    # the ineligible block (1) and the confirmed latent_bug (2) are kept.
+    # the unclaimable block (1) and the confirmed latent_bug (2) are kept.
     assert suppressed == {0}
     assert phase_tokens == (120, 60)
     assert provider.calls == 1
@@ -103,11 +105,14 @@ def test_dismissed_verdicts_suppress_correct_indices(temp_dir):
     assert decided[2].triage_reasoning == "real bug"
 
 
-def test_ineligible_only_makes_no_llm_call(temp_dir):
+def test_unclaimable_only_makes_no_llm_call(temp_dir):
+    # Since #168 every category is admitted, so the no-claims path is reached
+    # only when nothing is claimable: the flagged file is absent (description
+    # require_any=surrounding_code unmet) or the record carries no source.
     config = Config(root_path=temp_dir, respect_gitignore=False)
     raw = [
-        _debris("stale_comment", "comment is stale"),  # no cross_file flag → ineligible
-        _debris("misleading_docstring", "docstring drifted"),
+        _debris("stale_comment", "comment is stale"),  # src/x.py not on disk
+        _debris("misleading_docstring", "docstring drifted", source=None, source_path=None),
     ]
     provider = FakeProvider(_verdicts_result([]))
 
@@ -117,6 +122,38 @@ def test_ineligible_only_makes_no_llm_call(temp_dir):
     assert phase_tokens == (0, 0)
     assert provider.calls == 0
     assert decided == {}
+
+
+def test_description_family_reaches_triage_and_verdicts_land(temp_dir):
+    # THE #168 behavior change: unflagged stale_comment, misleading_docstring,
+    # expired_todo, and commented_out_code all build claims (real file on
+    # disk) and receive verdicts; dismissed ones suppress like any debris.
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    src = temp_dir / "src" / "x.py"
+    src.parent.mkdir(parents=True, exist_ok=True)
+    src.write_text("def helper():\n" + "    pass  # filler\n" * 13, encoding="utf-8")
+    raw = [
+        _debris("stale_comment", "comment says retries, code does not retry"),
+        _debris("misleading_docstring", "docstring describes removed behavior"),
+        _debris("expired_todo", "TODO(2024-01) remove after migration"),
+        _debris("commented_out_code", "a commented-out block kept around"),
+    ]
+    provider = FakeProvider(_verdicts_result([
+        {"batch_index": 0, "verdict": "dismissed", "confidence": 0.9,
+         "reasoning": "comment is accurate at module level"},
+        {"batch_index": 1, "verdict": "confirmed", "confidence": 0.85, "reasoning": "drifted"},
+        {"batch_index": 2, "verdict": "confirmed", "confidence": 0.8, "reasoning": "expired"},
+        {"batch_index": 3, "verdict": "confirmed", "confidence": 0.75, "reasoning": "debris"},
+    ]))
+
+    suppressed, phase_tokens, decided = _run(config, raw, provider)
+
+    assert provider.calls == 1
+    assert suppressed == {0}
+    assert set(decided.keys()) == {0, 1, 2, 3}
+    assert decided[1].verdict == "confirmed"
+    assert decided[3].verdict == "confirmed"
+    assert phase_tokens == (120, 60)
 
 
 def test_debris_corpus_is_decided_in_bounded_chunks(temp_dir):
@@ -251,10 +288,10 @@ def test_overlay_lands_on_kept_issues_end_to_end(temp_dir):
     """End-to-end (run_audit_async): a confirmed verdict's severity/suggested-fix
     /verdict/confidence/triage-reasoning land on the kept AuditIssue, additively
     (the heuristic remediation is unchanged); a dismissed verdict still
-    suppresses its finding entirely, exactly as before this migration; and a
-    finding with no decided counterpart at all (ineligible for Triage, never
-    built into a claim) keeps its heuristic severity with every Triage field
-    None — the overlay must not assume every kept finding was decided."""
+    suppresses its finding entirely, exactly as before this migration; and
+    since osoji#168 the description family is triaged too — the
+    commented_out_code finding carries a verdict instead of passing through,
+    and the scorecard's untriaged-debris floor reads zero."""
     _write(temp_dir, "src/x.py",
            "def old_helper():\n    pass\n\n\ndef also_dead():\n    pass\n# some old code\n")
     _write_findings(temp_dir, "src/x.py", [
@@ -278,6 +315,8 @@ def test_overlay_lands_on_kept_issues_end_to_end(temp_dir):
          "severity": "info"},
         {"batch_index": 1, "verdict": "dismissed", "confidence": 0.9,
          "reasoning": "actually used dynamically"},
+        {"batch_index": 2, "verdict": "confirmed", "confidence": 0.7,
+         "reasoning": "no reference keeps this block"},
     ]))
 
     with patch("osoji.facts.FactsDB", return_value=FakeFacts()), \
@@ -299,13 +338,70 @@ def test_overlay_lands_on_kept_issues_end_to_end(temp_dir):
     # The detector's heuristic remediation text stays put — additive, not replaced.
     assert issue.remediation == "Review and fix the identified issue"
 
-    # The ineligible finding was never built into a claim, so no decided
-    # Finding exists for it: heuristic severity survives, every Triage field
-    # stays None (not crashed on, not fabricated).
-    untriaged = next(i for i in debris_issues if "commented-out" in i.message)
-    assert untriaged.severity == "warning"
-    assert untriaged.finding_id is None
-    assert untriaged.verdict is None
-    assert untriaged.confidence is None
-    assert untriaged.triage_reasoning is None
-    assert untriaged.suggested_fix is None
+    # osoji#168: the description-family finding is triaged like everything
+    # else — a verdict lands instead of the old silent pass-through.
+    block = next(i for i in debris_issues if "commented-out" in i.message)
+    assert block.verdict == "confirmed"
+    assert block.confidence == 0.7
+    assert block.finding_id
+
+    # Every kept debris finding carried a verdict → the untriaged floor is 0.
+    assert result.scorecard is not None
+    assert result.scorecard.debris_untriaged == 0
+
+
+def test_untriaged_pass_through_is_counted_and_marked_end_to_end(temp_dir):
+    """The osoji#168 interim floor: a kept debris finding that never received a
+    verdict (here: a needle-less dead_code whose require_any gate was unmet)
+    is counted on the scorecard and tagged [untriaged] in the report."""
+    from osoji.audit import format_audit_report
+
+    _write(temp_dir, "src/x.py",
+           "def old_helper():\n    pass\n\n\n# unattributed block\npass\n")
+    _write_findings(temp_dir, "src/x.py", [
+        {
+            "category": "dead_code", "line_start": 1, "line_end": 2,
+            "severity": "warning", "description": "`old_helper` is defined but never used",
+        },
+        {
+            # No backticked/PascalCase needles → no cross_file_reference
+            # evidence gatherable → pass-through, kept unverified.
+            "category": "dead_code", "line_start": 5, "line_end": 6,
+            "severity": "warning", "description": "unused block of code",
+        },
+    ])
+    config = Config(root_path=temp_dir, respect_gitignore=False, quiet=True)
+    provider = FakeProvider(_verdicts_result([
+        {"batch_index": 0, "verdict": "confirmed", "confidence": 0.9, "reasoning": "dead"},
+    ]))
+
+    with patch("osoji.facts.FactsDB", return_value=FakeFacts()), \
+         patch("osoji.symbols.load_all_symbols", return_value={}), \
+         patch("osoji.audit.create_runtime", return_value=(provider, MagicMock())):
+        result = asyncio.run(run_audit_async(
+            config, fix_shadow=False, exclude={"shadow", "doc-analysis"},
+        ))
+
+    assert result.scorecard is not None
+    assert result.scorecard.debris_untriaged == 1
+
+    report = format_audit_report(result)
+    assert "[untriaged]" in report
+    assert "Untriaged debris" in report
+
+
+def test_untriaged_floor_is_none_when_debris_phase_excluded(temp_dir):
+    """None (not 0) when the debris phase didn't run — an excluded phase must
+    not read as a clean bill of health."""
+    config = Config(root_path=temp_dir, respect_gitignore=False, quiet=True)
+    provider = FakeProvider(_verdicts_result([]))
+
+    with patch("osoji.facts.FactsDB", return_value=FakeFacts()), \
+         patch("osoji.symbols.load_all_symbols", return_value={}), \
+         patch("osoji.audit.create_runtime", return_value=(provider, MagicMock())):
+        result = asyncio.run(run_audit_async(
+            config, fix_shadow=False, exclude={"shadow", "doc-analysis", "debris"},
+        ))
+
+    assert result.scorecard is not None
+    assert result.scorecard.debris_untriaged is None

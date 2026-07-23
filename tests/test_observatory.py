@@ -381,12 +381,13 @@ def test_bundle_doc_analysis_empty_when_no_docs(temp_dir):
     assert bundle["doc_analysis"] == {}
 
 
-def test_bundle_schema_version_is_1_4_0(temp_dir):
+def test_bundle_schema_version_is_1_5_0(temp_dir):
+    # 1.5.0 (osoji#168): scorecard gains the optional debris_untriaged field.
     _write_source(temp_dir, "main.py", "x = 1\n")
 
     bundle = build_observatory_bundle(temp_dir, respect_gitignore=False)
 
-    assert bundle["schema_version"] == "1.4.0"
+    assert bundle["schema_version"] == "1.5.0"
 
 
 def test_export_command_writes_bundle_file(temp_dir):
@@ -513,6 +514,8 @@ def test_full_bundle_validates_against_schema(temp_dir):
         "enforcement_by_schema": None,
         "obligation_violations": None,
         "obligation_implicit_contracts": None,
+        # osoji#168 (schema 1.5.0): untriaged-debris floor rides the bundle.
+        "debris_untriaged": 2,
     }
     _write_audit_result(
         temp_dir,
