@@ -863,5 +863,16 @@ def skills_show(name: str) -> None:
     click.echo(content)
 
 
+def cli() -> None:
+    """Console-script entry point (pyproject `osoji = "osoji.cli:cli"`).
+
+    windows_expand_args=False: Click 8's cmd.exe-style argv glob expansion
+    mangles quoted fnmatch patterns (e.g. `--exclude "tests/*"`) into dozens
+    of positional arguments on Windows, and no osoji command relies on
+    shell-style wildcard expansion of positionals (osoji#181).
+    """
+    main(windows_expand_args=False)
+
+
 if __name__ == "__main__":
-    main()
+    cli()
