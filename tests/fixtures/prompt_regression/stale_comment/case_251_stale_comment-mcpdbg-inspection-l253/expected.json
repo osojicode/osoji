@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "confirmed",
+  "reasoning": "The comment at L253 states 'The server now returns a success response with error message' immediately before expect(content.success).toBe(false). At the tool-payload level 'success response' directly contradicts success: false — a failure payload — and the same pattern recurs at L235/L276 in-file and in server-control-tools.test.ts (L187, L289, L341), supporting confirmed drift with an actionable reword ('tool-level failure payload' / 'non-throwing error response'). Accepted as gray under the panel resolve-to-gray protocol: the opposing protocol-level lens (see gray_reason) is genuinely defensible, so the case is real data but excluded from headline metrics.",
+  "gray": true,
+  "gray_reason": "Protocol-level reading is defensible: the comment contrasts throwing McpError with returning a non-throwing (protocol-successful) response that carries an error message — at the MCP envelope level 'success response with error message' accurately describes the changed behavior, making this born-imprecise wording rather than drift.",
+  "expected_contract_class": null,
+  "adjudicated_by": "panel-gray-resolve+decisions/0027",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

@@ -1,0 +1,384 @@
+{
+  "source": "mcp_debugger_launcher/mcp_debugger_launcher/detectors.py",
+  "source_hash": "f7b31d12c3a49508",
+  "generated": "2026-07-22T22:08:16Z",
+  "imports": [
+    {
+      "source": "subprocess",
+      "names": [
+        "subprocess"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "shutil",
+      "names": [
+        "shutil"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "os",
+      "names": [
+        "os"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "typing",
+      "names": [
+        "Tuple",
+        "Optional"
+      ],
+      "line": 6,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "RuntimeDetector",
+      "kind": "class",
+      "line": 8,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RuntimeDetector.check_nodejs",
+      "kind": "function",
+      "line": 12,
+      "decorators": [
+        "staticmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "RuntimeDetector.check_npx",
+      "kind": "function",
+      "line": 34,
+      "decorators": [
+        "staticmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "RuntimeDetector.check_npm_package",
+      "kind": "function",
+      "line": 39,
+      "decorators": [
+        "staticmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "RuntimeDetector.check_docker",
+      "kind": "function",
+      "line": 54,
+      "decorators": [
+        "staticmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "RuntimeDetector.check_docker_image",
+      "kind": "function",
+      "line": 98,
+      "decorators": [
+        "staticmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "RuntimeDetector.detect_available_runtimes",
+      "kind": "function",
+      "line": 112,
+      "decorators": [
+        "staticmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    },
+    {
+      "name": "RuntimeDetector.get_recommended_runtime",
+      "kind": "function",
+      "line": 153,
+      "decorators": [
+        "staticmethod"
+      ],
+      "exclude_from_dead_analysis": true
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "RuntimeDetector.check_nodejs",
+      "to": "shutil.which",
+      "line": 14,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RuntimeDetector.check_nodejs",
+      "to": "subprocess.run",
+      "line": 19,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RuntimeDetector.check_nodejs",
+      "to": "result.stdout.strip",
+      "line": 26,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RuntimeDetector.check_npx",
+      "to": "shutil.which",
+      "line": 36,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RuntimeDetector.check_npm_package",
+      "to": "subprocess.run",
+      "line": 43,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RuntimeDetector.check_docker",
+      "to": "shutil.which",
+      "line": 56,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RuntimeDetector.check_docker",
+      "to": "subprocess.run",
+      "line": 62,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RuntimeDetector.check_docker",
+      "to": "result.stdout.strip",
+      "line": 71,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RuntimeDetector.check_docker",
+      "to": "subprocess.run",
+      "line": 74,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RuntimeDetector.check_docker",
+      "to": "subprocess.run",
+      "line": 83,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RuntimeDetector.check_docker_image",
+      "to": "subprocess.run",
+      "line": 101,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RuntimeDetector.check_docker_image",
+      "to": "bool",
+      "line": 107,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RuntimeDetector.check_docker_image",
+      "to": "result.stdout.strip",
+      "line": 107,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RuntimeDetector.detect_available_runtimes",
+      "to": "RuntimeDetector.check_nodejs",
+      "line": 129,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RuntimeDetector.detect_available_runtimes",
+      "to": "RuntimeDetector.check_npx",
+      "line": 134,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RuntimeDetector.detect_available_runtimes",
+      "to": "RuntimeDetector.check_npm_package",
+      "line": 136,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RuntimeDetector.detect_available_runtimes",
+      "to": "RuntimeDetector.check_docker",
+      "line": 141,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RuntimeDetector.detect_available_runtimes",
+      "to": "RuntimeDetector.check_docker_image",
+      "line": 146,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "node",
+      "line": 14,
+      "usage": "produced",
+      "context": "argument to shutil.which"
+    },
+    {
+      "value": "node",
+      "line": 20,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "--version",
+      "line": 20,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "npx",
+      "line": 36,
+      "usage": "produced",
+      "context": "argument to shutil.which",
+      "kind": "identifier"
+    },
+    {
+      "value": "npx",
+      "line": 44,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "--no-install",
+      "line": 44,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "--version",
+      "line": 44,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "docker",
+      "line": 56,
+      "usage": "produced",
+      "context": "argument to shutil.which",
+      "kind": "identifier"
+    },
+    {
+      "value": "docker",
+      "line": 63,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "--version",
+      "line": 63,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "docker",
+      "line": 75,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "ping",
+      "line": 75,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "docker",
+      "line": 84,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "ps",
+      "line": 84,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "docker",
+      "line": 102,
+      "usage": "produced",
+      "context": "collection element",
+      "kind": "identifier"
+    },
+    {
+      "value": "images",
+      "line": 102,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "-q",
+      "line": 102,
+      "usage": "produced",
+      "context": "collection element"
+    },
+    {
+      "value": "@debugmcp/mcp-debugger",
+      "line": 137,
+      "usage": "produced",
+      "context": "argument to RuntimeDetector.check_npm_package",
+      "kind": "identifier"
+    },
+    {
+      "value": "daemon not running",
+      "line": 145,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "debugmcp/mcp-debugger:latest",
+      "line": 147,
+      "usage": "produced",
+      "context": "argument to RuntimeDetector.check_docker_image",
+      "kind": "identifier"
+    },
+    {
+      "value": "npx",
+      "line": 158,
+      "usage": "produced",
+      "context": "return value",
+      "kind": "identifier"
+    },
+    {
+      "value": "daemon not running",
+      "line": 162,
+      "usage": "checked",
+      "context": "equality comparison",
+      "kind": "identifier"
+    },
+    {
+      "value": "docker",
+      "line": 163,
+      "usage": "produced",
+      "context": "return value",
+      "kind": "identifier"
+    },
+    {
+      "value": "nodejs",
+      "context": "Key in runtimes dict for Node.js runtime info",
+      "line": 115,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

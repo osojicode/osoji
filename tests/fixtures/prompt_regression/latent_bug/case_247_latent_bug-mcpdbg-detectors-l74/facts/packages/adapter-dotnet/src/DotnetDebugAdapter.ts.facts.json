@@ -1,0 +1,1017 @@
+{
+  "source": "packages/adapter-dotnet/src/DotnetDebugAdapter.ts",
+  "source_hash": "543cad98cc9a2e2f",
+  "generated": "2026-07-22T22:07:32Z",
+  "imports": [
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 44,
+      "is_reexport": false
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 45,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "node:fs",
+      "names": [
+        "fs"
+      ],
+      "line": 46,
+      "is_reexport": false
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 47,
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "line": 48,
+      "is_reexport": false
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IDebugAdapter",
+        "AdapterState",
+        "ValidationResult",
+        "ValidationError",
+        "ValidationWarning",
+        "DependencyInfo",
+        "AdapterCommand",
+        "AdapterConfig",
+        "GenericLaunchConfig",
+        "LanguageSpecificLaunchConfig",
+        "DebugFeature",
+        "FeatureRequirement",
+        "AdapterCapabilities",
+        "AdapterError",
+        "AdapterErrorCode",
+        "AdapterEvents",
+        "GenericAttachConfig",
+        "LanguageSpecificAttachConfig"
+      ],
+      "line": 49,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage"
+      ],
+      "line": 69,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterDependencies"
+      ],
+      "line": 70,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./utils/dotnet-utils.js",
+      "names": [
+        "findNetcoredbgExecutable",
+        "findPdb2PdbExecutable",
+        "convertPdbsToTemp",
+        "getProcessExecutableDir",
+        "getProcessArchitecture"
+      ],
+      "line": 71,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-dotnet/src/utils/dotnet-utils.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "DotnetDebugAdapter",
+      "kind": "class",
+      "line": 105,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EventEmitter"
+      ],
+      "implements": [
+        "IDebugAdapter"
+      ]
+    },
+    {
+      "name": "DotnetDebugAdapter.initialize",
+      "kind": "function",
+      "line": 128,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.dispose",
+      "kind": "function",
+      "line": 149,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.getState",
+      "kind": "function",
+      "line": 160,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.isReady",
+      "kind": "function",
+      "line": 164,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.getCurrentThreadId",
+      "kind": "function",
+      "line": 170,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.validateEnvironment",
+      "kind": "function",
+      "line": 182,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.getRequiredDependencies",
+      "kind": "function",
+      "line": 207,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.resolveExecutablePath",
+      "kind": "function",
+      "line": 226,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "preferredPath",
+          "optional": true,
+          "type": "string | undefined"
+        }
+      ]
+    },
+    {
+      "name": "DotnetDebugAdapter.getDefaultExecutableName",
+      "kind": "function",
+      "line": 250,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.getExecutableSearchPaths",
+      "kind": "function",
+      "line": 254,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.buildAdapterCommand",
+      "kind": "function",
+      "line": 292,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").AdapterConfig"
+        }
+      ]
+    },
+    {
+      "name": "DotnetDebugAdapter.getAdapterModuleName",
+      "kind": "function",
+      "line": 332,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.getAdapterInstallCommand",
+      "kind": "function",
+      "line": 336,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.transformLaunchConfig",
+      "kind": "function",
+      "line": 342,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").GenericLaunchConfig"
+        }
+      ]
+    },
+    {
+      "name": "DotnetDebugAdapter.getDefaultLaunchConfig",
+      "kind": "function",
+      "line": 356,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.supportsAttach",
+      "kind": "function",
+      "line": 367,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.supportsDetach",
+      "kind": "function",
+      "line": 371,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.transformAttachConfig",
+      "kind": "function",
+      "line": 375,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/models/index\").GenericAttachConfig"
+        }
+      ]
+    },
+    {
+      "name": "DotnetDebugAdapter.getDefaultAttachConfig",
+      "kind": "function",
+      "line": 427,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.sendDapRequest",
+      "kind": "function",
+      "line": 436,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "command",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "args",
+          "optional": true,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "name": "DotnetDebugAdapter.handleDapEvent",
+      "kind": "function",
+      "line": 457,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "event",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol\").DebugProtocol.Event"
+        }
+      ]
+    },
+    {
+      "name": "DotnetDebugAdapter.handleDapResponse",
+      "kind": "function",
+      "line": 466,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "_response",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol\").DebugProtocol.Response"
+        }
+      ]
+    },
+    {
+      "name": "DotnetDebugAdapter.connect",
+      "kind": "function",
+      "line": 472,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "host",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "port",
+          "optional": false,
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "DotnetDebugAdapter.disconnect",
+      "kind": "function",
+      "line": 480,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.isConnected",
+      "kind": "function",
+      "line": 487,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.getInstallationInstructions",
+      "kind": "function",
+      "line": 493,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.getMissingExecutableError",
+      "kind": "function",
+      "line": 508,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetDebugAdapter.translateErrorMessage",
+      "kind": "function",
+      "line": 515,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "error",
+          "optional": false,
+          "type": "Error"
+        }
+      ]
+    },
+    {
+      "name": "DotnetDebugAdapter.supportsFeature",
+      "kind": "function",
+      "line": 543,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").DebugFeature"
+        }
+      ]
+    },
+    {
+      "name": "DotnetDebugAdapter.getFeatureRequirements",
+      "kind": "function",
+      "line": 559,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").DebugFeature"
+        }
+      ]
+    },
+    {
+      "name": "DotnetDebugAdapter.getCapabilities",
+      "kind": "function",
+      "line": 583,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 113,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "super",
+      "line": 122,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 129,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.initialize",
+      "to": "this.validateEnvironment",
+      "line": 132,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 134,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.initialize",
+      "to": "AdapterError",
+      "line": 135,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 141,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.initialize",
+      "to": "this.emit",
+      "line": 142,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 144,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.dispose",
+      "to": "this.debuggerPathCache.clear",
+      "line": 150,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.dispose",
+      "to": "this.emit",
+      "line": 155,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.transitionTo",
+      "to": "this.emit",
+      "line": 177,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.validateEnvironment",
+      "to": "findNetcoredbgExecutable",
+      "line": 187,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.validateEnvironment",
+      "to": "this.dependencies.logger?.debug",
+      "line": 191,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.validateEnvironment",
+      "to": "errors.push",
+      "line": 193,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.resolveExecutablePath",
+      "to": "this.debuggerPathCache.get",
+      "line": 229,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.resolveExecutablePath",
+      "to": "Date.now",
+      "line": 231,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.resolveExecutablePath",
+      "to": "this.dependencies.logger?.debug",
+      "line": 232,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.resolveExecutablePath",
+      "to": "findNetcoredbgExecutable",
+      "line": 236,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.resolveExecutablePath",
+      "to": "this.debuggerPathCache.set",
+      "line": 242,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.resolveExecutablePath",
+      "to": "Date.now",
+      "line": 244,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.getExecutableSearchPaths",
+      "to": "paths.push",
+      "line": 260,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.getExecutableSearchPaths",
+      "to": "path.join",
+      "line": 261,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.getExecutableSearchPaths",
+      "to": "path.join",
+      "line": 263,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.getExecutableSearchPaths",
+      "to": "paths.push",
+      "line": 266,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.getExecutableSearchPaths",
+      "to": "path.join",
+      "line": 270,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.getExecutableSearchPaths",
+      "to": "paths.push",
+      "line": 275,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.getExecutableSearchPaths",
+      "to": "process.env.PATH.split",
+      "line": 275,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.buildAdapterCommand",
+      "to": "fileURLToPath",
+      "line": 293,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.buildAdapterCommand",
+      "to": "path.dirname",
+      "line": 294,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.buildAdapterCommand",
+      "to": "path.resolve",
+      "line": 298,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.buildAdapterCommand",
+      "to": "path.resolve",
+      "line": 300,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.buildAdapterCommand",
+      "to": "path.resolve",
+      "line": 302,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.buildAdapterCommand",
+      "to": "path.resolve",
+      "line": 304,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.buildAdapterCommand",
+      "to": "process.cwd",
+      "line": 304,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.buildAdapterCommand",
+      "to": "possiblePaths.find",
+      "line": 310,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.buildAdapterCommand",
+      "to": "fs.existsSync",
+      "line": 310,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.buildAdapterCommand",
+      "to": "this.dependencies.logger?.error",
+      "line": 313,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.buildAdapterCommand",
+      "to": "possiblePaths.forEach",
+      "line": 314,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.buildAdapterCommand",
+      "to": "this.dependencies.logger?.error",
+      "line": 315,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.buildAdapterCommand",
+      "to": "AdapterError",
+      "line": 317,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.buildAdapterCommand",
+      "to": "this.dependencies.logger?.info",
+      "line": 323,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.buildAdapterCommand",
+      "to": "config.adapterPort.toString",
+      "line": 327,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.getDefaultLaunchConfig",
+      "to": "process.cwd",
+      "line": 361,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.transformAttachConfig",
+      "to": "getProcessArchitecture",
+      "line": 379,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.transformAttachConfig",
+      "to": "this.dependencies.logger?.debug",
+      "line": 380,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.transformAttachConfig",
+      "to": "getProcessExecutableDir",
+      "line": 389,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.transformAttachConfig",
+      "to": "findPdb2PdbExecutable",
+      "line": 399,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.transformAttachConfig",
+      "to": "convertPdbsToTemp",
+      "line": 401,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.transformAttachConfig",
+      "to": "symbolSearchPaths.push",
+      "line": 403,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.transformAttachConfig",
+      "to": "Number",
+      "line": 412,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.transformAttachConfig",
+      "to": "Object.fromEntries",
+      "line": 416,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.transformAttachConfig",
+      "to": "pdbScanDirs.map",
+      "line": 417,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.sendDapRequest",
+      "to": "exceptionArgs.filters?.filter",
+      "line": 444,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.sendDapRequest",
+      "to": "validFilters.includes",
+      "line": 444,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.sendDapRequest",
+      "to": "AdapterError",
+      "line": 446,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.sendDapRequest",
+      "to": "invalidFilters.join",
+      "line": 447,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.sendDapRequest",
+      "to": "validFilters.join",
+      "line": 447,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 463,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.connect",
+      "to": "this.dependencies.logger?.debug",
+      "line": 473,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.connect",
+      "to": "this.transitionTo",
+      "line": 476,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.connect",
+      "to": "this.emit",
+      "line": 477,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.disconnect",
+      "to": "this.transitionTo",
+      "line": 483,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.disconnect",
+      "to": "this.emit",
+      "line": 484,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.translateErrorMessage",
+      "to": "error.message.toLowerCase",
+      "line": 516,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 518,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 518,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.translateErrorMessage",
+      "to": "this.getMissingExecutableError",
+      "line": 519,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 522,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 522,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 526,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 526,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 530,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 530,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 534,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 534,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.supportsFeature",
+      "to": "supportedFeatures.includes",
+      "line": 556,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.getFeatureRequirements",
+      "to": "requirements.push",
+      "line": 564,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DotnetDebugAdapter.getFeatureRequirements",
+      "to": "requirements.push",
+      "line": 572,
+      "call_sites": 2
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "dependencies",
+      "line": 123
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 151
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 152
+    },
+    {
+      "container": "this",
+      "member": "targetProcessArch",
+      "line": 153
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 154
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 176
+    },
+    {
+      "container": "this",
+      "member": "targetProcessArch",
+      "line": 379
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 459
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 475
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 481
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 482
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "coreclr",
+      "context": "DAP type field for .NET Core launch/attach configs",
+      "line": 344,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "coreclr",
+      "context": "DAP type field for attach config",
+      "line": 409,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "all",
+      "context": "Valid .NET exception breakpoint filter name",
+      "line": 443,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "user-unhandled",
+      "context": "Valid .NET exception breakpoint filter name",
+      "line": 443,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "all",
+      "context": "Exception filter identifier in capabilities",
+      "line": 592,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "user-unhandled",
+      "context": "Exception filter identifier in capabilities",
+      "line": 599,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "setExceptionBreakpoints",
+      "context": "DAP command name checked in sendDapRequest to validate filters",
+      "line": 441,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "DEBUGGER_NOT_FOUND",
+      "context": "ValidationError code when netcoredbg is not found",
+      "line": 194,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

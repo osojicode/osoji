@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "confirmed",
+  "reasoning": "[re-triage FP call REFUTED by adversarial verify — finding stands] The README's 'JDK 21+' (L31, L46) is correct: the JDI bridge compiles with execFileSync(javac, ['--release','21', ...]) at packages/adapter-java/src/utils/jdi-resolver.ts:122, producing class-major-65 bytecode that needs JVM 21+, and --release 21 needs a JDK 21+ compiler. The finding's premise is backwards: the exhibited cross-artifact contradiction is real, but the stale side is the install script and adapter dependency docs that understate the requirement at JDK 11+. Under decisions/0027 r3 (confirm branch): the finding packaged the wrong artifact of a cross-artifact contradiction — confirm, with the corrected direction in suggested_fix (raise the install-script/adapter statements to JDK 21+; never weaken the README), noting the reframe. Non-gray: 0027 adjudicates the defect, not the framing.",
+  "gray": false,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "panel-split+decisions/0027",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

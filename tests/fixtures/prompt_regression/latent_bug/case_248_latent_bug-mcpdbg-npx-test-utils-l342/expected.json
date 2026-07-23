@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "confirmed",
+  "reasoning": "Panel verdict split resolved under decisions/0027. Send is wrapped pre-connect (L327); onmessage is wrapped post-connect (L342-360) by capturing the client-assigned handler and delegating, so inbound handshake traffic escapes a logger whose stated intent is to log all traffic — the mismatch is exhibited. The finding's remediation (patch onmessage before connect) is wrong: the SDK client assigns transport.onmessage inside connect() and would overwrite a pre-connect patch, so the existing ordering is required. Under 0027 r3 (confirm branch): confirm with the corrected direction in suggested_fix (a transport-level tap, or documenting the handshake gap as a limitation — not reordering the patch). Test-scoped and fully masked in effect → grades info.",
+  "gray": false,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "panel-split+decisions/0027",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}
