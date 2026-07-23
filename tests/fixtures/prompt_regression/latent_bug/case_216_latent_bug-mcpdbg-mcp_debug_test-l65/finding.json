@@ -1,0 +1,20 @@
+{
+  "detector": "debris:latent_bug",
+  "gap_type": "contract",
+  "path": "tests/mcp_debug_test.js",
+  "line_start": 65,
+  "line_end": 69,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "sessionId is extracted from createSessionResult.sessionId (L69) only after checking .success (L65), but if the server returns success:true without a sessionId field, sessionId will be undefined and all subsequent tool calls will silently pass undefined as the session identifier.",
+  "observed_behavior": "sessionId is extracted from createSessionResult.sessionId (L69) only after checking .success (L65), but if the server returns success:true without a sessionId field, sessionId will be undefined and all subsequent tool calls will silently pass undefined as the session identifier.",
+  "evidence": [],
+  "id": "51eafbcbf424d920",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

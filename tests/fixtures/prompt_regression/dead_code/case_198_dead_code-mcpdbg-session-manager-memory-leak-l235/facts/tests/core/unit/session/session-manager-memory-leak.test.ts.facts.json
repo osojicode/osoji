@@ -1,0 +1,1319 @@
+{
+  "source": "tests/core/unit/session/session-manager-memory-leak.test.ts",
+  "source_hash": "769e4daa6b34eda2",
+  "generated": "2026-07-22T22:06:58Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "beforeEach",
+        "afterEach",
+        "vi"
+      ],
+      "line": 5,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "../../../../src/session/session-manager.js",
+      "names": [
+        "SessionManager",
+        "SessionManagerConfig"
+      ],
+      "line": 6,
+      "is_reexport": false,
+      "resolved_path": "src/session/session-manager.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage",
+        "SessionState"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./session-manager-test-utils.js",
+      "names": [
+        "createMockDependencies"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "tests/core/unit/session/session-manager-test-utils.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 10,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 15,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 16,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockDependencies",
+      "line": 17,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "SessionManager",
+      "line": 26,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 29,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 30,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllMocks",
+      "line": 31,
+      "call_sites": 87
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "dependencies.mockProxyManager.reset",
+      "line": 32,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 35,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 36,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 37,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.startDebugging",
+      "line": 42,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 43,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "eventNames.forEach",
+      "line": 53,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.listenerCount",
+      "line": 54,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(listenerCountsBefore['stopped']).toBeGreaterThan",
+      "line": 58,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 58,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(listenerCountsBefore['continued']).toBeGreaterThan",
+      "line": 59,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 59,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(listenerCountsBefore['terminated']).toBeGreaterThan",
+      "line": 60,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 60,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(listenerCountsBefore['exited']).toBeGreaterThan",
+      "line": 61,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 61,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(listenerCountsBefore['error']).toBeGreaterThan",
+      "line": 62,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 62,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(listenerCountsBefore['exit']).toBeGreaterThan",
+      "line": 63,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 63,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.closeSession",
+      "line": 66,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 67,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "eventNames.forEach",
+      "line": 70,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockProxy.listenerCount(event)).toBe",
+      "line": 71,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 71,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.listenerCount",
+      "line": 71,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 75,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 81,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionIds.push",
+      "line": 85,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.startDebugging",
+      "line": 87,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 88,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.closeSession",
+      "line": 90,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 91,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.eventNames().reduce",
+      "line": 95,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.eventNames",
+      "line": 95,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.listenerCount",
+      "line": 96,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(totalListeners).toBe",
+      "line": 98,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 98,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 101,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 102,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.startDebugging",
+      "line": 107,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 108,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockRejectedValue",
+      "line": 113,
+      "call_sites": 47
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 113,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 113,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.closeSession",
+      "line": 116,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 117,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.eventNames().reduce",
+      "line": 120,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.eventNames",
+      "line": 120,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.listenerCount",
+      "line": 121,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(totalListeners).toBe",
+      "line": 123,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 123,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 126,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 127,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.startDebugging",
+      "line": 132,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 133,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.closeSession",
+      "line": 138,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 139,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.eventNames().reduce",
+      "line": 141,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.eventNames",
+      "line": 141,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.listenerCount",
+      "line": 142,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sessionManager.closeSession(session.id)).resolves.toBe",
+      "line": 146,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 146,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.closeSession",
+      "line": 146,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.eventNames().reduce",
+      "line": 148,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.eventNames",
+      "line": 148,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.listenerCount",
+      "line": 149,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(firstCloseListenerCount).toBe",
+      "line": 153,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 153,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(secondCloseListenerCount).toBe",
+      "line": 154,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 154,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 157,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 158,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.startDebugging",
+      "line": 163,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 164,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.simulateEvent",
+      "line": 169,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 170,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.eventNames().reduce",
+      "line": 173,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.eventNames",
+      "line": 173,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.listenerCount",
+      "line": 174,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(totalListeners).toBe",
+      "line": 176,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 176,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getSession",
+      "line": 179,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(updatedSession?.state).toBe",
+      "line": 180,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 180,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockProxy.stopCalls).toBe",
+      "line": 184,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 184,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 187,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 188,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.startDebugging",
+      "line": 193,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 194,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.simulateExit",
+      "line": 199,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 200,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.eventNames().reduce",
+      "line": 203,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.eventNames",
+      "line": 203,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.listenerCount",
+      "line": 204,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(totalListeners).toBe",
+      "line": 206,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 206,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getSession",
+      "line": 209,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(updatedSession?.state).toBe",
+      "line": 210,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 210,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockProxy.stopCalls).toBe",
+      "line": 214,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 214,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 218,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 219,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 220,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.startDebugging",
+      "line": 225,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 226,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getSession",
+      "line": 229,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockProxy.listenerCount('stopped')).toBeGreaterThan",
+      "line": 232,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 232,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.listenerCount",
+      "line": 232,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(sessionManager as any)._testOnly_cleanupProxyEventHandlers",
+      "line": 236,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockProxy.listenerCount('stopped')).toBe",
+      "line": 239,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 239,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.listenerCount",
+      "line": 239,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 243,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 244,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.startDebugging",
+      "line": 249,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 250,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 252,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 253,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.closeSession",
+      "line": 255,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 256,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "logSpy.mock.calls.map",
+      "line": 259,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "infoSpy.mock.calls.map",
+      "line": 260,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(debugCalls.some(msg => msg.includes('Removing') && msg.includes('listener'))).toBe",
+      "line": 263,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 263,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "debugCalls.some",
+      "line": 263,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "msg.includes",
+      "line": 263,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "msg.includes",
+      "line": 263,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(infoCalls.some(msg => msg.includes('Cleanup complete') || msg.includes('removed'))).toBe",
+      "line": 266,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 266,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "infoCalls.some",
+      "line": 266,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "msg.includes",
+      "line": 266,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "msg.includes",
+      "line": 266,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 270,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 271,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 272,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sessionManager.closeSession(session.id)).resolves.toBe",
+      "line": 278,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 278,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.closeSession",
+      "line": 278,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 281,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 282,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.startDebugging",
+      "line": 287,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 288,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.removeListener.bind",
+      "line": 293,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 294,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 296,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "originalRemoveListener",
+      "line": 298,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 301,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.closeSession",
+      "line": 304,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 305,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(errorSpy).toHaveBeenCalledWith",
+      "line": 308,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 308,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 309,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 310,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockProxy.listenerCount('continued')).toBe",
+      "line": 314,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 314,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.listenerCount",
+      "line": 314,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockProxy.listenerCount('terminated')).toBe",
+      "line": 315,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 315,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockProxy.listenerCount",
+      "line": 315,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 318,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 321,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessions.push",
+      "line": 325,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sessionManager.getAllSessions().length).toBe",
+      "line": 328,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 328,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getAllSessions",
+      "line": 328,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.closeSession",
+      "line": 331,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sessionManager.getAllSessions().length).toBe",
+      "line": 334,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 334,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getAllSessions",
+      "line": 334,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 337,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 338,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sessionManager.getSession(session.id)).toBeDefined",
+      "line": 343,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 343,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getSession",
+      "line": 343,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.closeSession",
+      "line": 345,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sessionManager.getSession(session.id)).toBeUndefined",
+      "line": 347,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 347,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getSession",
+      "line": 347,
+      "call_sites": 5
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "mockProxy",
+      "member": "stop",
+      "line": 113
+    },
+    {
+      "container": "mockProxy",
+      "member": "removeListener",
+      "line": 294
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "stopped",
+      "context": "Event name checked for listener count on proxy",
+      "line": 48,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "continued",
+      "context": "Event name checked for listener count on proxy",
+      "line": 49,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "terminated",
+      "context": "Event name checked for listener count on proxy; also used in simulateEvent",
+      "line": 49,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "exited",
+      "context": "Event name checked for listener count on proxy",
+      "line": 49,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "initialized",
+      "context": "Event name checked for listener count on proxy",
+      "line": 50,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "error",
+      "context": "Event name checked for listener count on proxy",
+      "line": 50,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "exit",
+      "context": "Event name checked for listener count on proxy",
+      "line": 50,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "adapter-configured",
+      "context": "Event name checked for listener count on proxy",
+      "line": 50,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dry-run-complete",
+      "context": "Event name checked for listener count on proxy",
+      "line": 50,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "Removing",
+      "context": "Expected substring in debug log during listener cleanup",
+      "line": 263,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "debugCalls"
+    },
+    {
+      "value": "listener",
+      "context": "Expected substring in debug log during listener cleanup",
+      "line": 263,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "debugCalls"
+    },
+    {
+      "value": "Cleanup complete",
+      "context": "Expected substring in info log after cleanup",
+      "line": 266,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "infoCalls"
+    },
+    {
+      "value": "removed",
+      "context": "Alternative expected substring in info log after cleanup",
+      "line": 266,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "infoCalls"
+    },
+    {
+      "value": "Failed to remove",
+      "context": "Expected error log message when removeListener throws",
+      "line": 309,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "errorSpy"
+    },
+    {
+      "value": "_testOnly_cleanupProxyEventHandlers",
+      "context": "Private testing hook on SessionManager accessed via 'as any'",
+      "line": 235,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "sessionManager as any"
+    }
+  ],
+  "extraction_method": "ast"
+}

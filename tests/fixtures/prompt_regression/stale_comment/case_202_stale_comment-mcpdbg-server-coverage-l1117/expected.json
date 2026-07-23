@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "The finding's subject (server-coverage.test.ts:849) is accurate at its abstraction level: for a terminated session validateSession throws McpError (server.ts:273-280) and handleEvaluateExpression's catch returns a normal non-throwing ServerResult with the error embedded in content (server.ts:1355-1360) \u2014 exactly why the test asserts on content text (:850) rather than expecting a throw. Not asserting payload.success is a test-thoroughness wish, a known FP mode. [Panel note: the sweep-era expected.json adjudicated the L1117 comment (also accurate vs server.ts:1529-1548); this acceptance re-anchors on the packaged finding.]",
+  "gray": true,
+  "gray_reason": "For the packaged finding (test :849 'returns a success response with the error in the content'), the payload literally carries success:false (server.ts:1360); a hyper-literal judge could argue confirm-at-info for misleading wording, though the MCP-level reading (returns rather than throws) is the natural one and matches the code.",
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

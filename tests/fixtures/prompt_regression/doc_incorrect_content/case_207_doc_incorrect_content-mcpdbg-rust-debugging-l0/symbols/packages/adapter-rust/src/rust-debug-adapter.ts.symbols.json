@@ -1,0 +1,452 @@
+{
+  "source": "packages/adapter-rust/src/rust-debug-adapter.ts",
+  "source_hash": "cde554f3f23bacff",
+  "generated": "2026-07-22T22:08:19Z",
+  "file_role": "adapter",
+  "symbols": [
+    {
+      "name": "MsvcBehavior",
+      "kind": "variable",
+      "line_start": 50,
+      "line_end": 50,
+      "visibility": "public"
+    },
+    {
+      "name": "ToolchainValidationResult",
+      "kind": "class",
+      "line_start": 52,
+      "line_end": 59,
+      "visibility": "public"
+    },
+    {
+      "name": "ExecutablePathCacheEntry",
+      "kind": "class",
+      "line_start": 64,
+      "line_end": 67,
+      "visibility": "internal"
+    },
+    {
+      "name": "RustLaunchConfig",
+      "kind": "class",
+      "line_start": 72,
+      "line_end": 91,
+      "visibility": "internal"
+    },
+    {
+      "name": "RustDebugAdapter",
+      "kind": "class",
+      "line_start": 96,
+      "line_end": 1171,
+      "visibility": "public"
+    },
+    {
+      "name": "consumeLastToolchainValidation",
+      "kind": "function",
+      "line_start": 126,
+      "line_end": 130,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "initialize",
+      "kind": "function",
+      "line_start": 134,
+      "line_end": 162,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "dispose",
+      "kind": "function",
+      "line_start": 164,
+      "line_end": 170,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "getState",
+      "kind": "function",
+      "line_start": 174,
+      "line_end": 176,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "isReady",
+      "kind": "function",
+      "line_start": 178,
+      "line_end": 182,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "getCurrentThreadId",
+      "kind": "function",
+      "line_start": 184,
+      "line_end": 186,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "transitionTo",
+      "kind": "function",
+      "line_start": 188,
+      "line_end": 192,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "newState",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "validateEnvironment",
+      "kind": "function",
+      "line_start": 196,
+      "line_end": 283,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "getRequiredDependencies",
+      "kind": "function",
+      "line_start": 285,
+      "line_end": 306,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "resolveExecutablePath",
+      "kind": "function",
+      "line_start": 310,
+      "line_end": 366,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "preferredPath",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "getRelaxedToolchainMode",
+      "kind": "function",
+      "line_start": 368,
+      "line_end": 392,
+      "visibility": "internal",
+      "parameters": []
+    },
+    {
+      "name": "getDefaultExecutableName",
+      "kind": "function",
+      "line_start": 394,
+      "line_end": 396,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "getExecutableSearchPaths",
+      "kind": "function",
+      "line_start": 398,
+      "line_end": 433,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "resolveMsvcBehavior",
+      "kind": "function",
+      "line_start": 435,
+      "line_end": 445,
+      "visibility": "internal",
+      "parameters": []
+    },
+    {
+      "name": "safeReadFile",
+      "kind": "function",
+      "line_start": 447,
+      "line_end": 453,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "filePath",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "resolveAutoSuggestGnu",
+      "kind": "function",
+      "line_start": 455,
+      "line_end": 464,
+      "visibility": "internal",
+      "parameters": []
+    },
+    {
+      "name": "configurePythonEnvironment",
+      "kind": "function",
+      "line_start": 466,
+      "line_end": 512,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "env",
+          "optional": false
+        },
+        {
+          "name": "adapterPath",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "prepareCodelldbExecutablePath",
+      "kind": "function",
+      "line_start": 514,
+      "line_end": 555,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "originalPath",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "buildMsvcWarningMessage",
+      "kind": "function",
+      "line_start": 557,
+      "line_end": 582,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "binaryPath",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "validateToolchain",
+      "kind": "function",
+      "line_start": 584,
+      "line_end": 636,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "binaryPath",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "evaluateToolchain",
+      "kind": "function",
+      "line_start": 638,
+      "line_end": 654,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "binaryPath",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "buildAdapterCommand",
+      "kind": "function",
+      "line_start": 658,
+      "line_end": 727,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "resolveCodeLLDBExecutableSync",
+      "kind": "function",
+      "line_start": 729,
+      "line_end": 777,
+      "visibility": "internal",
+      "parameters": []
+    },
+    {
+      "name": "getAdapterModuleName",
+      "kind": "function",
+      "line_start": 779,
+      "line_end": 781,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "getAdapterInstallCommand",
+      "kind": "function",
+      "line_start": 783,
+      "line_end": 785,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "transformLaunchConfig",
+      "kind": "function",
+      "line_start": 789,
+      "line_end": 919,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "getDefaultLaunchConfig",
+      "kind": "function",
+      "line_start": 921,
+      "line_end": 928,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "sendDapRequest",
+      "kind": "function",
+      "line_start": 932,
+      "line_end": 954,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "command",
+          "optional": false
+        },
+        {
+          "name": "args",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "handleDapEvent",
+      "kind": "function",
+      "line_start": 956,
+      "line_end": 975,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "event",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "handleDapResponse",
+      "kind": "function",
+      "line_start": 977,
+      "line_end": 984,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "response",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "connect",
+      "kind": "function",
+      "line_start": 988,
+      "line_end": 996,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "host",
+          "optional": false
+        },
+        {
+          "name": "port",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "disconnect",
+      "kind": "function",
+      "line_start": 998,
+      "line_end": 1003,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "isConnected",
+      "kind": "function",
+      "line_start": 1005,
+      "line_end": 1007,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "getInstallationInstructions",
+      "kind": "function",
+      "line_start": 1011,
+      "line_end": 1039,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "getMissingExecutableError",
+      "kind": "function",
+      "line_start": 1041,
+      "line_end": 1051,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "translateErrorMessage",
+      "kind": "function",
+      "line_start": 1053,
+      "line_end": 1077,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "error",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "supportsFeature",
+      "kind": "function",
+      "line_start": 1081,
+      "line_end": 1097,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "getFeatureRequirements",
+      "kind": "function",
+      "line_start": 1099,
+      "line_end": 1129,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "getCapabilities",
+      "kind": "function",
+      "line_start": 1131,
+      "line_end": 1170,
+      "visibility": "public",
+      "parameters": []
+    }
+  ]
+}

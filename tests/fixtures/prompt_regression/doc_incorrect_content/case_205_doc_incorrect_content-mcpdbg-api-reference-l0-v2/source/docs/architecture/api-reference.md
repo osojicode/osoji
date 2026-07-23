@@ -1,0 +1,611 @@
+# mcp-debugger API Reference
+
+> **⚠️ DRAFT DOCUMENTATION**
+> This API reference reflects the v2.x monorepo architecture with dynamic adapter loading.
+
+## Table of Contents
+
+1. [IDebugAdapter Interface](#idebugadapter-interface)
+2. [SessionManager API](#sessionmanager-api)
+3. [ProxyManager API](#proxymanager-api)
+4. [AdapterRegistry API](#adapterregistry-api)
+5. [Event System](#event-system)
+6. [Type Definitions](#type-definitions)
+
+## IDebugAdapter Interface
+
+The core interface that all language adapters must implement.
+
+**Source**: [packages/shared/src/interfaces/debug-adapter.ts](../../packages/shared/src/interfaces/debug-adapter.ts)
+
+### Properties
+
+```typescript
+readonly language: DebugLanguage;  // Language identifier
+readonly name: string;             // Human-readable adapter name
+```
+
+### Lifecycle Methods
+
+#### `initialize(): Promise<void>`
+Initializes the adapter and prepares it for use.
+
+**When called**: After adapter creation, before any operations  
+**Expected behavior**: Validate environment, set up internal state  
+**Emits**: `'initialized'` event on success
+
+#### `dispose(): Promise<void>`
+Cleans up resources and connections.
+
+**When called**: When session ends or adapter is no longer needed  
+**Expected behavior**: Close connections, clean up resources  
+**Emits**: `'disposed'` event
+
+### State Management Methods
+
+#### `getState(): AdapterState`
+Returns the current adapter state.
+
+**Returns**: One of: `UNINITIALIZED`, `INITIALIZING`, `READY`, `CONNECTED`, `DEBUGGING`, `DISCONNECTED`, `ERROR`
+
+#### `isReady(): boolean`
+Quick check if adapter is ready for debugging.
+
+**Returns**: `true` if adapter can accept debug operations
+
+#### `getCurrentThreadId(): number | null`
+Gets the currently active thread ID during debugging.
+
+**Returns**: Thread ID or `null` if not debugging
+
+### Environment Validation Methods
+
+#### `validateEnvironment(): Promise<ValidationResult>`
+Comprehensive environment check for debugging readiness.
+
+**Returns**:
+```typescript
+{
+  valid: boolean;
+  errors: ValidationError[];
+  warnings: ValidationWarning[];
+}
+```
+
+**Example**:
+```typescript
+const result = await adapter.validateEnvironment();
+if (!result.valid) {
+  console.error('Environment issues:', result.errors);
+}
+```
+
+#### `getRequiredDependencies(): DependencyInfo[]`
+Lists all dependencies needed for debugging.
+
+**Returns**: Array of dependency information with install commands
+
+### Executable Management Methods
+
+#### `resolveExecutablePath(preferredPath?: string): Promise<string>`
+Finds or validates the language runtime executable.
+
+**Parameters**: 
+- `preferredPath` - User-specified path (optional)
+
+**Returns**: Resolved executable path  
+**Throws**: `AdapterError` if executable not found
+
+#### `getDefaultExecutableName(): string`
+Platform-aware default executable name.
+
+**Returns**: e.g., `'python'`, `'node'`, `'go'`
+
+#### `getExecutableSearchPaths(): string[]`
+Paths to search for the executable.
+
+**Returns**: Array of paths (usually from PATH environment variable)
+
+### Adapter Configuration Methods
+
+#### `buildAdapterCommand(config: AdapterConfig): AdapterCommand`
+Constructs the command to launch the debug adapter process.
+
+**Parameters**:
+```typescript
+{
+  sessionId: string;
+  executablePath: string;
+  adapterHost: string;
+  adapterPort: number;
+  logDir: string;
+  scriptPath: string;
+  scriptArgs?: string[];
+  launchConfig: GenericLaunchConfig;
+}
+```
+
+**Returns**:
+```typescript
+{
+  command: string;      // Executable to run
+  args: string[];       // Command line arguments
+  env?: Record<string, string>;  // Environment variables
+}
+```
+
+#### `getAdapterModuleName(): string`
+Debug adapter module identifier.
+
+**Returns**: e.g., `'debugpy.adapter'`, `'js-debug'`
+
+#### `getAdapterInstallCommand(): string`
+Command to install the debug adapter.
+
+**Returns**: e.g., `'pip install debugpy'`, `'bundled with @debugmcp/adapter-javascript'`
+
+### Debug Configuration Methods
+
+#### `transformLaunchConfig(config: GenericLaunchConfig): Promise<LanguageSpecificLaunchConfig>`
+Converts generic config to language-specific format (async to permit build/compilation steps before launch).
+
+**Parameters**: Generic launch configuration
+**Returns**: Promise resolving to language-specific configuration with additional fields
+
+#### `getDefaultLaunchConfig(): Partial<GenericLaunchConfig>`
+Default configuration values for the language.
+
+**Returns**: Common default settings
+
+### Attach Support Methods (Optional)
+
+#### `supportsAttach?(): boolean`
+Checks if the adapter supports attaching to running processes.
+
+**Returns**: `true` if attach is supported
+
+#### `supportsDetach?(): boolean`
+Checks if the adapter supports detaching without terminating the debuggee.
+
+**Returns**: `true` if detach is supported
+
+#### `transformAttachConfig?(config: GenericAttachConfig): LanguageSpecificAttachConfig`
+Transforms generic attach config to language-specific format. Only called if `supportsAttach()` returns `true`.
+
+**Parameters**: Generic attach configuration
+**Returns**: Language-specific attach configuration
+
+#### `getDefaultAttachConfig?(): Partial<GenericAttachConfig>`
+Gets default attach configuration for this language.
+
+**Returns**: Default attach configuration with language-specific defaults
+
+### Launch Barrier (Optional)
+
+#### `createLaunchBarrier?(command: string, args?: unknown): AdapterLaunchBarrier | undefined`
+Optionally provides a launch barrier that customizes how ProxyManager coordinates a specific DAP request (e.g., fire-and-forget launches).
+
+**Parameters**:
+- `command` - The DAP command name
+- `args` - Optional command arguments
+
+**Returns**: An `AdapterLaunchBarrier` instance or `undefined`
+
+### DAP Protocol Methods
+
+#### `sendDapRequest<T>(command: string, args?: unknown): Promise<T>`
+Sends a DAP request (usually delegated to ProxyManager).
+
+**Parameters**:
+- `command` - DAP command name
+- `args` - Command arguments
+
+**Returns**: DAP response
+
+#### `handleDapEvent(event: DebugProtocol.Event): void`
+Processes incoming DAP events.
+
+**Critical**: Must update internal state based on events!
+
+**Example**:
+```typescript
+handleDapEvent(event: DebugProtocol.Event): void {
+  if (event.event === 'stopped') {
+    this.currentThreadId = event.body?.threadId;
+    this.transitionTo(AdapterState.DEBUGGING);
+  }
+  this.emit(event.event, event.body);
+}
+```
+
+#### `handleDapResponse(response: DebugProtocol.Response): void`
+Processes DAP responses if special handling needed.
+
+### Connection Management Methods
+
+#### `connect(host: string, port: number): Promise<void>`
+Establishes connection to debug adapter.
+
+**Parameters**: Host and port for connection  
+**Emits**: `'connected'` event on success
+
+#### `disconnect(): Promise<void>`
+Closes debug adapter connection.
+
+**Emits**: `'disconnected'` event
+
+#### `isConnected(): boolean`
+Connection status check.
+
+**Returns**: `true` if connected to debug adapter
+
+### Error Handling Methods
+
+#### `getInstallationInstructions(): string`
+User-friendly installation guide for the debugger.
+
+**Returns**: Multi-line instructions with platform-specific commands
+
+#### `getMissingExecutableError(): string`
+Error message when runtime is not found.
+
+**Returns**: Helpful error with installation hints
+
+#### `translateErrorMessage(error: Error): string`
+Converts generic errors to language-specific messages.
+
+**Parameters**: Original error  
+**Returns**: User-friendly error message
+
+### Feature Support Methods
+
+#### `supportsFeature(feature: DebugFeature): boolean`
+Checks if a DAP feature is supported.
+
+**Parameters**: Feature from `DebugFeature` enum  
+**Returns**: `true` if supported
+
+#### `getFeatureRequirements(feature: DebugFeature): FeatureRequirement[]`
+Requirements for enabling a feature.
+
+**Returns**: Array of requirements (dependencies, versions, etc.)
+
+#### `getCapabilities(): AdapterCapabilities`
+Full DAP capabilities declaration.
+
+**Returns**: Object matching DAP Capabilities specification
+
+## SessionManager API
+
+Manages debug sessions and coordinates adapters with ProxyManager.
+
+**Source**: [src/session/session-manager.ts](../../src/session/session-manager.ts) (thin facade); actual implementations are in `src/session/session-manager-operations.ts`, `src/session/session-manager-data.ts`, and `src/session/session-manager-core.ts`. Session persistence is in `src/session/session-store.ts`.
+
+### Core Methods
+
+#### `createSession(params: CreateSessionParams): Promise<SessionInfo>`
+Creates a new debug session.
+
+**Parameters**:
+```typescript
+{
+  language: DebugLanguage;
+  name?: string;
+  executablePath?: string;
+}
+```
+
+**Returns**: Session information with unique ID
+
+#### `startDebugging(params: StartDebuggingParams): Promise<DebugResult>`
+Starts debugging for a session.
+
+**Parameters**:
+```typescript
+{
+  sessionId: string;
+  script: string;
+  launchConfig?: Partial<LaunchConfig>;
+  executablePath?: string;
+  args?: string[];
+  env?: Record<string, string>;
+  cwd?: string;
+}
+```
+
+**Returns**: Debug result with success status
+
+#### `setBreakpoint(sessionId: string, file: string, line: number, condition?: string): Promise<Breakpoint>`
+Sets a breakpoint in a file. Internally sends a DAP `setBreakpoints` request for all breakpoints in the same source file.
+
+**Returns**: Breakpoint information
+
+#### `continue(sessionId: string, threadId?: number): Promise<DebugResult>`
+Resumes execution from a breakpoint.
+
+#### `stepOver(sessionId: string, threadId?: number): Promise<void>`
+Steps over the current line.
+
+#### `stepInto(sessionId: string, threadId?: number): Promise<void>`
+Steps into a function call.
+
+#### `stepOut(sessionId: string, threadId?: number): Promise<void>`
+Steps out of the current function.
+
+#### `pause(sessionId: string, threadId?: number): Promise<DebugResult>`
+Pauses execution.
+
+#### `terminate(sessionId: string): Promise<void>`
+Terminates the debug session.
+
+#### `getStackTrace(sessionId: string, threadId?: number, includeInternals?: boolean): Promise<StackFrame[]>`
+Gets the current call stack. If `threadId` is omitted, the session's current thread ID is used. If `includeInternals` is false (default), language-specific internal frames are filtered out via the adapter policy.
+
+#### `getScopes(sessionId: string, frameId: number): Promise<Scope[]>`
+Gets variable scopes for a stack frame.
+
+#### `getVariables(sessionId: string, variablesReference: number): Promise<Variable[]>`
+Gets variables in a scope.
+
+#### `evaluateExpression(sessionId: string, expression: string, frameId?: number, context?: string): Promise<EvaluateResult>`
+Evaluates an expression in the current context. Returns a structured `EvaluateResult` with `result`, `type`, `variablesReference`, and optional error text.
+
+**Note**: The `context` parameter is accepted by the API but the DAP `evaluate` request is always sent with `context: 'variables'` internally, regardless of the value passed.
+
+#### `attachToProcess(sessionId: string, attachConfig: AttachConfig): Promise<DebugResult>`
+Attaches the debugger to a running process.
+
+#### `detachFromProcess(sessionId: string, terminateProcess?: boolean): Promise<DebugResult>`
+Detaches the debugger from an attached process.
+
+#### `listThreads(sessionId: string): Promise<Array<{ id: number; name: string }>>`
+Lists all threads in the debug session.
+
+#### `getLocalVariables(sessionId: string, includeSpecial?: boolean): Promise<LocalVariablesResult>`
+Gets local variables by traversing all stack frames and their scopes, using the language adapter's policy to extract relevant locals. If `includeSpecial` is false (default), internal/special variables are filtered out.
+
+### Session Management
+
+#### `getSession(sessionId: string): ManagedSession | undefined`
+Retrieves session information.
+
+#### `getAllSessions(): DebugSessionInfo[]`
+Lists all active sessions.
+
+#### `closeSession(sessionId: string): Promise<boolean>`
+Tears down the proxy and removes the session from the store.
+
+## ProxyManager API
+
+Manages debug adapter process lifecycle and DAP communication.
+
+**Source**: [src/proxy/proxy-manager.ts](../../src/proxy/proxy-manager.ts)
+
+### Key Methods
+
+#### `constructor(adapter: IDebugAdapter | null, launcher, fileSystem, logger, runtimeEnv?)`
+Creates a new ProxyManager with an adapter (or `null` for language-agnostic support) and injected dependencies (process launcher, filesystem, logger, optional runtime environment).
+
+#### `start(config: ProxyConfig): Promise<void>`
+Starts the debug adapter process and establishes connection.
+
+#### `sendDapRequest(command: string, args?: any): Promise<any>`
+Sends a DAP request and waits for response.
+
+#### `stop(): Promise<void>`
+Stops the debug adapter process and cleans up.
+
+#### `getCurrentThreadId(): number | null`
+Returns the currently tracked thread ID.
+
+#### `isRunning(): boolean`
+Returns whether the proxy process is running.
+
+### Events
+
+ProxyManager forwards DAP events from the adapter:
+- Individually typed and re-emitted: `stopped`, `continued`, `terminated`, `exited`, `initialized`
+- All other DAP events (including `thread`, `output`, `breakpoint`, `module`, etc.) are forwarded as the generic `dap-event` event with `(event: string, body: unknown)` signature
+- Plus adapter lifecycle events: `error`, `exit`, `dry-run-complete`, `adapter-configured`
+
+## AdapterRegistry API
+
+Manages available debug adapters.
+
+**Source**: [src/adapters/adapter-registry.ts](../../src/adapters/adapter-registry.ts)
+
+### Methods
+
+#### `async register(language: string, factory: IAdapterFactory): Promise<void>`
+Registers a new adapter factory.
+
+**Example**:
+```typescript
+await registry.register('python', new PythonAdapterFactory());
+```
+
+#### `create(language: string, config: AdapterConfig): Promise<IDebugAdapter>`
+Creates an adapter instance (async).
+
+**Throws**: `AdapterNotFoundError` if language not supported
+
+#### `isLanguageSupported(language: string): boolean`
+Checks if a language has a registered adapter.
+
+#### `getSupportedLanguages(): string[]`
+Lists all registered languages.
+
+## Event System
+
+### Adapter Events
+
+All adapters emit these events:
+
+```typescript
+interface AdapterEvents {
+  // DAP events
+  'stopped': (event: DebugProtocol.StoppedEvent) => void;
+  'continued': (event: DebugProtocol.ContinuedEvent) => void;
+  'terminated': (event: DebugProtocol.TerminatedEvent) => void;
+  'exited': (event: DebugProtocol.ExitedEvent) => void;
+  'thread': (event: DebugProtocol.ThreadEvent) => void;
+  'output': (event: DebugProtocol.OutputEvent) => void;
+  'breakpoint': (event: DebugProtocol.BreakpointEvent) => void;
+  'module': (event: DebugProtocol.ModuleEvent) => void;
+  
+  // Lifecycle events
+  'initialized': () => void;
+  'connected': () => void;
+  'disconnected': () => void;
+  'error': (error: AdapterError) => void;
+  
+  // State events
+  'stateChanged': (oldState: AdapterState, newState: AdapterState) => void;
+}
+```
+
+### DAP Event Sequences
+
+**Critical**: Understanding event order is crucial! See [DAP Sequence Reference](../development/dap-sequence-reference.md)
+
+Common sequences:
+1. **Breakpoint hit**: `stopped` (reason: 'breakpoint')
+2. **Continue**: Request → (no event if explicit) → Running
+3. **Program end**: `exited` → `terminated`
+4. **User stop**: `terminated` (may have `exited` if killed)
+
+## Type Definitions
+
+### Core Types
+
+```typescript
+enum DebugLanguage {
+  PYTHON = 'python',
+  JAVASCRIPT = 'javascript',
+  RUST = 'rust',
+  GO = 'go',
+  JAVA = 'java',
+  DOTNET = 'dotnet',
+  MOCK = 'mock',
+}
+
+enum AdapterState {
+  UNINITIALIZED = 'uninitialized',
+  INITIALIZING = 'initializing',
+  READY = 'ready',
+  CONNECTED = 'connected',
+  DEBUGGING = 'debugging',
+  DISCONNECTED = 'disconnected',
+  ERROR = 'error'
+}
+
+interface ValidationResult {
+  valid: boolean;
+  errors: ValidationError[];
+  warnings: ValidationWarning[];
+}
+
+interface AdapterCommand {
+  command: string;
+  args: string[];
+  env?: Record<string, string>;
+}
+```
+
+### Error Types
+
+```typescript
+class AdapterError extends Error {
+  constructor(
+    message: string,
+    public code: AdapterErrorCode,
+    public recoverable: boolean = false
+  );
+}
+
+enum AdapterErrorCode {
+  // Environment errors
+  ENVIRONMENT_INVALID = 'ENVIRONMENT_INVALID',
+  EXECUTABLE_NOT_FOUND = 'EXECUTABLE_NOT_FOUND',
+  ADAPTER_NOT_INSTALLED = 'ADAPTER_NOT_INSTALLED',
+  INCOMPATIBLE_VERSION = 'INCOMPATIBLE_VERSION',
+  // Connection errors
+  CONNECTION_FAILED = 'CONNECTION_FAILED',
+  CONNECTION_TIMEOUT = 'CONNECTION_TIMEOUT',
+  CONNECTION_LOST = 'CONNECTION_LOST',
+  // Protocol errors
+  INVALID_RESPONSE = 'INVALID_RESPONSE',
+  UNSUPPORTED_OPERATION = 'UNSUPPORTED_OPERATION',
+  // Runtime errors
+  DEBUGGER_ERROR = 'DEBUGGER_ERROR',
+  SCRIPT_NOT_FOUND = 'SCRIPT_NOT_FOUND',
+  PERMISSION_DENIED = 'PERMISSION_DENIED',
+  // Generic errors
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR'
+}
+```
+
+## Usage Examples
+
+### Creating and Starting a Debug Session
+
+```typescript
+// 1. Create session
+const sessionInfo = await sessionManager.createSession({
+  language: 'python',
+  name: 'My Debug Session'
+});
+
+// 2. Set breakpoints (one call per breakpoint)
+await sessionManager.setBreakpoint(sessionInfo.sessionId, 'app.py', 10);
+await sessionManager.setBreakpoint(sessionInfo.sessionId, 'app.py', 20);
+
+// 3. Start debugging
+await sessionManager.startDebugging({
+  sessionId: sessionInfo.sessionId,
+  script: 'app.py',
+  launchConfig: { stopOnEntry: true }
+});
+
+// 4. Listen for events via the ProxyManager for the session
+// Note: SessionManager is not an EventEmitter. Subscribe to events through
+// the ProxyManager associated with the session, or poll session state.
+const session = sessionManager.getSession(sessionInfo.sessionId);
+session?.proxyManager?.on('stopped', (threadId, reason) => {
+  console.log('Paused at:', reason);
+});
+
+// 5. Continue execution
+await sessionManager.continue(sessionInfo.sessionId);
+```
+
+### Creating a Custom Adapter
+
+```typescript
+class MyAdapter extends EventEmitter implements IDebugAdapter {
+  // Implement all required methods
+  // See MockDebugAdapter for complete example
+}
+
+// Register it
+const registry = new AdapterRegistry({ enableDynamicLoading: false });
+await registry.register('mylang', new MyAdapterFactory());
+
+// Use it
+const adapter = await registry.create('mylang', config);
+```
+
+## Best Practices
+
+1. **Always handle events** - Update adapter state based on DAP events
+2. **Emit events** - Notify listeners of state changes
+3. **Provide context in errors** - Include helpful messages and recovery hints
+4. **Log important operations** - Use the provided logger for debugging
+5. **Test thoroughly** - Use mock adapter for integration tests
+
+## See Also
+
+- [Architecture Overview](./README.md)
+- [Adapter Development Guide](./adapter-development-guide.md)
+- [DAP Sequence Reference](../development/dap-sequence-reference.md)
+- [Migration Guide](../migration-guide.md)

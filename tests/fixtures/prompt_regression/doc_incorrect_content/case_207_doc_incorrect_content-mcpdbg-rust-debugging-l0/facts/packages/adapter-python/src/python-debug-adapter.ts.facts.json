@@ -1,0 +1,1213 @@
+{
+  "source": "packages/adapter-python/src/python-debug-adapter.ts",
+  "source_hash": "24a6cb88add44548",
+  "generated": "2026-07-22T22:07:24Z",
+  "imports": [
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "child_process",
+      "names": [
+        "spawn"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 12,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IDebugAdapter",
+        "AdapterState",
+        "ValidationResult",
+        "ValidationError",
+        "ValidationWarning",
+        "DependencyInfo",
+        "AdapterCommand",
+        "AdapterConfig",
+        "GenericLaunchConfig",
+        "LanguageSpecificLaunchConfig",
+        "GenericAttachConfig",
+        "LanguageSpecificAttachConfig",
+        "DebugFeature",
+        "FeatureRequirement",
+        "AdapterCapabilities",
+        "AdapterError",
+        "AdapterErrorCode",
+        "AdapterEvents"
+      ],
+      "line": 14,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage"
+      ],
+      "line": 34,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterDependencies"
+      ],
+      "line": 35,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "sanitizeStderrTail"
+      ],
+      "line": 36,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./utils/python-utils.js",
+      "names": [
+        "findPythonExecutable",
+        "getPythonVersion"
+      ],
+      "line": 37,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-python/src/utils/python-utils.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "PythonDebugAdapter",
+      "kind": "class",
+      "line": 81,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EventEmitter"
+      ],
+      "implements": [
+        "IDebugAdapter"
+      ]
+    },
+    {
+      "name": "PythonDebugAdapter.initialize",
+      "kind": "function",
+      "line": 103,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.dispose",
+      "kind": "function",
+      "line": 134,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.getState",
+      "kind": "function",
+      "line": 144,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.isReady",
+      "kind": "function",
+      "line": 148,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.getCurrentThreadId",
+      "kind": "function",
+      "line": 154,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.validateEnvironment",
+      "kind": "function",
+      "line": 166,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "executablePath",
+          "optional": true,
+          "type": "string | undefined"
+        }
+      ]
+    },
+    {
+      "name": "PythonDebugAdapter.getRequiredDependencies",
+      "kind": "function",
+      "line": 245,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.resolveExecutablePath",
+      "kind": "function",
+      "line": 264,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "preferredPath",
+          "optional": true,
+          "type": "string | undefined"
+        }
+      ]
+    },
+    {
+      "name": "PythonDebugAdapter.getDefaultExecutableName",
+      "kind": "function",
+      "line": 289,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.getExecutableSearchPaths",
+      "kind": "function",
+      "line": 298,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.buildAdapterCommand",
+      "kind": "function",
+      "line": 350,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").AdapterConfig"
+        }
+      ]
+    },
+    {
+      "name": "PythonDebugAdapter.getAdapterModuleName",
+      "kind": "function",
+      "line": 366,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.getAdapterInstallCommand",
+      "kind": "function",
+      "line": 370,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.transformLaunchConfig",
+      "kind": "function",
+      "line": 376,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").GenericLaunchConfig"
+        }
+      ]
+    },
+    {
+      "name": "PythonDebugAdapter.getDefaultLaunchConfig",
+      "kind": "function",
+      "line": 392,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.supportsAttach",
+      "kind": "function",
+      "line": 401,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.supportsDetach",
+      "kind": "function",
+      "line": 405,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.usesDirectConnectForAttach",
+      "kind": "function",
+      "line": 409,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.transformAttachConfig",
+      "kind": "function",
+      "line": 413,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/models/index\").GenericAttachConfig"
+        }
+      ]
+    },
+    {
+      "name": "PythonDebugAdapter.getDefaultAttachConfig",
+      "kind": "function",
+      "line": 458,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.sendDapRequest",
+      "kind": "function",
+      "line": 468,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "command",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "args",
+          "optional": true,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "name": "PythonDebugAdapter.handleDapEvent",
+      "kind": "function",
+      "line": 493,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "event",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol\").DebugProtocol.Event"
+        }
+      ]
+    },
+    {
+      "name": "PythonDebugAdapter.handleDapResponse",
+      "kind": "function",
+      "line": 503,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "_response",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol\").DebugProtocol.Response"
+        }
+      ]
+    },
+    {
+      "name": "PythonDebugAdapter.connect",
+      "kind": "function",
+      "line": 509,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "host",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "port",
+          "optional": false,
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "PythonDebugAdapter.disconnect",
+      "kind": "function",
+      "line": 519,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.isConnected",
+      "kind": "function",
+      "line": 526,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.getInstallationInstructions",
+      "kind": "function",
+      "line": 532,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.getMissingExecutableError",
+      "kind": "function",
+      "line": 552,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonDebugAdapter.translateErrorMessage",
+      "kind": "function",
+      "line": 562,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "error",
+          "optional": false,
+          "type": "Error"
+        }
+      ]
+    },
+    {
+      "name": "PythonDebugAdapter.supportsFeature",
+      "kind": "function",
+      "line": 586,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").DebugFeature"
+        }
+      ]
+    },
+    {
+      "name": "PythonDebugAdapter.getFeatureRequirements",
+      "kind": "function",
+      "line": 603,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").DebugFeature"
+        }
+      ]
+    },
+    {
+      "name": "PythonDebugAdapter.getCapabilities",
+      "kind": "function",
+      "line": 635,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "super",
+      "line": 97,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.initialize",
+      "to": "console.error",
+      "line": 105,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 107,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.initialize",
+      "to": "console.error",
+      "line": 112,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.initialize",
+      "to": "this.validateEnvironment",
+      "line": 114,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.initialize",
+      "to": "console.error",
+      "line": 117,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 119,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.initialize",
+      "to": "AdapterError",
+      "line": 120,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 126,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.initialize",
+      "to": "this.emit",
+      "line": 127,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 129,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.dispose",
+      "to": "this.pythonPathCache.clear",
+      "line": 135,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.dispose",
+      "to": "this.emit",
+      "line": 139,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.transitionTo",
+      "to": "this.emit",
+      "line": 161,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.validateEnvironment",
+      "to": "console.error",
+      "line": 174,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.validateEnvironment",
+      "to": "this.resolveExecutablePath",
+      "line": 176,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.validateEnvironment",
+      "to": "console.error",
+      "line": 178,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.validateEnvironment",
+      "to": "this.checkPythonVersion",
+      "line": 182,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.validateEnvironment",
+      "to": "version.split('.').map",
+      "line": 184,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.validateEnvironment",
+      "to": "version.split",
+      "line": 184,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.validateEnvironment",
+      "to": "errors.push",
+      "line": 186,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.validateEnvironment",
+      "to": "warnings.push",
+      "line": 193,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.validateEnvironment",
+      "to": "this.checkDebugpyInstalled",
+      "line": 204,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.validateEnvironment",
+      "to": "errors.push",
+      "line": 207,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.validateEnvironment",
+      "to": "warnings.push",
+      "line": 213,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.validateEnvironment",
+      "to": "this.detectVirtualEnv",
+      "line": 222,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.validateEnvironment",
+      "to": "this.dependencies.logger?.info",
+      "line": 224,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.validateEnvironment",
+      "to": "console.error",
+      "line": 229,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.validateEnvironment",
+      "to": "errors.push",
+      "line": 231,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.resolveExecutablePath",
+      "to": "this.pythonPathCache.get",
+      "line": 267,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.resolveExecutablePath",
+      "to": "Date.now",
+      "line": 269,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.resolveExecutablePath",
+      "to": "this.dependencies.logger?.debug",
+      "line": 270,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.resolveExecutablePath",
+      "to": "findPythonExecutable",
+      "line": 275,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.resolveExecutablePath",
+      "to": "this.pythonPathCache.set",
+      "line": 281,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.resolveExecutablePath",
+      "to": "Date.now",
+      "line": 283,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.getExecutableSearchPaths",
+      "to": "paths.push",
+      "line": 303,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.getExecutableSearchPaths",
+      "to": "paths.push",
+      "line": 327,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.getExecutableSearchPaths",
+      "to": "paths.push",
+      "line": 333,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.getExecutableSearchPaths",
+      "to": "paths.push",
+      "line": 342,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.getExecutableSearchPaths",
+      "to": "process.env.PATH.split",
+      "line": 342,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.buildAdapterCommand",
+      "to": "config.adapterPort.toString",
+      "line": 356,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.getDefaultLaunchConfig",
+      "to": "process.cwd",
+      "line": 397,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.transformAttachConfig",
+      "to": "AdapterError",
+      "line": 419,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.transformAttachConfig",
+      "to": "AdapterError",
+      "line": 425,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.sendDapRequest",
+      "to": "exceptionArgs.filters?.filter",
+      "line": 480,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.sendDapRequest",
+      "to": "validFilters.includes",
+      "line": 480,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.sendDapRequest",
+      "to": "AdapterError",
+      "line": 482,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.sendDapRequest",
+      "to": "invalidFilters.join",
+      "line": 483,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 500,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.connect",
+      "to": "this.dependencies.logger?.debug",
+      "line": 512,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.connect",
+      "to": "this.transitionTo",
+      "line": 515,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.connect",
+      "to": "this.emit",
+      "line": 516,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.disconnect",
+      "to": "this.transitionTo",
+      "line": 522,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.disconnect",
+      "to": "this.emit",
+      "line": 523,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.translateErrorMessage",
+      "to": "error.message.toLowerCase",
+      "line": 563,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 565,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 565,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 569,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 569,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.translateErrorMessage",
+      "to": "this.getMissingExecutableError",
+      "line": 570,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 573,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 577,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.supportsFeature",
+      "to": "supportedFeatures.includes",
+      "line": 600,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.getFeatureRequirements",
+      "to": "requirements.push",
+      "line": 608,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.getFeatureRequirements",
+      "to": "requirements.push",
+      "line": 616,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.getFeatureRequirements",
+      "to": "requirements.push",
+      "line": 624,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkPythonVersion",
+      "to": "this.pythonPathCache.get",
+      "line": 706,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkPythonVersion",
+      "to": "this.pythonPathCache.get",
+      "line": 706,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkPythonVersion",
+      "to": "getPythonVersion",
+      "line": 711,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkPythonVersion",
+      "to": "this.pythonPathCache.set",
+      "line": 715,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkPythonVersion",
+      "to": "Date.now",
+      "line": 715,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkDebugpyInstalled",
+      "to": "this.pythonPathCache.get",
+      "line": 726,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkDebugpyInstalled",
+      "to": "this.pythonPathCache.get",
+      "line": 726,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkDebugpyInstalled",
+      "to": "Promise",
+      "line": 731,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkDebugpyInstalled",
+      "to": "spawn",
+      "line": 732,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkDebugpyInstalled",
+      "to": "child.stdout?.on",
+      "line": 737,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkDebugpyInstalled",
+      "to": "data.toString",
+      "line": 737,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkDebugpyInstalled",
+      "to": "child.on",
+      "line": 739,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkDebugpyInstalled",
+      "to": "resolve",
+      "line": 739,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkDebugpyInstalled",
+      "to": "child.on",
+      "line": 740,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkDebugpyInstalled",
+      "to": "output.trim",
+      "line": 741,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkDebugpyInstalled",
+      "to": "this.pythonPathCache.set",
+      "line": 744,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkDebugpyInstalled",
+      "to": "Date.now",
+      "line": 744,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkDebugpyInstalled",
+      "to": "this.dependencies.logger?.info",
+      "line": 747,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkDebugpyInstalled",
+      "to": "sanitizeStderrTail",
+      "line": 747,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.checkDebugpyInstalled",
+      "to": "resolve",
+      "line": 750,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.detectVirtualEnv",
+      "to": "Promise",
+      "line": 759,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.detectVirtualEnv",
+      "to": "spawn",
+      "line": 760,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.detectVirtualEnv",
+      "to": "child.stdout?.on",
+      "line": 765,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.detectVirtualEnv",
+      "to": "data.toString",
+      "line": 765,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.detectVirtualEnv",
+      "to": "child.on",
+      "line": 767,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.detectVirtualEnv",
+      "to": "resolve",
+      "line": 767,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.detectVirtualEnv",
+      "to": "child.on",
+      "line": 768,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.detectVirtualEnv",
+      "to": "resolve",
+      "line": 769,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.detectVirtualEnv",
+      "to": "output.trim().toLowerCase",
+      "line": 769,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonDebugAdapter.detectVirtualEnv",
+      "to": "output.trim",
+      "line": 769,
+      "call_sites": 2
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "dependencies",
+      "line": 98
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 136
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 137
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 138
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 160
+    },
+    {
+      "container": "attachConfig",
+      "member": "stopOnEntry",
+      "line": 444
+    },
+    {
+      "container": "attachConfig",
+      "member": "cwd",
+      "line": 448
+    },
+    {
+      "container": "attachConfig",
+      "member": "env",
+      "line": 452
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 496
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 514
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 520
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 521
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "python",
+      "context": "DAP config type discriminant for Python adapter",
+      "line": 379,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "launch",
+      "context": "DAP request type for launch config",
+      "line": 380,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "attach",
+      "context": "DAP request type for attach config",
+      "line": 433,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "setExceptionBreakpoints",
+      "context": "DAP command name checked for Python-specific validation",
+      "line": 476,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "raised",
+      "context": "Valid Python exception filter name for debugpy",
+      "line": 479,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "uncaught",
+      "context": "Valid Python exception filter name for debugpy",
+      "line": 479,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "userUnhandled",
+      "context": "Valid Python exception filter name for debugpy",
+      "line": 479,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "stopped",
+      "context": "DAP event name for thread stopped event",
+      "line": 495,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "event.event"
+    },
+    {
+      "value": "initialized",
+      "context": "EventEmitter event emitted after successful initialization",
+      "line": 127,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "disposed",
+      "context": "EventEmitter event emitted after dispose",
+      "line": 139,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "stateChanged",
+      "context": "EventEmitter event emitted on state transition",
+      "line": 161,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "connected",
+      "context": "EventEmitter event emitted after connect()",
+      "line": 516,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "disconnected",
+      "context": "EventEmitter event emitted after disconnect()",
+      "line": 523,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "PYTHONUNBUFFERED",
+      "context": "Environment variable set when building adapter command",
+      "line": 360,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "debugpy.adapter",
+      "context": "Python module used to launch debugpy adapter",
+      "line": 354,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "PYTHON_VERSION_TOO_OLD",
+      "context": "Validation error code for old Python version",
+      "line": 187,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "DEBUGPY_NOT_INSTALLED",
+      "context": "Validation error/warning code for missing debugpy",
+      "line": 208,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "PYTHON_NOT_FOUND",
+      "context": "Validation error code when Python executable is not found",
+      "line": 232,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

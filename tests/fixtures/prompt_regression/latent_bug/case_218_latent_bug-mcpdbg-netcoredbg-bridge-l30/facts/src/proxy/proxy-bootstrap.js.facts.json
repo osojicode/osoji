@@ -1,0 +1,96 @@
+{
+  "source": "src/proxy/proxy-bootstrap.js",
+  "source_hash": "246ff3a7463ac517",
+  "generated": "2026-07-22T22:07:19Z",
+  "imports": [
+    {
+      "source": "fs",
+      "names": [
+        "default"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "path",
+      "names": [
+        "default"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "./utils/orphan-check.js",
+      "names": [
+        "shouldExitAsOrphanFromEnv"
+      ],
+      "is_reexport": false
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "orphan-check.shouldExitAsOrphanFromEnv",
+      "line": 36
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "url.fileURLToPath",
+      "line": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.existsSync",
+      "line": 55
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.existsSync",
+      "line": 61
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "process.env",
+      "member": "DAP_PROXY_WORKER",
+      "line": 47
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "true",
+      "context": "Sets DAP_PROXY_WORKER env var to signal proxy mode to downstream modules",
+      "line": 47,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "proxy-bundle.cjs",
+      "context": "Filename of the preferred bundled proxy implementation",
+      "line": 51,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dap-proxy-entry.js",
+      "context": "Filename of the fallback unbundled proxy entry point",
+      "line": 52,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "SIGTERM",
+      "context": "Signal sent to self when orphan detected, so worker signal handler fires for async cleanup",
+      "line": 38,
+      "kind": "config",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "llm"
+}

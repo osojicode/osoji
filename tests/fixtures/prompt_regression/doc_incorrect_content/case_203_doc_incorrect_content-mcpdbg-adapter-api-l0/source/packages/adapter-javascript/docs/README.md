@@ -1,0 +1,120 @@
+# @debugmcp/adapter-javascript
+
+This package provides a fully functional JavaScript/TypeScript debug adapter for the MCP Debugger monorepo, using Microsoft's js-debug (VSCode's built-in debugger) as the underlying DAP implementation.
+
+Key points
+- ESM TypeScript project with dist/ output and type declarations
+- Exports `JavascriptAdapterFactory` as the entry point for dynamic loading
+- Full `JavascriptDebugAdapter` implementation (~760 lines) with comprehensive DAP integration
+- Real utilities: `detectTsRunners`, `transformConfig`, TypeScript detection
+- Vendor folder for js-debug (bundled `vsDebugServer.js` with `.cjs` twin and sidecars)
+- Uses .js suffix on relative TS imports to match ESM resolution
+
+Status and scope
+- This is a fully implemented adapter supporting JavaScript and TypeScript debugging
+- Environment validation includes Node.js detection, vendor file verification, and optional TypeScript runner detection
+- `DebugLanguage.JAVASCRIPT` is a full member of the enum (7 languages: Python, JavaScript, Rust, Go, Java, Dotnet, Mock)
+
+Build and test
+- Build: pnpm -w -F @debugmcp/adapter-javascript run build
+  (The `postbuild` hook automatically runs vendoring via `build-js-debug.js`)
+- Test:  pnpm -w -F @debugmcp/adapter-javascript run test
+
+Validation
+- Node.js 22+ required
+- Requires bundled js-debug vendor file at vendor/js-debug/vsDebugServer.js
+- Optional TypeScript runners: tsx or ts-node recommended; absence only results in a warning
+- The factory-level validation does not spawn processes or touch the network, but it does perform filesystem checks (e.g., `fs.existsSync` for the vendored adapter and TypeScript runner detection)
+- To vendor js-debug, use the build:adapter script when available: pnpm -w -F @debugmcp/adapter-javascript run build:adapter
+
+Structure
+- src/index.ts exports the factory by name: `JavascriptAdapterFactory`
+- src/javascript-adapter-factory.ts extends the shared BaseAdapterFactory
+- src/javascript-debug-adapter.ts provides full DAP integration (~760 lines)
+- src/utils/typescript-detector.ts — TypeScript detection and runner discovery (`detectTsRunners`)
+- src/utils/config-transformer.ts — Launch configuration transformation (`transformConfig`)
+- src/types/* — TypeScript types for adapter configuration
+
+Notes
+- No core registration is added in Task 1; that is handled in a later task
+- Keep using .js in relative imports (e.g., ./javascript-adapter-factory.js)
+
+## Vendoring js-debug
+
+Populate the Microsoft js-debug adapter into this package so that validation passes and later tasks can spawn it via TCP (positional port argument).
+
+Prereqs
+- Node 22+ for the vendoring script (uses global `fetch` and AbortController)
+- Optional: `GH_TOKEN` environment variable to avoid GitHub API rate limits (recommended behind corporate proxies)
+
+Commands
+- Get the latest prebuilt artifact:
+  - pnpm -w -F @debugmcp/adapter-javascript run build:adapter
+- Pin to a specific tag (example):
+  - JS_DEBUG_VERSION=v1.95.0 pnpm -w -F @debugmcp/adapter-javascript run build:adapter
+- Force a rebuild (ignore cache if already present):
+  - JS_DEBUG_FORCE_REBUILD=true pnpm -w -F @debugmcp/adapter-javascript run build:adapter
+- Build from source (slower; requires git and a package manager):
+  - JS_DEBUG_BUILD_FROM_SOURCE=true pnpm -w -F @debugmcp/adapter-javascript run build:adapter
+
+Vendoring tips
+- Prebuilt (default):
+  - pnpm -w -F @debugmcp/adapter-javascript run build:adapter
+- Source fallback:
+  - Windows (cmd):  cmd /c "set JS_DEBUG_BUILD_FROM_SOURCE=true && pnpm -w -F @debugmcp/adapter-javascript run build:adapter"
+  - Bash:           JS_DEBUG_BUILD_FROM_SOURCE=true pnpm -w -F @debugmcp/adapter-javascript run build:adapter
+- Local override (bypass network; requires an existing vsDebugServer.js on disk):
+  - Windows (cmd):  cmd /c "set JS_DEBUG_FORCE_REBUILD=true && set JS_DEBUG_LOCAL_PATH=C:\path\to\vsDebugServer.js && pnpm -w -F @debugmcp/adapter-javascript run build:adapter"
+  - Bash:           JS_DEBUG_FORCE_REBUILD=true JS_DEBUG_LOCAL_PATH=/abs/path/vsDebugServer.js pnpm -w -F @debugmcp/adapter-javascript run build:adapter
+
+Notes on normalization
+- The vendoring script searches multiple upstream layouts in priority order: dist/vsDebugServer.js, dist/src/dapDebugServer.js, extension/src/dapDebugServer.js, and js-debug/src/dapDebugServer.js. It falls back to a BFS search for any file named dapDebugServer.js or vsDebugServer.js.
+- The vendoring script automatically normalizes the found file to the canonical path: vendor/js-debug/vsDebugServer.js.
+- For source builds on Windows/macOS/Linux, large Playwright downloads are skipped by setting PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 during install.
+
+Windows (source fallback example):
+- cmd /c "set PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 && set JS_DEBUG_BUILD_FROM_SOURCE=true && pnpm -w -F @debugmcp/adapter-javascript run build:adapter"
+
+Bash (source fallback example):
+- PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 JS_DEBUG_BUILD_FROM_SOURCE=true pnpm -w -F @debugmcp/adapter-javascript run build:adapter
+
+Expected outputs
+- vendor/js-debug/vsDebugServer.js
+- vendor/js-debug/vsDebugServer.cjs (CommonJS twin)
+- vendor/js-debug/bootloader.js (required sidecar)
+- vendor/js-debug/hash.js (required sidecar)
+- vendor/js-debug/watchdog.js (required sidecar)
+- vendor/js-debug/package.json (forces `type: 'commonjs'`)
+- vendor/js-debug/vsDebugServer.js.sha256
+- vendor/js-debug/manifest.json (metadata: source, repo, version, asset, sha256, fetchedAt)
+- vendor/ subdirectory (contains the js-debug vendored files)
+
+Determinism and safety
+- The script writes the artifact and checksum into vendor/js-debug/
+- Safe re-runs: if `vsDebugServer.js` and required sidecars (`bootloader.js`, `hash.js`) already exist, the script exits 0 unless `JS_DEBUG_FORCE_REBUILD=true` is set
+- The script does not run automatically in CI or on postinstall
+
+Validation
+- After vendoring, `JavascriptAdapterFactory.validate()` should pass the vendor check locally. It looks for:
+  - vendor/js-debug/vsDebugServer.js (relative to the package source/dist layout)
+- Runtime Node requirement: the package declares `engines.node >= 22` in package.json (the factory-level validation currently checks for 14+ as a lower bound, but Node 22+ is required in practice)
+- Runtime command construction: `JavascriptDebugAdapter.buildAdapterCommand` prefers `vsDebugServer.cjs` for CommonJS compatibility, falling back to `vsDebugServer.js` if the `.cjs` variant is not found
+
+Troubleshooting
+- 403 rate limit or forbidden
+  - Set GH_TOKEN (or GITHUB_TOKEN) to increase API limits
+  - Example (PowerShell): `$env:GH_TOKEN="ghp_xxx"; pnpm -w -F @debugmcp/adapter-javascript run build:adapter`
+- 404 tag not found
+  - Verify `JS_DEBUG_VERSION` (e.g., try `latest` or a known tag like `v1.95.0`)
+- No matching asset found
+  - Try pinning a specific `JS_DEBUG_VERSION`
+  - Or enable source fallback: `JS_DEBUG_BUILD_FROM_SOURCE=true`
+- vsDebugServer.js not found after extraction
+  - Packaging may have changed; file an issue
+  - As a workaround, try the source fallback
+- Corporate proxies / MITM
+  - Respect `HTTPS_PROXY`/`HTTP_PROXY` environment variables when running the script
+
+Notes on cross-platform
+- The vendoring script is cross-platform (Windows/macOS/Linux)
+- Paths are normalized in logs for readability but native paths are used for file operations

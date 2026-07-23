@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "The doc's AdapterEvents block (api-reference.md:445-452) reproduces the declared interface (packages/shared/src/interfaces/debug-adapter.ts:474-480) essentially verbatim, including 'stopped': (event: DebugProtocol.StoppedEvent) => void. That ProxyManager re-exposes 'stopped' as (threadId, reason) is a difference between layers the doc itself maintains with separate sections. Positive-assertion requirement: the doc affirmatively claims only the adapter-layer contract, which the code declares.",
+  "gray": true,
+  "gray_reason": "A defensible confirm-at-info path exists that the finding does not take: doc L442 asserts 'All adapters emit these events' with full-event signatures, yet python-debug-adapter.ts:500 emits event.body \u2014 one implementation contradicts the universal claim; the counter (stronger per decisions/0021) is that the doc verbatim relays the declared interface, making the deviation a code bug, not doc incorrectness.",
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

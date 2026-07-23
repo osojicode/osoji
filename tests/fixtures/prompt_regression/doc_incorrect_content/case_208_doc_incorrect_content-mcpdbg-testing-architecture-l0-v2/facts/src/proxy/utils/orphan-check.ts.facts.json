@@ -1,0 +1,66 @@
+{
+  "source": "src/proxy/utils/orphan-check.ts",
+  "source_hash": "25d1a00cf87a291a",
+  "generated": "2026-07-22T22:06:20Z",
+  "imports": [],
+  "exports": [
+    {
+      "name": "shouldExitAsOrphan",
+      "kind": "function",
+      "line": 11,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "ppid",
+          "optional": false,
+          "type": "number"
+        },
+        {
+          "name": "inContainer",
+          "optional": false,
+          "type": "boolean"
+        }
+      ]
+    },
+    {
+      "name": "shouldExitAsOrphanFromEnv",
+      "kind": "function",
+      "line": 19,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "ppid",
+          "optional": false,
+          "type": "number"
+        },
+        {
+          "name": "env",
+          "optional": true,
+          "type": "NodeJS.ProcessEnv"
+        }
+      ]
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "shouldExitAsOrphanFromEnv",
+      "to": "shouldExitAsOrphan",
+      "line": 24,
+      "call_sites": 4
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "true",
+      "context": "Checked against MCP_CONTAINER env var to determine if running inside a container",
+      "line": 23,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "env.MCP_CONTAINER"
+    }
+  ],
+  "extraction_method": "ast"
+}

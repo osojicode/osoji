@@ -1,0 +1,690 @@
+{
+  "source": "tests/test-utils/mocks/mock-proxy-manager.ts",
+  "source_hash": "64d3b2b16e4014c5",
+  "generated": "2026-07-22T22:06:47Z",
+  "imports": [
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 5,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "../../src/proxy/proxy-manager.js",
+      "names": [
+        "IProxyManager",
+        "ProxyConfig",
+        "ProxyManagerEvents"
+      ],
+      "line": 6,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "MockProxyManager",
+      "kind": "class",
+      "line": 11,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EventEmitter"
+      ],
+      "implements": [
+        "IProxyManager"
+      ]
+    },
+    {
+      "name": "MockProxyManager.start",
+      "kind": "function",
+      "line": 35,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "ProxyConfig"
+        }
+      ]
+    },
+    {
+      "name": "MockProxyManager.stop",
+      "kind": "function",
+      "line": 72,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockProxyManager.sendDapRequest",
+      "kind": "function",
+      "line": 86,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "command",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "args",
+          "optional": true,
+          "type": "any"
+        },
+        {
+          "name": "options",
+          "optional": true,
+          "type": "{ timeoutMs?: number | undefined; } | undefined"
+        }
+      ]
+    },
+    {
+      "name": "MockProxyManager.isRunning",
+      "kind": "function",
+      "line": 183,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockProxyManager.getCurrentThreadId",
+      "kind": "function",
+      "line": 187,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockProxyManager.setDapRequestHandler",
+      "kind": "function",
+      "line": 192,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "handler",
+          "optional": false,
+          "type": "(command: string, args?: any) => Promise<any>"
+        }
+      ]
+    },
+    {
+      "name": "MockProxyManager.simulateEvent",
+      "kind": "function",
+      "line": 196,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "event",
+          "optional": false,
+          "type": "K"
+        },
+        {
+          "name": "args",
+          "optional": true,
+          "type": "unknown[]"
+        }
+      ]
+    },
+    {
+      "name": "MockProxyManager.simulateStopped",
+      "kind": "function",
+      "line": 208,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "threadId",
+          "optional": false,
+          "type": "number"
+        },
+        {
+          "name": "reason",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "MockProxyManager.simulateError",
+      "kind": "function",
+      "line": 213,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "error",
+          "optional": false,
+          "type": "Error"
+        }
+      ]
+    },
+    {
+      "name": "MockProxyManager.simulateExit",
+      "kind": "function",
+      "line": 217,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "code",
+          "optional": false,
+          "type": "number"
+        },
+        {
+          "name": "signal",
+          "optional": true,
+          "type": "string | undefined"
+        }
+      ]
+    },
+    {
+      "name": "MockProxyManager.hasDryRunCompleted",
+      "kind": "function",
+      "line": 223,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockProxyManager.getDryRunSnapshot",
+      "kind": "function",
+      "line": 227,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockProxyManager.reset",
+      "kind": "function",
+      "line": 237,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "super",
+      "line": 32,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockProxyManager.start",
+      "to": "this.startCalls.push",
+      "line": 36,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockProxyManager.start",
+      "to": "Error",
+      "line": 39,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MockProxyManager.start",
+      "to": "Promise",
+      "line": 43,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MockProxyManager.start",
+      "to": "setTimeout",
+      "line": 43,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MockProxyManager.start",
+      "to": "process.nextTick",
+      "line": 53,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MockProxyManager.start",
+      "to": "this.emit",
+      "line": 58,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "MockProxyManager.start",
+      "to": "this.emit",
+      "line": 60,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "MockProxyManager.start",
+      "to": "this.emit",
+      "line": 61,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "MockProxyManager.start",
+      "to": "this.emit",
+      "line": 66,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "MockProxyManager.stop",
+      "to": "process.nextTick",
+      "line": 81,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MockProxyManager.stop",
+      "to": "this.emit",
+      "line": 82,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "MockProxyManager.sendDapRequest",
+      "to": "this.dapRequestCalls.push",
+      "line": 91,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockProxyManager.sendDapRequest",
+      "to": "Error",
+      "line": 94,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MockProxyManager.sendDapRequest",
+      "to": "Error",
+      "line": 98,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MockProxyManager.sendDapRequest",
+      "to": "Promise",
+      "line": 102,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MockProxyManager.sendDapRequest",
+      "to": "setTimeout",
+      "line": 102,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MockProxyManager.sendDapRequest",
+      "to": "this._dapRequestHandler",
+      "line": 107,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockProxyManager.sendDapRequest",
+      "to": "args?.breakpoints?.map",
+      "line": 117,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockProxyManager.sendDapRequest",
+      "to": "process.nextTick",
+      "line": 167,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MockProxyManager.sendDapRequest",
+      "to": "this.emit",
+      "line": 168,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "MockProxyManager.sendDapRequest",
+      "to": "process.nextTick",
+      "line": 173,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MockProxyManager.sendDapRequest",
+      "to": "this.emit",
+      "line": 174,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "MockProxyManager.simulateEvent",
+      "to": "this.emit",
+      "line": 205,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "MockProxyManager.simulateStopped",
+      "to": "this.emit",
+      "line": 210,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "MockProxyManager.simulateError",
+      "to": "this.emit",
+      "line": 214,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "MockProxyManager.simulateExit",
+      "to": "this.emit",
+      "line": 220,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "MockProxyManager.reset",
+      "to": "this.removeAllListeners",
+      "line": 252,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "_config",
+      "line": 46
+    },
+    {
+      "container": "this",
+      "member": "_isRunning",
+      "line": 47
+    },
+    {
+      "container": "this",
+      "member": "_dryRunCompleted",
+      "line": 48
+    },
+    {
+      "container": "this",
+      "member": "_dryRunCommand",
+      "line": 49
+    },
+    {
+      "container": "this",
+      "member": "_dryRunScript",
+      "line": 50
+    },
+    {
+      "container": "this",
+      "member": "_dryRunCompleted",
+      "line": 55
+    },
+    {
+      "container": "this",
+      "member": "_dryRunCommand",
+      "line": 56
+    },
+    {
+      "container": "this",
+      "member": "_dryRunScript",
+      "line": 57
+    },
+    {
+      "container": "this",
+      "member": "_currentThreadId",
+      "line": 65
+    },
+    {
+      "container": "this",
+      "member": "_isRunning",
+      "line": 74
+    },
+    {
+      "container": "this",
+      "member": "_currentThreadId",
+      "line": 75
+    },
+    {
+      "container": "this",
+      "member": "_config",
+      "line": 76
+    },
+    {
+      "container": "this",
+      "member": "_dryRunCompleted",
+      "line": 77
+    },
+    {
+      "container": "this",
+      "member": "_dryRunCommand",
+      "line": 78
+    },
+    {
+      "container": "this",
+      "member": "_dryRunScript",
+      "line": 79
+    },
+    {
+      "container": "this",
+      "member": "_dapRequestHandler",
+      "line": 193
+    },
+    {
+      "container": "this",
+      "member": "_dryRunCompleted",
+      "line": 201
+    },
+    {
+      "container": "this",
+      "member": "_dryRunCommand",
+      "line": 202
+    },
+    {
+      "container": "this",
+      "member": "_dryRunScript",
+      "line": 203
+    },
+    {
+      "container": "this",
+      "member": "_currentThreadId",
+      "line": 209
+    },
+    {
+      "container": "this",
+      "member": "_isRunning",
+      "line": 218
+    },
+    {
+      "container": "this",
+      "member": "_currentThreadId",
+      "line": 219
+    },
+    {
+      "container": "this",
+      "member": "startCalls",
+      "line": 238
+    },
+    {
+      "container": "this",
+      "member": "stopCalls",
+      "line": 239
+    },
+    {
+      "container": "this",
+      "member": "dapRequestCalls",
+      "line": 240
+    },
+    {
+      "container": "this",
+      "member": "shouldFailStart",
+      "line": 241
+    },
+    {
+      "container": "this",
+      "member": "startDelay",
+      "line": 242
+    },
+    {
+      "container": "this",
+      "member": "shouldFailDapRequests",
+      "line": 243
+    },
+    {
+      "container": "this",
+      "member": "dapRequestDelay",
+      "line": 244
+    },
+    {
+      "container": "this",
+      "member": "_isRunning",
+      "line": 245
+    },
+    {
+      "container": "this",
+      "member": "_currentThreadId",
+      "line": 246
+    },
+    {
+      "container": "this",
+      "member": "_config",
+      "line": 247
+    },
+    {
+      "container": "this",
+      "member": "_dapRequestHandler",
+      "line": 248
+    },
+    {
+      "container": "this",
+      "member": "_dryRunCompleted",
+      "line": 249
+    },
+    {
+      "container": "this",
+      "member": "_dryRunCommand",
+      "line": 250
+    },
+    {
+      "container": "this",
+      "member": "_dryRunScript",
+      "line": 251
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "dry-run-complete",
+      "context": "Event name emitted when dry-run spawn completes",
+      "line": 58,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "adapter-configured",
+      "context": "Event name emitted after normal proxy start configuration",
+      "line": 60,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "initialized",
+      "context": "Event name emitted after normal proxy start initialization",
+      "line": 61,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "stopped",
+      "context": "Event name emitted when debugger stops at entry or step",
+      "line": 66,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "exit",
+      "context": "Event name emitted when proxy exits",
+      "line": 82,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "continued",
+      "context": "Event name emitted when execution continues",
+      "line": 174,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "python",
+      "context": "Hardcoded dry-run command returned in mock start()",
+      "line": 56,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "setBreakpoints",
+      "context": "DAP command name matched in sendDapRequest switch",
+      "line": 113,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "stackTrace",
+      "context": "DAP command name matched in sendDapRequest switch",
+      "line": 124,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "scopes",
+      "context": "DAP command name matched in sendDapRequest switch",
+      "line": 138,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "variables",
+      "context": "DAP command name matched in sendDapRequest switch",
+      "line": 150,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "next",
+      "context": "DAP command name matched in sendDapRequest switch",
+      "line": 163,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "stepIn",
+      "context": "DAP command name matched in sendDapRequest switch",
+      "line": 164,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "stepOut",
+      "context": "DAP command name matched in sendDapRequest switch",
+      "line": 165,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "continue",
+      "context": "DAP command name matched in sendDapRequest switch",
+      "line": 172,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "dry-run-complete",
+      "context": "Event name checked in simulateEvent to update dry-run state",
+      "line": 200,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "event"
+    }
+  ],
+  "extraction_method": "ast"
+}

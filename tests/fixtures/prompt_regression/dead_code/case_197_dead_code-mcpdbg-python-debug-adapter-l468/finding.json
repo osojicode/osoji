@@ -1,0 +1,20 @@
+{
+  "detector": "debris:dead_code",
+  "gap_type": "reachability",
+  "path": "packages/adapter-python/src/python-debug-adapter.ts",
+  "line_start": 468,
+  "line_end": 491,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "sendDapRequest() always returns an empty object `{} as T` regardless of command or args. The validation logic for 'setExceptionBreakpoints' filters runs but the method never actually sends a DAP request — per comment, ProxyManager handles this. The method body is effectively a partial stub: the filter validation is real, but the return value is a useless empty object that callers may not expect.",
+  "observed_behavior": "sendDapRequest() always returns an empty object `{} as T` regardless of command or args. The validation logic for 'setExceptionBreakpoints' filters runs but the method never actually sends a DAP request — per comment, ProxyManager handles this. The method body is effectively a partial stub: the filter validation is real, but the return value is a useless empty object that callers may not expect.",
+  "evidence": [],
+  "id": "1be5d745dddf8557",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

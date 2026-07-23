@@ -1,0 +1,796 @@
+/**
+ * JavaScript/TypeScript Debug Adapter
+ *
+ * @since 0.1.0
+ */
+import { EventEmitter } from 'events';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
+import type { DebugProtocol } from '@vscode/debugprotocol';
+import {
+  AdapterState,
+  AdapterError,
+  AdapterErrorCode,
+  DebugFeature,
+  type IDebugAdapter,
+  type ValidationResult,
+  type DependencyInfo,
+  type AdapterCommand,
+  type AdapterConfig,
+  type GenericLaunchConfig,
+  type LanguageSpecificLaunchConfig,
+  type GenericAttachConfig,
+  type LanguageSpecificAttachConfig,
+  type FeatureRequirement,
+  type AdapterCapabilities,
+  type AdapterLaunchBarrier
+} from '@debugmcp/shared';
+import { DebugLanguage } from '@debugmcp/shared';
+import type { AdapterDependencies } from '@debugmcp/shared';
+import { findNode } from './utils/executable-resolver.js';
+import { detectBinary } from './utils/typescript-detector.js';
+import { determineOutFiles, isESMProject, hasTsConfigPaths } from './utils/config-transformer.js';
+import { JsDebugLaunchBarrier } from './utils/js-debug-launch-barrier.js';
+
+export class JavascriptDebugAdapter extends EventEmitter implements IDebugAdapter {
+  readonly language = 'javascript' as unknown as DebugLanguage;
+  readonly name = 'JavaScript/TypeScript Debug Adapter';
+
+  private state: AdapterState = AdapterState.UNINITIALIZED;
+  private readonly dependencies: AdapterDependencies;
+
+  private currentThreadId: number | null = null;
+  private connected = false;
+
+  // Per-instance memoization for executable detection
+  private cachedNodePath?: string;
+
+  constructor(dependencies: AdapterDependencies) {
+    super();
+    this.dependencies = dependencies;
+  }
+
+  // ===== Lifecycle Management =====
+
+  async initialize(): Promise<void> {
+    this.transitionTo(AdapterState.INITIALIZING);
+
+    const validation = await this.validateEnvironment();
+
+    // Log any validation warnings via dependencies logger
+    try {
+      const logger = this.dependencies.logger;
+      if (validation?.warnings && Array.isArray(validation.warnings)) {
+        for (const w of validation.warnings) {
+          const msg = (w as { message?: unknown }).message;
+          if (typeof msg === 'string') {
+            logger?.warn?.(msg);
+          }
+        }
+      }
+    } catch {
+      // ignore logging errors
+    }
+
+    if (!validation.valid) {
+      this.transitionTo(AdapterState.ERROR);
+      const logger = this.dependencies.logger;
+      const msg = validation.errors[0]?.message ?? 'Environment invalid';
+      logger?.warn?.(msg);
+      throw new AdapterError(
+        msg,
+        AdapterErrorCode.ENVIRONMENT_INVALID
+      );
+    }
+
+    this.dependencies.logger?.info?.('JavaScript adapter initialized');
+
+    this.transitionTo(AdapterState.READY);
+    this.emit('initialized');
+  }
+
+  async dispose(): Promise<void> {
+    // Clear runtime state
+    const wasConnected = this.connected;
+    this.connected = false;
+    this.currentThreadId = null;
+
+    // Clear per-instance caches
+    this.cachedNodePath = undefined;
+
+    // Emit 'disconnected' for symmetry if we were connected
+    if (wasConnected) {
+      this.transitionTo(AdapterState.DISCONNECTED);
+      this.emit('disconnected');
+    }
+
+    // Finalize lifecycle
+    this.transitionTo(AdapterState.UNINITIALIZED);
+    this.emit('disposed');
+  }
+
+  // ===== State Management =====
+
+  getState(): AdapterState {
+    return this.state;
+  }
+
+  isReady(): boolean {
+    return (
+      this.state === AdapterState.READY ||
+      this.state === AdapterState.CONNECTED ||
+      this.state === AdapterState.DEBUGGING
+    );
+  }
+
+  getCurrentThreadId(): number | null {
+    return this.currentThreadId;
+  }
+
+  createLaunchBarrier(command: string): AdapterLaunchBarrier | undefined {
+    if (command !== 'launch') {
+      return undefined;
+    }
+    return new JsDebugLaunchBarrier(this.dependencies.logger);
+  }
+
+  private transitionTo(next: AdapterState): void {
+    const prev = this.state;
+    this.state = next;
+    this.emit('stateChanged', prev, next);
+  }
+
+  // ===== Environment Validation =====
+
+  async validateEnvironment(): Promise<ValidationResult> {
+    const errors: ValidationResult['errors'] = [];
+    const warnings: ValidationResult['warnings'] = [];
+
+    try {
+      // ESM-safe resolution of vendored js-debug adapter path
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      
+      // Try multiple possible locations
+      const possiblePaths = [
+        path.resolve(__dirname, '../vendor/js-debug/vsDebugServer.cjs'),
+        path.resolve(__dirname, '../vendor/js-debug/vsDebugServer.js'),
+        // In bundled npx distribution
+        path.resolve(__dirname, 'vendor/js-debug/vsDebugServer.cjs'),
+        path.resolve(__dirname, 'vendor/js-debug/vsDebugServer.js'),
+      ];
+      
+      let found = false;
+      for (const adapterPath of possiblePaths) {
+        if (await this.dependencies.fileSystem.pathExists(adapterPath)) {
+          found = true;
+          break;
+        }
+      }
+      
+      if (!found) {
+        errors.push({
+          code: 'JS_DEBUG_NOT_FOUND',
+          message:
+            'js-debug adapter not found or not readable. Run: pnpm -w -F @debugmcp/adapter-javascript run build:adapter',
+          recoverable: true
+        });
+      }
+    } catch (e) {
+      // Unexpected error during validation - mark as recoverable with generic message
+      const msg = e instanceof Error ? e.message : String(e);
+      warnings.push({
+        code: 'VALIDATION_CHECK_FAILED',
+        message: `Validation encountered an unexpected error: ${msg}`
+      });
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors,
+      warnings
+    };
+  }
+
+  getRequiredDependencies(): DependencyInfo[] {
+    return [
+      {
+        name: 'Node.js',
+        version: process.version.replace(/^v/, ''),
+        required: true,
+        installCommand: 'https://nodejs.org'
+      }
+    ];
+  }
+
+  // ===== Executable Management =====
+
+  async resolveExecutablePath(preferredPath?: string): Promise<string> {
+    // If a preferred path is provided, compute and override cache deterministically
+    if (typeof preferredPath === 'string' && preferredPath.length > 0) {
+      const resolved = await findNode(preferredPath);
+      this.cachedNodePath = resolved;
+      return resolved;
+    }
+
+    // Reuse cached path if available
+    if (this.cachedNodePath) {
+      return this.cachedNodePath;
+    }
+
+    // Compute and memoize
+    const resolved = await findNode();
+    this.cachedNodePath = resolved;
+    return resolved;
+  }
+
+  getDefaultExecutableName(): string {
+    return 'node';
+  }
+
+  getExecutableSearchPaths(): string[] {
+    const envPath = process.env.PATH ?? '';
+    return envPath.split(path.delimiter).filter(Boolean);
+  }
+
+  // ===== Adapter Configuration =====
+
+  buildAdapterCommand(config: AdapterConfig): AdapterCommand {
+    // ESM-safe resolution of vendored js-debug adapter path
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    
+    // Try multiple possible locations for the vendored js-debug
+    const possiblePaths = [
+      path.resolve(__dirname, '../vendor/js-debug/vsDebugServer.cjs'),
+      path.resolve(__dirname, '../vendor/js-debug/vsDebugServer.js'),
+      // In bundled npx distribution
+      path.resolve(__dirname, 'vendor/js-debug/vsDebugServer.cjs'),
+      path.resolve(__dirname, 'vendor/js-debug/vsDebugServer.js'),
+      // In container builds, might be in different locations
+      '/app/packages/adapter-javascript/vendor/js-debug/vsDebugServer.cjs',
+      '/app/node_modules/@debugmcp/adapter-javascript/vendor/js-debug/vsDebugServer.cjs'
+    ];
+    
+    const adapterPath = possiblePaths.find(p => this.dependencies.fileSystem.existsSync(p));
+
+    if (!adapterPath) {
+      this.dependencies.logger?.error?.(`[JavascriptDebugAdapter] js-debug vendor file not found. Searched paths:`);
+      possiblePaths.forEach(p => {
+        this.dependencies.logger?.error?.(`  ${p}: NOT FOUND`);
+      });
+      
+      throw new AdapterError(
+        `js-debug vendor file not found. Run: pnpm -w -F @debugmcp/adapter-javascript run build:adapter`,
+        AdapterErrorCode.ENVIRONMENT_INVALID
+      );
+    }
+    
+    this.dependencies.logger?.info?.(`[JavascriptDebugAdapter] Using adapter at: ${adapterPath}`);
+
+    // Command: prefer resolved executablePath provided by Session Manager; fall back to cached or process.execPath
+    const command =
+      (config && typeof config.executablePath === 'string' && config.executablePath.length > 0)
+        ? config.executablePath
+        : (this.cachedNodePath || process.execPath);
+
+    // Transport: TCP mode is REQUIRED by the proxy infrastructure
+    // The proxy validates adapterPort and rejects port 0 or undefined.
+    // js-debug uses positional argument syntax for TCP: [adapterPath, String(port)]
+    // This matches the pattern used by the Python adapter (debugpy with --host/--port)
+    const port = config.adapterPort;
+    
+    // Validate port - proxy infrastructure requires valid TCP port
+    if (!port || port === 0) {
+      throw new AdapterError(
+        `Valid TCP port required for JavaScript adapter. Port was: ${port}`,
+        AdapterErrorCode.ENVIRONMENT_INVALID
+      );
+    }
+
+    // js-debug TCP mode: positional port argument followed by host
+    // Example: ['path/to/vsDebugServer.cjs', '5678', '127.0.0.1']
+    const host =
+      typeof config?.adapterHost === 'string' && config.adapterHost.trim().length > 0
+        ? config.adapterHost
+        : '127.0.0.1';
+    const args = [adapterPath, String(port), host];
+
+    // Environment: clone from process.env (string values only), safely ensure NODE_OPTIONS memory flag
+    const env: Record<string, string> = {};
+    for (const [k, v] of Object.entries(process.env)) {
+      if (typeof v === 'string') {
+        env[k] = v;
+      }
+    }
+
+    const existing = env.NODE_OPTIONS;
+    const hasMaxOldSpace =
+      typeof existing === 'string' && /--max-old-space-size\b/i.test(existing);
+
+    if (hasMaxOldSpace) {
+      // Normalize whitespace to keep env stable
+      env.NODE_OPTIONS = existing.replace(/\s+/g, ' ').trim();
+    } else {
+      const base = typeof existing === 'string' ? existing : '';
+      const appended = (base ? `${base} ` : '') + '--max-old-space-size=4096';
+      env.NODE_OPTIONS = appended.replace(/\s+/g, ' ').trim();
+    }
+
+    return {
+      command,
+      args,
+      env
+    };
+  }
+
+  getAdapterModuleName(): string {
+    return 'js-debug';
+  }
+
+  getAdapterInstallCommand(): string {
+    return 'npm install -D @vscode/js-debug';
+  }
+
+  // ===== Debug Configuration =====
+
+  async transformLaunchConfig(config: GenericLaunchConfig): Promise<LanguageSpecificLaunchConfig> {
+    // Base fields and defaults - paths already resolved by server
+    const u = (config || {}) as Record<string, unknown>;
+    const program = typeof u.program === 'string' ? u.program : '';
+    
+    // Use cwd as provided (already resolved by server) or derive from program
+    let cwd: string;
+    if (typeof u.cwd === 'string' && u.cwd) {
+      cwd = u.cwd as string;
+    } else {
+      // In container mode, use MCP_WORKSPACE_ROOT as the working directory
+      if (program) {
+        cwd = path.dirname(program);
+      } else {
+        // Fallback: use MCP_WORKSPACE_ROOT in container mode, otherwise process.cwd()
+        if (process.env.MCP_CONTAINER === 'true') {
+          // Use MCP_WORKSPACE_ROOT if set, fallback to /workspace for backward compatibility
+          cwd = process.env.MCP_WORKSPACE_ROOT || '/workspace';
+        } else {
+          cwd = process.cwd();
+        }
+      }
+    }
+    
+    const args = Array.isArray(u.args) ? (u.args as string[]) : [];
+    const stopOnEntry = (u.stopOnEntry as boolean | undefined) ?? false;
+    const justMyCode = (u.justMyCode as boolean | undefined) ?? true;
+
+    // Type detection: treat .ts, .tsx, .mts, .cts as TypeScript
+    const isTS = /\.([mc])?tsx?$/i.test(program);
+
+    // Env: copy string values from process.env, merge user env (string-only), set NODE_ENV
+    const mergedEnv: Record<string, string> = {};
+    for (const [k, v] of Object.entries(process.env)) {
+      if (typeof v === 'string') mergedEnv[k] = v;
+    }
+    const userEnv = (u.env as Record<string, unknown> | undefined);
+    if (userEnv && typeof userEnv === 'object') {
+      for (const [k, v] of Object.entries(userEnv)) {
+        if (typeof v === 'string') mergedEnv[k] = v;
+      }
+    }
+    mergedEnv.NODE_ENV = userEnv && typeof userEnv.NODE_ENV === 'string'
+      ? (userEnv.NODE_ENV as string)
+      : 'development';
+
+    // Skip files defaults with optional user merge (dedupe)
+    const defaultSkip = ['<node_internals>/**', '**/node_modules/**'];
+    const userSkip = Array.isArray(u.skipFiles) ? (u.skipFiles as string[]) : undefined;
+    const skipFiles = Array.from(new Set([...(userSkip || []), ...defaultSkip]));
+
+    // Source maps and outFiles
+    type MutableConfig = Partial<LanguageSpecificLaunchConfig> & { [key: string]: unknown };
+    const result: MutableConfig = {
+      type: 'pwa-node',
+      request: 'launch',
+      name: 'Debug JavaScript/TypeScript',
+      program,
+      cwd,
+      args,
+      stopOnEntry,
+      justMyCode,
+      smartStep: true,
+      skipFiles,
+      console: 'internalConsole',
+      outputCapture: 'std',
+      autoAttachChildProcesses: false,
+      env: mergedEnv
+    };
+
+    if (isTS) {
+      result.sourceMaps = true;
+      const outFiles = determineOutFiles(Array.isArray(u.outFiles) ? (u.outFiles as string[]) : undefined);
+      result.outFiles = outFiles;
+      result.resolveSourceMapLocations = ['**', '!**/node_modules/**'];
+    } else {
+      const sm = Boolean(u.sourceMaps as unknown);
+      result.sourceMaps = sm;
+      const userOut = Array.isArray(u.outFiles) ? (u.outFiles as string[]) : undefined;
+      if (sm) {
+        result.outFiles = determineOutFiles(userOut);
+        result.resolveSourceMapLocations = ['**', '!**/node_modules/**'];
+      } else if (userOut) {
+        // If user explicitly provided outFiles while sourceMaps false, pass through
+        result.outFiles = userOut;
+      }
+    }
+
+    // Runtime selection and args with overrides and idempotency
+    const runtimeExecutableOverride = typeof u.runtimeExecutable === 'string' ? (u.runtimeExecutable as string) : undefined;
+    const userRuntimeArgs = Array.isArray(u.runtimeArgs) ? (u.runtimeArgs as string[]) : [];
+    const runtimeExecutableWasOverridden = typeof runtimeExecutableOverride === 'string' && runtimeExecutableOverride.length > 0;
+
+
+    // We use synchronous-only fs helpers (detectBinary) for runtime discovery.
+    // Override > auto-detect (tsx/ts-node via detectBinary) > fallback to 'node'.
+
+    // Synchronous detection using detectBinary (fs-only, no async)
+    // Respect runtimeExecutable override if provided
+    let runtimeExecutableSync: string;
+    const tsxSync = isTS ? detectBinary('tsx', cwd) : undefined;
+    const tsNodeSync = isTS ? detectBinary('ts-node', cwd) : undefined;
+
+    if (typeof runtimeExecutableOverride === 'string' && runtimeExecutableOverride.length > 0) {
+      runtimeExecutableSync = runtimeExecutableOverride;
+    } else if (isTS && tsxSync) {
+      runtimeExecutableSync = tsxSync;
+    } else {
+      runtimeExecutableSync = process.execPath || 'node';
+    }
+
+    // Compute runtimeArgs synchronously with idempotency and user overrides
+    const computedArgs: string[] = [];
+    const normalizedRuntime = this.normalizeBinary(runtimeExecutableSync);
+    const normalizedTsx = this.normalizeBinary(tsxSync);
+    const normalizedTsNode = this.normalizeBinary(tsNodeSync);
+    const isTsNodeExecutable =
+      normalizedRuntime === 'ts-node' ||
+      (!!normalizedTsNode && normalizedRuntime.length > 0 && normalizedRuntime === normalizedTsNode);
+    const isUsingTsx =
+      normalizedRuntime === 'tsx' ||
+      (!!normalizedTsx && normalizedRuntime.length > 0 && normalizedRuntime === normalizedTsx);
+    const isNodeRuntime = this.isNodeRuntime(runtimeExecutableSync);
+
+    if (isTS && !runtimeExecutableWasOverridden) {
+      // If using tsx (override or detected), do not add ts-node hooks
+      if (!isUsingTsx) {
+        // If user explicitly selected ts-node executable, don't add hooks (CLI handles it)
+        if (!isTsNodeExecutable) {
+          // If ts-node is available and we're running under node, add require hooks
+          if (tsNodeSync && isNodeRuntime) {
+            // Add -r ts-node/register (idempotent with user args)
+            if (!this.hasPairArgs(userRuntimeArgs, '-r', 'ts-node/register')) {
+              computedArgs.push('-r', 'ts-node/register');
+            }
+            if (!this.hasPairArgs(userRuntimeArgs, '-r', 'ts-node/register/transpile-only')) {
+              computedArgs.push('-r', 'ts-node/register/transpile-only');
+            }
+            // ESM loader when project is ESM
+            if (isESMProject(program, cwd)) {
+              if (!this.hasPairArgs(userRuntimeArgs, '--loader', 'ts-node/esm')) {
+                computedArgs.push('--loader', 'ts-node/esm');
+              }
+            }
+            // tsconfig-paths/register if paths present
+            const dirForTsconfig = cwd || (program ? path.dirname(program) : process.cwd());
+            if (hasTsConfigPaths(dirForTsconfig)) {
+              if (!this.hasPairArgs(userRuntimeArgs, '-r', 'tsconfig-paths/register')) {
+                computedArgs.push('-r', 'tsconfig-paths/register');
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Append any user-provided args last and normalize/dedupe
+    let finalArgs = this.normalizeAndDedupeArgs([...computedArgs, ...userRuntimeArgs]);
+
+    // Normalize Node inspector flags: ensure explicit port form, and add --inspect-brk when stopOnEntry is true
+
+    result.runtimeExecutable = runtimeExecutableSync;
+    if (finalArgs.length > 0) {
+      result.runtimeArgs = finalArgs;
+    }
+    // Normalize Node inspector flags for js-debug.
+    // If an --inspect/--inspect-brk flag is present, ensure it includes an explicit port.
+    if (isNodeRuntime) {
+      const findInspectIndex = () =>
+        finalArgs.findIndex(
+          (a) =>
+            a === '--inspect' ||
+            a === '--inspect-brk' ||
+            a.startsWith('--inspect=') ||
+            a.startsWith('--inspect-brk=')
+        );
+      const idx = findInspectIndex();
+      if (idx !== -1) {
+        const port = 9229;
+        const arg = finalArgs[idx];
+        const m = arg.match(/^--inspect(?:-brk)?=(\d+)$/);
+        if (m) {
+          // Port is already explicit in the flag; no rewrite needed
+        } else {
+          // Promote to explicit port for consistency and reliable auto-attach
+          finalArgs[idx] = `--inspect-brk=${port}`;
+          result.runtimeArgs = finalArgs;
+        }
+      } else if (stopOnEntry === true) {
+        // Ensure a deterministic single-session stop on entry when requested
+        const port = 9229;
+        finalArgs = [...finalArgs, `--inspect-brk=${port}`];
+        result.runtimeArgs = finalArgs;
+      }
+    }
+
+    return result as LanguageSpecificLaunchConfig;
+  }
+
+  private normalizeBinary(value?: string): string {
+    if (!value) {
+      return '';
+    }
+    try {
+      return path.normalize(value).replace(/\\/g, '/').toLowerCase();
+    } catch {
+      return value.toLowerCase();
+    }
+  }
+
+  private isNodeRuntime(executable?: string): boolean {
+    if (!executable) return false;
+    const base = path.basename(executable).toLowerCase();
+    return base === 'node' || base === 'node.exe' || base === 'node.cmd';
+  }
+
+  getDefaultLaunchConfig(): Partial<GenericLaunchConfig> {
+    return {
+      stopOnEntry: false,
+      justMyCode: true,
+      env: {},
+      cwd: process.cwd()
+    };
+  }
+
+  // ===== Attach Support =====
+
+  supportsAttach(): boolean {
+    return true;
+  }
+
+  /**
+   * Build the js-debug (pwa-node) attach configuration. Unlike
+   * transformLaunchConfig — which always produces a launch request — this
+   * preserves the attach request/host/port so the proxy worker detects attach
+   * mode and JsDebugAdapterPolicy.performHandshake sends a real DAP 'attach'.
+   */
+  transformAttachConfig(config: GenericAttachConfig): LanguageSpecificAttachConfig {
+    const attachConfig: LanguageSpecificAttachConfig = {
+      type: 'pwa-node',
+      request: 'attach',
+      name: 'Attach to Node.js process',
+      host: config.host || '127.0.0.1',
+      port: config.port,
+    };
+
+    if (config.stopOnEntry !== undefined) {
+      attachConfig.stopOnEntry = config.stopOnEntry;
+    }
+    if (config.justMyCode !== undefined) {
+      attachConfig.justMyCode = config.justMyCode;
+    }
+    if (config.timeout !== undefined) {
+      attachConfig.timeout = config.timeout;
+    }
+
+    return attachConfig;
+  }
+
+  getDefaultAttachConfig(): Partial<GenericAttachConfig> {
+    return {
+      request: 'attach',
+      host: '127.0.0.1',
+    };
+  }
+
+  // ===== DAP Protocol Operations =====
+
+  async sendDapRequest<T extends DebugProtocol.Response>(_command: string, _args?: unknown): Promise<T> {
+    // Transport handled by ProxyManager
+    return {} as T;
+  }
+
+  handleDapEvent(event: DebugProtocol.Event): void {
+    const body: Record<string, unknown> = (event.body as Record<string, unknown>) ?? {};
+
+    // Optional trace logging
+    this.dependencies?.logger?.debug?.(`DAP event: ${event.event}`);
+
+    switch (event.event) {
+      case 'output': {
+        if (body && body.category == null) {
+          body.category = 'console';
+        }
+        break;
+      }
+      case 'stopped': {
+        {
+          const maybeTid = (body as { threadId?: unknown }).threadId;
+          if (typeof maybeTid === 'number') {
+            this.currentThreadId = maybeTid;
+          }
+        }
+        this.transitionTo(AdapterState.DEBUGGING);
+        break;
+      }
+      case 'continued': {
+        // keep state as-is; if already debugging, remain
+        break;
+      }
+      case 'terminated':
+      case 'exited': {
+        // Do not alter state; ProxyManager lifecycle handles cleanup
+        break;
+      }
+      default:
+        break;
+    }
+
+    // Emit event body to consumers (consistent with existing tests)
+    this.emit(event.event as string, body);
+  }
+
+  handleDapResponse(): void {
+    // No-op: DAP responses handled by the proxy layer
+  }
+
+  // ===== Connection Management =====
+
+  async connect(host: string, port: number): Promise<void> {
+    // Log connection intent; actual transport handled by ProxyManager
+    this.dependencies?.logger?.debug?.(`connect requested to ${host}:${port}`);
+    this.connected = true;
+    this.transitionTo(AdapterState.CONNECTED);
+    this.emit('connected');
+  }
+
+  async disconnect(): Promise<void> {
+    this.dependencies?.logger?.debug?.('disconnect requested');
+    this.connected = false;
+    this.currentThreadId = null;
+    this.transitionTo(AdapterState.DISCONNECTED);
+    this.emit('disconnected');
+  }
+
+  isConnected(): boolean {
+    return this.connected;
+  }
+
+  // ===== Error Handling =====
+
+  getInstallationInstructions(): string {
+    return `JavaScript/TypeScript Debugging Setup:
+
+1) Install Node.js 14+ from https://nodejs.org
+2) Vendor js-debug into this package:
+   pnpm -w -F @debugmcp/adapter-javascript run build:adapter
+3) (Optional, for TypeScript) Install runners:
+   npm i -D tsx ts-node tsconfig-paths`;
+  }
+
+  getMissingExecutableError(): string {
+    return "Node.js runtime not found. Install from https://nodejs.org and ensure it's on PATH. You can also set a specific executable path in config.";
+  }
+
+  translateErrorMessage(error: Error): string {
+    const msg = String(error?.message ?? '');
+    const lower = msg.toLowerCase();
+
+    if (lower.includes('enoent') || lower.includes('not found')) {
+      return this.getMissingExecutableError();
+    }
+    if (lower.includes('eacces') || lower.includes('permission denied')) {
+      return 'Permission denied executing Node.js runtime';
+    }
+    if (/cannot find module ['"]ts-node['"]|cannot find module ['"]tsx['"]|ts-node.*module not found|tsx.*module not found/i.test(msg)) {
+      return 'Install tsx or ts-node: npm i -D tsx ts-node tsconfig-paths';
+    }
+    return error.message;
+  }
+
+  // ===== Feature Support (conservative defaults) =====
+
+  supportsFeature(feature: DebugFeature): boolean {
+    switch (feature) {
+      case DebugFeature.CONDITIONAL_BREAKPOINTS:
+      case DebugFeature.FUNCTION_BREAKPOINTS:
+      case DebugFeature.EXCEPTION_BREAKPOINTS:
+      case DebugFeature.EVALUATE_FOR_HOVERS:
+      case DebugFeature.SET_VARIABLE:
+      case DebugFeature.LOG_POINTS:
+      case DebugFeature.EXCEPTION_INFO_REQUEST:
+      case DebugFeature.LOADED_SOURCES_REQUEST:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  getFeatureRequirements(feature: DebugFeature): FeatureRequirement[] {
+    switch (feature) {
+      case DebugFeature.LOG_POINTS:
+        return [
+          {
+            type: 'version',
+            description: 'Requires recent js-debug version',
+            required: true
+          }
+        ];
+      default:
+        return [];
+    }
+  }
+
+  getCapabilities(): AdapterCapabilities {
+    return {
+      supportsConfigurationDoneRequest: true,
+      supportsFunctionBreakpoints: true,
+      supportsConditionalBreakpoints: true,
+      supportsEvaluateForHovers: true,
+      supportsLoadedSourcesRequest: true,
+      supportsLogPoints: true,
+      supportsExceptionInfoRequest: true,
+      supportsTerminateRequest: true,
+      supportsBreakpointLocationsRequest: true,
+      exceptionBreakpointFilters: [
+        { filter: 'uncaught', label: 'Uncaught Exceptions', default: true },
+        { filter: 'userUnhandled', label: 'User-Unhandled Exceptions', default: false }
+      ]
+    };
+  }
+
+  private normalizeAndDedupeArgs(args: string[]): string[] {
+    const out: string[] = [];
+    const seenPairs = new Set<string>();
+    for (let i = 0; i < args.length; i++) {
+      const a = args[i];
+      if (a === '-r' && i + 1 < args.length) {
+        const mod = args[i + 1];
+        const key = `-r:${mod}`;
+        if (!seenPairs.has(key)) {
+          out.push(a, mod);
+          seenPairs.add(key);
+        }
+        i++; // skip next
+        continue;
+      }
+      if (a === '--loader' && i + 1 < args.length) {
+        const ld = args[i + 1];
+        const key = `--loader:${ld}`;
+        if (!seenPairs.has(key)) {
+          out.push(a, ld);
+          seenPairs.add(key);
+        }
+        i++; // skip next
+        continue;
+      }
+      out.push(a);
+    }
+    return out;
+  }
+
+  private hasPairArgs(args: readonly string[], flag: string, value: string): boolean {
+    for (let i = 0; i < args.length - 1; i++) {
+      if (args[i] === flag && args[i + 1] === value) return true;
+    }
+    return false;
+  }
+
+}

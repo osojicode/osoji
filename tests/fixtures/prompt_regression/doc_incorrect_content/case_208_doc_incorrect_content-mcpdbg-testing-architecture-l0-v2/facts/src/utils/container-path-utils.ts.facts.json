@@ -1,0 +1,185 @@
+{
+  "source": "src/utils/container-path-utils.ts",
+  "source_hash": "b82e9e64838bb7e8",
+  "generated": "2026-07-22T22:07:16Z",
+  "imports": [
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IEnvironment"
+      ],
+      "line": 12,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "isContainerMode",
+      "kind": "function",
+      "line": 17,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "environment",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/external-dependencies\").IEnvironment"
+        }
+      ]
+    },
+    {
+      "name": "getWorkspaceRoot",
+      "kind": "function",
+      "line": 25,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "environment",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/external-dependencies\").IEnvironment"
+        }
+      ]
+    },
+    {
+      "name": "resolvePathForRuntime",
+      "kind": "function",
+      "line": 52,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "inputPath",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "environment",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/external-dependencies\").IEnvironment"
+        }
+      ]
+    },
+    {
+      "name": "getPathDescription",
+      "kind": "function",
+      "line": 75,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "originalPath",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "resolvedPath",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "environment",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/external-dependencies\").IEnvironment"
+        }
+      ]
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "isContainerMode",
+      "to": "environment.get",
+      "line": 18,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getWorkspaceRoot",
+      "to": "isContainerMode",
+      "line": 26,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "getWorkspaceRoot",
+      "to": "Error",
+      "line": 27,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getWorkspaceRoot",
+      "to": "environment.get",
+      "line": 30,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getWorkspaceRoot",
+      "to": "Error",
+      "line": 32,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getWorkspaceRoot",
+      "to": "root.replace",
+      "line": 39,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "resolvePathForRuntime",
+      "to": "isContainerMode",
+      "line": 54,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "resolvePathForRuntime",
+      "to": "getWorkspaceRoot",
+      "line": 59,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "resolvePathForRuntime",
+      "to": "inputPath.startsWith",
+      "line": 62,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "resolvePathForRuntime",
+      "to": "inputPath.replace",
+      "line": 67,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getPathDescription",
+      "to": "isContainerMode",
+      "line": 80,
+      "call_sites": 8
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "MCP_CONTAINER",
+      "context": "Environment variable key checked to determine container mode",
+      "line": 18,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "environment.get(...)"
+    },
+    {
+      "value": "true",
+      "context": "Expected value of MCP_CONTAINER to activate container mode",
+      "line": 18,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "environment.get('MCP_CONTAINER')"
+    },
+    {
+      "value": "MCP_WORKSPACE_ROOT",
+      "context": "Environment variable key for the container workspace mount point",
+      "line": 30,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "environment.get(...)"
+    }
+  ],
+  "extraction_method": "ast"
+}

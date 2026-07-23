@@ -1,0 +1,1036 @@
+{
+  "source": "src/adapters/adapter-registry.ts",
+  "source_hash": "eb068091b23bdfe0",
+  "generated": "2026-07-22T22:07:55Z",
+  "imports": [
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IAdapterRegistry",
+        "IAdapterFactory",
+        "AdapterDependencies",
+        "AdapterInfo",
+        "AdapterNotFoundError",
+        "DuplicateRegistrationError",
+        "FactoryValidationError",
+        "AdapterRegistryConfig",
+        "AdapterFactoryMap",
+        "ActiveAdapterMap"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IDebugAdapter",
+        "AdapterConfig"
+      ],
+      "line": 19,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./adapter-loader.js",
+      "names": [
+        "AdapterLoader"
+      ],
+      "line": 20,
+      "is_reexport": false,
+      "resolved_path": "src/adapters/adapter-loader.ts"
+    },
+    {
+      "source": "./adapter-loader.js",
+      "names": [
+        "AdapterMetadata"
+      ],
+      "line": 21,
+      "is_reexport": false,
+      "resolved_path": "src/adapters/adapter-loader.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "getAdapterRegistry",
+      "kind": "function",
+      "line": 409,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": true,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/adapter-registry\").AdapterRegistryConfig | undefined"
+        }
+      ]
+    },
+    {
+      "name": "resetAdapterRegistry",
+      "kind": "function",
+      "line": 421,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "AdapterRegistry",
+      "kind": "class",
+      "line": 37,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EventEmitter"
+      ],
+      "implements": [
+        "IAdapterRegistry"
+      ]
+    },
+    {
+      "name": "AdapterRegistry.register",
+      "kind": "function",
+      "line": 64,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "language",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "factory",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/adapter-registry\").IAdapterFactory"
+        }
+      ]
+    },
+    {
+      "name": "AdapterRegistry.unregister",
+      "kind": "function",
+      "line": 87,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "language",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "AdapterRegistry.create",
+      "kind": "function",
+      "line": 114,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "language",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").AdapterConfig"
+        }
+      ]
+    },
+    {
+      "name": "AdapterRegistry.getSupportedLanguages",
+      "kind": "function",
+      "line": 182,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "AdapterRegistry.isLanguageSupported",
+      "kind": "function",
+      "line": 189,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "language",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "AdapterRegistry.getAdapterInfo",
+      "kind": "function",
+      "line": 196,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "language",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "AdapterRegistry.getAllAdapterInfo",
+      "kind": "function",
+      "line": 217,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "AdapterRegistry.listLanguages",
+      "kind": "function",
+      "line": 233,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "AdapterRegistry.listAvailableAdapters",
+      "kind": "function",
+      "line": 267,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "AdapterRegistry.disposeAll",
+      "kind": "function",
+      "line": 304,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "AdapterRegistry.getActiveAdapterCount",
+      "kind": "function",
+      "line": 337,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 38,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 39,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 41,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 42,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "AdapterLoader",
+      "line": 43,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "super",
+      "line": 48,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Boolean",
+      "line": 51,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.on",
+      "line": 58,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.register",
+      "to": "this.factories.has",
+      "line": 66,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "AdapterRegistry.register",
+      "to": "DuplicateRegistrationError",
+      "line": 67,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.register",
+      "to": "factory.validate",
+      "line": 72,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.register",
+      "to": "FactoryValidationError",
+      "line": 74,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.register",
+      "to": "this.factories.set",
+      "line": 79,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.register",
+      "to": "this.registrationTimestamps.set",
+      "line": 80,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.register",
+      "to": "Date",
+      "line": 80,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "AdapterRegistry.register",
+      "to": "this.emit",
+      "line": 81,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "AdapterRegistry.register",
+      "to": "factory.getMetadata",
+      "line": 81,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "AdapterRegistry.unregister",
+      "to": "this.factories.get",
+      "line": 88,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "AdapterRegistry.unregister",
+      "to": "this.activeAdapters.get",
+      "line": 94,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "AdapterRegistry.unregister",
+      "to": "adapter.dispose().catch",
+      "line": 97,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "AdapterRegistry.unregister",
+      "to": "adapter.dispose",
+      "line": 97,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "AdapterRegistry.unregister",
+      "to": "this.emit",
+      "line": 98,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "AdapterRegistry.unregister",
+      "to": "Error",
+      "line": 98,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.unregister",
+      "to": "this.clearDisposeTimer",
+      "line": 100,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.unregister",
+      "to": "this.activeAdapters.delete",
+      "line": 102,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "AdapterRegistry.unregister",
+      "to": "this.factories.delete",
+      "line": 106,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.unregister",
+      "to": "this.emit",
+      "line": 107,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.factories.get",
+      "line": 115,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.loader.loadAdapter",
+      "line": 119,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.register",
+      "line": 121,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.factories.has",
+      "line": 126,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.listLanguages().catch",
+      "line": 127,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.listLanguages",
+      "line": 127,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.getSupportedLanguages",
+      "line": 127,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "AdapterNotFoundError",
+      "line": 128,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "AdapterNotFoundError",
+      "line": 132,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.getSupportedLanguages",
+      "line": 132,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.activeAdapters.get",
+      "line": 137,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "Set",
+      "line": 137,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "Error",
+      "line": 139,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.createDependencies",
+      "line": 145,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "factory.createAdapter",
+      "line": 148,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "adapter.initialize",
+      "line": 151,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.activeAdapters.has",
+      "line": 154,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.activeAdapters.set",
+      "line": 155,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "Set",
+      "line": 155,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.activeAdapters.get(language)!.add",
+      "line": 157,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.activeAdapters.get",
+      "line": 157,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.setupAutoDispose",
+      "line": 161,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "adapter.once",
+      "line": 165,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.activeAdapters.get",
+      "line": 166,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "set.delete",
+      "line": 168,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.activeAdapters.delete",
+      "line": 170,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "AdapterRegistry.create",
+      "to": "this.emit",
+      "line": 175,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "AdapterRegistry.getSupportedLanguages",
+      "to": "Array.from",
+      "line": 183,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.getSupportedLanguages",
+      "to": "this.factories.keys",
+      "line": 183,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.isLanguageSupported",
+      "to": "this.factories.has",
+      "line": 190,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "AdapterRegistry.getAdapterInfo",
+      "to": "this.factories.get",
+      "line": 197,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "AdapterRegistry.getAdapterInfo",
+      "to": "factory.getMetadata",
+      "line": 202,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "AdapterRegistry.getAdapterInfo",
+      "to": "this.activeAdapters.get",
+      "line": 203,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "AdapterRegistry.getAdapterInfo",
+      "to": "this.registrationTimestamps.get",
+      "line": 210,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.getAdapterInfo",
+      "to": "Date",
+      "line": 210,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "AdapterRegistry.getAllAdapterInfo",
+      "to": "Map",
+      "line": 218,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "AdapterRegistry.getAllAdapterInfo",
+      "to": "this.getAdapterInfo",
+      "line": 221,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.getAllAdapterInfo",
+      "to": "result.set",
+      "line": 223,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.listLanguages",
+      "to": "this.getSupportedLanguages",
+      "line": 234,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.listLanguages",
+      "to": "Set",
+      "line": 241,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.listLanguages",
+      "to": "this.loader.listAvailableAdapters",
+      "line": 244,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "AdapterRegistry.listLanguages",
+      "to": "installed.add",
+      "line": 249,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "AdapterRegistry.listLanguages",
+      "to": "installed.add",
+      "line": 258,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "AdapterRegistry.listLanguages",
+      "to": "Array.from",
+      "line": 261,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.listAvailableAdapters",
+      "to": "Set",
+      "line": 268,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.listAvailableAdapters",
+      "to": "this.getSupportedLanguages",
+      "line": 268,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.listAvailableAdapters",
+      "to": "Array.from(registered).map",
+      "line": 279,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.listAvailableAdapters",
+      "to": "Array.from",
+      "line": 279,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.listAvailableAdapters",
+      "to": "Map",
+      "line": 282,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "AdapterRegistry.listAvailableAdapters",
+      "to": "this.loader.listAvailableAdapters",
+      "line": 284,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "AdapterRegistry.listAvailableAdapters",
+      "to": "registered.has",
+      "line": 286,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.listAvailableAdapters",
+      "to": "results.set",
+      "line": 287,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "AdapterRegistry.listAvailableAdapters",
+      "to": "registered.delete",
+      "line": 288,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.listAvailableAdapters",
+      "to": "results.set",
+      "line": 295,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "AdapterRegistry.listAvailableAdapters",
+      "to": "buildEntry",
+      "line": 295,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.listAvailableAdapters",
+      "to": "Array.from",
+      "line": 298,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.listAvailableAdapters",
+      "to": "results.values",
+      "line": 298,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.disposeAll",
+      "to": "disposePromises.push",
+      "line": 310,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.disposeAll",
+      "to": "adapter.dispose().catch",
+      "line": 311,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "AdapterRegistry.disposeAll",
+      "to": "adapter.dispose",
+      "line": 311,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "AdapterRegistry.disposeAll",
+      "to": "this.emit",
+      "line": 312,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "AdapterRegistry.disposeAll",
+      "to": "Error",
+      "line": 312,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.disposeAll",
+      "to": "this.disposeTimers.values",
+      "line": 319,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.disposeAll",
+      "to": "clearTimeout",
+      "line": 320,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "AdapterRegistry.disposeAll",
+      "to": "this.disposeTimers.clear",
+      "line": 322,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.disposeAll",
+      "to": "Promise.all",
+      "line": 325,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.disposeAll",
+      "to": "this.activeAdapters.clear",
+      "line": 328,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.disposeAll",
+      "to": "this.factories.clear",
+      "line": 329,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.disposeAll",
+      "to": "this.emit",
+      "line": 331,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "AdapterRegistry.getActiveAdapterCount",
+      "to": "this.activeAdapters.values",
+      "line": 339,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.createDependencies",
+      "to": "import",
+      "line": 349,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.createDependencies",
+      "to": "createProductionDependencies",
+      "line": 353,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.setupAutoDispose",
+      "to": "this.clearDisposeTimer",
+      "line": 370,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.setupAutoDispose",
+      "to": "adapter.on",
+      "line": 373,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.setupAutoDispose",
+      "to": "this.clearDisposeTimer",
+      "line": 376,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.setupAutoDispose",
+      "to": "setTimeout",
+      "line": 378,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.setupAutoDispose",
+      "to": "adapter.dispose().catch",
+      "line": 379,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "AdapterRegistry.setupAutoDispose",
+      "to": "adapter.dispose",
+      "line": 379,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "AdapterRegistry.setupAutoDispose",
+      "to": "this.emit",
+      "line": 380,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "AdapterRegistry.setupAutoDispose",
+      "to": "Error",
+      "line": 380,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.setupAutoDispose",
+      "to": "this.disposeTimers.set",
+      "line": 384,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.setupAutoDispose",
+      "to": "this.clearDisposeTimer",
+      "line": 387,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "AdapterRegistry.clearDisposeTimer",
+      "to": "this.disposeTimers.get",
+      "line": 393,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "AdapterRegistry.clearDisposeTimer",
+      "to": "clearTimeout",
+      "line": 395,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "AdapterRegistry.clearDisposeTimer",
+      "to": "this.disposeTimers.delete",
+      "line": 396,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getAdapterRegistry",
+      "to": "AdapterRegistry",
+      "line": 411,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "getAdapterRegistry",
+      "to": "console.warn",
+      "line": 413,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "resetAdapterRegistry",
+      "to": "instance.disposeAll().catch",
+      "line": 425,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "resetAdapterRegistry",
+      "to": "instance.disposeAll",
+      "line": 425,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "config",
+      "line": 49
+    },
+    {
+      "container": "this",
+      "member": "dynamicEnabled",
+      "line": 51
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "factoryRegistered",
+      "context": "Event emitted when a factory is registered",
+      "line": 81,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "factoryUnregistered",
+      "context": "Event emitted when a factory is unregistered",
+      "line": 107,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "adapterCreated",
+      "context": "Event emitted when an adapter instance is created",
+      "line": 175,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "registryDisposed",
+      "context": "Event emitted when all adapters and factories are cleared",
+      "line": 331,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "error",
+      "context": "EventEmitter error event handler registered to prevent crashes",
+      "line": 58,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "disposed",
+      "context": "Adapter lifecycle event listened to remove instance from tracking",
+      "line": 165,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "adapter event name"
+    },
+    {
+      "value": "stateChanged",
+      "context": "Adapter lifecycle event listened to trigger auto-dispose logic",
+      "line": 373,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "adapter event name"
+    },
+    {
+      "value": "disconnected",
+      "context": "Adapter state that triggers auto-dispose timer scheduling",
+      "line": 374,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "newState"
+    },
+    {
+      "value": "error",
+      "context": "Adapter state that triggers auto-dispose timer scheduling",
+      "line": 374,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "newState"
+    },
+    {
+      "value": "connected",
+      "context": "Adapter state that cancels auto-dispose timer",
+      "line": 385,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "newState"
+    },
+    {
+      "value": "debugging",
+      "context": "Adapter state that cancels auto-dispose timer",
+      "line": 385,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "newState"
+    },
+    {
+      "value": "debug",
+      "context": "Log level passed to createProductionDependencies",
+      "line": 354,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "@debugmcp/adapter-",
+      "context": "Package name prefix used in synthetic AdapterMetadata entries",
+      "line": 272,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "MCP_CONTAINER",
+      "context": "Environment variable that enables dynamic adapter loading",
+      "line": 53,
+      "kind": "config",
+      "usage": "external_input"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,20 @@
+{
+  "detector": "debris:dead_code",
+  "gap_type": "reachability",
+  "path": "tests/core/unit/session/session-manager-memory-leak.test.ts",
+  "line_start": 235,
+  "line_end": 240,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "The test at L235-240 is guarded by `if ((sessionManager as any)._testOnly_cleanupProxyEventHandlers)`. If this private hook doesn't exist on SessionManager, the entire assertion block is silently skipped and the test passes vacuously, providing no coverage guarantee.",
+  "observed_behavior": "The test at L235-240 is guarded by `if ((sessionManager as any)._testOnly_cleanupProxyEventHandlers)`. If this private hook doesn't exist on SessionManager, the entire assertion block is silently skipped and the test passes vacuously, providing no coverage guarantee.",
+  "evidence": [],
+  "id": "a6a72f968bfd3008",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

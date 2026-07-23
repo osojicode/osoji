@@ -1,0 +1,20 @@
+{
+  "detector": "doc:incorrect_content",
+  "gap_type": "description",
+  "path": "docs/architecture/api-reference.md",
+  "line_start": null,
+  "line_end": null,
+  "symbol": null,
+  "contract_source": "packages/shared/src/interfaces/debug-adapter.ts",
+  "contract_claim": "The Adapter Events interface in the Event System section lists events as if they're emitted by all adapters, but the ProxyManager shadow docs show that the stopped event is emitted with (threadId, reason) signature, while the doc's AdapterEvents interface shows 'stopped': (event: DebugProtocol.StoppedEvent) => void. The adapter-level events and proxy-level events have different signatures.",
+  "observed_behavior": "AdapterEvents (L474–493) Event map for the EventEmitter: DAP events (stopped, continued, terminated, exited, thread, output, breakpoint, module), lifecycle events (initialized, connected, disconnected, error), stateChanged(oldState, newState)",
+  "evidence": [],
+  "id": "a8adca7877ca4e42",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

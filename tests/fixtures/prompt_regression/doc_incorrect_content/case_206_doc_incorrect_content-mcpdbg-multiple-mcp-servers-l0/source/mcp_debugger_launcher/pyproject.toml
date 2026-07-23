@@ -1,0 +1,43 @@
+[project]
+name = "debug-mcp-server-launcher"
+version = "0.17.0"
+description = "Launcher for debug-mcp-server. This package ensures debugpy is installed and provides instructions to run the main server (Node.js or Docker)."
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+authors = [
+  { name = "debugmcp", email = "debug@sycamore.llc" }
+]
+keywords = ["mcp", "dap", "debugger", "debugpy", "ai-agent", "llm"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Debuggers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
+dependencies = [
+  "debugpy>=1.8.14",
+  "click>=8.0.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/debugmcp/mcp-debugger"
+Repository = "https://github.com/debugmcp/mcp-debugger"
+
+[project.scripts]
+debug-mcp-server = "mcp_debugger_launcher.cli:main"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["mcp_debugger_launcher"]
+
+[tool.setuptools.package-data]
+mcp_debugger_launcher = ["LICENSE"]

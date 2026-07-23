@@ -1,0 +1,2864 @@
+{
+  "source": "packages/adapter-rust/tests/rust-debug-adapter.toolchain.test.ts",
+  "source_hash": "f6b8bfdab99c64b2",
+  "generated": "2026-07-22T22:07:56Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "beforeEach",
+        "vi",
+        "Mock"
+      ],
+      "line": 1,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "../src/rust-debug-adapter.js",
+      "names": [
+        "RustDebugAdapter"
+      ],
+      "line": 2,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-rust/src/rust-debug-adapter.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterError",
+        "DebugFeature",
+        "AdapterState"
+      ],
+      "line": 3,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterConfig",
+        "AdapterDependencies"
+      ],
+      "line": 4,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "fs/promises",
+      "names": [
+        "fs"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "fs",
+      "names": [
+        "fsSync"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "os",
+      "names": [
+        "os"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "../src/utils/rust-utils.js",
+      "names": [
+        "checkCargoInstallation",
+        "checkRustInstallation",
+        "getRustHostTriple",
+        "findDlltoolExecutable"
+      ],
+      "line": 32,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-rust/src/utils/rust-utils.ts"
+    },
+    {
+      "source": "../src/utils/binary-detector.js",
+      "names": [
+        "detectBinaryFormat"
+      ],
+      "line": 38,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-rust/src/utils/binary-detector.ts"
+    },
+    {
+      "source": "../src/utils/cargo-utils.js",
+      "names": [
+        "findCargoProjectRoot",
+        "getDefaultBinary",
+        "needsRebuild",
+        "buildCargoProject"
+      ],
+      "line": 39,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-rust/src/utils/cargo-utils.ts"
+    },
+    {
+      "source": "../src/utils/codelldb-resolver.js",
+      "names": [
+        "resolveCodeLLDBExecutable"
+      ],
+      "line": 45,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-rust/src/utils/codelldb-resolver.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 10,
+      "call_sites": 110
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 11,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 12,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 13,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 14,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 17,
+      "call_sites": 110
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 18,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 21,
+      "call_sites": 110
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 22,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 25,
+      "call_sites": 110
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 26,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 27,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 28,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 29,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 49,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 50,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 51,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 52,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 53,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 54,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 55,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 56,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 57,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 58,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 59,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 60,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 61,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 62,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 63,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 66,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 67,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 68,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 69,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 72,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 73,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 74,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.cwd",
+      "line": 74,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 78,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 82,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllMocks",
+      "line": 83,
+      "call_sites": 87
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(resolveCodeLLDBExecutable).mockReset",
+      "line": 84,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 84,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(detectBinaryFormat).mockReset",
+      "line": 85,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 85,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(findCargoProjectRoot).mockReset",
+      "line": 86,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 86,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(getDefaultBinary).mockReset",
+      "line": 87,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 87,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(needsRebuild).mockReset",
+      "line": 88,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 88,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(buildCargoProject).mockReset",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 89,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(checkCargoInstallation).mockReset",
+      "line": 90,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 90,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(checkRustInstallation).mockReset",
+      "line": 91,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 91,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(getRustHostTriple).mockReset",
+      "line": 92,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 92,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(findDlltoolExecutable).mockReset",
+      "line": 93,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 93,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 94,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 95,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 96,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 97,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 98,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "RustDebugAdapter",
+      "line": 99,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 102,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 103,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "checkCargoInstallation.mockResolvedValueOnce",
+      "line": 104,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.resolveExecutablePath",
+      "line": 105,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(first).toBe",
+      "line": 106,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 106,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "checkCargoInstallation.mockResolvedValueOnce",
+      "line": 108,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.resolveExecutablePath",
+      "line": 109,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(second).toBe",
+      "line": 110,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 110,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(checkCargoInstallation).toHaveBeenCalledTimes",
+      "line": 111,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 111,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 114,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.mkdtemp",
+      "line": 115,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 115,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "os.tmpdir",
+      "line": 115,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 116,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.writeFile",
+      "line": 117,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.resolveExecutablePath",
+      "line": 118,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result).toBe",
+      "line": 119,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 119,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 122,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 123,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "os.tmpdir",
+      "line": 123,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 123,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.resolveExecutablePath(missing)).rejects.toThrow",
+      "line": 124,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 124,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.resolveExecutablePath",
+      "line": 124,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 127,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "checkCargoInstallation.mockResolvedValueOnce",
+      "line": 128,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "checkRustInstallation.mockResolvedValueOnce",
+      "line": 129,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.resolveExecutablePath",
+      "line": 130,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result).toBe",
+      "line": 131,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 131,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 134,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 135,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 136,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "checkCargoInstallation.mockResolvedValueOnce",
+      "line": 137,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "checkRustInstallation.mockResolvedValueOnce",
+      "line": 138,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 139,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "RustDebugAdapter",
+      "line": 141,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.resolveExecutablePath",
+      "line": 142,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result).toBe",
+      "line": 143,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 143,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(warnSpy).toHaveBeenCalledWith",
+      "line": 144,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 144,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 144,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 148,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 149,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(resolveCodeLLDBExecutable).mockResolvedValueOnce",
+      "line": 150,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 150,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "checkCargoInstallation.mockResolvedValueOnce",
+      "line": 151,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "checkRustInstallation.mockResolvedValueOnce",
+      "line": 152,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getRustHostTriple.mockResolvedValueOnce",
+      "line": 153,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.validateEnvironment",
+      "line": 155,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.valid).toBe",
+      "line": 156,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 156,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.errors[0]?.code).toBe",
+      "line": 157,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 157,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "result.warnings?.map",
+      "line": 158,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(warningCodes).toContain",
+      "line": 159,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 159,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 162,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "RustDebugAdapter",
+      "line": 163,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(resolveCodeLLDBExecutable).mockResolvedValueOnce",
+      "line": 164,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 164,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "checkCargoInstallation.mockResolvedValueOnce",
+      "line": 165,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "checkRustInstallation.mockResolvedValueOnce",
+      "line": 166,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getRustHostTriple.mockResolvedValueOnce",
+      "line": 167,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findDlltoolExecutable.mockResolvedValueOnce",
+      "line": 168,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "winAdapter.validateEnvironment",
+      "line": 170,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.valid).toBe",
+      "line": 171,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 171,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "result.warnings?.map",
+      "line": 172,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(warningCodes).toContain",
+      "line": 173,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 173,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 177,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 178,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "RustDebugAdapter",
+      "line": 179,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 180,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 181,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi\n        .spyOn(adapterWithMethod, 'resolveCodeLLDBExecutableSync')\n        .mockReturnValue",
+      "line": 186,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi\n        .spyOn",
+      "line": 186,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "winAdapter.buildAdapterCommand",
+      "line": 193,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(command.env?.LLDB_USE_NATIVE_PDB_READER).toBe",
+      "line": 203,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 203,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(command.env?.DLLTOOL).toBe",
+      "line": 204,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 204,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(command.env?.PATH?.startsWith('.')).toBe",
+      "line": 205,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 205,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "command.env?.PATH?.startsWith",
+      "line": 205,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(command.args).toEqual",
+      "line": 206,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 206,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "resolveSpy.mockRestore",
+      "line": 208,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 213,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 222,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(findCargoProjectRoot).mockResolvedValueOnce",
+      "line": 223,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 223,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(getDefaultBinary).mockResolvedValueOnce",
+      "line": 224,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 224,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(needsRebuild).mockResolvedValueOnce",
+      "line": 225,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 225,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "detectBinaryFormat.mockResolvedValueOnce",
+      "line": 226,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformLaunchConfig",
+      "line": 228,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 232,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.program).toBe",
+      "line": 238,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 238,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(buildCargoProject).not.toHaveBeenCalled",
+      "line": 239,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 239,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 242,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(findCargoProjectRoot).mockResolvedValueOnce",
+      "line": 243,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 243,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(getDefaultBinary).mockResolvedValueOnce",
+      "line": 244,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 244,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(needsRebuild).mockResolvedValueOnce",
+      "line": 245,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 245,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(buildCargoProject).mockResolvedValueOnce",
+      "line": 250,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 250,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "detectBinaryFormat.mockResolvedValueOnce",
+      "line": 254,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformLaunchConfig",
+      "line": 256,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(buildCargoProject).toHaveBeenCalledWith",
+      "line": 261,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 261,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.program).toBe",
+      "line": 266,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 266,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 269,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(findCargoProjectRoot).mockResolvedValueOnce",
+      "line": 270,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 270,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(getDefaultBinary).mockResolvedValueOnce",
+      "line": 271,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 271,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(needsRebuild).mockResolvedValueOnce",
+      "line": 272,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 272,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(buildCargoProject).mockResolvedValueOnce",
+      "line": 273,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 273,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "detectBinaryFormat.mockResolvedValueOnce",
+      "line": 277,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        adapter.transformLaunchConfig({\n          program: '/workspace/project/src/main.rs'\n",
+      "line": 279,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 279,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformLaunchConfig",
+      "line": 280,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 287,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 288,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "detectBinaryFormat.mockResolvedValue",
+      "line": 289,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformLaunchConfig",
+      "line": 297,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.consumeLastToolchainValidation",
+      "line": 298,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result?.compatible).toBe",
+      "line": 299,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 299,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result?.toolchain).toBe",
+      "line": 300,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 300,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result?.message).toContain",
+      "line": 301,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 301,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result?.suggestions?.length).toBeGreaterThan",
+      "line": 302,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 302,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.consumeLastToolchainValidation()).toBeUndefined",
+      "line": 303,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 303,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.consumeLastToolchainValidation",
+      "line": 303,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 306,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "detectBinaryFormat.mockRejectedValueOnce",
+      "line": 307,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 307,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.validateToolchain",
+      "line": 308,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.compatible).toBe",
+      "line": 309,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 309,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.toolchain).toBe",
+      "line": 310,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 310,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 313,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 314,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "RustDebugAdapter",
+      "line": 315,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 315,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "detectBinaryFormat.mockResolvedValue",
+      "line": 316,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        adapter.transformLaunchConfig({ program: '/tmp/my-program' })\n      ).rejects.toThro",
+      "line": 324,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 324,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformLaunchConfig",
+      "line": 325,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 330,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 331,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.sendDapRequest",
+      "line": 333,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result).toEqual",
+      "line": 336,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 336,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(warnSpy).toHaveBeenCalledWith",
+      "line": 337,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 337,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 338,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 342,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.connect",
+      "line": 343,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 344,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 345,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 346,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 347,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.handleDapEvent",
+      "line": 349,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 355,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 355,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 355,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getCurrentThreadId()).toBe",
+      "line": 356,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 356,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCurrentThreadId",
+      "line": 356,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stoppedSpy).toHaveBeenCalledWith",
+      "line": 357,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 357,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.handleDapEvent",
+      "line": 359,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 360,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 360,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 360,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getCurrentThreadId()).toBeNull",
+      "line": 361,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 361,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCurrentThreadId",
+      "line": 361,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(terminatedSpy).toHaveBeenCalled",
+      "line": 362,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 362,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 365,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.handleDapResponse",
+      "line": 367,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(errorSpy).toHaveBeenCalledWith",
+      "line": 375,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 375,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 376,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 380,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 381,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 382,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 383,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 384,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.connect",
+      "line": 386,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connectedSpy).toHaveBeenCalled",
+      "line": 387,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 387,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.isConnected()).toBe",
+      "line": 388,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 388,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.isConnected",
+      "line": 388,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 389,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 389,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 389,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.disconnect",
+      "line": 391,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(disconnectedSpy).toHaveBeenCalled",
+      "line": 392,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 392,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.isConnected()).toBe",
+      "line": 393,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 393,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.isConnected",
+      "line": 393,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 394,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 394,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 394,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 398,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 399,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getRequiredDependencies",
+      "line": 400,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(deps).toEqual",
+      "line": 401,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 401,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.arrayContaining",
+      "line": 402,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 403,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 404,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 405,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 410,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "RustDebugAdapter",
+      "line": 411,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 412,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 413,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "linuxAdapter\n        .getExecutableSearchPaths()\n        .map",
+      "line": 414,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "linuxAdapter\n        .getExecutableSearchPaths",
+      "line": 414,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "entry.replace",
+      "line": 416,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(searchPaths).toEqual",
+      "line": 417,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 417,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.arrayContaining",
+      "line": 418,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(searchPaths.some((entry) => entry.includes('/usr/bin'))).toBe",
+      "line": 423,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 423,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "searchPaths.some",
+      "line": 423,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "entry.includes",
+      "line": 423,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(searchPaths.some((entry) => entry.includes('/usr/local/bin'))).toBe",
+      "line": 424,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 424,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "searchPaths.some",
+      "line": 424,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "entry.includes",
+      "line": 424,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "RustDebugAdapter",
+      "line": 426,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 427,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 428,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 429,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "winAdapter.getExecutableSearchPaths",
+      "line": 430,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(windowsPaths.some((entry) => entry.includes('Cargo'))).toBe",
+      "line": 431,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 431,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "windowsPaths.some",
+      "line": 431,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "entry.includes",
+      "line": 431,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(windowsPaths.some((entry) => entry.includes('Program Files'))).toBe",
+      "line": 432,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 432,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "windowsPaths.some",
+      "line": 432,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "entry.includes",
+      "line": 432,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 435,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.mkdtemp",
+      "line": 436,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 436,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "os.tmpdir",
+      "line": 436,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 437,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 438,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 439,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 440,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 441,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 442,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.mkdir",
+      "line": 444,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.mkdir",
+      "line": 445,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.mkdir",
+      "line": 446,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.mkdir",
+      "line": 447,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(adapter as unknown as {\n        configurePythonEnvironment: (env: Record<string, string>, adapterPa",
+      "line": 456,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 458,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "env.PATH.split",
+      "line": 460,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(pathEntries).toEqual",
+      "line": 461,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 461,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.arrayContaining",
+      "line": 461,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(env.PYTHONHOME).toBeUndefined",
+      "line": 462,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 462,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.rm",
+      "line": 464,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 467,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "RustDebugAdapter",
+      "line": 468,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.mkdtemp",
+      "line": 469,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 469,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "os.tmpdir",
+      "line": 469,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 470,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 471,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.mkdir",
+      "line": 472,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 473,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.writeFile",
+      "line": 474,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.writeFile",
+      "line": 475,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 475,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(winAdapter as unknown as {\n        prepareCodelldbExecutablePath: (path: string) => string | null;\n",
+      "line": 477,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sanitized).toContain",
+      "line": 481,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 481,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fsSync.existsSync(sanitized as string)).toBe",
+      "line": 482,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 482,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fsSync.existsSync",
+      "line": 482,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.rm",
+      "line": 484,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 484,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "os.tmpdir",
+      "line": 484,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.rm",
+      "line": 485,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 488,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getAdapterModuleName()).toBe",
+      "line": 489,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 489,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getAdapterModuleName",
+      "line": 489,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getAdapterInstallCommand()).toBe",
+      "line": 490,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 490,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getAdapterInstallCommand",
+      "line": 490,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 494,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 495,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getInstallationInstructions()).toContain",
+      "line": 496,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 496,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getInstallationInstructions",
+      "line": 496,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getMissingExecutableError()).toContain",
+      "line": 497,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 497,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getMissingExecutableError",
+      "line": 497,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 500,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 511,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 511,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(translated).toContain",
+      "line": 512,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 512,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expected.split",
+      "line": 512,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 516,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.CONDITIONAL_BREAKPOINTS)).toBe",
+      "line": 517,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 517,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 517,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.REVERSE_DEBUGGING)).toBe",
+      "line": 518,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 518,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 518,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getFeatureRequirements",
+      "line": 520,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dataReqs[0]?.type).toBe",
+      "line": 521,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 521,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getFeatureRequirements",
+      "line": 523,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(disassembleReqs[0]?.type).toBe",
+      "line": 524,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 524,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getFeatureRequirements",
+      "line": 526,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logPointReqs[0]?.description).toContain",
+      "line": 527,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 527,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 530,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getDefaultLaunchConfig",
+      "line": 531,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(defaults.cwd).toBe",
+      "line": 532,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 532,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.cwd",
+      "line": 532,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(defaults.stopOnEntry).toBe",
+      "line": 533,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 533,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCapabilities",
+      "line": 535,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(capabilities.supportsConditionalBreakpoints).toBe",
+      "line": 536,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 536,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(capabilities.supportsDisassembleRequest).toBe",
+      "line": 537,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 537,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(capabilities.supportsSetExpression).toBe",
+      "line": 538,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 538,
+      "call_sites": 5808
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "(winAdapter as unknown as { dlltoolPath?: string })",
+      "member": "dlltoolPath",
+      "line": 190
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "MCP_RUST_ALLOW_PREBUILT",
+      "context": "Environment variable stubbed to undefined in beforeEach and to 'true' in relaxed placeholder test",
+      "line": 94,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "MCP_RUST_EXECUTABLE_PLACEHOLDER",
+      "context": "Environment variable stubbed to custom executable name",
+      "line": 95,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "RUST_MSVC_BEHAVIOR",
+      "context": "Environment variable controlling MSVC error behavior",
+      "line": 96,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "RUST_AUTO_SUGGEST_GNU",
+      "context": "Environment variable stubbed in beforeEach",
+      "line": 97,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "cargo/rustc not found",
+      "context": "Expected substring in logger.warn call when relaxed placeholder is used",
+      "line": 144,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "warnSpy"
+    },
+    {
+      "value": "CODELLDB_NOT_FOUND",
+      "context": "Expected error code when CodeLLDB is missing",
+      "line": 157,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "result.errors[0]?.code"
+    },
+    {
+      "value": "RUST_MSVC_TOOLCHAIN",
+      "context": "Expected warning code for MSVC toolchain on Windows",
+      "line": 159,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "warningCodes"
+    },
+    {
+      "value": "DLLTOOL_NOT_FOUND",
+      "context": "Expected warning code when dlltool is missing for GNU toolchain",
+      "line": 173,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "warningCodes"
+    },
+    {
+      "value": "LLDB_USE_NATIVE_PDB_READER",
+      "context": "Env var expected in buildAdapterCommand output on Windows",
+      "line": 203,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command.env"
+    },
+    {
+      "value": "Cargo build failed: compile error",
+      "context": "Expected error message when buildCargoProject returns failure",
+      "line": 283,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "rejects.toThrow"
+    },
+    {
+      "value": "MSVC toolchain",
+      "context": "Expected substring in toolchain validation message",
+      "line": 301,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "result?.message"
+    },
+    {
+      "value": "Unknown exception filters",
+      "context": "Expected substring in logger.warn when invalid DAP exception filter used",
+      "line": 338,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "warnSpy"
+    },
+    {
+      "value": "DAP error",
+      "context": "Expected substring in logger.error on failed DAP response",
+      "line": 376,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "errorSpy"
+    },
+    {
+      "value": "npm run build:adapter",
+      "context": "Expected installCommand for CodeLLDB dependency and getAdapterInstallCommand()",
+      "line": 403,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "deps"
+    },
+    {
+      "value": "codelldb",
+      "context": "Expected return value of getAdapterModuleName()",
+      "line": 489,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "adapter.getAdapterModuleName()"
+    },
+    {
+      "value": "Install Rust toolchain",
+      "context": "Expected substring in getInstallationInstructions()",
+      "line": 496,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "adapter.getInstallationInstructions()"
+    },
+    {
+      "value": "Rust toolchain not found",
+      "context": "Expected substring in getMissingExecutableError()",
+      "line": 497,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "adapter.getMissingExecutableError()"
+    },
+    {
+      "value": "debug-mcp-codelldb",
+      "context": "Expected substring in sanitized CodeLLDB path on Windows",
+      "line": 481,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "sanitized"
+    }
+  ],
+  "extraction_method": "ast"
+}

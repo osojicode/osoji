@@ -1,0 +1,145 @@
+{
+  "source": "src/factories/proxy-manager-factory.ts",
+  "source_hash": "575fff5be18a778d",
+  "generated": "2026-07-22T22:07:24Z",
+  "imports": [
+    {
+      "source": "../proxy/proxy-manager.js",
+      "names": [
+        "IProxyManager",
+        "ProxyManager"
+      ],
+      "line": 5,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/proxy-manager.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IProxyProcessLauncher"
+      ],
+      "line": 6,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IFileSystem",
+        "ILogger"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IDebugAdapter"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "ProxyManagerFactory",
+      "kind": "class",
+      "line": 20,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "implements": [
+        "IProxyManagerFactory"
+      ]
+    },
+    {
+      "name": "ProxyManagerFactory.create",
+      "kind": "function",
+      "line": 27,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "adapter",
+          "optional": true,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").IDebugAdapter | undefined"
+        }
+      ]
+    },
+    {
+      "name": "MockProxyManagerFactory",
+      "kind": "class",
+      "line": 41,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "implements": [
+        "IProxyManagerFactory"
+      ]
+    },
+    {
+      "name": "MockProxyManagerFactory.create",
+      "kind": "function",
+      "line": 46,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "adapter",
+          "optional": true,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").IDebugAdapter | undefined"
+        }
+      ]
+    },
+    {
+      "name": "IProxyManagerFactory",
+      "kind": "type",
+      "line": 13,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "ProxyManagerFactory.create",
+      "to": "ProxyManager",
+      "line": 28,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "MockProxyManagerFactory.create",
+      "to": "this.createFn",
+      "line": 49,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockProxyManagerFactory.create",
+      "to": "this.createdManagers.push",
+      "line": 50,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockProxyManagerFactory.create",
+      "to": "Error",
+      "line": 55,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "lastAdapter",
+      "line": 47
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "MockProxyManagerFactory requires createFn to be set in tests",
+      "context": "Error thrown when create() is called without configuring createFn",
+      "line": 55,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "The path is reachable (sse + docker + no -p: launcher.py:77-84 maps -p 3001:3001 without passing --port), but the wrong outcome is conditional on the container's internal default differing from 3001 \u2014 a condition the finding itself hedges ('If ... differs') and that DEFAULT_SSE_PORT=3001 (launcher.py:16) plus cli.py:76's '(default: 3001)' help text attest against. Future fragility about code that currently behaves correctly; fails Reality.",
+  "gray": true,
+  "gray_reason": "The launcher-to-container port agreement is a genuine project_implicit contract; passing --port unconditionally (DECLARE) is a defensible confirm-at-info hardening.",
+  "expected_contract_class": "project_implicit",
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

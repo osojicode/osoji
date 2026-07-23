@@ -1,0 +1,1487 @@
+{
+  "source": "packages/adapter-javascript/src/javascript-debug-adapter.ts",
+  "source_hash": "f636372ac1218d61",
+  "generated": "2026-07-22T22:07:58Z",
+  "imports": [
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterState",
+        "AdapterError",
+        "AdapterErrorCode",
+        "DebugFeature",
+        "IDebugAdapter",
+        "ValidationResult",
+        "DependencyInfo",
+        "AdapterCommand",
+        "AdapterConfig",
+        "GenericLaunchConfig",
+        "LanguageSpecificLaunchConfig",
+        "GenericAttachConfig",
+        "LanguageSpecificAttachConfig",
+        "FeatureRequirement",
+        "AdapterCapabilities",
+        "AdapterLaunchBarrier"
+      ],
+      "line": 10,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage"
+      ],
+      "line": 28,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterDependencies"
+      ],
+      "line": 29,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./utils/executable-resolver.js",
+      "names": [
+        "findNode"
+      ],
+      "line": 30,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-javascript/src/utils/executable-resolver.ts"
+    },
+    {
+      "source": "./utils/typescript-detector.js",
+      "names": [
+        "detectBinary"
+      ],
+      "line": 31,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-javascript/src/utils/typescript-detector.ts"
+    },
+    {
+      "source": "./utils/config-transformer.js",
+      "names": [
+        "determineOutFiles",
+        "isESMProject",
+        "hasTsConfigPaths"
+      ],
+      "line": 32,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-javascript/src/utils/config-transformer.ts"
+    },
+    {
+      "source": "./utils/js-debug-launch-barrier.js",
+      "names": [
+        "JsDebugLaunchBarrier"
+      ],
+      "line": 33,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-javascript/src/utils/js-debug-launch-barrier.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "JavascriptDebugAdapter",
+      "kind": "class",
+      "line": 35,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EventEmitter"
+      ],
+      "implements": [
+        "IDebugAdapter"
+      ]
+    },
+    {
+      "name": "JavascriptDebugAdapter.initialize",
+      "kind": "function",
+      "line": 55,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.dispose",
+      "kind": "function",
+      "line": 92,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.getState",
+      "kind": "function",
+      "line": 114,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.isReady",
+      "kind": "function",
+      "line": 118,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.getCurrentThreadId",
+      "kind": "function",
+      "line": 126,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.createLaunchBarrier",
+      "kind": "function",
+      "line": 130,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "command",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "JavascriptDebugAdapter.validateEnvironment",
+      "kind": "function",
+      "line": 145,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.getRequiredDependencies",
+      "kind": "function",
+      "line": 195,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.resolveExecutablePath",
+      "kind": "function",
+      "line": 208,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "preferredPath",
+          "optional": true,
+          "type": "string | undefined"
+        }
+      ]
+    },
+    {
+      "name": "JavascriptDebugAdapter.getDefaultExecutableName",
+      "kind": "function",
+      "line": 227,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.getExecutableSearchPaths",
+      "kind": "function",
+      "line": 231,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.buildAdapterCommand",
+      "kind": "function",
+      "line": 238,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").AdapterConfig"
+        }
+      ]
+    },
+    {
+      "name": "JavascriptDebugAdapter.getAdapterModuleName",
+      "kind": "function",
+      "line": 327,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.getAdapterInstallCommand",
+      "kind": "function",
+      "line": 331,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.transformLaunchConfig",
+      "kind": "function",
+      "line": 337,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").GenericLaunchConfig"
+        }
+      ]
+    },
+    {
+      "name": "JavascriptDebugAdapter.getDefaultLaunchConfig",
+      "kind": "function",
+      "line": 553,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.supportsAttach",
+      "kind": "function",
+      "line": 564,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.transformAttachConfig",
+      "kind": "function",
+      "line": 574,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/models/index\").GenericAttachConfig"
+        }
+      ]
+    },
+    {
+      "name": "JavascriptDebugAdapter.getDefaultAttachConfig",
+      "kind": "function",
+      "line": 596,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.sendDapRequest",
+      "kind": "function",
+      "line": 605,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "_command",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "_args",
+          "optional": true,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "name": "JavascriptDebugAdapter.handleDapEvent",
+      "kind": "function",
+      "line": 610,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "event",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol\").DebugProtocol.Event"
+        }
+      ]
+    },
+    {
+      "name": "JavascriptDebugAdapter.handleDapResponse",
+      "kind": "function",
+      "line": 650,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.connect",
+      "kind": "function",
+      "line": 656,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "host",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "port",
+          "optional": false,
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "JavascriptDebugAdapter.disconnect",
+      "kind": "function",
+      "line": 664,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.isConnected",
+      "kind": "function",
+      "line": 672,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.getInstallationInstructions",
+      "kind": "function",
+      "line": 678,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.getMissingExecutableError",
+      "kind": "function",
+      "line": 688,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavascriptDebugAdapter.translateErrorMessage",
+      "kind": "function",
+      "line": 692,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "error",
+          "optional": false,
+          "type": "Error"
+        }
+      ]
+    },
+    {
+      "name": "JavascriptDebugAdapter.supportsFeature",
+      "kind": "function",
+      "line": 710,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").DebugFeature"
+        }
+      ]
+    },
+    {
+      "name": "JavascriptDebugAdapter.getFeatureRequirements",
+      "kind": "function",
+      "line": 726,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").DebugFeature"
+        }
+      ]
+    },
+    {
+      "name": "JavascriptDebugAdapter.getCapabilities",
+      "kind": "function",
+      "line": 741,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "super",
+      "line": 49,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 56,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.initialize",
+      "to": "this.validateEnvironment",
+      "line": 58,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.initialize",
+      "to": "Array.isArray",
+      "line": 63,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.initialize",
+      "to": "logger?.warn",
+      "line": 67,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 76,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.initialize",
+      "to": "logger?.warn",
+      "line": 79,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.initialize",
+      "to": "AdapterError",
+      "line": 80,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.initialize",
+      "to": "this.dependencies.logger?.info",
+      "line": 86,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 88,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.initialize",
+      "to": "this.emit",
+      "line": 89,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.dispose",
+      "to": "this.transitionTo",
+      "line": 103,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.dispose",
+      "to": "this.emit",
+      "line": 104,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.dispose",
+      "to": "this.transitionTo",
+      "line": 108,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.dispose",
+      "to": "this.emit",
+      "line": 109,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.createLaunchBarrier",
+      "to": "JsDebugLaunchBarrier",
+      "line": 134,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transitionTo",
+      "to": "this.emit",
+      "line": 140,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.validateEnvironment",
+      "to": "fileURLToPath",
+      "line": 151,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.validateEnvironment",
+      "to": "path.dirname",
+      "line": 152,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.validateEnvironment",
+      "to": "path.resolve",
+      "line": 156,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.validateEnvironment",
+      "to": "path.resolve",
+      "line": 157,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.validateEnvironment",
+      "to": "path.resolve",
+      "line": 159,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.validateEnvironment",
+      "to": "path.resolve",
+      "line": 160,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.validateEnvironment",
+      "to": "this.dependencies.fileSystem.pathExists",
+      "line": 165,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.validateEnvironment",
+      "to": "errors.push",
+      "line": 172,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.validateEnvironment",
+      "to": "String",
+      "line": 181,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.validateEnvironment",
+      "to": "warnings.push",
+      "line": 182,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.getRequiredDependencies",
+      "to": "process.version.replace",
+      "line": 199,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.resolveExecutablePath",
+      "to": "findNode",
+      "line": 211,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.resolveExecutablePath",
+      "to": "findNode",
+      "line": 222,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.getExecutableSearchPaths",
+      "to": "envPath.split(path.delimiter).filter",
+      "line": 233,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.getExecutableSearchPaths",
+      "to": "envPath.split",
+      "line": 233,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "fileURLToPath",
+      "line": 240,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "path.dirname",
+      "line": 241,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "path.resolve",
+      "line": 245,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "path.resolve",
+      "line": 246,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "path.resolve",
+      "line": 248,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "path.resolve",
+      "line": 249,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "possiblePaths.find",
+      "line": 255,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "this.dependencies.fileSystem.existsSync",
+      "line": 255,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "this.dependencies.logger?.error",
+      "line": 258,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "possiblePaths.forEach",
+      "line": 259,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "this.dependencies.logger?.error",
+      "line": 260,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "AdapterError",
+      "line": 263,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "this.dependencies.logger?.info",
+      "line": 269,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "AdapterError",
+      "line": 285,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "config.adapterHost.trim",
+      "line": 294,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "String",
+      "line": 297,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "Object.entries",
+      "line": 301,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "/--max-old-space-size\\b/i.test",
+      "line": 309,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "existing.replace(/\\s+/g, ' ').trim",
+      "line": 313,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "existing.replace",
+      "line": 313,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "appended.replace(/\\s+/g, ' ').trim",
+      "line": 317,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.buildAdapterCommand",
+      "to": "appended.replace",
+      "line": 317,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "path.dirname",
+      "line": 349,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "process.cwd",
+      "line": 356,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "Array.isArray",
+      "line": 361,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "/\\.([mc])?tsx?$/i.test",
+      "line": 366,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "Object.entries",
+      "line": 370,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "Object.entries",
+      "line": 375,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "Array.isArray",
+      "line": 385,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "Array.from",
+      "line": 386,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "Set",
+      "line": 386,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "determineOutFiles",
+      "line": 409,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "Array.isArray",
+      "line": 409,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "Boolean",
+      "line": 413,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "Array.isArray",
+      "line": 415,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "determineOutFiles",
+      "line": 417,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "Array.isArray",
+      "line": 427,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "detectBinary",
+      "line": 437,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "detectBinary",
+      "line": 438,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "this.normalizeBinary",
+      "line": 450,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "this.normalizeBinary",
+      "line": 451,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "this.normalizeBinary",
+      "line": 452,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "this.isNodeRuntime",
+      "line": 459,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "this.hasPairArgs",
+      "line": 469,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "computedArgs.push",
+      "line": 470,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "this.hasPairArgs",
+      "line": 472,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "computedArgs.push",
+      "line": 473,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "isESMProject",
+      "line": 476,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "this.hasPairArgs",
+      "line": 477,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "computedArgs.push",
+      "line": 478,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "path.dirname",
+      "line": 482,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "process.cwd",
+      "line": 482,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "hasTsConfigPaths",
+      "line": 483,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "this.hasPairArgs",
+      "line": 484,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "computedArgs.push",
+      "line": 485,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "this.normalizeAndDedupeArgs",
+      "line": 494,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "finalArgs.findIndex",
+      "line": 506,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "a.startsWith",
+      "line": 510,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "a.startsWith",
+      "line": 511,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "findInspectIndex",
+      "line": 513,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.transformLaunchConfig",
+      "to": "arg.match",
+      "line": 517,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.normalizeBinary",
+      "to": "path.normalize(value).replace(/\\\\/g, '/').toLowerCase",
+      "line": 541,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.normalizeBinary",
+      "to": "path.normalize(value).replace",
+      "line": 541,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.normalizeBinary",
+      "to": "path.normalize",
+      "line": 541,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.normalizeBinary",
+      "to": "value.toLowerCase",
+      "line": 543,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.isNodeRuntime",
+      "to": "path.basename(executable).toLowerCase",
+      "line": 549,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.isNodeRuntime",
+      "to": "path.basename",
+      "line": 549,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.getDefaultLaunchConfig",
+      "to": "process.cwd",
+      "line": 558,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.handleDapEvent",
+      "to": "this.dependencies?.logger?.debug",
+      "line": 614,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.handleDapEvent",
+      "to": "this.transitionTo",
+      "line": 630,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 647,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.connect",
+      "to": "this.dependencies?.logger?.debug",
+      "line": 658,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.connect",
+      "to": "this.transitionTo",
+      "line": 660,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.connect",
+      "to": "this.emit",
+      "line": 661,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.disconnect",
+      "to": "this.dependencies?.logger?.debug",
+      "line": 665,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.disconnect",
+      "to": "this.transitionTo",
+      "line": 668,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.disconnect",
+      "to": "this.emit",
+      "line": 669,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.translateErrorMessage",
+      "to": "String",
+      "line": 693,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.translateErrorMessage",
+      "to": "msg.toLowerCase",
+      "line": 694,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.translateErrorMessage",
+      "to": "lower.includes",
+      "line": 696,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.translateErrorMessage",
+      "to": "lower.includes",
+      "line": 696,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.translateErrorMessage",
+      "to": "this.getMissingExecutableError",
+      "line": 697,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.translateErrorMessage",
+      "to": "lower.includes",
+      "line": 699,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.translateErrorMessage",
+      "to": "lower.includes",
+      "line": 699,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.translateErrorMessage",
+      "to": "/cannot find module ['\"]ts-node['\"]|cannot find module ['\"]tsx['\"]|ts-node.*module not found|tsx.*mo",
+      "line": 702,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.normalizeAndDedupeArgs",
+      "to": "Set",
+      "line": 761,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.normalizeAndDedupeArgs",
+      "to": "seenPairs.has",
+      "line": 767,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.normalizeAndDedupeArgs",
+      "to": "out.push",
+      "line": 768,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.normalizeAndDedupeArgs",
+      "to": "seenPairs.add",
+      "line": 769,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.normalizeAndDedupeArgs",
+      "to": "seenPairs.has",
+      "line": 777,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.normalizeAndDedupeArgs",
+      "to": "out.push",
+      "line": 778,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.normalizeAndDedupeArgs",
+      "to": "seenPairs.add",
+      "line": 779,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavascriptDebugAdapter.normalizeAndDedupeArgs",
+      "to": "out.push",
+      "line": 784,
+      "call_sites": 3
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "dependencies",
+      "line": 50
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 95
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 96
+    },
+    {
+      "container": "this",
+      "member": "cachedNodePath",
+      "line": 99
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 139
+    },
+    {
+      "container": "this",
+      "member": "cachedNodePath",
+      "line": 212
+    },
+    {
+      "container": "this",
+      "member": "cachedNodePath",
+      "line": 223
+    },
+    {
+      "container": "env",
+      "member": "NODE_OPTIONS",
+      "line": 313
+    },
+    {
+      "container": "env",
+      "member": "NODE_OPTIONS",
+      "line": 317
+    },
+    {
+      "container": "mergedEnv",
+      "member": "NODE_ENV",
+      "line": 379
+    },
+    {
+      "container": "result",
+      "member": "sourceMaps",
+      "line": 408
+    },
+    {
+      "container": "result",
+      "member": "outFiles",
+      "line": 410
+    },
+    {
+      "container": "result",
+      "member": "resolveSourceMapLocations",
+      "line": 411
+    },
+    {
+      "container": "result",
+      "member": "sourceMaps",
+      "line": 414
+    },
+    {
+      "container": "result",
+      "member": "outFiles",
+      "line": 417
+    },
+    {
+      "container": "result",
+      "member": "resolveSourceMapLocations",
+      "line": 418
+    },
+    {
+      "container": "result",
+      "member": "outFiles",
+      "line": 421
+    },
+    {
+      "container": "result",
+      "member": "runtimeExecutable",
+      "line": 498
+    },
+    {
+      "container": "result",
+      "member": "runtimeArgs",
+      "line": 500
+    },
+    {
+      "container": "result",
+      "member": "runtimeArgs",
+      "line": 523
+    },
+    {
+      "container": "result",
+      "member": "runtimeArgs",
+      "line": 529
+    },
+    {
+      "container": "attachConfig",
+      "member": "stopOnEntry",
+      "line": 584
+    },
+    {
+      "container": "attachConfig",
+      "member": "justMyCode",
+      "line": 587
+    },
+    {
+      "container": "attachConfig",
+      "member": "timeout",
+      "line": 590
+    },
+    {
+      "container": "body",
+      "member": "category",
+      "line": 619
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 627
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 659
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 666
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 667
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "pwa-node",
+      "context": "DAP type field for js-debug launch and attach configs",
+      "line": 391,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "launch",
+      "context": "DAP request type for launch config",
+      "line": 392,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "attach",
+      "context": "DAP request type for attach config",
+      "line": 576,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "launch",
+      "context": "createLaunchBarrier: only creates barrier for launch command",
+      "line": 131,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command"
+    },
+    {
+      "value": "JS_DEBUG_NOT_FOUND",
+      "context": "Validation error code when js-debug vendor file not found",
+      "line": 173,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "VALIDATION_CHECK_FAILED",
+      "context": "Warning code when validation throws unexpectedly",
+      "line": 183,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "javascript",
+      "context": "Language identifier for the adapter",
+      "line": 36,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "output",
+      "context": "DAP event name dispatched in handleDapEvent",
+      "line": 617,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "event.event"
+    },
+    {
+      "value": "stopped",
+      "context": "DAP event name dispatched in handleDapEvent",
+      "line": 623,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "event.event"
+    },
+    {
+      "value": "continued",
+      "context": "DAP event name dispatched in handleDapEvent",
+      "line": 633,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "event.event"
+    },
+    {
+      "value": "terminated",
+      "context": "DAP event name dispatched in handleDapEvent",
+      "line": 637,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "event.event"
+    },
+    {
+      "value": "exited",
+      "context": "DAP event name dispatched in handleDapEvent",
+      "line": 638,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "event.event"
+    },
+    {
+      "value": "MCP_CONTAINER",
+      "context": "Env var checked for container mode detection",
+      "line": 352,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "MCP_WORKSPACE_ROOT",
+      "context": "Env var for workspace root in container mode",
+      "line": 354,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "--max-old-space-size=4096",
+      "context": "NODE_OPTIONS memory flag appended for js-debug process",
+      "line": 316,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "ts-node/register",
+      "context": "Require hook for TypeScript support via ts-node",
+      "line": 470,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "ts-node/register/transpile-only",
+      "context": "Require hook for ts-node transpile-only mode",
+      "line": 472,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "ts-node/esm",
+      "context": "ESM loader for ts-node in ESM projects",
+      "line": 477,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "tsconfig-paths/register",
+      "context": "Require hook for tsconfig path aliases",
+      "line": 484,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "js-debug",
+      "context": "Module name returned by getAdapterModuleName",
+      "line": 328,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

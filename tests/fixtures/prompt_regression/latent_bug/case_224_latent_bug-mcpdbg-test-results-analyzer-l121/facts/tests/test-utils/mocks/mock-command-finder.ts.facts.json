@@ -1,0 +1,157 @@
+{
+  "source": "tests/test-utils/mocks/mock-command-finder.ts",
+  "source_hash": "8985139ac91c4714",
+  "generated": "2026-07-22T22:06:32Z",
+  "imports": [
+    {
+      "source": "@debugmcp/adapter-python",
+      "names": [
+        "CommandFinder"
+      ],
+      "line": 4,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-python/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/adapter-python",
+      "names": [
+        "CommandNotFoundError"
+      ],
+      "line": 5,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-python/dist/index.d.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "MockCommandFinder",
+      "kind": "class",
+      "line": 10,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "implements": [
+        "CommandFinder"
+      ]
+    },
+    {
+      "name": "MockCommandFinder.setResponse",
+      "kind": "function",
+      "line": 19,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "command",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "response",
+          "optional": false,
+          "type": "string | Error"
+        }
+      ]
+    },
+    {
+      "name": "MockCommandFinder.find",
+      "kind": "function",
+      "line": 29,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "command",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "MockCommandFinder.clearResponses",
+      "kind": "function",
+      "line": 48,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockCommandFinder.getCallHistory",
+      "kind": "function",
+      "line": 55,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockCommandFinder.clearHistory",
+      "kind": "function",
+      "line": 62,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockCommandFinder.reset",
+      "kind": "function",
+      "line": 69,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 11,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockCommandFinder.setResponse",
+      "to": "this.responses.set",
+      "line": 20,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockCommandFinder.find",
+      "to": "this.callHistory.push",
+      "line": 30,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockCommandFinder.find",
+      "to": "this.responses.get",
+      "line": 32,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockCommandFinder.find",
+      "to": "CommandNotFoundError",
+      "line": 35,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "MockCommandFinder.clearResponses",
+      "to": "this.responses.clear",
+      "line": 49,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockCommandFinder.reset",
+      "to": "this.clearResponses",
+      "line": 70,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockCommandFinder.reset",
+      "to": "this.clearHistory",
+      "line": 71,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "callHistory",
+      "line": 63
+    }
+  ],
+  "string_literals": [],
+  "extraction_method": "ast"
+}

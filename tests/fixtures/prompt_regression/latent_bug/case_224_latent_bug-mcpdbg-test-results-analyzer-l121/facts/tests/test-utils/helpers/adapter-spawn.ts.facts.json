@@ -1,0 +1,196 @@
+{
+  "source": "tests/test-utils/helpers/adapter-spawn.ts",
+  "source_hash": "3989efeaf1ee95aa",
+  "generated": "2026-07-22T22:08:37Z",
+  "imports": [],
+  "exports": [
+    {
+      "name": "extractSpawnMessage",
+      "kind": "function",
+      "line": 37,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "source",
+          "optional": false,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "name": "isAdapterSpawnBlocked",
+      "kind": "function",
+      "line": 54,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "source",
+          "optional": false,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "name": "skipIfSpawnBlocked",
+      "kind": "function",
+      "line": 78,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "ctx",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/tests/test-utils/helpers/adapter-spawn\").SkippableContext"
+        },
+        {
+          "name": "source",
+          "optional": false,
+          "type": "unknown"
+        },
+        {
+          "name": "adapterName",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "SPAWN_BLOCKED_SIGNATURES",
+      "kind": "variable",
+      "line": 21,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SkippableContext",
+      "kind": "type",
+      "line": 61,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "extractSpawnMessage",
+      "to": "source.toLowerCase",
+      "line": 39,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "extractSpawnMessage",
+      "to": "source.message.toLowerCase",
+      "line": 40,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "extractSpawnMessage",
+      "to": "String(text).toLowerCase",
+      "line": 44,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "extractSpawnMessage",
+      "to": "String",
+      "line": 44,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "isAdapterSpawnBlocked",
+      "to": "extractSpawnMessage",
+      "line": 55,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "isAdapterSpawnBlocked",
+      "to": "SPAWN_BLOCKED_SIGNATURES.some",
+      "line": 57,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "isAdapterSpawnBlocked",
+      "to": "message.includes",
+      "line": 57,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "skipIfSpawnBlocked",
+      "to": "isAdapterSpawnBlocked",
+      "line": 83,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "skipIfSpawnBlocked",
+      "to": "extractSpawnMessage",
+      "line": 86,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "skipIfSpawnBlocked",
+      "to": "ctx.skip",
+      "line": 87,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "spawn unknown",
+      "context": "Signature for Windows Smart App Control blocking an unsigned binary",
+      "line": 22,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "spawn enoent",
+      "context": "Signature for adapter binary not found on PATH or at resolved path",
+      "line": 23,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "spawn eacces",
+      "context": "Signature for adapter binary present but not executable",
+      "line": 24,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "enoent",
+      "context": "Generic 'no such file or directory' OS error code (lowercased)",
+      "line": 25,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "eacces",
+      "context": "Generic permission denied OS error code (lowercased)",
+      "line": 26,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "application control",
+      "context": "SAC (Smart App Control) human-readable policy message substring",
+      "line": 27,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "not executable",
+      "context": "Signature for binary not executable error messages",
+      "line": 28,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "permission denied",
+      "context": "Signature for permission denied error messages",
+      "line": 29,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

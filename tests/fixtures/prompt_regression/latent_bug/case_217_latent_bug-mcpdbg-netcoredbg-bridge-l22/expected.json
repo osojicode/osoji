@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "The guard at netcoredbg-bridge.ts:22 passes negative ports, but the file's own header (:14-15) declares it is spawned by the adapter/proxy with a project-allocated port \u2014 no program path supplies a negative value. The only trigger is manual CLI misuse, whose outcome (a synchronous listen RangeError at startup) is as loud as the intended usage-error exit at :23-24; no silent wrong outcome exists. Fails Reality.",
+  "gray": true,
+  "gray_reason": "The half-guard (!port rejects 0/NaN but not negatives) is a real validation imprecision; confirm-at-info range-check hardening is defensible. Panel split on contract_class (project_implicit vs ecosystem) \u2014 no class answer key.",
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

@@ -1,0 +1,980 @@
+{
+  "source": "packages/adapter-java/src/java-debug-adapter.ts",
+  "source_hash": "6b2173a3404f0de2",
+  "generated": "2026-07-22T22:07:33Z",
+  "imports": [
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IDebugAdapter",
+        "AdapterState",
+        "ValidationResult",
+        "ValidationError",
+        "ValidationWarning",
+        "DependencyInfo",
+        "AdapterConfig",
+        "AdapterCommand",
+        "GenericLaunchConfig",
+        "GenericAttachConfig",
+        "LanguageSpecificLaunchConfig",
+        "LanguageSpecificAttachConfig",
+        "DebugFeature",
+        "FeatureRequirement",
+        "AdapterCapabilities",
+        "AdapterError",
+        "AdapterErrorCode"
+      ],
+      "line": 11,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage"
+      ],
+      "line": 30,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterDependencies"
+      ],
+      "line": 31,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./utils/java-utils.js",
+      "names": [
+        "findJavaExecutable",
+        "getJavaVersion",
+        "getJavaSearchPaths"
+      ],
+      "line": 32,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-java/src/utils/java-utils.ts"
+    },
+    {
+      "source": "./utils/jdi-resolver.js",
+      "names": [
+        "resolveJdiBridgeClassDir",
+        "ensureJdiBridgeCompiled"
+      ],
+      "line": 33,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-java/src/utils/jdi-resolver.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "JavaDebugAdapter",
+      "kind": "class",
+      "line": 50,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EventEmitter"
+      ],
+      "implements": [
+        "IDebugAdapter"
+      ]
+    },
+    {
+      "name": "JavaDebugAdapter.initialize",
+      "kind": "function",
+      "line": 68,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.dispose",
+      "kind": "function",
+      "line": 96,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.getState",
+      "kind": "function",
+      "line": 105,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.isReady",
+      "kind": "function",
+      "line": 109,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.getCurrentThreadId",
+      "kind": "function",
+      "line": 115,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.validateEnvironment",
+      "kind": "function",
+      "line": 127,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.getRequiredDependencies",
+      "kind": "function",
+      "line": 174,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.resolveExecutablePath",
+      "kind": "function",
+      "line": 187,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "preferredPath",
+          "optional": true,
+          "type": "string | undefined"
+        }
+      ]
+    },
+    {
+      "name": "JavaDebugAdapter.getDefaultExecutableName",
+      "kind": "function",
+      "line": 191,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.getExecutableSearchPaths",
+      "kind": "function",
+      "line": 196,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.buildAdapterCommand",
+      "kind": "function",
+      "line": 202,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").AdapterConfig"
+        }
+      ]
+    },
+    {
+      "name": "JavaDebugAdapter.getAdapterModuleName",
+      "kind": "function",
+      "line": 253,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.getAdapterInstallCommand",
+      "kind": "function",
+      "line": 257,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.transformLaunchConfig",
+      "kind": "function",
+      "line": 263,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").GenericLaunchConfig"
+        }
+      ]
+    },
+    {
+      "name": "JavaDebugAdapter.getDefaultLaunchConfig",
+      "kind": "function",
+      "line": 308,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.supportsAttach",
+      "kind": "function",
+      "line": 317,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.transformAttachConfig",
+      "kind": "function",
+      "line": 321,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/models/index\").GenericAttachConfig"
+        }
+      ]
+    },
+    {
+      "name": "JavaDebugAdapter.getDefaultAttachConfig",
+      "kind": "function",
+      "line": 348,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.sendDapRequest",
+      "kind": "function",
+      "line": 357,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "_command",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "_args",
+          "optional": true,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "name": "JavaDebugAdapter.handleDapEvent",
+      "kind": "function",
+      "line": 364,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "event",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol\").DebugProtocol.Event"
+        }
+      ]
+    },
+    {
+      "name": "JavaDebugAdapter.handleDapResponse",
+      "kind": "function",
+      "line": 402,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "_response",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol\").DebugProtocol.Response"
+        }
+      ]
+    },
+    {
+      "name": "JavaDebugAdapter.connect",
+      "kind": "function",
+      "line": 408,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "_host",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "_port",
+          "optional": false,
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "JavaDebugAdapter.disconnect",
+      "kind": "function",
+      "line": 414,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.isConnected",
+      "kind": "function",
+      "line": 420,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.getInstallationInstructions",
+      "kind": "function",
+      "line": 426,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.getMissingExecutableError",
+      "kind": "function",
+      "line": 447,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaDebugAdapter.translateErrorMessage",
+      "kind": "function",
+      "line": 458,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "error",
+          "optional": false,
+          "type": "Error"
+        }
+      ]
+    },
+    {
+      "name": "JavaDebugAdapter.supportsFeature",
+      "kind": "function",
+      "line": 482,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").DebugFeature"
+        }
+      ]
+    },
+    {
+      "name": "JavaDebugAdapter.getFeatureRequirements",
+      "kind": "function",
+      "line": 493,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").DebugFeature"
+        }
+      ]
+    },
+    {
+      "name": "JavaDebugAdapter.getCapabilities",
+      "kind": "function",
+      "line": 517,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "super",
+      "line": 62,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 69,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.initialize",
+      "to": "this.validateEnvironment",
+      "line": 72,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.initialize",
+      "to": "this.dependencies.logger?.warn",
+      "line": 76,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 81,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.initialize",
+      "to": "AdapterError",
+      "line": 82,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 88,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.initialize",
+      "to": "this.emit",
+      "line": 89,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 91,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.dispose",
+      "to": "this.emit",
+      "line": 100,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.transitionTo",
+      "to": "this.emit",
+      "line": 122,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.validateEnvironment",
+      "to": "findJavaExecutable",
+      "line": 133,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.validateEnvironment",
+      "to": "getJavaVersion",
+      "line": 136,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.validateEnvironment",
+      "to": "javaVersion.split",
+      "line": 138,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.validateEnvironment",
+      "to": "parseInt",
+      "line": 139,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.validateEnvironment",
+      "to": "parseInt",
+      "line": 140,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.validateEnvironment",
+      "to": "warnings.push",
+      "line": 143,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.validateEnvironment",
+      "to": "resolveJdiBridgeClassDir",
+      "line": 151,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.validateEnvironment",
+      "to": "warnings.push",
+      "line": 153,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.validateEnvironment",
+      "to": "errors.push",
+      "line": 160,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.resolveExecutablePath",
+      "to": "findJavaExecutable",
+      "line": 188,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.getExecutableSearchPaths",
+      "to": "getJavaSearchPaths",
+      "line": 197,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.buildAdapterCommand",
+      "to": "resolveJdiBridgeClassDir",
+      "line": 204,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.buildAdapterCommand",
+      "to": "ensureJdiBridgeCompiled",
+      "line": 206,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.buildAdapterCommand",
+      "to": "AdapterError",
+      "line": 210,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.buildAdapterCommand",
+      "to": "AdapterError",
+      "line": 217,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.buildAdapterCommand",
+      "to": "path.join",
+      "line": 227,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.buildAdapterCommand",
+      "to": "this.dependencies.logger?.info",
+      "line": 232,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.buildAdapterCommand",
+      "to": "this.dependencies.logger?.info",
+      "line": 233,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.buildAdapterCommand",
+      "to": "String",
+      "line": 239,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.buildAdapterCommand",
+      "to": "String",
+      "line": 246,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.transformLaunchConfig",
+      "to": "program.endsWith",
+      "line": 274,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.transformLaunchConfig",
+      "to": "path.basename",
+      "line": 275,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.sendDapRequest",
+      "to": "Error",
+      "line": 361,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.handleDapEvent",
+      "to": "this.transitionTo",
+      "line": 367,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 371,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.handleDapEvent",
+      "to": "this.transitionTo",
+      "line": 375,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 376,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.handleDapEvent",
+      "to": "this.transitionTo",
+      "line": 380,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 381,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 385,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 389,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 393,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 397,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.connect",
+      "to": "this.transitionTo",
+      "line": 410,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.connect",
+      "to": "this.emit",
+      "line": 411,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.disconnect",
+      "to": "this.transitionTo",
+      "line": 416,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.disconnect",
+      "to": "this.emit",
+      "line": 417,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.translateErrorMessage",
+      "to": "error.message.toLowerCase",
+      "line": 459,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 461,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 461,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 465,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 465,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.translateErrorMessage",
+      "to": "this.getMissingExecutableError",
+      "line": 466,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 469,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 473,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 473,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.supportsFeature",
+      "to": "supportedFeatures.includes",
+      "line": 490,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.getFeatureRequirements",
+      "to": "requirements.push",
+      "line": 498,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavaDebugAdapter.getFeatureRequirements",
+      "to": "requirements.push",
+      "line": 506,
+      "call_sites": 2
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "dependencies",
+      "line": 63
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 97
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 98
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 99
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 121
+    },
+    {
+      "container": "javaConfig",
+      "member": "mainClass",
+      "line": 275
+    },
+    {
+      "container": "javaConfig",
+      "member": "mainClass",
+      "line": 277
+    },
+    {
+      "container": "javaConfig",
+      "member": "classpath",
+      "line": 284
+    },
+    {
+      "container": "javaConfig",
+      "member": "sourcePath",
+      "line": 290
+    },
+    {
+      "container": "javaConfig",
+      "member": "cwd",
+      "line": 294
+    },
+    {
+      "container": "javaConfig",
+      "member": "env",
+      "line": 298
+    },
+    {
+      "container": "javaConfig",
+      "member": "args",
+      "line": 302
+    },
+    {
+      "container": "attachConfig",
+      "member": "sourcePaths",
+      "line": 330
+    },
+    {
+      "container": "attachConfig",
+      "member": "stopOnEntry",
+      "line": 333
+    },
+    {
+      "container": "attachConfig",
+      "member": "cwd",
+      "line": 336
+    },
+    {
+      "container": "attachConfig",
+      "member": "env",
+      "line": 339
+    },
+    {
+      "container": "attachConfig",
+      "member": "timeout",
+      "line": 342
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 369
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 409
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 415
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "java",
+      "context": "DAP request type set in transformLaunchConfig and transformAttachConfig",
+      "line": 266,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "launch",
+      "context": "DAP request mode in transformLaunchConfig",
+      "line": 267,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "attach",
+      "context": "DAP request mode in transformAttachConfig and getDefaultAttachConfig",
+      "line": 323,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "JAVA_VERSION_OLD",
+      "context": "Validation warning code for old Java version",
+      "line": 144,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "JDI_BRIDGE_NOT_COMPILED",
+      "context": "Validation warning code for missing compiled bridge",
+      "line": 154,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "JAVA_NOT_FOUND",
+      "context": "Validation error code for missing Java executable",
+      "line": 161,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "jdi-bridge",
+      "context": "Adapter module name returned by getAdapterModuleName()",
+      "line": 254,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "MCP_DEBUGGER_MAIN_PID",
+      "context": "Environment variable for owner PID used in JVM leak detection",
+      "line": 239,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "JAVA_HOME",
+      "context": "Environment variable for Java installation path",
+      "line": 226,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "stopped",
+      "context": "DAP event name dispatched in handleDapEvent",
+      "line": 366,
+      "kind": "identifier",
+      "usage": "checked"
+    },
+    {
+      "value": "continued",
+      "context": "DAP event name dispatched in handleDapEvent",
+      "line": 374,
+      "kind": "identifier",
+      "usage": "checked"
+    },
+    {
+      "value": "terminated",
+      "context": "DAP event name dispatched in handleDapEvent",
+      "line": 379,
+      "kind": "identifier",
+      "usage": "checked"
+    },
+    {
+      "value": "exited",
+      "context": "DAP event name dispatched in handleDapEvent",
+      "line": 384,
+      "kind": "identifier",
+      "usage": "checked"
+    },
+    {
+      "value": "caught",
+      "context": "Exception breakpoint filter identifier in getCapabilities()",
+      "line": 527,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "uncaught",
+      "context": "Exception breakpoint filter identifier in getCapabilities()",
+      "line": 533,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

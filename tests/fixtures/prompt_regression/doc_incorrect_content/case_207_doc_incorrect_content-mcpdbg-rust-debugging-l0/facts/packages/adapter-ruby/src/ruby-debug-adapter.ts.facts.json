@@ -1,0 +1,1021 @@
+{
+  "source": "packages/adapter-ruby/src/ruby-debug-adapter.ts",
+  "source_hash": "01cb2af9a442e08f",
+  "generated": "2026-07-22T22:07:46Z",
+  "imports": [
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 1,
+      "is_reexport": false
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 2,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IDebugAdapter",
+        "AdapterState",
+        "ValidationResult",
+        "ValidationError",
+        "ValidationWarning",
+        "DependencyInfo",
+        "AdapterConfig",
+        "AdapterCommand",
+        "GenericLaunchConfig",
+        "GenericAttachConfig",
+        "LanguageSpecificLaunchConfig",
+        "LanguageSpecificAttachConfig",
+        "DebugFeature",
+        "FeatureRequirement",
+        "AdapterCapabilities",
+        "AdapterError",
+        "AdapterErrorCode",
+        "AdapterEvents"
+      ],
+      "line": 3,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage"
+      ],
+      "line": 23,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterDependencies"
+      ],
+      "line": 24,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./utils/ruby-utils.js",
+      "names": [
+        "findRubyExecutable",
+        "findRdbgExecutable",
+        "getRubyVersion",
+        "getRdbgVersion",
+        "getRubySearchPaths",
+        "buildRdbgInvocation"
+      ],
+      "line": 25,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-ruby/src/utils/ruby-utils.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "RubyDebugAdapter",
+      "kind": "class",
+      "line": 70,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EventEmitter"
+      ],
+      "implements": [
+        "IDebugAdapter"
+      ]
+    },
+    {
+      "name": "RubyDebugAdapter.initialize",
+      "kind": "function",
+      "line": 87,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.dispose",
+      "kind": "function",
+      "line": 108,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.getState",
+      "kind": "function",
+      "line": 117,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.isReady",
+      "kind": "function",
+      "line": 121,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.getCurrentThreadId",
+      "kind": "function",
+      "line": 127,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.validateEnvironment",
+      "kind": "function",
+      "line": 137,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.getRequiredDependencies",
+      "kind": "function",
+      "line": 192,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.resolveExecutablePath",
+      "kind": "function",
+      "line": 209,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "preferredPath",
+          "optional": true,
+          "type": "string | undefined"
+        }
+      ]
+    },
+    {
+      "name": "RubyDebugAdapter.getDefaultExecutableName",
+      "kind": "function",
+      "line": 226,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.getExecutableSearchPaths",
+      "kind": "function",
+      "line": 230,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.buildAdapterCommand",
+      "kind": "function",
+      "line": 234,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").AdapterConfig"
+        }
+      ]
+    },
+    {
+      "name": "RubyDebugAdapter.getAdapterModuleName",
+      "kind": "function",
+      "line": 287,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.getAdapterInstallCommand",
+      "kind": "function",
+      "line": 291,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.transformLaunchConfig",
+      "kind": "function",
+      "line": 295,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").GenericLaunchConfig"
+        }
+      ]
+    },
+    {
+      "name": "RubyDebugAdapter.getDefaultLaunchConfig",
+      "kind": "function",
+      "line": 337,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.supportsAttach",
+      "kind": "function",
+      "line": 346,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.supportsDetach",
+      "kind": "function",
+      "line": 350,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.usesDirectConnectForAttach",
+      "kind": "function",
+      "line": 354,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.transformAttachConfig",
+      "kind": "function",
+      "line": 358,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/models/index\").GenericAttachConfig"
+        }
+      ]
+    },
+    {
+      "name": "RubyDebugAdapter.getDefaultAttachConfig",
+      "kind": "function",
+      "line": 396,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.sendDapRequest",
+      "kind": "function",
+      "line": 405,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "_command",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "_args",
+          "optional": true,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "name": "RubyDebugAdapter.handleDapEvent",
+      "kind": "function",
+      "line": 412,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "event",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol\").DebugProtocol.Event"
+        }
+      ]
+    },
+    {
+      "name": "RubyDebugAdapter.handleDapResponse",
+      "kind": "function",
+      "line": 432,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "_response",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol\").DebugProtocol.Response"
+        }
+      ]
+    },
+    {
+      "name": "RubyDebugAdapter.connect",
+      "kind": "function",
+      "line": 435,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "_host",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "_port",
+          "optional": false,
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "RubyDebugAdapter.disconnect",
+      "kind": "function",
+      "line": 441,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.isConnected",
+      "kind": "function",
+      "line": 448,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.getInstallationInstructions",
+      "kind": "function",
+      "line": 452,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.getMissingExecutableError",
+      "kind": "function",
+      "line": 466,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyDebugAdapter.translateErrorMessage",
+      "kind": "function",
+      "line": 470,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "error",
+          "optional": false,
+          "type": "Error"
+        }
+      ]
+    },
+    {
+      "name": "RubyDebugAdapter.supportsFeature",
+      "kind": "function",
+      "line": 492,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").DebugFeature"
+        }
+      ]
+    },
+    {
+      "name": "RubyDebugAdapter.getFeatureRequirements",
+      "kind": "function",
+      "line": 504,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").DebugFeature"
+        }
+      ]
+    },
+    {
+      "name": "RubyDebugAdapter.getCapabilities",
+      "kind": "function",
+      "line": 523,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 76,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 77,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "super",
+      "line": 83,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 88,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.initialize",
+      "to": "this.validateEnvironment",
+      "line": 91,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 93,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.initialize",
+      "to": "AdapterError",
+      "line": 94,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 100,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.initialize",
+      "to": "this.emit",
+      "line": 101,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 103,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.dispose",
+      "to": "this.rubyPathCache.clear",
+      "line": 109,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.dispose",
+      "to": "this.rdbgPathCache.clear",
+      "line": 110,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.dispose",
+      "to": "this.transitionTo",
+      "line": 113,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.dispose",
+      "to": "this.emit",
+      "line": 114,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.transitionTo",
+      "to": "this.emit",
+      "line": 134,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.validateEnvironment",
+      "to": "this.resolveExecutablePath",
+      "line": 142,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.validateEnvironment",
+      "to": "this.checkRubyVersion",
+      "line": 143,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.validateEnvironment",
+      "to": "rubyVersion.split('.').map",
+      "line": 146,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.validateEnvironment",
+      "to": "rubyVersion.split",
+      "line": 146,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.validateEnvironment",
+      "to": "errors.push",
+      "line": 148,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.validateEnvironment",
+      "to": "warnings.push",
+      "line": 155,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.validateEnvironment",
+      "to": "errors.push",
+      "line": 161,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.validateEnvironment",
+      "to": "this.resolveRdbgPath",
+      "line": 169,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.validateEnvironment",
+      "to": "this.checkRdbgVersion",
+      "line": 170,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.validateEnvironment",
+      "to": "warnings.push",
+      "line": 172,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.validateEnvironment",
+      "to": "errors.push",
+      "line": 178,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.resolveExecutablePath",
+      "to": "this.rubyPathCache.get",
+      "line": 211,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.resolveExecutablePath",
+      "to": "Date.now",
+      "line": 213,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.resolveExecutablePath",
+      "to": "findRubyExecutable",
+      "line": 217,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.resolveExecutablePath",
+      "to": "this.rubyPathCache.set",
+      "line": 218,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.resolveExecutablePath",
+      "to": "Date.now",
+      "line": 220,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.getExecutableSearchPaths",
+      "to": "getRubySearchPaths",
+      "line": 231,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.buildAdapterCommand",
+      "to": "this.getCachedRdbgPath",
+      "line": 236,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.buildAdapterCommand",
+      "to": "this.buildTargetCommand",
+      "line": 239,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.buildAdapterCommand",
+      "to": "config.adapterPort.toString",
+      "line": 250,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.buildAdapterCommand",
+      "to": "buildRdbgInvocation",
+      "line": 253,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.transformLaunchConfig",
+      "to": "process.cwd",
+      "line": 315,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.getDefaultLaunchConfig",
+      "to": "process.cwd",
+      "line": 342,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.transformAttachConfig",
+      "to": "AdapterError",
+      "line": 364,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.transformAttachConfig",
+      "to": "this.isLocalHost",
+      "line": 376,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.handleDapEvent",
+      "to": "this.transitionTo",
+      "line": 415,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.handleDapEvent",
+      "to": "this.transitionTo",
+      "line": 421,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.handleDapEvent",
+      "to": "this.transitionTo",
+      "line": 424,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 429,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.connect",
+      "to": "this.transitionTo",
+      "line": 437,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.connect",
+      "to": "this.emit",
+      "line": 438,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.disconnect",
+      "to": "this.transitionTo",
+      "line": 444,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.disconnect",
+      "to": "this.emit",
+      "line": 445,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.translateErrorMessage",
+      "to": "error.message.toLowerCase",
+      "line": 471,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 473,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 473,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 477,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 477,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.translateErrorMessage",
+      "to": "this.getMissingExecutableError",
+      "line": 478,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 481,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 485,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 485,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.supportsFeature",
+      "to": "supportedFeatures.includes",
+      "line": 501,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.resolveRdbgPath",
+      "to": "this.rdbgPathCache.get",
+      "line": 546,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.resolveRdbgPath",
+      "to": "Date.now",
+      "line": 548,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.resolveRdbgPath",
+      "to": "findRdbgExecutable",
+      "line": 552,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.resolveRdbgPath",
+      "to": "this.rdbgPathCache.set",
+      "line": 553,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.resolveRdbgPath",
+      "to": "Date.now",
+      "line": 555,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.getCachedRdbgPath",
+      "to": "this.rdbgPathCache.get",
+      "line": 562,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.checkRubyVersion",
+      "to": "this.rubyPathCache.get",
+      "line": 566,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.checkRubyVersion",
+      "to": "this.rubyPathCache.get",
+      "line": 566,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.checkRubyVersion",
+      "to": "getRubyVersion",
+      "line": 571,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.checkRubyVersion",
+      "to": "this.rubyPathCache.set",
+      "line": 573,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.checkRubyVersion",
+      "to": "Date.now",
+      "line": 577,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.checkRdbgVersion",
+      "to": "this.rdbgPathCache.get",
+      "line": 585,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.checkRdbgVersion",
+      "to": "this.rdbgPathCache.get",
+      "line": 585,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.checkRdbgVersion",
+      "to": "getRdbgVersion",
+      "line": 590,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.checkRdbgVersion",
+      "to": "this.rdbgPathCache.set",
+      "line": 592,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RubyDebugAdapter.checkRdbgVersion",
+      "to": "Date.now",
+      "line": 596,
+      "call_sites": 6
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "dependencies",
+      "line": 84
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 111
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 112
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 133
+    },
+    {
+      "container": "rubyConfig",
+      "member": "command",
+      "line": 319
+    },
+    {
+      "container": "rubyConfig",
+      "member": "localfsMap",
+      "line": 323
+    },
+    {
+      "container": "rubyConfig",
+      "member": "bundlePath",
+      "line": 327
+    },
+    {
+      "container": "rubyConfig",
+      "member": "useBundler",
+      "line": 331
+    },
+    {
+      "container": "attachConfig",
+      "member": "localfsMap",
+      "line": 382
+    },
+    {
+      "container": "attachConfig",
+      "member": "cwd",
+      "line": 386
+    },
+    {
+      "container": "attachConfig",
+      "member": "env",
+      "line": 390
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 417
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 436
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 442
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 443
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "RUBY_VERSION_TOO_OLD",
+      "context": "ValidationError code for Ruby version < 2.7",
+      "line": 149,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "RUBY_VERSION_CHECK_FAILED",
+      "context": "ValidationWarning code when version cannot be determined",
+      "line": 156,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "RUBY_NOT_FOUND",
+      "context": "ValidationError code when Ruby executable is missing",
+      "line": 161,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "RDBG_NOT_FOUND",
+      "context": "ValidationError code when rdbg executable is missing",
+      "line": 178,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "RDBG_VERSION_CHECK_FAILED",
+      "context": "ValidationWarning code when rdbg version cannot be determined",
+      "line": 172,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "rdbg",
+      "context": "Adapter type discriminant used in launch/attach configs and module name",
+      "line": 288,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "stopped",
+      "context": "DAP event name checked in handleDapEvent switch",
+      "line": 414,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "event.event"
+    },
+    {
+      "value": "continued",
+      "context": "DAP event name checked in handleDapEvent switch",
+      "line": 420,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "event.event"
+    },
+    {
+      "value": "terminated",
+      "context": "DAP event name checked in handleDapEvent switch",
+      "line": 422,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "event.event"
+    },
+    {
+      "value": "RUBY_DEBUG_DAP_SHOW_PROTOCOL",
+      "context": "Environment variable set to show DAP protocol log when DEBUG env is set",
+      "line": 264,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "RDBG_PATH",
+      "context": "Environment variable override for rdbg executable path",
+      "line": 237,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "any",
+      "context": "Exception breakpoint filter ID for rdbg 'Rescue any exception'",
+      "line": 532,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

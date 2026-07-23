@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "The doc's ProxyManager events description matches the code: 'stopped' is typed (threadId, reason, data?) (proxy-manager.ts:44), emitted at :989, generic dap-event fallback at :1006 as doc L408 states; the doc's own example at L574 shows on('stopped', (threadId, reason)) \u2014 the very signature the finding claims is contradicted. The full-event-object signature the finding attacks belongs to the AdapterEvents block (doc L447), documenting a different layer. Positive-assertion requirement: no ProxyManager assertion is contradicted.",
+  "gray": true,
+  "gray_reason": "The word 're-emitted' (doc L407) is arguably imprecise since the stopped payload is unpacked to (threadId, reason, data) rather than forwarded raw; a confirm-at-warning imprecision reading is defensible.",
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "The claimed harm largely cannot occur: a process killed by unhandled SIGINT has its listening socket reclaimed by the OS, terminal Ctrl-C signals the whole foreground group so netcoredbg receives it too, and the project's own machinery shuts children down via SIGTERM (proxy-bootstrap.js:34-38 self-kills with SIGTERM specifically so handlers fire), which netcoredbg-bridge.ts:30-32 handles. On Windows \u2014 the bridge's primary platform per its header \u2014 parent death delivers no signals at all (stdin-watchdog.ts:8), so SIGINT coverage would not close the orphan window. No concrete trigger with a wrong outcome is stateable; the L29 comment overstating SIGTERM-only coverage is the description-shaped residue.",
+  "gray": true,
+  "gray_reason": "Every sibling entry point registers both signals (stdio-command.ts:93-101, sse-command.ts:266-267, http-command.ts:232-233, dap-proxy-core.ts:392-402); one-line SIGINT symmetry is a defensible confirm-at-info hardening.",
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

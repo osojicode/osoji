@@ -1,0 +1,490 @@
+# Dependency Injection Pattern in MCP Debug Server
+
+This document explains how the MCP Debug Server implements dependency injection to achieve testability, flexibility, and maintainability.
+
+## Overview
+
+The dependency injection (DI) pattern is used throughout the codebase to:
+- Enable comprehensive unit testing without real external dependencies
+- Allow swapping implementations (e.g., for different platforms)
+- Make dependencies explicit and documented
+- Facilitate modular architecture
+
+## Core Principles
+
+### 1. Constructor Injection
+Core service dependencies are injected through constructors, making them explicit and immutable.
+
+### 2. Interface Segregation
+Dependencies are defined as focused interfaces, not concrete implementations.
+
+### 3. Dependency Inversion
+High-level modules depend on abstractions, not concrete implementations.
+
+## Implementation Examples
+
+### SessionManager Dependency Injection
+
+**Location**: `src/session/session-manager-core.ts`
+
+> **Note**: `SessionManager` (in `session-manager.ts`) extends `SessionManagerOperations`, which extends `SessionManagerCore`. The dependency injection and core logic live in `SessionManagerCore`. `SessionManager` implements `handleAutoContinue(sessionId)` which calls `this.continue(sessionId)` to auto-continue past entry breakpoints.
+
+```typescript
+// Define dependencies interface
+export interface SessionManagerDependencies {
+  fileSystem: IFileSystem;
+  networkManager: INetworkManager;
+  logger: ILogger;
+  proxyManagerFactory: IProxyManagerFactory;
+  sessionStoreFactory: ISessionStoreFactory;
+  debugTargetLauncher: IDebugTargetLauncher;
+  environment: IEnvironment;
+  adapterRegistry: IAdapterRegistry;
+}
+
+// Constructor injection (in SessionManagerCore)
+constructor(
+  config: SessionManagerConfig,
+  dependencies: SessionManagerDependencies
+) {
+  this.logger = dependencies.logger;
+  this.fileSystem = dependencies.fileSystem;
+  this.networkManager = dependencies.networkManager;
+  this.environment = dependencies.environment;
+  this.proxyManagerFactory = dependencies.proxyManagerFactory;
+  this.sessionStoreFactory = dependencies.sessionStoreFactory;
+  this.debugTargetLauncher = dependencies.debugTargetLauncher;
+  this.adapterRegistry = dependencies.adapterRegistry;
+
+  // Use injected dependencies
+  this.sessionStore = this.sessionStoreFactory.create();
+  this.fileSystem.ensureDirSync(this.logDirBase);
+}
+```
+
+### ProxyManager Dependency Injection
+
+**Location**: `src/proxy/proxy-manager.ts`
+
+```typescript
+export class ProxyManager extends EventEmitter implements IProxyManager {
+  constructor(
+    private adapter: IDebugAdapter | null,  // Optional adapter for language-agnostic support
+    private proxyProcessLauncher: IProxyProcessLauncher,
+    private fileSystem: IFileSystem,
+    private logger: ILogger,
+    runtimeEnv: ProxyRuntimeEnvironment = DEFAULT_RUNTIME_ENVIRONMENT
+  ) {
+    super();
+  }
+}
+```
+
+Benefits:
+- All dependencies are visible in the constructor signature
+- Easy to create test instances with mock dependencies
+- No hidden dependencies or global state
+
+### Factory Pattern for Complex Dependencies
+
+**Location**: `src/factories/proxy-manager-factory.ts`
+
+```typescript
+export interface IProxyManagerFactory {
+  create(adapter?: IDebugAdapter): IProxyManager;
+}
+
+export class ProxyManagerFactory implements IProxyManagerFactory {
+  constructor(
+    private proxyProcessLauncher: IProxyProcessLauncher,
+    private fileSystem: IFileSystem,
+    private logger: ILogger
+  ) {}
+
+  create(adapter?: IDebugAdapter): IProxyManager {
+    return new ProxyManager(
+      adapter || null,  // Pass adapter or null if not provided
+      this.proxyProcessLauncher,
+      this.fileSystem,
+      this.logger
+    );
+  }
+}
+```
+
+This factory pattern allows SessionManager to create ProxyManager instances without knowing their dependencies.
+
+## Interface Definitions
+
+### Core External Dependencies
+
+**Location**: `packages/shared/src/interfaces/external-dependencies.ts` (defines `IFileSystem`, `IProcessManager`, `INetworkManager`, `ILogger`, `IEnvironment`) and `packages/shared/src/interfaces/process-interfaces.ts` (defines `IProcessLauncher`, `IProxyProcessLauncher`)
+
+```typescript
+// File system operations
+export interface IFileSystem {
+  readFile(path: string, encoding?: BufferEncoding): Promise<string>;
+  writeFile(path: string, data: string | Buffer): Promise<void>;
+  exists(path: string): Promise<boolean>;
+  mkdir(path: string, options?: { recursive?: boolean }): Promise<void>;
+  ensureDir(path: string): Promise<void>;
+  ensureDirSync(path: string): void;
+  pathExists(path: string): Promise<boolean>;
+  // ... more methods
+}
+
+// Process management (used by SessionManager-level dependencies)
+export interface IProcessManager {
+  spawn(command: string, args?: string[], options?: SpawnOptions): IChildProcess;
+  exec(command: string): Promise<{ stdout: string; stderr: string }>;
+}
+
+// Process launching (used by AdapterDependencies — note this is a different interface)
+// IProcessLauncher is in process-interfaces.ts and is what adapters receive.
+// IProcessManager is in external-dependencies.ts and is the lower-level system abstraction.
+export interface IProcessLauncher {
+  launch(command: string, args: string[], options?: IProcessOptions): IProcess;
+}
+
+// Network operations
+export interface INetworkManager {
+  createServer(): IServer;
+  findFreePort(): Promise<number>;
+}
+
+// Logging
+export interface ILogger {
+  info(message: string, meta?: unknown): void;
+  error(message: string, meta?: unknown): void;
+  debug(message: string, meta?: unknown): void;
+  warn(message: string, meta?: unknown): void;
+}
+```
+
+### Process-Specific Interfaces
+
+**Location**: `packages/shared/src/interfaces/process-interfaces.ts`
+
+```typescript
+export interface IProxyProcess extends IProcess {
+  sessionId: string;
+  sendCommand(command: object): void;
+  waitForInitialization(timeout?: number): Promise<void>;
+}
+
+export interface IProxyProcessLauncher {
+  launchProxy(
+    scriptPath: string,
+    sessionId: string,
+    env?: Record<string, string>
+  ): IProxyProcess;
+}
+```
+
+## Real-World Usage
+
+### Production Container Configuration
+
+**Location**: `src/container/dependencies.ts`
+
+```typescript
+import { FileSystemImpl, ProcessManagerImpl, NetworkManagerImpl, ... } from '../implementations/index.js';
+import { createLogger } from '../utils/logger.js';
+
+export function createProductionDependencies(config: ContainerConfig = {}): Dependencies {
+  const logger = createLogger('debug-mcp', { level: config.logLevel, ... });
+  const environment = new ProcessEnvironment();
+  const fileSystem = new FileSystemImpl();
+  const processManager = new ProcessManagerImpl();
+  const networkManager = new NetworkManagerImpl();
+
+  // Process launchers
+  const processLauncher = new ProcessLauncherImpl(processManager);
+  const proxyProcessLauncher = new ProxyProcessLauncherImpl(processManager);
+  const debugTargetLauncher = new DebugTargetLauncherImpl(processLauncher, networkManager);
+
+  // Factories
+  const proxyManagerFactory = new ProxyManagerFactory(proxyProcessLauncher, fileSystem, logger);
+  const sessionStoreFactory = new SessionStoreFactory();
+
+  // Adapter registry (with dynamic loading enabled, overrides forbidden)
+  const adapterRegistry = new AdapterRegistry({
+    validateOnRegister: false,
+    allowOverride: false,
+    enableDynamicLoading: true
+  });
+
+  return {
+    fileSystem, processManager, networkManager, logger, environment,
+    processLauncher, proxyProcessLauncher, debugTargetLauncher,
+    proxyManagerFactory, sessionStoreFactory, adapterRegistry
+  };
+}
+```
+
+### Test Container Configuration
+
+**Location**: `tests/test-utils/helpers/test-dependencies.ts`
+
+```typescript
+// Returns a Dependencies object (defined in tests/test-utils/helpers/test-dependencies.ts)
+// containing: fileSystem, processManager, networkManager, logger,
+//             processLauncher, proxyProcessLauncher, debugTargetLauncher,
+//             proxyManagerFactory, sessionStoreFactory
+export async function createMockDependencies(): Promise<Dependencies> {
+  const logger = createMockLogger();
+  const fileSystem = createMockFileSystem();
+  const processManager = createMockProcessManager();
+  const networkManager = createMockNetworkManager();
+
+  const processLauncher = new FakeProcessLauncher();
+  const proxyProcessLauncher = new FakeProxyProcessLauncher();
+  const debugTargetLauncher = new FakeDebugTargetLauncher();
+
+  const proxyManagerFactory = new MockProxyManagerFactory();
+  proxyManagerFactory.createFn = () => new MockProxyManager();
+  const sessionStoreFactory = new MockSessionStoreFactory();
+
+  return {
+    fileSystem, processManager, networkManager, logger,
+    processLauncher, proxyProcessLauncher, debugTargetLauncher,
+    proxyManagerFactory, sessionStoreFactory
+  };
+}
+
+// There is also a synchronous helper for SessionManager-specific tests:
+export function createMockSessionManagerDependencies(): SessionManagerDependencies {
+  return {
+    fileSystem: createMockFileSystem(),
+    networkManager: createMockNetworkManager(),
+    logger: createMockLogger(),
+    proxyManagerFactory: new MockProxyManagerFactory(),
+    sessionStoreFactory: new MockSessionStoreFactory(),
+    debugTargetLauncher: createMockDebugTargetLauncher(),
+    environment: createMockEnvironment(),
+    adapterRegistry: createMockAdapterRegistry()
+  };
+}
+
+export function createMockFileSystem(): IFileSystem {
+  return {
+    readFile: vi.fn(),
+    writeFile: vi.fn(),
+    exists: vi.fn(),
+    existsSync: vi.fn(),
+    mkdir: vi.fn(),
+    readdir: vi.fn(),
+    stat: vi.fn(),
+    unlink: vi.fn(),
+    rmdir: vi.fn(),
+    ensureDir: vi.fn(),
+    ensureDirSync: vi.fn(),
+    pathExists: vi.fn(),
+    remove: vi.fn(),
+    copy: vi.fn(),
+    outputFile: vi.fn()
+  };
+}
+```
+
+## Testing Benefits
+
+### Example: Testing SessionManager
+
+**Location**: `tests/core/unit/session/session-manager-*.test.ts`
+
+```typescript
+describe('SessionManager', () => {
+  let sessionManager: SessionManager;
+  let mockDependencies: SessionManagerDependencies;
+
+  beforeEach(() => {
+    // Create all mock dependencies
+    mockDependencies = {
+      fileSystem: createMockFileSystem(),
+      networkManager: createMockNetworkManager(),
+      logger: createMockLogger(),
+      proxyManagerFactory: createMockProxyManagerFactory(),
+      sessionStoreFactory: createMockSessionStoreFactory(),
+      debugTargetLauncher: createMockDebugTargetLauncher(),
+      environment: createMockEnvironment(),
+      adapterRegistry: createMockAdapterRegistry()
+    };
+
+    // Create SessionManager with mocks
+    sessionManager = new SessionManager(
+      { logDirBase: '/tmp/test' },
+      mockDependencies
+    );
+  });
+
+  it('should create session directory on initialization', () => {
+    expect(mockDependencies.fileSystem.ensureDirSync)
+      .toHaveBeenCalledWith('/tmp/test');
+  });
+
+  it('should use network manager to find free port', async () => {
+    vi.mocked(mockDependencies.networkManager.findFreePort)
+      .mockResolvedValue(5678);
+    
+    // Test will use mocked port
+    // ... rest of test
+  });
+});
+```
+
+### Example: Testing with Fake Implementations
+
+**Location**: `tests/unit/proxy/proxy-manager-lifecycle.test.ts`
+
+```typescript
+describe('ProxyManager', () => {
+  let proxyManager: ProxyManager;
+  let fakeLauncher: FakeProxyProcessLauncher;
+
+  beforeEach(() => {
+    // Use fake implementation instead of mock
+    fakeLauncher = new FakeProxyProcessLauncher();
+
+    proxyManager = new ProxyManager(
+      null,  // No adapter
+      fakeLauncher,  // Fake implementation
+      createMockFileSystem(),  // Mock
+      createMockLogger()  // Mock
+    );
+  });
+
+  it('should handle proxy messages', async () => {
+    // Prepare fake to simulate behavior
+    fakeLauncher.prepareProxy((proxy) => {
+      setTimeout(() => {
+        proxy.simulateMessage({
+          type: 'status',
+          status: 'initialized'
+        });
+      }, 100);
+    });
+
+    // Test uses fake behavior
+    await proxyManager.start(config);
+    // ... assertions
+  });
+});
+```
+
+## Advanced Patterns
+
+### Partial Dependencies
+
+For gradual migration or optional features:
+
+```typescript
+export type PartialDependencies = Partial<IDependencies>;
+
+export function createComponentWithDefaults(
+  deps: PartialDependencies
+): Component {
+  const fullDeps = {
+    ...createDefaultDependencies(),
+    ...deps
+  };
+  return new Component(fullDeps as IDependencies);
+}
+```
+
+### Dependency Validation
+
+Ensure required dependencies are provided:
+
+```typescript
+constructor(dependencies: SessionManagerDependencies) {
+  // Validate required dependencies
+  if (!dependencies.logger) {
+    throw new Error('Logger is required');
+  }
+  if (!dependencies.fileSystem) {
+    throw new Error('FileSystem is required');
+  }
+  
+  // Assign after validation
+  this.logger = dependencies.logger;
+  this.fileSystem = dependencies.fileSystem;
+}
+```
+
+### Lazy Dependency Creation
+
+For expensive dependencies:
+
+```typescript
+export class LazyProxyManagerFactory implements IProxyManagerFactory {
+  private instance?: IProxyManager;
+
+  create(adapter?: IDebugAdapter): IProxyManager {
+    if (!this.instance) {
+      this.instance = new ProxyManager(
+        adapter || null,
+        this.launcher,
+        this.fileSystem,
+        this.logger
+      );
+    }
+    return this.instance;
+  }
+}
+```
+
+## Best Practices
+
+1. **Define Interfaces First** - Start with the interface, not the implementation
+2. **Keep Interfaces Focused** - Follow Interface Segregation Principle
+3. **Use Constructor Injection** - Make dependencies explicit
+4. **Avoid Service Locators** - Don't hide dependencies
+5. **Create Factories for Complex Objects** - When objects need runtime parameters
+6. **Test with Mocks/Fakes** - Never use real external dependencies in unit tests
+7. **Document Dependencies** - Make it clear what each dependency provides
+
+## Anti-Patterns to Avoid
+
+### ❌ Hidden Dependencies
+```typescript
+// Bad - hidden dependency on global
+class BadComponent {
+  doSomething() {
+    const logger = getGlobalLogger(); // Hidden dependency!
+    logger.info('doing something');
+  }
+}
+```
+
+### ❌ Property Injection
+```typescript
+// Bad - dependencies can be changed after construction
+class BadComponent {
+  logger?: ILogger;  // Can be undefined!
+  
+  doSomething() {
+    this.logger?.info('maybe works?');
+  }
+}
+```
+
+### ❌ Concrete Dependencies
+```typescript
+// Bad - depends on concrete implementation
+import { WinstonLogger } from 'winston';
+
+class BadComponent {
+  constructor(private logger: WinstonLogger) {} // Tied to Winston!
+}
+```
+
+## Summary
+
+The dependency injection pattern in MCP Debug Server:
+- Enables 90%+ test coverage by making everything testable
+- Provides flexibility to swap implementations
+- Makes the codebase more maintainable
+- Documents component relationships explicitly
+
+By following these patterns, the codebase remains modular, testable, and easy to understand.

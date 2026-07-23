@@ -1,0 +1,400 @@
+/**
+ * SessionManager DAP operations tests
+ */
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { SessionManager, SessionManagerConfig } from '../../../../src/session/session-manager.js';
+import { DebugLanguage, SessionState } from '@debugmcp/shared';
+import { createMockDependencies } from './session-manager-test-utils.js';
+import { ErrorMessages } from '../../../../src/utils/error-messages.js';
+import { ProxyNotRunningError } from '../../../../src/errors/debug-errors.js';
+
+describe('SessionManager - DAP Operations', () => {
+  let sessionManager: SessionManager;
+  let dependencies: ReturnType<typeof createMockDependencies>;
+  let config: SessionManagerConfig;
+
+  beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    dependencies = createMockDependencies();
+    config = {
+      logDirBase: '/tmp/test-sessions',
+      defaultDapLaunchArgs: {
+        stopOnEntry: true,
+        justMyCode: true
+      }
+    };
+    
+    sessionManager = new SessionManager(config, dependencies);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.clearAllMocks();
+    dependencies.mockProxyManager.reset();
+  });
+
+  async function createPausedSession() {
+    const session = await sessionManager.createSession({ 
+      language: DebugLanguage.MOCK,
+      executablePath: 'python'
+    });
+    
+    await sessionManager.startDebugging(session.id, 'test.py');
+    await vi.runAllTimersAsync();
+    
+    // Simulate being paused with a thread ID
+    dependencies.mockProxyManager.simulateStopped(1, 'entry');
+    
+    // Clear previous calls
+    dependencies.mockProxyManager.dapRequestCalls = [];
+    
+    return session;
+  }
+
+  describe('Breakpoint Management', () => {
+    it('should queue breakpoints before session starts', async () => {
+      const session = await sessionManager.createSession({ 
+        language: DebugLanguage.MOCK,
+        executablePath: 'python'
+      });
+      
+      const bp1 = await sessionManager.setBreakpoint(session.id, 'test.py', 10);
+      const bp2 = await sessionManager.setBreakpoint(session.id, 'test.py', 20);
+      
+      expect(bp1.verified).toBe(false);
+      expect(bp2.verified).toBe(false);
+      
+      const managedSession = sessionManager.getSession(session.id);
+      expect(managedSession?.breakpoints.size).toBe(2);
+    });
+
+    it('should send breakpoints to active session', async () => {
+      const session = await sessionManager.createSession({ 
+        language: DebugLanguage.MOCK,
+        executablePath: 'python'
+      });
+      
+      // Start debugging first
+      await sessionManager.startDebugging(session.id, 'test.py');
+      await vi.runAllTimersAsync();
+      
+      // Clear previous calls
+      dependencies.mockProxyManager.dapRequestCalls = [];
+      
+      // Set breakpoint on active session
+      const bp = await sessionManager.setBreakpoint(session.id, 'test.py', 15);
+      
+      // Should be verified immediately
+      expect(bp.verified).toBe(true);
+      expect(dependencies.mockProxyManager.dapRequestCalls).toHaveLength(1);
+      expect(dependencies.mockProxyManager.dapRequestCalls[0]).toMatchObject({
+        command: 'setBreakpoints',
+        args: expect.objectContaining({
+          source: { path: expect.stringContaining('test.py') }
+        })
+      });
+    });
+
+    it('should handle conditional breakpoints', async () => {
+      const session = await sessionManager.createSession({ 
+        language: DebugLanguage.MOCK,
+        executablePath: 'python'
+      });
+      
+      await sessionManager.startDebugging(session.id, 'test.py');
+      await vi.runAllTimersAsync();
+      
+      dependencies.mockProxyManager.dapRequestCalls = [];
+      
+      const bp = await sessionManager.setBreakpoint(
+        session.id, 
+        'test.py', 
+        25, 
+        'x > 10'
+      );
+      
+      expect(bp.condition).toBe('x > 10');
+      expect(dependencies.mockProxyManager.dapRequestCalls[0].args.breakpoints[0]).toMatchObject({
+        line: 25,
+        condition: 'x > 10'
+      });
+    });
+  });
+
+  describe('Step Operations', () => {
+    it('should handle step over correctly', async () => {
+      const session = await createPausedSession();
+      
+      const stepPromise = sessionManager.stepOver(session.id);
+      await vi.runAllTimersAsync();
+      
+      const result = await stepPromise;
+      
+      expect(result.success).toBe(true);
+      expect(dependencies.mockProxyManager.dapRequestCalls).toContainEqual({
+        command: 'next',
+        args: { threadId: 1 }
+      });
+    });
+
+    it('should handle step into correctly', async () => {
+      const session = await createPausedSession();
+      
+      const result = await sessionManager.stepInto(session.id);
+      
+      expect(result.success).toBe(true);
+      expect(dependencies.mockProxyManager.dapRequestCalls).toContainEqual({
+        command: 'stepIn',
+        args: { threadId: 1 }
+      });
+    });
+
+    it('should handle step out correctly', async () => {
+      const session = await createPausedSession();
+      
+      const result = await sessionManager.stepOut(session.id);
+      
+      expect(result.success).toBe(true);
+      expect(dependencies.mockProxyManager.dapRequestCalls).toContainEqual({
+        command: 'stepOut',
+        args: { threadId: 1 }
+      });
+    });
+
+    it('should reject step operations when not paused', async () => {
+      const session = await sessionManager.createSession({ 
+        language: DebugLanguage.MOCK,
+        executablePath: 'python'
+      });
+      
+      // Try stepping without starting - now throws typed error
+      await expect(sessionManager.stepOver(session.id)).rejects.toThrow(ProxyNotRunningError);
+      
+      // Start but simulate running state  
+      await sessionManager.startDebugging(session.id, 'test.py', [], { stopOnEntry: false });
+      await vi.runAllTimersAsync();
+      
+      let result: any;
+      result = await sessionManager.stepOver(session.id);
+      expect(result.success).toBe(false);
+      // When running, it should say "Not paused"
+      expect(result.error).toBe('Not paused');
+    });
+
+    it('should report a pending step when the grace window elapses', async () => {
+      const session = await createPausedSession();
+
+      // Configure mock to not emit stopped event after step
+      dependencies.mockProxyManager.sendDapRequest = vi.fn().mockResolvedValue({ success: true });
+
+      const stepPromise = sessionManager.stepOver(session.id);
+
+      // Fast forward past the grace window
+      await vi.advanceTimersByTimeAsync(6000);
+
+      const result = await stepPromise;
+      expect(result.success).toBe(true);
+      const data = result.data as { message?: string; pending?: boolean };
+      expect(data.pending).toBe(true);
+      expect(data.message).toBe(ErrorMessages.stepStillRunning(5));
+
+      // The pending step completes asynchronously: when the stop finally
+      // lands, the persistent core listener flips the session to PAUSED.
+      expect(sessionManager.getSession(session.id)?.state).toBe(SessionState.RUNNING);
+      dependencies.mockProxyManager.simulateStopped(1, 'step');
+      await vi.runAllTimersAsync();
+      expect(sessionManager.getSession(session.id)?.state).toBe(SessionState.PAUSED);
+    });
+
+    it('should treat termination during step as a successful completion', async () => {
+      const session = await createPausedSession();
+      
+      dependencies.mockProxyManager.sendDapRequest = vi.fn().mockImplementation(async (command: string) => {
+        if (command === 'next') {
+          process.nextTick(() => {
+            dependencies.mockProxyManager.emit('terminated');
+          });
+        }
+        return { success: true };
+      });
+      
+      const stepPromise = sessionManager.stepOver(session.id);
+      await vi.runAllTimersAsync();
+      
+      const result = await stepPromise;
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe('Variable inspection', () => {
+    it('should fall back to script/global scopes when no Local scope is present', async () => {
+      const session = await createPausedSession();
+      
+      dependencies.mockProxyManager.sendDapRequest = vi.fn().mockImplementation(async (command: string) => {
+        switch (command) {
+          case 'stackTrace':
+            return {
+              success: true,
+              body: {
+                stackFrames: [{
+                  id: 1,
+                  name: '<module>',
+                  source: { path: 'test-simple.js' },
+                  line: 6,
+                  column: 0
+                }]
+              }
+            };
+          case 'scopes':
+            return {
+              success: true,
+              body: {
+                scopes: [{
+                  name: 'Script',
+                  variablesReference: 200,
+                  expensive: false
+                }]
+              }
+            };
+          case 'variables':
+            return {
+              success: true,
+              body: {
+                variables: [
+                  { name: 'x', value: '5', type: 'number', variablesReference: 0 },
+                  { name: 'y', value: '10', type: 'number', variablesReference: 0 },
+                  { name: 'sum', value: '15', type: 'number', variablesReference: 0 }
+                ]
+              }
+            };
+          default:
+            return { success: true };
+        }
+      });
+      
+      const result = await sessionManager.getLocalVariables(session.id);
+      expect(result.variables).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ name: 'x', value: '5' }),
+          expect.objectContaining({ name: 'y', value: '10' }),
+          expect.objectContaining({ name: 'sum', value: '15' })
+        ])
+      );
+    });
+  });
+
+  describe('Variable and Stack Inspection', () => {
+    it('should retrieve variables for a scope', async () => {
+      const session = await sessionManager.createSession({ 
+        language: DebugLanguage.MOCK,
+        executablePath: 'python'
+      });
+      
+      await sessionManager.startDebugging(session.id, 'test.py');
+      await vi.runAllTimersAsync();
+      
+      // Pause the session
+      dependencies.mockProxyManager.simulateStopped(1, 'entry');
+      
+      const variables = await sessionManager.getVariables(session.id, 100);
+      
+      expect(variables).toHaveLength(1);
+      expect(variables[0]).toMatchObject({
+        name: 'test_var',
+        value: '42',
+        type: 'int',
+        expandable: false
+      });
+      
+      expect(dependencies.mockProxyManager.dapRequestCalls).toContainEqual({
+        command: 'variables',
+        args: { variablesReference: 100 }
+      });
+    });
+
+    it('should retrieve stack trace', async () => {
+      const session = await sessionManager.createSession({ 
+        language: DebugLanguage.MOCK,
+        executablePath: 'python'
+      });
+      
+      await sessionManager.startDebugging(session.id, 'test.py');
+      await vi.runAllTimersAsync();
+      
+      // Pause the session
+      dependencies.mockProxyManager.simulateStopped(1, 'entry');
+      
+      const stackFrames = await sessionManager.getStackTrace(session.id);
+      
+      expect(stackFrames).toHaveLength(1);
+      expect(stackFrames[0]).toMatchObject({
+        id: 1,
+        name: 'main',
+        file: 'test.py',
+        line: 10
+      });
+      
+      expect(dependencies.mockProxyManager.dapRequestCalls).toContainEqual({
+        command: 'stackTrace',
+        args: { threadId: 1 }
+      });
+    });
+
+    it('should retrieve scopes for a frame', async () => {
+      const session = await sessionManager.createSession({ 
+        language: DebugLanguage.MOCK,
+        executablePath: 'python'
+      });
+      
+      await sessionManager.startDebugging(session.id, 'test.py');
+      await vi.runAllTimersAsync();
+      
+      // Pause the session
+      dependencies.mockProxyManager.simulateStopped(1, 'entry');
+      
+      const scopes = await sessionManager.getScopes(session.id, 1);
+      
+      expect(scopes).toHaveLength(1);
+      expect(scopes[0]).toMatchObject({
+        name: 'Locals',
+        variablesReference: 100,
+        expensive: false
+      });
+      
+      expect(dependencies.mockProxyManager.dapRequestCalls).toContainEqual({
+        command: 'scopes',
+        args: { frameId: 1 }
+      });
+    });
+
+    it('should return empty arrays when not paused', async () => {
+      const session = await sessionManager.createSession({ 
+        language: DebugLanguage.MOCK,
+        executablePath: 'python'
+      });
+      
+      // Try without starting
+      let variables = await sessionManager.getVariables(session.id, 100);
+      expect(variables).toEqual([]);
+      
+      let stackFrames = await sessionManager.getStackTrace(session.id);
+      expect(stackFrames).toEqual([]);
+      
+      let scopes = await sessionManager.getScopes(session.id, 1);
+      expect(scopes).toEqual([]);
+      
+      // Start but in running state
+      await sessionManager.startDebugging(session.id, 'test.py', [], { stopOnEntry: false });
+      await vi.runAllTimersAsync();
+      
+      variables = await sessionManager.getVariables(session.id, 100);
+      expect(variables).toEqual([]);
+      
+      stackFrames = await sessionManager.getStackTrace(session.id);
+      expect(stackFrames).toEqual([]);
+      
+      scopes = await sessionManager.getScopes(session.id, 1);
+      expect(scopes).toEqual([]);
+    });
+  });
+});

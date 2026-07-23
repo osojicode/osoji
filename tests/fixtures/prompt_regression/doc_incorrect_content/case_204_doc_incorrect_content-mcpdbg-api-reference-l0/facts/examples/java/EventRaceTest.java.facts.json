@@ -1,0 +1,67 @@
+{
+  "source": "examples/java/EventRaceTest.java",
+  "source_hash": "72aaff2e463ebd7a",
+  "generated": "2026-07-22T22:07:02Z",
+  "imports": [],
+  "exports": [
+    {
+      "name": "EventRaceTest",
+      "kind": "class",
+      "line": 13
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "main",
+      "to": "LateLoadedHelper.greet",
+      "line": 34
+    },
+    {
+      "from_symbol": "main",
+      "to": "Thread.sleep",
+      "line": 26
+    },
+    {
+      "from_symbol": "main",
+      "to": "System.out.println",
+      "line": 25
+    },
+    {
+      "from_symbol": "main",
+      "to": "compute",
+      "line": 29
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "EventRaceTest starting...",
+      "context": "Startup log message printed at beginning of main()",
+      "line": 25,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "Sum: ",
+      "context": "Log prefix for compute() result",
+      "line": 30,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "EventRaceTest done.",
+      "context": "Completion log message at end of main()",
+      "line": 37,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "World",
+      "context": "Argument passed to LateLoadedHelper.greet() to trigger class load",
+      "line": 34,
+      "kind": "message",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "llm"
+}
