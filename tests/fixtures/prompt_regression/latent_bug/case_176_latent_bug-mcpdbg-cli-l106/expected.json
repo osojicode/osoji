@@ -4,7 +4,7 @@
   "reasoning": "Confirmed real and worse than stated. Click's BaseCommand.main() in standalone mode does `rv = self.invoke(ctx)` then `ctx.exit()` (no arg \u2192 exit 0), discarding rv. The console-script entry point exists (pyproject.toml), so `debug-mcp-server` error paths (conflicting flags L108, docker/npx unavailable L122-149, etc.) all exit 0. L179/L197 launcher returns carrying the real subprocess exit code are also swallowed.",
   "gray": false,
   "gray_reason": null,
-  "expected_contract_class": null,
+  "expected_contract_class": "ecosystem",
   "adjudicated_by": "sweep-proposed+panel-2of2",
   "adjudicated_at": "2026-07-22",
   "accepted": true

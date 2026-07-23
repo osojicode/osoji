@@ -13,6 +13,16 @@ from osoji.tools import (
 
 _VERDICTS = ("confirmed", "dismissed", "uncertain")
 _SEVERITIES = ("error", "warning", "info")
+# Authority-source contract taxonomy (ratified 2026-07-22): classify by WHO
+# defines the binding, not by what carries it. The literal-shaped predecessors
+# are retired.
+_CONTRACT_CLASSES = (
+    "project_named", "project_implicit", "ecosystem", "coincidental", "other",
+)
+_RETIRED_CONTRACT_CLASSES = (
+    "named_obligation", "unnamed_obligation", "ecosystem_convention",
+    "magic_constant", "coincidence",
+)
 
 
 def _verdict_item_props(tool):
@@ -36,6 +46,16 @@ def test_claim_tool_verdict_and_severity_enums():
     props = _verdict_item_props(tool)
     assert tuple(props["verdict"]["enum"]) == _VERDICTS
     assert tuple(props["severity"]["enum"]) == _SEVERITIES
+
+
+def test_claim_tool_contract_class_enum_is_authority_source_taxonomy():
+    [tool] = get_triage_claim_tool_definitions()
+    props = _verdict_item_props(tool)
+    enum = tuple(props["contract_class"]["enum"])
+    assert enum == _CONTRACT_CLASSES
+    # The retired literal-shaped classes must not linger in the schema.
+    for old in _RETIRED_CONTRACT_CLASSES:
+        assert old not in enum
 
 
 def test_exploration_tools_present():

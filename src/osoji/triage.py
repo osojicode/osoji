@@ -171,49 +171,68 @@ that references the missing path incidentally; decide on the balance of the elem
 dependence on what is actually missing.
 
 """,
-    "contract_literal_classes": """\
-For contract gaps over hard-coded literals, classify the literal before deciding:
-- Named project obligation — a constant exists; another site duplicates its bare literal.
-  Confirm; suggest using the existing constant.
-- Unnamed project obligation — two sites share a bare literal in clearly-related roles, no
-  constant yet. Confirm; suggest extracting a shared constant.
-- Ecosystem convention — meaning defined outside the project (HTTP codes, file modes,
-  MIME types, RFC strings). Dismiss; the contract is with the external standard.
-- Magic-constant duplication (ambiguous) — examine: confirm if the sites should agree,
-  dismiss if coincidental.
-- Coincidental duplication — same literal, unrelated roles. Dismiss as coincidence.
+    "contract_classes": """\
+For a contract gap, classify by WHO DEFINES THE BINDING the claim rests on — never by what
+carries it. A shared literal, a payload shape, a wire format, a filesystem layout, a naming
+convention are all just carriers; the carrier never decides the class, only the source of
+authority and the repayment action that would retire the debt do:
+- project_named — the project defines the binding EXPLICITLY somewhere: a constant, a
+  schema file, a declared type, a documented invariant; the claim is a site drifting from
+  (or duplicating instead of using) that definition. Repayment verb BIND — point the site
+  at the existing definition. This class requires a bindable artifact: a name, schema, or
+  type a drifting site could actually reference. Prose (a comment, a doc) declares intent
+  but does not name a binding, so a prose-only invariant is never project_named.
+- project_implicit — components of this project agree in behavior, but the agreement is
+  written down nowhere shared: a bare value two files must keep equal, a payload shape one
+  file produces and another assumes, a tokenizer/parser handshake, name-string dispatch.
+  Repayment verb DECLARE — create the missing shared definition (constant, schema, type)
+  so future drift fails LOUDLY at the name level instead of silently at the value level.
+- ecosystem — an EXTERNAL standard, protocol, or tool fixes the meaning (HTTP codes, SSE
+  framing, coverage-tool JSON, package-manager layout, MCP envelope). External authority
+  wins even when the project also wraps the value. Such a binding is DEBT only via the
+  project's own adoption claim — the project says or implies it speaks this protocol;
+  violating an adopted standard confirms with repayment verb CONFORM (or an explicitly
+  declared deviation). A bare use of the standard's vocabulary with no violation and no
+  project-level agreement is not the project's to define: dismissal territory.
+- coincidental — no binding exists; the resemblance between sites is accidental, no
+  contradiction is possible, hence no debt. Repayment verb CLOSE.
 
 """,
     "contract_verdict": """\
 For every contract-gap claim, emit a `contract_class` alongside the verdict — one of
-named_obligation, unnamed_obligation, ecosystem_convention, magic_constant, coincidence,
-or other. Reason over the whole assembled file tuple, not only the pair named in the
-claim header: every file that produces, checks, or defines the shared literal rides along
-with its surrounding code, and a third file that independently emits the same literal is
-itself a drift risk even when the header names the best-attested coupling. Shared-literal
-drift fails SILENTLY at the value level — a mismatched string, no error — and confirming
-binds the sites to one definition so the next rename fails LOUDLY at the name level; that
-conversion, not "extract a constant" for its own sake, is the significance. When the
-literal fits none of the five classes, set `contract_class` to `other` and say why:
-`other` is the taxonomy's safety valve — a request for review, never shoehorned into the
-nearest class — and its rate is a tracked signal of the taxonomy's adequacy.
+project_named, project_implicit, ecosystem, coincidental, or other. Emission is not
+optional on a contract-gap claim: omitting the field is itself an error, never a way to
+signal uncertainty about the class. Reason over the whole assembled file tuple, not only
+the pair named in the claim header: every file that produces, checks, or defines the
+shared binding rides along with its surrounding code, and a third file that independently
+emits the same value is itself a drift risk even when the header names the best-attested
+coupling. Cross-site drift fails SILENTLY at the value level — a mismatched value, no
+error — and confirming binds the sites to one definition so the next rename fails LOUDLY at
+the name level; that conversion, not "extract a constant" for its own sake, is the
+significance. When none of the four repayment actions (BIND / DECLARE / CONFORM / CLOSE)
+would retire the case, set `contract_class` to `other` and say what is binding-like about
+it yet unclassifiable: `other` is the taxonomy's safety valve — a request for review, never
+shoehorned into the nearest class — and its rate is a tracked signal of the taxonomy's
+adequacy.
 
 """,
     "contract_bundles": """\
-When a single claim bundles several shared literals for one file pair, judge the bundle by
-its strongest constituent: if any bundled literal is a genuine project obligation (named or
-unnamed), confirm the claim and set `contract_class` to that strongest class, noting in the
-reasoning which literals carry the contract and which are incidental. Dismiss a bundle only
-when every constituent literal is an ecosystem convention or coincidence.
+When a single claim bundles several shared bindings for one file pair, judge the bundle by
+its strongest constituent, in precedence order project_named > project_implicit > ecosystem
+> coincidental: if any bundled binding is a genuine project obligation (project_named or
+project_implicit), confirm the claim and set `contract_class` to that strongest class,
+noting in the reasoning which bindings carry the contract and which are incidental. Dismiss
+a bundle only when every constituent is an ecosystem binding (with no adoption-claim
+violation) or coincidental.
 
 """,
     "contract_ecosystem_boundary": """\
-A literal whose meaning is fixed by an external API, wire format, or protocol is an
-ecosystem convention no matter which side of the boundary emitted it: a value your code
-sends and a value it receives back are governed alike by the external contract, not by any
-project obligation. Judge such strings by the protocol that defines them, and apply that
-judgement consistently across the protocol's whole vocabulary — do not confirm one member
-of an external message/status/finish-reason vocabulary while dismissing its siblings.
+A binding whose meaning is fixed by an external API, wire format, or protocol is
+`ecosystem` no matter which side of the boundary emitted it: a value your code sends and a
+value it receives back are governed alike by the external contract, not by any project
+obligation. Judge such values by the protocol that defines them, and apply that judgement
+consistently across the protocol's whole vocabulary — do not confirm one member of an
+external message/status/finish-reason vocabulary while dismissing its siblings.
 
 """,
     "latent_bug": """\
