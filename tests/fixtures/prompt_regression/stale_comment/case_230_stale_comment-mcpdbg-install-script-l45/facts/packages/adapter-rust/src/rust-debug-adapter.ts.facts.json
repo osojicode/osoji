@@ -1,0 +1,1741 @@
+{
+  "source": "packages/adapter-rust/src/rust-debug-adapter.ts",
+  "source_hash": "5fb7e02f2ccffc2c",
+  "generated": "2026-07-23T18:33:59Z",
+  "imports": [
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 11,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": "fs/promises",
+      "names": [
+        "fs"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": "fs",
+      "names": [
+        "existsSync"
+      ],
+      "line": 14,
+      "is_reexport": false
+    },
+    {
+      "source": "fs",
+      "names": [
+        "fsSync"
+      ],
+      "line": 15,
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "line": 16,
+      "is_reexport": false
+    },
+    {
+      "source": "os",
+      "names": [
+        "os"
+      ],
+      "line": 17,
+      "is_reexport": false
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IDebugAdapter",
+        "AdapterState",
+        "ValidationResult",
+        "ValidationError",
+        "ValidationWarning",
+        "DependencyInfo",
+        "AdapterCommand",
+        "AdapterConfig",
+        "GenericLaunchConfig",
+        "LanguageSpecificLaunchConfig",
+        "DebugFeature",
+        "FeatureRequirement",
+        "AdapterCapabilities",
+        "AdapterError",
+        "AdapterErrorCode",
+        "AdapterEvents"
+      ],
+      "line": 21,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage"
+      ],
+      "line": 39,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterDependencies"
+      ],
+      "line": 40,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./utils/codelldb-resolver.js",
+      "names": [
+        "resolveCodeLLDBExecutable"
+      ],
+      "line": 41,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-rust/src/utils/codelldb-resolver.ts"
+    },
+    {
+      "source": "./utils/rust-utils.js",
+      "names": [
+        "checkCargoInstallation",
+        "checkRustInstallation",
+        "getRustHostTriple",
+        "findDlltoolExecutable"
+      ],
+      "line": 42,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-rust/src/utils/rust-utils.ts"
+    },
+    {
+      "source": "./utils/binary-detector.js",
+      "names": [
+        "detectBinaryFormat",
+        "BinaryInfo"
+      ],
+      "line": 48,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-rust/src/utils/binary-detector.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "RustDebugAdapter",
+      "kind": "class",
+      "line": 96,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EventEmitter"
+      ],
+      "implements": [
+        "IDebugAdapter"
+      ]
+    },
+    {
+      "name": "RustDebugAdapter.consumeLastToolchainValidation",
+      "kind": "function",
+      "line": 126,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustDebugAdapter.initialize",
+      "kind": "function",
+      "line": 134,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustDebugAdapter.dispose",
+      "kind": "function",
+      "line": 164,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustDebugAdapter.getState",
+      "kind": "function",
+      "line": 174,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustDebugAdapter.isReady",
+      "kind": "function",
+      "line": 178,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustDebugAdapter.getCurrentThreadId",
+      "kind": "function",
+      "line": 184,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustDebugAdapter.validateEnvironment",
+      "kind": "function",
+      "line": 196,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustDebugAdapter.getRequiredDependencies",
+      "kind": "function",
+      "line": 285,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustDebugAdapter.resolveExecutablePath",
+      "kind": "function",
+      "line": 310,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "preferredPath",
+          "optional": true,
+          "type": "string | undefined"
+        }
+      ]
+    },
+    {
+      "name": "RustDebugAdapter.getDefaultExecutableName",
+      "kind": "function",
+      "line": 394,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustDebugAdapter.getExecutableSearchPaths",
+      "kind": "function",
+      "line": 398,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustDebugAdapter.validateToolchain",
+      "kind": "function",
+      "line": 584,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "binaryPath",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "RustDebugAdapter.buildAdapterCommand",
+      "kind": "function",
+      "line": 658,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").AdapterConfig"
+        }
+      ]
+    },
+    {
+      "name": "RustDebugAdapter.getAdapterModuleName",
+      "kind": "function",
+      "line": 779,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustDebugAdapter.getAdapterInstallCommand",
+      "kind": "function",
+      "line": 783,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustDebugAdapter.transformLaunchConfig",
+      "kind": "function",
+      "line": 789,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").GenericLaunchConfig"
+        }
+      ]
+    },
+    {
+      "name": "RustDebugAdapter.getDefaultLaunchConfig",
+      "kind": "function",
+      "line": 921,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustDebugAdapter.sendDapRequest",
+      "kind": "function",
+      "line": 932,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "command",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "args",
+          "optional": true,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "name": "RustDebugAdapter.handleDapEvent",
+      "kind": "function",
+      "line": 956,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "event",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol\").DebugProtocol.Event"
+        }
+      ]
+    },
+    {
+      "name": "RustDebugAdapter.handleDapResponse",
+      "kind": "function",
+      "line": 977,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "response",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol\").DebugProtocol.Response"
+        }
+      ]
+    },
+    {
+      "name": "RustDebugAdapter.connect",
+      "kind": "function",
+      "line": 988,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "host",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "port",
+          "optional": false,
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "RustDebugAdapter.disconnect",
+      "kind": "function",
+      "line": 998,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustDebugAdapter.isConnected",
+      "kind": "function",
+      "line": 1005,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustDebugAdapter.getInstallationInstructions",
+      "kind": "function",
+      "line": 1011,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustDebugAdapter.getMissingExecutableError",
+      "kind": "function",
+      "line": 1041,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustDebugAdapter.translateErrorMessage",
+      "kind": "function",
+      "line": 1053,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "error",
+          "optional": false,
+          "type": "Error"
+        }
+      ]
+    },
+    {
+      "name": "RustDebugAdapter.supportsFeature",
+      "kind": "function",
+      "line": 1081,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").DebugFeature"
+        }
+      ]
+    },
+    {
+      "name": "RustDebugAdapter.getFeatureRequirements",
+      "kind": "function",
+      "line": 1099,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").DebugFeature"
+        }
+      ]
+    },
+    {
+      "name": "RustDebugAdapter.getCapabilities",
+      "kind": "function",
+      "line": 1131,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ToolchainValidationResult",
+      "kind": "type",
+      "line": 52,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MsvcBehavior",
+      "kind": "type",
+      "line": 50,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "fileURLToPath",
+      "line": 19,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.dirname",
+      "line": 20,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 108,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "super",
+      "line": 120,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.resolveMsvcBehavior",
+      "line": 122,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.resolveAutoSuggestGnu",
+      "line": 123,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 135,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.initialize",
+      "to": "this.validateEnvironment",
+      "line": 139,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.initialize",
+      "to": "this.dependencies.logger?.warn",
+      "line": 144,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 149,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.initialize",
+      "to": "AdapterError",
+      "line": 150,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "RustDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 156,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.initialize",
+      "to": "this.emit",
+      "line": 157,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RustDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 159,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.dispose",
+      "to": "this.executablePathCache.clear",
+      "line": 165,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.dispose",
+      "to": "this.emit",
+      "line": 169,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transitionTo",
+      "to": "this.emit",
+      "line": 191,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateEnvironment",
+      "to": "resolveCodeLLDBExecutable",
+      "line": 202,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateEnvironment",
+      "to": "errors.push",
+      "line": 204,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateEnvironment",
+      "to": "checkRustInstallation",
+      "line": 212,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateEnvironment",
+      "to": "warnings.push",
+      "line": 214,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateEnvironment",
+      "to": "getRustHostTriple",
+      "line": 220,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateEnvironment",
+      "to": "/-pc-windows-msvc/i.test",
+      "line": 221,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateEnvironment",
+      "to": "warnings.push",
+      "line": 222,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateEnvironment",
+      "to": "[\n        hostTriple,\n        process.env.CARGO_BUILD_TARGET,\n        process.env.RUSTFLAGS,\n       ",
+      "line": 228,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateEnvironment",
+      "to": "[\n        hostTriple,\n        process.env.CARGO_BUILD_TARGET,\n        process.env.RUSTFLAGS,\n       ",
+      "line": 228,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateEnvironment",
+      "to": "findDlltoolExecutable",
+      "line": 237,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateEnvironment",
+      "to": "/-pc-windows-gnu/i.test",
+      "line": 240,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateEnvironment",
+      "to": "warnings.push",
+      "line": 241,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateEnvironment",
+      "to": "checkCargoInstallation",
+      "line": 250,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateEnvironment",
+      "to": "warnings.push",
+      "line": 252,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateEnvironment",
+      "to": "warnings.push",
+      "line": 263,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateEnvironment",
+      "to": "errors.push",
+      "line": 271,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveExecutablePath",
+      "to": "this.executablePathCache.get",
+      "line": 313,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveExecutablePath",
+      "to": "Date.now",
+      "line": 315,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveExecutablePath",
+      "to": "this.dependencies.logger?.debug",
+      "line": 316,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveExecutablePath",
+      "to": "this.getRelaxedToolchainMode",
+      "line": 322,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveExecutablePath",
+      "to": "fs.access",
+      "line": 327,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveExecutablePath",
+      "to": "AdapterError",
+      "line": 330,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveExecutablePath",
+      "to": "checkCargoInstallation",
+      "line": 337,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveExecutablePath",
+      "to": "checkRustInstallation",
+      "line": 342,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveExecutablePath",
+      "to": "this.dependencies.logger?.warn",
+      "line": 347,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveExecutablePath",
+      "to": "AdapterError",
+      "line": 351,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveExecutablePath",
+      "to": "this.executablePathCache.set",
+      "line": 360,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveExecutablePath",
+      "to": "Date.now",
+      "line": 362,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.getExecutableSearchPaths",
+      "to": "path.join",
+      "line": 402,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.getExecutableSearchPaths",
+      "to": "path.join",
+      "line": 403,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.getExecutableSearchPaths",
+      "to": "paths.push",
+      "line": 406,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RustDebugAdapter.getExecutableSearchPaths",
+      "to": "path.join",
+      "line": 407,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.getExecutableSearchPaths",
+      "to": "path.join",
+      "line": 408,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.getExecutableSearchPaths",
+      "to": "paths.push",
+      "line": 412,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RustDebugAdapter.getExecutableSearchPaths",
+      "to": "path.join",
+      "line": 413,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.getExecutableSearchPaths",
+      "to": "path.join",
+      "line": 414,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.getExecutableSearchPaths",
+      "to": "paths.push",
+      "line": 419,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RustDebugAdapter.getExecutableSearchPaths",
+      "to": "path.join",
+      "line": 420,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.getExecutableSearchPaths",
+      "to": "path.join",
+      "line": 421,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.getExecutableSearchPaths",
+      "to": "paths.push",
+      "line": 429,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RustDebugAdapter.getExecutableSearchPaths",
+      "to": "process.env.PATH.split",
+      "line": 429,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveMsvcBehavior",
+      "to": "this.dependencies.environment?.get",
+      "line": 437,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveMsvcBehavior",
+      "to": "envValue.toLowerCase",
+      "line": 440,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.safeReadFile",
+      "to": "fsSync.readFileSync",
+      "line": 449,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveAutoSuggestGnu",
+      "to": "this.dependencies.environment?.get",
+      "line": 457,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveAutoSuggestGnu",
+      "to": "rawValue.toLowerCase",
+      "line": 462,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "path.dirname",
+      "line": 468,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "path.resolve",
+      "line": 469,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "path.resolve",
+      "line": 470,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "existsSync",
+      "line": 471,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "path.join",
+      "line": 475,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "Object.prototype.hasOwnProperty.call",
+      "line": 478,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "env.PATH.split(path.delimiter).filter",
+      "line": 484,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "env.PATH.split",
+      "line": 484,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "[\n        path.join(lldbRoot, 'bin'),\n        path.join(lldbRoot, 'DLLs'),\n        path.join(adapter",
+      "line": 486,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "path.join",
+      "line": 487,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "path.join",
+      "line": 488,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "path.join",
+      "line": 489,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "existsSync",
+      "line": 492,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "prependEntries.reverse",
+      "line": 494,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "pathEntries.includes",
+      "line": 495,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "pathEntries.unshift",
+      "line": 496,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "pathEntries.join",
+      "line": 500,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "this.dependencies.logger?.info",
+      "line": 502,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.configurePythonEnvironment",
+      "to": "this.dependencies.logger?.warn",
+      "line": 507,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "originalPath.includes",
+      "line": 515,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "path.resolve",
+      "line": 520,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "path.join",
+      "line": 521,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "os.tmpdir",
+      "line": 521,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "path.join",
+      "line": 522,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "path.basename",
+      "line": 522,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "path.join",
+      "line": 524,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "path.join",
+      "line": 525,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "this.safeReadFile",
+      "line": 526,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "this.safeReadFile",
+      "line": 527,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "fsSync.rmSync",
+      "line": 530,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "fsSync.mkdirSync",
+      "line": 531,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "path.dirname",
+      "line": 531,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "fsSync.cpSync",
+      "line": 532,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "path.join",
+      "line": 535,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "path.relative",
+      "line": 537,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "existsSync",
+      "line": 540,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "this.dependencies.logger?.info",
+      "line": 541,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.prepareCodelldbExecutablePath",
+      "to": "this.dependencies.logger?.warn",
+      "line": 548,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildMsvcWarningMessage",
+      "to": "lines.join",
+      "line": 581,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateToolchain",
+      "to": "detectBinaryFormat",
+      "line": 586,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateToolchain",
+      "to": "this.buildMsvcWarningMessage",
+      "line": 589,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.validateToolchain",
+      "to": "this.dependencies.logger?.debug",
+      "line": 619,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.evaluateToolchain",
+      "to": "this.validateToolchain",
+      "line": 639,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.evaluateToolchain",
+      "to": "AdapterError",
+      "line": 647,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "RustDebugAdapter.evaluateToolchain",
+      "to": "this.dependencies.logger?.warn",
+      "line": 651,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "this.resolveCodeLLDBExecutableSync",
+      "line": 660,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "AdapterError",
+      "line": 663,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "this.prepareCodelldbExecutablePath",
+      "line": 669,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "AdapterError",
+      "line": 673,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "String",
+      "line": 681,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "path.resolve",
+      "line": 685,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "path.dirname",
+      "line": 685,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "existsSync",
+      "line": 686,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "args.push",
+      "line": 687,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "this.dependencies.logger?.warn",
+      "line": 689,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "path.dirname",
+      "line": 700,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "existsSync",
+      "line": 701,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "env.PATH.split(path.delimiter).filter",
+      "line": 703,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "env.PATH.split",
+      "line": 703,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "pathEntries.includes",
+      "line": 705,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "[dllDir, ...pathEntries].join",
+      "line": 706,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "this.configurePythonEnvironment",
+      "line": 712,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "this.dependencies.logger?.info",
+      "line": 719,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "this.dependencies.logger?.debug",
+      "line": 720,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.buildAdapterCommand",
+      "to": "args.join",
+      "line": 720,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveCodeLLDBExecutableSync",
+      "to": "path.resolve",
+      "line": 748,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveCodeLLDBExecutableSync",
+      "to": "path.resolve",
+      "line": 750,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveCodeLLDBExecutableSync",
+      "to": "path.resolve",
+      "line": 752,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveCodeLLDBExecutableSync",
+      "to": "process.cwd",
+      "line": 752,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveCodeLLDBExecutableSync",
+      "to": "existsSync",
+      "line": 757,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.resolveCodeLLDBExecutableSync",
+      "to": "existsSync",
+      "line": 768,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "process.cwd",
+      "line": 799,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "programPath.endsWith",
+      "line": 823,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "this.dependencies.logger?.info",
+      "line": 824,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "import",
+      "line": 829,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "findCargoProjectRoot",
+      "line": 831,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "this.dependencies.logger?.info",
+      "line": 832,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "getDefaultBinary",
+      "line": 835,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "path.join",
+      "line": 838,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "needsRebuild",
+      "line": 846,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "this.dependencies.logger?.info",
+      "line": 847,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "buildCargoProject",
+      "line": 849,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "Error",
+      "line": 856,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "this.dependencies.logger?.info",
+      "line": 861,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "this.dependencies.logger?.error",
+      "line": 866,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "path.resolve",
+      "line": 871,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "process.cwd",
+      "line": 871,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "path.join",
+      "line": 875,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "process.cwd",
+      "line": 876,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "import",
+      "line": 890,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "getDefaultBinary",
+      "line": 891,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "process.cwd",
+      "line": 891,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "path.join",
+      "line": 895,
+      "call_sites": 20
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "AdapterError",
+      "line": 897,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "this.dependencies.logger?.info",
+      "line": 911,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.transformLaunchConfig",
+      "to": "this.evaluateToolchain",
+      "line": 915,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.getDefaultLaunchConfig",
+      "to": "process.cwd",
+      "line": 926,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RustDebugAdapter.sendDapRequest",
+      "to": "this.dependencies.logger?.debug",
+      "line": 938,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.sendDapRequest",
+      "to": "exceptionArgs.filters?.filter",
+      "line": 946,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.sendDapRequest",
+      "to": "validFilters.includes",
+      "line": 946,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.sendDapRequest",
+      "to": "this.dependencies.logger?.warn",
+      "line": 948,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.sendDapRequest",
+      "to": "invalidFilters.join",
+      "line": 948,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.handleDapEvent",
+      "to": "this.dependencies.logger?.debug",
+      "line": 957,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.handleDapEvent",
+      "to": "this.transitionTo",
+      "line": 962,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.handleDapEvent",
+      "to": "this.transitionTo",
+      "line": 969,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 974,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RustDebugAdapter.handleDapResponse",
+      "to": "this.dependencies.logger?.debug",
+      "line": 979,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.handleDapResponse",
+      "to": "this.dependencies.logger?.error",
+      "line": 982,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustDebugAdapter.connect",
+      "to": "this.dependencies.logger?.debug",
+      "line": 991,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "RustDebugAdapter.connect",
+      "to": "this.transitionTo",
+      "line": 994,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.connect",
+      "to": "this.emit",
+      "line": 995,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RustDebugAdapter.disconnect",
+      "to": "this.transitionTo",
+      "line": 1001,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "RustDebugAdapter.disconnect",
+      "to": "this.emit",
+      "line": 1002,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "RustDebugAdapter.translateErrorMessage",
+      "to": "error.message.toLowerCase",
+      "line": 1054,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 1056,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "RustDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 1056,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "RustDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 1060,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "RustDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 1060,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "RustDebugAdapter.translateErrorMessage",
+      "to": "this.getMissingExecutableError",
+      "line": 1061,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 1064,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "RustDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 1068,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "RustDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 1068,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "RustDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 1072,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "RustDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 1072,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "RustDebugAdapter.supportsFeature",
+      "to": "supportedFeatures.includes",
+      "line": 1096,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustDebugAdapter.getFeatureRequirements",
+      "to": "requirements.push",
+      "line": 1104,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RustDebugAdapter.getFeatureRequirements",
+      "to": "requirements.push",
+      "line": 1112,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RustDebugAdapter.getFeatureRequirements",
+      "to": "requirements.push",
+      "line": 1120,
+      "call_sites": 3
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "dependencies",
+      "line": 121
+    },
+    {
+      "container": "this",
+      "member": "msvcBehavior",
+      "line": 122
+    },
+    {
+      "container": "this",
+      "member": "autoSuggestGnu",
+      "line": 123
+    },
+    {
+      "container": "this",
+      "member": "lastToolchainValidation",
+      "line": 128
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 166
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 167
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 168
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 190
+    },
+    {
+      "container": "this",
+      "member": "dlltoolPath",
+      "line": 239
+    },
+    {
+      "container": "env",
+      "member": "PATH",
+      "line": 500
+    },
+    {
+      "container": "this",
+      "member": "lastToolchainValidation",
+      "line": 640
+    },
+    {
+      "container": "env",
+      "member": "LLDB_USE_NATIVE_PDB_READER",
+      "line": 697
+    },
+    {
+      "container": "env",
+      "member": "DLLTOOL",
+      "line": 699
+    },
+    {
+      "container": "env",
+      "member": "PATH",
+      "line": 706
+    },
+    {
+      "container": "env",
+      "member": "RUST_BACKTRACE",
+      "line": 716
+    },
+    {
+      "container": "launchConfig",
+      "member": "program",
+      "line": 859
+    },
+    {
+      "container": "launchConfig",
+      "member": "program",
+      "line": 862
+    },
+    {
+      "container": "launchConfig",
+      "member": "program",
+      "line": 871
+    },
+    {
+      "container": "launchConfig",
+      "member": "program",
+      "line": 895
+    },
+    {
+      "container": "launchConfig",
+      "member": "cargo",
+      "line": 905
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 961
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 967
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 993
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 999
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 1000
+    }
+  ],
+  "string_literals": [],
+  "extraction_method": "ast"
+}

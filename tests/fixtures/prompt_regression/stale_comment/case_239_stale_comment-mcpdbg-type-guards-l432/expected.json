@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "Panel 2-of-2 override of the live confirm, which cited only the top-level call order and missed the nested throw. serializeAdapterCommand validates first (src/utils/type-guards.ts:138) but validateAdapterCommand builds its error via JSON.stringify(details) at :68, where details.receivedValue contains the BigInt \u2014 JSON.stringify throws TypeError 'Do not know how to serialize a BigInt' before validation's own error can surface. The comment at type-guards.test.ts:432 is behaviorally accurate and the assertion at :433-434 passes proving it; a wrong comment would fail the test with 'Invalid adapter command from serialization'. [Snapshot repaired 2026-07-23: type-guards.ts added at origin commit so the mechanics are decidable in-snapshot.]",
+  "gray": false,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

@@ -1,0 +1,607 @@
+{
+  "source": "src/session/session-manager-data.ts",
+  "source_hash": "df0db5c943d46e36",
+  "generated": "2026-07-23T18:33:17Z",
+  "imports": [
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "Variable",
+        "StackFrame",
+        "SessionState",
+        "AdapterPolicy",
+        "getPolicyForLanguage",
+        "DebugLanguage"
+      ],
+      "line": 5,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./session-manager-core.js",
+      "names": [
+        "SessionManagerCore"
+      ],
+      "line": 13,
+      "is_reexport": false,
+      "resolved_path": "src/session/session-manager-core.ts"
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 14,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "SessionManagerData",
+      "kind": "class",
+      "line": 19,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "SessionManagerCore"
+      ]
+    },
+    {
+      "name": "SessionManagerData.getVariables",
+      "kind": "function",
+      "line": 27,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "variablesReference",
+          "optional": false,
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "SessionManagerData.getStackTrace",
+      "kind": "function",
+      "line": 62,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "threadId",
+          "optional": true,
+          "type": "number | undefined"
+        },
+        {
+          "name": "includeInternals",
+          "optional": true,
+          "type": "boolean"
+        }
+      ]
+    },
+    {
+      "name": "SessionManagerData.getScopes",
+      "kind": "function",
+      "line": 120,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "frameId",
+          "optional": false,
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "SessionManagerData.getLocalVariables",
+      "kind": "function",
+      "line": 156,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "includeSpecial",
+          "optional": true,
+          "type": "boolean"
+        }
+      ]
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "SessionManagerData.selectPolicy",
+      "to": "getPolicyForLanguage",
+      "line": 24,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "SessionManagerData.getVariables",
+      "to": "this._getSessionById",
+      "line": 28,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerData.getVariables",
+      "to": "this.logger.info",
+      "line": 29,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerData.getVariables",
+      "to": "session.proxyManager.isRunning",
+      "line": 31,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerData.getVariables",
+      "to": "this.logger.warn",
+      "line": 32,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "SessionManagerData.getVariables",
+      "to": "this.logger.warn",
+      "line": 36,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "SessionManagerData.getVariables",
+      "to": "this.logger.info",
+      "line": 41,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerData.getVariables",
+      "to": "session.proxyManager.sendDapRequest",
+      "line": 42,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "SessionManagerData.getVariables",
+      "to": "this.logger.info",
+      "line": 43,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerData.getVariables",
+      "to": "response.body.variables.map",
+      "line": 46,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerData.getVariables",
+      "to": "this.logger.info",
+      "line": 51,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerData.getVariables",
+      "to": "vars.map",
+      "line": 51,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerData.getVariables",
+      "to": "this.logger.warn",
+      "line": 54,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "SessionManagerData.getVariables",
+      "to": "this.logger.error",
+      "line": 57,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "this._getSessionById",
+      "line": 63,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "session.proxyManager?.getCurrentThreadId",
+      "line": 64,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "this.logger.info",
+      "line": 65,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "session.proxyManager.isRunning",
+      "line": 67,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "this.logger.warn",
+      "line": 68,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "this.logger.warn",
+      "line": 72,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "this.logger.warn",
+      "line": 78,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "this.logger.info",
+      "line": 83,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "session.proxyManager.sendDapRequest",
+      "line": 84,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "this.logger.info",
+      "line": 85,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "Error",
+      "line": 91,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "response.body.stackFrames.map",
+      "line": 95,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "this.selectPolicy",
+      "line": 102,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "this.logger.info",
+      "line": 104,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "policy.filterStackFrames",
+      "line": 105,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "this.logger.info",
+      "line": 106,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "this.logger.info",
+      "line": 109,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "frames.slice(0,3).map",
+      "line": 109,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "frames.slice",
+      "line": 109,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "this.logger.warn",
+      "line": 112,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "Error",
+      "line": 113,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "this.logger.error",
+      "line": 115,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "Error",
+      "line": 116,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerData.getStackTrace",
+      "to": "String",
+      "line": 116,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionManagerData.getScopes",
+      "to": "this._getSessionById",
+      "line": 121,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerData.getScopes",
+      "to": "this.logger.info",
+      "line": 122,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerData.getScopes",
+      "to": "session.proxyManager.isRunning",
+      "line": 124,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerData.getScopes",
+      "to": "this.logger.warn",
+      "line": 125,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "SessionManagerData.getScopes",
+      "to": "this.logger.warn",
+      "line": 129,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "SessionManagerData.getScopes",
+      "to": "this.logger.info",
+      "line": 134,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerData.getScopes",
+      "to": "session.proxyManager.sendDapRequest",
+      "line": 135,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "SessionManagerData.getScopes",
+      "to": "this.logger.info",
+      "line": 136,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerData.getScopes",
+      "to": "this.logger.info",
+      "line": 139,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerData.getScopes",
+      "to": "response.body.scopes.map",
+      "line": 139,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerData.getScopes",
+      "to": "this.logger.warn",
+      "line": 142,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "SessionManagerData.getScopes",
+      "to": "this.logger.error",
+      "line": 145,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "this._getSessionById",
+      "line": 161,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "this.logger.info",
+      "line": 162,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "session.proxyManager.isRunning",
+      "line": 165,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "this.logger.warn",
+      "line": 166,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "this.logger.warn",
+      "line": 170,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "this.getStackTrace",
+      "line": 176,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "this.logger.warn",
+      "line": 178,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "this.logger.info",
+      "line": 183,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "this.getScopes",
+      "line": 188,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "this.getVariables",
+      "line": 200,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "this.selectPolicy",
+      "line": 209,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "policy.extractLocalVariables",
+      "line": 216,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "policy.getLocalScopeName",
+      "line": 220,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "Array.isArray",
+      "line": 221,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "topFrameScopes.find",
+      "line": 226,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "s.name.toLowerCase().includes",
+      "line": 226,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "s.name.toLowerCase",
+      "line": 226,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "this.logger.info",
+      "line": 233,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "this.logger.error",
+      "line": 248,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "Error",
+      "line": 249,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerData.getLocalVariables",
+      "to": "String",
+      "line": 249,
+      "call_sites": 2
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "<unknown_type>",
+      "context": "Default type string when DAP variable has no type",
+      "line": 47,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "<unknown_source>",
+      "context": "Default file string when DAP stack frame has no source path or name",
+      "line": 97,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "variables",
+      "context": "DAP request command name for fetching variables",
+      "line": 42,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "stackTrace",
+      "context": "DAP request command name for fetching stack trace",
+      "line": 84,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "scopes",
+      "context": "DAP request command name for fetching scopes",
+      "line": 135,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "global",
+      "context": "Fallback scope filtering: skips scopes whose name includes 'global'",
+      "line": 226,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "s.name.toLowerCase()"
+    }
+  ],
+  "extraction_method": "ast"
+}

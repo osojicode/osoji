@@ -1,0 +1,818 @@
+{
+  "source": "src/proxy/dap-proxy-connection-manager.ts",
+  "source_hash": "1d69bccf356607b0",
+  "generated": "2026-07-23T18:34:48Z",
+  "imports": [
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 6,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "./dap-proxy-interfaces.js",
+      "names": [
+        "IDapClient",
+        "IDapClientFactory",
+        "ILogger",
+        "ExtendedInitializeArgs"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-interfaces.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterPolicy"
+      ],
+      "line": 13,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "sanitizePayloadForLogging"
+      ],
+      "line": 14,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "DapConnectionManager",
+      "kind": "class",
+      "line": 16,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DapConnectionManager.setAdapterPolicy",
+      "kind": "function",
+      "line": 32,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "policy",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/adapter-policy\").AdapterPolicy"
+        }
+      ]
+    },
+    {
+      "name": "DapConnectionManager.connectWithRetry",
+      "kind": "function",
+      "line": 39,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "host",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "port",
+          "optional": false,
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "DapConnectionManager.initializeSession",
+      "kind": "function",
+      "line": 84,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "client",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/proxy/dap-proxy-interfaces\").IDapClient"
+        },
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "adapterId",
+          "optional": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "DapConnectionManager.setupEventHandlers",
+      "kind": "function",
+      "line": 105,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "client",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/proxy/dap-proxy-interfaces\").IDapClient"
+        },
+        {
+          "name": "handlers",
+          "optional": false,
+          "type": "{ onInitialized?: (() => void | Promise<void>) | undefined; onOutput?: ((body: { category?: string | undefined; output: string; group?: \"start\" | \"startCollapsed\" | \"end\" | undefined; variablesReferen"
+        }
+      ]
+    },
+    {
+      "name": "DapConnectionManager.disconnect",
+      "kind": "function",
+      "line": 161,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "client",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/proxy/dap-proxy-interfaces\").IDapClient | null"
+        },
+        {
+          "name": "terminateDebuggee",
+          "optional": true,
+          "type": "boolean"
+        }
+      ]
+    },
+    {
+      "name": "DapConnectionManager.sendLaunchRequest",
+      "kind": "function",
+      "line": 197,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "client",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/proxy/dap-proxy-interfaces\").IDapClient"
+        },
+        {
+          "name": "scriptPath",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "scriptArgs",
+          "optional": true,
+          "type": "string[]"
+        },
+        {
+          "name": "stopOnEntry",
+          "optional": true,
+          "type": "boolean"
+        },
+        {
+          "name": "justMyCode",
+          "optional": true,
+          "type": "boolean"
+        },
+        {
+          "name": "launchConfig",
+          "optional": true,
+          "type": "Record<string, unknown> | undefined"
+        }
+      ]
+    },
+    {
+      "name": "DapConnectionManager.sendAttachRequest",
+      "kind": "function",
+      "line": 249,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "client",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/proxy/dap-proxy-interfaces\").IDapClient"
+        },
+        {
+          "name": "attachConfig",
+          "optional": false,
+          "type": "Record<string, unknown>"
+        }
+      ]
+    },
+    {
+      "name": "DapConnectionManager.setBreakpoints",
+      "kind": "function",
+      "line": 261,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "client",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/proxy/dap-proxy-interfaces\").IDapClient"
+        },
+        {
+          "name": "sourcePath",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "breakpoints",
+          "optional": false,
+          "type": "{ line: number; condition?: string | undefined; }[]"
+        }
+      ]
+    },
+    {
+      "name": "DapConnectionManager.sendConfigurationDone",
+      "kind": "function",
+      "line": 289,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "client",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/proxy/dap-proxy-interfaces\").IDapClient"
+        }
+      ]
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "this.logger.info",
+      "line": 40,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "Promise",
+      "line": 41,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "setTimeout",
+      "line": 41,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "this.dapClientFactory.create",
+      "line": 45,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "this.dapClientFactory.create",
+      "line": 46,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "this.logger.debug",
+      "line": 50,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "client.on",
+      "line": 52,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "this.logger.info",
+      "line": 58,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "client.connect",
+      "line": 59,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "this.logger.info",
+      "line": 60,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "client.off",
+      "line": 63,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "String",
+      "line": 67,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "this.logger.error",
+      "line": 70,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "client.off",
+      "line": 71,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "Error",
+      "line": 72,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "this.logger.warn",
+      "line": 75,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "Promise",
+      "line": 76,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapConnectionManager.connectWithRetry",
+      "to": "setTimeout",
+      "line": 76,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapConnectionManager.initializeSession",
+      "to": "this.logger.info",
+      "line": 97,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.initializeSession",
+      "to": "client.sendRequest",
+      "line": 98,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapConnectionManager.initializeSession",
+      "to": "this.logger.info",
+      "line": 99,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.setupEventHandlers",
+      "to": "client.on",
+      "line": 120,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DapConnectionManager.setupEventHandlers",
+      "to": "client.on",
+      "line": 124,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DapConnectionManager.setupEventHandlers",
+      "to": "client.on",
+      "line": 128,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DapConnectionManager.setupEventHandlers",
+      "to": "client.on",
+      "line": 132,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DapConnectionManager.setupEventHandlers",
+      "to": "client.on",
+      "line": 136,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DapConnectionManager.setupEventHandlers",
+      "to": "client.on",
+      "line": 140,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DapConnectionManager.setupEventHandlers",
+      "to": "client.on",
+      "line": 144,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DapConnectionManager.setupEventHandlers",
+      "to": "client.on",
+      "line": 148,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DapConnectionManager.setupEventHandlers",
+      "to": "client.on",
+      "line": 152,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DapConnectionManager.setupEventHandlers",
+      "to": "this.logger.info",
+      "line": 155,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.disconnect",
+      "to": "this.logger.info",
+      "line": 163,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.disconnect",
+      "to": "this.logger.info",
+      "line": 167,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.disconnect",
+      "to": "this.logger.info",
+      "line": 170,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.disconnect",
+      "to": "Promise.race",
+      "line": 171,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapConnectionManager.disconnect",
+      "to": "client.sendRequest",
+      "line": 172,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapConnectionManager.disconnect",
+      "to": "Promise",
+      "line": 173,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapConnectionManager.disconnect",
+      "to": "setTimeout",
+      "line": 174,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapConnectionManager.disconnect",
+      "to": "reject",
+      "line": 174,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapConnectionManager.disconnect",
+      "to": "Error",
+      "line": 174,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapConnectionManager.disconnect",
+      "to": "this.logger.info",
+      "line": 177,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.disconnect",
+      "to": "String",
+      "line": 179,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapConnectionManager.disconnect",
+      "to": "this.logger.warn",
+      "line": 180,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapConnectionManager.disconnect",
+      "to": "this.logger.info",
+      "line": 185,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.disconnect",
+      "to": "client.disconnect",
+      "line": 186,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapConnectionManager.disconnect",
+      "to": "this.logger.info",
+      "line": 187,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.disconnect",
+      "to": "String",
+      "line": 189,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapConnectionManager.disconnect",
+      "to": "this.logger.error",
+      "line": 190,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapConnectionManager.sendLaunchRequest",
+      "to": "this.logger.info",
+      "line": 205,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.sendLaunchRequest",
+      "to": "Array.isArray",
+      "line": 214,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapConnectionManager.sendLaunchRequest",
+      "to": "(baseLaunchArgs.args as unknown[]).filter",
+      "line": 215,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapConnectionManager.sendLaunchRequest",
+      "to": "this.logger.info",
+      "line": 241,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.sendLaunchRequest",
+      "to": "sanitizePayloadForLogging",
+      "line": 241,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DapConnectionManager.sendLaunchRequest",
+      "to": "client.sendRequest",
+      "line": 242,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapConnectionManager.sendLaunchRequest",
+      "to": "this.logger.info",
+      "line": 243,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.sendAttachRequest",
+      "to": "this.logger.info",
+      "line": 253,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.sendAttachRequest",
+      "to": "sanitizePayloadForLogging",
+      "line": 253,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "DapConnectionManager.sendAttachRequest",
+      "to": "client.sendRequest",
+      "line": 254,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapConnectionManager.sendAttachRequest",
+      "to": "this.logger.info",
+      "line": 255,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.setBreakpoints",
+      "to": "breakpoints.map",
+      "line": 266,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapConnectionManager.setBreakpoints",
+      "to": "path.basename",
+      "line": 272,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapConnectionManager.setBreakpoints",
+      "to": "this.logger.info",
+      "line": 276,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.setBreakpoints",
+      "to": "client.sendRequest",
+      "line": 277,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapConnectionManager.setBreakpoints",
+      "to": "this.logger.info",
+      "line": 281,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.sendConfigurationDone",
+      "to": "this.logger.info",
+      "line": 290,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DapConnectionManager.sendConfigurationDone",
+      "to": "client.sendRequest",
+      "line": 291,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapConnectionManager.sendConfigurationDone",
+      "to": "this.logger.info",
+      "line": 292,
+      "call_sites": 21
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "policy",
+      "line": 33
+    },
+    {
+      "container": "launchArgs",
+      "member": "noDebug",
+      "line": 233
+    },
+    {
+      "container": "launchArgs",
+      "member": "console",
+      "line": 237
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "initialize",
+      "context": "DAP request name sent to adapter",
+      "line": 98,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "disconnect",
+      "context": "DAP request name sent to adapter",
+      "line": 172,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "launch",
+      "context": "DAP request name sent to adapter",
+      "line": 242,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "attach",
+      "context": "DAP request name sent to adapter",
+      "line": 254,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "setBreakpoints",
+      "context": "DAP request name sent to adapter",
+      "line": 278,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "configurationDone",
+      "context": "DAP request name sent to adapter",
+      "line": 291,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "initialized",
+      "context": "DAP event name registered on client",
+      "line": 120,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "output",
+      "context": "DAP event name registered on client",
+      "line": 124,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "stopped",
+      "context": "DAP event name registered on client",
+      "line": 128,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "continued",
+      "context": "DAP event name registered on client",
+      "line": 132,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "thread",
+      "context": "DAP event name registered on client",
+      "line": 136,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "exited",
+      "context": "DAP event name registered on client",
+      "line": 140,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "terminated",
+      "context": "DAP event name registered on client",
+      "line": 144,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "error",
+      "context": "DAP event name registered on client",
+      "line": 148,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "close",
+      "context": "DAP event name registered on client",
+      "line": 152,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "python",
+      "context": "Default adapterId for DAP initialize request",
+      "line": 84,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "MCP Debug Proxy",
+      "context": "clientName field in DAP initialize args",
+      "line": 87,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "internalConsole",
+      "context": "Default console mode for DAP launch args",
+      "line": 237,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "path",
+      "context": "pathFormat field in DAP initialize args",
+      "line": 89,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "en-US",
+      "context": "locale field in DAP initialize args",
+      "line": 94,
+      "kind": "config",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "confirmed",
+  "reasoning": "Genuine drift: RedefineTarget.java:18 carries '// line 19 \u2014 first breakpoint target' while sitting on line 18; the sibling markers at :11 and :22 are self-referentially correct, fixing the convention and proving an edit-time off-by-one. Externally corroborated at the origin commit: the consuming e2e test hardcodes line 19 (mcp-server-smoke-java-redefine.test.ts:177), so the stale annotation reflects real coordinated drift. Reality and Actionability hold; panel severity readings ranged info-to-warning (line markers are load-bearing for the harness).",
+  "gray": false,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

@@ -1,0 +1,253 @@
+{
+  "source": "packages/adapter-javascript/scripts/build-js-debug.js",
+  "source_hash": "07305e786f1edb07",
+  "generated": "2026-07-23T18:33:29Z",
+  "imports": [
+    {
+      "source": "node:fs",
+      "names": [
+        "default"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "node:fs/promises",
+      "names": [
+        "default"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "node:path",
+      "names": [
+        "default"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "node:os",
+      "names": [
+        "default"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "node:crypto",
+      "names": [
+        "default"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "node:url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "node:child_process",
+      "names": [
+        "spawn"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "tar",
+      "names": [
+        "extract"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "extract-zip",
+      "names": [
+        "default"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "fs-extra",
+      "names": [
+        "ensureDir",
+        "copy"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "./lib/js-debug-helpers.js",
+      "names": [
+        "selectBestAsset",
+        "normalizePath"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "./lib/vendor-strategy.js",
+      "names": [
+        "determineVendoringPlan"
+      ],
+      "is_reexport": false
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "main",
+      "to": "vendor-strategy.determineVendoringPlan",
+      "line": 508
+    },
+    {
+      "from_symbol": "main",
+      "to": "js-debug-helpers.selectBestAsset",
+      "line": 562
+    },
+    {
+      "from_symbol": "main",
+      "to": "fs-extra.ensureDir",
+      "line": 506
+    },
+    {
+      "from_symbol": "main",
+      "to": "fs-extra.copy",
+      "line": 638
+    },
+    {
+      "from_symbol": "extractArchive",
+      "to": "tar.extract",
+      "line": 222
+    },
+    {
+      "from_symbol": "extractArchive",
+      "to": "extractZip.default",
+      "line": 229
+    },
+    {
+      "from_symbol": "findServerEntry",
+      "to": "js-debug-helpers.normalizePath",
+      "line": 285
+    },
+    {
+      "from_symbol": "buildFromSource",
+      "to": "js-debug-helpers.normalizePath",
+      "line": 419
+    },
+    {
+      "from_symbol": "buildFromSource",
+      "to": "fs-extra.ensureDir",
+      "line": 683
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "latest",
+      "context": "Default version when JS_DEBUG_VERSION not set; also used as branch sentinel",
+      "line": 37,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "local",
+      "context": "Vendoring plan mode: copy from local path",
+      "line": 509,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "plan.mode"
+    },
+    {
+      "value": "prebuilt-then-source",
+      "context": "Vendoring plan mode: download prebuilt then optionally build from source",
+      "line": 679,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "plan.mode"
+    },
+    {
+      "value": "local",
+      "context": "Manifest source field value for local override",
+      "line": 535,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "prebuilt",
+      "context": "Manifest source field value for GitHub release download",
+      "line": 664,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "source-override",
+      "context": "Manifest source field value when source build overrides prebuilt",
+      "line": 705,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "source",
+      "context": "Manifest source field value when only source build succeeded",
+      "line": 752,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "local-override",
+      "context": "Manifest version field for local path mode",
+      "line": 537,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "built-from-source",
+      "context": "Manifest asset field for source-built artifacts",
+      "line": 708,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "true",
+      "context": "SKIP_ADAPTER_VENDOR env var check to bypass vendoring",
+      "line": 484,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "process.env.SKIP_ADAPTER_VENDOR"
+    },
+    {
+      "value": "commonjs",
+      "context": "package.json type field to force CJS in vendor dir",
+      "line": 651,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "vendored-js-debug-runtime",
+      "context": "package.json name for synthetic vendor package.json",
+      "line": 649,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "bootloader.js",
+      "context": "Required sidecar filename checked for presence",
+      "line": 595,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "watchdog.js",
+      "context": "Optional sidecar filename copied if present",
+      "line": 596,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "hash.js",
+      "context": "Required sidecar filename checked for presence",
+      "line": 597,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "llm"
+}

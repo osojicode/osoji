@@ -1,0 +1,202 @@
+{
+  "source": "packages/adapter-rust/scripts/vendor-codelldb.js",
+  "source_hash": "acd31303883b83df",
+  "generated": "2026-07-23T18:33:16Z",
+  "imports": [
+    {
+      "source": "fs/promises",
+      "names": [
+        "fs"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "stream",
+      "names": [
+        "Readable",
+        "Transform"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "stream/promises",
+      "names": [
+        "pipeline"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "fs",
+      "names": [
+        "createWriteStream",
+        "createReadStream"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "extract-zip",
+      "names": [
+        "extractZip"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "progress",
+      "names": [
+        "ProgressBar"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "os",
+      "names": [
+        "os"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "crypto",
+      "names": [
+        "createHash"
+      ],
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "downloadAndExtract",
+      "kind": "function",
+      "line": 514
+    },
+    {
+      "name": "PLATFORMS",
+      "kind": "constant",
+      "line": 47
+    },
+    {
+      "name": "CODELLDB_VERSION",
+      "kind": "constant",
+      "line": 31
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "extractAndCopyFiles",
+      "to": "extractZip",
+      "line": 400
+    },
+    {
+      "from_symbol": "downloadFile",
+      "to": "ProgressBar",
+      "line": 325
+    },
+    {
+      "from_symbol": "downloadFile",
+      "to": "Readable.fromWeb",
+      "line": 342
+    },
+    {
+      "from_symbol": "downloadFile",
+      "to": "pipeline",
+      "line": 344
+    },
+    {
+      "from_symbol": "computeSha256",
+      "to": "createHash",
+      "line": 283
+    },
+    {
+      "from_symbol": "computeSha256",
+      "to": "createReadStream",
+      "line": 284
+    },
+    {
+      "from_symbol": "main",
+      "to": "pipeline",
+      "line": 344
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "cacheWritable",
+      "member": "cacheWritable",
+      "line": 690
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "1.11.8",
+      "context": "Default CodeLLDB version if CODELLDB_VERSION env var not set",
+      "line": 31,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "debugmcp/adapter-rust",
+      "context": "User-Agent header sent with download requests",
+      "line": 309,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "504b0304",
+      "context": "Expected ZIP magic bytes to validate VSIX file format",
+      "line": 393,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "magic"
+    },
+    {
+      "value": "debug-mcp",
+      "context": "Top-level cache subdirectory name component",
+      "line": 124,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "codelldb",
+      "context": "Second cache subdirectory component",
+      "line": 124,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "lang_support",
+      "context": "Optional extra directory copied from VSIX extension",
+      "line": 429,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "true",
+      "context": "Checked against CODELLDB_VENDOR_ALL env var to vendor all platforms in CI",
+      "line": 629,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "process.env.CODELLDB_VENDOR_ALL?.toLowerCase()"
+    },
+    {
+      "value": "false",
+      "context": "Checked against CODELLDB_VENDOR_ALL env var for current-platform-only local mode",
+      "line": 645,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "process.env.CODELLDB_VENDOR_ALL?.toLowerCase()"
+    }
+  ],
+  "extraction_method": "llm"
+}

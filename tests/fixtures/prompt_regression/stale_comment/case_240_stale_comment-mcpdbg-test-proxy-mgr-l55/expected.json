@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "Panel 2-of-2 override of the live confirm. The comment's invariant holds by construction: the overridden sendDapRequest (test-proxy-manager.ts:68-105) stores only already-resolved promises with no-op resolve/reject (:89-96) and deletes entries on nextTick (:99-101), so no genuinely pending promise can exist when stop() clears the map at :58. The finding's hazard is explicitly conditional ('may not hold if real async requests are in flight') \u2014 future fragility about a scenario the class cannot produce, failing Reality. The live confirm substituted an omission complaint (comment lacks justification) the finding never made.",
+  "gray": false,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

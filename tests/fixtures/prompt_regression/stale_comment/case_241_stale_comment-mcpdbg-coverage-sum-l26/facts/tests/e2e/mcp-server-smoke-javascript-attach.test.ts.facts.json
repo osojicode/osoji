@@ -1,0 +1,1051 @@
+{
+  "source": "tests/e2e/mcp-server-smoke-javascript-attach.test.ts",
+  "source_hash": "231b4df68151152f",
+  "generated": "2026-07-23T18:34:36Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "beforeAll",
+        "afterAll",
+        "afterEach"
+      ],
+      "line": 21,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 22,
+      "is_reexport": false
+    },
+    {
+      "source": "net",
+      "names": [
+        "net"
+      ],
+      "line": 23,
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "line": 24,
+      "is_reexport": false
+    },
+    {
+      "source": "fs",
+      "names": [
+        "existsSync"
+      ],
+      "line": 25,
+      "is_reexport": false
+    },
+    {
+      "source": "child_process",
+      "names": [
+        "spawn",
+        "ChildProcess"
+      ],
+      "line": 26,
+      "is_reexport": false
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/client/index.js",
+      "names": [
+        "Client"
+      ],
+      "line": 27,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/index.d.ts"
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/client/stdio.js",
+      "names": [
+        "StdioClientTransport"
+      ],
+      "line": 28,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/stdio.d.ts"
+    },
+    {
+      "source": "./smoke-test-utils.js",
+      "names": [
+        "parseSdkToolResult",
+        "callToolSafely"
+      ],
+      "line": 29,
+      "is_reexport": false,
+      "resolved_path": "tests/e2e/smoke-test-utils.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "fileURLToPath",
+      "line": 31,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.dirname",
+      "line": 32,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 33,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 34,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "Promise",
+      "line": 38,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "net.createServer",
+      "line": 39,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "srv.listen",
+      "line": 40,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "srv.address",
+      "line": 41,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "srv.close",
+      "line": 43,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "reject",
+      "line": 43,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "Error",
+      "line": 43,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "srv.close",
+      "line": 47,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "resolve",
+      "line": 47,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "srv.on",
+      "line": 49,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "spawnTarget",
+      "to": "getFreePort",
+      "line": 61,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "spawnTarget",
+      "to": "spawn",
+      "line": 62,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "spawnTarget",
+      "to": "proc.stdout!.on",
+      "line": 69,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "spawnTarget",
+      "to": "chunk.toString",
+      "line": 70,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "spawnTarget",
+      "to": "Promise",
+      "line": 73,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "spawnTarget",
+      "to": "setTimeout",
+      "line": 74,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "spawnTarget",
+      "to": "reject",
+      "line": 75,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "spawnTarget",
+      "to": "Error",
+      "line": 75,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "spawnTarget",
+      "to": "proc.stderr!.on",
+      "line": 79,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "spawnTarget",
+      "to": "chunk.toString",
+      "line": 80,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "spawnTarget",
+      "to": "stderr.includes",
+      "line": 81,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "spawnTarget",
+      "to": "clearTimeout",
+      "line": 82,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "spawnTarget",
+      "to": "resolve",
+      "line": 83,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "spawnTarget",
+      "to": "proc.on",
+      "line": 86,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "spawnTarget",
+      "to": "clearTimeout",
+      "line": 87,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "spawnTarget",
+      "to": "reject",
+      "line": 88,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "spawnTarget",
+      "to": "Error",
+      "line": 88,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 95,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeAll",
+      "line": 101,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 102,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "existsSync",
+      "line": 103,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 104,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "StdioClientTransport",
+      "line": 109,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Client",
+      "line": 118,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient.connect",
+      "line": 125,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 126,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 129,
+      "call_sites": 130
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 132,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "targetProcess.kill",
+      "line": 139,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterAll",
+      "line": 144,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient.close",
+      "line": 146,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "transport.close",
+      "line": 149,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 151,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "createSessionAndAttach",
+      "to": "mcpClient!.callTool",
+      "line": 158,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createSessionAndAttach",
+      "to": "parseSdkToolResult",
+      "line": 162,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "createSessionAndAttach",
+      "to": "expect(sessionId).toBeTruthy",
+      "line": 163,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createSessionAndAttach",
+      "to": "expect",
+      "line": 163,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "createSessionAndAttach",
+      "to": "mcpClient!.callTool",
+      "line": 165,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createSessionAndAttach",
+      "to": "parseSdkToolResult",
+      "line": 169,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 172,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "spawnTarget",
+      "line": 173,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createSessionAndAttach",
+      "line": 176,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 177,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 177,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 181,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        threads.length,\n        `attach_to_process reported success + state \"${attachRespons",
+      "line": 183,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 183,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 186,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 190,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        stackResult.success,\n        `attach_to_process reported success but get_stack_trace",
+      "line": 191,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 191,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 194,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        frames.length,\n        `attach_to_process reported success + state \"${attachResponse",
+      "line": 197,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 197,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 200,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "String",
+      "line": 205,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        errorText.length,\n        `attach_to_process failed without an actionable error mess",
+      "line": 206,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 206,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 208,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 210,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 214,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 214,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n      targetProcess!.exitCode,\n      'the attach attempt must leave the target process runni",
+      "line": 215,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 215,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 221,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "spawnTarget",
+      "line": 222,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createSessionAndAttach",
+      "line": 226,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(attachResponse.success, `attach failed: ${JSON.stringify(attachResponse)}`).toBe",
+      "line": 227,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 227,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 227,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(attachResponse.state).toBe",
+      "line": 228,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 228,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 231,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(bpResult.success, `set_breakpoint failed: ${JSON.stringify(bpResult)}`).toBe",
+      "line": 236,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 236,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 236,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 239,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(contResult.success, `continue_execution failed: ${JSON.stringify(contResult)}`).toBe",
+      "line": 240,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 240,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 240,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 244,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 244,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 245,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(hit, 'breakpoint at tick() was not hit within 10s of continue').not.toBeNull",
+      "line": 252,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 252,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 255,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(evalResult.success, `evaluate_expression failed: ${JSON.stringify(evalResult)}`).toBe",
+      "line": 259,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 259,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 259,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(Number(evalResult.result)).toBeGreaterThanOrEqual",
+      "line": 260,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 260,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Number",
+      "line": 260,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "target.stdout",
+      "line": 263,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 264,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(detachResult.success, `detach_from_process failed: ${JSON.stringify(detachResult)}`).toBe",
+      "line": 268,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 268,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 268,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 270,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 270,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(targetProcess!.exitCode, 'detach must leave the target process alive').toBeNull",
+      "line": 271,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 271,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n      target.stdout().length,\n      'the target must resume ticking after detach (it was lef",
+      "line": 272,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 272,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "target.stdout",
+      "line": 273,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 278,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "spawnTarget",
+      "line": 279,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createSessionAndAttach",
+      "line": 282,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(attachResponse.success, `attach failed: ${JSON.stringify(attachResponse)}`).toBe",
+      "line": 283,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 283,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 283,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(attachResponse.state).toBe",
+      "line": 284,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 284,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "target.stdout",
+      "line": 288,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 289,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 289,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n      target.stdout().length,\n      'attach with stopOnEntry:false must not pause the target",
+      "line": 290,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 290,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "target.stdout",
+      "line": 291,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 296,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(detachResult.success, `detach_from_process failed: ${JSON.stringify(detachResult)}`).toBe",
+      "line": 300,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 300,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 300,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 302,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 302,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(targetProcess!.exitCode, 'detach must leave the target process alive').toBeNull",
+      "line": 303,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 303,
+      "call_sites": 5808
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "javascript",
+      "context": "language argument to create_debug_session MCP tool",
+      "line": 160,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "js-attach-test",
+      "context": "name argument to create_debug_session MCP tool",
+      "line": 160,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "create_debug_session",
+      "context": "MCP tool name for creating a debug session",
+      "line": 159,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "attach_to_process",
+      "context": "MCP tool name for attaching to a Node.js inspector",
+      "line": 166,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "close_debug_session",
+      "context": "MCP tool name for closing a debug session in afterEach cleanup",
+      "line": 132,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "list_threads",
+      "context": "MCP tool name to list debugger threads",
+      "line": 181,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "get_stack_trace",
+      "context": "MCP tool name to retrieve stack frames",
+      "line": 190,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "set_breakpoint",
+      "context": "MCP tool name to set a source breakpoint",
+      "line": 231,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "continue_execution",
+      "context": "MCP tool name to resume paused execution",
+      "line": 239,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "evaluate_expression",
+      "context": "MCP tool name to evaluate an expression in paused session",
+      "line": 255,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "detach_from_process",
+      "context": "MCP tool name to detach debugger from target",
+      "line": 264,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "paused",
+      "context": "Expected attach state when stopOnEntry is true (default)",
+      "line": 228,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "attachResponse.state"
+    },
+    {
+      "value": "running",
+      "context": "Expected attach state when stopOnEntry is false",
+      "line": 284,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "attachResponse.state"
+    },
+    {
+      "value": "js-attach-smoke-test-client",
+      "context": "MCP client name identifier",
+      "line": 119,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "counter",
+      "context": "JavaScript expression evaluated at breakpoint stop",
+      "line": 257,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "SIGKILL",
+      "context": "Signal used to force-kill the target process in afterEach",
+      "line": 139,
+      "kind": "config",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

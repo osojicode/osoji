@@ -1,0 +1,110 @@
+{
+  "source": "packages/adapter-java/scripts/compile-jdi-bridge.js",
+  "source_hash": "9c01bd3a2536bf28",
+  "generated": "2026-07-23T18:33:47Z",
+  "imports": [
+    {
+      "source": "child_process",
+      "names": [
+        "execFileSync",
+        "execSync"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "fs",
+      "names": [
+        "existsSync",
+        "statSync",
+        "mkdirSync"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "path",
+      "names": [
+        "resolve",
+        "dirname"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "is_reexport": false
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "main",
+      "to": "child_process.execFileSync",
+      "line": 109
+    },
+    {
+      "from_symbol": "main",
+      "to": "fs.mkdirSync",
+      "line": 105
+    },
+    {
+      "from_symbol": "findJavac",
+      "to": "child_process.execSync",
+      "line": 35
+    },
+    {
+      "from_symbol": "findJavac",
+      "to": "fs.existsSync",
+      "line": 29
+    },
+    {
+      "from_symbol": "getJavacMajorVersion",
+      "to": "child_process.execFileSync",
+      "line": 47
+    },
+    {
+      "from_symbol": "needsCompilation",
+      "to": "fs.existsSync",
+      "line": 59
+    },
+    {
+      "from_symbol": "needsCompilation",
+      "to": "fs.statSync",
+      "line": 62
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "SKIP_JDI_COMPILE",
+      "context": "Environment variable checked to skip compilation entirely",
+      "line": 68,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "SKIP_ADAPTER_VENDOR",
+      "context": "Environment variable checked (value must equal 'true') to skip compilation",
+      "line": 73,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "JAVA_HOME",
+      "context": "Environment variable used to locate javac binary",
+      "line": 27,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "true",
+      "context": "Expected value of SKIP_ADAPTER_VENDOR env var to trigger skip",
+      "line": 73,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "(process.env.SKIP_ADAPTER_VENDOR || '').trim().toLowerCase()"
+    }
+  ],
+  "extraction_method": "llm"
+}

@@ -1,0 +1,79 @@
+{
+  "source": "examples/rust/async_example/src/main.rs",
+  "source_hash": "41f1cf23315cb999",
+  "generated": "2026-07-23T18:32:02Z",
+  "imports": [
+    {
+      "source": "tokio::time",
+      "names": [
+        "sleep",
+        "Duration"
+      ],
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "main",
+      "kind": "function",
+      "line": 12
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "main",
+      "to": "tokio::spawn",
+      "line": 20,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "main",
+      "to": "tokio::join!",
+      "line": 25,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "fetch_data",
+      "to": "tokio::time::sleep",
+      "line": 45,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "async_task",
+      "to": "tokio::time::sleep",
+      "line": 54,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "process_item",
+      "to": "tokio::time::sleep",
+      "line": 62,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "Starting async Rust example",
+      "context": "Program start log message",
+      "line": 13,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "Async example completed",
+      "context": "Program end log message",
+      "line": 39,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "Some tasks failed",
+      "context": "Fallback message when one or more spawned tasks fail",
+      "line": 31,
+      "kind": "message",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "llm"
+}

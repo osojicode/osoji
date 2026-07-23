@@ -1,0 +1,283 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node-version: [22.x]
+        python-version: ['3.11']
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+    
+    - name: Setup pnpm
+      uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271  # v6.0.9
+      with:
+        version: 10
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'pnpm'
+    
+    - name: Setup Python ${{ matrix.python-version }}
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --require-hashes -r requirements/pip.txt
+        python -m pip install --require-hashes -r requirements/debugpy.txt
+
+    - name: Setup Go
+      uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+      with:
+        go-version: '1.21'
+
+    - name: Install Delve debugger
+      run: go install github.com/go-delve/delve/cmd/dlv@v1.24.2
+
+    - name: Setup Java 21
+      uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95  # v5.6.0
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600  # v1.319.0
+      with:
+        ruby-version: '3.3'
+
+    - name: Verify rdbg (bundled debug gem)
+      run: rdbg --version
+
+    - name: Install Node dependencies
+      run: pnpm install --frozen-lockfile
+      env:
+        SKIP_ADAPTER_VENDOR: 'true'
+
+    - name: Audit dependencies
+      run: pnpm audit --prod --audit-level=high
+
+    - name: Vendor adapter binaries
+      run: pnpm run vendor:adapters
+      continue-on-error: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build project
+      run: pnpm run build:ci
+
+    - name: Run linting
+      run: pnpm run lint
+
+    # Use test:ci-coverage which includes Python tests but excludes e2e tests
+    - name: Run tests with coverage
+      run: pnpm run test:ci-coverage
+      env:
+        CI: true
+        # Hard-fail on process-listener leaks (issues #159/#183)
+        LEAK_GUARD_STRICT: '1'
+    
+    - name: Upload Windows test diagnostics
+      if: failure() && matrix.os == 'windows-latest'
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+      with:
+        name: windows-test-diagnostics
+        path: |
+          tests/**/*.log
+          dist/**/*.log
+          logs/tests/**/*.log
+          logs/tests/adapters/failures/**/*.json
+          test-results.json
+        if-no-files-found: warn
+    
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+      if: matrix.os == 'ubuntu-latest'
+      with:
+        name: coverage-report
+        path: coverage/
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f  # v7.0.0
+      if: matrix.os == 'ubuntu-latest'
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage/coverage-final.json
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  windows-python-integration:
+    name: Windows Python Integration Focus
+    runs-on: windows-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271  # v6.0.9
+      with:
+        version: 10
+
+    - name: Setup Node.js
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+      with:
+        node-version: 22.x
+        cache: 'pnpm'
+
+    - name: Setup Python 3.11
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+      with:
+        python-version: '3.11'
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --require-hashes -r requirements/pip.txt
+        python -m pip install --require-hashes -r requirements/debugpy.txt
+
+    - name: Setup Java 21
+      uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95  # v5.6.0
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: Install Node dependencies
+      run: pnpm install --frozen-lockfile
+      env:
+        SKIP_ADAPTER_VENDOR: 'true'
+
+    - name: Build project (CI)
+      run: pnpm run build:ci
+
+    - name: Run targeted Python integration tests
+      env:
+        CI: true
+      run: pnpm vitest run tests/adapters/python/integration/python-discovery.test.ts tests/adapters/python/integration/python_debug_workflow.test.ts
+
+    - name: Upload targeted test diagnostics
+      if: failure()
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+      with:
+        name: windows-python-integration-logs
+        path: |
+          logs/tests/**/*.log
+          logs/tests/adapters/failures/**/*.json
+          tests/**/*.log
+        if-no-files-found: warn
+
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+    
+    - name: Setup pnpm
+      uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271  # v6.0.9
+      with:
+        version: 10
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+      with:
+        node-version: '22.x'
+        cache: 'pnpm'
+
+    - name: Setup Java 21
+      uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95  # v5.6.0
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      env:
+        SKIP_ADAPTER_VENDOR: 'true'
+
+    - name: Run ESLint
+      run: pnpm run lint
+    
+    - name: Check for personal information
+      run: pnpm run check:all-personal-paths
+
+  # Separate job for container tests on Linux only
+  container-tests:
+    name: Container Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+    
+    - name: Setup pnpm
+      uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271  # v6.0.9
+      with:
+        version: 10
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+      with:
+        node-version: '22.x'
+        cache: 'pnpm'
+    
+    - name: Setup Java 21
+      uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95  # v5.6.0
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      env:
+        SKIP_ADAPTER_VENDOR: 'true'
+
+    - name: Vendor adapter binaries
+      run: pnpm run vendor:adapters
+      continue-on-error: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Run linting
+      run: pnpm run lint
+
+    - name: Build project
+      run: pnpm run build
+      env:
+        SKIP_ADAPTER_VENDOR: 'true'
+
+    - name: Build Docker image
+      run: docker build -t mcp-debugger:local .
+    
+    - name: Run container tests
+      run: pnpm run test:e2e:container
+
+  test-summary:
+    name: Test Summary
+    needs: [build-and-test, container-tests]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Check test results
+      run: |
+        echo "✅ CI pipeline completed"
+        echo "Check the test results in the build-and-test job"

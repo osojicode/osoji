@@ -1,0 +1,292 @@
+{
+  "source": "packages/adapter-python/src/python-adapter-factory.ts",
+  "source_hash": "b6711c9817ff24c7",
+  "generated": "2026-07-23T18:32:39Z",
+  "imports": [
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IDebugAdapter"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IAdapterFactory",
+        "AdapterDependencies",
+        "AdapterMetadata",
+        "FactoryValidationResult"
+      ],
+      "line": 10,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./python-debug-adapter.js",
+      "names": [
+        "PythonDebugAdapter"
+      ],
+      "line": 11,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-python/src/python-debug-adapter.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage"
+      ],
+      "line": 12,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./utils/python-utils.js",
+      "names": [
+        "findPythonExecutable",
+        "getPythonVersion"
+      ],
+      "line": 13,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-python/src/utils/python-utils.ts"
+    },
+    {
+      "source": "child_process",
+      "names": [
+        "spawn"
+      ],
+      "line": 14,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "PythonAdapterFactory",
+      "kind": "class",
+      "line": 19,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "implements": [
+        "IAdapterFactory"
+      ]
+    },
+    {
+      "name": "PythonAdapterFactory.createAdapter",
+      "kind": "function",
+      "line": 23,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "dependencies",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/adapter-registry\").AdapterDependencies"
+        }
+      ]
+    },
+    {
+      "name": "PythonAdapterFactory.getMetadata",
+      "kind": "function",
+      "line": 30,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "PythonAdapterFactory.validate",
+      "kind": "function",
+      "line": 47,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "PythonAdapterFactory.createAdapter",
+      "to": "PythonDebugAdapter",
+      "line": 24,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.validate",
+      "to": "findPythonExecutable",
+      "line": 55,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.validate",
+      "to": "getPythonVersion",
+      "line": 58,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.validate",
+      "to": "pythonVersion.split('.').map",
+      "line": 60,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.validate",
+      "to": "pythonVersion.split",
+      "line": 60,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.validate",
+      "to": "errors.push",
+      "line": 62,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.validate",
+      "to": "warnings.push",
+      "line": 65,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.validate",
+      "to": "this.checkDebugpyInstalled",
+      "line": 70,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.validate",
+      "to": "warnings.push",
+      "line": 72,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.validate",
+      "to": "errors.push",
+      "line": 76,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.validate",
+      "to": "new Date().toISOString",
+      "line": 88,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.validate",
+      "to": "Date",
+      "line": 88,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.checkDebugpyInstalled",
+      "to": "Promise",
+      "line": 97,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.checkDebugpyInstalled",
+      "to": "spawn",
+      "line": 98,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.checkDebugpyInstalled",
+      "to": "child.stdout?.on",
+      "line": 103,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.checkDebugpyInstalled",
+      "to": "data.toString",
+      "line": 103,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.checkDebugpyInstalled",
+      "to": "child.on",
+      "line": 105,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.checkDebugpyInstalled",
+      "to": "resolve",
+      "line": 105,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.checkDebugpyInstalled",
+      "to": "child.on",
+      "line": 106,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.checkDebugpyInstalled",
+      "to": "resolve",
+      "line": 107,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "PythonAdapterFactory.checkDebugpyInstalled",
+      "to": "output.trim",
+      "line": 107,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "Python 3.7 or higher required. Current version: ${pythonVersion}",
+      "context": "Error message pushed when Python version is below 3.7",
+      "line": 62,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "Could not determine Python version",
+      "context": "Warning pushed when getPythonVersion returns falsy",
+      "line": 65,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "debugpy not found in system Python. If using a virtualenv, debugpy will be checked at launch time. Otherwise run: pip install debugpy",
+      "context": "Warning pushed when debugpy is not detected in system Python",
+      "line": 72,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "Python executable not found",
+      "context": "Fallback error message when caught error is not an Error instance",
+      "line": 76,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "multi-strategy",
+      "context": "Value of pythonDetectionMethod in validation result details",
+      "line": 86,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "2.0.0",
+      "context": "Adapter version in metadata",
+      "line": 34,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "1.0.0",
+      "context": "minimumDebuggerVersion in metadata",
+      "line": 38,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "import debugpy; print(debugpy.__version__)",
+      "context": "Python command used to verify debugpy is importable",
+      "line": 98,
+      "kind": "config",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

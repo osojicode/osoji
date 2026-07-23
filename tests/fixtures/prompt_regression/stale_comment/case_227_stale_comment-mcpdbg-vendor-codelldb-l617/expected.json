@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "confirmed",
+  "reasoning": "determinePlatforms() early-returns on process.env.CODELLDB_PLATFORMS at vendor-codelldb.js:611-615 BEFORE the :617 comment 'Command line arguments take precedence', so the comment's natural unqualified reading states a false precedence order (actual: env \u2192 CLI \u2192 CI \u2192 default). Reality and Actionability hold (a two-word scoping qualification fixes it); grades to info under grade-not-gate.",
+  "gray": true,
+  "gray_reason": "git blame shows the comment and the CODELLDB_PLATFORMS check were born in the same commit \u2014 never temporal drift \u2014 and the scoped reading ('CLI args take precedence over the CI/default fallbacks below') is true of the code; a dismissal on that reading is defensible.",
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

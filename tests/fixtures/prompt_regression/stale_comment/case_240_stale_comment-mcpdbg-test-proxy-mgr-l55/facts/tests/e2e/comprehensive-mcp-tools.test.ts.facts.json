@@ -1,0 +1,2425 @@
+{
+  "source": "tests/e2e/comprehensive-mcp-tools.test.ts",
+  "source_hash": "ad6f51d08ff5743c",
+  "generated": "2026-07-23T18:34:10Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "beforeAll",
+        "afterAll",
+        "afterEach"
+      ],
+      "line": 11,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "fs",
+      "names": [
+        "fs",
+        "existsSync"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "line": 14,
+      "is_reexport": false
+    },
+    {
+      "source": "child_process",
+      "names": [
+        "execSync"
+      ],
+      "line": 15,
+      "is_reexport": false
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/client/index.js",
+      "names": [
+        "Client"
+      ],
+      "line": 16,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/index.d.ts"
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/client/stdio.js",
+      "names": [
+        "StdioClientTransport"
+      ],
+      "line": 17,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/stdio.d.ts"
+    },
+    {
+      "source": "./smoke-test-utils.js",
+      "names": [
+        "parseSdkToolResult",
+        "callToolSafely"
+      ],
+      "line": 18,
+      "is_reexport": false,
+      "resolved_path": "tests/e2e/smoke-test-utils.ts"
+    },
+    {
+      "source": "./java-example-utils.js",
+      "names": [
+        "prepareJavaExample"
+      ],
+      "line": 19,
+      "is_reexport": false,
+      "resolved_path": "tests/e2e/java-example-utils.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "fileURLToPath",
+      "line": 21,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.dirname",
+      "line": 22,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 23,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "record",
+      "to": "results.push",
+      "line": 40,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "record",
+      "to": "console.log",
+      "line": 42,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 47,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 48,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 49,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 50,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 51,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 52,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 53,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 54,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "hasCommand",
+      "to": "execSync",
+      "line": 70,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "hasCommand",
+      "line": 77,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "hasCommand",
+      "line": 78,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "hasCommand",
+      "line": 78,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "hasCommand",
+      "line": 79,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "hasCommand",
+      "line": 79,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(() => {\n  if (!hasCommand('dotnet --version')) return false;\n  if (process.env.NETCOREDBG_PATH && e",
+      "line": 80,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "hasCommand",
+      "line": 81,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "existsSync",
+      "line": 82,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "hasCommand",
+      "line": 83,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "hasCommand",
+      "line": 85,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "hasCommand",
+      "line": 85,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "ensureGoBuild",
+      "to": "path.resolve",
+      "line": 91,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "ensureGoBuild",
+      "to": "execSync",
+      "line": 92,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ensureGoBuild",
+      "to": "path.dirname",
+      "line": 93,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ensureDotnetBuild",
+      "to": "path.resolve",
+      "line": 100,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "ensureDotnetBuild",
+      "to": "path.join",
+      "line": 103,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ensureDotnetBuild",
+      "to": "existsSync",
+      "line": 104,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ensureDotnetBuild",
+      "to": "execSync",
+      "line": 106,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ensureDotnetBuild",
+      "to": "path.join",
+      "line": 108,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ensureDotnetBuild",
+      "to": "existsSync",
+      "line": 109,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ensureDotnetBuild",
+      "to": "Error",
+      "line": 111,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ensureJavaBuild",
+      "to": "prepareJavaExample",
+      "line": 115,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 175,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeAll",
+      "line": 184,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 185,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 186,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 187,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "StdioClientTransport",
+      "line": 189,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 191,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Client",
+      "line": 195,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient.connect",
+      "line": 200,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 201,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "LANGUAGES.find",
+      "line": 204,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ensureGoBuild",
+      "line": 207,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 209,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 211,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "LANGUAGES.find",
+      "line": 217,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ensureDotnetBuild",
+      "line": 220,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 222,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 224,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "LANGUAGES.find",
+      "line": 230,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ensureJavaBuild",
+      "line": 233,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 234,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 236,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 242,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterAll",
+      "line": 245,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "printSummary",
+      "line": 247,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient.close().catch",
+      "line": 249,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient.close",
+      "line": 249,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "transport.close().catch",
+      "line": 250,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "transport.close",
+      "line": 250,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 251,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 254,
+      "call_sites": 130
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 257,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 267,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 268,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 270,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify(langs).slice",
+      "line": 272,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 272,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 273,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 273,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array.isArray",
+      "line": 276,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "langs.map",
+      "line": 277,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.keys",
+      "line": 278,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(langNames.length).toBeGreaterThanOrEqual",
+      "line": 279,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 279,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 281,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 281,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 290,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 291,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 293,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 294,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify(res).slice",
+      "line": 294,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 294,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 294,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 296,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 296,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 306,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ALL_TOOLS.filter",
+      "line": 310,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 311,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it.skip",
+      "line": 313,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 319,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 320,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 322,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 326,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(parsed.sessionId).toBeDefined",
+      "line": 327,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 327,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 329,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 329,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 331,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 331,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 338,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 341,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 345,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 347,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 349,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 351,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify(sessions).slice",
+      "line": 351,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 351,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 351,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 353,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 353,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 360,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 362,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 366,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 368,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 370,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 376,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 376,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 378,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 378,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 385,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 387,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 391,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 393,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 395,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 402,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify(res).slice",
+      "line": 403,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 403,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify(res).slice",
+      "line": 403,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 403,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 404,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(hasSource).toBe",
+      "line": 405,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 405,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 407,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 407,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 416,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 418,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 422,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 425,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 432,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 434,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 443,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 444,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 444,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 446,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 446,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 451,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 451,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 454,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 457,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 460,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 462,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(frames.length).toBeGreaterThan",
+      "line": 463,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 463,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 465,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 465,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 470,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 474,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 480,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "scopes.map((s: any) => s.name).join",
+      "line": 481,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "scopes.map",
+      "line": 481,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 482,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 484,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 484,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 487,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 491,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 494,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vars.map((v: any) => v.name).join",
+      "line": 499,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vars.map",
+      "line": 499,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 500,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "varNames.slice",
+      "line": 501,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 502,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 504,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 504,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 507,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 511,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 513,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 517,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "localVars.map((v: any) => v.name).join(', ').slice",
+      "line": 518,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "localVars.map((v: any) => v.name).join",
+      "line": 518,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "localVars.map",
+      "line": 518,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 519,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 521,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 521,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 525,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 527,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 531,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "String(val).includes",
+      "line": 532,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "String",
+      "line": 532,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 533,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 535,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 537,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 537,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 541,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 543,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 544,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 544,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 546,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify((stepRes as any).location ?? 'N/A').slice",
+      "line": 547,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 547,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 548,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 550,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 550,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 554,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 556,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 557,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 557,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 559,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 561,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 563,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 563,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 567,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 569,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 570,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 570,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stepRes.message?.includes",
+      "line": 572,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 573,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(stepRes.message ?? '').slice",
+      "line": 574,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 575,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 578,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "err.message.slice",
+      "line": 578,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 578,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 582,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 584,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 585,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 585,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 586,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 588,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 590,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 590,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 594,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 596,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 597,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 599,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 602,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 602,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 608,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 609,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 613,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 614,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 617,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 619,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 624,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify(bpRes).slice",
+      "line": 624,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 624,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 624,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 626,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 626,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 630,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 632,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 640,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 641,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 641,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 643,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 643,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 646,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 646,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 650,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 653,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 654,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify(res).slice",
+      "line": 655,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 655,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 655,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 657,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 657,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 662,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 664,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 665,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 665,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 668,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 668,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 675,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 682,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 684,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 688,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 690,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 692,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 693,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify(res).slice",
+      "line": 694,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 694,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 695,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 698,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "err.message.slice",
+      "line": 699,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 700,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 706,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 708,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 711,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 715,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 717,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 726,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify(res).slice",
+      "line": 727,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 727,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 728,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "err.message.includes",
+      "line": 731,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "err.message.includes",
+      "line": 732,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "err.message.includes",
+      "line": 733,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "err.message.includes",
+      "line": 734,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 735,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "err.message.slice",
+      "line": 736,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 737,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 743,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 745,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 749,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 751,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 753,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 757,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify(res).slice",
+      "line": 758,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 758,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 759,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "record",
+      "line": 762,
+      "call_sites": 53
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "err.message.slice",
+      "line": 763,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 764,
+      "call_sites": 72
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "console.log",
+      "line": 773,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "console.log",
+      "line": 774,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "console.log",
+      "line": 775,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "Map",
+      "line": 778,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "toolMap.has",
+      "line": 780,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "toolMap.set",
+      "line": 780,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "Map",
+      "line": 780,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "toolMap.get(r.tool)!.set",
+      "line": 781,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "toolMap.get",
+      "line": 781,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "LANGUAGES.map",
+      "line": 785,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "['Tool', ...langNames].map(s => s.padEnd(14)).join",
+      "line": 786,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "['Tool', ...langNames].map",
+      "line": 786,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "s.padEnd",
+      "line": 786,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "console.log",
+      "line": 787,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "console.log",
+      "line": 788,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "'-'.repeat",
+      "line": 788,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "tool.padEnd",
+      "line": 791,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "toolMap.get(tool)?.get",
+      "line": 793,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "toolMap.get",
+      "line": 793,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "toolMap.get(tool)?.get",
+      "line": 793,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "toolMap.get",
+      "line": 793,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "row.push",
+      "line": 796,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "icon.padEnd",
+      "line": 796,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "console.log",
+      "line": 798,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "row.join",
+      "line": 798,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "results.filter",
+      "line": 803,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "results.filter",
+      "line": 804,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "results.filter",
+      "line": 805,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "console.log",
+      "line": 807,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "console.log",
+      "line": 808,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "path.join",
+      "line": 811,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "fs.writeFileSync",
+      "line": 812,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "JSON.stringify",
+      "line": 812,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "new Date().toISOString",
+      "line": 812,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "Date",
+      "line": 812,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "printSummary",
+      "to": "console.log",
+      "line": 813,
+      "call_sites": 22
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "goLang",
+      "member": "launchScript",
+      "line": 208
+    },
+    {
+      "container": "goLang",
+      "member": "available",
+      "line": 212
+    },
+    {
+      "container": "goLang",
+      "member": "skipReason",
+      "line": 213
+    },
+    {
+      "container": "dotnetLang",
+      "member": "launchScript",
+      "line": 221
+    },
+    {
+      "container": "dotnetLang",
+      "member": "available",
+      "line": 225
+    },
+    {
+      "container": "dotnetLang",
+      "member": "skipReason",
+      "line": 226
+    },
+    {
+      "container": "javaLang",
+      "member": "available",
+      "line": 237
+    },
+    {
+      "container": "javaLang",
+      "member": "skipReason",
+      "line": 238
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "list_supported_languages",
+      "context": "MCP tool name used in callTool/callToolSafely",
+      "line": 151,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "create_debug_session",
+      "context": "MCP tool name used in callTool",
+      "line": 152,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "list_debug_sessions",
+      "context": "MCP tool name used in callToolSafely",
+      "line": 153,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "set_breakpoint",
+      "context": "MCP tool name used in callToolSafely",
+      "line": 154,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "get_source_context",
+      "context": "MCP tool name used in callToolSafely",
+      "line": 155,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "start_debugging",
+      "context": "MCP tool name used in callTool",
+      "line": 156,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "get_stack_trace",
+      "context": "MCP tool name used in callToolSafely",
+      "line": 157,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "get_scopes",
+      "context": "MCP tool name used in callToolSafely",
+      "line": 158,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "get_variables",
+      "context": "MCP tool name used in callToolSafely",
+      "line": 159,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "get_local_variables",
+      "context": "MCP tool name used in callToolSafely",
+      "line": 160,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "evaluate_expression",
+      "context": "MCP tool name used in callToolSafely",
+      "line": 161,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "step_over",
+      "context": "MCP tool name used in callToolSafely",
+      "line": 162,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "step_into",
+      "context": "MCP tool name used in callToolSafely",
+      "line": 163,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "step_out",
+      "context": "MCP tool name used in callToolSafely",
+      "line": 164,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "continue_execution",
+      "context": "MCP tool name used in callToolSafely",
+      "line": 165,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "pause_execution",
+      "context": "MCP tool name used in callToolSafely",
+      "line": 166,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "list_threads",
+      "context": "MCP tool name in ALL_TOOLS array (not directly tested)",
+      "line": 167,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "attach_to_process",
+      "context": "MCP tool name used in callToolSafely",
+      "line": 168,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "detach_from_process",
+      "context": "MCP tool name used in callToolSafely",
+      "line": 169,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "close_debug_session",
+      "context": "MCP tool name used in callToolSafely",
+      "line": 170,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "test",
+      "context": "NODE_ENV value set for MCP server process",
+      "line": 192,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "NETCOREDBG_PATH",
+      "context": "Environment variable for .NET debugger path",
+      "line": 82,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "mock",
+      "context": "Language identifier for mock adapter \u2014 controls branching in per-language test loop",
+      "line": 137,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "comprehensive-test-results.json",
+      "context": "Output file name for JSON test results",
+      "line": 811,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

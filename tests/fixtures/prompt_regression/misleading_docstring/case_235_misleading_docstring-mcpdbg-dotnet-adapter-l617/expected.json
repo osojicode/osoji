@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "confirmed",
+  "reasoning": "Panel 2-of-2 override of the live pipeline's dismissal, whose deciding premise misread the DAP spec. The declaration 'Safety: never allow terminate through DAP' (DotnetDebugAdapter.ts:617) is contradicted seven lines later by supportsTerminateRequest: true (:624): the snapshot's own docs/debugAdapterProtocol.json defines the terminate request as shutting down the DEBUGGEE gracefully ('does not directly affect the state of the debug session'), and the proxy plumbs terminate through (dap-proxy-message-parser.ts:47) with no gate on the capability. The stated invariant does not hold as written; fix is concrete (set supportsTerminateRequest:false to match the attach-safety posture, or scope the comment).",
+  "gray": true,
+  "gray_reason": "A line-scoped reading (the comment annotates only supportTerminateDebuggee, DAP's disconnect-time kill flag) makes it a sloppy but defensible paraphrase; the universal reading makes it false. Judges split on comment-scope conventions; panel severity readings also split (info vs no-downgrade for a false safety claim).",
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

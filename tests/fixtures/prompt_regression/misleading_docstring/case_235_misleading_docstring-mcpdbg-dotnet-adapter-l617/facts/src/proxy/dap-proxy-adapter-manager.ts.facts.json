@@ -1,0 +1,569 @@
+{
+  "source": "src/proxy/dap-proxy-adapter-manager.ts",
+  "source_hash": "27105d55906901a6",
+  "generated": "2026-07-23T18:34:20Z",
+  "imports": [
+    {
+      "source": "child_process",
+      "names": [
+        "ChildProcess"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "stream",
+      "names": [
+        "Readable"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "LineBuffer",
+        "sanitizeStderr"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./dap-proxy-interfaces.js",
+      "names": [
+        "IProcessSpawner",
+        "ILogger",
+        "IFileSystem",
+        "AdapterSpawnResult"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-interfaces.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "GenericAdapterManager",
+      "kind": "class",
+      "line": 30,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GenericAdapterManager.ensureLogDirectory",
+      "kind": "function",
+      "line": 42,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "logDir",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "GenericAdapterManager.spawn",
+      "kind": "function",
+      "line": 56,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/proxy/dap-proxy-adapter-manager\").GenericAdapterConfig"
+        }
+      ]
+    },
+    {
+      "name": "GenericAdapterManager.shutdown",
+      "kind": "function",
+      "line": 201,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "process",
+          "optional": false,
+          "type": "import(\"node:child_process\").ChildProcess | null"
+        },
+        {
+          "name": "options",
+          "optional": true,
+          "type": "{ killProcessTree?: boolean | undefined; }"
+        }
+      ]
+    },
+    {
+      "name": "GenericAdapterConfig",
+      "kind": "type",
+      "line": 19,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "GenericAdapterManager.ensureLogDirectory",
+      "to": "this.fileSystem.ensureDir",
+      "line": 44,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.ensureLogDirectory",
+      "to": "this.logger.info",
+      "line": 45,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "GenericAdapterManager.ensureLogDirectory",
+      "to": "String",
+      "line": 47,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GenericAdapterManager.ensureLogDirectory",
+      "to": "this.logger.error",
+      "line": 48,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "GenericAdapterManager.ensureLogDirectory",
+      "to": "Error",
+      "line": 49,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "this.ensureLogDirectory",
+      "line": 60,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "args.join",
+      "line": 62,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "this.logger.info",
+      "line": 63,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "sanitizeStderr",
+      "line": 85,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "describeEnvVar",
+      "line": 87,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "describeEnvVar",
+      "line": 88,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "describeEnvVar",
+      "line": 89,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "describeEnvVar",
+      "line": 90,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "describeEnvVar",
+      "line": 91,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "Object.keys(spawnOptions.env || {}).some",
+      "line": 93,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "Object.keys",
+      "line": 93,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "k.includes",
+      "line": 94,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "k.includes",
+      "line": 94,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "this.logger.info",
+      "line": 98,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "Object.keys",
+      "line": 102,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "this.logger.info",
+      "line": 107,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "args.filter",
+      "line": 109,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "arg.startsWith",
+      "line": 109,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "args.some",
+      "line": 110,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "arg.includes",
+      "line": 110,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "this.processSpawner.spawn",
+      "line": 114,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "Error",
+      "line": 117,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "adapterProcess.unref",
+      "line": 122,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "this.logger.info",
+      "line": 123,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "this.logger.info",
+      "line": 129,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "GenericAdapterManager.spawn",
+      "to": "this.setupProcessHandlers",
+      "line": 132,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.setupProcessHandlers",
+      "to": "adapterProcess.on",
+      "line": 144,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GenericAdapterManager.setupProcessHandlers",
+      "to": "this.logger.error",
+      "line": 145,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "GenericAdapterManager.setupProcessHandlers",
+      "to": "this.consumeStream",
+      "line": 153,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GenericAdapterManager.setupProcessHandlers",
+      "to": "this.logger.error",
+      "line": 154,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "GenericAdapterManager.setupProcessHandlers",
+      "to": "this.consumeStream",
+      "line": 162,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GenericAdapterManager.setupProcessHandlers",
+      "to": "this.logger.debug",
+      "line": 163,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.setupProcessHandlers",
+      "to": "adapterProcess.on",
+      "line": 167,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GenericAdapterManager.setupProcessHandlers",
+      "to": "this.logger.info",
+      "line": 168,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "GenericAdapterManager.consumeStream",
+      "to": "LineBuffer",
+      "line": 179,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GenericAdapterManager.consumeStream",
+      "to": "sanitizeStderr",
+      "line": 181,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "GenericAdapterManager.consumeStream",
+      "to": "lines.filter",
+      "line": 181,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.consumeStream",
+      "to": "l.trim",
+      "line": 181,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.consumeStream",
+      "to": "logLine",
+      "line": 182,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.consumeStream",
+      "to": "stream.on",
+      "line": 185,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GenericAdapterManager.consumeStream",
+      "to": "record",
+      "line": 185,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GenericAdapterManager.consumeStream",
+      "to": "buffer.append",
+      "line": 185,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.consumeStream",
+      "to": "data.toString",
+      "line": 185,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.consumeStream",
+      "to": "record",
+      "line": 186,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GenericAdapterManager.consumeStream",
+      "to": "buffer.flush",
+      "line": 186,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.consumeStream",
+      "to": "stream.on",
+      "line": 187,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GenericAdapterManager.consumeStream",
+      "to": "stream.on",
+      "line": 188,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "this.logger.info",
+      "line": 203,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "this.logger.info",
+      "line": 211,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "this.logger.info",
+      "line": 215,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "process.once",
+      "line": 224,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "this.logger.info",
+      "line": 227,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "this.processSpawner.spawn",
+      "line": 229,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "String",
+      "line": 229,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "this.logger.error",
+      "line": 234,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "this.logger.info",
+      "line": 237,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "process.kill",
+      "line": 238,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "Promise",
+      "line": 242,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "setTimeout",
+      "line": 242,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "this.logger.warn",
+      "line": 245,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "process.kill",
+      "line": 247,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "this.logger.info",
+      "line": 252,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "this.logger.info",
+      "line": 255,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "String",
+      "line": 258,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GenericAdapterManager.shutdown",
+      "to": "this.logger.error",
+      "line": 259,
+      "call_sites": 5
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "spawnOptions",
+      "member": "cwd",
+      "line": 76
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "win32",
+      "context": "Platform check to enable Windows tree-kill path in shutdown",
+      "line": 217,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "this.platform"
+    },
+    {
+      "value": "SIGTERM",
+      "context": "Signal sent to adapter process as first graceful shutdown attempt",
+      "line": 238,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "SIGKILL",
+      "context": "Signal sent to adapter process after SIGTERM timeout",
+      "line": 247,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "taskkill",
+      "context": "Windows command used for process tree kill",
+      "line": 229,
+      "kind": "config",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,1204 @@
+{
+  "source": "src/session/session-manager-core.ts",
+  "source_hash": "b2962b7402a96b8b",
+  "generated": "2026-07-23T18:33:51Z",
+  "imports": [
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "SessionState",
+        "SessionLifecycleState",
+        "DebugLanguage",
+        "DebugSessionInfo",
+        "mapLegacyState",
+        "AdapterPolicy"
+      ],
+      "line": 5,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./session-store.js",
+      "names": [
+        "SessionStore",
+        "ManagedSession"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "src/session/session-store.ts"
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 10,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": "os",
+      "names": [
+        "os"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IFileSystem",
+        "INetworkManager",
+        "ILogger",
+        "IEnvironment"
+      ],
+      "line": 13,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "../factories/session-store-factory.js",
+      "names": [
+        "ISessionStoreFactory"
+      ],
+      "line": 19,
+      "is_reexport": false,
+      "resolved_path": "src/factories/session-store-factory.ts"
+    },
+    {
+      "source": "../proxy/proxy-manager.js",
+      "names": [
+        "IProxyManager"
+      ],
+      "line": 20,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/proxy-manager.ts"
+    },
+    {
+      "source": "../factories/proxy-manager-factory.js",
+      "names": [
+        "IProxyManagerFactory"
+      ],
+      "line": 21,
+      "is_reexport": false,
+      "resolved_path": "src/factories/proxy-manager-factory.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IAdapterRegistry"
+      ],
+      "line": 22,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "SessionManagerCore",
+      "kind": "class",
+      "line": 66,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SessionManagerCore.createSession",
+      "kind": "function",
+      "line": 110,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "params",
+          "optional": false,
+          "type": "{ language: import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/models/index\").DebugLanguage; name?: string | undefined; executablePath?: string | undefined; }"
+        }
+      ]
+    },
+    {
+      "name": "SessionManagerCore.getSessionPolicy",
+      "kind": "function",
+      "line": 147,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "SessionManagerCore.getSession",
+      "kind": "function",
+      "line": 152,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "SessionManagerCore.getAllSessions",
+      "kind": "function",
+      "line": 156,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SessionManagerCore.closeSession",
+      "kind": "function",
+      "line": 160,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "SessionManagerCore.closeAllSessions",
+      "kind": "function",
+      "line": 200,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SessionManagerCore._testOnly_cleanupProxyEventHandlers",
+      "kind": "function",
+      "line": 481,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "session",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/session/session-store\").ManagedSession"
+        },
+        {
+          "name": "proxyManager",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/proxy/proxy-manager\").IProxyManager"
+        }
+      ]
+    },
+    {
+      "name": "CustomLaunchRequestArguments",
+      "kind": "type",
+      "line": 25,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DebugResult",
+      "kind": "type",
+      "line": 30,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SessionManagerDependencies",
+      "kind": "type",
+      "line": 44,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SessionManagerConfig",
+      "kind": "type",
+      "line": 57,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "WeakMap",
+      "line": 81,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.sessionStoreFactory.create",
+      "line": 98,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 99,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "os.tmpdir",
+      "line": 99,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.fileSystem.ensureDirSync",
+      "line": 106,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.logger.info",
+      "line": 107,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.createSession",
+      "to": "this.sessionStore.createSession",
+      "line": 116,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.createSession",
+      "to": "this.logger.info",
+      "line": 117,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.findFreePort",
+      "to": "this.networkManager.findFreePort",
+      "line": 122,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore._getSessionById",
+      "to": "this.sessionStore.getOrThrow",
+      "line": 126,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionManagerCore._updateSessionState",
+      "to": "this.logger.info",
+      "line": 131,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore._updateSessionState",
+      "to": "this.sessionStore.updateState",
+      "line": 134,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore._updateSessionState",
+      "to": "mapLegacyState",
+      "line": 137,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "SessionManagerCore._updateSessionState",
+      "to": "this.sessionStore.update",
+      "line": 138,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionManagerCore.getSessionPolicy",
+      "to": "this.sessionStore.getOrThrow",
+      "line": 148,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionManagerCore.getSessionPolicy",
+      "to": "this.sessionStore.selectPolicy",
+      "line": 149,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionManagerCore.getSession",
+      "to": "this.sessionStore.get",
+      "line": 153,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionManagerCore.getAllSessions",
+      "to": "this.sessionStore.getAll",
+      "line": 157,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.closeSession",
+      "to": "this.sessionStore.get",
+      "line": 161,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionManagerCore.closeSession",
+      "to": "this.logger.warn",
+      "line": 163,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerCore.closeSession",
+      "to": "this.logger.info",
+      "line": 166,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.closeSession",
+      "to": "this.cleanupProxyEventHandlers",
+      "line": 171,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "SessionManagerCore.closeSession",
+      "to": "this.logger.error",
+      "line": 173,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "SessionManagerCore.closeSession",
+      "to": "session.proxyManager.stop",
+      "line": 179,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.closeSession",
+      "to": "String",
+      "line": 181,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "SessionManagerCore.closeSession",
+      "to": "this.logger.error",
+      "line": 182,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "SessionManagerCore.closeSession",
+      "to": "this._updateSessionState",
+      "line": 188,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "SessionManagerCore.closeSession",
+      "to": "this.sessionStore.update",
+      "line": 191,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionManagerCore.closeSession",
+      "to": "this.logger.info",
+      "line": 195,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.closeSession",
+      "to": "this.sessionStore.remove",
+      "line": 196,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.closeAllSessions",
+      "to": "this.logger.info",
+      "line": 201,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.closeAllSessions",
+      "to": "this.sessionStore.size",
+      "line": 201,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.closeAllSessions",
+      "to": "this.sessionStore.getAllManaged",
+      "line": 202,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.closeAllSessions",
+      "to": "this.closeSession",
+      "line": 204,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.closeAllSessions",
+      "to": "this.logger.info",
+      "line": 206,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "Map",
+      "line": 215,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.sessionStore.selectPolicy",
+      "line": 229,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "policy.getDapClientBehavior",
+      "line": 231,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.debug",
+      "line": 233,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "String",
+      "line": 233,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.debug",
+      "line": 238,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.info",
+      "line": 239,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.info",
+      "line": 243,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "Date.now",
+      "line": 249,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "Set",
+      "line": 255,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "userBreakReasons.has",
+      "line": 276,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.info",
+      "line": 280,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this._updateSessionState",
+      "line": 283,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.handleAutoContinue(sessionId).catch",
+      "line": 284,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.handleAutoContinue",
+      "line": 284,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.error",
+      "line": 285,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this._updateSessionState",
+      "line": 288,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "proxyManager.on",
+      "line": 293,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "handlers.set",
+      "line": 294,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.debug",
+      "line": 298,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.info",
+      "line": 299,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.info",
+      "line": 302,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "Date.now",
+      "line": 306,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.debug",
+      "line": 312,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this._updateSessionState",
+      "line": 318,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "proxyManager.on",
+      "line": 320,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "handlers.set",
+      "line": 321,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.debug",
+      "line": 325,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.info",
+      "line": 326,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.info",
+      "line": 329,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "Date.now",
+      "line": 333,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this._updateSessionState",
+      "line": 336,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.cleanupProxyEventHandlers",
+      "line": 339,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "proxyManager.stop().catch",
+      "line": 347,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "proxyManager.stop",
+      "line": 347,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.warn",
+      "line": 348,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "String",
+      "line": 349,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "proxyManager.on",
+      "line": 353,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "handlers.set",
+      "line": 354,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.debug",
+      "line": 358,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.info",
+      "line": 359,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this._updateSessionState",
+      "line": 360,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.cleanupProxyEventHandlers",
+      "line": 363,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "proxyManager.stop().catch",
+      "line": 367,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "proxyManager.stop",
+      "line": 367,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.warn",
+      "line": 368,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "String",
+      "line": 369,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "proxyManager.on",
+      "line": 373,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "handlers.set",
+      "line": 374,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.debug",
+      "line": 378,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.info",
+      "line": 379,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this._updateSessionState",
+      "line": 381,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "proxyManager.on",
+      "line": 384,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "handlers.set",
+      "line": 385,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.debug",
+      "line": 389,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.info",
+      "line": 390,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this._updateSessionState",
+      "line": 391,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "proxyManager.on",
+      "line": 398,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "handlers.set",
+      "line": 399,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.debug",
+      "line": 403,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.error",
+      "line": 404,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this._updateSessionState",
+      "line": 405,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.cleanupProxyEventHandlers",
+      "line": 408,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "proxyManager.stop().catch",
+      "line": 412,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "proxyManager.stop",
+      "line": 412,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.warn",
+      "line": 413,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "String",
+      "line": 414,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "proxyManager.on",
+      "line": 418,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "handlers.set",
+      "line": 419,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.debug",
+      "line": 423,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.info",
+      "line": 424,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this._updateSessionState",
+      "line": 428,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this._updateSessionState",
+      "line": 430,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.cleanupProxyEventHandlers",
+      "line": 435,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "proxyManager.on",
+      "line": 438,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "handlers.set",
+      "line": 439,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.sessionEventHandlers.set",
+      "line": 442,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.setupProxyEventHandlers",
+      "to": "this.logger.debug",
+      "line": 443,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "SessionManagerCore.cleanupProxyEventHandlers",
+      "to": "this.sessionEventHandlers.has",
+      "line": 448,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.cleanupProxyEventHandlers",
+      "to": "this.logger.debug",
+      "line": 449,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "SessionManagerCore.cleanupProxyEventHandlers",
+      "to": "this.sessionEventHandlers.get",
+      "line": 453,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.cleanupProxyEventHandlers",
+      "to": "this.logger.debug",
+      "line": 455,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "SessionManagerCore.cleanupProxyEventHandlers",
+      "to": "handlers.forEach",
+      "line": 462,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.cleanupProxyEventHandlers",
+      "to": "this.logger.debug",
+      "line": 464,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "SessionManagerCore.cleanupProxyEventHandlers",
+      "to": "proxyManager.removeListener",
+      "line": 465,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore.cleanupProxyEventHandlers",
+      "to": "this.logger.error",
+      "line": 468,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "SessionManagerCore.cleanupProxyEventHandlers",
+      "to": "this.logger.info",
+      "line": 474,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "SessionManagerCore.cleanupProxyEventHandlers",
+      "to": "this.sessionEventHandlers.delete",
+      "line": 475,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "SessionManagerCore._testOnly_cleanupProxyEventHandlers",
+      "to": "this.cleanupProxyEventHandlers",
+      "line": 482,
+      "call_sites": 6
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "logger",
+      "line": 90
+    },
+    {
+      "container": "this",
+      "member": "fileSystem",
+      "line": 91
+    },
+    {
+      "container": "this",
+      "member": "networkManager",
+      "line": 92
+    },
+    {
+      "container": "this",
+      "member": "environment",
+      "line": 93
+    },
+    {
+      "container": "this",
+      "member": "proxyManagerFactory",
+      "line": 94
+    },
+    {
+      "container": "this",
+      "member": "sessionStoreFactory",
+      "line": 95
+    },
+    {
+      "container": "this",
+      "member": "adapterRegistry",
+      "line": 96
+    },
+    {
+      "container": "this",
+      "member": "sessionStore",
+      "line": 98
+    },
+    {
+      "container": "this",
+      "member": "logDirBase",
+      "line": 99
+    },
+    {
+      "container": "this",
+      "member": "defaultDapLaunchArgs",
+      "line": 100
+    },
+    {
+      "container": "this",
+      "member": "dryRunTimeoutMs",
+      "line": 104
+    },
+    {
+      "container": "session",
+      "member": "proxyManager",
+      "line": 184
+    },
+    {
+      "container": "session",
+      "member": "firstStopHandled",
+      "line": 218
+    },
+    {
+      "container": "session",
+      "member": "firstStopHandled",
+      "line": 291
+    },
+    {
+      "container": "session",
+      "member": "proxyManager",
+      "line": 340
+    },
+    {
+      "container": "session",
+      "member": "proxyManager",
+      "line": 364
+    },
+    {
+      "container": "session",
+      "member": "proxyManager",
+      "line": 395
+    },
+    {
+      "container": "session",
+      "member": "proxyManager",
+      "line": 409
+    },
+    {
+      "container": "session",
+      "member": "proxyManager",
+      "line": 436
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "stopped",
+      "context": "Proxy event name for debug stopped event",
+      "line": 293,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "continued",
+      "context": "Proxy event name for debug continued event",
+      "line": 320,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "terminated",
+      "context": "Proxy event name for debug terminated event",
+      "line": 353,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "exited",
+      "context": "Proxy event name for debug exited event",
+      "line": 373,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "adapter-configured",
+      "context": "Proxy event name for adapter configured event",
+      "line": 384,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dry-run-complete",
+      "context": "Proxy event name for dry run complete event",
+      "line": 398,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "error",
+      "context": "Proxy event name for error event",
+      "line": 418,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "exit",
+      "context": "Proxy event name for process exit event",
+      "line": 438,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "entry",
+      "context": "DAP stop reason checked for auto-continue logic",
+      "line": 275,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "reason"
+    },
+    {
+      "value": "breakpoint",
+      "context": "User break reason \u2014 never auto-continued",
+      "line": 256,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "function breakpoint",
+      "context": "User break reason \u2014 never auto-continued",
+      "line": 257,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "data breakpoint",
+      "context": "User break reason \u2014 never auto-continued",
+      "line": 258,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "instruction breakpoint",
+      "context": "User break reason \u2014 never auto-continued",
+      "line": 259,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "exception",
+      "context": "User break reason \u2014 never auto-continued",
+      "line": 260,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "attach",
+      "context": "Checked to detect attach sessions (no auto-continue)",
+      "line": 270,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "launchArgsRecord.request"
+    },
+    {
+      "value": "debug:state",
+      "context": "Structured log channel identifier for debug state events",
+      "line": 243,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "paused",
+      "context": "Structured log event type for stopped state",
+      "line": 244,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "running",
+      "context": "Structured log event type for continued state",
+      "line": 302,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

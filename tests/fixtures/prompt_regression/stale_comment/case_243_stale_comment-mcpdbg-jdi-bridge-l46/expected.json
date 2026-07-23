@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "The comment at compile-jdi-bridge.js:46 is correct within its declared scope: javac -version prints to stdout since JDK 9 (JDK-8173308), and the script targets JDK 21+ (:23, :97), so '(JDK 9+)' is precise. The finding's counter-assertion ('some JDK 9+ builds print to stderr') is unsupported and its mechanics are wrong \u2014 execFileSync returns stdout only, so there is no works-anyway-via-stderr path; the code depends on stdout exactly as declared. Fails Reality. [Panel note: verdict matches the live dismissal but the live reasoning's shadow-doc route and its real-but-minor-therefore-dismiss tail are both rubric-invalid; this reasoning replaces them.]",
+  "gray": false,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}
