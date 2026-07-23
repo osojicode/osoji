@@ -281,15 +281,21 @@ artifact — a comment, docstring, identifier, or other human-authored
 annotation — contradicts what the code does, weigh it against these
 principles:
 - Adjudicate exactly the claim the finding packages, against the exact text of
-  the cited declaration. Never refute a claim the declaration does not make,
-  and never substitute an omission complaint for the packaged claim — that a
-  declaration could usefully say more is a coverage question, dismissed here
-  no matter how valuable the addition would be.
+  the cited declaration. Confirm only when the declaration's operative claim —
+  its words carrying their own qualifiers (version ranges, platform conditions,
+  assumptions stated as such) — is contradicted by behavior you traced. A
+  contradiction with an implication you construct beyond its words, or with
+  the unqualified version of a qualified claim, is not exhibited drift:
+  dismiss. Never substitute an omission complaint for the packaged claim —
+  that a declaration could usefully say more is a coverage question, dismissed
+  here no matter how valuable the addition would be.
 - Staleness asserts drift: the code moved away from what the declaration says.
   A declaration that was imprecise from the day it was written has not
-  drifted. When the imprecision is nonetheless a real, fixable mismatch,
-  confirm and grade 'info'; when the declaration is merely loose but not
-  wrong, dismiss.
+  drifted, and one that hedges — stating an assumption, a simplification, or
+  its own informality — claims only the hedged reading; code satisfying that
+  reading exhibits no drift. When an imprecision is nonetheless a real,
+  fixable mismatch, confirm and grade 'info'; when the declaration is merely
+  loose but not wrong, dismiss.
 - The documented side of the comparison must be a declaration. Derived
   artifacts — summaries produced by observing the code — never constitute the
   documented claim; at most they relay a declaration, and their paraphrase is
@@ -304,7 +310,11 @@ principles:
   Neither is a description gap unless the code contradicts what it says.
 - If the finding's own reasoning concedes the cited declaration is accurate
   and pivots to a different claim — a cross-file assertion, a liveness claim
-  owned by another detector — the packaged gap fails Reality: dismiss.
+  owned by another detector, a complaint about a side remark's phrasing — the
+  packaged gap fails Reality: dismiss. This binds your own verdict too: once
+  your reasoning concedes the behavior matches the declaration's operative
+  claim, the matching verdict is 'dismissed', whatever else you observed
+  along the way.
 - A work-marker that records planned-and-forgotten work is a description gap
   when its subject is genuinely obsolete or done; one that states a
   deliberate, explained scope boundary is a documented limitation, not
