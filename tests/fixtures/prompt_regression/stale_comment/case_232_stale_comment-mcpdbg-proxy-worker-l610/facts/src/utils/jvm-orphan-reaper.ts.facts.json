@@ -1,0 +1,549 @@
+{
+  "source": "src/utils/jvm-orphan-reaper.ts",
+  "source_hash": "bd86e8299ba4d193",
+  "generated": "2026-07-23T18:34:26Z",
+  "imports": [
+    {
+      "source": "node:child_process",
+      "names": [
+        "execFile"
+      ],
+      "line": 19,
+      "is_reexport": false
+    },
+    {
+      "source": "node:util",
+      "names": [
+        "promisify"
+      ],
+      "line": 20,
+      "is_reexport": false
+    },
+    {
+      "source": "node:fs/promises",
+      "names": [
+        "fs"
+      ],
+      "line": 21,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "reapOrphanJvms",
+      "kind": "function",
+      "line": 60,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "opts",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/utils/jvm-orphan-reaper\").ReapOptions"
+        }
+      ]
+    },
+    {
+      "name": "listTaggedJvms",
+      "kind": "function",
+      "line": 108,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "listLinux",
+      "kind": "function",
+      "line": 122,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "listDarwin",
+      "kind": "function",
+      "line": 149,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "listWindows",
+      "kind": "function",
+      "line": 172,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "parseArgs",
+      "kind": "function",
+      "line": 213,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "pid",
+          "optional": false,
+          "type": "number"
+        },
+        {
+          "name": "args",
+          "optional": false,
+          "type": "string[]"
+        }
+      ]
+    },
+    {
+      "name": "isPidAlive",
+      "kind": "function",
+      "line": 236,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "pid",
+          "optional": false,
+          "type": "number"
+        },
+        {
+          "name": "signal",
+          "optional": true,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/utils/jvm-orphan-reaper\").SignalFn"
+        }
+      ]
+    },
+    {
+      "name": "defaultKill",
+      "kind": "function",
+      "line": 251,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "pid",
+          "optional": false,
+          "type": "number"
+        },
+        {
+          "name": "signal",
+          "optional": true,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/utils/jvm-orphan-reaper\").SignalFn"
+        }
+      ]
+    },
+    {
+      "name": "TaggedJvm",
+      "kind": "type",
+      "line": 32,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ReaperLogger",
+      "kind": "type",
+      "line": 38,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ReapResult",
+      "kind": "type",
+      "line": 44,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ReapOptions",
+      "kind": "type",
+      "line": 51,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "SignalFn",
+      "kind": "type",
+      "line": 232,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "promisify",
+      "line": 23,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "reapOrphanJvms",
+      "to": "lister",
+      "line": 70,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "reapOrphanJvms",
+      "to": "String",
+      "line": 72,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "reapOrphanJvms",
+      "to": "log?.warn",
+      "line": 73,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "reapOrphanJvms",
+      "to": "result.errors.push",
+      "line": 74,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "reapOrphanJvms",
+      "to": "isAlive",
+      "line": 84,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "reapOrphanJvms",
+      "to": "result.skipped.push",
+      "line": 85,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "reapOrphanJvms",
+      "to": "killer",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "reapOrphanJvms",
+      "to": "result.killed.push",
+      "line": 91,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "reapOrphanJvms",
+      "to": "log?.info",
+      "line": 92,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "reapOrphanJvms",
+      "to": "result.skipped.push",
+      "line": 97,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "reapOrphanJvms",
+      "to": "String",
+      "line": 100,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "reapOrphanJvms",
+      "to": "log?.warn",
+      "line": 101,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "reapOrphanJvms",
+      "to": "result.errors.push",
+      "line": 102,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "listTaggedJvms",
+      "to": "listLinux",
+      "line": 111,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "listTaggedJvms",
+      "to": "listDarwin",
+      "line": 113,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "listTaggedJvms",
+      "to": "listWindows",
+      "line": 115,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "listLinux",
+      "to": "fs.readdir",
+      "line": 125,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listLinux",
+      "to": "Promise.all",
+      "line": 130,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listLinux",
+      "to": "entries.map",
+      "line": 131,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listLinux",
+      "to": "/^\\d+$/.test",
+      "line": 132,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listLinux",
+      "to": "Number",
+      "line": 133,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "listLinux",
+      "to": "fs.readFile",
+      "line": 136,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listLinux",
+      "to": "raw.split('\\0').filter",
+      "line": 140,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listLinux",
+      "to": "raw.split",
+      "line": 140,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listLinux",
+      "to": "parseArgs",
+      "line": 141,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "listLinux",
+      "to": "result.push",
+      "line": 142,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "listDarwin",
+      "to": "execFileAsync",
+      "line": 153,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "listDarwin",
+      "to": "stdout.split",
+      "line": 158,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listDarwin",
+      "to": "line.replace",
+      "line": 159,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listDarwin",
+      "to": "trimmed.match",
+      "line": 161,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listDarwin",
+      "to": "Number",
+      "line": 163,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "listDarwin",
+      "to": "match[2].split(/\\s+/).filter",
+      "line": 164,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listDarwin",
+      "to": "match[2].split",
+      "line": 164,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listDarwin",
+      "to": "parseArgs",
+      "line": 165,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "listDarwin",
+      "to": "result.push",
+      "line": 166,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "listWindows",
+      "to": "execFileAsync",
+      "line": 179,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "listWindows",
+      "to": "stdout.trim",
+      "line": 188,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listWindows",
+      "to": "JSON.parse",
+      "line": 192,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listWindows",
+      "to": "Array.isArray",
+      "line": 196,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listWindows",
+      "to": "cmdline.split(/\\s+/).filter",
+      "line": 205,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listWindows",
+      "to": "cmdline.split",
+      "line": 205,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listWindows",
+      "to": "parseArgs",
+      "line": 206,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "listWindows",
+      "to": "result.push",
+      "line": 207,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "parseArgs",
+      "to": "a.startsWith",
+      "line": 220,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "parseArgs",
+      "to": "Number",
+      "line": 221,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "parseArgs",
+      "to": "a.slice",
+      "line": 221,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "parseArgs",
+      "to": "Number.isFinite",
+      "line": 222,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "parseArgs",
+      "to": "a.startsWith",
+      "line": 223,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "parseArgs",
+      "to": "a.slice",
+      "line": 224,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.kill",
+      "line": 234,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "isPidAlive",
+      "to": "signal",
+      "line": 239,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "defaultKill",
+      "to": "signal",
+      "line": 253,
+      "call_sites": 2
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "result",
+      "member": "scanned",
+      "line": 78
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "-Dmcp.debugger.jvm=true",
+      "context": "Marker property stamped on all mcp-debugger-owned JVM processes",
+      "line": 25,
+      "kind": "identifier",
+      "usage": "defined"
+    },
+    {
+      "value": "-Dmcp.debugger.owner_pid=",
+      "context": "Prefix for owner PID system property on tagged JVMs",
+      "line": 26,
+      "kind": "identifier",
+      "usage": "defined"
+    },
+    {
+      "value": "-Dmcp.debugger.session_tag=",
+      "context": "Prefix for session UUID system property on tagged JVMs",
+      "line": 27,
+      "kind": "identifier",
+      "usage": "defined"
+    },
+    {
+      "value": "EPERM",
+      "context": "errno code checked after signal(pid, 0) to determine if process exists but is unpermissioned",
+      "line": 245,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "code"
+    },
+    {
+      "value": "ESRCH",
+      "context": "errno code checked after SIGKILL to determine if process was already gone",
+      "line": 257,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "code"
+    },
+    {
+      "value": "EPERM",
+      "context": "errno code checked after SIGKILL to determine if process is owned by another user",
+      "line": 258,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "code"
+    },
+    {
+      "value": "SIGKILL",
+      "context": "Signal sent to orphaned JVM processes for termination",
+      "line": 253,
+      "kind": "config",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

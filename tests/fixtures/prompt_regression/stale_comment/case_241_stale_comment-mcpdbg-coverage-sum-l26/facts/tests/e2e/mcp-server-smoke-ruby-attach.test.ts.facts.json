@@ -1,0 +1,722 @@
+{
+  "source": "tests/e2e/mcp-server-smoke-ruby-attach.test.ts",
+  "source_hash": "5f843fa11997e8b4",
+  "generated": "2026-07-23T18:34:04Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "beforeAll",
+        "afterAll"
+      ],
+      "line": 18,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 19,
+      "is_reexport": false
+    },
+    {
+      "source": "net",
+      "names": [
+        "net"
+      ],
+      "line": 20,
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "line": 21,
+      "is_reexport": false
+    },
+    {
+      "source": "child_process",
+      "names": [
+        "spawn",
+        "ChildProcess"
+      ],
+      "line": 22,
+      "is_reexport": false
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/client/index.js",
+      "names": [
+        "Client"
+      ],
+      "line": 23,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/index.d.ts"
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/client/stdio.js",
+      "names": [
+        "StdioClientTransport"
+      ],
+      "line": 24,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/stdio.d.ts"
+    },
+    {
+      "source": "./smoke-test-utils.js",
+      "names": [
+        "parseSdkToolResult",
+        "callToolSafely"
+      ],
+      "line": 25,
+      "is_reexport": false,
+      "resolved_path": "tests/e2e/smoke-test-utils.ts"
+    },
+    {
+      "source": "@debugmcp/adapter-ruby",
+      "names": [
+        "findRubyExecutable",
+        "findRdbgExecutable",
+        "buildRdbgInvocation"
+      ],
+      "line": 26,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-ruby/dist/index.d.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "fileURLToPath",
+      "line": 32,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.dirname",
+      "line": 33,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 34,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "Promise",
+      "line": 37,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "net.createServer",
+      "line": 38,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "srv.listen",
+      "line": 39,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "srv.address",
+      "line": 40,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "srv.close",
+      "line": 42,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "reject",
+      "line": 42,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "Error",
+      "line": 42,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "srv.close",
+      "line": 46,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "resolve",
+      "line": 46,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getFreePort",
+      "to": "srv.on",
+      "line": 48,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "waitForPausedState",
+      "to": "callToolSafely",
+      "line": 59,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "waitForPausedState",
+      "to": "Promise",
+      "line": 63,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "waitForPausedState",
+      "to": "setTimeout",
+      "line": 63,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 68,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeAll",
+      "line": 75,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findRubyExecutable",
+      "line": 77,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findRdbgExecutable",
+      "line": 78,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 81,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "StdioClientTransport",
+      "line": 85,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 87,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Client",
+      "line": 94,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient.connect",
+      "line": 101,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 102,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterAll",
+      "line": 105,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 108,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient.close",
+      "line": 115,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "transport.close",
+      "line": 118,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "rdbgProcess.kill",
+      "line": 122,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 125,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 128,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findRubyExecutable",
+      "line": 133,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findRdbgExecutable",
+      "line": 134,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 135,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getFreePort",
+      "line": 136,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "buildRdbgInvocation",
+      "line": 139,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "String",
+      "line": 141,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 144,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "invocation.args.join",
+      "line": 144,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "spawn",
+      "line": 145,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 150,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 151,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "reject",
+      "line": 152,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 152,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "rdbgProcess!.stderr!.on",
+      "line": 156,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "chunk.toString",
+      "line": 157,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stderr.includes",
+      "line": 158,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "clearTimeout",
+      "line": 159,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "resolve",
+      "line": 160,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "rdbgProcess!.on",
+      "line": 163,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "clearTimeout",
+      "line": 164,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "reject",
+      "line": 165,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 165,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 170,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 174,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sessionId).toBeTruthy",
+      "line": 175,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 175,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mcpClient!.callTool",
+      "line": 177,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseSdkToolResult",
+      "line": 181,
+      "call_sites": 214
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(attachResponse.success).toBe",
+      "line": 182,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 182,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(attachResponse.state).toBe",
+      "line": 183,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 183,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 186,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(bpResult.success).toBe",
+      "line": 191,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 191,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 193,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(contResult.success).toBe",
+      "line": 194,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 194,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "waitForPausedState",
+      "line": 197,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stack).not.toBeNull",
+      "line": 198,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 198,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stack!.stackFrames![0].line).toBe",
+      "line": 199,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 199,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 201,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "variables.find",
+      "line": 203,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "variables.find",
+      "line": 204,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(Number(counter?.value)).toBeGreaterThanOrEqual",
+      "line": 205,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 205,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Number",
+      "line": 205,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(message?.value).toContain",
+      "line": 206,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 206,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 209,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(evalResult.success).toBe",
+      "line": 213,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 213,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolSafely",
+      "line": 216,
+      "call_sites": 109
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(detachResult.success).toBe",
+      "line": 220,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 220,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 222,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 222,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(rdbgProcess!.exitCode).toBeNull",
+      "line": 223,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 223,
+      "call_sites": 5808
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "wait for debugger connection",
+      "context": "Sentinel string in rdbg stderr indicating the debugger is ready for connections",
+      "line": 158,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "stderr"
+    },
+    {
+      "value": "ruby",
+      "context": "Language identifier passed to create_debug_session MCP tool",
+      "line": 172,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "ruby-attach-test",
+      "context": "Session name passed to create_debug_session MCP tool",
+      "line": 172,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "paused",
+      "context": "Expected state from attach_to_process response",
+      "line": 183,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "attachResponse.state"
+    },
+    {
+      "value": "tick",
+      "context": "Expected substring of the 'message' local variable value at the breakpoint",
+      "line": 206,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "message?.value"
+    },
+    {
+      "value": "counter * 2",
+      "context": "Ruby expression evaluated in the attach session",
+      "line": 211,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "NODE_ENV",
+      "context": "Environment variable set for MCP server subprocess",
+      "line": 91,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "test",
+      "context": "Value of NODE_ENV for MCP server subprocess",
+      "line": 91,
+      "kind": "config",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

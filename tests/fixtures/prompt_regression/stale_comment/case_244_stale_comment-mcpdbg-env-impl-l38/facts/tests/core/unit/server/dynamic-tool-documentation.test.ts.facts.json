@@ -1,0 +1,995 @@
+{
+  "source": "tests/core/unit/server/dynamic-tool-documentation.test.ts",
+  "source_hash": "5b1591f38a1ed264",
+  "generated": "2026-07-23T18:32:13Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "beforeEach",
+        "vi"
+      ],
+      "line": 1,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "../../../../src/server.js",
+      "names": [
+        "DebugMcpServer"
+      ],
+      "line": 2,
+      "is_reexport": false,
+      "resolved_path": "src/server.ts"
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/types.js",
+      "names": [
+        "ListToolsRequestSchema"
+      ],
+      "line": 53,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/types.d.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 5,
+      "call_sites": 108
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 6,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 8,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 9,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 10,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 11,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 14,
+      "call_sites": 197
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 14,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 15,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 18,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 19,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 22,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 25,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 28,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 33,
+      "call_sites": 108
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 34,
+      "call_sites": 82
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 34,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 35,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 36,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 37,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 38,
+      "call_sites": 197
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 38,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 39,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 40,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 41,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 42,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 43,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 44,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 45,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 46,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 47,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 48,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "getToolsFromServer",
+      "to": "server.server.setRequestHandler.bind",
+      "line": 70,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getToolsFromServer",
+      "to": "vi.fn().mockImplementation",
+      "line": 71,
+      "call_sites": 82
+    },
+    {
+      "from_symbol": "getToolsFromServer",
+      "to": "vi.fn",
+      "line": 71,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "getToolsFromServer",
+      "to": "originalSetRequestHandler",
+      "line": 77,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getToolsFromServer",
+      "to": "(server as unknown as { registerTools(): void }).registerTools",
+      "line": 82,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getToolsFromServer",
+      "to": "Error",
+      "line": 86,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getToolsFromServer",
+      "to": "listToolsHandler",
+      "line": 91,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 107,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 110,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 111,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DebugMcpServer",
+      "line": 112,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 115,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getToolsFromServer",
+      "line": 116,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "tools.find",
+      "line": 118,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(setBreakpointTool).toBeDefined",
+      "line": 119,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 119,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fileDescription).toBeDefined",
+      "line": 122,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 122,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fileDescription).toContain",
+      "line": 123,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 123,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fileDescription).toContain",
+      "line": 125,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 125,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 128,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getToolsFromServer",
+      "line": 129,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "tools.find",
+      "line": 131,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(startDebuggingTool).toBeDefined",
+      "line": 132,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 132,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(scriptPathDescription).toBeDefined",
+      "line": 135,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 135,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(scriptPathDescription).toContain",
+      "line": 136,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 136,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(scriptPathDescription).toContain",
+      "line": 137,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 137,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 140,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getToolsFromServer",
+      "line": 141,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "tools.find",
+      "line": 143,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(getSourceContextTool).toBeDefined",
+      "line": 144,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 144,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fileDescription).toBeDefined",
+      "line": 147,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 147,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fileDescription).toContain",
+      "line": 148,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 148,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fileDescription).toContain",
+      "line": 149,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 149,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 152,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getToolsFromServer",
+      "line": 153,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "toolsWithPaths.forEach",
+      "line": 157,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "tools.find",
+      "line": 158,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "pathProperties.forEach",
+      "line": 161,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(description).not.toMatch",
+      "line": 165,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 165,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(description).not.toMatch",
+      "line": 166,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 166,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(description).not.toMatch",
+      "line": 167,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 167,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 173,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getToolsFromServer",
+      "line": 174,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "tools.find",
+      "line": 177,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(setBreakpointTool!.inputSchema.properties.file.description).toContain",
+      "line": 178,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 178,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "tools.find",
+      "line": 180,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(getSourceContextTool!.inputSchema.properties.file.description).toContain",
+      "line": 181,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 181,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "tools.find",
+      "line": 184,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(startDebuggingTool!.inputSchema.properties.scriptPath.description).toContain",
+      "line": 185,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 185,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 188,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getToolsFromServer",
+      "line": 189,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "tools.filter",
+      "line": 191,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "['set_breakpoint', 'start_debugging', 'get_source_context'].includes",
+      "line": 192,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "toolsWithPaths.forEach",
+      "line": 195,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(typeof description).toBe",
+      "line": 198,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 198,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(description?.length).toBeGreaterThan",
+      "line": 199,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 199,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(description).toContain",
+      "line": 201,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 201,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(typeof description).toBe",
+      "line": 204,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 204,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(description?.length).toBeGreaterThan",
+      "line": 205,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 205,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(description).toContain",
+      "line": 206,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 206,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(typeof description).toBe",
+      "line": 209,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 209,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(description?.length).toBeGreaterThan",
+      "line": 210,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 210,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(description).toContain",
+      "line": 211,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 211,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 217,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 218,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DebugMcpServer",
+      "line": 219,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 222,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getToolsFromServer",
+      "line": 223,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(tools).toBeDefined",
+      "line": 226,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 226,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(Array.isArray(tools)).toBe",
+      "line": 227,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 227,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array.isArray",
+      "line": 227,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "tools.filter",
+      "line": 230,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "['set_breakpoint', 'start_debugging', 'get_source_context'].includes",
+      "line": 231,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "toolsWithPaths.forEach",
+      "line": 234,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(typeof tool.inputSchema.properties.file.description).toBe",
+      "line": 236,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 236,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(tool.inputSchema.properties.file.description?.length).toBeGreaterThan",
+      "line": 237,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 237,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(typeof tool.inputSchema.properties.scriptPath.description).toBe",
+      "line": 239,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 239,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(tool.inputSchema.properties.scriptPath.description?.length).toBeGreaterThan",
+      "line": 240,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 240,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(typeof tool.inputSchema.properties.file.description).toBe",
+      "line": 242,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 242,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(tool.inputSchema.properties.file.description?.length).toBeGreaterThan",
+      "line": 243,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 243,
+      "call_sites": 5808
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "server.server",
+      "member": "setRequestHandler",
+      "line": 71
+    },
+    {
+      "container": "server.server",
+      "member": "setRequestHandler",
+      "line": 94
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "set_breakpoint",
+      "context": "Tool name looked up in tools list during assertions",
+      "line": 118,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "t.name"
+    },
+    {
+      "value": "start_debugging",
+      "context": "Tool name looked up in tools list during assertions",
+      "line": 131,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "t.name"
+    },
+    {
+      "value": "get_source_context",
+      "context": "Tool name looked up in tools list during assertions",
+      "line": 143,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "t.name"
+    },
+    {
+      "value": "Path to the source file",
+      "context": "Expected substring in set_breakpoint and get_source_context file descriptions",
+      "line": 123,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "fileDescription"
+    },
+    {
+      "value": "absolute file paths",
+      "context": "Expected substring in set_breakpoint file description",
+      "line": 125,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "fileDescription"
+    },
+    {
+      "value": "Path to the script to debug",
+      "context": "Expected substring in start_debugging scriptPath description",
+      "line": 136,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "scriptPathDescription"
+    },
+    {
+      "value": "Use absolute paths or paths relative to your current working directory",
+      "context": "Expected substring in start_debugging and get_source_context descriptions",
+      "line": 137,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "scriptPathDescription"
+    },
+    {
+      "value": "tools/list",
+      "context": "JSON-RPC method name used in synthetic handler invocation",
+      "line": 91,
+      "kind": "config",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

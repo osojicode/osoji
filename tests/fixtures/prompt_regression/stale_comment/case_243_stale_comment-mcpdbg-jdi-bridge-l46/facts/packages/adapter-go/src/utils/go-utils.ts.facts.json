@@ -1,0 +1,551 @@
+{
+  "source": "packages/adapter-go/src/utils/go-utils.ts",
+  "source_hash": "a592e80be738ced7",
+  "generated": "2026-07-23T18:32:36Z",
+  "imports": [
+    {
+      "source": "child_process",
+      "names": [
+        "spawn"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "fs",
+      "names": [
+        "fs"
+      ],
+      "line": 8,
+      "is_reexport": false
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "sanitizeStderrTail"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "findGoExecutable",
+      "kind": "function",
+      "line": 20,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "preferredPath",
+          "optional": true,
+          "type": "string | undefined"
+        },
+        {
+          "name": "logger",
+          "optional": true,
+          "type": "Logger | undefined"
+        }
+      ]
+    },
+    {
+      "name": "findDelveExecutable",
+      "kind": "function",
+      "line": 63,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "preferredPath",
+          "optional": true,
+          "type": "string | undefined"
+        },
+        {
+          "name": "logger",
+          "optional": true,
+          "type": "Logger | undefined"
+        }
+      ]
+    },
+    {
+      "name": "getGoVersion",
+      "kind": "function",
+      "line": 108,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "goPath",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "getDelveVersion",
+      "kind": "function",
+      "line": 133,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "dlvPath",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "checkDelveDapSupport",
+      "kind": "function",
+      "line": 159,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "dlvPath",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "getGoSearchPaths",
+      "kind": "function",
+      "line": 184,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "findGoExecutable",
+      "to": "fileExists",
+      "line": 26,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "findGoExecutable",
+      "to": "logger?.debug",
+      "line": 27,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findGoExecutable",
+      "to": "logger?.debug",
+      "line": 30,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findGoExecutable",
+      "to": "findInPath",
+      "line": 39,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "findGoExecutable",
+      "to": "logger?.debug",
+      "line": 41,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findGoExecutable",
+      "to": "getGoSearchPaths",
+      "line": 47,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "findGoExecutable",
+      "to": "path.join",
+      "line": 50,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "findGoExecutable",
+      "to": "fileExists",
+      "line": 51,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "findGoExecutable",
+      "to": "logger?.debug",
+      "line": 52,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findGoExecutable",
+      "to": "Error",
+      "line": 57,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "findDelveExecutable",
+      "to": "fileExists",
+      "line": 69,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "findDelveExecutable",
+      "to": "logger?.debug",
+      "line": 70,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findDelveExecutable",
+      "to": "logger?.debug",
+      "line": 73,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findDelveExecutable",
+      "to": "findInPath",
+      "line": 82,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "findDelveExecutable",
+      "to": "logger?.debug",
+      "line": 84,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findDelveExecutable",
+      "to": "getGopathBin",
+      "line": 90,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findDelveExecutable",
+      "to": "path.join",
+      "line": 93,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "findDelveExecutable",
+      "to": "fileExists",
+      "line": 94,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "findDelveExecutable",
+      "to": "logger?.debug",
+      "line": 95,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findDelveExecutable",
+      "to": "Error",
+      "line": 100,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getGoVersion",
+      "to": "Promise",
+      "line": 109,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getGoVersion",
+      "to": "spawn",
+      "line": 110,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getGoVersion",
+      "to": "child.stdout?.on",
+      "line": 115,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getGoVersion",
+      "to": "data.toString",
+      "line": 115,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getGoVersion",
+      "to": "child.on",
+      "line": 117,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "getGoVersion",
+      "to": "resolve",
+      "line": 117,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "getGoVersion",
+      "to": "child.on",
+      "line": 118,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "getGoVersion",
+      "to": "output.match",
+      "line": 121,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getGoVersion",
+      "to": "resolve",
+      "line": 122,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "getGoVersion",
+      "to": "resolve",
+      "line": 124,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "getDelveVersion",
+      "to": "Promise",
+      "line": 134,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getDelveVersion",
+      "to": "spawn",
+      "line": 135,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getDelveVersion",
+      "to": "child.stdout?.on",
+      "line": 140,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getDelveVersion",
+      "to": "data.toString",
+      "line": 140,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getDelveVersion",
+      "to": "child.on",
+      "line": 142,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "getDelveVersion",
+      "to": "resolve",
+      "line": 142,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "getDelveVersion",
+      "to": "child.on",
+      "line": 143,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "getDelveVersion",
+      "to": "output.match",
+      "line": 146,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getDelveVersion",
+      "to": "resolve",
+      "line": 147,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "getDelveVersion",
+      "to": "resolve",
+      "line": 149,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "checkDelveDapSupport",
+      "to": "Promise",
+      "line": 160,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "checkDelveDapSupport",
+      "to": "spawn",
+      "line": 161,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "checkDelveDapSupport",
+      "to": "child.stderr?.on",
+      "line": 166,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "checkDelveDapSupport",
+      "to": "data.toString",
+      "line": 166,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "checkDelveDapSupport",
+      "to": "child.on",
+      "line": 168,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "checkDelveDapSupport",
+      "to": "resolve",
+      "line": 168,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "checkDelveDapSupport",
+      "to": "child.on",
+      "line": 169,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "checkDelveDapSupport",
+      "to": "resolve",
+      "line": 173,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "checkDelveDapSupport",
+      "to": "stderrOutput.trim",
+      "line": 175,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "checkDelveDapSupport",
+      "to": "sanitizeStderrTail",
+      "line": 175,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "getGoSearchPaths",
+      "to": "paths.push",
+      "line": 188,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getGoSearchPaths",
+      "to": "path.join",
+      "line": 191,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "getGoSearchPaths",
+      "to": "path.join",
+      "line": 192,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "getGoSearchPaths",
+      "to": "paths.push",
+      "line": 195,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getGoSearchPaths",
+      "to": "path.join",
+      "line": 199,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "getGoSearchPaths",
+      "to": "path.join",
+      "line": 200,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "getGoSearchPaths",
+      "to": "paths.push",
+      "line": 203,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getGoSearchPaths",
+      "to": "path.join",
+      "line": 206,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "getGoSearchPaths",
+      "to": "path.join",
+      "line": 207,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "getGoSearchPaths",
+      "to": "paths.unshift",
+      "line": 213,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getGoSearchPaths",
+      "to": "paths.filter",
+      "line": 216,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getGopathBin",
+      "to": "path.join",
+      "line": 230,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "getGopathBin",
+      "to": "path.join",
+      "line": 236,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "findInPath",
+      "to": "pathEnv.split",
+      "line": 248,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findInPath",
+      "to": "path.join",
+      "line": 251,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "findInPath",
+      "to": "fileExists",
+      "line": 252,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "fileExists",
+      "to": "fs.promises.access",
+      "line": 265,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "go install github.com/go-delve/delve/cmd/dlv@latest",
+      "context": "Error message instructing how to install Delve",
+      "line": 101,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "https://go.dev/dl/",
+      "context": "Error message URL for Go installation",
+      "line": 57,
+      "kind": "message",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

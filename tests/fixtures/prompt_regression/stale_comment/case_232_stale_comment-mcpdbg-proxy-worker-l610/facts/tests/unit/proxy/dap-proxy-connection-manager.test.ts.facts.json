@@ -1,0 +1,2536 @@
+{
+  "source": "tests/unit/proxy/dap-proxy-connection-manager.test.ts",
+  "source_hash": "c2dba0600b095bb6",
+  "generated": "2026-07-23T18:33:00Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "vi",
+        "beforeEach",
+        "afterEach",
+        "MockInstance"
+      ],
+      "line": 1,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "../../../src/proxy/dap-proxy-connection-manager.js",
+      "names": [
+        "DapConnectionManager"
+      ],
+      "line": 2,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-connection-manager.ts"
+    },
+    {
+      "source": "../../../src/proxy/dap-proxy-interfaces.js",
+      "names": [
+        "IDapClient",
+        "IDapClientFactory",
+        "ILogger"
+      ],
+      "line": 3,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-interfaces.ts"
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 10,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 29,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise.resolve",
+      "line": 30,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 35,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 35,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 36,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 41,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 42,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 43,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 44,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 47,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllMocks",
+      "line": 48,
+      "call_sites": 87
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 49,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 52,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 53,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 54,
+      "call_sites": 82
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 54,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 58,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 59,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 60,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 61,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 62,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 66,
+      "call_sites": 197
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 66,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 70,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 71,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 72,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 73,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DapConnectionManager",
+      "line": 76,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 79,
+      "call_sites": 130
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllTimers",
+      "line": 81,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 82,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.restoreAllMocks",
+      "line": 83,
+      "call_sites": 45
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 86,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 87,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.connect.mockResolvedValue",
+      "line": 88,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.connectWithRetry",
+      "line": 90,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 93,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClientFactory.create).toHaveBeenCalledWith",
+      "line": 97,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 97,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.connect).toHaveBeenCalledTimes",
+      "line": 98,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 98,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.on).toHaveBeenCalledWith",
+      "line": 99,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 99,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 99,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.off).toHaveBeenCalledWith",
+      "line": 100,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 100,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 100,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result).toBe",
+      "line": 101,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 101,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 104,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.connect\n        .mockRejectedValueOnce(new Error('ECONNREFUSED'))\n        .mockRejecte",
+      "line": 105,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.connect\n        .mockRejectedValueOnce(new Error('ECONNREFUSED'))\n        .mockRejecte",
+      "line": 105,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.connect\n        .mockRejectedValueOnce",
+      "line": 105,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 106,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 107,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.connectWithRetry",
+      "line": 110,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 113,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "waitForRetries",
+      "line": 116,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.connect).toHaveBeenCalledTimes",
+      "line": 120,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 120,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.warn).toHaveBeenCalledTimes",
+      "line": 121,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 121,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result).toBe",
+      "line": 122,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 122,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 125,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.connect.mockRejectedValue",
+      "line": 126,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 126,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        connectionManager.connectWithRetry('localhost', 5678)\n      ).rejects.toThrow",
+      "line": 129,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 129,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.connectWithRetry",
+      "line": 130,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 134,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "waitForRetries",
+      "line": 137,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.connect).toHaveBeenCalledTimes",
+      "line": 142,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 142,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.off).toHaveBeenCalledWith",
+      "line": 143,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 143,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 143,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.error).toHaveBeenCalledWith",
+      "line": 144,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 144,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 145,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 149,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.on.mockImplementation",
+      "line": 151,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.connect.mockResolvedValue",
+      "line": 157,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.connectWithRetry",
+      "line": 159,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 162,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 166,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "tempErrorHandler",
+      "line": 167,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.debug).toHaveBeenCalledWith",
+      "line": 172,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 172,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 173,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it.each(errorScenarios)",
+      "line": 177,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it.each",
+      "line": 177,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.connect\n        .mockRejectedValueOnce(error)\n        .mockResolvedValue",
+      "line": 178,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.connect\n        .mockRejectedValueOnce",
+      "line": 178,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.connectWithRetry",
+      "line": 182,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 184,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "waitForRetries",
+      "line": 185,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.warn).toHaveBeenCalledWith",
+      "line": 189,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 189,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 190,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result).toBe",
+      "line": 192,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 192,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 195,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.connect.mockImplementation",
+      "line": 197,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise.reject",
+      "line": 200,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 200,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise.resolve",
+      "line": 202,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.connectWithRetry",
+      "line": 205,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 207,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "waitForRetries",
+      "line": 210,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.connect).toHaveBeenCalledTimes",
+      "line": 211,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 211,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "waitForRetries",
+      "line": 214,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.connect).toHaveBeenCalledTimes",
+      "line": 217,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 217,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 220,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 221,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.connect.mockImplementation",
+      "line": 222,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        connectionManager.connectWithRetry('localhost', 5678)\n      ).rejects.toThrow",
+      "line": 227,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 227,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.connectWithRetry",
+      "line": 228,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 231,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "waitForRetries",
+      "line": 232,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.off).toHaveBeenCalledWith",
+      "line": 238,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 238,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 238,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 242,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 243,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockResolvedValue",
+      "line": 244,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.initializeSession",
+      "line": 246,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledWith",
+      "line": 248,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 248,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 261,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 262,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockRejectedValue",
+      "line": 263,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        connectionManager.initializeSession(mockDapClient as any, 'test-session')\n      ).re",
+      "line": 265,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 265,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.initializeSession",
+      "line": 266,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 271,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 272,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 274,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 275,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 276,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 277,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 278,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 279,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 280,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 281,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 282,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.setupEventHandlers",
+      "line": 285,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.on).toHaveBeenCalledWith",
+      "line": 287,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 287,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.on).toHaveBeenCalledWith",
+      "line": 288,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 288,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.on).toHaveBeenCalledWith",
+      "line": 289,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 289,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.on).toHaveBeenCalledWith",
+      "line": 290,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 290,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.on).toHaveBeenCalledWith",
+      "line": 291,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 291,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.on).toHaveBeenCalledWith",
+      "line": 292,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 292,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.on).toHaveBeenCalledWith",
+      "line": 293,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 293,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.on).toHaveBeenCalledWith",
+      "line": 294,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 294,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.on).toHaveBeenCalledWith",
+      "line": 295,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 295,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 298,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 300,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 301,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.setupEventHandlers",
+      "line": 304,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.on).toHaveBeenCalledTimes",
+      "line": 306,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 306,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.on).toHaveBeenCalledWith",
+      "line": 307,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 307,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.on).toHaveBeenCalledWith",
+      "line": 308,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 308,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 311,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.setupEventHandlers",
+      "line": 312,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.on).not.toHaveBeenCalled",
+      "line": 314,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 314,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 315,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 315,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 319,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 320,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.disconnect",
+      "line": 321,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 323,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 323,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).not.toHaveBeenCalled",
+      "line": 326,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 326,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 329,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockResolvedValue",
+      "line": 330,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.disconnect",
+      "line": 332,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledWith",
+      "line": 334,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 334,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.disconnect).toHaveBeenCalled",
+      "line": 337,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 337,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expectDisconnectCleanup",
+      "line": 338,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 341,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockResolvedValue",
+      "line": 342,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.disconnect",
+      "line": 344,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledWith",
+      "line": 346,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 346,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 351,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockImplementation",
+      "line": 352,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 353,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 353,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.disconnect",
+      "line": 356,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 359,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.warn).toHaveBeenCalledWith",
+      "line": 362,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 362,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 363,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.disconnect).toHaveBeenCalled",
+      "line": 365,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 365,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 368,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 369,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockRejectedValue",
+      "line": 370,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.disconnect",
+      "line": 372,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.warn).toHaveBeenCalledWith",
+      "line": 374,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 374,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 375,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.disconnect).toHaveBeenCalled",
+      "line": 377,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 377,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 380,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockResolvedValue",
+      "line": 381,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.disconnect.mockImplementation",
+      "line": 382,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 383,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.disconnect",
+      "line": 386,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.error).toHaveBeenCalledWith",
+      "line": 388,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 388,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 389,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 390,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 394,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockRejectedValue",
+      "line": 395,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 395,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.disconnect.mockImplementation",
+      "line": 396,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 397,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.disconnect",
+      "line": 400,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.warn).toHaveBeenCalledWith",
+      "line": 402,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 402,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 403,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.error).toHaveBeenCalledWith",
+      "line": 405,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 405,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 406,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 407,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 411,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockImplementation",
+      "line": 412,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 413,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 413,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "resolve",
+      "line": 413,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.disconnect",
+      "line": 416,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 419,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 422,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 422,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.warn).not.toHaveBeenCalledWith",
+      "line": 425,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 425,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 426,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 431,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 434,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockResolvedValue",
+      "line": 435,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.sendLaunchRequest",
+      "line": 437,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledWith",
+      "line": 439,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 439,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 449,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockResolvedValue",
+      "line": 450,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.sendLaunchRequest",
+      "line": 452,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledWith",
+      "line": 460,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 460,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 470,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 471,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockRejectedValue",
+      "line": 472,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        connectionManager.sendLaunchRequest(mockDapClient as any, scriptPath)\n      ).reject",
+      "line": 474,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 474,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.sendLaunchRequest",
+      "line": 475,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 479,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockResolvedValue",
+      "line": 480,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.sendLaunchRequest",
+      "line": 482,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledWith",
+      "line": 492,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 492,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 494,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockLogger.info as any).mock.calls\n        .map((call: unknown[]) => JSON.stringify(call))\n        ",
+      "line": 497,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockLogger.info as any).mock.calls\n        .map",
+      "line": 497,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 498,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logged).not.toContain",
+      "line": 500,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 500,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logged).toContain",
+      "line": 501,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 501,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 505,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 506,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockResolvedValue",
+      "line": 507,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.sendAttachRequest",
+      "line": 509,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledWith",
+      "line": 515,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 515,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 517,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockLogger.info as any).mock.calls\n        .map((call: unknown[]) => JSON.stringify(call))\n        ",
+      "line": 520,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockLogger.info as any).mock.calls\n        .map",
+      "line": 520,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 521,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logged).not.toContain",
+      "line": 523,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 523,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 527,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 530,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockResolvedValue",
+      "line": 541,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.setBreakpoints",
+      "line": 543,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledWith",
+      "line": 549,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 549,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result).toBe",
+      "line": 553,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 553,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 556,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockResolvedValue",
+      "line": 571,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.setBreakpoints",
+      "line": 579,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledWith",
+      "line": 585,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 585,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.body.breakpoints).toHaveLength",
+      "line": 593,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 593,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 596,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockResolvedValue",
+      "line": 610,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.setBreakpoints",
+      "line": 617,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledWith",
+      "line": 623,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 623,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 632,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockResolvedValue",
+      "line": 643,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.setBreakpoints",
+      "line": 645,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledWith",
+      "line": 651,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 651,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.body.breakpoints).toHaveLength",
+      "line": 655,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 655,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 658,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockResolvedValue",
+      "line": 671,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.setBreakpoints",
+      "line": 673,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.body.breakpoints[0].verified).toBe",
+      "line": 679,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 679,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.body.breakpoints[0].message).toBe",
+      "line": 680,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 680,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 683,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Array.from",
+      "line": 685,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "breakpoints.map",
+      "line": 696,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockResolvedValue",
+      "line": 699,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.setBreakpoints",
+      "line": 701,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 707,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 707,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.body.breakpoints).toHaveLength",
+      "line": 710,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 710,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 713,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "breakpoints.map",
+      "line": 728,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockResolvedValue",
+      "line": 731,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.setBreakpoints",
+      "line": 733,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sentBreakpoints).toHaveLength",
+      "line": 741,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 741,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 744,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 745,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockRejectedValue",
+      "line": 746,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        connectionManager.setBreakpoints(\n          mockDapClient as any,\n          sourcePa",
+      "line": 748,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 748,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.setBreakpoints",
+      "line": 749,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 758,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 759,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockResolvedValue",
+      "line": 760,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.sendConfigurationDone",
+      "line": 762,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.sendRequest).toHaveBeenCalledWith",
+      "line": 764,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 764,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 765,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 765,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 770,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 771,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockRejectedValue",
+      "line": 772,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n        connectionManager.sendConfigurationDone(mockDapClient as any)\n      ).rejects.toThro",
+      "line": 774,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 774,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.sendConfigurationDone",
+      "line": 775,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 780,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 781,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.connect.mockImplementation",
+      "line": 782,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 783,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 783,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.connectWithRetry",
+      "line": 786,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.connectWithRetry",
+      "line": 787,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 789,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise.all",
+      "line": 791,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClientFactory.create).toHaveBeenCalledTimes",
+      "line": 793,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 793,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClientFactory.create).toHaveBeenCalledWith",
+      "line": 794,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 794,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClientFactory.create).toHaveBeenCalledWith",
+      "line": 795,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 795,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 798,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.connect.mockResolvedValue",
+      "line": 799,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockDapClient.sendRequest.mockResolvedValue",
+      "line": 800,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.connectWithRetry",
+      "line": 803,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 804,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.disconnect",
+      "line": 808,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "connectionManager.connectWithRetry",
+      "line": 811,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 812,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClient.disconnect).toHaveBeenCalledTimes",
+      "line": 815,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 815,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDapClientFactory.create).toHaveBeenCalledTimes",
+      "line": 816,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 816,
+      "call_sites": 5808
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "[ConnectionManager] Client disconnected",
+      "context": "Expected substring in logger.info for disconnect cleanup",
+      "line": 36,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockLogger.info"
+    },
+    {
+      "value": "mcp-proxy-test-session-123",
+      "context": "Expected clientID format in initializeSession DAP request",
+      "line": 249,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockDapClient.sendRequest"
+    },
+    {
+      "value": "MCP Debug Proxy",
+      "context": "Expected clientName in initializeSession DAP request",
+      "line": 250,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockDapClient.sendRequest"
+    },
+    {
+      "value": "python",
+      "context": "Expected adapterID in initializeSession DAP request",
+      "line": 251,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockDapClient.sendRequest"
+    },
+    {
+      "value": "[ConnectionManager] DAP event handlers set up",
+      "context": "Expected exact logger.info message after setupEventHandlers with empty handlers",
+      "line": 315,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockLogger.info"
+    },
+    {
+      "value": "[ConnectionManager] No active DAP client to disconnect.",
+      "context": "Expected logger.info message when disconnect called with null",
+      "line": 323,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockLogger.info"
+    },
+    {
+      "value": "DAP disconnect request timed out after 1000ms",
+      "context": "Expected substring in warn log when disconnect request times out",
+      "line": 363,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockLogger.warn"
+    },
+    {
+      "value": "env vars redacted",
+      "context": "Expected substring in log when env vars are present in launch config",
+      "line": 501,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "logged"
+    },
+    {
+      "value": "Failed to connect DAP client after 60 attempts",
+      "context": "Expected substring in error log after max retry exhaustion",
+      "line": 145,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockLogger.error"
+    },
+    {
+      "value": "[ConnectionManager] DAP client emitted 'error' during connection phase (expected for retries): Connection error",
+      "context": "Expected debug log message when error event fires during connect phase",
+      "line": 173,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockLogger.debug"
+    },
+    {
+      "value": "[ConnectionManager] DAP \"disconnect\" request completed.",
+      "context": "Expected info log when disconnect request completes before timeout",
+      "line": 423,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockLogger.info"
+    },
+    {
+      "value": "internalConsole",
+      "context": "Expected console field value in launch request",
+      "line": 444,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockDapClient.sendRequest"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,234 @@
+{
+  "source": "packages/adapter-rust/src/rust-adapter-factory.ts",
+  "source_hash": "2ee8e39e11353a9d",
+  "generated": "2026-07-23T18:32:49Z",
+  "imports": [
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IDebugAdapter"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IAdapterFactory",
+        "AdapterDependencies",
+        "AdapterMetadata",
+        "FactoryValidationResult"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./rust-debug-adapter.js",
+      "names": [
+        "RustDebugAdapter"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-rust/src/rust-debug-adapter.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage"
+      ],
+      "line": 10,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./utils/rust-utils.js",
+      "names": [
+        "checkCargoInstallation",
+        "getCargoVersion",
+        "getRustHostTriple"
+      ],
+      "line": 11,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-rust/src/utils/rust-utils.ts"
+    },
+    {
+      "source": "./utils/codelldb-resolver.js",
+      "names": [
+        "resolveCodeLLDBExecutable",
+        "getCodeLLDBVersion"
+      ],
+      "line": 12,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-rust/src/utils/codelldb-resolver.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "RustAdapterFactory",
+      "kind": "class",
+      "line": 17,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "implements": [
+        "IAdapterFactory"
+      ]
+    },
+    {
+      "name": "RustAdapterFactory.createAdapter",
+      "kind": "function",
+      "line": 21,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "dependencies",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/adapter-registry\").AdapterDependencies"
+        }
+      ]
+    },
+    {
+      "name": "RustAdapterFactory.getMetadata",
+      "kind": "function",
+      "line": 28,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RustAdapterFactory.validate",
+      "kind": "function",
+      "line": 45,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "RustAdapterFactory.createAdapter",
+      "to": "RustDebugAdapter",
+      "line": 22,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "RustAdapterFactory.validate",
+      "to": "resolveCodeLLDBExecutable",
+      "line": 54,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RustAdapterFactory.validate",
+      "to": "errors.push",
+      "line": 56,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustAdapterFactory.validate",
+      "to": "getCodeLLDBVersion",
+      "line": 59,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustAdapterFactory.validate",
+      "to": "checkCargoInstallation",
+      "line": 63,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RustAdapterFactory.validate",
+      "to": "warnings.push",
+      "line": 65,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustAdapterFactory.validate",
+      "to": "getCargoVersion",
+      "line": 67,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustAdapterFactory.validate",
+      "to": "getRustHostTriple",
+      "line": 70,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustAdapterFactory.validate",
+      "to": "/-pc-windows-msvc/i.test",
+      "line": 73,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustAdapterFactory.validate",
+      "to": "warnings.push",
+      "line": 74,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RustAdapterFactory.validate",
+      "to": "new Date().toISOString",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RustAdapterFactory.validate",
+      "to": "Date",
+      "line": 89,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "CodeLLDB not found. Run: npm run build:adapter",
+      "context": "Error pushed when CodeLLDB executable is not resolved",
+      "line": 56,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "Cargo not found. Install Rust from https://rustup.rs/",
+      "context": "Warning pushed when Cargo is not installed",
+      "line": 65,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "Rust MSVC toolchain detected. CodeLLDB works best with the GNU toolchain (x86_64-pc-windows-gnu) or DWARF debug info.",
+      "context": "Warning pushed when Windows MSVC toolchain detected",
+      "line": 74,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "Rust",
+      "context": "displayName in adapter metadata",
+      "line": 31,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "0.1.0",
+      "context": "Adapter version in metadata",
+      "line": 32,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "1.0.0",
+      "context": "Minimum CodeLLDB debugger version required",
+      "line": 36,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": ".rs",
+      "context": "File extension for Rust source files in metadata",
+      "line": 37,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

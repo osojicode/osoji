@@ -1,0 +1,1238 @@
+{
+  "source": "packages/adapter-python/src/utils/python-utils.ts",
+  "source_hash": "b7fda1aff64cc5cb",
+  "generated": "2026-07-23T18:32:56Z",
+  "imports": [
+    {
+      "source": "child_process",
+      "names": [
+        "spawn"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "node:fs",
+      "names": [
+        "fs"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "node:path",
+      "names": [
+        "path"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "which",
+      "names": [
+        "which"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@types+which@3.0.4/node_modules/@types/which/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "sanitizeStderr",
+        "sanitizeStderrTail"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "setDefaultCommandFinder",
+      "kind": "function",
+      "line": 230,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "finder",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/adapter-python/src/utils/python-utils\").CommandFinder"
+        }
+      ]
+    },
+    {
+      "name": "resetDefaultCommandFinder",
+      "kind": "function",
+      "line": 242,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "findPythonExecutable",
+      "kind": "function",
+      "line": 308,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "preferredPath",
+          "optional": true,
+          "type": "string | undefined"
+        },
+        {
+          "name": "logger",
+          "optional": true,
+          "type": "Logger"
+        },
+        {
+          "name": "commandFinder",
+          "optional": true,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/adapter-python/src/utils/python-utils\").CommandFinder"
+        },
+        {
+          "name": "platform",
+          "optional": true,
+          "type": "NodeJS.Platform"
+        }
+      ]
+    },
+    {
+      "name": "getPythonVersion",
+      "kind": "function",
+      "line": 489,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "pythonPath",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "CommandNotFoundError",
+      "kind": "class",
+      "line": 24,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "CommandFinder",
+      "kind": "type",
+      "line": 33,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "super",
+      "line": 27,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 41,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "this.cache.has",
+      "line": 45,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "this.cache.get",
+      "line": 46,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "path.join",
+      "line": 60,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "process.env.PATH?.split",
+      "line": 67,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "console.error",
+      "line": 68,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "console.error",
+      "line": 69,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "process.env.Path?.split",
+      "line": 73,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "console.error",
+      "line": 79,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "pathEntries.slice(0, 10).forEach",
+      "line": 80,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "pathEntries.slice",
+      "line": 80,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "entry.toLowerCase().includes",
+      "line": 81,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "entry.toLowerCase",
+      "line": 81,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "console.error",
+      "line": 82,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "process.env.PATH.includes",
+      "line": 87,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "pathIssues.push",
+      "line": 87,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "process.env.PATH.includes",
+      "line": 88,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "pathIssues.push",
+      "line": 88,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "process.env.PATH.trim",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "pathIssues.push",
+      "line": 89,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "console.error",
+      "line": 91,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "console.error",
+      "line": 99,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "candidates.filter",
+      "line": 110,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "candidate.replace(/\\//g, '\\\\').toLowerCase",
+      "line": 111,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "candidate.replace",
+      "line": 111,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "shimPattern.test",
+      "line": 112,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "console.error",
+      "line": 114,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "which",
+      "line": 122,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "Array.isArray",
+      "line": 123,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "filterWindowsStoreAliases",
+      "line": 124,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "command.endsWith",
+      "line": 126,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "which",
+      "line": 128,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "Array.isArray",
+      "line": 129,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "filterWindowsStoreAliases",
+      "line": 130,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "Set",
+      "line": 139,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "resolveAllCandidates",
+      "line": 140,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "primaryCandidates.forEach",
+      "line": 141,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "candidateSet.add",
+      "line": 141,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "cmd.endsWith",
+      "line": 143,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "resolveAllCandidates",
+      "line": 145,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "exeCandidates.forEach",
+      "line": 146,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "candidateSet.add",
+      "line": 146,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "Array.from",
+      "line": 152,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "CommandNotFoundError",
+      "line": 156,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "this.cache.set",
+      "line": 160,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "console.error",
+      "line": 171,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "console.error",
+      "line": 181,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "Promise",
+      "line": 182,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "spawn",
+      "line": 183,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "child.stdout?.on",
+      "line": 192,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "data.toString",
+      "line": 192,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "child.stderr?.on",
+      "line": 193,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "data.toString",
+      "line": 193,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "child.on",
+      "line": 195,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "resolve",
+      "line": 196,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "child.on",
+      "line": 199,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "resolve",
+      "line": 202,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "sanitizeStderrTail",
+      "line": 202,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "resolve",
+      "line": 204,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "sanitizeStderrTail",
+      "line": 204,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "setTimeout",
+      "line": 209,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "child.kill",
+      "line": 210,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "resolve",
+      "line": 211,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "console.error",
+      "line": 215,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "WhichCommandFinder.find",
+      "to": "CommandNotFoundError",
+      "line": 218,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "WhichCommandFinder",
+      "line": 224,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "resetDefaultCommandFinder",
+      "to": "WhichCommandFinder",
+      "line": 243,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "isValidPythonExecutable",
+      "to": "logger.debug",
+      "line": 250,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "isValidPythonExecutable",
+      "to": "Promise",
+      "line": 251,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "isValidPythonExecutable",
+      "to": "spawn",
+      "line": 252,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "isValidPythonExecutable",
+      "to": "child.stderr?.on",
+      "line": 257,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "isValidPythonExecutable",
+      "to": "data.toString",
+      "line": 258,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "isValidPythonExecutable",
+      "to": "child.on",
+      "line": 261,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "isValidPythonExecutable",
+      "to": "resolve",
+      "line": 261,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "isValidPythonExecutable",
+      "to": "child.on",
+      "line": 262,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "isValidPythonExecutable",
+      "to": "stderrData.includes",
+      "line": 265,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "isValidPythonExecutable",
+      "to": "stderrData.includes",
+      "line": 266,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "isValidPythonExecutable",
+      "to": "stderrData.includes",
+      "line": 267,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "isValidPythonExecutable",
+      "to": "logger.error",
+      "line": 269,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "isValidPythonExecutable",
+      "to": "resolve",
+      "line": 270,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "isValidPythonExecutable",
+      "to": "resolve",
+      "line": 272,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "hasDebugpy",
+      "to": "Promise",
+      "line": 282,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "hasDebugpy",
+      "to": "spawn",
+      "line": 283,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "hasDebugpy",
+      "to": "child.stdout?.on",
+      "line": 288,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "hasDebugpy",
+      "to": "data.toString",
+      "line": 288,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "hasDebugpy",
+      "to": "child.on",
+      "line": 290,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "hasDebugpy",
+      "to": "resolve",
+      "line": 290,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "hasDebugpy",
+      "to": "child.on",
+      "line": 291,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "hasDebugpy",
+      "to": "output.trim",
+      "line": 292,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "hasDebugpy",
+      "to": "logger.debug",
+      "line": 294,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "hasDebugpy",
+      "to": "sanitizeStderrTail",
+      "line": 294,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "hasDebugpy",
+      "to": "resolve",
+      "line": 296,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "logger.debug",
+      "line": 318,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "process.env.PATH?.split",
+      "line": 324,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "pathEntries.filter",
+      "line": 325,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "p.toLowerCase().includes",
+      "line": 325,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "p.toLowerCase",
+      "line": 325,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "process.cwd",
+      "line": 336,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "console.log",
+      "line": 339,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "JSON.stringify",
+      "line": 339,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "console.error",
+      "line": 340,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "JSON.stringify",
+      "line": 340,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "logger.error",
+      "line": 341,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "JSON.stringify",
+      "line": 341,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "console.error",
+      "line": 345,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "pythonPaths.forEach",
+      "line": 346,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "console.error",
+      "line": 346,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "commandFinder.find",
+      "line": 353,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "triedPaths.push",
+      "line": 354,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "isValidPythonExecutable",
+      "line": 355,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "logger.debug",
+      "line": 356,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "triedPaths.push",
+      "line": 361,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "commandFinder.find",
+      "line": 372,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "triedPaths.push",
+      "line": 373,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "isValidPythonExecutable",
+      "line": 374,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "logger.debug",
+      "line": 375,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "triedPaths.push",
+      "line": 380,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "path.join",
+      "line": 392,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "path.join",
+      "line": 393,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "path.join",
+      "line": 396,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "path.join",
+      "line": 397,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "path.join",
+      "line": 398,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "path.join",
+      "line": 399,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "fs.existsSync",
+      "line": 405,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "triedPaths.push",
+      "line": 406,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "triedPaths.push",
+      "line": 410,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "isValidPythonExecutable",
+      "line": 411,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "logger.debug",
+      "line": 412,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "logger.debug",
+      "line": 424,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "commandFinder.find",
+      "line": 426,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "triedPaths.push",
+      "line": 427,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "isValidPythonExecutable",
+      "line": 428,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "validPythonPaths.push",
+      "line": 430,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "logger.debug",
+      "line": 431,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "triedPaths.push",
+      "line": 435,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "logger.debug",
+      "line": 444,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "hasDebugpy",
+      "line": 446,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "logger.debug",
+      "line": 447,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "logger.debug",
+      "line": 450,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "logger.debug",
+      "line": 456,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "logger.debug",
+      "line": 457,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "triedPaths.map(p => `  - ${p}`).join",
+      "line": 462,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "triedPaths.map",
+      "line": 462,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "logger.error",
+      "line": 473,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "JSON.stringify",
+      "line": 473,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "console.log",
+      "line": 475,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "JSON.stringify",
+      "line": 475,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "console.error",
+      "line": 476,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "JSON.stringify",
+      "line": 476,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "findPythonExecutable",
+      "to": "Error",
+      "line": 480,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getPythonVersion",
+      "to": "Promise",
+      "line": 490,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "getPythonVersion",
+      "to": "spawn",
+      "line": 491,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "getPythonVersion",
+      "to": "child.stdout?.on",
+      "line": 494,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getPythonVersion",
+      "to": "data.toString",
+      "line": 494,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "getPythonVersion",
+      "to": "child.stderr?.on",
+      "line": 495,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getPythonVersion",
+      "to": "data.toString",
+      "line": 495,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "getPythonVersion",
+      "to": "child.on",
+      "line": 497,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "getPythonVersion",
+      "to": "resolve",
+      "line": 497,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "getPythonVersion",
+      "to": "child.on",
+      "line": 498,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "getPythonVersion",
+      "to": "output.match",
+      "line": 500,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getPythonVersion",
+      "to": "resolve",
+      "line": 503,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "getPythonVersion",
+      "to": "sanitizeStderr",
+      "line": 503,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "getPythonVersion",
+      "to": "output.trim().split",
+      "line": 503,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getPythonVersion",
+      "to": "output.trim",
+      "line": 503,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getPythonVersion",
+      "to": "resolve",
+      "line": 505,
+      "call_sites": 12
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "name",
+      "line": 28
+    },
+    {
+      "container": "this",
+      "member": "command",
+      "line": 29
+    },
+    {
+      "container": "process.env",
+      "member": "ComSpec",
+      "line": 61
+    },
+    {
+      "container": "process.env",
+      "member": "COMSPEC",
+      "line": 62
+    },
+    {
+      "container": "process.env",
+      "member": "PATH",
+      "line": 97
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "DEBUG_PYTHON_DISCOVERY",
+      "context": "Env var flag to enable verbose Python discovery diagnostics",
+      "line": 50,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "PYTHON_PATH",
+      "context": "Env var for user-specified Python executable path",
+      "line": 369,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "PYTHON_EXECUTABLE",
+      "context": "Env var for user-specified Python executable path (alternative)",
+      "line": 369,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "pythonLocation",
+      "context": "GitHub Actions env var set by setup-python action",
+      "line": 388,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "PythonLocation",
+      "context": "GitHub Actions env var set by setup-python action (alternate casing)",
+      "line": 388,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "CommandNotFoundError",
+      "context": "Error class name discriminant",
+      "line": 28,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "Microsoft Store",
+      "context": "Stderr string indicating Windows Store Python alias",
+      "line": 265,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "stderrData"
+    },
+    {
+      "value": "Windows Store",
+      "context": "Stderr string indicating Windows Store Python alias",
+      "line": 266,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "stderrData"
+    },
+    {
+      "value": "AppData\\Local\\Microsoft\\WindowsApps",
+      "context": "Stderr path string indicating Windows Store Python alias",
+      "line": 267,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "stderrData"
+    },
+    {
+      "value": "[PYTHON_DISCOVERY_DEBUG]",
+      "context": "Log prefix for verbose discovery debug output",
+      "line": 339,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "[PYTHON_DISCOVERY_FAILED]",
+      "context": "Log prefix for failure diagnostics in CI",
+      "line": 473,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

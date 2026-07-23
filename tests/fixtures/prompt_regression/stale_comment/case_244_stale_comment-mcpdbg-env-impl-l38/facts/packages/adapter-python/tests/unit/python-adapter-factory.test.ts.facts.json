@@ -1,0 +1,928 @@
+{
+  "source": "packages/adapter-python/tests/unit/python-adapter-factory.test.ts",
+  "source_hash": "db0373084872da4f",
+  "generated": "2026-07-23T18:32:47Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "beforeEach",
+        "vi"
+      ],
+      "line": 1,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "vitest",
+      "names": [
+        "Mock"
+      ],
+      "line": 2,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterDependencies"
+      ],
+      "line": 3,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage"
+      ],
+      "line": 4,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "../../src/python-adapter-factory.js",
+      "names": [
+        "PythonAdapterFactory"
+      ],
+      "line": 6,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-python/src/python-adapter-factory.ts"
+    },
+    {
+      "source": "../../src/python-debug-adapter.js",
+      "names": [
+        "PythonDebugAdapter"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-python/src/python-debug-adapter.ts"
+    },
+    {
+      "source": "../../src/utils/python-utils.js",
+      "names": [
+        "findPythonExecutable",
+        "getPythonVersion"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-python/src/utils/python-utils.ts"
+    },
+    {
+      "source": "child_process",
+      "names": [
+        "spawn"
+      ],
+      "line": 9,
+      "is_reexport": false
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 11,
+      "call_sites": 108
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 12,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 13,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 16,
+      "call_sites": 108
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.importActual",
+      "line": 17,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 20,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 24,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 25,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.cwd",
+      "line": 35,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "spawnMock.mockImplementation",
+      "line": 46,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 47,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 48,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "queueMicrotask",
+      "line": 51,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "child.emit",
+      "line": 53,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 53,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stdout.emit",
+      "line": 58,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Buffer.from",
+      "line": 58,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "child.emit",
+      "line": 60,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 67,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 68,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllMocks",
+      "line": 69,
+      "call_sites": 87
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findPythonExecutableMock.mockReset",
+      "line": 70,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getPythonVersionMock.mockReset",
+      "line": 71,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "spawnMock.mockReset",
+      "line": 72,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 75,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonAdapterFactory",
+      "line": 76,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "factory.createAdapter",
+      "line": 77,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 77,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter).toBeInstanceOf",
+      "line": 79,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 79,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 82,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonAdapterFactory",
+      "line": 83,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "factory.getMetadata",
+      "line": 85,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(metadata).toMatchObject",
+      "line": 87,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 87,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 97,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findPythonExecutableMock.mockResolvedValue",
+      "line": 98,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getPythonVersionMock.mockResolvedValue",
+      "line": 99,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "simulateSpawn",
+      "line": 100,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonAdapterFactory",
+      "line": 102,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "factory.validate",
+      "line": 103,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.valid).toBe",
+      "line": 105,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 105,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.errors).toEqual",
+      "line": 106,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 106,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.warnings).toEqual",
+      "line": 107,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 107,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.details).toMatchObject",
+      "line": 108,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 108,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 115,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findPythonExecutableMock.mockRejectedValue",
+      "line": 116,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 116,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonAdapterFactory",
+      "line": 118,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "factory.validate",
+      "line": 119,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.valid).toBe",
+      "line": 121,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 121,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.errors).toContain",
+      "line": 122,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 122,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 125,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findPythonExecutableMock.mockResolvedValue",
+      "line": 126,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getPythonVersionMock.mockResolvedValue",
+      "line": 127,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "simulateSpawn",
+      "line": 128,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonAdapterFactory",
+      "line": 130,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "factory.validate",
+      "line": 131,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.valid).toBe",
+      "line": 133,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 133,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.errors).toContain",
+      "line": 134,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 134,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 137,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findPythonExecutableMock.mockResolvedValue",
+      "line": 138,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getPythonVersionMock.mockResolvedValue",
+      "line": 139,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "simulateSpawn",
+      "line": 140,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonAdapterFactory",
+      "line": 142,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "factory.validate",
+      "line": 143,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.valid).toBe",
+      "line": 145,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 145,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.errors).toEqual",
+      "line": 146,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 146,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.warnings).toContain",
+      "line": 147,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 147,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 150,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findPythonExecutableMock.mockResolvedValue",
+      "line": 151,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getPythonVersionMock.mockResolvedValue",
+      "line": 152,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "simulateSpawn",
+      "line": 153,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonAdapterFactory",
+      "line": 155,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "factory.validate",
+      "line": 156,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.valid).toBe",
+      "line": 158,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 158,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.errors).toEqual",
+      "line": 159,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 159,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.warnings.some(w => w.includes('debugpy'))).toBe",
+      "line": 160,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 160,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "result.warnings.some",
+      "line": 160,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "w.includes",
+      "line": 160,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 163,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findPythonExecutableMock.mockResolvedValue",
+      "line": 164,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getPythonVersionMock.mockResolvedValue",
+      "line": 165,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "simulateSpawn",
+      "line": 166,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonAdapterFactory",
+      "line": 168,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "factory.validate",
+      "line": 169,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.valid).toBe",
+      "line": 171,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 171,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.errors).toEqual",
+      "line": 172,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 172,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.warnings.some(w => w.includes('debugpy'))).toBe",
+      "line": 173,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 173,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "result.warnings.some",
+      "line": 173,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "w.includes",
+      "line": 173,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 176,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findPythonExecutableMock.mockResolvedValue",
+      "line": 180,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getPythonVersionMock.mockResolvedValue",
+      "line": 181,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "simulateSpawn",
+      "line": 182,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonAdapterFactory",
+      "line": 184,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "factory.validate",
+      "line": 185,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.valid).toBe",
+      "line": 188,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 188,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.errors).toEqual",
+      "line": 189,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 189,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.warnings.some(w => w.includes('debugpy'))).toBe",
+      "line": 191,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 191,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "result.warnings.some",
+      "line": 191,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "w.includes",
+      "line": 191,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.details).toMatchObject",
+      "line": 192,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 192,
+      "call_sites": 5808
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "(child as unknown as { stdout: EventEmitter })",
+      "member": "stdout",
+      "line": 49
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "Python",
+      "context": "Expected displayName in factory metadata",
+      "line": 89,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "metadata.displayName"
+    },
+    {
+      "value": "2.0.0",
+      "context": "Expected version in factory metadata",
+      "line": 90,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "metadata.version"
+    },
+    {
+      "value": "mcp-debugger team",
+      "context": "Expected author in factory metadata",
+      "line": 91,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "metadata.author"
+    },
+    {
+      "value": "https://github.com/debugmcp/mcp-debugger/docs/python",
+      "context": "Expected documentationUrl in factory metadata",
+      "line": 92,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "metadata.documentationUrl"
+    },
+    {
+      "value": ".py",
+      "context": "Expected file extension in factory metadata",
+      "line": 93,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "metadata.fileExtensions"
+    },
+    {
+      "value": ".pyw",
+      "context": "Expected file extension in factory metadata",
+      "line": 93,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "metadata.fileExtensions"
+    },
+    {
+      "value": "Python executable not found",
+      "context": "Expected error message when Python cannot be located",
+      "line": 122,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "result.errors"
+    },
+    {
+      "value": "Python 3.7 or higher required. Current version: 3.6.9",
+      "context": "Expected error message for Python version below 3.7",
+      "line": 134,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "result.errors"
+    },
+    {
+      "value": "Could not determine Python version",
+      "context": "Expected warning when Python version cannot be determined",
+      "line": 147,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "result.warnings"
+    },
+    {
+      "value": "debugpy",
+      "context": "Expected substring in warning when debugpy is not available",
+      "line": 160,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "result.warnings"
+    }
+  ],
+  "extraction_method": "ast"
+}

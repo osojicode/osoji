@@ -1,0 +1,3161 @@
+{
+  "source": "tests/unit/cli/sse-command.test.ts",
+  "source_hash": "b87d3b5ac761e32b",
+  "generated": "2026-07-23T18:32:41Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "vi",
+        "beforeEach",
+        "afterEach",
+        "Mock"
+      ],
+      "line": 1,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "express",
+      "names": [
+        "express"
+      ],
+      "line": 2,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@types+express@5.0.6/node_modules/@types/express/index.d.ts"
+    },
+    {
+      "source": "../../../src/cli/sse-command.js",
+      "names": [
+        "createSSEApp",
+        "handleSSECommand"
+      ],
+      "line": 3,
+      "is_reexport": false,
+      "resolved_path": "src/cli/sse-command.ts"
+    },
+    {
+      "source": "../../test-utils/mocks/fake-current-process.js",
+      "names": [
+        "FakeCurrentProcess"
+      ],
+      "line": 4,
+      "is_reexport": false,
+      "resolved_path": "tests/test-utils/mocks/fake-current-process.ts"
+    },
+    {
+      "source": "winston",
+      "names": [
+        "WinstonLoggerType"
+      ],
+      "line": 5,
+      "is_reexport": false,
+      "name_map": {
+        "WinstonLoggerType": "Logger"
+      },
+      "resolved_path": "node_modules/.pnpm/winston@3.19.0/node_modules/winston/index.d.ts"
+    },
+    {
+      "source": "../../../src/server.js",
+      "names": [
+        "DebugMcpServer"
+      ],
+      "line": 6,
+      "is_reexport": false,
+      "resolved_path": "src/server.ts"
+    },
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/server/sse.js",
+      "names": [
+        "SSEServerTransport"
+      ],
+      "line": 15,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/server/sse.d.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 10,
+      "call_sites": 108
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 11,
+      "call_sites": 108
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 12,
+      "call_sites": 108
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 16,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 18,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 26,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 29,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 30,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 31,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 32,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 38,
+      "call_sites": 394
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 38,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 39,
+      "call_sites": 394
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 39,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 41,
+      "call_sites": 394
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 41,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnValue",
+      "line": 46,
+      "call_sites": 197
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 46,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 49,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "FakeCurrentProcess",
+      "line": 53,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "MockedSSEServerTransport.mockImplementation",
+      "line": 56,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Math.random().toString(36).substring",
+      "line": 58,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Math.random().toString",
+      "line": 58,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Math.random",
+      "line": 58,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 59,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 62,
+      "call_sites": 394
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 62,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.onclose",
+      "line": 65,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.onerror",
+      "line": 68,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 76,
+      "call_sites": 130
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllTimers",
+      "line": 78,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 79,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllMocks",
+      "line": 81,
+      "call_sites": 87
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 84,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 87,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 90,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 91,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 92,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 93,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(express).mockReturnValue",
+      "line": 97,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 97,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 100,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createSSEApp",
+      "line": 102,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(app).toBeDefined",
+      "line": 104,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 104,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(app.get).toBeDefined",
+      "line": 105,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 105,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(app.post).toBeDefined",
+      "line": 106,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 106,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(app.listen).toBeDefined",
+      "line": 107,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 107,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 110,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createSSEApp",
+      "line": 112,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockApp.use).toHaveBeenCalled",
+      "line": 115,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 115,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 121,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 122,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 124,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "corsMiddleware",
+      "line": 127,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockRes.header).toHaveBeenCalledWith",
+      "line": 128,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 128,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockRes.header).toHaveBeenCalledWith",
+      "line": 129,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 129,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockRes.header).toHaveBeenCalledWith",
+      "line": 130,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 130,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockRes.sendStatus).toHaveBeenCalledWith",
+      "line": 131,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 131,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockNext).not.toHaveBeenCalled",
+      "line": 132,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 132,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "corsMiddleware",
+      "line": 136,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockNext).toHaveBeenCalled",
+      "line": 137,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 137,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 140,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createSSEApp",
+      "line": 142,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockApp.get).toHaveBeenCalledWith",
+      "line": 145,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 145,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 145,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockApp.post).toHaveBeenCalledWith",
+      "line": 146,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 146,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 146,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockApp.get).toHaveBeenCalledWith",
+      "line": 147,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 147,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 147,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 150,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createSSEApp",
+      "line": 152,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((app as any).sseTransports).toBeInstanceOf",
+      "line": 154,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 154,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 158,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 163,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 164,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 165,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 166,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(express).mockImplementationOnce",
+      "line": 168,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 168,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createSSEApp",
+      "line": 173,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expressApp.get.mock.calls.find",
+      "line": 175,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.assign",
+      "line": 178,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 178,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 184,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnThis",
+      "line": 185,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 185,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 186,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 199,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setupGetRoute",
+      "line": 200,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 201,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(getHandler).toBeDefined",
+      "line": 203,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 203,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getHandler",
+      "line": 204,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockServerFactory).toHaveBeenCalledWith",
+      "line": 206,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 206,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(MockedSSEServerTransport).toHaveBeenCalledWith",
+      "line": 210,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 210,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockServer.server.connect).toHaveBeenCalledWith",
+      "line": 211,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 211,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((appInstance as any).sseTransports.size).toBe",
+      "line": 212,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 212,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((appInstance as any).sseTransports.has(mockTransport.sessionId)).toBe",
+      "line": 213,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 213,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(appInstance as any).sseTransports.has",
+      "line": 213,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 214,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 214,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTime",
+      "line": 216,
+      "call_sites": 25
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(res.write).toHaveBeenCalledWith",
+      "line": 217,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 217,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 218,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 221,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 222,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 223,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(() => setupGetRoute({ serverFactory: failingFactory })).toThrow",
+      "line": 227,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 227,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setupGetRoute",
+      "line": 227,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 230,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setupGetRoute",
+      "line": 231,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 232,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockServer.server.connect as Mock).mockRejectedValue",
+      "line": 233,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getHandler",
+      "line": 235,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.error).toHaveBeenCalledWith",
+      "line": 237,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 237,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(res.status).toHaveBeenCalledWith",
+      "line": 238,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 238,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(res.end).toHaveBeenCalled",
+      "line": 239,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 239,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 242,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setupGetRoute",
+      "line": 243,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getHandler",
+      "line": 244,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((appInstance as any).sseTransports.size).toBe",
+      "line": 247,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 247,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockTransport.triggerClose",
+      "line": 249,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 250,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 250,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 252,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 252,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 253,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 253,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((appInstance as any).sseTransports.size).toBe",
+      "line": 256,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 256,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockServer.stop).not.toHaveBeenCalled",
+      "line": 257,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 257,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 260,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setupGetRoute",
+      "line": 261,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getHandler",
+      "line": 262,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "req.listenerCount",
+      "line": 265,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((appInstance as any).sseTransports.size).toBe",
+      "line": 266,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 266,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "req.emit",
+      "line": 268,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 269,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 269,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 271,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 271,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 272,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 272,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((appInstance as any).sseTransports.size).toBe",
+      "line": 275,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 275,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockServer.stop).not.toHaveBeenCalled",
+      "line": 276,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 276,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(req.listenerCount('close')).toBeLessThanOrEqual",
+      "line": 277,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 277,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "req.listenerCount",
+      "line": 277,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 280,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setupGetRoute",
+      "line": 281,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getHandler",
+      "line": 282,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockTransport.triggerClose",
+      "line": 286,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockTransport.triggerClose",
+      "line": 287,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "req.emit",
+      "line": 288,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "req.emit",
+      "line": 289,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 291,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 291,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 293,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 293,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 294,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 294,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockServer.stop).not.toHaveBeenCalled",
+      "line": 297,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 297,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 300,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setupGetRoute",
+      "line": 301,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getHandler",
+      "line": 302,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 304,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockTransport.triggerError",
+      "line": 305,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.error).toHaveBeenCalledWith",
+      "line": 307,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 307,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 313,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setupGetRoute",
+      "line": 314,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 316,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(mockServer.server.connect as Mock).mockRejectedValue",
+      "line": 317,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getHandler",
+      "line": 319,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.error).toHaveBeenCalledWith",
+      "line": 321,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 321,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(res.status).not.toHaveBeenCalled",
+      "line": 322,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 322,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(res.end).not.toHaveBeenCalled",
+      "line": 323,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 323,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 326,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setupGetRoute",
+      "line": 327,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getHandler",
+      "line": 331,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessions.push",
+      "line": 332,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((appInstance as any).sseTransports.size).toBe",
+      "line": 335,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 335,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sseTransports.get",
+      "line": 338,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "closeHandler",
+      "line": 341,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 344,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setImmediate",
+      "line": 344,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((appInstance as any).sseTransports.size).toBe",
+      "line": 346,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 346,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((appInstance as any).sseTransports.has(sessions[0])).toBe",
+      "line": 347,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 347,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(appInstance as any).sseTransports.has",
+      "line": 347,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((appInstance as any).sseTransports.has(sessions[1])).toBe",
+      "line": 348,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 348,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(appInstance as any).sseTransports.has",
+      "line": 348,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect((appInstance as any).sseTransports.has(sessions[2])).toBe",
+      "line": 349,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 349,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(appInstance as any).sseTransports.has",
+      "line": 349,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 352,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setupGetRoute",
+      "line": 353,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 354,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getHandler",
+      "line": 356,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(appInstance as any).sseTransports.clear",
+      "line": 357,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTime",
+      "line": 359,
+      "call_sites": 25
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(res.write).not.toHaveBeenCalled",
+      "line": 360,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 360,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 361,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 365,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 371,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 373,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 374,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 375,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 376,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(express).mockReturnValue",
+      "line": 379,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 379,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createSSEApp",
+      "line": 382,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockApp.post.mock.calls.find",
+      "line": 385,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockReturnThis",
+      "line": 395,
+      "call_sites": 14
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 395,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 396,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 400,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(postHandler).toBeDefined",
+      "line": 401,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 401,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 411,
+      "call_sites": 394
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 411,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(app as any).sseTransports.set",
+      "line": 413,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "postHandler",
+      "line": 420,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(validTransport.handlePostMessage).toHaveBeenCalledWith",
+      "line": 422,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 422,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.warn).not.toHaveBeenCalled",
+      "line": 423,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 423,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 426,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "postHandler",
+      "line": 429,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.warn).toHaveBeenCalledWith",
+      "line": 431,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 431,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 433,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockRes.status).toHaveBeenCalledWith",
+      "line": 441,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 441,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockRes.json).toHaveBeenCalledWith",
+      "line": 442,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 442,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 452,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "postHandler",
+      "line": 453,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.warn).toHaveBeenCalledWith",
+      "line": 455,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 455,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 457,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockRes.status).toHaveBeenCalledWith",
+      "line": 462,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 462,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 465,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockRejectedValue",
+      "line": 470,
+      "call_sites": 47
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 470,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 470,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(app as any).sseTransports.set",
+      "line": 472,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "postHandler",
+      "line": 479,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.error).toHaveBeenCalledWith",
+      "line": 481,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 481,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 482,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockRes.status).toHaveBeenCalledWith",
+      "line": 484,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 484,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockRes.json).toHaveBeenCalledWith",
+      "line": 485,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 485,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 496,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockRejectedValue",
+      "line": 501,
+      "call_sites": 47
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 501,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(app as any).sseTransports.set",
+      "line": 503,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "postHandler",
+      "line": 510,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockRes.json).toHaveBeenCalledWith",
+      "line": 512,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 512,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 524,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 530,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 532,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 533,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 534,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 535,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(express).mockReturnValue",
+      "line": 538,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 538,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createSSEApp",
+      "line": 541,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockApp.get.mock.calls.find",
+      "line": 544,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 549,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 553,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(healthHandler).toBeDefined",
+      "line": 554,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 554,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "healthHandler",
+      "line": 555,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockRes.json).toHaveBeenCalledWith",
+      "line": 557,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 557,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 565,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessions.forEach",
+      "line": 569,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(app as any).sseTransports.set",
+      "line": 570,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "healthHandler",
+      "line": 576,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockRes.json).toHaveBeenCalledWith",
+      "line": 578,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 578,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.arrayContaining",
+      "line": 582,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 587,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 590,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 592,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 593,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 597,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 604,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callback",
+      "line": 605,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(express).mockReturnValue",
+      "line": 610,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 610,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 611,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 612,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 613,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 615,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "handleSSECommand",
+      "line": 618,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.level).toBe",
+      "line": 626,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 626,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 629,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 629,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 630,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 630,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 631,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 631,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockListen).toHaveBeenCalledWith",
+      "line": 634,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 634,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 634,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.listenerCount('SIGINT')).toBe",
+      "line": 637,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 637,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.listenerCount",
+      "line": 637,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockExitProcess).not.toHaveBeenCalled",
+      "line": 640,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 640,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 643,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 647,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "cb",
+      "line": 647,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 648,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 650,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callback",
+      "line": 651,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(express).mockReturnValue",
+      "line": 654,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 654,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 655,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 656,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 657,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 661,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 665,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "handleSSECommand",
+      "line": 667,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stdin.resume).toHaveBeenCalled",
+      "line": 675,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 675,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stdin.emit",
+      "line": 676,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.waitFor",
+      "line": 678,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockExitProcess).toHaveBeenCalledWith",
+      "line": 678,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 678,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sharedDebugServer.stop).toHaveBeenCalled",
+      "line": 683,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 683,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(httpServer.close).toHaveBeenCalled",
+      "line": 684,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 684,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 687,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 689,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(express).mockImplementation",
+      "line": 692,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 692,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "handleSSECommand",
+      "line": 696,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.error).toHaveBeenCalledWith",
+      "line": 703,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 703,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockExitProcess).toHaveBeenCalledWith",
+      "line": 706,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 706,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 709,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 715,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callback",
+      "line": 716,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(express).mockReturnValue",
+      "line": 721,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 721,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 722,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 723,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 724,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 726,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "handleSSECommand",
+      "line": 729,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockListen).toHaveBeenCalledWith",
+      "line": 737,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 737,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 737,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 740,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 745,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 746,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 747,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 748,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callback",
+      "line": 749,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 752,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(express).mockReturnValue",
+      "line": 756,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 756,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "handleSSECommand",
+      "line": 758,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fakeProc.lastListener",
+      "line": 766,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 769,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 770,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 771,
+      "call_sites": 394
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 771,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockApp.sseTransports.set",
+      "line": 773,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockApp.sseTransports.set",
+      "line": 774,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockServer.close.mockImplementation",
+      "line": 778,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callback",
+      "line": 779,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sigintHandler",
+      "line": 783,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 785,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 785,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockSession1.transport.close).toHaveBeenCalled",
+      "line": 786,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 786,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockSession2.transport.close).toHaveBeenCalled",
+      "line": 787,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 787,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.info).toHaveBeenCalledWith",
+      "line": 788,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 788,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sharedServer.stop).toHaveBeenCalled",
+      "line": 789,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 789,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockServer.close).toHaveBeenCalled",
+      "line": 790,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 790,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockExitProcess).toHaveBeenCalledWith",
+      "line": 791,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 791,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 794,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 795,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(express).mockImplementation",
+      "line": 798,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 798,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "handleSSECommand",
+      "line": 802,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fakeProc.exit).toHaveBeenCalledWith",
+      "line": 809,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 809,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 812,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 816,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callback",
+      "line": 817,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(express).mockReturnValue",
+      "line": 821,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 821,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 822,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 823,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 824,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 826,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "handleSSECommand",
+      "line": 829,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockLogger.level).toBe",
+      "line": 837,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 837,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 841,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 842,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 844,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 845,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 846,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 847,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(express).mockReturnValue",
+      "line": 850,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 850,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createSSEApp",
+      "line": 858,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockApp.get.mock.calls.find",
+      "line": 861,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getHandler",
+      "line": 865,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.assign",
+      "line": 865,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 865,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 865,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockServerFactory).toHaveBeenCalledWith",
+      "line": 867,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 867,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 875,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 876,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 878,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 879,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 880,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 881,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(express).mockReturnValue",
+      "line": 884,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 884,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createSSEApp",
+      "line": 886,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockApp.get.mock.calls.find",
+      "line": 888,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getHandler",
+      "line": 892,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Object.assign",
+      "line": 892,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 892,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 892,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockTransport.onclose).toBeDefined",
+      "line": 894,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 894,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockTransport.onerror).toBeDefined",
+      "line": 895,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 895,
+      "call_sites": 5808
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "mockReq",
+      "member": "method",
+      "line": 135
+    },
+    {
+      "container": "res",
+      "member": "headersSent",
+      "line": 315
+    },
+    {
+      "container": "mockReq.query",
+      "member": "sessionId",
+      "line": 418
+    },
+    {
+      "container": "mockReq.query",
+      "member": "sessionId",
+      "line": 427
+    },
+    {
+      "container": "mockReq.query",
+      "member": "sessionId",
+      "line": 477
+    },
+    {
+      "container": "mockReq.query",
+      "member": "sessionId",
+      "line": 508
+    },
+    {
+      "container": "fakeProc.env",
+      "member": "MCP_EXIT_ON_STDIN_CLOSE",
+      "line": 644
+    },
+    {
+      "container": "(stdin as unknown as { resume: unknown })",
+      "member": "resume",
+      "line": 665
+    },
+    {
+      "container": "mockApp",
+      "member": "sharedDebugServer",
+      "line": 775
+    },
+    {
+      "container": "mockLogger",
+      "member": "level",
+      "line": 814
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "/sse",
+      "context": "Route path for SSE GET and POST handlers",
+      "line": 145,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "call[0]"
+    },
+    {
+      "value": "/health",
+      "context": "Route path for health check handler",
+      "line": 147,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "call[0]"
+    },
+    {
+      "value": "Access-Control-Allow-Origin",
+      "context": "CORS header name asserted in test",
+      "line": 128,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "mockRes.header"
+    },
+    {
+      "value": "Access-Control-Allow-Methods",
+      "context": "CORS header name asserted in test",
+      "line": 129,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "mockRes.header"
+    },
+    {
+      "value": "Access-Control-Allow-Headers",
+      "context": "CORS header name asserted in test",
+      "line": 130,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "mockRes.header"
+    },
+    {
+      "value": "sse",
+      "context": "mode field in health check response",
+      "line": 559,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockRes.json call arg"
+    },
+    {
+      "value": "ok",
+      "context": "status field in health check response",
+      "line": 558,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockRes.json call arg"
+    },
+    {
+      "value": "MCP_EXIT_ON_STDIN_CLOSE",
+      "context": "Environment variable controlling stdin-close exit behavior",
+      "line": 644,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "Invalid session ID",
+      "context": "JSON-RPC error message for missing/unknown session",
+      "line": 444,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockRes.json call arg"
+    },
+    {
+      "value": "Internal error",
+      "context": "JSON-RPC error message for internal transport errors",
+      "line": 489,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "mockRes.json call arg"
+    },
+    {
+      "value": "SIGINT",
+      "context": "Signal name registered on fakeProc for graceful shutdown",
+      "line": 637,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "fakeProc.listenerCount"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,128 @@
+{
+  "source": "scripts/cleanup-test-processes.js",
+  "source_hash": "985f0c152eac6d25",
+  "generated": "2026-07-23T18:33:28Z",
+  "imports": [
+    {
+      "source": "child_process",
+      "names": [
+        "execSync"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "path",
+      "names": [
+        "default"
+      ],
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "is_reexport": false
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "executeCommand",
+      "to": "child_process.execSync",
+      "line": 33
+    },
+    {
+      "from_symbol": "getProcessList",
+      "to": "executeCommand",
+      "line": 46
+    },
+    {
+      "from_symbol": "killProcess",
+      "to": "process.kill",
+      "line": 91
+    },
+    {
+      "from_symbol": "killProcess",
+      "to": "process.kill",
+      "line": 95
+    },
+    {
+      "from_symbol": "cleanup",
+      "to": "executeCommand",
+      "line": 143
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "url.fileURLToPath",
+      "line": 21
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "ps aux",
+      "context": "Shell command used to list all Unix processes",
+      "line": 45,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "proxy-bootstrap",
+      "context": "Pattern fragment matched against process list to find orphaned proxy-bootstrap processes",
+      "line": 58,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dap-proxy",
+      "context": "Pattern fragment matched against process list to find orphaned DAP proxy processes",
+      "line": 59,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "vitest",
+      "context": "Pattern fragment matched against process list to find orphaned vitest processes",
+      "line": 60,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "debugpy",
+      "context": "Pattern fragment matched against process list to find orphaned debugpy processes",
+      "line": 61,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "SIGTERM",
+      "context": "Signal sent first to gracefully terminate matched processes",
+      "line": 91,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "SIGKILL",
+      "context": "Signal sent after 100ms if process has not yet terminated",
+      "line": 95,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "CI",
+      "context": "Environment variable checked to detect CI environment and skip cleanup",
+      "line": 148,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "free -h | head -2",
+      "context": "Shell command to display memory usage on Linux after cleanup",
+      "line": 143,
+      "kind": "config",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "llm"
+}

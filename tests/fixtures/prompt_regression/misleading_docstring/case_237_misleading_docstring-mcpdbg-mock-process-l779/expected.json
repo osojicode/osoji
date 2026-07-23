@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "confirmed",
+  "reasoning": "getOrCreateVariableReference (mock-adapter-process.ts:779-783) promises lookup-or-create but the body unconditionally increments nextVariableReference (:780) and inserts (:781) \u2014 pure create, no get path, and variableHandles is never cleared or deleted anywhere in the file (set :781, read :515). Callers pass fresh object literals (handleScopes :482, :493), so memoization is impossible even in principle, and no declaration documents always-create intent (0021 offers no dismissal route). Real, actionable (rename to createVariableReference), minor: confirmed at info.",
+  "gray": true,
+  "gray_reason": "There is no docstring \u2014 the claim rests solely on the method name, and name-as-claim is the class work#65 explicitly parks; a strict category reading dismisses, though the rubric's mission section includes 'name' among description carriers.",
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

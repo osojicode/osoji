@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "The comment 'ProxyManager handles actual communication' (DotnetDebugAdapter.ts:453) is an accurate in-artifact declaration of the uniform stub design (mirrored at python-debug-adapter.ts:472-490; named outright in ruby-debug-adapter.test.ts:330 'the proxy owns the DAP transport'). Every production caller goes through proxyManager.sendDapRequest (session-manager-operations.ts:844,1138,1189; server.ts:399), never the adapter stub, so the claimed harm is future fragility failing Reality. Dismissal rests on the in-code declaration, not the shadow doc (0021).",
+  "gray": false,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

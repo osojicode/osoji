@@ -1,0 +1,2941 @@
+{
+  "source": "packages/adapter-dotnet/tests/unit/dotnet-debug-adapter.test.ts",
+  "source_hash": "f609baadf2f6fbbf",
+  "generated": "2026-07-23T18:33:00Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "beforeEach",
+        "vi"
+      ],
+      "line": 1,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterDependencies"
+      ],
+      "line": 2,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage",
+        "AdapterState",
+        "DebugFeature"
+      ],
+      "line": 3,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "../../src/DotnetDebugAdapter.js",
+      "names": [
+        "DotnetDebugAdapter"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-dotnet/src/DotnetDebugAdapter.ts"
+    },
+    {
+      "source": "../../src/utils/dotnet-utils.js",
+      "names": [
+        "findNetcoredbgExecutable",
+        "findPdb2PdbExecutable",
+        "convertPdbsToTemp",
+        "getProcessExecutableDir",
+        "getProcessArchitecture"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-dotnet/src/utils/dotnet-utils.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 11,
+      "call_sites": 108
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 12,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 13,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 14,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 15,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 16,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 17,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 18,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 21,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 22,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 23,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 24,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 25,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.cwd",
+      "line": 32,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 41,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 44,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllMocks",
+      "line": 45,
+      "call_sites": 87
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findNetcoredbgExecutableMock.mockReset",
+      "line": 46,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DotnetDebugAdapter",
+      "line": 47,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 47,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 52,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 53,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.language).toBe",
+      "line": 54,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 54,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 57,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.name).toContain",
+      "line": 58,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 58,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 64,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 65,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 66,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 66,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 66,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 69,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findNetcoredbgExecutableMock.mockResolvedValue",
+      "line": 70,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.initialize",
+      "line": 72,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 74,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 74,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 74,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.isReady()).toBe",
+      "line": 75,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 75,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.isReady",
+      "line": 75,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 78,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findNetcoredbgExecutableMock.mockResolvedValue",
+      "line": 79,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 80,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 81,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.initialize",
+      "line": 83,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(handler).toHaveBeenCalledOnce",
+      "line": 85,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 85,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 88,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findNetcoredbgExecutableMock.mockRejectedValue",
+      "line": 89,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 89,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.initialize()).rejects.toThrow",
+      "line": 91,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 91,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.initialize",
+      "line": 91,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 92,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 92,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 92,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 95,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findNetcoredbgExecutableMock.mockResolvedValue",
+      "line": 96,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.initialize",
+      "line": 97,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.dispose",
+      "line": 99,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 101,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 101,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 101,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.isConnected()).toBe",
+      "line": 102,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 102,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.isConnected",
+      "line": 102,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getCurrentThreadId()).toBeNull",
+      "line": 103,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 103,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCurrentThreadId",
+      "line": 103,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 109,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 110,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findNetcoredbgExecutableMock.mockResolvedValue",
+      "line": 111,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.initialize",
+      "line": 112,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.isReady()).toBe",
+      "line": 113,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 113,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.isReady",
+      "line": 113,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.connect",
+      "line": 115,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.isReady()).toBe",
+      "line": 116,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 116,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.isReady",
+      "line": 116,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 119,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.isReady()).toBe",
+      "line": 120,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 120,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.isReady",
+      "line": 120,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 123,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getCurrentThreadId()).toBeNull",
+      "line": 124,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 124,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCurrentThreadId",
+      "line": 124,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 127,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findNetcoredbgExecutableMock.mockResolvedValue",
+      "line": 128,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 130,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "transitions.push",
+      "line": 130,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.initialize",
+      "line": 132,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(transitions).toEqual",
+      "line": 134,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 134,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 143,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 144,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findNetcoredbgExecutableMock.mockResolvedValue",
+      "line": 145,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.validateEnvironment",
+      "line": 147,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.valid).toBe",
+      "line": 149,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 149,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.errors).toHaveLength",
+      "line": 150,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 150,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 153,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findNetcoredbgExecutableMock.mockRejectedValue",
+      "line": 154,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 154,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.validateEnvironment",
+      "line": 156,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.valid).toBe",
+      "line": 158,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 158,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.errors).toHaveLength",
+      "line": 159,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 159,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.errors[0].code).toBe",
+      "line": 160,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 160,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 163,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getRequiredDependencies",
+      "line": 164,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(deps).toHaveLength",
+      "line": 166,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 166,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(deps[0].name).toBe",
+      "line": 167,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 167,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(deps[0].required).toBe",
+      "line": 168,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 168,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 174,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 175,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findNetcoredbgExecutableMock.mockResolvedValue",
+      "line": 176,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.resolveExecutablePath",
+      "line": 178,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result).toBe",
+      "line": 180,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 180,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 183,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findNetcoredbgExecutableMock.mockResolvedValue",
+      "line": 184,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.resolveExecutablePath",
+      "line": 186,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.resolveExecutablePath",
+      "line": 187,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(findNetcoredbgExecutableMock).toHaveBeenCalledTimes",
+      "line": 189,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 189,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 192,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getDefaultExecutableName()).toBe",
+      "line": 193,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 193,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getDefaultExecutableName",
+      "line": 193,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 196,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getExecutableSearchPaths",
+      "line": 197,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(paths.length).toBeGreaterThan",
+      "line": 198,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 198,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 204,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 205,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.buildAdapterCommand",
+      "line": 216,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(command.command).toBe",
+      "line": 219,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 219,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(command.args[0]).toContain",
+      "line": 221,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 221,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(command.args[1]).toBe",
+      "line": 222,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 222,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(command.args[2]).toBe",
+      "line": 223,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 223,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 226,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getAdapterModuleName()).toBe",
+      "line": 227,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 227,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getAdapterModuleName",
+      "line": 227,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 230,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getAdapterInstallCommand",
+      "line": 231,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(cmd).toContain",
+      "line": 232,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 232,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 235,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.buildAdapterCommand",
+      "line": 236,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(command.env).toBeDefined",
+      "line": 246,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 246,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(typeof command.env).toBe",
+      "line": 247,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 247,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 254,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 255,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformLaunchConfig",
+      "line": 256,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result).toMatchObject",
+      "line": 262,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 262,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 270,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformLaunchConfig",
+      "line": 271,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.stopOnEntry).toBe",
+      "line": 273,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 273,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 276,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformLaunchConfig",
+      "line": 277,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.justMyCode).toBe",
+      "line": 279,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 279,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 282,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getDefaultLaunchConfig",
+      "line": 283,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(defaults.stopOnEntry).toBe",
+      "line": 285,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 285,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(defaults.justMyCode).toBe",
+      "line": 286,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 286,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 292,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 293,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsAttach()).toBe",
+      "line": 294,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 294,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsAttach",
+      "line": 294,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 297,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsDetach()).toBe",
+      "line": 298,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 298,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsDetach",
+      "line": 298,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 301,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig",
+      "line": 302,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result).toMatchObject",
+      "line": 308,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 308,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 316,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig",
+      "line": 317,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.terminateDebuggee).toBe",
+      "line": 322,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 322,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 325,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig",
+      "line": 326,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.processId).toBe",
+      "line": 331,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 331,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 334,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig",
+      "line": 335,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.sourceFileMap).toEqual",
+      "line": 341,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 341,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 347,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findPdb2PdbExecutableMock.mockReturnValue",
+      "line": 348,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "convertPdbsToTempMock.mockReturnValue",
+      "line": 349,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig",
+      "line": 351,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(findPdb2PdbExecutableMock).toHaveBeenCalled",
+      "line": 357,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 357,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(convertPdbsToTempMock).toHaveBeenCalledWith",
+      "line": 358,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 358,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.symbolOptions).toEqual",
+      "line": 359,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 359,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 365,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findPdb2PdbExecutableMock.mockReturnValue",
+      "line": 366,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig",
+      "line": 368,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(convertPdbsToTempMock).not.toHaveBeenCalled",
+      "line": 374,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 374,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.symbolOptions).toBeUndefined",
+      "line": 375,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 375,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 378,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findPdb2PdbExecutableMock.mockReturnValue",
+      "line": 379,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "convertPdbsToTempMock.mockReturnValue",
+      "line": 380,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig",
+      "line": 382,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.symbolOptions).toBeUndefined",
+      "line": 388,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 388,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 391,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getProcessExecutableDirMock.mockReturnValue",
+      "line": 392,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findPdb2PdbExecutableMock.mockReturnValue",
+      "line": 393,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "convertPdbsToTempMock.mockReturnValue",
+      "line": 394,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig",
+      "line": 396,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(getProcessExecutableDirMock).toHaveBeenCalledWith",
+      "line": 401,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 401,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(convertPdbsToTempMock).toHaveBeenCalledWith",
+      "line": 402,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 402,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.symbolOptions).toEqual",
+      "line": 403,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 403,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 409,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getProcessExecutableDirMock.mockReturnValue",
+      "line": 410,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findPdb2PdbExecutableMock.mockReturnValue",
+      "line": 411,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "convertPdbsToTempMock.mockReturnValue",
+      "line": 412,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig",
+      "line": 414,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(getProcessExecutableDirMock).not.toHaveBeenCalled",
+      "line": 420,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 420,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(convertPdbsToTempMock).toHaveBeenCalledWith",
+      "line": 421,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 421,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 424,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getProcessArchitectureMock.mockReturnValue",
+      "line": 425,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig",
+      "line": 427,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(getProcessArchitectureMock).toHaveBeenCalledWith",
+      "line": 432,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 432,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 435,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getProcessArchitectureMock.mockReturnValue",
+      "line": 436,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findNetcoredbgExecutableMock.mockResolvedValue",
+      "line": 437,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig",
+      "line": 439,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.resolveExecutablePath",
+      "line": 444,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(findNetcoredbgExecutableMock).toHaveBeenCalledWith",
+      "line": 446,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 446,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.anything",
+      "line": 448,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 453,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findNetcoredbgExecutableMock.mockResolvedValue",
+      "line": 454,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig",
+      "line": 456,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(getProcessArchitectureMock).not.toHaveBeenCalled",
+      "line": 460,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 460,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 463,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getDefaultAttachConfig",
+      "line": 464,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(defaults).toBeDefined",
+      "line": 465,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 465,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(defaults!.justMyCode).toBe",
+      "line": 466,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 466,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 472,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 473,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.connect",
+      "line": 474,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.isConnected()).toBe",
+      "line": 476,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 476,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.isConnected",
+      "line": 476,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 477,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 477,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 477,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 480,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 481,
+      "call_sites": 2028
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 482,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.connect",
+      "line": 484,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(handler).toHaveBeenCalledOnce",
+      "line": 486,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 486,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 489,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.connect",
+      "line": 490,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.disconnect",
+      "line": 491,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.isConnected()).toBe",
+      "line": 493,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 493,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.isConnected",
+      "line": 493,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 494,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 494,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 494,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 497,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.connect",
+      "line": 498,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.handleDapEvent",
+      "line": 499,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getCurrentThreadId()).toBe",
+      "line": 500,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 500,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCurrentThreadId",
+      "line": 500,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.disconnect",
+      "line": 502,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getCurrentThreadId()).toBeNull",
+      "line": 503,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 503,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCurrentThreadId",
+      "line": 503,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 509,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 510,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.handleDapEvent",
+      "line": 511,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getCurrentThreadId()).toBe",
+      "line": 518,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 518,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCurrentThreadId",
+      "line": 518,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 521,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.handleDapEvent",
+      "line": 522,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getCurrentThreadId()).toBeNull",
+      "line": 529,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 529,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCurrentThreadId",
+      "line": 529,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 532,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(() => adapter.handleDapResponse({\r\n        command: 'continue',\r\n        request_seq: 1,\r\n   ",
+      "line": 533,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 533,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.handleDapResponse",
+      "line": 533,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 545,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 546,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\r\n        adapter.sendDapRequest('setExceptionBreakpoints', {\r\n          filters: ['invalid-f",
+      "line": 547,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 547,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.sendDapRequest",
+      "line": 548,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 554,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\r\n        adapter.sendDapRequest('setExceptionBreakpoints', {\r\n          filters: ['all', 'us",
+      "line": 555,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 555,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.sendDapRequest",
+      "line": 556,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 562,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\r\n        adapter.sendDapRequest('continue', { threadId: 1 })\r\n      ).resolves.toBeDefined",
+      "line": 563,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 563,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.sendDapRequest",
+      "line": 564,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 571,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 572,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.CONDITIONAL_BREAKPOINTS)).toBe",
+      "line": 573,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 573,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 573,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 576,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.FUNCTION_BREAKPOINTS)).toBe",
+      "line": 577,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 577,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 577,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 580,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.EXCEPTION_BREAKPOINTS)).toBe",
+      "line": 581,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 581,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 581,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 584,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.SET_VARIABLE)).toBe",
+      "line": 585,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 585,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 585,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 588,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.EVALUATE_FOR_HOVERS)).toBe",
+      "line": 589,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 589,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 589,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 592,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.STEP_BACK)).toBe",
+      "line": 593,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 593,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 593,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 596,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.LOG_POINTS)).toBe",
+      "line": 597,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 597,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 597,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 600,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.DATA_BREAKPOINTS)).toBe",
+      "line": 601,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 601,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 601,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 607,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 608,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCapabilities",
+      "line": 609,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsConfigurationDoneRequest).toBe",
+      "line": 611,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 611,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsConditionalBreakpoints).toBe",
+      "line": 612,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 612,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsFunctionBreakpoints).toBe",
+      "line": 613,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 613,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsSetVariable).toBe",
+      "line": 614,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 614,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsEvaluateForHovers).toBe",
+      "line": 615,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 615,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsModulesRequest).toBe",
+      "line": 616,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 616,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsLoadedSourcesRequest).toBe",
+      "line": 617,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 617,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 620,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCapabilities",
+      "line": 621,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportTerminateDebuggee).toBe",
+      "line": 622,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 622,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 625,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCapabilities",
+      "line": 626,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.supportsStepBack).toBe",
+      "line": 627,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 627,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 630,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCapabilities",
+      "line": 631,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.exceptionBreakpointFilters).toHaveLength",
+      "line": 633,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 633,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.exceptionBreakpointFilters![0].filter).toBe",
+      "line": 634,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 634,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.exceptionBreakpointFilters![1].filter).toBe",
+      "line": 635,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 635,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(caps.exceptionBreakpointFilters![1].default).toBe",
+      "line": 636,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 636,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 642,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 643,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getInstallationInstructions",
+      "line": 644,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(instructions).toContain",
+      "line": 646,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 646,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 649,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getMissingExecutableError",
+      "line": 650,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(msg).toContain",
+      "line": 652,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 652,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 655,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 656,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 656,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(msg).toContain",
+      "line": 657,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 657,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 660,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 661,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 661,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(msg).toContain",
+      "line": 662,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 662,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 665,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 666,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 666,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(msg).toContain",
+      "line": 667,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 667,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 670,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 671,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 671,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(msg).toContain",
+      "line": 672,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 672,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 675,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 676,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 676,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(msg).toContain",
+      "line": 677,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 677,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 680,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 681,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 681,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(msg).toBe",
+      "line": 682,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 682,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 688,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 689,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getFeatureRequirements",
+      "line": 690,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(reqs.length).toBeGreaterThan",
+      "line": 691,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 691,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(reqs[0].type).toBe",
+      "line": 692,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 692,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 695,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getFeatureRequirements",
+      "line": 696,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(reqs.length).toBeGreaterThan",
+      "line": 697,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 697,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(reqs[0].description).toContain",
+      "line": 698,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 698,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 701,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getFeatureRequirements",
+      "line": 702,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(reqs).toEqual",
+      "line": 703,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 703,
+      "call_sites": 5808
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "DEBUGGER_NOT_FOUND",
+      "context": "Expected error code from validateEnvironment when netcoredbg not found",
+      "line": 160,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "result.errors[0].code"
+    },
+    {
+      "value": "netcoredbg",
+      "context": "Expected default executable name",
+      "line": 167,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "deps[0].name"
+    },
+    {
+      "value": "netcoredbg-bridge",
+      "context": "Expected substring in adapter command bridge path arg",
+      "line": 221,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command.args[0]"
+    },
+    {
+      "value": "coreclr",
+      "context": "Expected DAP config type for .NET core launch/attach",
+      "line": 263,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "result.type"
+    },
+    {
+      "value": "all",
+      "context": "Valid .NET exception breakpoint filter name",
+      "line": 557,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "caps.exceptionBreakpointFilters[0].filter"
+    },
+    {
+      "value": "user-unhandled",
+      "context": "Valid .NET exception breakpoint filter name (default)",
+      "line": 558,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "caps.exceptionBreakpointFilters[1].filter"
+    },
+    {
+      "value": "invalid-filter",
+      "context": "Filter string expected to fail DAP request validation",
+      "line": 549,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "filters"
+    },
+    {
+      "value": "dependency",
+      "context": "Feature requirement type for conditional breakpoints",
+      "line": 692,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "reqs[0].type"
+    },
+    {
+      "value": "NETCOREDBG_PATH",
+      "context": "Expected env var reference in translated error for netcoredbg not found",
+      "line": 657,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "msg"
+    },
+    {
+      "value": "Administrator",
+      "context": "Expected mention in translated permission denied error",
+      "line": 662,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "msg"
+    },
+    {
+      "value": "Portable PDB",
+      "context": "Expected mention in translated symbol load error",
+      "line": 672,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "msg"
+    }
+  ],
+  "extraction_method": "ast"
+}

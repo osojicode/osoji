@@ -1,0 +1,412 @@
+{
+  "source": "packages/adapter-python/src/python-debug-adapter.ts",
+  "source_hash": "24a6cb88add44548",
+  "generated": "2026-07-23T18:33:44Z",
+  "file_role": "adapter",
+  "symbols": [
+    {
+      "name": "PythonPathCacheEntry",
+      "kind": "class",
+      "line_start": 42,
+      "line_end": 47,
+      "visibility": "internal"
+    },
+    {
+      "name": "PythonLaunchConfig",
+      "kind": "class",
+      "line_start": 52,
+      "line_end": 63,
+      "visibility": "internal"
+    },
+    {
+      "name": "PythonAttachConfig",
+      "kind": "class",
+      "line_start": 68,
+      "line_end": 76,
+      "visibility": "internal"
+    },
+    {
+      "name": "PythonDebugAdapter",
+      "kind": "class",
+      "line_start": 81,
+      "line_end": 773,
+      "visibility": "public"
+    },
+    {
+      "name": "initialize",
+      "kind": "function",
+      "line_start": 103,
+      "line_end": 132,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "dispose",
+      "kind": "function",
+      "line_start": 134,
+      "line_end": 140,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "getState",
+      "kind": "function",
+      "line_start": 144,
+      "line_end": 146,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "isReady",
+      "kind": "function",
+      "line_start": 148,
+      "line_end": 152,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "getCurrentThreadId",
+      "kind": "function",
+      "line_start": 154,
+      "line_end": 156,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "transitionTo",
+      "kind": "function",
+      "line_start": 158,
+      "line_end": 162,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "newState",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "validateEnvironment",
+      "kind": "function",
+      "line_start": 166,
+      "line_end": 243,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "executablePath",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "getRequiredDependencies",
+      "kind": "function",
+      "line_start": 245,
+      "line_end": 260,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "resolveExecutablePath",
+      "kind": "function",
+      "line_start": 264,
+      "line_end": 287,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "preferredPath",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "getDefaultExecutableName",
+      "kind": "function",
+      "line_start": 289,
+      "line_end": 296,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "getExecutableSearchPaths",
+      "kind": "function",
+      "line_start": 298,
+      "line_end": 346,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "buildAdapterCommand",
+      "kind": "function",
+      "line_start": 350,
+      "line_end": 364,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "getAdapterModuleName",
+      "kind": "function",
+      "line_start": 366,
+      "line_end": 368,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "getAdapterInstallCommand",
+      "kind": "function",
+      "line_start": 370,
+      "line_end": 372,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "transformLaunchConfig",
+      "kind": "function",
+      "line_start": 376,
+      "line_end": 390,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "getDefaultLaunchConfig",
+      "kind": "function",
+      "line_start": 392,
+      "line_end": 399,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "supportsAttach",
+      "kind": "function",
+      "line_start": 401,
+      "line_end": 403,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "supportsDetach",
+      "kind": "function",
+      "line_start": 405,
+      "line_end": 407,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "usesDirectConnectForAttach",
+      "kind": "function",
+      "line_start": 409,
+      "line_end": 411,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "transformAttachConfig",
+      "kind": "function",
+      "line_start": 413,
+      "line_end": 456,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "getDefaultAttachConfig",
+      "kind": "function",
+      "line_start": 458,
+      "line_end": 464,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "sendDapRequest",
+      "kind": "function",
+      "line_start": 468,
+      "line_end": 491,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "command",
+          "optional": false
+        },
+        {
+          "name": "args",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "handleDapEvent",
+      "kind": "function",
+      "line_start": 493,
+      "line_end": 501,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "event",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "handleDapResponse",
+      "kind": "function",
+      "line_start": 503,
+      "line_end": 505,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "_response",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "connect",
+      "kind": "function",
+      "line_start": 509,
+      "line_end": 517,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "host",
+          "optional": false
+        },
+        {
+          "name": "port",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "disconnect",
+      "kind": "function",
+      "line_start": 519,
+      "line_end": 524,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "isConnected",
+      "kind": "function",
+      "line_start": 526,
+      "line_end": 528,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "getInstallationInstructions",
+      "kind": "function",
+      "line_start": 532,
+      "line_end": 550,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "getMissingExecutableError",
+      "kind": "function",
+      "line_start": 552,
+      "line_end": 560,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "translateErrorMessage",
+      "kind": "function",
+      "line_start": 562,
+      "line_end": 582,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "error",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "supportsFeature",
+      "kind": "function",
+      "line_start": 586,
+      "line_end": 601,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "getFeatureRequirements",
+      "kind": "function",
+      "line_start": 603,
+      "line_end": 633,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "getCapabilities",
+      "kind": "function",
+      "line_start": 635,
+      "line_end": 697,
+      "visibility": "public",
+      "parameters": []
+    },
+    {
+      "name": "checkPythonVersion",
+      "kind": "function",
+      "line_start": 704,
+      "line_end": 719,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "pythonPath",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "checkDebugpyInstalled",
+      "kind": "function",
+      "line_start": 724,
+      "line_end": 753,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "pythonPath",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "detectVirtualEnv",
+      "kind": "function",
+      "line_start": 758,
+      "line_end": 772,
+      "visibility": "internal",
+      "parameters": [
+        {
+          "name": "pythonPath",
+          "optional": false
+        }
+      ]
+    }
+  ]
+}

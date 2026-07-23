@@ -1,0 +1,1264 @@
+{
+  "source": "tests/adapters/python/integration/python_debug_workflow.test.ts",
+  "source_hash": "b9aacd23e9e870c3",
+  "generated": "2026-07-23T18:32:30Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "beforeAll",
+        "afterAll"
+      ],
+      "line": 1,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "StackFrame",
+        "Variable"
+      ],
+      "line": 2,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 3,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "node:fs",
+      "names": [
+        "fs"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/client/index.js",
+      "names": [
+        "Client"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/index.d.ts"
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/client/stdio.js",
+      "names": [
+        "StdioClientTransport"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/stdio.d.ts"
+    },
+    {
+      "source": "./env-utils.js",
+      "names": [
+        "ensurePythonOnPath"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "tests/adapters/python/integration/env-utils.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "startTestServer",
+      "to": "fileURLToPath",
+      "line": 17,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startTestServer",
+      "to": "path.dirname",
+      "line": 18,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startTestServer",
+      "to": "path.resolve",
+      "line": 20,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "startTestServer",
+      "to": "console.log",
+      "line": 21,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "startTestServer",
+      "to": "Client",
+      "line": 23,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "startTestServer",
+      "to": "path.resolve",
+      "line": 35,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "startTestServer",
+      "to": "console.log",
+      "line": 36,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "startTestServer",
+      "to": "fs.existsSync",
+      "line": 39,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startTestServer",
+      "to": "fs.unlinkSync",
+      "line": 40,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startTestServer",
+      "to": "console.error",
+      "line": 42,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "startTestServer",
+      "to": "ensurePythonOnPath",
+      "line": 44,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "startTestServer",
+      "to": "process.stderr.write",
+      "line": 46,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "startTestServer",
+      "to": "StdioClientTransport",
+      "line": 51,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "startTestServer",
+      "to": "console.log",
+      "line": 60,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "startTestServer",
+      "to": "client.connect",
+      "line": 61,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "startTestServer",
+      "to": "console.log",
+      "line": 62,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "startTestServer",
+      "to": "console.error",
+      "line": 64,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "stopTestServer",
+      "to": "console.log",
+      "line": 72,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "stopTestServer",
+      "to": "client.close",
+      "line": 74,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "stopTestServer",
+      "to": "console.log",
+      "line": 75,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "stopTestServer",
+      "to": "console.error",
+      "line": 77,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Promise",
+      "line": 84,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "setTimeout",
+      "line": 84,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 89,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 90,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.parse",
+      "line": 92,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "waitForStackFrames",
+      "to": "Date.now",
+      "line": 101,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "waitForStackFrames",
+      "to": "Date.now",
+      "line": 103,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "waitForStackFrames",
+      "to": "client.callTool",
+      "line": 104,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "waitForStackFrames",
+      "to": "parseToolResult",
+      "line": 105,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "waitForStackFrames",
+      "to": "Array.isArray",
+      "line": 109,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "waitForStackFrames",
+      "to": "delay",
+      "line": 115,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "waitForStackFrames",
+      "to": "parseToolResult",
+      "line": 118,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "waitForStackFrames",
+      "to": "client.callTool",
+      "line": 118,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "waitForStackFrames",
+      "to": "console.error",
+      "line": 119,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "waitForStackFrames",
+      "to": "JSON.stringify",
+      "line": 119,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "waitForStackFrames",
+      "to": "Error",
+      "line": 120,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 123,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 125,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeAll",
+      "line": 128,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "startTestServer",
+      "line": 129,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterAll",
+      "line": 132,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stopTestServer",
+      "line": 133,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 136,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 138,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.callTool",
+      "line": 142,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseToolResult",
+      "line": 143,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(listResult.success).toBe",
+      "line": 144,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 144,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(listResult.sessions).toBeInstanceOf",
+      "line": 145,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 145,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 146,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.callTool",
+      "line": 149,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseToolResult",
+      "line": 150,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(createResult.success).toBe",
+      "line": 151,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 151,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(createResult.sessionId).toBeDefined",
+      "line": 152,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 152,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 154,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.callTool",
+      "line": 157,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseToolResult",
+      "line": 158,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(breakpointResult.success).toBe",
+      "line": 159,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 159,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(breakpointResult.file).toBe",
+      "line": 161,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 161,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(breakpointResult.line).toBe",
+      "line": 162,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 162,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 163,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.callTool",
+      "line": 166,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseToolResult",
+      "line": 167,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 168,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 168,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(startResult.success).toBe",
+      "line": 169,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 169,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(startResult.state).toBe",
+      "line": 170,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 170,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 171,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.callTool",
+      "line": 174,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseToolResult",
+      "line": 175,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(continueResult.success).toBe",
+      "line": 176,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 176,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 177,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "waitForStackFrames",
+      "line": 180,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stackTraceResult.success).toBe",
+      "line": 181,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 181,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stackTraceResult.stackFrames).toBeInstanceOf",
+      "line": 182,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 182,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stackTraceResult.stackFrames.length).toBeGreaterThanOrEqual",
+      "line": 183,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 183,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(topFrame.file).toContain",
+      "line": 187,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 187,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(topFrame.name).toBe",
+      "line": 188,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 188,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(topFrame.line).toBe",
+      "line": 189,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 189,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 191,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.callTool",
+      "line": 194,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseToolResult",
+      "line": 195,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(scopesResult.success).toBe",
+      "line": 196,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 196,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(scopesResult.scopes).toBeInstanceOf",
+      "line": 197,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 197,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "scopesResult.scopes.find",
+      "line": 198,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(localsScope).toBeDefined",
+      "line": 199,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 199,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 200,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 202,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.callTool",
+      "line": 205,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseToolResult",
+      "line": 206,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(variablesResult.success).toBe",
+      "line": 207,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 207,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(variablesResult.variables).toBeInstanceOf",
+      "line": 208,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 208,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "variablesResult.variables.find",
+      "line": 210,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(varA).toBeDefined",
+      "line": 211,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 211,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 212,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(varA.value).toBe",
+      "line": 213,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 213,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(varA.type).toBe",
+      "line": 214,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 214,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "variablesResult.variables.find",
+      "line": 216,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(varB).toBeDefined",
+      "line": 217,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 217,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 218,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(varB.value).toBe",
+      "line": 219,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 219,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(varB.type).toBe",
+      "line": 220,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 220,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 221,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.callTool",
+      "line": 224,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseToolResult",
+      "line": 225,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(closeResult.success).toBe",
+      "line": 226,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 226,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 227,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 230,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 232,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 234,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 235,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.callTool",
+      "line": 238,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseToolResult",
+      "line": 239,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(createDryRunResult.success).toBe",
+      "line": 240,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 240,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 242,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 245,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.callTool",
+      "line": 246,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "parseToolResult",
+      "line": 254,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.stderr.write",
+      "line": 256,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 257,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "persistFailurePayload",
+      "line": 259,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 261,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.stringify",
+      "line": 261,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.error",
+      "line": 263,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(parsedDryRunResult.success).toBe",
+      "line": 265,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 265,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(parsedDryRunResult.state).toBe",
+      "line": 268,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 268,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(parsedDryRunResult.data?.dryRun).toBe",
+      "line": 269,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 269,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(parsedDryRunResult.data?.message).toContain",
+      "line": 270,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 270,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 272,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "delay",
+      "line": 274,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "client.callTool",
+      "line": 277,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "console.log",
+      "line": 278,
+      "call_sites": 22
+    },
+    {
+      "from_symbol": "persistFailurePayload",
+      "to": "path.resolve",
+      "line": 283,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "persistFailurePayload",
+      "to": "fs.mkdirSync",
+      "line": 284,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "persistFailurePayload",
+      "to": "new Date().toISOString().replace",
+      "line": 285,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "persistFailurePayload",
+      "to": "new Date().toISOString",
+      "line": 285,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "persistFailurePayload",
+      "to": "Date",
+      "line": 285,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "persistFailurePayload",
+      "to": "path.join",
+      "line": 286,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "persistFailurePayload",
+      "to": "fs.writeFileSync",
+      "line": 287,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "persistFailurePayload",
+      "to": "JSON.stringify",
+      "line": 287,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "persistFailurePayload",
+      "to": "console.error",
+      "line": 289,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "persistFailurePayload",
+      "to": "String",
+      "line": 289,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "list_debug_sessions",
+      "context": "MCP tool name called via client.callTool",
+      "line": 142,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "create_debug_session",
+      "context": "MCP tool name called via client.callTool",
+      "line": 149,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "set_breakpoint",
+      "context": "MCP tool name called via client.callTool",
+      "line": 157,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "start_debugging",
+      "context": "MCP tool name called via client.callTool",
+      "line": 166,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "continue_execution",
+      "context": "MCP tool name called via client.callTool",
+      "line": 174,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "get_stack_trace",
+      "context": "MCP tool name called in waitForStackFrames",
+      "line": 104,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "get_scopes",
+      "context": "MCP tool name called via client.callTool",
+      "line": 194,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "get_variables",
+      "context": "MCP tool name called via client.callTool",
+      "line": 205,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "close_debug_session",
+      "context": "MCP tool name called via client.callTool",
+      "line": 224,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "python",
+      "context": "Language argument for create_debug_session tool call",
+      "line": 149,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "paused",
+      "context": "Expected session state after stopOnEntry",
+      "line": 170,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "startResult.state"
+    },
+    {
+      "value": "stopped",
+      "context": "Expected session state after dry run",
+      "line": 268,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "parsedDryRunResult.state"
+    },
+    {
+      "value": "Locals",
+      "context": "Scope name matched in get_scopes response",
+      "line": 198,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "s.name"
+    },
+    {
+      "value": "sample_function",
+      "context": "Expected top stack frame function name",
+      "line": 188,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "topFrame.name"
+    },
+    {
+      "value": "Dry run spawn command logged by proxy.",
+      "context": "Expected substring in dry run result message",
+      "line": 270,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "parsedDryRunResult.data?.message"
+    },
+    {
+      "value": "python-debug-workflow-dry-run",
+      "context": "Test name slug used to generate failure payload filename",
+      "line": 259,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

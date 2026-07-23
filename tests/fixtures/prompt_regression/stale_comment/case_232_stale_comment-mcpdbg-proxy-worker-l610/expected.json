@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "confirmed",
+  "reasoning": "dap-proxy-worker.ts:3 declares the file 'uses the Adapter Policy pattern to eliminate language-specific hardcoding', yet :610 hardcodes this.adapterPolicy?.name === 'java' in the onStopped handler, bypassing the extension points used everywhere else (updateStateOnEvent :565-567, requiresCommandQueueing :569). Declared-intent-vs-code drift with a concrete fix (a policy hook such as prefetchThreadsOnStop in JavaAdapterPolicy). Confirmation rests on the L3 header declaration alone \u2014 the shadow doc is derived and carries no intent weight per decisions/0021. Confirmed at info: runtime behavior is correct and locally documented.",
+  "gray": true,
+  "gray_reason": "A 0021-grounded dismissal is defensible: the L610 branch carries its own accurate local rationale (:611-612), and the header is readable as stating the pattern's purpose rather than a zero-exception guarantee.",
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

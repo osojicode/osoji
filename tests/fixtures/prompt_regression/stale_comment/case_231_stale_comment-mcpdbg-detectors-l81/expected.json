@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "confirmed",
+  "reasoning": "'docker ping' is not a Docker CLI command, so the check at detectors.py:74-79 always fails and the :82-90 'fallback' runs unconditionally; the :81 comment ('If ping doesn't work, try listing containers') describes a two-tier contingent strategy that does not exist at runtime. A description gap that exists now, with a concrete fix (use 'docker info'/'docker ps' directly and rewrite the comment). Confirmed at info \u2014 daemon detection still returns correct results via the always-taken fallback.",
+  "gray": true,
+  "gray_reason": "The comment literally restates the code's condition, so locating the defect in the code instead (invalid 'docker ping' invocation, a latent bug) and dismissing the stale_comment framing is defensible.",
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

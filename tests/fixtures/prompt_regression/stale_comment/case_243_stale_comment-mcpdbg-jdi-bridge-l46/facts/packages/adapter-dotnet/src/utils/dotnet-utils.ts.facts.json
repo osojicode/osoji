@@ -1,0 +1,952 @@
+{
+  "source": "packages/adapter-dotnet/src/utils/dotnet-utils.ts",
+  "source_hash": "713a4ddfeb5d1702",
+  "generated": "2026-07-23T18:32:58Z",
+  "imports": [
+    {
+      "source": "child_process",
+      "names": [
+        "spawn",
+        "spawnSync"
+      ],
+      "line": 24,
+      "is_reexport": false
+    },
+    {
+      "source": "node:fs",
+      "names": [
+        "fs"
+      ],
+      "line": 25,
+      "is_reexport": false
+    },
+    {
+      "source": "node:os",
+      "names": [
+        "os"
+      ],
+      "line": 26,
+      "is_reexport": false
+    },
+    {
+      "source": "node:path",
+      "names": [
+        "path"
+      ],
+      "line": 27,
+      "is_reexport": false
+    },
+    {
+      "source": "node:url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "line": 28,
+      "is_reexport": false
+    },
+    {
+      "source": "which",
+      "names": [
+        "which"
+      ],
+      "line": 29,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@types+which@3.0.4/node_modules/@types/which/index.d.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "findNetcoredbgExecutable",
+      "kind": "function",
+      "line": 64,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "preferredPath",
+          "optional": true,
+          "type": "string | undefined"
+        },
+        {
+          "name": "logger",
+          "optional": true,
+          "type": "Logger"
+        },
+        {
+          "name": "targetArch",
+          "optional": true,
+          "type": "\"x86\" | \"x64\" | undefined"
+        }
+      ]
+    },
+    {
+      "name": "findDotnetBackend",
+      "kind": "function",
+      "line": 196,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "logger",
+          "optional": true,
+          "type": "Logger"
+        }
+      ]
+    },
+    {
+      "name": "listDotnetProcesses",
+      "kind": "function",
+      "line": 209,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "logger",
+          "optional": true,
+          "type": "Logger"
+        },
+        {
+          "name": "platform",
+          "optional": true,
+          "type": "NodeJS.Platform"
+        }
+      ]
+    },
+    {
+      "name": "getProcessExecutablePath",
+      "kind": "function",
+      "line": 273,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "pid",
+          "optional": false,
+          "type": "string | number"
+        },
+        {
+          "name": "platform",
+          "optional": true,
+          "type": "NodeJS.Platform"
+        }
+      ]
+    },
+    {
+      "name": "getProcessExecutableDir",
+      "kind": "function",
+      "line": 308,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "pid",
+          "optional": false,
+          "type": "string | number"
+        },
+        {
+          "name": "platform",
+          "optional": true,
+          "type": "NodeJS.Platform"
+        }
+      ]
+    },
+    {
+      "name": "getExeArchitecture",
+      "kind": "function",
+      "line": 319,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "exePath",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "getProcessArchitecture",
+      "kind": "function",
+      "line": 356,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "pid",
+          "optional": false,
+          "type": "string | number"
+        },
+        {
+          "name": "platform",
+          "optional": true,
+          "type": "NodeJS.Platform"
+        }
+      ]
+    },
+    {
+      "name": "isPortablePdb",
+      "kind": "function",
+      "line": 371,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "pdbPath",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "findPdb2PdbExecutable",
+      "kind": "function",
+      "line": 398,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "convertPdbsToTemp",
+      "kind": "function",
+      "line": 432,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sourceDirs",
+          "optional": false,
+          "type": "string[]"
+        },
+        {
+          "name": "pdb2pdbPath",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "CommandNotFoundError",
+      "kind": "class",
+      "line": 41,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "super",
+      "line": 44,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "logger.debug",
+      "line": 69,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "fs.existsSync",
+      "line": 74,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "logger.debug",
+      "line": 75,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "logger.debug",
+      "line": 78,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "fs.existsSync",
+      "line": 84,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "getExeArchitecture",
+      "line": 87,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "logger.debug",
+      "line": 89,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "logger.debug",
+      "line": 92,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "logger.debug",
+      "line": 94,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "logger.debug",
+      "line": 98,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "fs.existsSync",
+      "line": 102,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "getExeArchitecture",
+      "line": 104,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "logger.debug",
+      "line": 106,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "logger.debug",
+      "line": 109,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "logger.debug",
+      "line": 111,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "which",
+      "line": 119,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "logger.debug",
+      "line": 120,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "getNetcoredbgSearchPaths",
+      "line": 128,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "fs.existsSync",
+      "line": 130,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "getExeArchitecture",
+      "line": 133,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "logger.debug",
+      "line": 135,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "logger.debug",
+      "line": 139,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "logger.debug",
+      "line": 146,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "findNetcoredbgExecutable",
+      "line": 147,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "findNetcoredbgExecutable",
+      "to": "CommandNotFoundError",
+      "line": 150,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getNetcoredbgSearchPaths",
+      "to": "paths.push",
+      "line": 165,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getNetcoredbgSearchPaths",
+      "to": "path.join",
+      "line": 166,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "getNetcoredbgSearchPaths",
+      "to": "path.join",
+      "line": 168,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "getNetcoredbgSearchPaths",
+      "to": "paths.push",
+      "line": 172,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getNetcoredbgSearchPaths",
+      "to": "path.join",
+      "line": 173,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "getNetcoredbgSearchPaths",
+      "to": "path.join",
+      "line": 175,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "getNetcoredbgSearchPaths",
+      "to": "paths.push",
+      "line": 179,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getNetcoredbgSearchPaths",
+      "to": "path.join",
+      "line": 183,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "findDotnetBackend",
+      "to": "findNetcoredbgExecutable",
+      "line": 199,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "logger.debug",
+      "line": 214,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "Promise",
+      "line": 218,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "spawn",
+      "line": 219,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "child.stdout?.on",
+      "line": 225,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "data.toString",
+      "line": 225,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "child.on",
+      "line": 227,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "resolve",
+      "line": 227,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "child.on",
+      "line": 228,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "resolve",
+      "line": 230,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "output.split",
+      "line": 243,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "line.trim",
+      "line": 245,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "trimmed.match",
+      "line": 249,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "match[1].toLowerCase",
+      "line": 252,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "parseInt",
+      "line": 253,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "knownDotnetProcesses.includes",
+      "line": 255,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "processes.push",
+      "line": 256,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "logger.debug",
+      "line": 260,
+      "call_sites": 16
+    },
+    {
+      "from_symbol": "listDotnetProcesses",
+      "to": "resolve",
+      "line": 261,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getProcessExecutablePath",
+      "to": "spawnSync",
+      "line": 279,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getProcessExecutablePath",
+      "to": "result.stdout.toString",
+      "line": 289,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getProcessExecutablePath",
+      "to": "output.match",
+      "line": 290,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getProcessExecutablePath",
+      "to": "match[1].trim",
+      "line": 295,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getProcessExecutableDir",
+      "to": "getProcessExecutablePath",
+      "line": 309,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "getProcessExecutableDir",
+      "to": "path.dirname",
+      "line": 310,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getExeArchitecture",
+      "to": "fs.openSync",
+      "line": 321,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getExeArchitecture",
+      "to": "Buffer.alloc",
+      "line": 324,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getExeArchitecture",
+      "to": "fs.readSync",
+      "line": 325,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getExeArchitecture",
+      "to": "dosHeader.readUInt32LE",
+      "line": 326,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getExeArchitecture",
+      "to": "Buffer.alloc",
+      "line": 329,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getExeArchitecture",
+      "to": "fs.readSync",
+      "line": 330,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "getExeArchitecture",
+      "to": "peHeader.readUInt16LE",
+      "line": 337,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "getExeArchitecture",
+      "to": "fs.closeSync",
+      "line": 343,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "getProcessArchitecture",
+      "to": "getProcessExecutablePath",
+      "line": 357,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "getProcessArchitecture",
+      "to": "getExeArchitecture",
+      "line": 359,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "isPortablePdb",
+      "to": "fs.openSync",
+      "line": 373,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "isPortablePdb",
+      "to": "Buffer.alloc",
+      "line": 375,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "isPortablePdb",
+      "to": "fs.readSync",
+      "line": 376,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "isPortablePdb",
+      "to": "fs.closeSync",
+      "line": 381,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "findPdb2PdbExecutable",
+      "to": "fs.existsSync",
+      "line": 401,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "findPdb2PdbExecutable",
+      "to": "fileURLToPath",
+      "line": 407,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findPdb2PdbExecutable",
+      "to": "path.resolve",
+      "line": 408,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "findPdb2PdbExecutable",
+      "to": "path.dirname",
+      "line": 408,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "findPdb2PdbExecutable",
+      "to": "fs.existsSync",
+      "line": 409,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "findPdb2PdbExecutable",
+      "to": "fs.existsSync",
+      "line": 415,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "path.join",
+      "line": 433,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "os.tmpdir",
+      "line": 433,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "Date.now",
+      "line": 433,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "fs.existsSync",
+      "line": 437,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "fs.readdirSync",
+      "line": 443,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "entries.filter",
+      "line": 448,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "e.toLowerCase().endsWith",
+      "line": 448,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "e.toLowerCase",
+      "line": 448,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "path.join",
+      "line": 451,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "isPortablePdb",
+      "line": 454,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "pdbFile.replace",
+      "line": 459,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "path.join",
+      "line": 461,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "fs.existsSync",
+      "line": 462,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "fs.existsSync",
+      "line": 467,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "fs.mkdirSync",
+      "line": 468,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "fs.copyFileSync",
+      "line": 473,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "path.join",
+      "line": 473,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "fs.copyFileSync",
+      "line": 474,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "path.join",
+      "line": 474,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "spawnSync",
+      "line": 480,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "path.join",
+      "line": 480,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "path.join",
+      "line": 486,
+      "call_sites": 13
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "fs.existsSync",
+      "line": 487,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "fs.renameSync",
+      "line": 489,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "convertPdbsToTemp",
+      "to": "path.join",
+      "line": 489,
+      "call_sites": 13
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "name",
+      "line": 45
+    },
+    {
+      "container": "this",
+      "member": "command",
+      "line": 46
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "netcoredbg",
+      "context": "backend discriminant returned by findDotnetBackend",
+      "line": 200,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "ninjatrader.exe",
+      "context": "Known .NET process name filter in listDotnetProcesses",
+      "line": 236,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "devenv.exe",
+      "context": "Known .NET process name filter in listDotnetProcesses",
+      "line": 237,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dotnet.exe",
+      "context": "Known .NET process name filter in listDotnetProcesses",
+      "line": 238,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "w3wp.exe",
+      "context": "Known .NET process name filter in listDotnetProcesses",
+      "line": 239,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "iisexpress.exe",
+      "context": "Known .NET process name filter in listDotnetProcesses",
+      "line": 240,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "CommandNotFoundError",
+      "context": "Error subclass name discriminant",
+      "line": 45,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "NETCOREDBG_X86_PATH",
+      "context": "Environment variable name for x86 netcoredbg path",
+      "line": 72,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "NETCOREDBG_PATH",
+      "context": "Environment variable name for netcoredbg path",
+      "line": 82,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "PDB2PDB_PATH",
+      "context": "Environment variable name for Pdb2Pdb.exe path",
+      "line": 400,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "/tmp/pdb2pdb-tool/Pdb2Pdb.exe",
+      "context": "Fallback filesystem location for Pdb2Pdb.exe",
+      "line": 414,
+      "kind": "config",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,716 @@
+{
+  "source": "src/cli/http-command.ts",
+  "source_hash": "626f87fc42326b04",
+  "generated": "2026-07-23T18:33:55Z",
+  "imports": [
+    {
+      "source": "winston",
+      "names": [
+        "WinstonLoggerType"
+      ],
+      "line": 1,
+      "is_reexport": false,
+      "name_map": {
+        "WinstonLoggerType": "Logger"
+      },
+      "resolved_path": "node_modules/.pnpm/winston@3.19.0/node_modules/winston/index.d.ts"
+    },
+    {
+      "source": "express",
+      "names": [
+        "Express",
+        "Request",
+        "Response",
+        "NextFunction"
+      ],
+      "line": 2,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@types+express@5.0.6/node_modules/@types/express/index.d.ts"
+    },
+    {
+      "source": "express",
+      "names": [
+        "express"
+      ],
+      "line": 3,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@types+express@5.0.6/node_modules/@types/express/index.d.ts"
+    },
+    {
+      "source": "crypto",
+      "names": [
+        "randomUUID"
+      ],
+      "line": 4,
+      "is_reexport": false
+    },
+    {
+      "source": "http",
+      "names": [
+        "IncomingMessage",
+        "ServerResponse"
+      ],
+      "line": 5,
+      "is_reexport": false
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/server/streamableHttp.js",
+      "names": [
+        "StreamableHTTPServerTransport"
+      ],
+      "line": 6,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/server/streamableHttp.d.ts"
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/server/express.js",
+      "names": [
+        "createMcpExpressApp"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/server/express.d.ts"
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/types.js",
+      "names": [
+        "isInitializeRequest"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/types.d.ts"
+    },
+    {
+      "source": "../server.js",
+      "names": [
+        "DebugMcpServer"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "src/server.ts"
+    },
+    {
+      "source": "./setup.js",
+      "names": [
+        "SSEOptions"
+      ],
+      "line": 10,
+      "is_reexport": false,
+      "resolved_path": "src/cli/setup.ts"
+    },
+    {
+      "source": "./stdin-watchdog.js",
+      "names": [
+        "watchStdinForParentExit"
+      ],
+      "line": 11,
+      "is_reexport": false,
+      "resolved_path": "src/cli/stdin-watchdog.ts"
+    },
+    {
+      "source": "../interfaces/process-interfaces.js",
+      "names": [
+        "ProcessLike"
+      ],
+      "line": 12,
+      "is_reexport": false,
+      "resolved_path": "src/interfaces/process-interfaces.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "createHttpApp",
+      "kind": "function",
+      "line": 34,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "options",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/cli/setup\").SSEOptions"
+        },
+        {
+          "name": "dependencies",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/cli/http-command\").HttpCommandDependencies"
+        }
+      ]
+    },
+    {
+      "name": "handleHttpCommand",
+      "kind": "function",
+      "line": 172,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "options",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/cli/setup\").SSEOptions"
+        },
+        {
+          "name": "dependencies",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/cli/http-command\").HttpCommandDependencies"
+        }
+      ]
+    },
+    {
+      "name": "ServerFactoryOptions",
+      "kind": "type",
+      "line": 14,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "HttpCommandDependencies",
+      "kind": "type",
+      "line": 19,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "createHttpApp",
+      "to": "createMcpExpressApp",
+      "line": 41,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "Map",
+      "line": 43,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "app.use",
+      "line": 47,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "res.header",
+      "line": 48,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "res.header",
+      "line": 49,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "res.header",
+      "line": 50,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "res.header",
+      "line": 54,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "res.sendStatus",
+      "line": 59,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "next",
+      "line": 61,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "app.use",
+      "line": 65,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "express.json",
+      "line": 65,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "Array.isArray",
+      "line": 70,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "httpSessions.has",
+      "line": 74,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "httpSessions.get",
+      "line": 76,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "isInitializeRequest",
+      "line": 77,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "serverFactory",
+      "line": 79,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "newDebugServer.start",
+      "line": 83,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "StreamableHTTPServerTransport",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "randomUUID",
+      "line": 90,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "httpSessions.set",
+      "line": 93,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "logger.info",
+      "line": 94,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "httpSessions.get",
+      "line": 103,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "httpSessions.delete",
+      "line": 105,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "logger.info",
+      "line": 106,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "session.server.stop().catch",
+      "line": 107,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "session.server.stop",
+      "line": 107,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "logger.error",
+      "line": 108,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "logger.error",
+      "line": 114,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "newDebugServer.server.connect",
+      "line": 117,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "logger.warn",
+      "line": 120,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "isInitializeRequest",
+      "line": 123,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "res.status(400).json",
+      "line": 125,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "res.status",
+      "line": 125,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "transport.handleRequest",
+      "line": 136,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "logger.error",
+      "line": 138,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "res.status(500).json",
+      "line": 140,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "res.status",
+      "line": 140,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "app.post",
+      "line": 153,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "app.get",
+      "line": 154,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "app.delete",
+      "line": 155,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "app.get",
+      "line": 157,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "res.json",
+      "line": 158,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "Array.from",
+      "line": 162,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createHttpApp",
+      "to": "httpSessions.keys",
+      "line": 162,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "proc.exit",
+      "line": 177,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "parseInt",
+      "line": 183,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "logger.info",
+      "line": 184,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "createHttpApp",
+      "line": 187,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "app.listen",
+      "line": 191,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "logger.info",
+      "line": 192,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "logger.info",
+      "line": 193,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "server.on",
+      "line": 196,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "logger.error",
+      "line": 198,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "logger.error",
+      "line": 200,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "exitProcess",
+      "line": 202,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "logger.info",
+      "line": 210,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "httpSessions.values",
+      "line": 213,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "transport.close",
+      "line": 215,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "logger.error",
+      "line": 217,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "debugServer.stop",
+      "line": 220,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "logger.error",
+      "line": 222,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "httpSessions.clear",
+      "line": 225,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "server.close",
+      "line": 227,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "exitProcess",
+      "line": 228,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "proc.on",
+      "line": 232,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "proc.on",
+      "line": 233,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "watchStdinForParentExit",
+      "line": 239,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "logger.error",
+      "line": 247,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "handleHttpCommand",
+      "to": "exitProcess",
+      "line": 248,
+      "call_sites": 3
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "newTransport",
+      "member": "onclose",
+      "line": 100
+    },
+    {
+      "container": "newTransport",
+      "member": "onerror",
+      "line": 112
+    },
+    {
+      "container": "(app as any)",
+      "member": "httpSessions",
+      "line": 167
+    },
+    {
+      "container": "logger",
+      "member": "level",
+      "line": 180
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "mcp-session-id",
+      "context": "Header name read from incoming request to identify session",
+      "line": 69,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "req.headers"
+    },
+    {
+      "value": "Access-Control-Allow-Origin",
+      "context": "CORS header set to wildcard",
+      "line": 48,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "Access-Control-Allow-Methods",
+      "context": "CORS allowed methods header",
+      "line": 49,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "Access-Control-Allow-Headers",
+      "context": "CORS allowed request headers including MCP-specific ones",
+      "line": 51,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "Access-Control-Expose-Headers",
+      "context": "CORS exposed response headers for MCP session tracking",
+      "line": 54,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "Mcp-Session-Id",
+      "context": "MCP protocol session ID header exposed via CORS",
+      "line": 55,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "OPTIONS",
+      "context": "HTTP method check for CORS preflight handling",
+      "line": 58,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "req.method"
+    },
+    {
+      "value": "/mcp",
+      "context": "MCP endpoint route for POST/GET/DELETE",
+      "line": 153,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "/health",
+      "context": "Health check endpoint route",
+      "line": 157,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "ok",
+      "context": "Health check status value",
+      "line": 159,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "http",
+      "context": "Mode identifier in health response",
+      "line": 160,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "EADDRINUSE",
+      "context": "Node error code for port already in use",
+      "line": 197,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "err.code"
+    },
+    {
+      "value": "SIGINT",
+      "context": "Signal name registered for graceful shutdown",
+      "line": 232,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "SIGTERM",
+      "context": "Signal name registered for graceful shutdown",
+      "line": 233,
+      "kind": "config",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

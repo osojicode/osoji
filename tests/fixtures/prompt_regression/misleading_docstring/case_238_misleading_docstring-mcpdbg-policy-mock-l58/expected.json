@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "Panel 2-of-2 override of the live pipeline's confirm. Every statement in the flagged docstring (adapter-policy-mock.ts:58-60) is true: 'Local'/'Locals' are simple scope names and getLocalScopeName returns exactly what it documents. The allegedly contradicting behavior lives in a different member, extractLocalVariables, which carries its own accurate declaration of positional selection (:51 'Find the first scope (mock adapter has simple scopes)'). The 'effectively unused' prong is refuted by src/session/session-manager-data.ts:219-221 consuming getLocalScopeName (file added to the snapshot at origin commit). The live confirm bound L58's docstring to a claim it never makes about a different function; no drift at the described site.",
+  "gray": true,
+  "gray_reason": "A confirmable kernel sits one hop away: the interface doc (adapter-policy.ts:122-126) says these names are 'to look for when finding locals', and all six sibling policies .find() by name while mock alone indexes \u2014 confirming that incoherence as one description surface is defensible.",
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}
