@@ -77,14 +77,29 @@ Every finding is a hypothesis about a GAP between what the code claims and what 
 """,
     "predicates": """\
 A finding is a TRUE POSITIVE iff both predicates hold:
-- Reality — the gap actually exists in the code, NOW (the evidence supports it).
-  Code that matches its own documented, intended design is not a gap — an
-  intent-documented behavior fails Reality, however improvable it may be. So does a
-  not-yet-real observation: future fragility or robustness advice about code that
-  currently behaves correctly describes a gap that does not exist yet.
+- Reality — the gap actually exists in the code, NOW: the mismatch the claim
+  asserts is exhibited by the artifacts under audit, checkable against the
+  checkout without hypothesizing states the repository might reach. A claim
+  that quantifies over hypothetical states — edits not yet made, input classes
+  no artifact produces, configurations no file contains — fails Reality, not
+  because it is minor but because that space is unbounded. Judge what the
+  claim asserts: a claim asserting a failure needs the failure's premise
+  exhibited; a claim asserting a mismatch (a dead invocation, a lying label,
+  contradictory declarations) needs only the mismatch exhibited, reachable
+  harm or not. A mismatch that is already resolved in the checkout is history,
+  not a current gap. Code that matches its own documented, intended design is
+  not a gap — an intent-documented behavior fails Reality, however improvable
+  it may be. So does a not-yet-real observation: future fragility or
+  robustness advice about code that currently behaves correctly describes a
+  gap that does not exist yet.
 - Actionability — there is a concrete fix.
 Confirm when both hold. Dismiss when either fails. Use 'uncertain' when the
-assembled evidence genuinely cannot decide. A 'confirmed' verdict asserts
+assembled evidence genuinely cannot decide. When the defect at the cited site
+is real but the finding's remediation points the wrong way — the wrong artifact
+of a cross-artifact contradiction, an inverted fix direction — confirm, supply
+the corrected direction in `suggested_fix`, and note the reframe in your
+reasoning; when the cited site contains no defect, dismiss — a different
+defect elsewhere is a new finding, not a rescue. A 'confirmed' verdict asserts
 exactly one thing: the finding's claim about the code is true — if your
 reasoning concludes the claim fails, the matching verdict is 'dismissed',
 never 'confirmed'.
@@ -97,6 +112,11 @@ misleads (silent contract breaks, docs that state falsehoods), 'warning' for the
 typical real gap, 'info' when the gap is real and fixable but minor. Never dismiss a
 real, actionable finding for being minor — it is not Triage's job to adjudicate
 between correct findings; ordering work belongs to the consumer of the report.
+Fallbacks, guards, invocation conventions, and blast-radius arguments are
+Significance inputs only: they grade severity, never existence. Grade masking
+on a ladder: a gap fully masked or convention-guarded grades 'info'; one
+reachable under plausible non-default use grades 'warning'; one reachable in
+normal use grades by impact.
 
 """,
     "reachability_weighing": """\
@@ -252,6 +272,46 @@ classifying which invariant the alleged bug violates: one stated in an artifact
 only in an implicit cross-component agreement (a shared literal, schema, or
 ABI) is a contract gap. Keep `uncategorized` when neither can be stated — that
 is the honest outlet, not a failure.
+
+""",
+    "description_debris": """\
+--- Description gaps in code artifacts ---
+For a description gap where the claim is that a declaration inside a code
+artifact — a comment, docstring, identifier, or other human-authored
+annotation — contradicts what the code does, weigh it against these
+principles:
+- Adjudicate exactly the claim the finding packages, against the exact text of
+  the cited declaration. Never refute a claim the declaration does not make,
+  and never substitute an omission complaint for the packaged claim — that a
+  declaration could usefully say more is a coverage question, dismissed here
+  no matter how valuable the addition would be.
+- Staleness asserts drift: the code moved away from what the declaration says.
+  A declaration that was imprecise from the day it was written has not
+  drifted. When the imprecision is nonetheless a real, fixable mismatch,
+  confirm and grade 'info'; when the declaration is merely loose but not
+  wrong, dismiss.
+- The documented side of the comparison must be a declaration. Derived
+  artifacts — summaries produced by observing the code — never constitute the
+  documented claim; at most they relay a declaration, and their paraphrase is
+  not evidence of drift. Before declaring a contradiction, trace the cited
+  code's own mechanics in the evidence, including nested and error-path
+  behavior: a declaration that accurately describes a mechanism you have not
+  fully traced is the canonical false positive.
+- Distinguish durable rationale from ephemeral process residue. A declaration
+  recording design justification or the reason a safeguard exists is accurate
+  history; its age is not drift, and removing it destroys signal. A tag
+  pointing at a process artifact that no longer resolves is removable residue.
+  Neither is a description gap unless the code contradicts what it says.
+- If the finding's own reasoning concedes the cited declaration is accurate
+  and pivots to a different claim — a cross-file assertion, a liveness claim
+  owned by another detector — the packaged gap fails Reality: dismiss.
+- A work-marker that records planned-and-forgotten work is a description gap
+  when its subject is genuinely obsolete or done; one that states a
+  deliberate, explained scope boundary is a documented limitation, not
+  forgotten work. Both can be real — grade urgency instead of gating: markers
+  carrying dates, ticket references, or fix-me urgency grade higher; an
+  explained unimplemented branch grades 'info'.
+--- end description-debris guidance ---
 
 """,
     "prose_doc_gaps": """\
