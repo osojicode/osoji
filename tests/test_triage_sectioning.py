@@ -26,7 +26,7 @@ from osoji.triage import (
 # current hash encodes decisions/0027 (exhibited-by-the-checkout predicates,
 # masking ladder) and adds the `description_debris` section (work#81 +
 # osoji#31; A/B evidence: tests/fixtures/bootstrap/ab-descfam-report.md).
-FROZEN_SHA = "eac41b0685e0c0478065ce44532992b7e662441e2a0b4b03ad72d75afb03b0b4"
+FROZEN_SHA = "807be64664d6913ac81b9dbae21be4aa61e3d4be6af18b73df2ce8bc11d39bb1"
 
 
 def test_assembled_prompt_is_byte_identical() -> None:
