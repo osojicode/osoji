@@ -20,10 +20,13 @@ from osoji.triage import (
 # hash in the same PR and carry its A/B evidence (wiki decisions/0022).
 # History: 16b45f61… at the work#66 sectioning refactor; 67141f55… at the
 # work#78/work#79 change; 19190bee… added the decisions/0025 latent_bug
-# gap_type split; current hash re-founds the contract taxonomy on authority
+# gap_type split; ed045852… re-founded the contract taxonomy on authority
 # source (project_named/project_implicit/ecosystem/coincidental), renaming the
-# `contract_literal_classes` section to `contract_classes` (ratified 2026-07-22).
-FROZEN_SHA = "ed0458522786c896578581b876eab55b9c8ebfca213fc10e1385c1861532b491"
+# `contract_literal_classes` section to `contract_classes` (ratified 2026-07-22);
+# current hash encodes decisions/0027 (exhibited-by-the-checkout predicates,
+# masking ladder) and adds the `description_debris` section (work#81 +
+# osoji#31; A/B evidence: tests/fixtures/bootstrap/ab-descfam-report.md).
+FROZEN_SHA = "807be64664d6913ac81b9dbae21be4aa61e3d4be6af18b73df2ce8bc11d39bb1"
 
 
 def test_assembled_prompt_is_byte_identical() -> None:
@@ -36,7 +39,7 @@ def test_full_render_matches_constant() -> None:
 
 
 def test_sections_are_nonempty() -> None:
-    assert len(TRIAGE_PROMPT_SECTIONS) == 16
+    assert len(TRIAGE_PROMPT_SECTIONS) == 17
     for name, text in TRIAGE_PROMPT_SECTIONS.items():
         assert text, f"empty section: {name}"
 
