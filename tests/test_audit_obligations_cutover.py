@@ -158,7 +158,7 @@ def test_dismissed_verdict_suppresses(temp_dir):
     _one_implicit_contract_env(temp_dir)
     provider = FakeProvider(verdicts=[
         {"batch_index": 0, "verdict": "dismissed", "confidence": 0.9,
-         "reasoning": "coincidental", "contract_class": "coincidence"},
+         "reasoning": "coincidental", "contract_class": "coincidental"},
     ])
 
     findings, tokens, triaged, other = _run(temp_dir, provider)
@@ -174,14 +174,14 @@ def test_confirmed_verdict_kept_with_contract_class(temp_dir):
     _one_implicit_contract_env(temp_dir)
     provider = FakeProvider(verdicts=[
         {"batch_index": 0, "verdict": "confirmed", "confidence": 0.8,
-         "reasoning": "two sites share a bare literal", "contract_class": "unnamed_obligation"},
+         "reasoning": "two sites share a bare literal", "contract_class": "project_implicit"},
     ])
 
     findings, _tokens, triaged, other = _run(temp_dir, provider)
 
     assert len(findings) == 1
     assert findings[0].finding_type == "implicit_contract"
-    assert findings[0].contract_class == "unnamed_obligation"
+    assert findings[0].contract_class == "project_implicit"
     assert triaged == 1
     assert other == 0
 
@@ -193,7 +193,7 @@ def test_confirmed_verdict_carries_triage_outputs_additively(temp_dir):
     _one_implicit_contract_env(temp_dir)
     provider = FakeProvider(verdicts=[
         {"batch_index": 0, "verdict": "confirmed", "confidence": 0.8,
-         "reasoning": "two sites share a bare literal", "contract_class": "unnamed_obligation",
+         "reasoning": "two sites share a bare literal", "contract_class": "project_implicit",
          "suggested_fix": "extract a shared constant"},
     ])
 
@@ -218,7 +218,7 @@ def test_triage_outputs_land_on_the_audit_issue_end_to_end(temp_dir):
     _one_implicit_contract_env(temp_dir)
     provider = FakeProvider(verdicts=[
         {"batch_index": 0, "verdict": "confirmed", "confidence": 0.8,
-         "reasoning": "two sites share a bare literal", "contract_class": "unnamed_obligation",
+         "reasoning": "two sites share a bare literal", "contract_class": "project_implicit",
          "suggested_fix": "extract a shared constant"},
     ])
     config = Config(root_path=temp_dir, respect_gitignore=False, quiet=True)
@@ -236,7 +236,7 @@ def test_triage_outputs_land_on_the_audit_issue_end_to_end(temp_dir):
     assert issue.confidence == 0.8
     assert issue.triage_reasoning == "two sites share a bare literal"
     assert issue.suggested_fix == "extract a shared constant"
-    assert issue.contract_class == "unnamed_obligation"
+    assert issue.contract_class == "project_implicit"
     assert issue.finding_id
     # severity/remediation stay heuristic — Triage does not re-grade obligations.
     assert issue.severity == "info"
@@ -312,7 +312,7 @@ def test_claim_call_uses_unified_triage_prompt(temp_dir):
     _one_implicit_contract_env(temp_dir)
     provider = FakeProvider(verdicts=[
         {"batch_index": 0, "verdict": "confirmed", "confidence": 1.0,
-         "reasoning": "real", "contract_class": "named_obligation"},
+         "reasoning": "real", "contract_class": "project_named"},
     ])
 
     _run(temp_dir, provider)
@@ -330,7 +330,7 @@ def test_cluster_confirmed_ships_one_finding_naming_all_pairs(temp_dir):
     _three_pair_cluster_env(temp_dir)
     provider = FakeProvider(verdicts=[
         {"batch_index": 0, "verdict": "confirmed", "confidence": 0.8,
-         "reasoning": "one literal binds three sites", "contract_class": "unnamed_obligation"},
+         "reasoning": "one literal binds three sites", "contract_class": "project_implicit"},
     ])
 
     findings, _tokens, triaged, other = _run(temp_dir, provider)
@@ -339,7 +339,7 @@ def test_cluster_confirmed_ships_one_finding_naming_all_pairs(temp_dir):
     assert triaged == 1                       # one claim represented the whole cluster
     assert len(findings) == 1
     f = findings[0]
-    assert f.contract_class == "unnamed_obligation"
+    assert f.contract_class == "project_implicit"
     assert f.evidence["site_count"] == 3
     assert "3 sites" in f.description
 
@@ -350,7 +350,7 @@ def test_cluster_dismissed_drops_the_whole_cluster(temp_dir):
     _three_pair_cluster_env(temp_dir)
     provider = FakeProvider(verdicts=[
         {"batch_index": 0, "verdict": "dismissed", "confidence": 0.9,
-         "reasoning": "coincidental", "contract_class": "coincidence"},
+         "reasoning": "coincidental", "contract_class": "coincidental"},
     ])
 
     findings, _tokens, triaged, other = _run(temp_dir, provider)
@@ -365,9 +365,9 @@ def test_two_distinct_contracts_sharing_a_file_make_two_claims(temp_dir):
     _two_distinct_contracts_env(temp_dir)
     provider = FakeProvider(verdicts=[
         {"batch_index": 0, "verdict": "confirmed", "confidence": 0.7,
-         "reasoning": "alpha", "contract_class": "unnamed_obligation"},
+         "reasoning": "alpha", "contract_class": "project_implicit"},
         {"batch_index": 1, "verdict": "confirmed", "confidence": 0.7,
-         "reasoning": "beta", "contract_class": "unnamed_obligation"},
+         "reasoning": "beta", "contract_class": "project_implicit"},
     ])
 
     findings, _tokens, triaged, other = _run(temp_dir, provider)

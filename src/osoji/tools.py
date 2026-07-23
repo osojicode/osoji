@@ -1025,12 +1025,16 @@ _TRIAGE_VERDICT_FIELDS = {
     "contract_class": {
         "type": "string",
         "enum": [
-            "named_obligation", "unnamed_obligation", "ecosystem_convention",
-            "magic_constant", "coincidence", "other",
+            "project_named", "project_implicit", "ecosystem", "coincidental", "other",
         ],
-        "description": "CONTRACT-gap claims only: the string-contract class of the shared "
-                       "literal. Emit 'other' when no class fits — a request for review, never "
-                       "shoehorned into the nearest class. Omit for non-contract claims.",
+        "description": "CONTRACT-gap claims only: who defines the binding the claim rests on "
+                       "— the project explicitly (project_named: bind to it), the project "
+                       "implicitly (project_implicit: declare it), an external standard "
+                       "(ecosystem: conform to it), or no one (coincidental: close it). The "
+                       "carrier (literal, schema, wire format, layout, naming) never decides "
+                       "the class. Emit 'other' when no repayment action fits — a request for "
+                       "review, never shoehorned into the nearest class. Omit for "
+                       "non-contract claims.",
     },
     "gap_type": {
         "type": "string",

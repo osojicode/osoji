@@ -763,7 +763,7 @@ def test_compute_metrics_ce_gap_gap_type_is_static_over_cases():
 def test_compute_metrics_ce_gap_contract_other():
     records = [
         _rec(case="c1", gap_type="contract", verdict="confirmed", contract_class="other"),
-        _rec(case="c2", gap_type="contract", verdict="confirmed", contract_class="named_obligation"),
+        _rec(case="c2", gap_type="contract", verdict="confirmed", contract_class="project_named"),
         _rec(case="c3", gap_type="contract", verdict=None, contract_class=None),  # undecided, excluded
         _rec(case="c4", gap_type="reachability", verdict="confirmed", contract_class=None),  # not contract
     ]

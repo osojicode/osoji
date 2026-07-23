@@ -4,7 +4,7 @@
   "reasoning": "[re-triage: downgrade-to-info \u2014 claim as stated fails, pattern noted] Read Invoke-CommandChecked (L39-74) and the pacman call site (L143-148). The cited concern (`-lc $pacmanCmd`) works: the quoter wraps the whitespace-containing command in quotes and CRT argv parsing recovers it as one argument. The `-replace '\"','\\\"'` handles the common embedded-quote case adequately for MSVCRT programs. No call site passes an argument that would defeat the manual quoting. No reachable failure -> DOWNGRADE to info; the clean improvement is `$psi.ArgumentList` (PowerShell 7+/.NET 5+). gray=true (defensible as FP since all actual inputs parse correctly).",
   "gray": true,
   "gray_reason": null,
-  "expected_contract_class": null,
+  "expected_contract_class": "ecosystem",
   "adjudicated_by": "sweep-proposed+panel-2of2",
   "adjudicated_at": "2026-07-22",
   "accepted": true
