@@ -1,0 +1,166 @@
+{
+  "source": "packages/adapter-dotnet/src/DotnetAdapterFactory.ts",
+  "source_hash": "5d0f0a0425282a52",
+  "generated": "2026-07-22T22:07:43Z",
+  "imports": [
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IDebugAdapter"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IAdapterFactory",
+        "AdapterDependencies",
+        "AdapterMetadata",
+        "FactoryValidationResult"
+      ],
+      "line": 10,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./DotnetDebugAdapter.js",
+      "names": [
+        "DotnetDebugAdapter"
+      ],
+      "line": 11,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-dotnet/src/DotnetDebugAdapter.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage"
+      ],
+      "line": 12,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./utils/dotnet-utils.js",
+      "names": [
+        "findNetcoredbgExecutable"
+      ],
+      "line": 13,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-dotnet/src/utils/dotnet-utils.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "DotnetAdapterFactory",
+      "kind": "class",
+      "line": 18,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "implements": [
+        "IAdapterFactory"
+      ]
+    },
+    {
+      "name": "DotnetAdapterFactory.createAdapter",
+      "kind": "function",
+      "line": 22,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "dependencies",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/adapter-registry\").AdapterDependencies"
+        }
+      ]
+    },
+    {
+      "name": "DotnetAdapterFactory.getMetadata",
+      "kind": "function",
+      "line": 29,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DotnetAdapterFactory.validate",
+      "kind": "function",
+      "line": 46,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "DotnetAdapterFactory.createAdapter",
+      "to": "DotnetDebugAdapter",
+      "line": 23,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DotnetAdapterFactory.validate",
+      "to": "findNetcoredbgExecutable",
+      "line": 52,
+      "call_sites": 17
+    },
+    {
+      "from_symbol": "DotnetAdapterFactory.validate",
+      "to": "errors.push",
+      "line": 54,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetAdapterFactory.validate",
+      "to": "new Date().toISOString",
+      "line": 65,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DotnetAdapterFactory.validate",
+      "to": "Date",
+      "line": 65,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": ".NET/C#",
+      "context": "Display name for the .NET adapter in metadata",
+      "line": 32,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "0.2.0",
+      "context": "Hardcoded adapter version in metadata",
+      "line": 33,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "mcp-debugger team",
+      "context": "Author field in adapter metadata",
+      "line": 34,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "netcoredbg not found",
+      "context": "Fallback error message when findNetcoredbgExecutable throws a non-Error",
+      "line": 54,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "netcoredbg",
+      "context": "Backend identifier in validation result details",
+      "line": 63,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

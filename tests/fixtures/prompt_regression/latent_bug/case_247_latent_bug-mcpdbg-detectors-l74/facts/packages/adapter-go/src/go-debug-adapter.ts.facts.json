@@ -1,0 +1,1062 @@
+{
+  "source": "packages/adapter-go/src/go-debug-adapter.ts",
+  "source_hash": "5df41d0ce3f80c23",
+  "generated": "2026-07-22T22:08:00Z",
+  "imports": [
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 10,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IDebugAdapter",
+        "AdapterState",
+        "ValidationResult",
+        "ValidationError",
+        "ValidationWarning",
+        "DependencyInfo",
+        "AdapterConfig",
+        "AdapterCommand",
+        "GenericLaunchConfig",
+        "LanguageSpecificLaunchConfig",
+        "DebugFeature",
+        "FeatureRequirement",
+        "AdapterCapabilities",
+        "AdapterError",
+        "AdapterErrorCode"
+      ],
+      "line": 11,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage"
+      ],
+      "line": 28,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterDependencies"
+      ],
+      "line": 29,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./utils/go-utils.js",
+      "names": [
+        "findGoExecutable",
+        "findDelveExecutable",
+        "getGoVersion",
+        "getDelveVersion",
+        "checkDelveDapSupport",
+        "getGoSearchPaths"
+      ],
+      "line": 30,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-go/src/utils/go-utils.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "GoDebugAdapter",
+      "kind": "class",
+      "line": 70,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EventEmitter"
+      ],
+      "implements": [
+        "IDebugAdapter"
+      ]
+    },
+    {
+      "name": "GoDebugAdapter.initialize",
+      "kind": "function",
+      "line": 93,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoDebugAdapter.dispose",
+      "kind": "function",
+      "line": 123,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoDebugAdapter.getState",
+      "kind": "function",
+      "line": 134,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoDebugAdapter.isReady",
+      "kind": "function",
+      "line": 138,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoDebugAdapter.getCurrentThreadId",
+      "kind": "function",
+      "line": 144,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoDebugAdapter.validateEnvironment",
+      "kind": "function",
+      "line": 156,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoDebugAdapter.getRequiredDependencies",
+      "kind": "function",
+      "line": 224,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoDebugAdapter.resolveExecutablePath",
+      "kind": "function",
+      "line": 243,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "preferredPath",
+          "optional": true,
+          "type": "string | undefined"
+        }
+      ]
+    },
+    {
+      "name": "GoDebugAdapter.getDefaultExecutableName",
+      "kind": "function",
+      "line": 265,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoDebugAdapter.getExecutableSearchPaths",
+      "kind": "function",
+      "line": 269,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoDebugAdapter.buildAdapterCommand",
+      "kind": "function",
+      "line": 275,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").AdapterConfig"
+        }
+      ]
+    },
+    {
+      "name": "GoDebugAdapter.getAdapterModuleName",
+      "kind": "function",
+      "line": 296,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoDebugAdapter.getAdapterInstallCommand",
+      "kind": "function",
+      "line": 300,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoDebugAdapter.transformLaunchConfig",
+      "kind": "function",
+      "line": 306,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").GenericLaunchConfig"
+        }
+      ]
+    },
+    {
+      "name": "GoDebugAdapter.getDefaultLaunchConfig",
+      "kind": "function",
+      "line": 352,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoDebugAdapter.sendDapRequest",
+      "kind": "function",
+      "line": 361,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "_command",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "_args",
+          "optional": true,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "name": "GoDebugAdapter.handleDapEvent",
+      "kind": "function",
+      "line": 368,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "event",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol\").DebugProtocol.Event"
+        }
+      ]
+    },
+    {
+      "name": "GoDebugAdapter.handleDapResponse",
+      "kind": "function",
+      "line": 408,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "_response",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol\").DebugProtocol.Response"
+        }
+      ]
+    },
+    {
+      "name": "GoDebugAdapter.connect",
+      "kind": "function",
+      "line": 414,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "_host",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "_port",
+          "optional": false,
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "GoDebugAdapter.disconnect",
+      "kind": "function",
+      "line": 420,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoDebugAdapter.isConnected",
+      "kind": "function",
+      "line": 426,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoDebugAdapter.getInstallationInstructions",
+      "kind": "function",
+      "line": 432,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoDebugAdapter.getMissingExecutableError",
+      "kind": "function",
+      "line": 456,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoDebugAdapter.translateErrorMessage",
+      "kind": "function",
+      "line": 469,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "error",
+          "optional": false,
+          "type": "Error"
+        }
+      ]
+    },
+    {
+      "name": "GoDebugAdapter.supportsFeature",
+      "kind": "function",
+      "line": 497,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").DebugFeature"
+        }
+      ]
+    },
+    {
+      "name": "GoDebugAdapter.getFeatureRequirements",
+      "kind": "function",
+      "line": 514,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").DebugFeature"
+        }
+      ]
+    },
+    {
+      "name": "GoDebugAdapter.getCapabilities",
+      "kind": "function",
+      "line": 546,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoDebugAdapter.checkDelveVersion",
+      "kind": "function",
+      "line": 626,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "dlvPath",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 78,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 79,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "super",
+      "line": 87,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.initialize",
+      "to": "console.error",
+      "line": 95,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "GoDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 97,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "GoDebugAdapter.initialize",
+      "to": "console.error",
+      "line": 101,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "GoDebugAdapter.initialize",
+      "to": "this.validateEnvironment",
+      "line": 103,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.initialize",
+      "to": "console.error",
+      "line": 106,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "GoDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 108,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "GoDebugAdapter.initialize",
+      "to": "AdapterError",
+      "line": 109,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "GoDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 115,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "GoDebugAdapter.initialize",
+      "to": "this.emit",
+      "line": 116,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "GoDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 118,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "GoDebugAdapter.dispose",
+      "to": "this.goPathCache.clear",
+      "line": 124,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.dispose",
+      "to": "this.delvePathCache.clear",
+      "line": 125,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.dispose",
+      "to": "this.emit",
+      "line": 129,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "GoDebugAdapter.transitionTo",
+      "to": "this.emit",
+      "line": 151,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "GoDebugAdapter.validateEnvironment",
+      "to": "findGoExecutable",
+      "line": 162,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoDebugAdapter.validateEnvironment",
+      "to": "console.error",
+      "line": 164,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "GoDebugAdapter.validateEnvironment",
+      "to": "this.checkGoVersion",
+      "line": 166,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.validateEnvironment",
+      "to": "goVersion.split('.').map",
+      "line": 168,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.validateEnvironment",
+      "to": "goVersion.split",
+      "line": 168,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.validateEnvironment",
+      "to": "parseInt",
+      "line": 168,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.validateEnvironment",
+      "to": "errors.push",
+      "line": 171,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoDebugAdapter.validateEnvironment",
+      "to": "warnings.push",
+      "line": 178,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.validateEnvironment",
+      "to": "console.error",
+      "line": 185,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "GoDebugAdapter.validateEnvironment",
+      "to": "errors.push",
+      "line": 187,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoDebugAdapter.validateEnvironment",
+      "to": "findDelveExecutable",
+      "line": 196,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoDebugAdapter.validateEnvironment",
+      "to": "console.error",
+      "line": 198,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "GoDebugAdapter.validateEnvironment",
+      "to": "checkDelveDapSupport",
+      "line": 200,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoDebugAdapter.validateEnvironment",
+      "to": "errors.push",
+      "line": 203,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoDebugAdapter.validateEnvironment",
+      "to": "errors.push",
+      "line": 210,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoDebugAdapter.resolveExecutablePath",
+      "to": "this.delvePathCache.get",
+      "line": 247,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoDebugAdapter.resolveExecutablePath",
+      "to": "Date.now",
+      "line": 249,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "GoDebugAdapter.resolveExecutablePath",
+      "to": "this.dependencies.logger?.debug",
+      "line": 250,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.resolveExecutablePath",
+      "to": "findDelveExecutable",
+      "line": 254,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoDebugAdapter.resolveExecutablePath",
+      "to": "this.delvePathCache.set",
+      "line": 257,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoDebugAdapter.resolveExecutablePath",
+      "to": "Date.now",
+      "line": 259,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "GoDebugAdapter.getExecutableSearchPaths",
+      "to": "getGoSearchPaths",
+      "line": 270,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoDebugAdapter.buildAdapterCommand",
+      "to": "args.push",
+      "line": 284,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoDebugAdapter.buildAdapterCommand",
+      "to": "args.push",
+      "line": 285,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoDebugAdapter.transformLaunchConfig",
+      "to": "program.toLowerCase().endsWith",
+      "line": 317,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.transformLaunchConfig",
+      "to": "program.toLowerCase",
+      "line": 317,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.sendDapRequest",
+      "to": "Error",
+      "line": 365,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.handleDapEvent",
+      "to": "this.transitionTo",
+      "line": 372,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "GoDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 377,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "GoDebugAdapter.handleDapEvent",
+      "to": "this.transitionTo",
+      "line": 381,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "GoDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 382,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "GoDebugAdapter.handleDapEvent",
+      "to": "this.transitionTo",
+      "line": 386,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "GoDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 387,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "GoDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 391,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "GoDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 395,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "GoDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 399,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "GoDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 403,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "GoDebugAdapter.connect",
+      "to": "this.transitionTo",
+      "line": 416,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "GoDebugAdapter.connect",
+      "to": "this.emit",
+      "line": 417,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "GoDebugAdapter.disconnect",
+      "to": "this.transitionTo",
+      "line": 422,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "GoDebugAdapter.disconnect",
+      "to": "this.emit",
+      "line": 423,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "GoDebugAdapter.translateErrorMessage",
+      "to": "error.message.toLowerCase",
+      "line": 470,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 472,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "GoDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 472,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "GoDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 476,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "GoDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 476,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "GoDebugAdapter.translateErrorMessage",
+      "to": "this.getMissingExecutableError",
+      "line": 477,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 480,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "GoDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 484,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "GoDebugAdapter.translateErrorMessage",
+      "to": "message.includes",
+      "line": 488,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "GoDebugAdapter.supportsFeature",
+      "to": "supportedFeatures.includes",
+      "line": 511,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.getFeatureRequirements",
+      "to": "requirements.push",
+      "line": 519,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoDebugAdapter.getFeatureRequirements",
+      "to": "requirements.push",
+      "line": 527,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoDebugAdapter.getFeatureRequirements",
+      "to": "requirements.push",
+      "line": 535,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoDebugAdapter.checkGoVersion",
+      "to": "this.goPathCache.get",
+      "line": 609,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.checkGoVersion",
+      "to": "Date.now",
+      "line": 610,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "GoDebugAdapter.checkGoVersion",
+      "to": "getGoVersion",
+      "line": 614,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoDebugAdapter.checkGoVersion",
+      "to": "this.goPathCache.set",
+      "line": 617,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoDebugAdapter.checkGoVersion",
+      "to": "Date.now",
+      "line": 617,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "GoDebugAdapter.checkDelveVersion",
+      "to": "this.delvePathCache.get",
+      "line": 627,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoDebugAdapter.checkDelveVersion",
+      "to": "Date.now",
+      "line": 628,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "GoDebugAdapter.checkDelveVersion",
+      "to": "getDelveVersion",
+      "line": 632,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoDebugAdapter.checkDelveVersion",
+      "to": "this.delvePathCache.set",
+      "line": 635,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoDebugAdapter.checkDelveVersion",
+      "to": "Date.now",
+      "line": 635,
+      "call_sites": 6
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "dependencies",
+      "line": 88
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 126
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 127
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 128
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 150
+    },
+    {
+      "container": "goConfig",
+      "member": "dlvCwd",
+      "line": 333
+    },
+    {
+      "container": "goConfig",
+      "member": "env",
+      "line": 337
+    },
+    {
+      "container": "goConfig",
+      "member": "args",
+      "line": 341
+    },
+    {
+      "container": "goConfig",
+      "member": "stackTraceDepth",
+      "line": 345
+    },
+    {
+      "container": "goConfig",
+      "member": "showGlobalVariables",
+      "line": 346
+    },
+    {
+      "container": "goConfig",
+      "member": "hideSystemGoroutines",
+      "line": 347
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 375
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 415
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 421
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "GO_NOT_FOUND",
+      "context": "ValidationError code for missing Go executable",
+      "line": 187,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "GO_VERSION_TOO_OLD",
+      "context": "ValidationError code for Go version below 1.18",
+      "line": 172,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "GO_VERSION_CHECK_FAILED",
+      "context": "ValidationWarning code when Go version cannot be determined",
+      "line": 179,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "DELVE_NOT_INSTALLED",
+      "context": "ValidationError code for missing Delve",
+      "line": 211,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "DELVE_DAP_NOT_SUPPORTED",
+      "context": "ValidationError code when Delve lacks DAP support",
+      "line": 203,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "go",
+      "context": "DAP launch config type field for Go",
+      "line": 323,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "launch",
+      "context": "DAP request type in launch config",
+      "line": 324,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "debug",
+      "context": "Default Delve mode for .go source files",
+      "line": 318,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "exec",
+      "context": "Default Delve mode for pre-built binaries",
+      "line": 318,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dap",
+      "context": "Delve subcommand for DAP mode",
+      "line": 278,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "panic",
+      "context": "Exception breakpoint filter ID for Go panics",
+      "line": 555,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "fatal",
+      "context": "Exception breakpoint filter ID for Go fatal errors",
+      "line": 562,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "initialized",
+      "context": "Event emitted after successful initialization",
+      "line": 116,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "stateChanged",
+      "context": "Event emitted on state transitions",
+      "line": 151,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "stopped",
+      "context": "DAP and adapter event name",
+      "line": 371,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "event.event"
+    },
+    {
+      "value": "continued",
+      "context": "DAP and adapter event name",
+      "line": 380,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "event.event"
+    },
+    {
+      "value": "terminated",
+      "context": "DAP and adapter event name",
+      "line": 385,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "event.event"
+    }
+  ],
+  "extraction_method": "ast"
+}
