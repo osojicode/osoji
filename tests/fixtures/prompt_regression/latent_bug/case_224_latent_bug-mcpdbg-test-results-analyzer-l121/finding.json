@@ -1,0 +1,20 @@
+{
+  "detector": "debris:latent_bug",
+  "gap_type": "description",
+  "path": "tests/test-utils/helpers/test-results-analyzer.js",
+  "line_start": 121,
+  "line_end": 133,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "Stack trace suppression logic is broken: `inStackTrace` is set to true when a line contains 'at ' or 'node_modules', but then unconditionally reset to false in the `else` branch on the very next non-matching line. As a result, only single-line stack frames are suppressed; multi-line stack traces are not reliably filtered.",
+  "observed_behavior": "Stack trace suppression logic is broken: `inStackTrace` is set to true when a line contains 'at ' or 'node_modules', but then unconditionally reset to false in the `else` branch on the very next non-matching line. As a result, only single-line stack frames are suppressed; multi-line stack traces are not reliably filtered.",
+  "evidence": [],
+  "id": "a05090b68082c9f7",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

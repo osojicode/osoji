@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "multiple-mcp-servers.md:45's 'Python 3.7 or higher (for Python debugging)' matches the component that governs Python debugging: python-adapter-factory.ts:60-62 errors with 'Python 3.7 or higher required' below 3.7 (declared intent per decisions/0021), and docs/python/README.md:9 agrees. The finding's contract source, mcp_debugger_launcher/pyproject.toml:6 (>=3.8), governs installing the optional PyPI launcher package \u2014 a component this doc's prescribed setup (doc L16, Node 'mcp-debugger' CLI) never touches. The finding compared against the wrong component.",
+  "gray": true,
+  "gray_reason": "Repo-wide 3.7+ claims sit in real tension with the launcher's requires-python >=3.8 (and debugpy>=1.8.14), so a confirm-at-info reading of the version claim is defensible even though the cited contract source governs a different component.",
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

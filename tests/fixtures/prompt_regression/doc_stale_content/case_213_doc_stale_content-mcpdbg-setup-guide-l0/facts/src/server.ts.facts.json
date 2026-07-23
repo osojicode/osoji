@@ -1,0 +1,2702 @@
+{
+  "source": "src/server.ts",
+  "source_hash": "db4ed3bacfbf18e7",
+  "generated": "2026-07-22T22:11:32Z",
+  "imports": [
+    {
+      "source": "@modelcontextprotocol/sdk/server/index.js",
+      "names": [
+        "Server"
+      ],
+      "line": 5,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/server/index.d.ts"
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/types.js",
+      "names": [
+        "ListToolsRequestSchema",
+        "CallToolRequestSchema",
+        "McpErrorCode",
+        "McpError",
+        "ServerResult"
+      ],
+      "line": 6,
+      "is_reexport": false,
+      "name_map": {
+        "McpErrorCode": "ErrorCode"
+      },
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/types.d.ts"
+    },
+    {
+      "source": "./errors/debug-errors.js",
+      "names": [
+        "SessionNotFoundError",
+        "SessionTerminatedError",
+        "UnsupportedLanguageError",
+        "ProxyNotRunningError"
+      ],
+      "line": 13,
+      "is_reexport": false,
+      "resolved_path": "src/errors/debug-errors.ts"
+    },
+    {
+      "source": "./session/session-manager.js",
+      "names": [
+        "SessionManager",
+        "SessionManagerConfig"
+      ],
+      "line": 19,
+      "is_reexport": false,
+      "resolved_path": "src/session/session-manager.ts"
+    },
+    {
+      "source": "./container/dependencies.js",
+      "names": [
+        "createProductionDependencies"
+      ],
+      "line": 20,
+      "is_reexport": false,
+      "resolved_path": "src/container/dependencies.ts"
+    },
+    {
+      "source": "./container/types.js",
+      "names": [
+        "ContainerConfig"
+      ],
+      "line": 21,
+      "is_reexport": false,
+      "resolved_path": "src/container/types.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugSessionInfo",
+        "Variable",
+        "StackFrame",
+        "DebugLanguage",
+        "Breakpoint",
+        "SessionLifecycleState",
+        "IEnvironment"
+      ],
+      "line": 22,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 31,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 32,
+      "is_reexport": false
+    },
+    {
+      "source": "./utils/simple-file-checker.js",
+      "names": [
+        "SimpleFileChecker",
+        "createSimpleFileChecker",
+        "FileExistenceResult"
+      ],
+      "line": 33,
+      "is_reexport": false,
+      "resolved_path": "src/utils/simple-file-checker.ts"
+    },
+    {
+      "source": "./utils/line-reader.js",
+      "names": [
+        "LineReader",
+        "createLineReader"
+      ],
+      "line": 34,
+      "is_reexport": false,
+      "resolved_path": "src/utils/line-reader.ts"
+    },
+    {
+      "source": "./utils/language-config.js",
+      "names": [
+        "getDisabledLanguages",
+        "isLanguageDisabled"
+      ],
+      "line": 35,
+      "is_reexport": false,
+      "resolved_path": "src/utils/language-config.ts"
+    },
+    {
+      "source": "./utils/container-path-utils.js",
+      "names": [
+        "isContainerMode",
+        "getWorkspaceRoot"
+      ],
+      "line": 36,
+      "is_reexport": false,
+      "resolved_path": "src/utils/container-path-utils.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "coerceToolArguments",
+      "kind": "function",
+      "line": 132,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "args",
+          "optional": false,
+          "type": "Record<string, unknown>"
+        }
+      ]
+    },
+    {
+      "name": "DebugMcpServer",
+      "kind": "class",
+      "line": 173,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DebugMcpServer.createDebugSession",
+      "kind": "function",
+      "line": 285,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "params",
+          "optional": false,
+          "type": "{ language: import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/models/index\").DebugLanguage; name?: string | undefined; executablePath?: string | undefined; }"
+        }
+      ]
+    },
+    {
+      "name": "DebugMcpServer.startDebugging",
+      "kind": "function",
+      "line": 319,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "scriptPath",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "args",
+          "optional": true,
+          "type": "string[] | undefined"
+        },
+        {
+          "name": "dapLaunchArgs",
+          "optional": true,
+          "type": "Partial<import(\"C:/Users/johnf/projects/mcp-debugger/node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol\").DebugProtocol.LaunchRequestArguments> | unde"
+        },
+        {
+          "name": "dryRunSpawn",
+          "optional": true,
+          "type": "boolean | undefined"
+        },
+        {
+          "name": "adapterLaunchConfig",
+          "optional": true,
+          "type": "Record<string, unknown> | undefined"
+        }
+      ]
+    },
+    {
+      "name": "DebugMcpServer.closeDebugSession",
+      "kind": "function",
+      "line": 349,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "DebugMcpServer.setBreakpoint",
+      "kind": "function",
+      "line": 353,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "file",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "line",
+          "optional": false,
+          "type": "number"
+        },
+        {
+          "name": "condition",
+          "optional": true,
+          "type": "string | undefined"
+        },
+        {
+          "name": "suspendPolicy",
+          "optional": true,
+          "type": "\"thread\" | \"all\" | undefined"
+        }
+      ]
+    },
+    {
+      "name": "DebugMcpServer.getVariables",
+      "kind": "function",
+      "line": 383,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "variablesReference",
+          "optional": false,
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "DebugMcpServer.getStackTrace",
+      "kind": "function",
+      "line": 388,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "includeInternals",
+          "optional": true,
+          "type": "boolean"
+        }
+      ]
+    },
+    {
+      "name": "DebugMcpServer.getScopes",
+      "kind": "function",
+      "line": 414,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "frameId",
+          "optional": false,
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "DebugMcpServer.getLocalVariables",
+      "kind": "function",
+      "line": 419,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "includeSpecial",
+          "optional": true,
+          "type": "boolean"
+        }
+      ]
+    },
+    {
+      "name": "DebugMcpServer.continueExecution",
+      "kind": "function",
+      "line": 428,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "DebugMcpServer.stepOver",
+      "kind": "function",
+      "line": 437,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "DebugMcpServer.stepInto",
+      "kind": "function",
+      "line": 446,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "DebugMcpServer.stepOut",
+      "kind": "function",
+      "line": 455,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sessionId",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "DebugMcpServer.start",
+      "kind": "function",
+      "line": 1571,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DebugMcpServer.stop",
+      "kind": "function",
+      "line": 1577,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DebugMcpServer.getAdapterRegistry",
+      "kind": "function",
+      "line": 1585,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DebugMcpServerOptions",
+      "kind": "type",
+      "line": 54,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "Object.freeze",
+      "line": 38,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ensureLanguage",
+      "to": "languages.includes",
+      "line": 48,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "coerceToolArguments",
+      "to": "Object.entries",
+      "line": 133,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "coerceToolArguments",
+      "to": "Number",
+      "line": 145,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "coerceToolArguments",
+      "to": "Number.isNaN",
+      "line": 146,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "coerceToolArguments",
+      "to": "JSON.parse",
+      "line": 157,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "coerceToolArguments",
+      "to": "Array.isArray",
+      "line": 158,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "coerceToolArguments",
+      "to": "Array.isArray",
+      "line": 160,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "getDisabledLanguages",
+      "line": 183,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "this.filterDisabledLanguages",
+      "line": 184,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "this.getAdapterRegistry",
+      "line": 185,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "filter",
+      "line": 188,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "getDefaultLanguages",
+      "line": 188,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "maybeList.call",
+      "line": 195,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "Array.isArray",
+      "line": 196,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "ensureLanguage",
+      "line": 198,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "filter",
+      "line": 199,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "this.logger.warn",
+      "line": 202,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "adapterRegistry.getSupportedLanguages",
+      "line": 206,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "filter",
+      "line": 210,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "ensureLanguage",
+      "line": 210,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "filter",
+      "line": 212,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "filter",
+      "line": 216,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "ensureLanguage",
+      "line": 216,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "getDefaultLanguages",
+      "line": 216,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "filter",
+      "line": 218,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSupportedLanguagesAsync",
+      "to": "getDefaultLanguages",
+      "line": 218,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.getLanguageMetadata",
+      "to": "this.getSupportedLanguagesAsync",
+      "line": 223,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DebugMcpServer.getLanguageMetadata",
+      "to": "languages.map",
+      "line": 226,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.getLanguageMetadata",
+      "to": "lang.charAt(0).toUpperCase",
+      "line": 262,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.getLanguageMetadata",
+      "to": "lang.charAt",
+      "line": 262,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.getLanguageMetadata",
+      "to": "lang.slice",
+      "line": 262,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.validateSession",
+      "to": "this.sessionManager.getSession",
+      "line": 274,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DebugMcpServer.validateSession",
+      "to": "McpError",
+      "line": 276,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.validateSession",
+      "to": "McpError",
+      "line": 280,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.createDebugSession",
+      "to": "this.getSupportedLanguagesAsync",
+      "line": 287,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DebugMcpServer.createDebugSession",
+      "to": "isLanguageDisabled",
+      "line": 291,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DebugMcpServer.createDebugSession",
+      "to": "McpError",
+      "line": 292,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.createDebugSession",
+      "to": "supported.join",
+      "line": 294,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DebugMcpServer.createDebugSession",
+      "to": "supported.includes",
+      "line": 297,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DebugMcpServer.createDebugSession",
+      "to": "McpError",
+      "line": 298,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.createDebugSession",
+      "to": "supported.join",
+      "line": 300,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DebugMcpServer.createDebugSession",
+      "to": "Date.now",
+      "line": 304,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.createDebugSession",
+      "to": "this.sessionManager.createSession",
+      "line": 306,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.createDebugSession",
+      "to": "String",
+      "line": 313,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DebugMcpServer.createDebugSession",
+      "to": "this.logger.error",
+      "line": 314,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "DebugMcpServer.createDebugSession",
+      "to": "McpError",
+      "line": 315,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.startDebugging",
+      "to": "this.validateSession",
+      "line": 327,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.startDebugging",
+      "to": "this.fileChecker.checkExists",
+      "line": 330,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.startDebugging",
+      "to": "this.fileNotFoundError",
+      "line": 332,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.startDebugging",
+      "to": "this.logger.info",
+      "line": 335,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.startDebugging",
+      "to": "this.sessionManager.startDebugging",
+      "line": 338,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.closeDebugSession",
+      "to": "this.sessionManager.closeSession",
+      "line": 350,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.setBreakpoint",
+      "to": "this.validateSession",
+      "line": 354,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.setBreakpoint",
+      "to": "this.sessionManager.getSessionPolicy",
+      "line": 357,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.setBreakpoint",
+      "to": "policy.isNonFileSourceIdentifier",
+      "line": 358,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.setBreakpoint",
+      "to": "this.logger.info",
+      "line": 359,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.setBreakpoint",
+      "to": "this.sessionManager.setBreakpoint",
+      "line": 360,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.setBreakpoint",
+      "to": "this.sessionManager.getSession",
+      "line": 366,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DebugMcpServer.setBreakpoint",
+      "to": "this.logger.info",
+      "line": 367,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.setBreakpoint",
+      "to": "this.sessionManager.setBreakpoint",
+      "line": 368,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.setBreakpoint",
+      "to": "this.fileChecker.checkExists",
+      "line": 372,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.setBreakpoint",
+      "to": "this.fileNotFoundError",
+      "line": 374,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.setBreakpoint",
+      "to": "this.logger.info",
+      "line": 377,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.setBreakpoint",
+      "to": "this.sessionManager.setBreakpoint",
+      "line": 380,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.getVariables",
+      "to": "this.validateSession",
+      "line": 384,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.getVariables",
+      "to": "this.sessionManager.getVariables",
+      "line": 385,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.getStackTrace",
+      "to": "this.validateSession",
+      "line": 389,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.getStackTrace",
+      "to": "this.sessionManager.getSession",
+      "line": 390,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DebugMcpServer.getStackTrace",
+      "to": "ProxyNotRunningError",
+      "line": 392,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DebugMcpServer.getStackTrace",
+      "to": "session.proxyManager.getCurrentThreadId",
+      "line": 394,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.getStackTrace",
+      "to": "session.proxyManager.sendDapRequest",
+      "line": 399,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.getStackTrace",
+      "to": "Array.isArray",
+      "line": 401,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DebugMcpServer.getStackTrace",
+      "to": "ProxyNotRunningError",
+      "line": 409,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DebugMcpServer.getStackTrace",
+      "to": "this.sessionManager.getStackTrace",
+      "line": 411,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.getScopes",
+      "to": "this.validateSession",
+      "line": 415,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.getScopes",
+      "to": "this.sessionManager.getScopes",
+      "line": 416,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.getLocalVariables",
+      "to": "this.validateSession",
+      "line": 424,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.getLocalVariables",
+      "to": "this.sessionManager.getLocalVariables",
+      "line": 425,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.continueExecution",
+      "to": "this.validateSession",
+      "line": 429,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.continueExecution",
+      "to": "this.sessionManager.continue",
+      "line": 430,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.continueExecution",
+      "to": "Error",
+      "line": 432,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DebugMcpServer.stepOver",
+      "to": "this.validateSession",
+      "line": 438,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.stepOver",
+      "to": "this.sessionManager.stepOver",
+      "line": 439,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.stepOver",
+      "to": "Error",
+      "line": 441,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DebugMcpServer.stepInto",
+      "to": "this.validateSession",
+      "line": 447,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.stepInto",
+      "to": "this.sessionManager.stepInto",
+      "line": 448,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.stepInto",
+      "to": "Error",
+      "line": 450,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DebugMcpServer.stepOut",
+      "to": "this.validateSession",
+      "line": 456,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.stepOut",
+      "to": "this.sessionManager.stepOut",
+      "line": 457,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.stepOut",
+      "to": "Error",
+      "line": 459,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.resolve",
+      "line": 468,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.dirname",
+      "line": 468,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createProductionDependencies",
+      "line": 471,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.logger.info",
+      "line": 475,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createSimpleFileChecker",
+      "line": 478,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createLineReader",
+      "line": 485,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Server",
+      "line": 490,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "SessionManager",
+      "line": 499,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.registerTools",
+      "line": 501,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.logger.error",
+      "line": 503,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "DebugMcpServer.sanitizeRequest",
+      "to": "path.isAbsolute",
+      "line": 513,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.sanitizeRequest",
+      "to": "Array.isArray",
+      "line": 517,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DebugMcpServer.sanitizeRequest",
+      "to": "sanitized.args.slice",
+      "line": 518,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.getSessionName",
+      "to": "this.sessionManager.getSession",
+      "line": 528,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DebugMcpServer.getPathDescription",
+      "to": "isContainerMode",
+      "line": 536,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DebugMcpServer.fileNotFoundError",
+      "to": "isContainerMode",
+      "line": 546,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DebugMcpServer.fileNotFoundError",
+      "to": "getWorkspaceRoot",
+      "line": 547,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DebugMcpServer.fileNotFoundError",
+      "to": "getWorkspaceRoot",
+      "line": 547,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DebugMcpServer.fileNotFoundError",
+      "to": "McpError",
+      "line": 549,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.server.setRequestHandler",
+      "line": 554,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.logger.debug",
+      "line": 555,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.getSupportedLanguagesAsync",
+      "line": 558,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.getPathDescription",
+      "line": 561,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.getPathDescription",
+      "line": 562,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.server.setRequestHandler",
+      "line": 637,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "coerceToolArguments",
+      "line": 641,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.logger.info",
+      "line": 644,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.getSessionName",
+      "line": 647,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.sanitizeRequest",
+      "line": 648,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "Date.now",
+      "line": 649,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.getSupportedLanguagesAsync",
+      "line": 658,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "supported.includes",
+      "line": 663,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "UnsupportedLanguageError",
+      "line": 664,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.createDebugSession",
+      "line": 667,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.logger.info",
+      "line": 674,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "Date.now",
+      "line": 679,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.logger.info",
+      "line": 687,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "Date.now",
+      "line": 691,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.sessionManager.attachToProcess",
+      "line": 695,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 703,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.logger.error",
+      "line": 712,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "String",
+      "line": 714,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "Date.now",
+      "line": 715,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 718,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "String",
+      "line": 722,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 727,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.handleListDebugSessions",
+      "line": 737,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "McpError",
+      "line": 742,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.setBreakpoint",
+      "line": 746,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.logger.info",
+      "line": 749,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.getSessionName",
+      "line": 752,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "Date.now",
+      "line": 757,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.lineReader.getLineContext",
+      "line": 763,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.logger.debug",
+      "line": 777,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 784,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "Array.isArray",
+      "line": 796,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.parse",
+      "line": 803,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.logger.info",
+      "line": 808,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "error.message.includes",
+      "line": 815,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "error.message.includes",
+      "line": 816,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "error.message.includes",
+      "line": 817,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "error.message.includes",
+      "line": 817,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 818,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "McpError",
+      "line": 828,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "Array.isArray",
+      "line": 834,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "McpError",
+      "line": 835,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.startDebugging",
+      "line": 839,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 855,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "error.message.includes",
+      "line": 859,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "error.message.includes",
+      "line": 860,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "error.message.includes",
+      "line": 861,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "error.message.includes",
+      "line": 861,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 862,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "McpError",
+      "line": 872,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.logger.info",
+      "line": 876,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.sessionManager.attachToProcess",
+      "line": 883,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 906,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "error.message.includes",
+      "line": 910,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "error.message.includes",
+      "line": 911,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "error.message.includes",
+      "line": 912,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "error.message.includes",
+      "line": 912,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 913,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "McpError",
+      "line": 926,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.logger.info",
+      "line": 930,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.sessionManager.detachFromProcess",
+      "line": 935,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 952,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "error.message.includes",
+      "line": 956,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "error.message.includes",
+      "line": 957,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "error.message.includes",
+      "line": 958,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "error.message.includes",
+      "line": 958,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 959,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "McpError",
+      "line": 972,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.getSessionName",
+      "line": 975,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.closeDebugSession",
+      "line": 976,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.logger.info",
+      "line": 980,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "Date.now",
+      "line": 983,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 987,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "McpError",
+      "line": 994,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.stepOver",
+      "line": 1000,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.stepInto",
+      "line": 1002,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.stepOut",
+      "line": 1004,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "toolName.replace('step_', '').replace",
+      "line": 1008,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "toolName.replace",
+      "line": 1008,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.lineReader.getLineContext",
+      "line": 1033,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.logger.debug",
+      "line": 1047,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 1055,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 1061,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 1064,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "McpError",
+      "line": 1074,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.continueExecution",
+      "line": 1078,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 1079,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 1085,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 1088,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.handlePause",
+      "line": 1097,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "McpError",
+      "line": 1102,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.handleListThreads",
+      "line": 1104,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "McpError",
+      "line": 1109,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.getVariables",
+      "line": 1113,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "variables.map",
+      "line": 1116,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "v.value.substring",
+      "line": 1119,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.logger.info",
+      "line": 1122,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.getSessionName",
+      "line": 1124,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "truncatedVars.slice",
+      "line": 1127,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "Date.now",
+      "line": 1128,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 1131,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 1137,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "McpError",
+      "line": 1147,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.getStackTrace",
+      "line": 1153,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 1154,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 1160,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 1165,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "McpError",
+      "line": 1175,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.getScopes",
+      "line": 1179,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 1180,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 1186,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.handleEvaluateExpression",
+      "line": 1195,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.handleGetSourceContext",
+      "line": 1199,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.handleGetLocalVariables",
+      "line": 1203,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.handleListSupportedLanguages",
+      "line": 1207,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.sessionManager.redefineClasses",
+      "line": 1211,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "JSON.stringify",
+      "line": 1218,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "McpError",
+      "line": 1223,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.logger.info",
+      "line": 1227,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.getSessionName",
+      "line": 1230,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "Date.now",
+      "line": 1232,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "String",
+      "line": 1237,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.logger.error",
+      "line": 1240,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "this.getSessionName",
+      "line": 1243,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "Date.now",
+      "line": 1245,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.registerTools",
+      "to": "McpError",
+      "line": 1249,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListDebugSessions",
+      "to": "this.sessionManager.getAllSessions",
+      "line": 1257,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListDebugSessions",
+      "to": "sessionsInfo.map",
+      "line": 1258,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListDebugSessions",
+      "to": "session.createdAt.toISOString",
+      "line": 1264,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListDebugSessions",
+      "to": "session.updatedAt.toISOString",
+      "line": 1267,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListDebugSessions",
+      "to": "JSON.stringify",
+      "line": 1271,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListDebugSessions",
+      "to": "this.logger.error",
+      "line": 1273,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListDebugSessions",
+      "to": "McpError",
+      "line": 1274,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.handlePause",
+      "to": "this.validateSession",
+      "line": 1280,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.handlePause",
+      "to": "this.sessionManager.pause",
+      "line": 1281,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.handlePause",
+      "to": "JSON.stringify",
+      "line": 1282,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.handlePause",
+      "to": "this.logger.error",
+      "line": 1284,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "DebugMcpServer.handlePause",
+      "to": "JSON.stringify",
+      "line": 1289,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.handlePause",
+      "to": "McpError",
+      "line": 1291,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListThreads",
+      "to": "this.validateSession",
+      "line": 1297,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListThreads",
+      "to": "this.sessionManager.listThreads",
+      "line": 1298,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListThreads",
+      "to": "JSON.stringify",
+      "line": 1299,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListThreads",
+      "to": "this.logger.error",
+      "line": 1301,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListThreads",
+      "to": "McpError",
+      "line": 1303,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "this.validateSession",
+      "line": 1310,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "McpError",
+      "line": 1314,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "this.sessionManager.evaluateExpression",
+      "line": 1318,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "this.logger.info",
+      "line": 1327,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "this.getSessionName",
+      "line": 1329,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "args.expression.substring",
+      "line": 1330,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "Date.now",
+      "line": 1333,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "JSON.stringify",
+      "line": 1340,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "String",
+      "line": 1344,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "this.logger.error",
+      "line": 1347,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "args.expression.substring",
+      "line": 1349,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "Date.now",
+      "line": 1351,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "error.message.includes",
+      "line": 1356,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "error.message.includes",
+      "line": 1357,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "error.message.includes",
+      "line": 1358,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "error.message.includes",
+      "line": 1359,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "JSON.stringify",
+      "line": 1360,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleEvaluateExpression",
+      "to": "McpError",
+      "line": 1365,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetSourceContext",
+      "to": "this.validateSession",
+      "line": 1373,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetSourceContext",
+      "to": "this.fileChecker.checkExists",
+      "line": 1376,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetSourceContext",
+      "to": "this.fileNotFoundError",
+      "line": 1378,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetSourceContext",
+      "to": "this.logger.info",
+      "line": 1381,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetSourceContext",
+      "to": "this.lineReader.getLineContext",
+      "line": 1385,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetSourceContext",
+      "to": "JSON.stringify",
+      "line": 1396,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetSourceContext",
+      "to": "this.logger.info",
+      "line": 1407,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetSourceContext",
+      "to": "this.getSessionName",
+      "line": 1409,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetSourceContext",
+      "to": "Date.now",
+      "line": 1413,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetSourceContext",
+      "to": "JSON.stringify",
+      "line": 1419,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetSourceContext",
+      "to": "this.logger.error",
+      "line": 1430,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetSourceContext",
+      "to": "McpError",
+      "line": 1432,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetLocalVariables",
+      "to": "this.validateSession",
+      "line": 1439,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetLocalVariables",
+      "to": "this.getLocalVariables",
+      "line": 1442,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetLocalVariables",
+      "to": "this.logger.info",
+      "line": 1448,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetLocalVariables",
+      "to": "this.getSessionName",
+      "line": 1450,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetLocalVariables",
+      "to": "Date.now",
+      "line": 1455,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetLocalVariables",
+      "to": "JSON.stringify",
+      "line": 1489,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetLocalVariables",
+      "to": "String",
+      "line": 1493,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetLocalVariables",
+      "to": "this.logger.error",
+      "line": 1496,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetLocalVariables",
+      "to": "Date.now",
+      "line": 1499,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetLocalVariables",
+      "to": "error.message.includes",
+      "line": 1504,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetLocalVariables",
+      "to": "error.message.includes",
+      "line": 1505,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetLocalVariables",
+      "to": "error.message.includes",
+      "line": 1506,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetLocalVariables",
+      "to": "error.message.includes",
+      "line": 1507,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetLocalVariables",
+      "to": "JSON.stringify",
+      "line": 1508,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleGetLocalVariables",
+      "to": "McpError",
+      "line": 1517,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListSupportedLanguages",
+      "to": "this.getAdapterRegistry",
+      "line": 1524,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListSupportedLanguages",
+      "to": "this.getSupportedLanguagesAsync",
+      "line": 1526,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListSupportedLanguages",
+      "to": "installed.map",
+      "line": 1529,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListSupportedLanguages",
+      "to": "dyn.listAvailableAdapters!",
+      "line": 1539,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListSupportedLanguages",
+      "to": "meta.map",
+      "line": 1540,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListSupportedLanguages",
+      "to": "this.logger.warn",
+      "line": 1547,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListSupportedLanguages",
+      "to": "this.getLanguageMetadata",
+      "line": 1553,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListSupportedLanguages",
+      "to": "JSON.stringify",
+      "line": 1555,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListSupportedLanguages",
+      "to": "this.logger.error",
+      "line": 1563,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "DebugMcpServer.handleListSupportedLanguages",
+      "to": "McpError",
+      "line": 1564,
+      "call_sites": 30
+    },
+    {
+      "from_symbol": "DebugMcpServer.start",
+      "to": "new Date().toISOString",
+      "line": 1573,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.start",
+      "to": "Date",
+      "line": 1573,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.start",
+      "to": "this.logger.info",
+      "line": 1574,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.stop",
+      "to": "this.sessionManager.closeAllSessions",
+      "line": 1578,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.stop",
+      "to": "this.logger.info",
+      "line": 1579,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "DebugMcpServer.filterDisabledLanguages",
+      "to": "getDisabledLanguages",
+      "line": 1593,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DebugMcpServer.filterDisabledLanguages",
+      "to": "languages.filter",
+      "line": 1597,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DebugMcpServer.filterDisabledLanguages",
+      "to": "disabledSet.has",
+      "line": 1597,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "logger",
+      "line": 473
+    },
+    {
+      "container": "this",
+      "member": "environment",
+      "line": 474
+    },
+    {
+      "container": "this",
+      "member": "fileChecker",
+      "line": 478
+    },
+    {
+      "container": "this",
+      "member": "lineReader",
+      "line": 485
+    },
+    {
+      "container": "this",
+      "member": "server",
+      "line": 490
+    },
+    {
+      "container": "this",
+      "member": "sessionManager",
+      "line": 499
+    },
+    {
+      "container": "this.server",
+      "member": "onerror",
+      "line": 502
+    },
+    {
+      "container": "sanitized",
+      "member": "executablePath",
+      "line": 514
+    },
+    {
+      "container": "sanitized",
+      "member": "args",
+      "line": 518
+    },
+    {
+      "container": "responsePayload",
+      "member": "data",
+      "line": 853
+    },
+    {
+      "container": "responsePayload",
+      "member": "data",
+      "line": 903
+    },
+    {
+      "container": "responsePayload",
+      "member": "data",
+      "line": 949
+    },
+    {
+      "container": "response",
+      "member": "pending",
+      "line": 1019
+    },
+    {
+      "container": "response",
+      "member": "message",
+      "line": 1021
+    },
+    {
+      "container": "response",
+      "member": "location",
+      "line": 1029
+    },
+    {
+      "container": "response",
+      "member": "context",
+      "line": 1040
+    },
+    {
+      "container": "mappedSession",
+      "member": "updatedAt",
+      "line": 1267
+    },
+    {
+      "container": "response",
+      "member": "frame",
+      "line": 1467
+    },
+    {
+      "container": "response",
+      "member": "scopeName",
+      "line": 1472
+    },
+    {
+      "container": "response",
+      "member": "message",
+      "line": 1478
+    },
+    {
+      "container": "response",
+      "member": "message",
+      "line": 1480
+    },
+    {
+      "container": "response",
+      "member": "message",
+      "line": 1482
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "create_debug_session",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 656,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "list_debug_sessions",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 736,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "set_breakpoint",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 740,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "start_debugging",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 826,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "attach_to_process",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 870,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "detach_from_process",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 924,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "close_debug_session",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 970,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "step_over",
+      "context": "MCP tool name dispatched in CallTool switch and step type dispatch",
+      "line": 990,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "step_into",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 991,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "step_out",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 992,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "continue_execution",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 1072,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "pause_execution",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 1096,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "list_threads",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 1100,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "get_variables",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 1107,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "get_stack_trace",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 1145,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "get_scopes",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 1173,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "evaluate_expression",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 1194,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "get_source_context",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 1198,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "get_local_variables",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 1202,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "list_supported_languages",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 1206,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "redefine_classes",
+      "context": "MCP tool name dispatched in CallTool switch",
+      "line": 1210,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "toolName"
+    },
+    {
+      "value": "debug-mcp-server",
+      "context": "MCP Server name in Server constructor",
+      "line": 491,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "tool:call",
+      "context": "Structured log event identifier for every tool invocation",
+      "line": 644,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "tool:response",
+      "context": "Structured log event identifier for successful tool responses",
+      "line": 1227,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "tool:error",
+      "context": "Structured log event identifier for tool errors",
+      "line": 1240,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "session:created",
+      "context": "Structured log event identifier for session creation",
+      "line": 674,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "session:closed",
+      "context": "Structured log event identifier for session closure",
+      "line": 980,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "debug:breakpoint",
+      "context": "Structured log event identifier for breakpoint operations",
+      "line": 749,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "MCP_CONTAINER",
+      "context": "Environment variable controlling container mode behavior",
+      "line": 198,
+      "kind": "config",
+      "usage": "external_input"
+    }
+  ],
+  "extraction_method": "ast"
+}

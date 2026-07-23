@@ -1,0 +1,1665 @@
+{
+  "source": "tests/unit/utils/logger.test.ts",
+  "source_hash": "e6a8cd11ccb8e9cb",
+  "generated": "2026-07-22T22:07:20Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "beforeEach",
+        "afterEach",
+        "vi"
+      ],
+      "line": 1,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "fs",
+      "names": [
+        "fs"
+      ],
+      "line": 2,
+      "is_reexport": false
+    },
+    {
+      "source": "os",
+      "names": [
+        "os"
+      ],
+      "line": 3,
+      "is_reexport": false
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 4,
+      "is_reexport": false
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 6,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 10,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 14,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 15,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 16,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 19,
+      "call_sites": 110
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createLoggerSpy",
+      "line": 20,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "Console",
+      "to": "consoleTransportSpy.call",
+      "line": 23,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "File",
+      "to": "fileTransportSpy.call",
+      "line": 26,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 31,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 32,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 33,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 34,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 43,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 44,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "consoleTransportSpy.mockClear",
+      "line": 45,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fileTransportSpy.mockClear",
+      "line": 46,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createLoggerSpy.mockClear().mockReturnValue",
+      "line": 47,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createLoggerSpy.mockClear",
+      "line": 47,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 47,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 47,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn(console, 'error').mockImplementation",
+      "line": 48,
+      "call_sites": 12
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 48,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.resetModules",
+      "line": 51,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "import",
+      "line": 52,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 55,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.restoreAllMocks",
+      "line": 56,
+      "call_sites": 45
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.unstubAllEnvs",
+      "line": 57,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "stubFs",
+      "to": "vi.spyOn(fs, 'existsSync').mockReturnValue",
+      "line": 62,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "stubFs",
+      "to": "vi.spyOn",
+      "line": 62,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "stubFs",
+      "to": "vi.spyOn(fs, 'mkdirSync').mockImplementation",
+      "line": 63,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "stubFs",
+      "to": "vi.spyOn",
+      "line": 63,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "stubFs",
+      "to": "vi.spyOn(fs, 'readdirSync').mockReturnValue",
+      "line": 64,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "stubFs",
+      "to": "vi.spyOn",
+      "line": 64,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 68,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubFs",
+      "line": 69,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.createLogger",
+      "line": 71,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(consoleTransportSpy).toHaveBeenCalledTimes",
+      "line": 73,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 73,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fileTransportSpy).toHaveBeenCalledTimes",
+      "line": 74,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 74,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(loggerConfig.transports.map((entry) => (entry as { type: string }).type)).toEqual",
+      "line": 77,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 77,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerConfig.transports.map",
+      "line": 77,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.arrayContaining",
+      "line": 78,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(existsSpy).toHaveBeenCalled",
+      "line": 81,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 81,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mkdirSpy).not.toHaveBeenCalled",
+      "line": 82,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 82,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 85,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubFs",
+      "line": 86,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.createLogger",
+      "line": 88,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(path.basename(fileCall.filename)).toBe",
+      "line": 91,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 91,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.basename",
+      "line": 91,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 94,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubFs",
+      "line": 95,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 96,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "os.tmpdir",
+      "line": 96,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.createLogger",
+      "line": 98,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fileCall.filename).toBe",
+      "line": 101,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 101,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 104,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubFs",
+      "line": 105,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.createLogger",
+      "line": 107,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.createLogger",
+      "line": 108,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fileTransportSpy).toHaveBeenCalledTimes",
+      "line": 112,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 112,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "firstConfig.transports.find",
+      "line": 115,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "secondConfig.transports.find",
+      "line": 116,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(firstFile).toBeDefined",
+      "line": 117,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 117,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(firstFile).toBe",
+      "line": 118,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 118,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 121,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubFs",
+      "line": 122,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.createLogger",
+      "line": 124,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 124,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "os.tmpdir",
+      "line": 124,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.createLogger",
+      "line": 125,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 125,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "os.tmpdir",
+      "line": 125,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fileTransportSpy).toHaveBeenCalledTimes",
+      "line": 127,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 127,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 130,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubFs",
+      "line": 131,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.createLogger",
+      "line": 133,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 133,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "os.tmpdir",
+      "line": 133,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(readdirSpy).not.toHaveBeenCalled",
+      "line": 134,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 134,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.createLogger",
+      "line": 136,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.createLogger",
+      "line": 137,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(readdirSpy).toHaveBeenCalledTimes",
+      "line": 138,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 138,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 141,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 142,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubFs",
+      "line": 143,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.createLogger",
+      "line": 145,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fileTransportSpy).toHaveBeenCalled",
+      "line": 147,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 147,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fileCall.filename).toBe",
+      "line": 149,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 149,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(existsSpy).toHaveBeenCalledWith",
+      "line": 150,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 150,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(readdirSpy).not.toHaveBeenCalled",
+      "line": 152,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 152,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 155,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn(fs, 'existsSync').mockReturnValue",
+      "line": 156,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 156,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn(fs, 'mkdirSync').mockImplementation",
+      "line": 157,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 157,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 158,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn(fs, 'readdirSync').mockReturnValue",
+      "line": 160,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 160,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.createLogger",
+      "line": 161,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(consoleErrorSpy).toHaveBeenCalledWith",
+      "line": 163,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 163,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 164,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.any",
+      "line": 165,
+      "call_sites": 51
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(existsSpy).toHaveBeenCalled",
+      "line": 167,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 167,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 170,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 171,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn(fs, 'existsSync').mockReturnValue",
+      "line": 172,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 172,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn(fs, 'mkdirSync').mockImplementation",
+      "line": 173,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 173,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 174,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn(fs, 'readdirSync').mockReturnValue",
+      "line": 176,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 176,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.createLogger",
+      "line": 177,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(consoleTransportSpy).not.toHaveBeenCalled",
+      "line": 179,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 179,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(consoleErrorSpy).not.toHaveBeenCalled",
+      "line": 180,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 180,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(existsSpy).toHaveBeenCalled",
+      "line": 181,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 181,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 184,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubFs",
+      "line": 185,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 186,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createLoggerSpy.mockReturnValue",
+      "line": 187,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 187,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.getLogger",
+      "line": 189,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(callArgs.level).toBe",
+      "line": 195,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 195,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(callArgs.defaultMeta.namespace).toBe",
+      "line": 196,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 196,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fallbackWarn).toHaveBeenCalledWith",
+      "line": 197,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 197,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logger).toBeTruthy",
+      "line": 200,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 200,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 203,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubFs",
+      "line": 204,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.createLogger",
+      "line": 205,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerInstance.on.mock.calls.find",
+      "line": 208,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(errorHandler).toBeTypeOf",
+      "line": 212,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 212,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 214,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "errorHandler",
+      "line": 215,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(consoleErrorSpy).toHaveBeenCalledWith",
+      "line": 217,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 217,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 223,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.stubEnv",
+      "line": 224,
+      "call_sites": 238
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "stubFs",
+      "line": 225,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.createLogger",
+      "line": 227,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerInstance.on.mock.calls.find",
+      "line": 230,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "consoleErrorSpy.mockClear",
+      "line": 234,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "errorHandler",
+      "line": 235,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 235,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(consoleErrorSpy).not.toHaveBeenCalled",
+      "line": 237,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 237,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 241,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 245,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.resetModules",
+      "line": 246,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "import",
+      "line": 247,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.mkdtempSync",
+      "line": 248,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 248,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "os.tmpdir",
+      "line": 248,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 251,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.restoreAllMocks",
+      "line": 252,
+      "call_sites": 45
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.rmSync",
+      "line": 253,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "makeAgedFile",
+      "to": "path.join",
+      "line": 257,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "makeAgedFile",
+      "to": "fs.writeFileSync",
+      "line": 258,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "makeAgedFile",
+      "to": "Date",
+      "line": 259,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "makeAgedFile",
+      "to": "Date.now",
+      "line": 259,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "makeAgedFile",
+      "to": "fs.utimesSync",
+      "line": 260,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "throwingSignal",
+      "to": "Error",
+      "line": 267,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 273,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "makeAgedFile",
+      "line": 274,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.cleanupStaleLogFiles",
+      "line": 276,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "throwingSignal",
+      "line": 276,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fs.existsSync(stale)).toBe",
+      "line": 278,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 278,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.existsSync",
+      "line": 278,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 281,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "makeAgedFile",
+      "line": 282,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.cleanupStaleLogFiles",
+      "line": 284,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fs.existsSync(own)).toBe",
+      "line": 286,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 286,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.existsSync",
+      "line": 286,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 289,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "makeAgedFile",
+      "line": 290,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.cleanupStaleLogFiles",
+      "line": 292,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "throwingSignal",
+      "line": 292,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fs.existsSync(kept)).toBe",
+      "line": 294,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 294,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.existsSync",
+      "line": 294,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 297,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "makeAgedFile",
+      "line": 298,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.cleanupStaleLogFiles",
+      "line": 300,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fs.existsSync(kept)).toBe",
+      "line": 302,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 302,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.existsSync",
+      "line": 302,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 305,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "makeAgedFile",
+      "line": 306,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.cleanupStaleLogFiles",
+      "line": 308,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "throwingSignal",
+      "line": 308,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fs.existsSync(fresh)).toBe",
+      "line": 310,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 310,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.existsSync",
+      "line": 310,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 313,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "makeAgedFile",
+      "line": 314,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "makeAgedFile",
+      "line": 315,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "makeAgedFile",
+      "line": 316,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.cleanupStaleLogFiles",
+      "line": 318,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "throwingSignal",
+      "line": 318,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fs.existsSync(legacy)).toBe",
+      "line": 320,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 320,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.existsSync",
+      "line": 320,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fs.existsSync(proxy)).toBe",
+      "line": 321,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 321,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.existsSync",
+      "line": 321,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fs.existsSync(other)).toBe",
+      "line": 322,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 322,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.existsSync",
+      "line": 322,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 325,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "makeAgedFile",
+      "line": 326,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.cleanupStaleLogFiles",
+      "line": 328,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "throwingSignal",
+      "line": 328,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(fs.existsSync(stale)).toBe",
+      "line": 330,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 330,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "fs.existsSync",
+      "line": 330,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 333,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(() =>\n      loggerModule.cleanupStaleLogFiles(path.join(tmpDir, 'does-not-exist'))\n    ).not.",
+      "line": 334,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 334,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "loggerModule.cleanupStaleLogFiles",
+      "line": 335,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 335,
+      "call_sites": 7
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "type",
+      "line": 7
+    },
+    {
+      "container": "this",
+      "member": "options",
+      "line": 8
+    },
+    {
+      "container": "this",
+      "member": "type",
+      "line": 11
+    },
+    {
+      "container": "this",
+      "member": "options",
+      "line": 12
+    },
+    {
+      "container": "err",
+      "member": "code",
+      "line": 268
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "debug-mcp:test",
+      "context": "Namespace used when calling createLogger in tests",
+      "line": 71,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "debug-mcp:default-fallback",
+      "context": "Expected namespace for fallback logger when getLogger() called before init",
+      "line": 196,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "callArgs.defaultMeta.namespace"
+    },
+    {
+      "value": "debug-mcp-server-${process.pid}.log",
+      "context": "Expected default log filename pattern (per-pid)",
+      "line": 91,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "path.basename(fileCall.filename)"
+    },
+    {
+      "value": "/app/logs/debug-mcp-server.log",
+      "context": "Expected log file path in container mode",
+      "line": 149,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "fileCall.filename"
+    },
+    {
+      "value": "/app/logs",
+      "context": "Expected log directory checked for existence in container mode",
+      "line": 150,
+      "kind": "config",
+      "usage": "checked",
+      "comparison_source": "existsSpy"
+    },
+    {
+      "value": "MCP_CONTAINER",
+      "context": "Environment variable enabling container mode logging",
+      "line": 142,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "CONSOLE_OUTPUT_SILENCED",
+      "context": "Environment variable that suppresses console transport and console.error",
+      "line": 171,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "Failed to ensure log directory",
+      "context": "Expected error message when mkdirSync throws",
+      "line": 164,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "consoleErrorSpy"
+    },
+    {
+      "value": "[Logger] getLogger() called before root logger was initialized. Using fallback logger.",
+      "context": "Expected warning message from fallback logger",
+      "line": 198,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "fallbackWarn"
+    },
+    {
+      "value": "[Winston Logger Internal Error] Failed to write to a transport:",
+      "context": "Expected prefix in transport error handler console.error call",
+      "line": 218,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "consoleErrorSpy"
+    },
+    {
+      "value": "error",
+      "context": "Event name registered on winston logger for transport errors",
+      "line": 208,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "event"
+    },
+    {
+      "value": "ESRCH",
+      "context": "ErrnoException code meaning process does not exist (used to simulate dead PID)",
+      "line": 276,
+      "kind": "config",
+      "usage": "produced"
+    },
+    {
+      "value": "EPERM",
+      "context": "ErrnoException code meaning process alive but no permission to signal",
+      "line": 292,
+      "kind": "config",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

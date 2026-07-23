@@ -1,0 +1,20 @@
+{
+  "detector": "debris:latent_bug",
+  "gap_type": "contract",
+  "path": "mcp_debugger_launcher/mcp_debugger_launcher/launcher.py",
+  "line_start": 77,
+  "line_end": 84,
+  "symbol": null,
+  "contract_source": "code",
+  "contract_claim": "SSE port inconsistency in `launch_with_docker`: when `port=None`, Docker maps `-p 3001:3001` (L78-79) but the container receives no `--port` argument (L83-84 guarded by `if port`). If the container's internal default differs from 3001, the port mapping will be wrong.",
+  "observed_behavior": "SSE port inconsistency in `launch_with_docker`: when `port=None`, Docker maps `-p 3001:3001` (L78-79) but the container receives no `--port` argument (L83-84 guarded by `if port`). If the container's internal default differs from 3001, the port mapping will be wrong.",
+  "evidence": [],
+  "id": "8d16b9ef26f9a0e0",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

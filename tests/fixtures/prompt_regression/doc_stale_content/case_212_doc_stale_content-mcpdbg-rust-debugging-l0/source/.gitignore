@@ -1,0 +1,209 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+**/*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# TypeScript compilation artifacts in source directories (NEVER commit these!)
+# Exception: proxy-bootstrap.js is a legitimate source file (not TypeScript output)
+src/**/*.js
+!src/proxy/proxy-bootstrap.js
+src/**/*.d.ts
+src/**/*.js.map
+tests/**/*.js
+tests/**/*.d.ts
+tests/**/*.js.map
+
+# Package source compilation artifacts
+packages/*/src/**/*.js
+packages/*/src/**/*.d.ts
+packages/*/src/**/*.js.map
+packages/*/tests/**/*.js
+packages/*/tests/**/*.d.ts
+packages/*/tests/**/*.js.map
+
+# Package distribution files
+*.tgz
+packages/**/*.tgz
+*.vsix
+dist-tarball/
+
+# Turbo cache (not using Turborepo)
+.turbo/
+
+# Bundled adapters (downloaded during build)
+bundled-adapters/
+
+# IDE files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.sublime-*
+*.iml
+.history/
+
+# Editor swap/backup files
+*.swp
+*.swo
+*~
+*.bak
+*.tmp
+
+# JetBrains IDEs
+.idea/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# LLM files
+.clinerules
+.claude/
+.docstar/
+
+# Osoji (code cleanup tool)
+.osoji/
+.osoji.local.toml
+.osojiignore
+
+# MCP server configuration (contains local paths)
+.mcp.json
+
+# Environment variables
+.env
+.env.local
+.env.*
+!.env.example
+!.env.template
+
+# Local npm config (might contain tokens)
+.npmrc
+.yarnrc
+
+# Personal configuration files that might be created
+**/personal-config.json
+
+# Logs
+logs/
+sessions/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Testing
+coverage/
+.nyc_output/
+test-results/
+junit.xml
+*.tap
+test-report.xml
+
+# Node.js profiling & debugging
+*.heapsnapshot
+*.cpuprofile
+*.heap
+v8.log
+.chrome/
+
+# Build tool caches
+.esbuild/
+.parcel-cache/
+.webpack/
+.rollup.cache/
+
+# Temporary files
+tmp/
+temp/
+-p/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Rust build artifacts
+target/
+Cargo.lock
+**/*.rs.bk
+examples/.cargo/
+examples/rust/**/.cargo/
+examples/rust/**/.debug-mcp-linux-build
+
+# .NET build artifacts
+examples/dotnet/bin/
+examples/dotnet/obj/
+examples/dotnet/pause_test/bin/
+examples/dotnet/pause_test/obj/
+
+# Java build artifacts
+examples/java/*.class
+
+# Test results and analysis files
+test-results*.json
+test-output.txt
+coverage-analysis-details.json
+test-refactor-summary.json
+
+# Temporary migration scripts
+migrate-to-vitest.js
+fix-test-imports.cjs
+analyze-test-results.cjs
+
+# Coverage analysis temporary files
+coverage-analysis-details.json
+
+# Manual tests (may be outdated)
+tests/manual/
+
+# Root-level temporary files (prevent future clutter)
+/test-*
+/test_*.py
+/*_REPORT.md
+/*_SUMMARY.md
+/*_ANALYSIS.md
+/integration_test_*.log
+
+# ESLint reports (moved to docs/investigations)
+eslint-*.txt
+eslint-*.json
+
+# Vendored js-debug artifacts (generated during build; do not commit)
+packages/adapter-javascript/vendor/js-debug/
+packages/adapter-javascript/vendor/js-debug/**
+
+# Build artifacts from mcp-debugger bundling (generated during build; do not commit)
+packages/mcp-debugger/proxy/
+packages/mcp-debugger/vendor/
+packages/mcp-debugger/package/
+packages/mcp-debugger/.pack-lock
+packages/mcp-debugger/package.json.backup
+packages/mcp-debugger/package-cache/
+
+# Bogus "undefined" directories from path resolution bugs
+undefined/
+**/undefined/
+
+# Compiled Go binaries
+examples/go/**/*.exe
+examples/go/**/hello_world
+examples/go/**/hello_world_bin
+examples/go/**/pause_test_bin
+__debug_bin*
+
+# E2E test result artifacts
+tests/e2e/*-results.json

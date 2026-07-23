@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "confirmed",
+  "reasoning": "Panel 2-of-2 overturn of the sweep dismissal. Production genuinely diverges: handlePause (server.ts:1278-1293) re-throws validateSession's plain McpError (:276, :1285) for session-not-found, while set_breakpoint/start_debugging/step/continue convert the identical condition to structured {success:false} (server.ts:812-823, :858-866, :1082-1092). Trigger: any pause_execution call with a stale sessionId \u2014 normal MCP client input. The typed-error conversion branch at :1286-1289 is dead code because SessionNotFoundError extends McpError (debug-errors.ts:44) and is re-thrown one line earlier, corroborating accidental drift, not design; the guide's own continue example (error-handling-guide.md:89-97) contradicts actual behavior. Real + actionable (declare one envelope contract and align handlers) with severity graded down \u2014 the demote-vs-dismiss rule bars dismissal.",
+  "gray": true,
+  "gray_reason": "docs/error-handling-guide.md L5/L73-77 documents a 'mixed strategy', giving a defensible intent-documented dismissal; and the flagged artifact is the test file, whose assertions faithfully pin real behavior.",
+  "expected_contract_class": "project_implicit",
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

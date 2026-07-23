@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "Doc L163's attribution is correct: AdapterFactory lives in factories/adapter-factory.ts (:25) and IAdapterFactory in interfaces/adapter-registry.ts (:88). The finding's decisive claim \u2014 'JavascriptAdapterFactory extends BaseAdapterFactory, not AdapterFactory' \u2014 is a misreading of an import alias: javascript-adapter-factory.ts:11 imports 'AdapterFactory as BaseAdapterFactory', so :36 extends the real AdapterFactory. Positive-assertion requirement: the targeted doc statement is not contradicted.",
+  "gray": true,
+  "gray_reason": "The same doc section contains a genuinely wrong neighboring assertion (L165 'Most adapters ... extending the AdapterFactory base class' \u2014 sibling factories implement IAdapterFactory directly), so a charitable confirm-at-info is defensible.",
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

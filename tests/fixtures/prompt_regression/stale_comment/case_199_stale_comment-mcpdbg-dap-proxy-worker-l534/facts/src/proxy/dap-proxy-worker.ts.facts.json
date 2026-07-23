@@ -1,0 +1,2186 @@
+{
+  "source": "src/proxy/dap-proxy-worker.ts",
+  "source_hash": "9eb11a385c29748e",
+  "generated": "2026-07-22T22:08:41Z",
+  "imports": [
+    {
+      "source": "child_process",
+      "names": [
+        "ChildProcess"
+      ],
+      "line": 6,
+      "is_reexport": false
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 7,
+      "is_reexport": false
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "./dap-proxy-interfaces.js",
+      "names": [
+        "DapProxyDependencies",
+        "ParentCommand",
+        "ProxyInitPayload",
+        "DapCommandPayload",
+        "IDapClient",
+        "ILogger",
+        "ProxyState",
+        "StatusMessage",
+        "DapResponseMessage",
+        "DapEventMessage",
+        "ErrorMessage"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-interfaces.ts"
+    },
+    {
+      "source": "./dap-proxy-request-tracker.js",
+      "names": [
+        "CallbackRequestTracker"
+      ],
+      "line": 22,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-request-tracker.ts"
+    },
+    {
+      "source": "./dap-proxy-adapter-manager.js",
+      "names": [
+        "GenericAdapterManager"
+      ],
+      "line": 23,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-adapter-manager.ts"
+    },
+    {
+      "source": "./dap-proxy-connection-manager.js",
+      "names": [
+        "DapConnectionManager"
+      ],
+      "line": 24,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-proxy-connection-manager.ts"
+    },
+    {
+      "source": "../utils/type-guards.js",
+      "names": [
+        "validateProxyInitPayload"
+      ],
+      "line": 25,
+      "is_reexport": false,
+      "resolved_path": "src/utils/type-guards.ts"
+    },
+    {
+      "source": "./dap-extensions.js",
+      "names": [
+        "SilentDapCommandPayload"
+      ],
+      "line": 28,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/dap-extensions.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterPolicy",
+        "AdapterSpecificState"
+      ],
+      "line": 30,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DefaultAdapterPolicy",
+        "JsDebugAdapterPolicy",
+        "PythonAdapterPolicy",
+        "RustAdapterPolicy",
+        "GoAdapterPolicy",
+        "JavaAdapterPolicy",
+        "RubyAdapterPolicy",
+        "DotnetAdapterPolicy",
+        "MockAdapterPolicy",
+        "getPolicyForLanguage"
+      ],
+      "line": 31,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "DapProxyWorker",
+      "kind": "class",
+      "line": 58,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DapProxyWorker.getState",
+      "kind": "function",
+      "line": 152,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DapProxyWorker.handleCommand",
+      "kind": "function",
+      "line": 159,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "command",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/proxy/dap-proxy-interfaces\").ParentCommand"
+        }
+      ]
+    },
+    {
+      "name": "DapProxyWorker.handleInitCommand",
+      "kind": "function",
+      "line": 200,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "payload",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/src/proxy/dap-proxy-interfaces\").ProxyInitPayload"
+        }
+      ]
+    },
+    {
+      "name": "DapProxyWorker.handleTerminate",
+      "kind": "function",
+      "line": 942,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DapProxyWorker.shutdown",
+      "kind": "function",
+      "line": 974,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "DapProxyWorkerHooks",
+      "kind": "type",
+      "line": 44,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "CallbackRequestTracker",
+      "line": 88,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "this.handleRequestTimeout",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DefaultAdapterPolicy.createInitialState",
+      "line": 91,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.exit",
+      "line": 95,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "path.join",
+      "line": 99,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.selectAdapterPolicy",
+      "to": "getPolicyForLanguage",
+      "line": 114,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.selectAdapterPolicy",
+      "to": "JsDebugAdapterPolicy.matchesAdapter",
+      "line": 127,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.selectAdapterPolicy",
+      "to": "PythonAdapterPolicy.matchesAdapter",
+      "line": 129,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.selectAdapterPolicy",
+      "to": "RustAdapterPolicy.matchesAdapter",
+      "line": 131,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.selectAdapterPolicy",
+      "to": "GoAdapterPolicy.matchesAdapter",
+      "line": 133,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.selectAdapterPolicy",
+      "to": "RubyAdapterPolicy.matchesAdapter",
+      "line": 135,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.selectAdapterPolicy",
+      "to": "JavaAdapterPolicy.matchesAdapter",
+      "line": 137,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.selectAdapterPolicy",
+      "to": "DotnetAdapterPolicy.matchesAdapter",
+      "line": 139,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.selectAdapterPolicy",
+      "to": "MockAdapterPolicy.matchesAdapter",
+      "line": 141,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleCommand",
+      "to": "this.logger?.info",
+      "line": 167,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleCommand",
+      "to": "this.handleInitCommand",
+      "line": 174,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleCommand",
+      "to": "this.handleDapCommand",
+      "line": 177,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleCommand",
+      "to": "this.handleTerminate",
+      "line": 180,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleCommand",
+      "to": "this.logger?.info",
+      "line": 187,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleCommand",
+      "to": "String",
+      "line": 191,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleCommand",
+      "to": "this.logger?.error",
+      "line": 192,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleCommand",
+      "to": "this.sendError",
+      "line": 193,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.sendStatus",
+      "line": 203,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.logger?.info",
+      "line": 204,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "Error",
+      "line": 210,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.sendStatus",
+      "line": 214,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "validateProxyInitPayload",
+      "line": 217,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.selectAdapterPolicy",
+      "line": 220,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.adapterPolicy.createInitialState",
+      "line": 221,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.logger?.info",
+      "line": 222,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "path.join",
+      "line": 229,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.dependencies.fileSystem.ensureDir",
+      "line": 230,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "path.dirname",
+      "line": 230,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.dependencies.loggerFactory",
+      "line": 231,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.logger.info",
+      "line": 232,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.logger.info",
+      "line": 233,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.traceFileFactory",
+      "line": 237,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.logger?.info",
+      "line": 239,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.logger?.debug",
+      "line": 241,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.logger.warn",
+      "line": 244,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "GenericAdapterManager",
+      "line": 248,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "DapConnectionManager",
+      "line": 254,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.connectionManager.setAdapterPolicy",
+      "line": 259,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.logger.info",
+      "line": 261,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.handleDryRun",
+      "line": 265,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.startAdapterAndConnect",
+      "line": 270,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "String",
+      "line": 273,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "(adapterCmd.args ?? []).join",
+      "line": 278,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.logger?.error",
+      "line": 284,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.sendError",
+      "line": 285,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.shutdown",
+      "line": 286,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "setImmediate",
+      "line": 288,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "setTimeout",
+      "line": 289,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitCommand",
+      "to": "this.exitHook",
+      "line": 290,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDryRun",
+      "to": "this.adapterPolicy.getAdapterSpawnConfig",
+      "line": 302,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDryRun",
+      "to": "Error",
+      "line": 313,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDryRun",
+      "to": "spawnConfig.args.join",
+      "line": 318,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDryRun",
+      "to": "this.logger!.warn",
+      "line": 320,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDryRun",
+      "to": "this.logger!.warn",
+      "line": 321,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDryRun",
+      "to": "this.sendStatus",
+      "line": 324,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDryRun",
+      "to": "setImmediate",
+      "line": 332,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDryRun",
+      "to": "this.logger!.info",
+      "line": 334,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDryRun",
+      "to": "setTimeout",
+      "line": 338,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDryRun",
+      "to": "this.exitHook",
+      "line": 339,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.adapterPolicy.getAdapterSpawnConfig",
+      "line": 349,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "Error",
+      "line": 360,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.processManager!.spawn",
+      "line": 371,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.logger!.info",
+      "line": 374,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.adapterProcess.on",
+      "line": 376,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.logger!.error",
+      "line": 377,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.sendError",
+      "line": 378,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.adapterProcess.on",
+      "line": 381,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.logger!.info",
+      "line": 382,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.sendStatus",
+      "line": 383,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.logger!.info",
+      "line": 390,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.connectionManager!.connectWithRetry",
+      "line": 397,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.setupDapEventHandlers",
+      "line": 403,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.adapterPolicy.requiresCommandQueueing",
+      "line": 415,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.logger!.info",
+      "line": 416,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.sendStatus",
+      "line": 418,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.drainPreConnectQueue",
+      "line": 419,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.adapterPolicy.getInitializationBehavior",
+      "line": 421,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "Promise",
+      "line": 429,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.connectionManager!.initializeSession",
+      "line": 435,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.adapterPolicy.getDapAdapterConfiguration",
+      "line": 438,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.logger!.info",
+      "line": 447,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "Object.keys(attachPayload).join",
+      "line": 447,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "Object.keys",
+      "line": 447,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.connectionManager!.sendAttachRequest",
+      "line": 448,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "Promise",
+      "line": 455,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "attachRequest.catch",
+      "line": 456,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.logger!.info",
+      "line": 459,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "Promise.race",
+      "line": 460,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "Promise",
+      "line": 463,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "setTimeout",
+      "line": 464,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "reject",
+      "line": 464,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "Error",
+      "line": 464,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.handleInitializedEvent",
+      "line": 469,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.logger!.info",
+      "line": 476,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "Promise.race",
+      "line": 477,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "Promise",
+      "line": 479,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "setTimeout",
+      "line": 480,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "reject",
+      "line": 480,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "Error",
+      "line": 480,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.logger!.info",
+      "line": 484,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.connectionManager!.sendAttachRequest",
+      "line": 486,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.handleInitializedEvent",
+      "line": 492,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.logger!.info",
+      "line": 497,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "Promise.race",
+      "line": 498,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.initializedEventPromise!.then",
+      "line": 499,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "Promise",
+      "line": 500,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "setTimeout",
+      "line": 500,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "resolve",
+      "line": 500,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.logger!.info",
+      "line": 504,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.logger!.warn",
+      "line": 506,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.connectionManager!.sendLaunchRequest",
+      "line": 510,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.logger!.info",
+      "line": 521,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "Promise.race",
+      "line": 522,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "Promise",
+      "line": 524,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "setTimeout",
+      "line": 525,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "reject",
+      "line": 525,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "Error",
+      "line": 525,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.logger!.info",
+      "line": 528,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.handleInitializedEvent",
+      "line": 532,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.logger!.info",
+      "line": 536,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.connectionManager!.sendLaunchRequest",
+      "line": 538,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.logger!.info",
+      "line": 549,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.startAdapterAndConnect",
+      "to": "this.shutdown",
+      "line": 551,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.connectionManager.setupEventHandlers",
+      "line": 562,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.adapterPolicy.updateStateOnEvent",
+      "line": 566,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.adapterPolicy.requiresCommandQueueing",
+      "line": 569,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.logger!.info",
+      "line": 570,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.sendDapEvent",
+      "line": 571,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.drainCommandQueue",
+      "line": 572,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.logger!.info",
+      "line": 577,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.initializedEventResolver",
+      "line": 580,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.handleInitializedEvent",
+      "line": 583,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.logger!.debug",
+      "line": 588,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.sendDapEvent",
+      "line": 589,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.logger!.info",
+      "line": 592,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.dapClient.sendRequest",
+      "line": 598,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.logger!.info",
+      "line": 599,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "Array.isArray",
+      "line": 602,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.logger!.info",
+      "line": 604,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "String",
+      "line": 607,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.logger!.warn",
+      "line": 608,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.dapClient.sendRequest",
+      "line": 614,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.logger!.info",
+      "line": 615,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "String",
+      "line": 617,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.logger!.warn",
+      "line": 618,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.sendDapEvent",
+      "line": 621,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.logger!.info",
+      "line": 624,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.sendDapEvent",
+      "line": 625,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.logger!.debug",
+      "line": 628,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.sendDapEvent",
+      "line": 629,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.logger!.info",
+      "line": 632,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.sendDapEvent",
+      "line": 633,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.logger!.info",
+      "line": 636,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "JSON.stringify",
+      "line": 636,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.sendDapEvent",
+      "line": 637,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.shutdown",
+      "line": 638,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.logger!.error",
+      "line": 641,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.sendError",
+      "line": 642,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.logger!.info",
+      "line": 645,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.sendStatus",
+      "line": 646,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DapProxyWorker.setupDapEventHandlers",
+      "to": "this.shutdown",
+      "line": 647,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "this.logger!.info",
+      "line": 657,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "this.logger!.info",
+      "line": 661,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "Error",
+      "line": 664,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "this.logger!.info",
+      "line": 670,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "Map",
+      "line": 671,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "path.resolve",
+      "line": 674,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "groupedBreakpoints.has",
+      "line": 675,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "groupedBreakpoints.set",
+      "line": 676,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "groupedBreakpoints.get(filePath)!.push",
+      "line": 678,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "groupedBreakpoints.get",
+      "line": 678,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "groupedBreakpoints.entries",
+      "line": 684,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "this.connectionManager.setBreakpoints",
+      "line": 685,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "this.connectionManager.sendConfigurationDone",
+      "line": 694,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "this.sendStatus",
+      "line": 698,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "String",
+      "line": 700,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "this.logger!.error",
+      "line": 701,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "this.sendError",
+      "line": 702,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleInitializedEvent",
+      "to": "this.shutdown",
+      "line": 703,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.preConnectQueue.push",
+      "line": 714,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.logger?.info",
+      "line": 715,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.sendDapResponse",
+      "line": 719,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.adapterPolicy.shouldQueueCommand",
+      "line": 725,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.logger?.info",
+      "line": 726,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.logger!.info",
+      "line": 731,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.adapterPolicy.getInitializationBehavior",
+      "line": 734,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.commandQueue.some",
+      "line": 736,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "Date.now",
+      "line": 740,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.commandQueue.push",
+      "line": 748,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.commandQueue.push",
+      "line": 752,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.logger?.info",
+      "line": 753,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.drainCommandQueue",
+      "line": 756,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.requestTracker.track",
+      "line": 761,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.logger!.info",
+      "line": 765,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.adapterPolicy.getInitializationBehavior",
+      "line": 770,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.logger!.info",
+      "line": 775,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.logger?.info",
+      "line": 781,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.dapClient.sendRequest",
+      "line": 783,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.dapClient.sendRequest",
+      "line": 784,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.adapterPolicy.updateStateOnCommand",
+      "line": 788,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.adapterPolicy.updateStateOnResponse",
+      "line": 793,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.requestTracker.complete",
+      "line": 800,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.sendDapResponse",
+      "line": 803,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.drainCommandQueue",
+      "line": 807,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.ensureInitialStop().catch",
+      "line": 808,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.ensureInitialStop",
+      "line": 808,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.logger?.debug",
+      "line": 809,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "String",
+      "line": 810,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.requestTracker.complete",
+      "line": 815,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "String",
+      "line": 816,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.logger!.error",
+      "line": 817,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleDapCommand",
+      "to": "this.sendDapResponse",
+      "line": 818,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.logger!.info",
+      "line": 828,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.adapterPolicy.processQueuedCommands",
+      "line": 833,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.logger?.info",
+      "line": 844,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.dapClient!.sendRequest",
+      "line": 848,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.adapterPolicy.updateStateOnCommand",
+      "line": 850,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.requestTracker.track",
+      "line": 855,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.dapClient!.sendRequest",
+      "line": 857,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.dapClient!.sendRequest",
+      "line": 858,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.adapterPolicy.updateStateOnCommand",
+      "line": 861,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.requestTracker.complete",
+      "line": 864,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.sendDapResponse",
+      "line": 865,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.adapterPolicy.getInitializationBehavior",
+      "line": 867,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.ensureInitialStop().catch",
+      "line": 869,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.ensureInitialStop",
+      "line": 869,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.logger?.debug",
+      "line": 870,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "String",
+      "line": 871,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.requestTracker.complete",
+      "line": 876,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "String",
+      "line": 877,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.logger!.error",
+      "line": 878,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainCommandQueue",
+      "to": "this.sendDapResponse",
+      "line": 879,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.ensureInitialStop",
+      "to": "Date.now",
+      "line": 889,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.ensureInitialStop",
+      "to": "Date.now",
+      "line": 891,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "DapProxyWorker.ensureInitialStop",
+      "to": "this.dapClient.sendRequest",
+      "line": 893,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.ensureInitialStop",
+      "to": "this.logger?.info",
+      "line": 897,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.ensureInitialStop",
+      "to": "this.dapClient.sendRequest",
+      "line": 899,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.ensureInitialStop",
+      "to": "Promise",
+      "line": 908,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.ensureInitialStop",
+      "to": "setTimeout",
+      "line": 908,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.ensureInitialStop",
+      "to": "this.logger?.warn",
+      "line": 910,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainPreConnectQueue",
+      "to": "this.logger!.info",
+      "line": 918,
+      "call_sites": 33
+    },
+    {
+      "from_symbol": "DapProxyWorker.drainPreConnectQueue",
+      "to": "this.handleDapCommand",
+      "line": 922,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleRequestTimeout",
+      "to": "this.logger!.error",
+      "line": 930,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleRequestTimeout",
+      "to": "this.sendDapResponse",
+      "line": 931,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleRequestTimeout",
+      "to": "Math.round",
+      "line": 935,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleTerminate",
+      "to": "this.logger?.info",
+      "line": 945,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleTerminate",
+      "to": "this.logger?.info",
+      "line": 950,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleTerminate",
+      "to": "this.logger?.info",
+      "line": 958,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleTerminate",
+      "to": "this.connectionManager.disconnect",
+      "line": 960,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleTerminate",
+      "to": "this.logger?.warn",
+      "line": 962,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleTerminate",
+      "to": "this.shutdown",
+      "line": 967,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "DapProxyWorker.handleTerminate",
+      "to": "this.sendStatus",
+      "line": 968,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "DapProxyWorker.shutdown",
+      "to": "this.logger?.info",
+      "line": 976,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.shutdown",
+      "to": "this.logger?.info",
+      "line": 981,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.shutdown",
+      "to": "this.requestTracker.clear",
+      "line": 984,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.shutdown",
+      "to": "this.connectionManager.disconnect",
+      "line": 996,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "DapProxyWorker.shutdown",
+      "to": "this.dapClient.shutdown",
+      "line": 1002,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.shutdown",
+      "to": "this.logger?.info",
+      "line": 1011,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.shutdown",
+      "to": "Promise",
+      "line": 1012,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.shutdown",
+      "to": "setTimeout",
+      "line": 1012,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.shutdown",
+      "to": "this.logger?.info",
+      "line": 1014,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.shutdown",
+      "to": "Promise",
+      "line": 1015,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.shutdown",
+      "to": "setTimeout",
+      "line": 1015,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "DapProxyWorker.shutdown",
+      "to": "this.processManager.shutdown",
+      "line": 1024,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "DapProxyWorker.shutdown",
+      "to": "this.logger?.info",
+      "line": 1029,
+      "call_sites": 19
+    },
+    {
+      "from_symbol": "DapProxyWorker.sendStatus",
+      "to": "this.dependencies.messageSender.send",
+      "line": 1041,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.sendDapResponse",
+      "to": "this.dependencies.messageSender.send",
+      "line": 1055,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.sendDapEvent",
+      "to": "this.dependencies.messageSender.send",
+      "line": 1065,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "DapProxyWorker.sendError",
+      "to": "this.dependencies.messageSender.send",
+      "line": 1074,
+      "call_sites": 4
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "requestTracker",
+      "line": 88
+    },
+    {
+      "container": "this",
+      "member": "adapterState",
+      "line": 91
+    },
+    {
+      "container": "this",
+      "member": "exitHook",
+      "line": 93
+    },
+    {
+      "container": "this",
+      "member": "traceFileFactory",
+      "line": 98
+    },
+    {
+      "container": "process.env",
+      "member": "DAP_TRACE_FILE",
+      "line": 100
+    },
+    {
+      "container": "this",
+      "member": "currentSessionId",
+      "line": 160
+    },
+    {
+      "container": "this",
+      "member": "adapterPolicy",
+      "line": 220
+    },
+    {
+      "container": "this",
+      "member": "adapterState",
+      "line": 221
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 224
+    },
+    {
+      "container": "this",
+      "member": "currentInitPayload",
+      "line": 225
+    },
+    {
+      "container": "this",
+      "member": "logger",
+      "line": 231
+    },
+    {
+      "container": "this",
+      "member": "processManager",
+      "line": 248
+    },
+    {
+      "container": "this",
+      "member": "connectionManager",
+      "line": 254
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 272
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 333
+    },
+    {
+      "container": "spawnConfig",
+      "member": "cwd",
+      "line": 368
+    },
+    {
+      "container": "this",
+      "member": "adapterProcess",
+      "line": 373
+    },
+    {
+      "container": "this",
+      "member": "adapterProcess",
+      "line": 389
+    },
+    {
+      "container": "this",
+      "member": "dapClient",
+      "line": 397
+    },
+    {
+      "container": "this",
+      "member": "isAttachMode",
+      "line": 412
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 417
+    },
+    {
+      "container": "this",
+      "member": "deferInitializedHandling",
+      "line": 428
+    },
+    {
+      "container": "this",
+      "member": "initializedEventPromise",
+      "line": 429
+    },
+    {
+      "container": "this",
+      "member": "initializedEventResolver",
+      "line": 430
+    },
+    {
+      "container": "this",
+      "member": "deferInitializedHandling",
+      "line": 468
+    },
+    {
+      "container": "this",
+      "member": "deferInitializedHandling",
+      "line": 491
+    },
+    {
+      "container": "this",
+      "member": "deferInitializedHandling",
+      "line": 531
+    },
+    {
+      "container": "this",
+      "member": "initializedEventPending",
+      "line": 578
+    },
+    {
+      "container": "body",
+      "member": "threadId",
+      "line": 603
+    },
+    {
+      "container": "this",
+      "member": "initializedEventHandled",
+      "line": 660
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 697
+    },
+    {
+      "container": "launchArgs",
+      "member": "runtimeExecutable",
+      "line": 774
+    },
+    {
+      "container": "(this.adapterState as AdapterSpecificState & { initializeResponded?: boolean })",
+      "member": "initializeResponded",
+      "line": 796
+    },
+    {
+      "container": "this",
+      "member": "commandQueue",
+      "line": 837
+    },
+    {
+      "container": "this",
+      "member": "preConnectQueue",
+      "line": 920
+    },
+    {
+      "container": "this",
+      "member": "dapClient",
+      "line": 964
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 980
+    },
+    {
+      "container": "this",
+      "member": "dapClient",
+      "line": 1004
+    },
+    {
+      "container": "this",
+      "member": "adapterProcess",
+      "line": 1026
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 1028
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "init_received",
+      "context": "Status sent to parent on init command receipt",
+      "line": 203,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "adapter_exited",
+      "context": "Status sent to parent when adapter process exits",
+      "line": 383,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "adapter_connected",
+      "context": "Status sent to parent when adapter TCP connection established (command-queuing path)",
+      "line": 418,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "adapter_configured_and_launched",
+      "context": "Status sent to parent when DAP session is fully initialized",
+      "line": 698,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dry_run_complete",
+      "context": "Status sent to parent after dry run mode completes",
+      "line": 324,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "terminated",
+      "context": "Status sent to parent after terminate command completes",
+      "line": 968,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dap_connection_closed",
+      "context": "Status sent to parent when DAP TCP connection closes",
+      "line": 646,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "status",
+      "context": "Message type discriminant for StatusMessage",
+      "line": 1035,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dapResponse",
+      "context": "Message type discriminant for DapResponseMessage",
+      "line": 1045,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "dapEvent",
+      "context": "Message type discriminant for DapEventMessage",
+      "line": 1059,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "error",
+      "context": "Message type discriminant for ErrorMessage",
+      "line": 1069,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "init",
+      "context": "Command discriminant for init command routing",
+      "line": 173,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command.cmd"
+    },
+    {
+      "value": "dap",
+      "context": "Command discriminant for dap command routing",
+      "line": 176,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command.cmd"
+    },
+    {
+      "value": "terminate",
+      "context": "Command discriminant for terminate command routing",
+      "line": 179,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "command.cmd"
+    },
+    {
+      "value": "java",
+      "context": "Adapter policy name check for Java-specific thread pre-fetch behavior",
+      "line": 610,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "this.adapterPolicy?.name"
+    },
+    {
+      "value": "attach",
+      "context": "DAP request type check for attach mode detection",
+      "line": 410,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "payload.launchConfig?.request"
+    },
+    {
+      "value": "configurationDone",
+      "context": "DAP command name for silent injection into command queue",
+      "line": 736,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "p.dapCommand"
+    },
+    {
+      "value": "worker shutdown",
+      "context": "Reason string passed to dapClient.shutdown()",
+      "line": 1002,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "MCP_WORKSPACE_ROOT",
+      "context": "Environment variable for container workspace root path",
+      "line": 367,
+      "kind": "config",
+      "usage": "external_input"
+    },
+    {
+      "value": "DAP_TRACE_FILE",
+      "context": "Environment variable set to DAP trace file path",
+      "line": 100,
+      "kind": "config",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

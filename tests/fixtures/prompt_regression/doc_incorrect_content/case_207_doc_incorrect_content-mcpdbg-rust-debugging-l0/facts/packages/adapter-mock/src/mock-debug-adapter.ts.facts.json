@@ -1,0 +1,871 @@
+{
+  "source": "packages/adapter-mock/src/mock-debug-adapter.ts",
+  "source_hash": "6d38806a8f889340",
+  "generated": "2026-07-22T22:07:26Z",
+  "imports": [
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 10,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 11,
+      "is_reexport": false
+    },
+    {
+      "source": "fs",
+      "names": [
+        "fs"
+      ],
+      "line": 12,
+      "is_reexport": false
+    },
+    {
+      "source": "url",
+      "names": [
+        "fileURLToPath"
+      ],
+      "line": 13,
+      "is_reexport": false
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IDebugAdapter",
+        "AdapterState",
+        "ValidationResult",
+        "DependencyInfo",
+        "AdapterCommand",
+        "AdapterConfig",
+        "GenericLaunchConfig",
+        "LanguageSpecificLaunchConfig",
+        "DebugFeature",
+        "FeatureRequirement",
+        "AdapterCapabilities",
+        "AdapterError",
+        "AdapterErrorCode",
+        "AdapterEvents"
+      ],
+      "line": 14,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage"
+      ],
+      "line": 30,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterDependencies"
+      ],
+      "line": 31,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "MockDebugAdapter",
+      "kind": "class",
+      "line": 110,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EventEmitter"
+      ],
+      "implements": [
+        "IDebugAdapter"
+      ]
+    },
+    {
+      "name": "MockDebugAdapter.initialize",
+      "kind": "function",
+      "line": 141,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockDebugAdapter.dispose",
+      "kind": "function",
+      "line": 163,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockDebugAdapter.getState",
+      "kind": "function",
+      "line": 172,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockDebugAdapter.isReady",
+      "kind": "function",
+      "line": 176,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockDebugAdapter.getCurrentThreadId",
+      "kind": "function",
+      "line": 182,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockDebugAdapter.validateEnvironment",
+      "kind": "function",
+      "line": 203,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockDebugAdapter.getRequiredDependencies",
+      "kind": "function",
+      "line": 224,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockDebugAdapter.resolveExecutablePath",
+      "kind": "function",
+      "line": 231,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "preferredPath",
+          "optional": true,
+          "type": "string | undefined"
+        }
+      ]
+    },
+    {
+      "name": "MockDebugAdapter.getDefaultExecutableName",
+      "kind": "function",
+      "line": 239,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockDebugAdapter.getExecutableSearchPaths",
+      "kind": "function",
+      "line": 243,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockDebugAdapter.buildAdapterCommand",
+      "kind": "function",
+      "line": 249,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").AdapterConfig"
+        }
+      ]
+    },
+    {
+      "name": "MockDebugAdapter.getAdapterModuleName",
+      "kind": "function",
+      "line": 297,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockDebugAdapter.getAdapterInstallCommand",
+      "kind": "function",
+      "line": 301,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockDebugAdapter.transformLaunchConfig",
+      "kind": "function",
+      "line": 307,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").GenericLaunchConfig"
+        }
+      ]
+    },
+    {
+      "name": "MockDebugAdapter.getDefaultLaunchConfig",
+      "kind": "function",
+      "line": 316,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockDebugAdapter.sendDapRequest",
+      "kind": "function",
+      "line": 327,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "command",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "args",
+          "optional": true,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "name": "MockDebugAdapter.handleDapEvent",
+      "kind": "function",
+      "line": 340,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "event",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol\").DebugProtocol.Event"
+        }
+      ]
+    },
+    {
+      "name": "MockDebugAdapter.handleDapResponse",
+      "kind": "function",
+      "line": 360,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "_response",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol\").DebugProtocol.Response"
+        }
+      ]
+    },
+    {
+      "name": "MockDebugAdapter.connect",
+      "kind": "function",
+      "line": 367,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "host",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "port",
+          "optional": false,
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "MockDebugAdapter.disconnect",
+      "kind": "function",
+      "line": 390,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockDebugAdapter.isConnected",
+      "kind": "function",
+      "line": 397,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockDebugAdapter.getInstallationInstructions",
+      "kind": "function",
+      "line": 403,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockDebugAdapter.getMissingExecutableError",
+      "kind": "function",
+      "line": 407,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockDebugAdapter.translateErrorMessage",
+      "kind": "function",
+      "line": 411,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "error",
+          "optional": false,
+          "type": "Error"
+        }
+      ]
+    },
+    {
+      "name": "MockDebugAdapter.supportsFeature",
+      "kind": "function",
+      "line": 420,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").DebugFeature"
+        }
+      ]
+    },
+    {
+      "name": "MockDebugAdapter.getFeatureRequirements",
+      "kind": "function",
+      "line": 424,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "feature",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/debug-adapter\").DebugFeature"
+        }
+      ]
+    },
+    {
+      "name": "MockDebugAdapter.getCapabilities",
+      "kind": "function",
+      "line": 438,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockDebugAdapter.setErrorScenario",
+      "kind": "function",
+      "line": 484,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "scenario",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/adapter-mock/src/mock-debug-adapter\").MockErrorScenario"
+        }
+      ]
+    },
+    {
+      "name": "MockAdapterConfig",
+      "kind": "type",
+      "line": 36,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "MockErrorScenario",
+      "kind": "constant",
+      "line": 48,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "super",
+      "line": 126,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 142,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "MockDebugAdapter.initialize",
+      "to": "this.validateEnvironment",
+      "line": 146,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 148,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "MockDebugAdapter.initialize",
+      "to": "AdapterError",
+      "line": 149,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "MockDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 155,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "MockDebugAdapter.initialize",
+      "to": "this.emit",
+      "line": 156,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "MockDebugAdapter.initialize",
+      "to": "this.transitionTo",
+      "line": 158,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "MockDebugAdapter.dispose",
+      "to": "this.emit",
+      "line": 167,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "MockDebugAdapter.transitionTo",
+      "to": "validTransitions?.includes",
+      "line": 190,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockDebugAdapter.transitionTo",
+      "to": "AdapterError",
+      "line": 191,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "MockDebugAdapter.transitionTo",
+      "to": "this.emit",
+      "line": 198,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "MockDebugAdapter.getExecutableSearchPaths",
+      "to": "process.env.PATH?.split",
+      "line": 244,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockDebugAdapter.buildAdapterCommand",
+      "to": "fileURLToPath",
+      "line": 255,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockDebugAdapter.buildAdapterCommand",
+      "to": "path.dirname",
+      "line": 256,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockDebugAdapter.buildAdapterCommand",
+      "to": "path.join",
+      "line": 258,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MockDebugAdapter.buildAdapterCommand",
+      "to": "fs.existsSync",
+      "line": 262,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MockDebugAdapter.buildAdapterCommand",
+      "to": "path.join",
+      "line": 263,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MockDebugAdapter.buildAdapterCommand",
+      "to": "fs.existsSync",
+      "line": 264,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MockDebugAdapter.buildAdapterCommand",
+      "to": "this.dependencies.logger?.debug",
+      "line": 266,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MockDebugAdapter.buildAdapterCommand",
+      "to": "path.resolve",
+      "line": 274,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockDebugAdapter.buildAdapterCommand",
+      "to": "process.cwd",
+      "line": 274,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MockDebugAdapter.buildAdapterCommand",
+      "to": "path.join",
+      "line": 275,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "MockDebugAdapter.buildAdapterCommand",
+      "to": "this.dependencies.logger?.debug",
+      "line": 277,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MockDebugAdapter.buildAdapterCommand",
+      "to": "config.adapterPort.toString",
+      "line": 286,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockDebugAdapter.getDefaultLaunchConfig",
+      "to": "process.cwd",
+      "line": 321,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "MockDebugAdapter.sendDapRequest",
+      "to": "this.dependencies.logger?.debug",
+      "line": 334,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MockDebugAdapter.handleDapEvent",
+      "to": "this.transitionTo",
+      "line": 344,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "MockDebugAdapter.handleDapEvent",
+      "to": "this.transitionTo",
+      "line": 346,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "MockDebugAdapter.handleDapEvent",
+      "to": "this.transitionTo",
+      "line": 350,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "MockDebugAdapter.handleDapEvent",
+      "to": "this.transitionTo",
+      "line": 352,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "MockDebugAdapter.handleDapEvent",
+      "to": "this.emit",
+      "line": 357,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "MockDebugAdapter.connect",
+      "to": "Promise",
+      "line": 370,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockDebugAdapter.connect",
+      "to": "setTimeout",
+      "line": 370,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockDebugAdapter.connect",
+      "to": "AdapterError",
+      "line": 374,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "MockDebugAdapter.connect",
+      "to": "this.dependencies.logger?.debug",
+      "line": 383,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "MockDebugAdapter.connect",
+      "to": "this.transitionTo",
+      "line": 386,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "MockDebugAdapter.connect",
+      "to": "this.emit",
+      "line": 387,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "MockDebugAdapter.disconnect",
+      "to": "this.transitionTo",
+      "line": 393,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "MockDebugAdapter.disconnect",
+      "to": "this.emit",
+      "line": 394,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "MockDebugAdapter.translateErrorMessage",
+      "to": "error.message.includes",
+      "line": 412,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockDebugAdapter.supportsFeature",
+      "to": "this.config.supportedFeatures?.includes",
+      "line": 421,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockDebugAdapter.getFeatureRequirements",
+      "to": "requirements.push",
+      "line": 428,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "MockDebugAdapter.getCapabilities",
+      "to": "this.supportsFeature",
+      "line": 441,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "MockDebugAdapter.getCapabilities",
+      "to": "this.supportsFeature",
+      "line": 442,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "MockDebugAdapter.getCapabilities",
+      "to": "this.supportsFeature",
+      "line": 444,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "MockDebugAdapter.getCapabilities",
+      "to": "this.supportsFeature",
+      "line": 447,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "MockDebugAdapter.getCapabilities",
+      "to": "this.supportsFeature",
+      "line": 461,
+      "call_sites": 5
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "this",
+      "member": "dependencies",
+      "line": 127
+    },
+    {
+      "container": "this",
+      "member": "config",
+      "line": 128
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 164
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 165
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 166
+    },
+    {
+      "container": "this",
+      "member": "state",
+      "line": 197
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 343
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 348
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 385
+    },
+    {
+      "container": "this",
+      "member": "connected",
+      "line": 391
+    },
+    {
+      "container": "this",
+      "member": "currentThreadId",
+      "line": 392
+    },
+    {
+      "container": "this",
+      "member": "errorScenario",
+      "line": 485
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "none",
+      "context": "MockErrorScenario.NONE enum value",
+      "line": 49,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "executable_not_found",
+      "context": "MockErrorScenario.EXECUTABLE_NOT_FOUND enum value",
+      "line": 50,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "connection_timeout",
+      "context": "MockErrorScenario.CONNECTION_TIMEOUT enum value",
+      "line": 51,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "mock",
+      "context": "Launch config type discriminant for mock adapter",
+      "line": 310,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "MOCK_ADAPTER_LOG",
+      "context": "Environment variable name for mock adapter log directory",
+      "line": 292,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "mock-adapter-process.js",
+      "context": "Expected filename of compiled mock adapter process script",
+      "line": 258,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "mock-adapter-process.cjs",
+      "context": "Bundled (npx) variant of mock adapter process script",
+      "line": 263,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "initialized",
+      "context": "EventEmitter event emitted after successful initialization",
+      "line": 156,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "disposed",
+      "context": "EventEmitter event emitted after dispose",
+      "line": 167,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "stateChanged",
+      "context": "EventEmitter event emitted on state transitions",
+      "line": 198,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "connected",
+      "context": "EventEmitter event emitted after successful connect",
+      "line": 387,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "disconnected",
+      "context": "EventEmitter event emitted after disconnect",
+      "line": 394,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "stopped",
+      "context": "DAP event name checked for thread tracking",
+      "line": 342,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "event.event"
+    },
+    {
+      "value": "continued",
+      "context": "DAP event name checked for state transition",
+      "line": 345,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "event.event"
+    },
+    {
+      "value": "terminated",
+      "context": "DAP event name checked for cleanup",
+      "line": 347,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "event.event"
+    },
+    {
+      "value": "exited",
+      "context": "DAP event name checked for cleanup",
+      "line": 347,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "event.event"
+    }
+  ],
+  "extraction_method": "ast"
+}

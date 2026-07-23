@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "The suite is a deliberate sequential lifecycle (rust-integration.test.ts:36-87), and vitest.config.ts:170-180 explicitly declares that integration suites 'legitimately share a live debug session across it blocks (create\u2192\u2026\u2192close)' \u2014 intent-documented design per decisions/0021, not derived from code shape. The only reachable 'failure' is a redundant cascade line when test 1 has already failed (suite already red); closeSession(undefined) returns false per the soft-close contract, yielding a clean assertion failure. Fails Reality. [Snapshot repaired 2026-07-23: vitest.config.ts and src/session/session-manager.ts added at origin commit.]",
+  "gray": true,
+  "gray_reason": "Grade-not-gate pulls toward confirm+info for the guard asymmetry (test 2 guards at L51, test 4 does not); the declared-intent artifact lives in vitest.config.ts, now included in the snapshot.",
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

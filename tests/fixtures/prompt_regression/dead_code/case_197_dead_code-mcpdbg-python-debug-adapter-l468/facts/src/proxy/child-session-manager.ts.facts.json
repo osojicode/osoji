@@ -1,0 +1,1042 @@
+{
+  "source": "src/proxy/child-session-manager.ts",
+  "source_hash": "edf3ef614abff7bf",
+  "generated": "2026-07-22T22:08:00Z",
+  "imports": [
+    {
+      "source": "crypto",
+      "names": [
+        "randomBytes"
+      ],
+      "line": 9,
+      "is_reexport": false
+    },
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 10,
+      "is_reexport": false
+    },
+    {
+      "source": "@vscode/debugprotocol",
+      "names": [
+        "DebugProtocol"
+      ],
+      "line": 11,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterPolicy"
+      ],
+      "line": 12,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DapClientBehavior",
+        "ChildSessionConfig"
+      ],
+      "line": 13,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "../utils/logger.js",
+      "names": [
+        "createLogger"
+      ],
+      "line": 14,
+      "is_reexport": false,
+      "resolved_path": "src/utils/logger.ts"
+    },
+    {
+      "source": "./minimal-dap.js",
+      "names": [
+        "MinimalDapClient"
+      ],
+      "line": 15,
+      "is_reexport": false,
+      "resolved_path": "src/proxy/minimal-dap.ts"
+    },
+    {
+      "source": "path",
+      "names": [
+        "path"
+      ],
+      "line": 16,
+      "is_reexport": false
+    }
+  ],
+  "exports": [
+    {
+      "name": "ChildSessionManager",
+      "kind": "class",
+      "line": 67,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "bases": [
+        "EventEmitter"
+      ]
+    },
+    {
+      "name": "ChildSessionManager.isAdopted",
+      "kind": "function",
+      "line": 98,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "pendingId",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "ChildSessionManager.isAdoptionInProgress",
+      "kind": "function",
+      "line": 105,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ChildSessionManager.hasActiveChildren",
+      "kind": "function",
+      "line": 113,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ChildSessionManager.getActiveChild",
+      "kind": "function",
+      "line": 122,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ChildSessionManager.shouldRouteToChild",
+      "kind": "function",
+      "line": 130,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "command",
+          "optional": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "ChildSessionManager.storeBreakpoints",
+      "kind": "function",
+      "line": 160,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "sourcePath",
+          "optional": false,
+          "type": "string"
+        },
+        {
+          "name": "breakpoints",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/node_modules/.pnpm/@vscode+debugprotocol@1.68.0/node_modules/@vscode/debugprotocol/lib/debugProtocol\").DebugProtocol.SourceBreakpoint[]"
+        }
+      ]
+    },
+    {
+      "name": "ChildSessionManager.createChildSession",
+      "kind": "function",
+      "line": 182,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "config",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/dap-client-behavior\").ChildSessionConfig"
+        }
+      ]
+    },
+    {
+      "name": "ChildSessionManager.shutdown",
+      "kind": "function",
+      "line": 485,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "ChildSessionOptions",
+      "kind": "type",
+      "line": 61,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "createLogger",
+      "line": 18,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "createInstanceId",
+      "to": "randomBytes(4).toString",
+      "line": 21,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createInstanceId",
+      "to": "randomBytes",
+      "line": 21,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createChildSafePolicy",
+      "to": "policy.getDapClientBehavior",
+      "line": 35,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createChildSafePolicy",
+      "to": "Set",
+      "line": 38,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "createChildSafePolicy",
+      "to": "baseBehavior.handleReverseRequest!",
+      "line": 47,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Set",
+      "line": 74,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 75,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Map",
+      "line": 79,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "super",
+      "line": 86,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "options.policy.getDapClientBehavior",
+      "line": 88,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createInstanceId",
+      "line": 91,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "logger.info",
+      "line": 92,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.isAdopted",
+      "to": "this.adoptedTargets.has",
+      "line": 99,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.isAdoptionInProgress",
+      "to": "logger.info",
+      "line": 106,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.hasActiveChildren",
+      "to": "logger.info",
+      "line": 115,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.getActiveChild",
+      "to": "logger.info",
+      "line": 123,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.shouldRouteToChild",
+      "to": "logger.info",
+      "line": 133,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.shouldRouteToChild",
+      "to": "routedCommands.has",
+      "line": 137,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.shouldRouteToChild",
+      "to": "logger.info",
+      "line": 138,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.shouldRouteToChild",
+      "to": "this.hasActiveChildren",
+      "line": 142,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.shouldRouteToChild",
+      "to": "logger.info",
+      "line": 146,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.shouldRouteToChild",
+      "to": "logger.info",
+      "line": 148,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.shouldRouteToChild",
+      "to": "logger.info",
+      "line": 151,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.storeBreakpoints",
+      "to": "path.isAbsolute",
+      "line": 165,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.storeBreakpoints",
+      "to": "path.resolve",
+      "line": 165,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.storeBreakpoints",
+      "to": "this.storedBreakpoints.set",
+      "line": 166,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.storeBreakpoints",
+      "to": "this.activeChild.sendRequest('setBreakpoints', {\n        source: { path: absolutePath },\n        bre",
+      "line": 170,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.storeBreakpoints",
+      "to": "this.activeChild.sendRequest",
+      "line": 170,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "this.adoptedTargets.has",
+      "line": 186,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "logger.warn",
+      "line": 187,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "this.hasActiveChildren",
+      "line": 192,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "logger.info",
+      "line": 193,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "logger.info",
+      "line": 202,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "this.adoptedTargets.add",
+      "line": 203,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "import",
+      "line": 207,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "createChildSafePolicy",
+      "line": 210,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "MinimalDapClient",
+      "line": 211,
+      "call_sites": 37
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "child.connect",
+      "line": 212,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "this.wireChildEvents",
+      "line": 215,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "this.childSessions.set",
+      "line": 218,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "logger.info",
+      "line": 220,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "Date.now",
+      "line": 220,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "this.initializeChild",
+      "line": 223,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "this.configureChild",
+      "line": 226,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "this.attachChild",
+      "line": 229,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "this.handlePostAttachInit",
+      "line": 232,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "this.ensureChildStopped",
+      "line": 246,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "logger.info",
+      "line": 250,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "logger.info",
+      "line": 252,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "this.emit",
+      "line": 253,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "this.adoptedTargets.delete",
+      "line": 257,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "logger.info",
+      "line": 258,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "String",
+      "line": 259,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "logger.error",
+      "line": 260,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.createChildSession",
+      "to": "this.emit",
+      "line": 261,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ChildSessionManager.initializeChild",
+      "to": "this.policy.getDapAdapterConfiguration",
+      "line": 274,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.initializeChild",
+      "to": "logger.info",
+      "line": 280,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.initializeChild",
+      "to": "child.sendRequest",
+      "line": 281,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ChildSessionManager.initializeChild",
+      "to": "this.waitForEvent",
+      "line": 284,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ChildSessionManager.configureChild",
+      "to": "logger.info",
+      "line": 295,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.configureChild",
+      "to": "child.sendRequest",
+      "line": 296,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ChildSessionManager.configureChild",
+      "to": "logger.warn",
+      "line": 298,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ChildSessionManager.configureChild",
+      "to": "logger.info",
+      "line": 304,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.configureChild",
+      "to": "child.sendRequest",
+      "line": 306,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ChildSessionManager.configureChild",
+      "to": "String",
+      "line": 311,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ChildSessionManager.configureChild",
+      "to": "logger.warn",
+      "line": 312,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ChildSessionManager.configureChild",
+      "to": "logger.info",
+      "line": 320,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.configureChild",
+      "to": "child.sendRequest",
+      "line": 321,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ChildSessionManager.configureChild",
+      "to": "logger.warn",
+      "line": 323,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ChildSessionManager.attachChild",
+      "to": "this.policy.buildChildStartArgs",
+      "line": 332,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.attachChild",
+      "to": "logger.info",
+      "line": 341,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.attachChild",
+      "to": "child.sendRequest",
+      "line": 342,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ChildSessionManager.attachChild",
+      "to": "this.sleep",
+      "line": 346,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.attachChild",
+      "to": "String",
+      "line": 351,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ChildSessionManager.attachChild",
+      "to": "Error",
+      "line": 352,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.handlePostAttachInit",
+      "to": "this.waitForEvent",
+      "line": 361,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ChildSessionManager.handlePostAttachInit",
+      "to": "child.sendRequest",
+      "line": 366,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ChildSessionManager.handlePostAttachInit",
+      "to": "child.sendRequest",
+      "line": 371,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ChildSessionManager.ensureChildStopped",
+      "to": "this.waitForEvent",
+      "line": 385,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ChildSessionManager.ensureChildStopped",
+      "to": "child.sendRequest",
+      "line": 390,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ChildSessionManager.ensureChildStopped",
+      "to": "Array.isArray",
+      "line": 393,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.ensureChildStopped",
+      "to": "logger.info",
+      "line": 395,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.ensureChildStopped",
+      "to": "child.sendRequest",
+      "line": 398,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ChildSessionManager.ensureChildStopped",
+      "to": "child.sendRequest",
+      "line": 406,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "ChildSessionManager.ensureChildStopped",
+      "to": "logger.warn",
+      "line": 411,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ChildSessionManager.wireChildEvents",
+      "to": "child.on",
+      "line": 420,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ChildSessionManager.wireChildEvents",
+      "to": "this.emit",
+      "line": 422,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ChildSessionManager.wireChildEvents",
+      "to": "child.on",
+      "line": 425,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ChildSessionManager.wireChildEvents",
+      "to": "logger.error",
+      "line": 426,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.wireChildEvents",
+      "to": "this.emit",
+      "line": 427,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ChildSessionManager.wireChildEvents",
+      "to": "child.on",
+      "line": 430,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "ChildSessionManager.wireChildEvents",
+      "to": "logger.info",
+      "line": 431,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.wireChildEvents",
+      "to": "this.emit",
+      "line": 432,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "ChildSessionManager.wireChildEvents",
+      "to": "this.childSessions.clear",
+      "line": 433,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.wireChildEvents",
+      "to": "logger.info",
+      "line": 435,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.wireChildEvents",
+      "to": "Date.now",
+      "line": 435,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.waitForEvent",
+      "to": "Promise",
+      "line": 448,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.waitForEvent",
+      "to": "client.off",
+      "line": 455,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.waitForEvent",
+      "to": "clearTimeout",
+      "line": 456,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.waitForEvent",
+      "to": "resolve",
+      "line": 457,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.waitForEvent",
+      "to": "setTimeout",
+      "line": 461,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.waitForEvent",
+      "to": "client.off",
+      "line": 464,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.waitForEvent",
+      "to": "logger.warn",
+      "line": 466,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ChildSessionManager.waitForEvent",
+      "to": "resolve",
+      "line": 468,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.waitForEvent",
+      "to": "client.on",
+      "line": 471,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.sleep",
+      "to": "Promise",
+      "line": 479,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.sleep",
+      "to": "setTimeout",
+      "line": 479,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.shutdown",
+      "to": "logger.info",
+      "line": 486,
+      "call_sites": 24
+    },
+    {
+      "from_symbol": "ChildSessionManager.shutdown",
+      "to": "child.shutdown",
+      "line": 490,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "ChildSessionManager.shutdown",
+      "to": "String",
+      "line": 492,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "ChildSessionManager.shutdown",
+      "to": "logger.warn",
+      "line": 493,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "ChildSessionManager.shutdown",
+      "to": "this.childSessions.clear",
+      "line": 497,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "ChildSessionManager.shutdown",
+      "to": "this.adoptedTargets.clear",
+      "line": 499,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "behavior",
+      "member": "handleReverseRequest",
+      "line": 46
+    },
+    {
+      "container": "this",
+      "member": "policy",
+      "line": 87
+    },
+    {
+      "container": "this",
+      "member": "dapBehavior",
+      "line": 88
+    },
+    {
+      "container": "this",
+      "member": "host",
+      "line": 89
+    },
+    {
+      "container": "this",
+      "member": "port",
+      "line": 90
+    },
+    {
+      "container": "this",
+      "member": "instanceId",
+      "line": 91
+    },
+    {
+      "container": "this",
+      "member": "adoptionInProgress",
+      "line": 201
+    },
+    {
+      "container": "this",
+      "member": "activeChild",
+      "line": 219
+    },
+    {
+      "container": "this",
+      "member": "adoptionInProgress",
+      "line": 249
+    },
+    {
+      "container": "this",
+      "member": "adoptionInProgress",
+      "line": 256
+    },
+    {
+      "container": "this",
+      "member": "activeChild",
+      "line": 434
+    },
+    {
+      "container": "this",
+      "member": "activeChild",
+      "line": 498
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "childCreated",
+      "context": "Event emitted when child session successfully created",
+      "line": 253,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "childError",
+      "context": "Event emitted on child session error or adoption failure",
+      "line": 261,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "childEvent",
+      "context": "Event emitted to forward child DAP events to parent",
+      "line": 422,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "childClosed",
+      "context": "Event emitted when child DAP connection closes",
+      "line": 432,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "none",
+      "context": "childSessionStrategy value set on child-safe policy to prevent grandchildren",
+      "line": 32,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "initialized",
+      "context": "DAP event name awaited after initialize request",
+      "line": 284,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "stopped",
+      "context": "DAP event name awaited in ensureChildStopped",
+      "line": 385,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "setBreakpoints",
+      "context": "DAP command sent to mirror breakpoints to child",
+      "line": 170,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "initialize",
+      "context": "DAP command sent to initialize child session",
+      "line": 281,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "setExceptionBreakpoints",
+      "context": "DAP command sent during child configuration",
+      "line": 296,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "configurationDone",
+      "context": "DAP command sent to complete child configuration",
+      "line": 321,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "threads",
+      "context": "DAP command to retrieve thread list in ensureChildStopped",
+      "line": 390,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "pause",
+      "context": "DAP command to pause a thread in ensureChildStopped",
+      "line": 398,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "attach",
+      "context": "parentConfig.request value checked to skip forced pause for attach-mode parents",
+      "line": 244,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "parentConfig?.request"
+    },
+    {
+      "value": "parent shutdown",
+      "context": "Reason string passed to child.shutdown()",
+      "line": 490,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

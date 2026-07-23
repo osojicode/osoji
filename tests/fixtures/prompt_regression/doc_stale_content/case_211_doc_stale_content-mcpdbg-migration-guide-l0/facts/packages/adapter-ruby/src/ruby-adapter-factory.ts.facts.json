@@ -1,0 +1,279 @@
+{
+  "source": "packages/adapter-ruby/src/ruby-adapter-factory.ts",
+  "source_hash": "fffa236a59a74c4c",
+  "generated": "2026-07-22T22:07:02Z",
+  "imports": [
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IDebugAdapter"
+      ],
+      "line": 1,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IAdapterFactory",
+        "AdapterDependencies",
+        "AdapterMetadata",
+        "FactoryValidationResult"
+      ],
+      "line": 2,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./ruby-debug-adapter.js",
+      "names": [
+        "RubyDebugAdapter"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-ruby/src/ruby-debug-adapter.ts"
+    },
+    {
+      "source": "./utils/ruby-utils.js",
+      "names": [
+        "findRubyExecutable",
+        "getRubyVersion",
+        "findRdbgExecutable",
+        "getRdbgVersion"
+      ],
+      "line": 10,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-ruby/src/utils/ruby-utils.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "RubyAdapterFactory",
+      "kind": "class",
+      "line": 17,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "implements": [
+        "IAdapterFactory"
+      ]
+    },
+    {
+      "name": "RubyAdapterFactory.createAdapter",
+      "kind": "function",
+      "line": 18,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "dependencies",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/adapter-registry\").AdapterDependencies"
+        }
+      ]
+    },
+    {
+      "name": "RubyAdapterFactory.getMetadata",
+      "kind": "function",
+      "line": 22,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "RubyAdapterFactory.validate",
+      "kind": "function",
+      "line": 35,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "RubyAdapterFactory.createAdapter",
+      "to": "RubyDebugAdapter",
+      "line": 19,
+      "call_sites": 21
+    },
+    {
+      "from_symbol": "RubyAdapterFactory.validate",
+      "to": "findRubyExecutable",
+      "line": 44,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RubyAdapterFactory.validate",
+      "to": "getRubyVersion",
+      "line": 45,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RubyAdapterFactory.validate",
+      "to": "rubyVersion.split('.').map",
+      "line": 48,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyAdapterFactory.validate",
+      "to": "rubyVersion.split",
+      "line": 48,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyAdapterFactory.validate",
+      "to": "errors.push",
+      "line": 50,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RubyAdapterFactory.validate",
+      "to": "warnings.push",
+      "line": 53,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RubyAdapterFactory.validate",
+      "to": "errors.push",
+      "line": 56,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RubyAdapterFactory.validate",
+      "to": "findRdbgExecutable",
+      "line": 60,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "RubyAdapterFactory.validate",
+      "to": "getRdbgVersion",
+      "line": 61,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "RubyAdapterFactory.validate",
+      "to": "warnings.push",
+      "line": 63,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "RubyAdapterFactory.validate",
+      "to": "errors.push",
+      "line": 66,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "RubyAdapterFactory.validate",
+      "to": "new Date().toISOString",
+      "line": 79,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "RubyAdapterFactory.validate",
+      "to": "Date",
+      "line": 79,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "Ruby",
+      "context": "displayName field in AdapterMetadata",
+      "line": 25,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "0.21.0",
+      "context": "version field in AdapterMetadata",
+      "line": 26,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "mcp-debugger team",
+      "context": "author field in AdapterMetadata",
+      "line": 27,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "Debug Ruby applications using rdbg",
+      "context": "description field in AdapterMetadata",
+      "line": 28,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "1.7.0",
+      "context": "minimumDebuggerVersion field in AdapterMetadata \u2014 rdbg minimum required version",
+      "line": 30,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": ".rb",
+      "context": "Supported file extension in AdapterMetadata",
+      "line": 31,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": ".rake",
+      "context": "Supported file extension in AdapterMetadata",
+      "line": 31,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": ".gemspec",
+      "context": "Supported file extension in AdapterMetadata",
+      "line": 31,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "Ruby 2.7 or higher required. Current version: ${rubyVersion}",
+      "context": "Error message pushed when Ruby version is below 2.7",
+      "line": 50,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "Could not determine Ruby version",
+      "context": "Warning when Ruby version cannot be parsed",
+      "line": 53,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "Ruby executable not found",
+      "context": "Fallback error message when non-Error thrown during Ruby detection",
+      "line": 56,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "Could not determine rdbg version",
+      "context": "Warning when rdbg version cannot be parsed",
+      "line": 63,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "rdbg not found",
+      "context": "Fallback error message when non-Error thrown during rdbg detection",
+      "line": 66,
+      "kind": "message",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

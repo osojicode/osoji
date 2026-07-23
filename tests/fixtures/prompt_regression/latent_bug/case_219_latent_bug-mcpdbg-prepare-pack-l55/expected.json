@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "resolveWorkspaceDeps (prepare-pack.js:54-62) collapses any workspace: prefix to the exact version, and the inline comment at :56 declares exactly that. pnpm-lock.yaml shows every workspace specifier repo-wide is workspace:*, for which pnpm publish itself emits the exact version \u2014 identical output. The workspace:^/~ failure requires an input the repo never produces; fails Reality per the future-fragility clause.",
+  "gray": true,
+  "gray_reason": "The header (prepare-pack.js L3-4) positively claims to mimic pnpm publish and the code mishandles the whole workspace:^/~ input class pnpm defines; dismissal rests on the future-fragility clause, which a judge could weigh differently.",
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

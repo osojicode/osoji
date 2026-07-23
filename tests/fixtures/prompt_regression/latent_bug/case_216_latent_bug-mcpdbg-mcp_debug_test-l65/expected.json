@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "The claimed consequence is false as stated: sessionId=undefined would be printed loudly at mcp_debug_test.js:70 and the next call's guard (:80-82) throws 'Failed to set breakpoint' when the server rejects an unknown session \u2014 nothing propagates silently. The premise (server returning success:true without sessionId) is an unevidenced hypothetical; the harness correctly relies on the cross-module response contract, a known FP mode. Fails Reality.",
+  "gray": true,
+  "gray_reason": "The repo's own stricter pattern (cross-transport-parity.test.ts:120 checks success && sessionId) makes a confirm-at-info harness-hardening reading defensible.",
+  "expected_contract_class": "project_implicit",
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

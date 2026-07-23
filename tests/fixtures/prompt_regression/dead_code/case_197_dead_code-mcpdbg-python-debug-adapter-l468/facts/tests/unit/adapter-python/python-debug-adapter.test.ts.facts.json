@@ -1,0 +1,2380 @@
+{
+  "source": "tests/unit/adapter-python/python-debug-adapter.test.ts",
+  "source_hash": "b77d583654579d40",
+  "generated": "2026-07-22T22:06:44Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "afterEach",
+        "vi",
+        "Mock"
+      ],
+      "line": 1,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "events",
+      "names": [
+        "EventEmitter"
+      ],
+      "line": 2,
+      "is_reexport": false
+    },
+    {
+      "source": "../../../packages/adapter-python/src/python-debug-adapter.js",
+      "names": [
+        "PythonDebugAdapter"
+      ],
+      "line": 3,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-python/src/python-debug-adapter.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "AdapterState",
+        "AdapterError",
+        "DebugFeature"
+      ],
+      "line": 4,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 6,
+      "call_sites": 110
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 7,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 8,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 11,
+      "call_sites": 110
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 12,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 13,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "import",
+      "line": 16,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "import",
+      "line": 17,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 22,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 23,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 24,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 25,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 31,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 32,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllMocks",
+      "line": 33,
+      "call_sites": 87
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 36,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "findPythonExecutable.mockResolvedValue",
+      "line": 37,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 38,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 38,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.resolveExecutablePath",
+      "line": 40,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.resolveExecutablePath",
+      "line": 41,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(first).toBe",
+      "line": 43,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 43,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(second).toBe",
+      "line": 44,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 44,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(findPythonExecutable).toHaveBeenCalledTimes",
+      "line": 45,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 45,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 48,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 49,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 49,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 50,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 50,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 51,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 51,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 52,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 52,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 53,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 53,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.validateEnvironment",
+      "line": 55,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.valid).toBe",
+      "line": 57,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 57,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.errors[0]?.code).toBe",
+      "line": 58,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 58,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 61,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 64,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 65,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 66,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 66,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 67,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 67,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 68,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 68,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 69,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 69,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.validateEnvironment",
+      "line": 71,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.valid).toBe",
+      "line": 73,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 73,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.errors.map((entry: { code: string }) => entry.code)).not.toContain",
+      "line": 74,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 74,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "result.errors.map",
+      "line": 74,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.warnings.map((entry: { code: string }) => entry.code)).toContain",
+      "line": 75,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 75,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "result.warnings.map",
+      "line": 75,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(deps.logger.info).toHaveBeenCalledWith",
+      "line": 76,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 76,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 79,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 80,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 80,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockRejectedValue",
+      "line": 81,
+      "call_sites": 47
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 81,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 81,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.validateEnvironment",
+      "line": 83,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.valid).toBe",
+      "line": 85,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 85,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.errors[0]?.code).toBe",
+      "line": 86,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 86,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 89,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 90,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 90,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "cache.set",
+      "line": 92,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date.now",
+      "line": 92,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(adapter as any).checkPythonVersion",
+      "line": 94,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(version).toBe",
+      "line": 96,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 96,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(getPythonVersion).not.toHaveBeenCalled",
+      "line": 97,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 97,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 100,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 101,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 101,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.buildAdapterCommand",
+      "line": 102,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(cmd.command).toBe",
+      "line": 112,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 112,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(cmd.args).toEqual",
+      "line": 113,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 113,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(cmd.env?.DEBUGPY_LOG_DIR).toBe",
+      "line": 114,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 114,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 117,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 118,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 118,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n      adapter.sendDapRequest('setExceptionBreakpoints', { filters: ['invalid-filter'] })\n   ",
+      "line": 120,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 120,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.sendDapRequest",
+      "line": 121,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 125,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 126,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 126,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(\n      adapter.sendDapRequest('setExceptionBreakpoints', { filters: ['raised', 'uncaught'] })",
+      "line": 128,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 128,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.sendDapRequest",
+      "line": 129,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 133,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 134,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 134,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.handleDapEvent",
+      "line": 135,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getCurrentThreadId()).toBe",
+      "line": 142,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 142,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCurrentThreadId",
+      "line": 142,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 145,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 146,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 146,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.LOG_POINTS)).toBe",
+      "line": 148,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 148,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 148,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsFeature(DebugFeature.DISASSEMBLE_REQUEST)).toBe",
+      "line": 149,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 149,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsFeature",
+      "line": 149,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getFeatureRequirements",
+      "line": 151,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(requirements.some(r => r.description.includes('Python 3.7+'))).toBe",
+      "line": 152,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 152,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "requirements.some",
+      "line": 152,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "r.description.includes",
+      "line": 152,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 155,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 156,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 156,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 157,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 157,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(message).toContain",
+      "line": 158,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 158,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 161,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 162,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 162,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.translateErrorMessage(new Error('python: command not found'))).toContain",
+      "line": 164,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 164,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 164,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 164,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.translateErrorMessage(new Error('Permission denied to execute python'))).toContain",
+      "line": 165,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 165,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 165,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 165,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.translateErrorMessage(new Error('Windows Store Python cannot be used'))).toContain",
+      "line": 166,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 166,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 166,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 166,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.translateErrorMessage(new Error('unexpected failure'))).toBe",
+      "line": 167,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 167,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.translateErrorMessage",
+      "line": 167,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 167,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 170,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 171,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 171,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getFeatureRequirements",
+      "line": 173,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(logPoints).toEqual",
+      "line": 174,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 174,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 175,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getFeatureRequirements",
+      "line": 178,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(none).toEqual",
+      "line": 179,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 179,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 182,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 183,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 183,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi\n      .spyOn(adapter, 'validateEnvironment' as never)\n      .mockResolvedValue",
+      "line": 184,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi\n      .spyOn",
+      "line": 184,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 188,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 189,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.initialize",
+      "line": 191,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(validateSpy).toHaveBeenCalled",
+      "line": 193,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 193,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 194,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 194,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 194,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(initialized).toHaveBeenCalled",
+      "line": 195,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 195,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 198,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 199,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 199,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn(adapter, 'validateEnvironment' as never).mockResolvedValue",
+      "line": 200,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.spyOn",
+      "line": 200,
+      "call_sites": 150
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.initialize()).rejects.toBeInstanceOf",
+      "line": 206,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 206,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.initialize",
+      "line": 206,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 207,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 207,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 207,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 210,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 211,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 211,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 212,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 213,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 214,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 215,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.connect",
+      "line": 217,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 218,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 218,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 218,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.isConnected()).toBe",
+      "line": 219,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 219,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.isConnected",
+      "line": 219,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.disconnect",
+      "line": 221,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 222,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 222,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 222,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.isConnected()).toBe",
+      "line": 223,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 223,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.isConnected",
+      "line": 223,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(connected).toHaveBeenCalled",
+      "line": 224,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 224,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(disconnected).toHaveBeenCalled",
+      "line": 225,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 225,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 228,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 229,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 229,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 230,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 231,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "child.on.bind",
+      "line": 232,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "child.stdout.on.bind",
+      "line": 233,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "spawnMock.mockReturnValue",
+      "line": 235,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(adapter as any).checkDebugpyInstalled",
+      "line": 237,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "child.stdout.emit",
+      "line": 238,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "child.emit",
+      "line": 239,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(await checkPromise).toBe",
+      "line": 241,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 241,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(spawnMock).toHaveBeenCalledWith",
+      "line": 242,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 242,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 249,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 250,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 250,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 251,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "EventEmitter",
+      "line": 252,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "child.on.bind",
+      "line": 253,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "child.stdout.on.bind",
+      "line": 254,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "spawnMock.mockReturnValue",
+      "line": 256,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "(adapter as any).checkDebugpyInstalled",
+      "line": 258,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "child.emit",
+      "line": 259,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 259,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(await checkPromise).toBe",
+      "line": 261,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 261,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 264,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 265,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 265,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformLaunchConfig",
+      "line": 266,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.name).toBe",
+      "line": 274,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 274,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.console).toBe",
+      "line": 275,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 275,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.redirectOutput).toBe",
+      "line": 276,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 276,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.showReturnValue).toBe",
+      "line": 277,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 277,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.stopOnEntry).toBe",
+      "line": 278,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 278,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.justMyCode).toBe",
+      "line": 279,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 279,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 282,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 283,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 283,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 284,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.on",
+      "line": 285,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.connect",
+      "line": 287,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.disconnect",
+      "line": 288,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.dispose",
+      "line": 289,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(disposed).toHaveBeenCalled",
+      "line": 291,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 291,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getState()).toBe",
+      "line": 292,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 292,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getState",
+      "line": 292,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.isConnected()).toBe",
+      "line": 293,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 293,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.isConnected",
+      "line": 293,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 296,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 297,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 297,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getCapabilities",
+      "line": 298,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(capabilities.supportsConfigurationDoneRequest).toBe",
+      "line": 300,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 300,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(capabilities.exceptionBreakpointFilters).toEqual",
+      "line": 301,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 301,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.arrayContaining",
+      "line": 302,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 303,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 304,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 309,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 310,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 310,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getInstallationInstructions()).toContain",
+      "line": 312,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 312,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getInstallationInstructions",
+      "line": 312,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getMissingExecutableError()).toContain",
+      "line": 313,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 313,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getMissingExecutableError",
+      "line": 313,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 316,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 317,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 317,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getDefaultLaunchConfig",
+      "line": 318,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(defaults.stopOnEntry).toBe",
+      "line": 320,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 320,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(defaults.justMyCode).toBe",
+      "line": 321,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 321,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(defaults.env).toEqual",
+      "line": 322,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 322,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(defaults.cwd).toBe",
+      "line": 323,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 323,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.cwd",
+      "line": 323,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 326,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 327,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 328,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 328,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsAttach?.()).toBe",
+      "line": 330,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 330,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsAttach",
+      "line": 330,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.supportsDetach?.()).toBe",
+      "line": 331,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 331,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.supportsDetach",
+      "line": 331,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.usesDirectConnectForAttach?.()).toBe",
+      "line": 332,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 332,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.usesDirectConnectForAttach",
+      "line": 332,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 335,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 336,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 336,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig!",
+      "line": 338,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config).toMatchObject",
+      "line": 348,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 348,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.host).toBeUndefined",
+      "line": 359,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 359,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.port).toBeUndefined",
+      "line": 360,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 360,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.console).toBeUndefined",
+      "line": 362,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 362,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config.__attachMode).toBeUndefined",
+      "line": 363,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 363,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 366,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 367,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 367,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig!",
+      "line": 369,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(config).toMatchObject",
+      "line": 371,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 371,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 377,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 378,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 378,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(() => adapter.transformAttachConfig!({ request: 'attach' }))\n        .toThrow",
+      "line": 380,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 380,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig!",
+      "line": 380,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 384,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 385,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 385,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(() => adapter.transformAttachConfig!({ request: 'attach', processId: 1234 }))\n        .toThro",
+      "line": 387,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 387,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.transformAttachConfig!",
+      "line": 387,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 391,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "PythonDebugAdapter",
+      "line": 392,
+      "call_sites": 38
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createDependencies",
+      "line": 392,
+      "call_sites": 29
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(adapter.getDefaultAttachConfig?.()).toEqual",
+      "line": 394,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 394,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "adapter.getDefaultAttachConfig",
+      "line": 394,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "(adapter as any)",
+      "member": "resolveExecutablePath",
+      "line": 50
+    },
+    {
+      "container": "(adapter as any)",
+      "member": "checkPythonVersion",
+      "line": 51
+    },
+    {
+      "container": "(adapter as any)",
+      "member": "checkDebugpyInstalled",
+      "line": 52
+    },
+    {
+      "container": "(adapter as any)",
+      "member": "detectVirtualEnv",
+      "line": 53
+    },
+    {
+      "container": "(adapter as any)",
+      "member": "resolveExecutablePath",
+      "line": 66
+    },
+    {
+      "container": "(adapter as any)",
+      "member": "checkPythonVersion",
+      "line": 67
+    },
+    {
+      "container": "(adapter as any)",
+      "member": "checkDebugpyInstalled",
+      "line": 68
+    },
+    {
+      "container": "(adapter as any)",
+      "member": "detectVirtualEnv",
+      "line": 69
+    },
+    {
+      "container": "(adapter as any)",
+      "member": "resolveExecutablePath",
+      "line": 81
+    },
+    {
+      "container": "child",
+      "member": "stdout",
+      "line": 231
+    },
+    {
+      "container": "child",
+      "member": "on",
+      "line": 232
+    },
+    {
+      "container": "child.stdout",
+      "member": "on",
+      "line": 233
+    },
+    {
+      "container": "child",
+      "member": "stdout",
+      "line": 252
+    },
+    {
+      "container": "child",
+      "member": "on",
+      "line": 253
+    },
+    {
+      "container": "child.stdout",
+      "member": "on",
+      "line": 254
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "PYTHON_VERSION_TOO_OLD",
+      "context": "Expected error code when Python version is too old",
+      "line": 58,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "result.errors[0]?.code"
+    },
+    {
+      "value": "DEBUGPY_NOT_INSTALLED",
+      "context": "Expected warning code when debugpy is missing with virtualenv",
+      "line": 74,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "result.warnings.map(entry => entry.code)"
+    },
+    {
+      "value": "PYTHON_NOT_FOUND",
+      "context": "Expected error code when Python executable cannot be resolved",
+      "line": 86,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "result.errors[0]?.code"
+    },
+    {
+      "value": "[PythonDebugAdapter] Virtual environment detected",
+      "context": "Expected logger.info message when virtual env detected",
+      "line": 76,
+      "kind": "message",
+      "usage": "checked",
+      "comparison_source": "deps.logger.info"
+    },
+    {
+      "value": "Python: Current File",
+      "context": "Default name applied by transformLaunchConfig",
+      "line": 274,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "config.name"
+    },
+    {
+      "value": "Python: Attach",
+      "context": "Default name applied by transformAttachConfig",
+      "line": 351,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "config.name"
+    },
+    {
+      "value": "pip install debugpy",
+      "context": "Expected substring in installation instructions",
+      "line": 312,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "adapter.getInstallationInstructions()"
+    },
+    {
+      "value": "Python not found",
+      "context": "Expected substring in missing executable error",
+      "line": 313,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "adapter.getMissingExecutableError()"
+    },
+    {
+      "value": "internalConsole",
+      "context": "Default console mode in transformed launch config",
+      "line": 275,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "config.console"
+    },
+    {
+      "value": "setExceptionBreakpoints",
+      "context": "DAP request command name used in sendDapRequest calls",
+      "line": 121,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "adapter.sendDapRequest"
+    },
+    {
+      "value": "stopped",
+      "context": "DAP event name for thread stop event",
+      "line": 138,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "event.event"
+    }
+  ],
+  "extraction_method": "ast"
+}

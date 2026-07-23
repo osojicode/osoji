@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "The failure sits behind a visible guard: vitest.config.ts:39/:147 wires tests/vitest.setup.ts into every project, and its global afterEach calls vi.unstubAllEnvs() (:139) with a comment stating stubs 'can't leak process.env across tests/files' \u2014 the canonical guard-makes-it-unreachable FP (osoji#170). The local facts hold (stubEnv at :241, local afterEach only clearAllMocks) but the global guard is dispositive. Fails Reality. [Snapshot repaired 2026-07-23: vitest.config.ts and tests/vitest.setup.ts added at origin commit so the dismissal is decidable in-snapshot.]",
+  "gray": false,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

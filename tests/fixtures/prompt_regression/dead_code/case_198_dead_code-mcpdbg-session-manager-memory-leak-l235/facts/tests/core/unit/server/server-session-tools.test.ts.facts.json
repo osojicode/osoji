@@ -1,0 +1,802 @@
+{
+  "source": "tests/core/unit/server/server-session-tools.test.ts",
+  "source_hash": "fa3069be508cd2fb",
+  "generated": "2026-07-22T22:06:54Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "beforeEach",
+        "afterEach",
+        "vi"
+      ],
+      "line": 4,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/server/index.js",
+      "names": [
+        "Server"
+      ],
+      "line": 5,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/server/index.d.ts"
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/server/stdio.js",
+      "names": [
+        "StdioServerTransport"
+      ],
+      "line": 6,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/server/stdio.d.ts"
+    },
+    {
+      "source": "@modelcontextprotocol/sdk/types.js",
+      "names": [
+        "McpError"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/cjs/types.d.ts"
+    },
+    {
+      "source": "../../../../src/server.js",
+      "names": [
+        "DebugMcpServer"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "src/server.ts"
+    },
+    {
+      "source": "../../../../src/session/session-manager.js",
+      "names": [
+        "SessionManager"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "src/session/session-manager.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugSessionInfo",
+        "DebugLanguage",
+        "SessionState"
+      ],
+      "line": 10,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "../../../../src/container/dependencies.js",
+      "names": [
+        "createProductionDependencies"
+      ],
+      "line": 11,
+      "is_reexport": false,
+      "resolved_path": "src/container/dependencies.ts"
+    },
+    {
+      "source": "./server-test-helpers.js",
+      "names": [
+        "createMockDependencies",
+        "createMockServer",
+        "createMockSessionManager",
+        "createMockStdioTransport",
+        "getToolHandlers"
+      ],
+      "line": 12,
+      "is_reexport": false,
+      "resolved_path": "tests/core/unit/server/server-test-helpers.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 21,
+      "call_sites": 110
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 22,
+      "call_sites": 110
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 23,
+      "call_sites": 110
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mock",
+      "line": 24,
+      "call_sites": 110
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 26,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 32,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockDependencies",
+      "line": 33,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(createProductionDependencies).mockReturnValue",
+      "line": 34,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 34,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockServer",
+      "line": 36,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(Server).mockImplementation",
+      "line": 37,
+      "call_sites": 7
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 37,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockStdioTransport",
+      "line": 39,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(StdioServerTransport).mockImplementation",
+      "line": 40,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 40,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockSessionManager",
+      "line": 42,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked(SessionManager).mockImplementation",
+      "line": 43,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.mocked",
+      "line": 43,
+      "call_sites": 177
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "DebugMcpServer",
+      "line": 45,
+      "call_sites": 35
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "getToolHandlers",
+      "line": 46,
+      "call_sites": 23
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 49,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllMocks",
+      "line": 50,
+      "call_sites": 87
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 53,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 54,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date",
+      "line": 60,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date",
+      "line": 61,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSessionManager.createSession.mockResolvedValue",
+      "line": 64,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolHandler",
+      "line": 66,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockSessionManager.createSession).toHaveBeenCalledWith",
+      "line": 78,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 78,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.parse",
+      "line": 84,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(content.success).toBe",
+      "line": 85,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 85,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(content.sessionId).toBe",
+      "line": 86,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 86,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(content.message).toContain",
+      "line": 87,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 87,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 90,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(callToolHandler({\r\n        method: 'tools/call',\r\n        params: {\r\n          name: 'create_",
+      "line": 91,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 91,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolHandler",
+      "line": 91,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(callToolHandler({\r\n        method: 'tools/call',\r\n        params: {\r\n          name: 'create_",
+      "line": 101,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 101,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolHandler",
+      "line": 101,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 112,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSessionManager.createSession.mockRejectedValue",
+      "line": 113,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 113,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(callToolHandler({\r\n        method: 'tools/call',\r\n        params: {\r\n          name: 'create_",
+      "line": 115,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 115,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolHandler",
+      "line": 115,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(mockDependencies.logger.error).toHaveBeenCalledWith",
+      "line": 125,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 125,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 127,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 131,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date",
+      "line": 137,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSessionManager.createSession.mockResolvedValue",
+      "line": 140,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolHandler",
+      "line": 142,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(createCall.name).toMatch",
+      "line": 154,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 154,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 158,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 159,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date",
+      "line": 166,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date",
+      "line": 167,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Date",
+      "line": 174,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSessionManager.getAllSessions.mockReturnValue",
+      "line": 178,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolHandler",
+      "line": 180,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.parse",
+      "line": 188,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(content.success).toBe",
+      "line": 189,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 189,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(content.sessions).toHaveLength",
+      "line": 190,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 190,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(content.count).toBe",
+      "line": 191,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 191,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 194,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSessionManager.getAllSessions.mockImplementation",
+      "line": 195,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 196,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(callToolHandler({\r\n        method: 'tools/call',\r\n        params: {\r\n          name: 'list_de",
+      "line": 199,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 199,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolHandler",
+      "line": 199,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 209,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 210,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSessionManager.closeSession.mockResolvedValue",
+      "line": 211,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolHandler",
+      "line": 213,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.parse",
+      "line": 221,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(content.success).toBe",
+      "line": 222,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 222,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(content.message).toContain",
+      "line": 223,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 223,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 226,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSessionManager.closeSession.mockResolvedValue",
+      "line": 227,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolHandler",
+      "line": 229,
+      "call_sites": 10
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "JSON.parse",
+      "line": 237,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(content.success).toBe",
+      "line": 238,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 238,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(content.message).toContain",
+      "line": 239,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 239,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 242,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "mockSessionManager.closeSession.mockRejectedValue",
+      "line": 243,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "Error",
+      "line": 243,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(callToolHandler({\r\n        method: 'tools/call',\r\n        params: {\r\n          name: 'close_d",
+      "line": 245,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 245,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "callToolHandler",
+      "line": 245,
+      "call_sites": 10
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "create_debug_session",
+      "context": "Tool name used in callToolHandler params",
+      "line": 69,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "list_debug_sessions",
+      "context": "Tool name used in callToolHandler params",
+      "line": 183,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "close_debug_session",
+      "context": "Tool name used in callToolHandler params",
+      "line": 216,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "Created python debug session",
+      "context": "Expected substring in success message for session creation",
+      "line": 87,
+      "kind": "message",
+      "usage": "checked"
+    },
+    {
+      "value": "Language 'java' is not supported",
+      "context": "Expected error message for unsupported language",
+      "line": 109,
+      "kind": "message",
+      "usage": "checked"
+    },
+    {
+      "value": "Failed to create debug session",
+      "context": "Expected logger.error call key when session creation fails",
+      "line": 126,
+      "kind": "message",
+      "usage": "checked"
+    },
+    {
+      "value": "Closed debug session",
+      "context": "Expected substring in success message for session closure",
+      "line": 223,
+      "kind": "message",
+      "usage": "checked"
+    },
+    {
+      "value": "Failed to close debug session",
+      "context": "Expected substring in failure message when session not found",
+      "line": 239,
+      "kind": "message",
+      "usage": "checked"
+    },
+    {
+      "value": "python",
+      "context": "DebugLanguage value used in test fixtures and arguments",
+      "line": 58,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "created",
+      "context": "SessionState value used in fixture",
+      "line": 59,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "running",
+      "context": "SessionState value used in fixture",
+      "line": 165,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "stopped",
+      "context": "SessionState value used in fixture",
+      "line": 170,
+      "kind": "identifier",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "Reality failure via declared intent (decisions/0021): python-debug-adapter.ts:472-473 and :489 declare the validate-only design with ProxyManager handling actual DAP communication; the identical stub is mirrored across the uniform IDebugAdapter surface (DotnetDebugAdapter.ts:436-455, rust-debug-adapter.ts:932). No production caller consumes the adapter's return \u2014 every production send goes through ProxyManager (adapter-policy-js.ts:216,260,283,297,372,461; proxy-manager.ts:396) \u2014 and the {} return is pinned by a passing test (python-debug-adapter.test.ts:128-130). 'Callers may not expect the empty object' is not-yet-real future fragility.",
+  "gray": true,
+  "gray_reason": "Panel split on grayness: the name/return-type (Promise<T extends DebugProtocol.Response>) vs in-body comment is a declaration-vs-declaration conflict of the unratified work#65 name-as-claim class; a confirm-at-info reading is arguable, though the ratified rubric dismisses.",
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}

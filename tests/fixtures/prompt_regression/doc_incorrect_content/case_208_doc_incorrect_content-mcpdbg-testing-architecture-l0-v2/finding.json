@@ -1,0 +1,20 @@
+{
+  "detector": "doc:incorrect_content",
+  "gap_type": "description",
+  "path": "docs/architecture/testing-architecture.md",
+  "line_start": null,
+  "line_end": null,
+  "symbol": null,
+  "contract_source": "tests\\test-utils\\mocks\\environment.ts",
+  "contract_claim": "The document describes createMockEnvironment() as defaulting MCP_CONTAINER to 'false' for host mode, referencing tests/test-utils/mocks/environment.ts. The shadow doc for the environment mock confirms this default. However, the doc also lists createMockEnvironment() under test-dependencies.ts helpers, where the shadow doc shows that version delegates to process.env (not hardcoded 'false' for MCP_CONTAINER). These are two different createMockEnvironment() functions with different behavior.",
+  "observed_behavior": "get (L21): Returns 'false' for 'MCP_CONTAINER' (host mode default), falls back to process.env[key] for all other keys",
+  "evidence": [],
+  "id": "0fe572a99932ea00",
+  "verdict": null,
+  "confidence": null,
+  "triage_reasoning": null,
+  "suggested_fix": null,
+  "severity": null,
+  "contract_class": null,
+  "evidence_fingerprint": null
+}

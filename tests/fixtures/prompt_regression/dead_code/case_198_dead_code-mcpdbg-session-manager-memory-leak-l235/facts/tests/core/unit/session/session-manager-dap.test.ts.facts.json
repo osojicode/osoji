@@ -1,0 +1,1274 @@
+{
+  "source": "tests/core/unit/session/session-manager-dap.test.ts",
+  "source_hash": "ed8bce5f8dd3ed6f",
+  "generated": "2026-07-22T22:06:53Z",
+  "imports": [
+    {
+      "source": "vitest",
+      "names": [
+        "describe",
+        "it",
+        "expect",
+        "beforeEach",
+        "afterEach",
+        "vi"
+      ],
+      "line": 4,
+      "is_reexport": false,
+      "resolved_path": "node_modules/.pnpm/vitest@4.1.10_@types+node@2_c452a249165098df3f47bec07557f6ef/node_modules/vitest/index.d.cts"
+    },
+    {
+      "source": "../../../../src/session/session-manager.js",
+      "names": [
+        "SessionManager",
+        "SessionManagerConfig"
+      ],
+      "line": 5,
+      "is_reexport": false,
+      "resolved_path": "src/session/session-manager.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage",
+        "SessionState"
+      ],
+      "line": 6,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./session-manager-test-utils.js",
+      "names": [
+        "createMockDependencies"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "tests/core/unit/session/session-manager-test-utils.ts"
+    },
+    {
+      "source": "../../../../src/utils/error-messages.js",
+      "names": [
+        "ErrorMessages"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "src/utils/error-messages.ts"
+    },
+    {
+      "source": "../../../../src/errors/debug-errors.js",
+      "names": [
+        "ProxyNotRunningError"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "src/errors/debug-errors.ts"
+    }
+  ],
+  "exports": [],
+  "calls": [
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 11,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "beforeEach",
+      "line": 16,
+      "call_sites": 162
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useFakeTimers",
+      "line": 17,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createMockDependencies",
+      "line": 18,
+      "call_sites": 11
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "SessionManager",
+      "line": 27,
+      "call_sites": 15
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "afterEach",
+      "line": 30,
+      "call_sites": 128
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.useRealTimers",
+      "line": 31,
+      "call_sites": 69
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.clearAllMocks",
+      "line": 32,
+      "call_sites": 87
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "dependencies.mockProxyManager.reset",
+      "line": 33,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "createPausedSession",
+      "to": "sessionManager.createSession",
+      "line": 37,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "createPausedSession",
+      "to": "sessionManager.startDebugging",
+      "line": 42,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "createPausedSession",
+      "to": "vi.runAllTimersAsync",
+      "line": 43,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "createPausedSession",
+      "to": "dependencies.mockProxyManager.simulateStopped",
+      "line": 46,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 54,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 55,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 56,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.setBreakpoint",
+      "line": 61,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.setBreakpoint",
+      "line": 62,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(bp1.verified).toBe",
+      "line": 64,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 64,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(bp2.verified).toBe",
+      "line": 65,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 65,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getSession",
+      "line": 67,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(managedSession?.breakpoints.size).toBe",
+      "line": 68,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 68,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 71,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 72,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.startDebugging",
+      "line": 78,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 79,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.setBreakpoint",
+      "line": 85,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(bp.verified).toBe",
+      "line": 88,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 88,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dependencies.mockProxyManager.dapRequestCalls).toHaveLength",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 89,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dependencies.mockProxyManager.dapRequestCalls[0]).toMatchObject",
+      "line": 90,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 90,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 92,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.stringContaining",
+      "line": 93,
+      "call_sites": 144
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 98,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 99,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.startDebugging",
+      "line": 104,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 105,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.setBreakpoint",
+      "line": 109,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(bp.condition).toBe",
+      "line": 116,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 116,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dependencies.mockProxyManager.dapRequestCalls[0].args.breakpoints[0]).toMatchObject",
+      "line": 117,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 117,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 124,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 125,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createPausedSession",
+      "line": 126,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.stepOver",
+      "line": 128,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 129,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.success).toBe",
+      "line": 133,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 133,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dependencies.mockProxyManager.dapRequestCalls).toContainEqual",
+      "line": 134,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 134,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 140,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createPausedSession",
+      "line": 141,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.stepInto",
+      "line": 143,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.success).toBe",
+      "line": 145,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 145,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dependencies.mockProxyManager.dapRequestCalls).toContainEqual",
+      "line": 146,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 146,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 152,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createPausedSession",
+      "line": 153,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.stepOut",
+      "line": 155,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.success).toBe",
+      "line": 157,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 157,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dependencies.mockProxyManager.dapRequestCalls).toContainEqual",
+      "line": 158,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 158,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 164,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 165,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sessionManager.stepOver(session.id)).rejects.toThrow",
+      "line": 171,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 171,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.stepOver",
+      "line": 171,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.startDebugging",
+      "line": 174,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 175,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.stepOver",
+      "line": 178,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.success).toBe",
+      "line": 179,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 179,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.error).toBe",
+      "line": 181,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 181,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 184,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createPausedSession",
+      "line": 185,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockResolvedValue",
+      "line": 188,
+      "call_sites": 397
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 188,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.stepOver",
+      "line": 190,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.advanceTimersByTimeAsync",
+      "line": 193,
+      "call_sites": 74
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.success).toBe",
+      "line": 196,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 196,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(data.pending).toBe",
+      "line": 198,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 198,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(data.message).toBe",
+      "line": 199,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 199,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "ErrorMessages.stepStillRunning",
+      "line": 199,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sessionManager.getSession(session.id)?.state).toBe",
+      "line": 203,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 203,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getSession",
+      "line": 203,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "dependencies.mockProxyManager.simulateStopped",
+      "line": 204,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 205,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(sessionManager.getSession(session.id)?.state).toBe",
+      "line": 206,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 206,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getSession",
+      "line": 206,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 209,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createPausedSession",
+      "line": 210,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 212,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 212,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "process.nextTick",
+      "line": 214,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "dependencies.mockProxyManager.emit",
+      "line": 215,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.stepOver",
+      "line": 221,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 222,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.success).toBe",
+      "line": 225,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 225,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 229,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 230,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "createPausedSession",
+      "line": 231,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn().mockImplementation",
+      "line": 233,
+      "call_sites": 83
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.fn",
+      "line": 233,
+      "call_sites": 2039
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getLocalVariables",
+      "line": 275,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(result.variables).toEqual",
+      "line": 276,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 276,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.arrayContaining",
+      "line": 277,
+      "call_sites": 18
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 278,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 279,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect.objectContaining",
+      "line": 280,
+      "call_sites": 94
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "describe",
+      "line": 286,
+      "call_sites": 690
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 287,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 288,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.startDebugging",
+      "line": 293,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 294,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "dependencies.mockProxyManager.simulateStopped",
+      "line": 297,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getVariables",
+      "line": 299,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(variables).toHaveLength",
+      "line": 301,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 301,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(variables[0]).toMatchObject",
+      "line": 302,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 302,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dependencies.mockProxyManager.dapRequestCalls).toContainEqual",
+      "line": 309,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 309,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 315,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 316,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.startDebugging",
+      "line": 321,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 322,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "dependencies.mockProxyManager.simulateStopped",
+      "line": 325,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getStackTrace",
+      "line": 327,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stackFrames).toHaveLength",
+      "line": 329,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 329,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stackFrames[0]).toMatchObject",
+      "line": 330,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 330,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dependencies.mockProxyManager.dapRequestCalls).toContainEqual",
+      "line": 337,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 337,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 343,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 344,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.startDebugging",
+      "line": 349,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 350,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "dependencies.mockProxyManager.simulateStopped",
+      "line": 353,
+      "call_sites": 5
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getScopes",
+      "line": 355,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(scopes).toHaveLength",
+      "line": 357,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 357,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(scopes[0]).toMatchObject",
+      "line": 358,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 358,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(dependencies.mockProxyManager.dapRequestCalls).toContainEqual",
+      "line": 364,
+      "call_sites": 6
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 364,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "it",
+      "line": 370,
+      "call_sites": 2517
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.createSession",
+      "line": 371,
+      "call_sites": 9
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getVariables",
+      "line": 377,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(variables).toEqual",
+      "line": 378,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 378,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getStackTrace",
+      "line": 380,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stackFrames).toEqual",
+      "line": 381,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 381,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getScopes",
+      "line": 383,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(scopes).toEqual",
+      "line": 384,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 384,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.startDebugging",
+      "line": 387,
+      "call_sites": 8
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "vi.runAllTimersAsync",
+      "line": 388,
+      "call_sites": 63
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getVariables",
+      "line": 390,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(variables).toEqual",
+      "line": 391,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 391,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getStackTrace",
+      "line": 393,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(stackFrames).toEqual",
+      "line": 394,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 394,
+      "call_sites": 5808
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "sessionManager.getScopes",
+      "line": 396,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect(scopes).toEqual",
+      "line": 397,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "<module>",
+      "to": "expect",
+      "line": 397,
+      "call_sites": 5808
+    }
+  ],
+  "member_writes": [
+    {
+      "container": "dependencies.mockProxyManager",
+      "member": "dapRequestCalls",
+      "line": 49
+    },
+    {
+      "container": "dependencies.mockProxyManager",
+      "member": "dapRequestCalls",
+      "line": 82
+    },
+    {
+      "container": "dependencies.mockProxyManager",
+      "member": "dapRequestCalls",
+      "line": 107
+    },
+    {
+      "container": "dependencies.mockProxyManager",
+      "member": "sendDapRequest",
+      "line": 188
+    },
+    {
+      "container": "dependencies.mockProxyManager",
+      "member": "sendDapRequest",
+      "line": 212
+    },
+    {
+      "container": "dependencies.mockProxyManager",
+      "member": "sendDapRequest",
+      "line": 233
+    }
+  ],
+  "string_literals": [
+    {
+      "value": "Not paused",
+      "context": "Expected error string returned by stepOver when session is running but not paused",
+      "line": 181,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "result.error"
+    },
+    {
+      "value": "next",
+      "context": "DAP command name for step over operation",
+      "line": 135,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "dependencies.mockProxyManager.dapRequestCalls"
+    },
+    {
+      "value": "stepIn",
+      "context": "DAP command name for step into operation",
+      "line": 147,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "dependencies.mockProxyManager.dapRequestCalls"
+    },
+    {
+      "value": "stepOut",
+      "context": "DAP command name for step out operation",
+      "line": 159,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "dependencies.mockProxyManager.dapRequestCalls"
+    },
+    {
+      "value": "setBreakpoints",
+      "context": "DAP command name for setting breakpoints",
+      "line": 91,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "dependencies.mockProxyManager.dapRequestCalls[0].command"
+    },
+    {
+      "value": "stackTrace",
+      "context": "DAP command name for stack trace retrieval",
+      "line": 338,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "dependencies.mockProxyManager.dapRequestCalls"
+    },
+    {
+      "value": "variables",
+      "context": "DAP command name for variable retrieval",
+      "line": 310,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "dependencies.mockProxyManager.dapRequestCalls"
+    },
+    {
+      "value": "scopes",
+      "context": "DAP command name for scope retrieval",
+      "line": 365,
+      "kind": "identifier",
+      "usage": "checked",
+      "comparison_source": "dependencies.mockProxyManager.dapRequestCalls"
+    }
+  ],
+  "extraction_method": "ast"
+}

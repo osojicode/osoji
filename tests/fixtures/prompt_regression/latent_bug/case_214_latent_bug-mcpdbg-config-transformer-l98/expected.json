@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "The trigger requires compilerOptions.paths as a JSON array \u2014 invalid per the external tsconfig schema, so no real project reaches the state; even then the sole consequence is injecting a no-op tsconfig-paths/register hook (javascript-debug-adapter.ts:483-486). The test pins the behavior deliberately with an explanatory comment (edge2.test.ts:98-102), which the latent_bug rubric reads as a verification-role guard. Fails Reality: unreachable input, harmless effect. [Sweep-era expected.json was internally contradictory (verdict confirmed, body argued FP); panel 2-of-2 dismisses.]",
+  "gray": true,
+  "gray_reason": "The test's own title ('string/array treated as false', edge2.test.ts:88) contradicts the array assertion at :102, and the declared TsConfig type (config-transformer.ts:47) says paths is a Record \u2014 a confirm-at-info '!Array.isArray' hardening reading is defensible.",
+  "expected_contract_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}
