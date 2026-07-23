@@ -408,6 +408,18 @@ Apply every fix in the plan:
    - **Accuracy errors**: correct the specific claims to match reality
    - **Obligation violations**: extract shared constant, rename to match, etc.
 3. **Re-read** the affected area to confirm the fix looks correct.
+4. **Verify every claim the fix itself introduces.** Findings get adversarial
+   verification; your fixes deserve the same scrutiny:
+   - Any factual assertion a fix writes into a doc, comment, or docstring —
+     what a loader requires, what a component receives, what a function
+     returns — must be checked against the code it describes before commit:
+     resolve the referenced artifact and read it. Never write documentation
+     from memory of what the code "should" do; a fix that introduces an
+     invented claim converts an accurate finding into fresh debris.
+   - Any edit to a test assertion must preserve fail semantics: state the
+     input class under which the new expression still fails. A pass/fail
+     expression that cannot fail is exactly the defect this tool exists to
+     catch — do not manufacture one while fixing another.
 
 ### After all fixes:
 
