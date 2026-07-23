@@ -74,6 +74,11 @@ class Scorecard:
     contract_claims_triaged: int | None = None
     contract_claims_other: int | None = None
 
+    # Untriaged-debris floor (osoji#168): kept debris findings that carried no
+    # Triage verdict this run (unclaimable, evidence gate unmet, or a failed
+    # decide chunk). None when the debris phase didn't run.
+    debris_untriaged: int | None = None
+
     # V1-9: fraction of Triage claims served from the incremental verdict
     # cache this run (None when no claims reached a Triage seam)
     verdict_cache_hit_rate: float | None = None

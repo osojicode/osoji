@@ -1,14 +1,14 @@
-"""Tests for the Claim Builder (V1-4 mechanized; V1-3 debris wrapper preserved).
+"""Tests for the Claim Builder (V1-4 mechanized).
 
 build_claims is the generalized schema-as-config pass: per finding category a
 SchemaEntry names the evidence kinds to build (in order) and the require_any
 sufficiency gate; the assembled bundle gets a deterministic evidence_fingerprint
-(schema version + impl hash + canonical bundle). build_debris_claims is now a
-thin wrapper preserving the V1-3 debris contract exactly: only eligible findings
-(dead_code / latent_bug always; stale_comment when flagged for cross-file check)
-with satisfiable evidence become Claims; the rest pass through untouched.
-Eligible-but-insufficient findings are *counted* (would_escalate) for the
-escalation-rate baseline but never escalated here.
+(schema version + impl hash + canonical bundle). Since osoji#168 the debris
+wrapper admits every debris category — the V1-3 eligibility gate and its
+DEBRIS_SCHEMA sufficiency overrides are retired. What survives of decision 0014
+is the pass-through semantics: findings whose require_any gate is unmet (or
+that carry no source at all) are *counted* (would_escalate) for the
+escalation-rate baseline but never escalated here; they ship kept-unverified.
 """
 
 import time
@@ -124,29 +124,64 @@ def test_eligible_with_refs_becomes_claim_with_evidence(config):
     assert xref.payload["references"][0]["file"] == "src/y.py"
 
 
-def test_ineligible_finding_is_not_a_claim(config):
-    facts = FakeFacts()
-    # stale_comment without the cross-file flag is ineligible (kept unverified)
+def _write_flagged_file(temp_dir):
+    """The description family's require_any is surrounding_code — the builder
+    reads the flagged file from disk, so these tests need a real one."""
+    target = temp_dir / "src" / "x.py"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(
+        "def helper():\n" + "    pass  # filler\n" * 13, encoding="utf-8"
+    )
+
+
+@pytest.mark.parametrize(
+    "category",
+    ["stale_comment", "misleading_docstring", "expired_todo", "commented_out_code"],
+)
+def test_description_family_builds_claim_from_surrounding_code(config, temp_dir, category):
+    # osoji#168: every description-debris category routes through Triage; the
+    # deciding evidence is positional (surrounding_code), no cross-file ref
+    # required — single-file drift is exactly the population being triaged.
+    _write_flagged_file(temp_dir)
     claims, original_indices, would_escalate = build_debris_claims(
-        config, [debris(category="stale_comment", description="comment is stale")],
-        facts_db=facts, symbols_by_file={},
+        config,
+        [debris(category=category, description="the description contradicts the code")],
+        facts_db=FakeFacts(), symbols_by_file={},
+    )
+    assert len(claims) == 1
+    assert original_indices == [0]
+    assert would_escalate == 0
+    assert claims[0].insufficient_evidence is False
+    assert "surrounding_code" in [e.kind for e in claims[0].finding.evidence]
+
+
+def test_cross_file_flag_no_longer_gates_admission(config, temp_dir):
+    # The detector's cross_file_verification_needed flag is advisory context
+    # since osoji#168 (it rides in scanner_metadata); flagged and unflagged
+    # stale comments are admitted identically.
+    _write_flagged_file(temp_dir)
+    raw = [
+        debris(category="stale_comment", description="single-file drift"),
+        debris(category="stale_comment", description="`thing` no longer does X",
+               cross_file_verification_needed=True),
+    ]
+    claims, original_indices, _ = build_debris_claims(
+        config, raw, facts_db=FakeFacts(), symbols_by_file={}
+    )
+    assert len(claims) == 2
+    assert original_indices == [0, 1]
+
+
+def test_description_family_unreadable_file_counts_would_escalate(config):
+    # require_any={surrounding_code} unmet when the flagged file is gone:
+    # kept-unverified pass-through (decision 0014 semantics preserved).
+    claims, original_indices, would_escalate = build_debris_claims(
+        config, [debris(category="stale_comment", source="src/gone.py")],
+        facts_db=FakeFacts(), symbols_by_file={},
     )
     assert claims == []
     assert original_indices == []
-    assert would_escalate == 0
-
-
-def test_stale_comment_with_flag_is_eligible(config):
-    facts = FakeFacts({"thing": [
-        {"file": "src/z.py", "kind": "call", "context": "thing()", "resolves_to_source": False},
-    ]})
-    claims, original_indices, _ = build_debris_claims(
-        config,
-        [debris(category="stale_comment", description="`thing` no longer does X",
-                cross_file_verification_needed=True)],
-        facts_db=facts, symbols_by_file={},
-    )
-    assert len(claims) == 1
+    assert would_escalate == 1
 
 
 def test_eligible_without_evidence_counts_as_would_escalate(config):
@@ -159,19 +194,20 @@ def test_eligible_without_evidence_counts_as_would_escalate(config):
     assert would_escalate == 1
 
 
-def test_original_index_mapping_skips_non_candidates(config):
+def test_original_index_mapping_skips_pass_throughs(config):
     facts = FakeFacts({"old_helper": [
         {"file": "src/y.py", "kind": "import", "context": "import", "resolves_to_source": True},
     ]})
     raw = [
-        debris(category="commented_out_code", description="dead block"),  # ineligible
-        debris(),                                                          # eligible + refs
+        debris(source=None, source_path=None),  # malformed: no source → pass-through
+        debris(),                               # dead_code + refs → claim
     ]
-    claims, original_indices, _ = build_debris_claims(
+    claims, original_indices, would_escalate = build_debris_claims(
         config, raw, facts_db=facts, symbols_by_file={}
     )
     assert len(claims) == 1
     assert original_indices == [1]
+    assert would_escalate == 1
 
 
 def test_debris_wrapper_sets_fingerprint(config):
@@ -361,7 +397,22 @@ def test_schema_version_is_pinned():
     # scan_needles/priority_paths and flags in-string-literal hits.
     # cb-3 (V1-5d): doc-category schema keys unprefixed (doc_* → bare) so they
     # match category_of(finding_from_doc(...)) instead of falling to the default.
-    assert CLAIM_BUILDER_SCHEMA_VERSION == "cb-3"
+    # cb-4 (osoji#168): debris admission gate + DEBRIS_SCHEMA retired — all
+    # debris categories build on the general table; stale_comment loses its
+    # legacy cross_file_reference sufficiency override; expired_todo and
+    # commented_out_code gain description entries.
+    assert CLAIM_BUILDER_SCHEMA_VERSION == "cb-4"
+
+
+def test_debris_categories_all_have_explicit_schema_entries():
+    # osoji#168: the debris producer's closed category set (tools.py) resolves
+    # explicitly in the general table — no category rides the gap-type
+    # fallback silently.
+    for category in (
+        "dead_code", "stale_comment", "misleading_docstring",
+        "commented_out_code", "expired_todo", "latent_bug",
+    ):
+        assert category in CLAIM_BUILDER_SCHEMA, category
 
 
 def test_every_schema_kind_has_registered_builder():

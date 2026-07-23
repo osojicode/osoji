@@ -23,7 +23,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from osoji.claim_builder import _is_eligible, build_debris_claims  # noqa: E402
+from osoji.claim_builder import build_debris_claims  # noqa: E402
 from osoji.config import Config  # noqa: E402
 from osoji.evidence_builders import (  # noqa: E402
     _extract_all_symbols_from_debris,
@@ -59,6 +59,18 @@ def load_debris_ignoring_impl_hash(config: Config) -> list[dict]:
         except (json.JSONDecodeError, KeyError):
             continue
     return raw_debris
+
+
+def legacy_is_eligible(finding: dict) -> bool:
+    """The V1-3 eligibility gate, replicated verbatim (retired from production
+    by osoji#168 — this script measures against the frozen legacy behavior)."""
+
+    category = finding.get("category", "")
+    if category in ("dead_code", "latent_bug"):
+        return True
+    if category == "stale_comment" and finding.get("cross_file_verification_needed"):
+        return True
+    return False
 
 
 def legacy_claim_exists(config: Config, finding: dict, facts_db, symbols_by_file) -> bool:
@@ -102,7 +114,7 @@ def main() -> int:
 
     config = Config(root_path=REPO_ROOT)
     raw_debris = load_debris_ignoring_impl_hash(config)
-    eligible = [f for f in raw_debris if _is_eligible(f)]
+    eligible = [f for f in raw_debris if legacy_is_eligible(f)]
 
     facts_db = FactsDB(config)
     symbols_by_file = load_all_symbols(config)

@@ -37,7 +37,6 @@ from .walker import _matches_ignore
 from .claim_builder import (  # noqa: F401  (re-exported helpers)
     _extract_all_symbols_from_debris,
     _infer_variable_type,
-    _is_eligible,
     _lookup_type_definitions,
     build_debris_claims,
 )
@@ -623,6 +622,7 @@ async def run_audit_async(
         })
 
     # Collect issues from Phase 3 (debris)
+    debris_untriaged = 0
     for i, finding in enumerate(raw_debris):
         if i in suppressed_indices:
             continue
@@ -632,6 +632,11 @@ async def run_audit_async(
         # finding to a lower severity, never drop it outright) — the heuristic
         # severity/remediation stay the fallback, never dropped.
         decided = debris_decided.get(i)
+        if decided is None or decided.verdict is None:
+            # Kept without a Triage verdict (unclaimable, evidence gate unmet,
+            # or a failed decide chunk) — counted for the scorecard and tagged
+            # [untriaged] in the report (osoji#168 interim floor).
+            debris_untriaged += 1
         heuristic_severity = finding["severity"]
         issues.append(AuditIssue(
             path=finding["source_path"],
@@ -712,6 +717,10 @@ async def run_audit_async(
     if obligations and not skip_obligations:
         scorecard.contract_claims_triaged = contract_triaged
         scorecard.contract_claims_other = contract_other
+    # Untriaged-debris floor (osoji#168): None when the phase didn't run — an
+    # excluded phase must not read as a clean bill of health.
+    if not skip_debris:
+        scorecard.debris_untriaged = debris_untriaged
     # V1-9: cache effectiveness across every Triage seam this run
     scorecard.verdict_cache_hit_rate = session.hit_rate
     if use_cache and session.claims_seen:
@@ -911,12 +920,13 @@ async def _run_phase2_async(config, rate_limiter, progress_cb, verbose):
 
 
 async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
-    """Phase 3: Triage debris findings against cross-file evidence.
+    """Phase 3: Triage debris findings against gathered evidence.
 
-    Builds self-sufficient claims for the eligible debris subset (the same subset
-    the legacy verify step gated on) and decides them through the shared chunked
-    decide loop (work#57: the V1-5e A/B saw a whole-corpus single call go
-    off-by-one from ~index 5; bounded chunks match every Phase 4 analyzer). A
+    Builds self-sufficient claims for every debris finding (osoji#168 retired
+    the legacy eligibility gate; findings whose evidence gate is unmet pass
+    through unverified) and decides them through the shared chunked decide
+    loop (work#57: the V1-5e A/B saw a whole-corpus single call go off-by-one
+    from ~index 5; bounded chunks match every Phase 4 analyzer). A
     ``dismissed`` verdict suppresses the finding — preserving the prior behavior
     where a confirmed-false-positive was dropped. Best-effort: on any failure
     all findings are kept.
@@ -933,8 +943,7 @@ async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
     suppressed_indices: set[int] = set()
     decided_by_index: dict[int, Finding] = {}
     phase_tokens = (0, 0)
-    needs_verification = any(_is_eligible(f) for f in raw_debris)
-    if needs_verification:
+    if raw_debris:
         try:
             claims, original_indices, would_escalate = build_debris_claims(config, raw_debris)
             if claims:
@@ -954,14 +963,14 @@ async def _run_phase3_async(config, raw_debris, rate_limiter, verbose):
                 phase_tokens = (in_tok, out_tok)
             if suppressed_indices and verbose:
                 _emit(config, f"  Dismissed {len(suppressed_indices)} false positive debris finding(s)")
-            # Dormant escalation tally (decision 0014): eligible findings whose
+            # Dormant escalation tally (decision 0014): findings whose
             # require_any gate was unmet are kept unverified, not escalated.
             # The rate is a V1-4 falsifiability metric — a climbing rate says
             # the Claim Builder schema needs revision.
             if would_escalate and verbose:
-                eligible_total = len(claims) + would_escalate
-                rate = would_escalate / eligible_total if eligible_total else 0.0
-                _emit(config, f"  {would_escalate} eligible finding(s) lacked gatherable evidence "
+                total = len(claims) + would_escalate
+                rate = would_escalate / total if total else 0.0
+                _emit(config, f"  {would_escalate} finding(s) lacked gatherable evidence "
                               f"(would-escalate; kept unverified; escalation rate {rate:.1%})")
             # #160: decide_junk_claims absorbs a permanent error to keep findings
             # (it never raises here), so attribute a tripped breaker to this phase.
@@ -1221,6 +1230,7 @@ def load_audit_result(config: Config) -> AuditResult:
             obligation_implicit_contracts=sc.get("obligation_implicit_contracts"),
             contract_claims_triaged=sc.get("contract_claims_triaged"),
             contract_claims_other=sc.get("contract_claims_other"),
+            debris_untriaged=sc.get("debris_untriaged"),
             verdict_cache_hit_rate=sc.get("verdict_cache_hit_rate"),
             concept_total=sc.get("concept_total"),
             concept_fully_documented=sc.get("concept_fully_documented"),
@@ -1272,6 +1282,8 @@ def _format_scorecard_section(scorecard: Scorecard) -> list[str]:
         rate = other / scorecard.contract_claims_triaged
         summary_rows.append(["Contract taxonomy", f"{other}/{scorecard.contract_claims_triaged} 'other' "
                              f"({rate:.0%} CE-gap rate)"])
+    if scorecard.debris_untriaged is not None:
+        summary_rows.append(["Untriaged debris", str(scorecard.debris_untriaged)])
     degradation_value = ", ".join(scorecard.degraded_phases) if scorecard.degraded_phases else "none"
     summary_rows.append(["Triage degradation", degradation_value])
     lines.append(_table(["Metric", "Value"], summary_rows))
@@ -1403,6 +1415,16 @@ These are informational only. No action is required. If you choose to act:
 Findings below are observations, not verdicts."""
 
 
+def _untriaged_tag(issue: AuditIssue) -> str:
+    """`` [untriaged]`` for a kept debris finding without a Triage verdict.
+
+    Debris-only: the other phases' verdict-``None`` issues were never Triage
+    candidates, so the tag would be noise there (osoji#168 interim floor)."""
+    if issue.exclude_key == "debris" and issue.verdict is None:
+        return " [untriaged]"
+    return ""
+
+
 def format_audit_report(result: AuditResult) -> str:
     """Format audit result as agent-ready markdown report."""
     if result.passed and not result.has_warnings and result.scorecard is None:
@@ -1446,7 +1468,7 @@ def format_audit_report(result: AuditResult) -> str:
         lines.append("## Errors (blocking)\n")
         for issue in errors:
             phase_tag = f" [phase: {issue.exclude_key}]" if issue.exclude_key else ""
-            lines.append(f"### `{issue.path}`{phase_tag}")
+            lines.append(f"### `{issue.path}`{phase_tag}{_untriaged_tag(issue)}")
             lines.append(f"**Category**: {issue.category}")
             lines.append(f"**Issue**: {issue.message}")
             lines.append(f"**Remediation**: {issue.remediation}")
@@ -1464,7 +1486,7 @@ def format_audit_report(result: AuditResult) -> str:
         lines.append("## Warnings (non-blocking)\n")
         for issue in warnings:
             phase_tag = f" [phase: {issue.exclude_key}]" if issue.exclude_key else ""
-            lines.append(f"- `{issue.path}`: {issue.message}{phase_tag}")
+            lines.append(f"- `{issue.path}`: {issue.message}{phase_tag}{_untriaged_tag(issue)}")
         lines.append("")
 
     infos = [i for i in result.issues if i.severity == "info"]
