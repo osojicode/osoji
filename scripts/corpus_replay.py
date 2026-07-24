@@ -35,6 +35,7 @@ from eval_lib import (  # noqa: E402
     load_splits,
     resolve_variant,
     select_cases,
+    write_exploration_traces,
     write_verdict_ndjson,
 )
 from osoji.config import Config  # noqa: E402
@@ -107,7 +108,18 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--exclude-gray", action="store_true")
     parser.add_argument("--provider", default="anthropic")
     parser.add_argument("--model", default=None, help="override the resolved model")
+    parser.add_argument(
+        "--mode", choices=("claim", "exploration"), default="claim",
+        help="decide tier: 'claim' = production-shaped batched rails (default); "
+        "'exploration' = per-case agentic loop rooted at each case's staged "
+        "snapshot (osojicode/work#92) — anthropic provider only",
+    )
     parser.add_argument("--out", default="-", help="NDJSON output path, or - for stdout")
+    parser.add_argument(
+        "--traces-out", type=Path, default=None,
+        help="exploration-trace sidecar path (mode=exploration only); defaults "
+        "to <--out minus .ndjson>-traces.json, required explicitly with --out -",
+    )
     parser.add_argument(
         "--gate-check", action="store_true",
         help="print the GEPA gate report for the current selection and exit "
@@ -153,6 +165,27 @@ def main(argv: list[str] | None = None) -> int:
         print(
             "error: --gate-check evaluates the entire corpus; "
             "remove --split/--only/--exclude-gray",
+            file=sys.stderr,
+        )
+        return 2
+
+    # Exploration mode needs tool_choice=auto plus multi-turn tool_result
+    # round-trips; only the anthropic API provider supports that (the
+    # claude-code CLI cannot — decisions/0015, osojicode/work#51).
+    if args.mode == "exploration" and args.provider != "anthropic":
+        print(
+            f"error: --mode exploration requires --provider anthropic "
+            f"(got {args.provider!r}): the exploration loop needs auto tool "
+            "choice and multi-turn tool_result round-trips",
+            file=sys.stderr,
+        )
+        return 2
+
+    # The trace sidecar's default name derives from --out; stdout has none.
+    if args.mode == "exploration" and args.out == "-" and args.traces_out is None:
+        print(
+            "error: --mode exploration with --out - needs an explicit --traces-out "
+            "(no output path to derive the trace sidecar name from)",
             file=sys.stderr,
         )
         return 2
@@ -245,6 +278,7 @@ def main(argv: list[str] | None = None) -> int:
                     repeats=args.repeats,
                     repeat_offset=args.repeat_offset,
                     run_id=run_id,
+                    mode=args.mode,
                     config_factory=_config_factory,
                     workdir=Path(tmp),
                     corpus_root=args.corpus,
@@ -261,6 +295,13 @@ def main(argv: list[str] | None = None) -> int:
         write_verdict_ndjson(run.records, run.run_meta, _Utf8BytesWriter(sys.stdout.buffer))
     else:
         write_verdict_ndjson(run.records, run.run_meta, Path(args.out))
+
+    if args.mode == "exploration":
+        traces_out = args.traces_out
+        if traces_out is None:
+            # "runs/eval-xyz.ndjson" -> "runs/eval-xyz-traces.json"
+            traces_out = Path(str(Path(args.out).with_suffix("")) + "-traces.json")
+        write_exploration_traces(run, traces_out)
     return 0
 
 

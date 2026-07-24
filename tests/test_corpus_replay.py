@@ -507,3 +507,134 @@ def test_parse_only_splits_on_comma():
     assert corpus_replay._parse_only("a,b, c") == ("a", "b", "c")
     assert corpus_replay._parse_only(None) == ()
     assert corpus_replay._parse_only("") == ()
+
+
+# ---------------------------------------------------------------------------
+# --mode exploration (osojicode/work#92)
+# ---------------------------------------------------------------------------
+
+
+def _make_fake_exploration_evaluate_corpus(calls: list):
+    """Canned async evaluate_corpus recording kwargs; returns an EvalRun whose
+    traces list is non-empty so the sidecar write path is exercised."""
+
+    async def _fake(cases, variants, **kwargs):
+        calls.append(kwargs)
+        run_id = kwargs.get("run_id")
+        record = _canned_record(run_id=run_id, variant=variants[0].name, case=cases[0].key)
+        run_meta = _canned_run_meta(run_id=run_id)
+        run_meta["mode"] = kwargs.get("mode", "claim")
+        traces = [
+            {
+                "slug": cases[0].key,
+                "mode": "exploration-eval",
+                "variant": variants[0].name,
+                "repeat": 0,
+                "adjudicated_verdict": "confirmed",
+                "gray": False,
+                "finding": {"verdict": "confirmed"},
+                "trace": {"finding_id": "f1", "calls": [], "input_tokens": 10,
+                          "output_tokens": 5},
+            }
+        ]
+        return eval_lib.EvalRun(records=[record], run_meta=run_meta, traces=traces)
+
+    return _fake
+
+
+def test_mode_exploration_rejects_non_anthropic_provider(tmp_path, capsys, monkeypatch):
+    """Exploration needs auto tool_choice + multi-turn tool_result round-trips —
+    only the anthropic provider supports that; anything else must exit 2."""
+    corpus_root = tmp_path / "corpus"
+    _write_case(corpus_root, "dead_code", "case_0")
+    calls: list = []
+    monkeypatch.setattr(
+        corpus_replay, "evaluate_corpus", _make_fake_exploration_evaluate_corpus(calls)
+    )
+
+    exit_code = corpus_replay.main(
+        ["--corpus", str(corpus_root), "--mode", "exploration",
+         "--provider", "claude-code", "--out", str(tmp_path / "out.ndjson")]
+    )
+
+    assert exit_code == 2
+    err = capsys.readouterr().err
+    assert "exploration" in err
+    assert "anthropic" in err
+    assert calls == []
+
+
+def test_mode_exploration_stdout_requires_explicit_traces_out(tmp_path, capsys, monkeypatch):
+    """--out - has no path to derive the sidecar name from: require --traces-out."""
+    corpus_root = tmp_path / "corpus"
+    _write_case(corpus_root, "dead_code", "case_0")
+    calls: list = []
+    monkeypatch.setattr(
+        corpus_replay, "evaluate_corpus", _make_fake_exploration_evaluate_corpus(calls)
+    )
+
+    exit_code = corpus_replay.main(
+        ["--corpus", str(corpus_root), "--mode", "exploration", "--out", "-"]
+    )
+
+    assert exit_code == 2
+    err = capsys.readouterr().err
+    assert "--traces-out" in err
+    assert calls == []
+
+
+def test_mode_exploration_passes_mode_and_writes_default_sidecar(tmp_path, monkeypatch):
+    corpus_root = tmp_path / "corpus"
+    _write_case(corpus_root, "dead_code", "case_0")
+    calls: list = []
+    monkeypatch.setattr(
+        corpus_replay, "evaluate_corpus", _make_fake_exploration_evaluate_corpus(calls)
+    )
+    out_path = tmp_path / "out.ndjson"
+
+    exit_code = corpus_replay.main(
+        ["--corpus", str(corpus_root), "--mode", "exploration", "--out", str(out_path)]
+    )
+
+    assert exit_code == 0
+    assert calls[0]["mode"] == "exploration"
+
+    sidecar = tmp_path / "out-traces.json"
+    assert sidecar.exists()
+    doc = json.loads(sidecar.read_text(encoding="utf-8"))
+    assert doc["schema"] == "osoji-exploration-traces/1"
+    assert doc["entries"][0]["slug"] == "dead_code/case_0"
+
+
+def test_mode_exploration_honors_explicit_traces_out(tmp_path, monkeypatch):
+    corpus_root = tmp_path / "corpus"
+    _write_case(corpus_root, "dead_code", "case_0")
+    calls: list = []
+    monkeypatch.setattr(
+        corpus_replay, "evaluate_corpus", _make_fake_exploration_evaluate_corpus(calls)
+    )
+    sidecar = tmp_path / "custom" / "traces.json"
+
+    exit_code = corpus_replay.main(
+        ["--corpus", str(corpus_root), "--mode", "exploration",
+         "--out", str(tmp_path / "out.ndjson"), "--traces-out", str(sidecar)]
+    )
+
+    assert exit_code == 0
+    assert sidecar.exists()
+
+
+def test_mode_claim_default_passes_mode_and_writes_no_sidecar(tmp_path, monkeypatch):
+    corpus_root = tmp_path / "corpus"
+    _write_case(corpus_root, "dead_code", "case_0")
+    calls: list = []
+    monkeypatch.setattr(
+        corpus_replay, "evaluate_corpus", _make_fake_exploration_evaluate_corpus(calls)
+    )
+    out_path = tmp_path / "out.ndjson"
+
+    exit_code = corpus_replay.main(["--corpus", str(corpus_root), "--out", str(out_path)])
+
+    assert exit_code == 0
+    assert calls[0]["mode"] == "claim"
+    assert not (tmp_path / "out-traces.json").exists()
