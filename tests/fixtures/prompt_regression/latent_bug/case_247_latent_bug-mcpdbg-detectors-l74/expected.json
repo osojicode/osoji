@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "confirmed",
+  "reasoning": "Panel verdict split resolved under decisions/0027. The claim asserts a dead invocation: standard Docker CLI has no `ping` subcommand, so the primary daemon check (L74-79) never succeeds and always falls through — that mismatch is exhibited by the checkout. The `docker ps` fallback (L82-90) fully masks the consequence (daemon detection still returns correct (True, version) / (True, '...daemon not running') results), but under 0027 masking grades severity, never existence: fully masked → info. Confirmed at info. The pre-0027 dismissal ('no input produces wrong behavior → not a latent bug') applied the failure-premise test to a mismatch-asserting claim.",
+  "gray": false,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "panel-split+decisions/0027",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}
