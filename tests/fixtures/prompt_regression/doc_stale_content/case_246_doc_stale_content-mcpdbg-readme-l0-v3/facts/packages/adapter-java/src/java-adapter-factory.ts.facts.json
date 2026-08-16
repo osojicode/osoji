@@ -1,0 +1,225 @@
+{
+  "source": "packages/adapter-java/src/java-adapter-factory.ts",
+  "source_hash": "f3aecb9df27efe65",
+  "generated": "2026-07-22T22:07:21Z",
+  "imports": [
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IDebugAdapter"
+      ],
+      "line": 7,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IAdapterFactory",
+        "AdapterDependencies",
+        "AdapterMetadata",
+        "FactoryValidationResult"
+      ],
+      "line": 8,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./java-debug-adapter.js",
+      "names": [
+        "JavaDebugAdapter"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-java/src/java-debug-adapter.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage"
+      ],
+      "line": 10,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./utils/java-utils.js",
+      "names": [
+        "findJavaExecutable",
+        "getJavaVersion"
+      ],
+      "line": 11,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-java/src/utils/java-utils.ts"
+    },
+    {
+      "source": "./utils/jdi-resolver.js",
+      "names": [
+        "resolveJdiBridgeClassDir"
+      ],
+      "line": 12,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-java/src/utils/jdi-resolver.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "JavaAdapterFactory",
+      "kind": "class",
+      "line": 17,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "implements": [
+        "IAdapterFactory"
+      ]
+    },
+    {
+      "name": "JavaAdapterFactory.createAdapter",
+      "kind": "function",
+      "line": 21,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "dependencies",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/adapter-registry\").AdapterDependencies"
+        }
+      ]
+    },
+    {
+      "name": "JavaAdapterFactory.getMetadata",
+      "kind": "function",
+      "line": 28,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "JavaAdapterFactory.validate",
+      "kind": "function",
+      "line": 45,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "JavaAdapterFactory.createAdapter",
+      "to": "JavaDebugAdapter",
+      "line": 22,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaAdapterFactory.validate",
+      "to": "resolveJdiBridgeClassDir",
+      "line": 53,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "JavaAdapterFactory.validate",
+      "to": "warnings.push",
+      "line": 55,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavaAdapterFactory.validate",
+      "to": "findJavaExecutable",
+      "line": 62,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "JavaAdapterFactory.validate",
+      "to": "getJavaVersion",
+      "line": 63,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavaAdapterFactory.validate",
+      "to": "javaVersion.split",
+      "line": 67,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaAdapterFactory.validate",
+      "to": "parseInt",
+      "line": 68,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavaAdapterFactory.validate",
+      "to": "parseInt",
+      "line": 69,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavaAdapterFactory.validate",
+      "to": "warnings.push",
+      "line": 72,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "JavaAdapterFactory.validate",
+      "to": "errors.push",
+      "line": 76,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaAdapterFactory.validate",
+      "to": "new Date().toISOString",
+      "line": 89,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "JavaAdapterFactory.validate",
+      "to": "Date",
+      "line": 89,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "Java",
+      "context": "displayName field in adapter metadata",
+      "line": 31,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "0.2.0",
+      "context": "version field in adapter metadata",
+      "line": 32,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "0.18.0",
+      "context": "minimumDebuggerVersion field in adapter metadata",
+      "line": 36,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": ".java",
+      "context": "fileExtensions entry in adapter metadata",
+      "line": 37,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "JDI bridge not compiled. Run: pnpm --filter @debugmcp/adapter-java run build:adapter",
+      "context": "Warning pushed when JDI bridge class dir not found",
+      "line": 55,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "Java not found. Install JDK 21+ from https://adoptium.net/",
+      "context": "Error pushed when Java executable not found",
+      "line": 76,
+      "kind": "message",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

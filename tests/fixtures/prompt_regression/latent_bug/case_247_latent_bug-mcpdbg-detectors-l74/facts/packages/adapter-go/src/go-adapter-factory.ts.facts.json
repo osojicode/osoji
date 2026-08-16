@@ -1,0 +1,279 @@
+{
+  "source": "packages/adapter-go/src/go-adapter-factory.ts",
+  "source_hash": "ac440ee53e7b99ef",
+  "generated": "2026-07-22T22:08:45Z",
+  "imports": [
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IDebugAdapter"
+      ],
+      "line": 9,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "IAdapterFactory",
+        "AdapterDependencies",
+        "AdapterMetadata",
+        "FactoryValidationResult"
+      ],
+      "line": 10,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./go-debug-adapter.js",
+      "names": [
+        "GoDebugAdapter"
+      ],
+      "line": 11,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-go/src/go-debug-adapter.ts"
+    },
+    {
+      "source": "@debugmcp/shared",
+      "names": [
+        "DebugLanguage"
+      ],
+      "line": 12,
+      "is_reexport": false,
+      "resolved_path": "packages/shared/dist/index.d.ts"
+    },
+    {
+      "source": "./utils/go-utils.js",
+      "names": [
+        "findGoExecutable",
+        "findDelveExecutable",
+        "getGoVersion",
+        "getDelveVersion",
+        "checkDelveDapSupport"
+      ],
+      "line": 13,
+      "is_reexport": false,
+      "resolved_path": "packages/adapter-go/src/utils/go-utils.ts"
+    }
+  ],
+  "exports": [
+    {
+      "name": "GoAdapterFactory",
+      "kind": "class",
+      "line": 18,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "implements": [
+        "IAdapterFactory"
+      ]
+    },
+    {
+      "name": "GoAdapterFactory.createAdapter",
+      "kind": "function",
+      "line": 22,
+      "decorators": [],
+      "exclude_from_dead_analysis": false,
+      "parameters": [
+        {
+          "name": "dependencies",
+          "optional": false,
+          "type": "import(\"C:/Users/johnf/projects/mcp-debugger/packages/shared/dist/interfaces/adapter-registry\").AdapterDependencies"
+        }
+      ]
+    },
+    {
+      "name": "GoAdapterFactory.getMetadata",
+      "kind": "function",
+      "line": 29,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    },
+    {
+      "name": "GoAdapterFactory.validate",
+      "kind": "function",
+      "line": 47,
+      "decorators": [],
+      "exclude_from_dead_analysis": false
+    }
+  ],
+  "calls": [
+    {
+      "from_symbol": "GoAdapterFactory.createAdapter",
+      "to": "GoDebugAdapter",
+      "line": 23,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoAdapterFactory.validate",
+      "to": "findGoExecutable",
+      "line": 57,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoAdapterFactory.validate",
+      "to": "getGoVersion",
+      "line": 60,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoAdapterFactory.validate",
+      "to": "goVersion.split('.').map",
+      "line": 62,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoAdapterFactory.validate",
+      "to": "goVersion.split",
+      "line": 62,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoAdapterFactory.validate",
+      "to": "errors.push",
+      "line": 64,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoAdapterFactory.validate",
+      "to": "warnings.push",
+      "line": 67,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoAdapterFactory.validate",
+      "to": "findDelveExecutable",
+      "line": 72,
+      "call_sites": 3
+    },
+    {
+      "from_symbol": "GoAdapterFactory.validate",
+      "to": "getDelveVersion",
+      "line": 73,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoAdapterFactory.validate",
+      "to": "checkDelveDapSupport",
+      "line": 75,
+      "call_sites": 2
+    },
+    {
+      "from_symbol": "GoAdapterFactory.validate",
+      "to": "errors.push",
+      "line": 78,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoAdapterFactory.validate",
+      "to": "errors.push",
+      "line": 81,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoAdapterFactory.validate",
+      "to": "errors.push",
+      "line": 85,
+      "call_sites": 4
+    },
+    {
+      "from_symbol": "GoAdapterFactory.validate",
+      "to": "new Date().toISOString",
+      "line": 99,
+      "call_sites": 1
+    },
+    {
+      "from_symbol": "GoAdapterFactory.validate",
+      "to": "Date",
+      "line": 99,
+      "call_sites": 1
+    }
+  ],
+  "member_writes": [],
+  "string_literals": [
+    {
+      "value": "Go",
+      "context": "displayName field in adapter metadata",
+      "line": 32,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "0.1.0",
+      "context": "adapter version in metadata",
+      "line": 33,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "mcp-debugger team",
+      "context": "author field in metadata",
+      "line": 34,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "Debug Go applications using Delve (dlv)",
+      "context": "description in metadata",
+      "line": 35,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "https://github.com/debugmcp/mcp-debugger/docs/go",
+      "context": "documentationUrl in metadata",
+      "line": 36,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "0.17.0",
+      "context": "minimumDebuggerVersion for Delve in metadata",
+      "line": 37,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": ".go",
+      "context": "supported file extension in metadata",
+      "line": 38,
+      "kind": "identifier",
+      "usage": "produced"
+    },
+    {
+      "value": "Go 1.18 or higher required. Current version: ",
+      "context": "validation error message for old Go version",
+      "line": 64,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "Could not determine Go version",
+      "context": "validation warning when Go version is undetectable",
+      "line": 67,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "Delve does not support DAP mode. Update with: go install github.com/go-delve/delve/cmd/dlv@latest",
+      "context": "validation error message for Delve missing DAP support",
+      "line": 78,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "Delve (dlv) not found. Install with: go install github.com/go-delve/delve/cmd/dlv@latest",
+      "context": "validation error when Delve executable is missing",
+      "line": 81,
+      "kind": "message",
+      "usage": "produced"
+    },
+    {
+      "value": "Go executable not found",
+      "context": "fallback error when Go is not found",
+      "line": 85,
+      "kind": "message",
+      "usage": "produced"
+    }
+  ],
+  "extraction_method": "ast"
+}

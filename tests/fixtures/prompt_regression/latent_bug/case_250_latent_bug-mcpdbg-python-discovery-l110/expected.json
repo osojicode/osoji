@@ -1,0 +1,11 @@
+{
+  "schema": "corpus-expected/1",
+  "verdict": "dismissed",
+  "reasoning": "Panel verdict split resolved under decisions/0027. L16-19 anchors serverScriptPath to the test file via import.meta.url/fileURLToPath; L110 resolves 'examples/python/fibonacci.py' against the process cwd. The asserted failure (wrong path when run from a different working directory) quantifies over a hypothetical state: examples/python/fibonacci.py exists at repo root, and vitest.config.ts plus package.json pin every exhibited invocation of this Windows-only test (L71) to the repo root — no artifact produces a non-root cwd. A failure-asserting claim needs its premise exhibited; this is future-fragility about code that currently behaves correctly under every invocation the checkout exhibits. Fails Reality: dismissed, non-gray. (The intra-file inconsistency with the L16-19 anchoring convention is robustness advice, not an exhibited mismatch between a declaration and behavior.)",
+  "gray": false,
+  "gray_reason": null,
+  "expected_contract_class": null,
+  "adjudicated_by": "panel-split+decisions/0027",
+  "adjudicated_at": "2026-07-23",
+  "accepted": true
+}
