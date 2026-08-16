@@ -1465,3 +1465,229 @@ def test_select_cases_only_filters_both_sources(tmp_path):
 def test_select_cases_bootstrap_without_manifest_raises(tmp_path):
     with pytest.raises(ValueError, match="bootstrap_manifest"):
         select_cases(source="bootstrap", bootstrap_manifest=None)
+
+
+# ---------------------------------------------------------------------------
+# evaluate_corpus — exploration mode (osojicode/work#92)
+# ---------------------------------------------------------------------------
+
+
+def tool_use_result(name, tool_input, *, call_id="t", in_tok=50, out_tok=20) -> CompletionResult:
+    """An exploration-mode turn: one tool call (adapted from tests/test_triage.py)."""
+    return CompletionResult(
+        content=None,
+        tool_calls=[ToolCall(id=call_id, name=name, input=tool_input)],
+        input_tokens=in_tok,
+        output_tokens=out_tok,
+        model="test",
+        stop_reason="tool_use",
+    )
+
+
+class FlakyProvider(FakeProvider):
+    """FakeProvider whose queue may contain Exception instances to raise."""
+
+    async def complete(self, messages, system, options):
+        self.calls.append({"messages": messages, "system": system, "options": options})
+        result = self._results.pop(0)
+        if isinstance(result, Exception):
+            raise result
+        return result
+
+
+def _tool_result_text(call) -> str:
+    """Concatenate all tool_result block contents in one provider call's messages."""
+    out = []
+    for m in call["messages"]:
+        if isinstance(m.content, list):
+            for block in m.content:
+                if isinstance(block, dict) and block.get("type") == "tool_result":
+                    out.append(block.get("content", ""))
+    return "".join(out)
+
+
+@pytest.mark.asyncio
+async def test_evaluate_corpus_exploration_mode_routes_per_case_executor(tmp_path):
+    """Each case's exploration loop must read from ITS OWN staged snapshot."""
+    corpus_root = tmp_path / "corpus"
+    make_case(
+        corpus_root, "dead_code", "case_101_a",
+        verdict="confirmed",
+        source_files={"src/app/a.py": "def unused_a():\n    return 'MARKER-ALPHA'\n"},
+        finding_overrides={"path": "src/app/a.py", "symbol": "unused_a"},
+    )
+    make_case(
+        corpus_root, "dead_code", "case_102_b",
+        verdict="dismissed",
+        source_files={"src/app/b.py": "def unused_b():\n    return 'MARKER-BETA'\n"},
+        finding_overrides={"path": "src/app/b.py", "symbol": "unused_b"},
+    )
+    cases = load_corpus(corpus_root)
+    assert [c.key for c in cases] == ["dead_code/case_101_a", "dead_code/case_102_b"]
+
+    provider = FakeProvider([
+        # case_101_a: read its own staged file, then decide
+        tool_use_result("read_file", {"path": "src/app/a.py"}, call_id="r1"),
+        tool_use_result(
+            "submit_triage_verdict",
+            {"verdict": "confirmed", "confidence": 0.9, "reasoning": "dead"},
+            call_id="v1",
+        ),
+        # case_102_b: read its own staged file, then decide
+        tool_use_result("read_file", {"path": "src/app/b.py"}, call_id="r2"),
+        tool_use_result(
+            "submit_triage_verdict",
+            {"verdict": "dismissed", "confidence": 0.8, "reasoning": "used"},
+            call_id="v2",
+        ),
+    ])
+
+    run = await evaluate_corpus(
+        cases,
+        [Variant(name="baseline", system_prompt="EXPLORE PROMPT", prompt_source="@default")],
+        mode="exploration",
+        run_id="test-explore",
+        provider=provider,
+        config_factory=lambda: Config(
+            root_path=tmp_path, provider="anthropic", model="test-model",
+            respect_gitignore=False,
+        ),
+        workdir=tmp_path / "work",
+        corpus_root=corpus_root,
+    )
+
+    # Two cases x (1 retrieval turn + 1 verdict turn) each, sequential.
+    assert len(provider.calls) == 4
+    assert provider.calls[0]["system"] == "EXPLORE PROMPT"
+
+    # Per-case executor rooting: the tool_result fed back on each case's
+    # second turn holds THAT case's staged content. If the executor were
+    # shared (or rooted at the wrong snapshot), case_102_b's read of
+    # src/app/b.py could not return MARKER-BETA.
+    assert "MARKER-ALPHA" in _tool_result_text(provider.calls[1])
+    fed_back_b = _tool_result_text(provider.calls[3])
+    assert "MARKER-BETA" in fed_back_b
+    assert "MARKER-ALPHA" not in fed_back_b
+
+    # Verdict records: unchanged osoji-verdict/1 shape, verdicts applied.
+    assert len(run.records) == 2
+    rec_a, rec_b = run.records
+    assert rec_a["case"] == "dead_code/case_101_a"
+    assert rec_a["verdict"] == "confirmed"
+    assert rec_a["correct"] is True
+    assert rec_b["case"] == "dead_code/case_102_b"
+    assert rec_b["verdict"] == "dismissed"
+    assert rec_b["correct"] is True
+    for rec in run.records:
+        assert rec["schema"] == "osoji-verdict/1"
+        assert "insufficient_evidence" in rec
+
+    # Trace entries: one per decided case, exploration-sdk-compatible keys.
+    assert len(run.traces) == 2
+    entry_a, entry_b = run.traces
+    assert entry_a["slug"] == "dead_code/case_101_a"
+    assert entry_a["mode"] == "exploration-eval"
+    assert entry_a["variant"] == "baseline"
+    assert entry_a["repeat"] == 0
+    assert entry_a["adjudicated_verdict"] == "confirmed"
+    assert entry_a["gray"] is False
+    assert entry_a["finding"]["verdict"] == "confirmed"
+    assert [c["name"] for c in entry_a["trace"]["calls"]] == [
+        "read_file", "submit_triage_verdict",
+    ]
+    assert entry_a["trace"]["input_tokens"] == 100
+    assert entry_a["trace"]["output_tokens"] == 40
+    assert entry_b["slug"] == "dead_code/case_102_b"
+
+    # run_meta: mode recorded, tokens summed across per-case loops.
+    assert run.run_meta["mode"] == "exploration"
+    assert run.run_meta["tokens"] == {"input": 200, "output": 80}
+
+
+@pytest.mark.asyncio
+async def test_evaluate_corpus_exploration_decide_failure_keeps_undecided(tmp_path):
+    """A per-case decide failure keeps that case undecided; the run completes."""
+    corpus_root = tmp_path / "corpus"
+    make_case(
+        corpus_root, "dead_code", "case_101_a",
+        verdict="confirmed",
+        source_files={"src/app/a.py": "def unused_a():\n    pass\n"},
+        finding_overrides={"path": "src/app/a.py", "symbol": "unused_a"},
+    )
+    make_case(
+        corpus_root, "dead_code", "case_102_b",
+        verdict="dismissed",
+        source_files={"src/app/b.py": "def unused_b():\n    pass\n"},
+        finding_overrides={"path": "src/app/b.py", "symbol": "unused_b"},
+    )
+    cases = load_corpus(corpus_root)
+
+    provider = FlakyProvider([
+        RuntimeError("synthetic provider failure"),  # case_101_a turn 0
+        tool_use_result(
+            "submit_triage_verdict",
+            {"verdict": "dismissed", "confidence": 0.8, "reasoning": "used"},
+            call_id="v2",
+        ),  # case_102_b decides directly
+    ])
+
+    run = await evaluate_corpus(
+        cases,
+        [Variant(name="baseline", system_prompt="P", prompt_source="@default")],
+        mode="exploration",
+        run_id="test-explore-fail",
+        provider=provider,
+        config_factory=lambda: Config(
+            root_path=tmp_path, provider="anthropic", model="test-model",
+            respect_gitignore=False,
+        ),
+        workdir=tmp_path / "work",
+        corpus_root=corpus_root,
+    )
+
+    rec_a, rec_b = run.records
+    assert rec_a["case"] == "dead_code/case_101_a"
+    assert rec_a["verdict"] is None
+    assert rec_a["correct"] is None
+    assert rec_b["verdict"] == "dismissed"
+    assert rec_b["correct"] is True
+
+    # Only the decided case contributes a trace entry and tokens.
+    assert [e["slug"] for e in run.traces] == ["dead_code/case_102_b"]
+    assert run.run_meta["tokens"] == {"input": 50, "output": 20}
+
+
+def test_write_exploration_traces_sidecar(tmp_path):
+    """The sidecar is one JSON document: schema + run provenance + entries."""
+    entry = {
+        "slug": "dead_code/case_101_a",
+        "mode": "exploration-eval",
+        "variant": "baseline",
+        "repeat": 0,
+        "adjudicated_verdict": "confirmed",
+        "gray": False,
+        "finding": {"verdict": "confirmed"},
+        "trace": {
+            "finding_id": "f1",
+            "calls": [{"turn": 0, "name": "read_file", "input": {"path": "src/app/a.py"}}],
+            "input_tokens": 100,
+            "output_tokens": 40,
+        },
+    }
+    run = eval_lib.EvalRun(
+        records=[],
+        run_meta={"run_id": "test-run", "model": "test-model", "mode": "exploration"},
+        traces=[entry],
+    )
+    path = tmp_path / "test-run-traces.json"
+
+    eval_lib.write_exploration_traces(run, path)
+
+    raw = path.read_bytes()
+    assert b"\r" not in raw
+    doc = json.loads(raw.decode("utf-8"))
+    assert doc["schema"] == "osoji-exploration-traces/1"
+    assert doc["run_id"] == "test-run"
+    assert doc["model"] == "test-model"
+    assert doc["mode"] == "exploration"
+    assert doc["entries"] == [entry]
