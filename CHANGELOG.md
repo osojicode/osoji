@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Two description-family evidence kinds: `callee_edges` (one-hop callee edges
+  with call-site source text for ordering/control-flow claims, with
+  repo-resolvable callee-seed promotion) and `cited_artifact` (deterministic
+  fetch of doc-cited path:line / module / symbol referents; absent referents
+  recorded as neutral mechanics) — Claim Builder schema version cb-5
+  (invalidates the incremental verdict cache once)
+- Triage rubric `verification_domains` section (decisions/0029): description
+  claims routed by verification domain (checkout / outside world / runtime)
+  before evidence weighing, plus the `description_class: "ambiguous"` verdict
+  field for confirmed ambiguous descriptions at severity info
+- Eval-time resample-disagreement metrics (`resample_flip_rate`,
+  `resample_agree_rate`, `resample_flagged_cases`) over repeats>=2 replay runs
 - `[audit] exclude` in `.osoji.toml` — repo-relative glob patterns that
   remove matching paths from repository discovery entirely, scoping
   expensive analysis away from low-value trees (e.g. `docs/archive/**`)

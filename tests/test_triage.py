@@ -356,6 +356,55 @@ def test_render_shadow_doc_excerpt_payload():
     assert "Purpose: helpers." in out
 
 
+def test_render_callee_edges_groups_by_caller_with_caveat():
+    ev = Evidence(
+        kind="callee_edges",
+        payload={
+            "seeds": [{"name": "validate", "file": "src/g.ts", "origin": "claim_text"}],
+            "edges": [
+                {"caller": "validate", "caller_file": "src/g.ts",
+                 "to": "JSON.stringify", "lines": [68], "call_sites": 5},
+                {"caller": "validate", "caller_file": "src/g.ts",
+                 "to": "isValid", "lines": [56, 120]},
+            ],
+            "scan_scope": {"seed_count": 1, "seeds_unresolved": [],
+                           "edges_total": 44, "edges_shown": 2},
+        },
+    )
+    out = _render_evidence(ev)
+    assert not out.startswith("{")  # rendered, not the JSON-dump fallback
+    assert "`validate` (defined in `src/g.ts`)" in out
+    assert "calls `JSON.stringify` at line 68" in out
+    assert "calls `isValid` at line 56, 120" in out
+    assert "(+42 more edges not shown)" in out
+    assert "not runtime order" in out  # salience-not-guarantee caveat
+
+
+def test_render_cited_artifact_resolved_and_absent():
+    ev = Evidence(
+        kind="cited_artifact",
+        payload={
+            "citations": [
+                {"raw": "src/setup.ts:40", "form": "path_line", "resolved": True,
+                 "file": "src/setup.ts", "snippet": "40: delete process.env.FLAG;"},
+                {"raw": "src/gone.ts:12", "form": "path_line", "resolved": False,
+                 "checked": {"paths_tried": ["src/gone.ts"],
+                             "grep": {"files_scanned": 3, "matches": 0,
+                                      "truncated": False}}},
+            ],
+            "scan_scope": {"citations_found": 2, "citations_resolved": 1,
+                           "grep_files": 3, "truncated": False},
+        },
+    )
+    out = _render_evidence(ev)
+    assert not out.startswith("{")
+    assert "delete process.env.FLAG;" in out
+    assert "cited referent not found" in out
+    assert "grep over 3 files found 0 matches" in out
+    # Neutral mechanics only: the absent line must carry no verdict language.
+    assert "drift" not in out.lower() and "stale" not in out.lower()
+
+
 # --- exploration mode ------------------------------------------------------
 
 

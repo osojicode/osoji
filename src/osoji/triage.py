@@ -1021,4 +1021,60 @@ def _render_evidence(ev: Evidence) -> str:
         scope = f" ({p['scope']} scope)" if p.get("scope") else ""
         body = p.get("excerpt") or p.get("content", "")
         return f"Shadow doc `{p.get('file')}`{scope}:\n{body}"
+    if ev.kind == "callee_edges":
+        p = ev.payload
+        out = ["Callee edges (one hop) for functions tied to the flagged region:"]
+        by_caller: dict[tuple[str, str], list[dict]] = {}
+        for edge in p.get("edges", []):
+            by_caller.setdefault(
+                (edge.get("caller", "?"), edge.get("caller_file", "?")), []
+            ).append(edge)
+        for (caller, caller_file), edges in by_caller.items():
+            out.append(f"- `{caller}` (defined in `{caller_file}`):")
+            for edge in edges:
+                lines = edge.get("lines") or []
+                at = f" at line {', '.join(str(line) for line in lines)}" if lines else ""
+                text = f" — `{edge['line_text']}`" if edge.get("line_text") else ""
+                out.append(f"    calls `{edge.get('to')}`{at}{text}")
+        scope_info = p.get("scan_scope") or {}
+        shown, total = scope_info.get("edges_shown"), scope_info.get("edges_total")
+        if isinstance(shown, int) and isinstance(total, int) and total > shown:
+            out.append(f"(+{total - shown} more edges not shown)")
+        out.append(
+            "(edges list call sites from the AST substrate; they show what CAN "
+            "be called, not runtime order)"
+        )
+        return "\n".join(out)
+    if ev.kind == "cited_artifact":
+        p = ev.payload
+        out = ["Cited artifacts resolved from the claim/doc:"]
+        for cit in p.get("citations", []):
+            raw = cit.get("raw", "?")
+            if not cit.get("resolved"):
+                checked = cit.get("checked") or {}
+                tried = ", ".join(f"`{t}`" for t in checked.get("paths_tried", [])) or "none"
+                grep = checked.get("grep")
+                grep_note = (
+                    f"; word-boundary grep over {grep.get('files_scanned')} files "
+                    f"found {grep.get('matches')} matches" if grep else ""
+                )
+                out.append(f"- `{raw}`: cited referent not found (paths tried: {tried}{grep_note})")
+                continue
+            if cit.get("snippet"):
+                out.append(f"- `{raw}` -> `{cit.get('file')}`:\n```\n{cit['snippet']}\n```")
+            elif cit.get("exports"):
+                names = ", ".join(f"`{e}`" for e in cit["exports"])
+                out.append(f"- `{raw}` -> `{cit.get('file')}` exports: {names}")
+            elif cit.get("matches"):
+                out.append(f"- `{raw}` found at:")
+                for hit in cit["matches"]:
+                    out.append(
+                        f"  `{hit.get('file')}:{hit.get('line')}`:\n```\n{hit.get('context', '')}\n```"
+                    )
+            else:
+                out.append(f"- `{raw}` -> `{cit.get('file')}` (exists)")
+        scope_info = p.get("scan_scope") or {}
+        if scope_info.get("truncated"):
+            out.append("(scan corpus truncated: absent-referent notes are not exhaustive)")
+        return "\n".join(out)
     return json.dumps(ev.payload, ensure_ascii=False, default=str)

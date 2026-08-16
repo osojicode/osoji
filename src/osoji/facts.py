@@ -46,6 +46,9 @@ class FactsDB:
     def __init__(self, config: Config):
         self._files: dict[str, FileFacts] = {}
         self._config = config
+        # Lazy inverted exports index (symbol -> files), built by
+        # defining_files_of on first use.
+        self._exports_index: dict[str, set[str]] | None = None
         self._load(config)
 
     def _load(self, config: Config) -> None:
@@ -355,6 +358,58 @@ class FactsDB:
                         "context": f"exports {symbol_name}",
                     })
         return refs
+
+    def callees_of(
+        self,
+        file_path: str,
+        *,
+        symbol: str | None = None,
+        line_range: tuple[int, int] | None = None,
+    ) -> list[dict]:
+        """Forward call query: the raw call entries of ``file_path``.
+
+        Filters by ``from_symbol`` (bare match, or qualified tail-match — a
+        ``symbol`` of ``method`` matches ``Class.method``, mirroring
+        :meth:`cross_file_references`' matching) and/or by
+        ``line ∈ line_range`` (inclusive). Line-ordered. ``[]`` when the file
+        has no facts. This is the forward complement of the inbound scan in
+        :meth:`cross_file_references` (osojicode/work#95).
+        """
+        file_norm = file_path.replace("\\", "/")
+        facts = self._files.get(file_norm)
+        if not facts:
+            return []
+        out: list[dict] = []
+        for call in facts.calls:
+            if symbol is not None:
+                from_sym = call.get("from_symbol") or ""
+                if from_sym != symbol and not from_sym.endswith(f".{symbol}"):
+                    continue
+            if line_range is not None:
+                line = call.get("line")
+                if not isinstance(line, int) or not (line_range[0] <= line <= line_range[1]):
+                    continue
+            out.append(call)
+        return sorted(out, key=lambda c: c.get("line") if isinstance(c.get("line"), int) else 0)
+
+    def defining_files_of(self, symbol: str) -> list[str]:
+        """Files whose exports include ``symbol`` (lazy inverted exports index).
+
+        The index is built on first call and cached for the DB's lifetime
+        (facts are loaded once at construction, so the inversion cannot go
+        stale). Sorted for determinism. Used by the cited-artifact evidence
+        builder (osojicode/work#80) to resolve a bare doc-cited name to its
+        implementing file(s).
+        """
+        if self._exports_index is None:
+            index: dict[str, set[str]] = {}
+            for file_path, facts in self._files.items():
+                for export in facts.exports:
+                    name = export.get("name")
+                    if name:
+                        index.setdefault(name, set()).add(file_path)
+            self._exports_index = index
+        return sorted(self._exports_index.get(symbol, set()))
 
     def build_import_graph(self) -> dict[str, set[str]]:
         """Build file -> set of imported files graph."""

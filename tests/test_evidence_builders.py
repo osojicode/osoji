@@ -77,6 +77,8 @@ def write(root, rel, text):
 def test_new_evidence_kinds_are_registered():
     assert "surrounding_code" in EVIDENCE_KINDS
     assert "declared_intent" in EVIDENCE_KINDS
+    assert "callee_edges" in EVIDENCE_KINDS
+    assert "cited_artifact" in EVIDENCE_KINDS
 
 
 def test_every_produced_kind_has_a_builder():
@@ -86,6 +88,8 @@ def test_every_produced_kind_has_a_builder():
         "declared_intent",
         "shadow_doc_claim",
         "type_signature",
+        "callee_edges",
+        "cited_artifact",
     ):
         assert kind in BUILDERS, f"no builder registered for {kind}"
         assert BUILDERS[kind].kind == kind
@@ -662,3 +666,238 @@ def test_truncated_zero_sweep_is_not_a_mechanical_proof(config, temp_dir, monkey
         evidence=[ev],
     ))
     assert _clean_zero_reference(claim) is False
+
+
+# --- callee_edges (cb-5, work#95) --------------------------------------------
+
+
+import json as _json
+
+
+def _write_facts(root, rel, facts_dict):
+    facts_dict = {"source": rel, "source_hash": "x", "extraction_method": "ast",
+                  "member_writes": [], **facts_dict}
+    path = root / ".osoji" / "facts" / (rel + ".facts.json")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(_json.dumps(facts_dict), encoding="utf-8")
+
+
+def _ordering_finding(**over):
+    base = dict(
+        detector="debris:stale_comment",
+        gap_type="description",
+        path="src/guards.ts",
+        line_start=430,
+        line_end=435,
+        symbol=None,
+        contract_source="code",
+        contract_claim=(
+            "Comment says `validateAdapterCommand` throws before the catch "
+            "can serialize the payload"
+        ),
+        observed_behavior="the test calls serializeAdapterCommand and expects a throw",
+    )
+    base.update(over)
+    return Finding(**base)
+
+
+def _guards_facts():
+    return {
+        "imports": [],
+        "exports": [{"name": "validateAdapterCommand"}, {"name": "serializeAdapterCommand"}],
+        "calls": [
+            {"from_symbol": "validateAdapterCommand", "to": "isValid", "line": 56},
+            {"from_symbol": "validateAdapterCommand", "to": "JSON.stringify", "line": 68,
+             "call_sites": 5},
+            {"from_symbol": "serializeAdapterCommand", "to": "validateAdapterCommand",
+             "line": 138},
+            {"from_symbol": "<module>", "to": "expect", "line": 431},
+        ],
+    }
+
+
+def test_callee_edges_skips_non_ordering_claims(config):
+    _write_facts(config.root_path, "src/guards.ts", _guards_facts())
+    ctx = BuildContext(config, symbols_by_file={})
+    finding = _ordering_finding(
+        contract_claim="Comment names a legacy module that was renamed",
+        observed_behavior="the module string is stale",
+    )
+    assert BUILDERS["callee_edges"].build(finding, ctx) == []
+
+
+def test_callee_edges_claim_named_function_yields_one_hop(config):
+    _write_facts(config.root_path, "src/guards.ts", _guards_facts())
+    ctx = BuildContext(config, symbols_by_file={})
+    [ev] = BUILDERS["callee_edges"].build(_ordering_finding(), ctx)
+    assert ev.kind == "callee_edges"
+    edges = {(e["caller"], e["to"]): e for e in ev.payload["edges"]}
+    assert ("validateAdapterCommand", "JSON.stringify") in edges
+    assert edges[("validateAdapterCommand", "JSON.stringify")]["lines"] == [68]
+    assert edges[("validateAdapterCommand", "JSON.stringify")]["call_sites"] == 5
+    scope = ev.payload["scan_scope"]
+    assert scope["edges_shown"] == len(ev.payload["edges"])
+    seed_names = {s["name"] for s in ev.payload["seeds"]}
+    assert "validateAdapterCommand" in seed_names
+
+
+def test_callee_edges_module_attribution_falls_back_to_symbol_span(config):
+    facts = _guards_facts()
+    # All calls attributed to <module> - the symbols-DB span carries the seed.
+    for call in facts["calls"]:
+        call["from_symbol"] = "<module>"
+    _write_facts(config.root_path, "src/guards.ts", facts)
+    symbols = {"src/guards.ts": [
+        {"name": "validateAdapterCommand", "kind": "function",
+         "line_start": 50, "line_end": 80},
+    ]}
+    ctx = BuildContext(config, symbols_by_file=symbols)
+    [ev] = BUILDERS["callee_edges"].build(_ordering_finding(), ctx)
+    edges = {(e["caller"], e["to"]) for e in ev.payload["edges"]}
+    assert ("validateAdapterCommand", "JSON.stringify") in edges
+
+
+def test_callee_edges_caps_and_sanitizes(config):
+    facts = _guards_facts()
+    facts["calls"] = [
+        {"from_symbol": "validateAdapterCommand", "to": f"callee_{i}", "line": 50 + i}
+        for i in range(60)
+    ]
+    facts["calls"].append({
+        "from_symbol": "validateAdapterCommand",
+        "to": "expect(() => serializeAdapterCommand(cmd))\r\n        .toThrow" + "x" * 100,
+        "line": 200,
+    })
+    _write_facts(config.root_path, "src/guards.ts", facts)
+    ctx = BuildContext(config, symbols_by_file={})
+    [ev] = BUILDERS["callee_edges"].build(_ordering_finding(), ctx)
+    scope = ev.payload["scan_scope"]
+    assert scope["edges_shown"] <= 40
+    assert scope["edges_total"] == 61
+    for edge in ev.payload["edges"]:
+        assert "\r" not in edge["to"] and "\n" not in edge["to"]
+        assert len(edge["to"]) <= 80
+
+
+def test_callee_edges_never_raises(config):
+    class Exploding:
+        def __getattr__(self, name):
+            raise RuntimeError("boom")
+
+    ctx = BuildContext(config, facts_db=Exploding(), symbols_by_file={})
+    assert BUILDERS["callee_edges"].build(_ordering_finding(), ctx) == []
+
+
+def test_callee_edges_missing_facts_returns_empty(config):
+    ctx = BuildContext(config, symbols_by_file={})
+    assert BUILDERS["callee_edges"].build(_ordering_finding(), ctx) == []
+
+
+# --- cited_artifact (cb-5, work#80) ------------------------------------------
+
+
+def _doc_finding(**over):
+    base = dict(
+        detector="doc:incorrect_content",
+        gap_type="description",
+        path="docs/guide.md",
+        line_start=None,
+        line_end=None,
+        symbol=None,
+        contract_source="documentation",
+        contract_claim="The doc says the flag is deleted at module load time (L40)",
+        observed_behavior="doc cites behavior not found in the described module",
+    )
+    base.update(over)
+    return Finding(**base)
+
+
+def test_cited_artifact_fetches_path_line_snippet(config):
+    write(config.root_path, "src/setup.ts", "\n".join(f"line {i}" for i in range(1, 60)))
+    write(config.root_path, "docs/guide.md", "# guide")
+    finding = _doc_finding(
+        contract_claim="The doc contradicts src/setup.ts:40 about the env flag",
+    )
+    ctx = BuildContext(config, symbols_by_file={})
+    [ev] = BUILDERS["cited_artifact"].build(finding, ctx)
+    [cit] = ev.payload["citations"]
+    assert cit["form"] == "path_line" and cit["resolved"] is True
+    assert cit["file"] == "src/setup.ts"
+    assert "40: line 40" in cit["snippet"]
+
+
+def test_cited_artifact_suppresses_citation_into_own_region(config):
+    write(config.root_path, "src/mod.py", "\n".join(f"l{i}" for i in range(1, 60)))
+    finding = _doc_finding(
+        path="src/mod.py", line_start=38, line_end=42,
+        contract_claim="Comment at src/mod.py:40 conflicts with the guard",
+    )
+    ctx = BuildContext(config, symbols_by_file={})
+    assert BUILDERS["cited_artifact"].build(finding, ctx) == []
+
+
+def test_cited_artifact_absent_referent_is_neutral(config):
+    write(config.root_path, "docs/guide.md", "# guide")
+    finding = _doc_finding(
+        contract_claim="The doc cites src/gone.ts:12 which was removed",
+    )
+    ctx = BuildContext(config, symbols_by_file={})
+    [ev] = BUILDERS["cited_artifact"].build(finding, ctx)
+    [cit] = ev.payload["citations"]
+    assert cit["resolved"] is False
+    assert cit["checked"]["paths_tried"] == ["src/gone.ts"]
+    # Neutral mechanics only: no drift language keys in the payload.
+    assert "verdict" not in cit and "drift" not in _json.dumps(cit).lower()
+
+
+def test_cited_artifact_bare_symbol_resolves_via_exports_index(config):
+    _write_facts(config.root_path, "src/flags.ts",
+                 {"imports": [], "exports": [{"name": "CONSOLE_OUTPUT_SILENCED"}],
+                  "calls": []})
+    write(config.root_path, "src/flags.ts", "export const CONSOLE_OUTPUT_SILENCED = 1;")
+    write(config.root_path, "docs/guide.md", "# guide")
+    finding = _doc_finding(
+        contract_claim="The doc says `CONSOLE_OUTPUT_SILENCED` is deleted at load time",
+    )
+    ctx = BuildContext(config, symbols_by_file={})
+    [ev] = BUILDERS["cited_artifact"].build(finding, ctx)
+    [cit] = ev.payload["citations"]
+    assert cit["form"] == "symbol" and cit["resolved"] is True
+    assert cit["defined_in"] == ["src/flags.ts"]
+    assert cit["exports"] == ["CONSOLE_OUTPUT_SILENCED"]
+
+
+def test_cited_artifact_grep_fallback_is_bounded(config):
+    write(config.root_path, "tests/setup.ts",
+          "beforeAll(() => {\n  delete process.env.MY_SPECIAL_FLAG;\n});\n")
+    write(config.root_path, "docs/guide.md", "# guide")
+    finding = _doc_finding(
+        contract_claim="The doc says `MY_SPECIAL_FLAG` is honored at runtime",
+    )
+    ctx = BuildContext(config, symbols_by_file={})
+    [ev] = BUILDERS["cited_artifact"].build(finding, ctx)
+    [cit] = ev.payload["citations"]
+    assert cit["form"] == "symbol" and cit["resolved"] is True
+    assert cit["matches"][0]["file"] == "tests/setup.ts"
+    assert cit["matches"][0]["line"] == 2
+    assert ev.payload["scan_scope"]["grep_files"] <= 3
+
+
+def test_cited_artifact_never_raises(config):
+    class Exploding:
+        def __getattr__(self, name):
+            raise RuntimeError("boom")
+
+    ctx = BuildContext(config, facts_db=Exploding(), symbols_by_file={})
+    finding = _doc_finding(contract_claim="cites `SOME_FLAG_NAME` at src/x.ts:1")
+    assert BUILDERS["cited_artifact"].build(finding, ctx) == []
+
+
+def test_cited_artifact_no_citations_returns_empty(config):
+    write(config.root_path, "docs/guide.md", "# guide")
+    finding = _doc_finding(
+        contract_claim="The doc describes stale architecture generally",
+        observed_behavior="no concrete citation appears in the claim",
+    )
+    ctx = BuildContext(config, symbols_by_file={})
+    assert BUILDERS["cited_artifact"].build(finding, ctx) == []

@@ -401,7 +401,20 @@ def test_schema_version_is_pinned():
     # debris categories build on the general table; stale_comment loses its
     # legacy cross_file_reference sufficiency override; expired_todo and
     # commented_out_code gain description entries.
-    assert CLAIM_BUILDER_SCHEMA_VERSION == "cb-4"
+    # cb-5 (work#95/work#80): description family gains callee_edges (one-hop
+    # callee edges for ordering/control-flow claims) and cited_artifact
+    # (deterministic fetch of doc-cited path:line/module/symbol referents);
+    # require_any unchanged.
+    assert CLAIM_BUILDER_SCHEMA_VERSION == "cb-5"
+
+
+def test_description_entry_require_any_unchanged_by_cb5():
+    # Signal-conservation guard in code form: the new kinds are salience
+    # additions; sufficiency still rests on surrounding_code alone, so their
+    # absence can never create new insufficient_evidence/escalation paths.
+    entry = DEFAULT_SCHEMA_BY_GAP_TYPE["description"]
+    assert entry.require_any == frozenset({"surrounding_code"})
+    assert entry.kinds[-2:] == ("callee_edges", "cited_artifact")
 
 
 def test_debris_categories_all_have_explicit_schema_entries():

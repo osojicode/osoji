@@ -515,3 +515,61 @@ class TestMalformedEntries:
         assert facts.calls[0]["to"] == "print"
         assert len(facts.member_writes) == 1
         assert facts.member_writes[0]["member"] == "flag"
+
+
+class TestCalleesOf:
+    """Forward call query (cb-5, osojicode/work#95)."""
+
+    def _db(self, tmp_path):
+        _write_facts(tmp_path, "src/a.py", {
+            "imports": [], "exports": [{"name": "outer"}],
+            "calls": [
+                {"from_symbol": "outer", "to": "helper", "line": 12},
+                {"from_symbol": "Klass.outer", "to": "json.dumps", "line": 30},
+                {"from_symbol": "<module>", "to": "print", "line": 2},
+                {"from_symbol": "outer", "to": "later", "line": 40},
+            ],
+            "string_literals": [],
+        })
+        return FactsDB(_make_config(tmp_path))
+
+    def test_symbol_match_bare_and_qualified_tail(self, tmp_path):
+        db = self._db(tmp_path)
+        callees = db.callees_of("src/a.py", symbol="outer")
+        # Bare 'outer' matches both the bare attribution and the Klass.outer
+        # qualified tail, line-ordered.
+        assert [c["to"] for c in callees] == ["helper", "json.dumps", "later"]
+
+    def test_line_range_filter(self, tmp_path):
+        db = self._db(tmp_path)
+        callees = db.callees_of("src/a.py", line_range=(10, 35))
+        assert [c["to"] for c in callees] == ["helper", "json.dumps"]
+
+    def test_symbol_and_line_range_compose(self, tmp_path):
+        db = self._db(tmp_path)
+        callees = db.callees_of("src/a.py", symbol="outer", line_range=(35, 45))
+        assert [c["to"] for c in callees] == ["later"]
+
+    def test_missing_file_returns_empty(self, tmp_path):
+        db = self._db(tmp_path)
+        assert db.callees_of("src/nope.py") == []
+
+
+class TestDefiningFilesOf:
+    """Inverted exports index (cb-5, osojicode/work#80)."""
+
+    def test_inversion_and_determinism(self, tmp_path):
+        _write_facts(tmp_path, "src/b.py", {
+            "imports": [], "exports": [{"name": "FLAG"}], "calls": [],
+            "string_literals": [],
+        })
+        _write_facts(tmp_path, "src/a.py", {
+            "imports": [], "exports": [{"name": "FLAG"}, {"name": "other"}],
+            "calls": [], "string_literals": [],
+        })
+        db = FactsDB(_make_config(tmp_path))
+        assert db.defining_files_of("FLAG") == ["src/a.py", "src/b.py"]
+        assert db.defining_files_of("other") == ["src/a.py"]
+        assert db.defining_files_of("absent") == []
+        # Cached: second call returns the same object contents.
+        assert db.defining_files_of("FLAG") == ["src/a.py", "src/b.py"]

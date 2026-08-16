@@ -47,7 +47,7 @@ from .triage import Claim
 #: Version tag of the Claim Builder schema (kind set + tables below). Part of
 #: every evidence_fingerprint; bump on any schema change so the V1-9 verdict
 #: cache invalidates rather than serving verdicts produced by an older schema.
-CLAIM_BUILDER_SCHEMA_VERSION = "cb-4"
+CLAIM_BUILDER_SCHEMA_VERSION = "cb-5"
 
 
 @dataclass(frozen=True)
@@ -82,7 +82,15 @@ _REACHABILITY_ENTRY = SchemaEntry(
 )
 _CONTRACT_ENTRY = _REACHABILITY_ENTRY
 _DESCRIPTION_ENTRY = SchemaEntry(
-    kinds=("surrounding_code", "declared_intent", "shadow_doc_claim", "cross_file_reference"),
+    # callee_edges + cited_artifact append AT THE END (cb-5, work#95 + work#80):
+    # evidence renders in bundle order, so the rendered-prompt prefix for
+    # existing description cases stays byte-stable. require_any is unchanged —
+    # both new kinds are salience additions and must never create new
+    # insufficient_evidence paths.
+    kinds=(
+        "surrounding_code", "declared_intent", "shadow_doc_claim",
+        "cross_file_reference", "callee_edges", "cited_artifact",
+    ),
     require_any=frozenset({"surrounding_code"}),
 )
 _LATENT_BUG_ENTRY = SchemaEntry(

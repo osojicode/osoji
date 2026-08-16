@@ -889,6 +889,405 @@ class TypeSignatureBuilder(EvidenceBuilder):
         return [Evidence(kind=self.kind, payload=td) for td in type_defs]
 
 
+#: Ordering/control-flow language that gates the callee-edges kind. A lexicon
+#: over the *claim's shape* (temporal/causal/exception vocabulary), not over
+#: any language's syntax — deliberately loose; a false fire costs bounded
+#: rendered lines, a missed fire only loses salience (osojicode/work#95).
+_ORDERING_LEXICON = re.compile(
+    r"\b(before|after|then|first|prior|preced\w*|follow\w*|order(?:ing)?|"
+    r"sequence\w*|throws?|thrown|throwing|raise[sd]?|raising|rethrow\w*|"
+    r"catch(?:es|ing)?|call(?:s|ed|ing)?|invoke\w*|invocation|propagat\w*|"
+    r"early|short-circuit\w*|bails?|returns? before|exits? before)\b",
+    re.IGNORECASE,
+)
+
+_MAX_CALLEE_SEEDS = 5
+_MAX_EDGES_PER_SEED = 15
+_MAX_CALLEE_EDGES_TOTAL = 40  # mirrors _MAX_SCAN_ENTRIES_PER_CLAIM
+_MAX_CALLEE_NAME_CHARS = 80  # AST callee text can be a compound expression
+_MAX_EDGE_LINES = 5  # per deduped (caller, to) pair
+
+
+class CalleeEdgesBuilder(EvidenceBuilder):
+    """One-hop callee edges for ordering/control-flow description claims.
+
+    case_239's lesson (osojicode/work#95): the model verified top-level call
+    order and stopped one frame short of the callee whose error path held the
+    deciding fact; more evidence raised confidence without raising trace
+    depth. Seeing each tied function's own callees (with call sites) makes
+    nested and error-path behavior salient before the verdict — salience, not
+    guarantee.
+
+    Payload:
+        seeds: [{name, file, origin: "region"|"claim_text"|"enclosing"|"callee"}]
+            (<=5; "callee" = promoted repo-resolvable callee of another seed)
+        edges: [{caller, caller_file, to, lines: [..], call_sites?}] (<=40)
+        scan_scope: {seed_count, seeds_unresolved, edges_total, edges_shown}
+    """
+
+    kind = "callee_edges"
+
+    def build(self, finding: Finding, ctx: BuildContext) -> list[Evidence]:
+        try:
+            return self._build(finding, ctx)
+        except Exception:
+            return []
+
+    def _build(self, finding: Finding, ctx: BuildContext) -> list[Evidence]:
+        if not _ORDERING_LEXICON.search(_claim_text(finding)):
+            return []
+        rel = finding.path.replace("\\", "/")
+        facts = ctx.facts()
+        if not facts.get_file(rel):
+            return []
+
+        seeds: list[dict] = []
+        unresolved: list[str] = []
+
+        def add_seed(name: str, file_path: str, origin: str) -> None:
+            if len(seeds) >= _MAX_CALLEE_SEEDS:
+                return
+            if any(s["name"] == name and s["file"] == file_path for s in seeds):
+                return
+            seeds.append({"name": name, "file": file_path, "origin": origin})
+
+        # Origin 1: calls made inside the flagged region — their targets are
+        # seeds when they resolve to a repo file (the language-agnostic
+        # builtin filter: `JSON.stringify` stays a *callee*, never a seed).
+        lo = (finding.line_start or 1) - 3
+        hi = (finding.line_end or finding.line_start or 1) + 3
+        for call in facts.callees_of(rel, line_range=(lo, hi)):
+            target = call.get("to") or ""
+            resolved = self._resolve_symbol_file(facts, rel, target)
+            if resolved:
+                add_seed(target.rsplit(".", 1)[-1], resolved, "region")
+            elif target:
+                unresolved.append(target)
+
+        # Origin 2: functions the claim names that are in the flagged file's
+        # scope (imports, exports, symbols DB). The intersection approach is
+        # required — the loose prose extractor misses camelCase names.
+        in_scope = facts.exported_names(rel) | {
+            s.get("name") for s in ctx.symbols().get(rel, []) if s.get("name")
+        }
+        import_names: dict[str, str] = {}
+        file_facts = facts.get_file(rel)
+        for imp in file_facts.imports if file_facts else []:
+            src = facts.resolve_import_source(rel, imp.get("source", ""))
+            for name in imp.get("names", []):
+                if src:
+                    import_names[name] = src
+        claim_words = set(re.findall(r"\b[A-Za-z_]\w{2,}\b", _claim_text(finding)))
+        claim_words.update(_backticked_names(_claim_text(finding)))
+        for word in sorted(claim_words):
+            if word in import_names:
+                add_seed(word, import_names[word], "claim_text")
+            elif word in in_scope:
+                add_seed(word, rel, "claim_text")
+
+        # Origin 3: the enclosing symbol of the flagged region.
+        enclosing = _enclosing_symbol(
+            ctx.symbols(), rel, finding.line_start or 1
+        )
+        if enclosing and enclosing.get("name"):
+            add_seed(enclosing["name"], rel, "enclosing")
+
+        if not seeds:
+            return []
+
+        # Walk the seed queue; a seed's own callee that resolves to a repo
+        # file is promoted to a seed (origin "callee") while the cap allows —
+        # case_239's lesson is precisely that the deciding fact lives one
+        # frame below the functions the claim names, so the pack must carry
+        # the tied functions' frames, not only the named ones.
+        edges: list[dict] = []
+        edges_total = 0
+        i = 0
+        while i < len(seeds):
+            seed = seeds[i]
+            i += 1
+            calls = facts.callees_of(seed["file"], symbol=seed["name"])
+            if not calls:
+                entry = _find_symbol_entry(ctx.symbols(), seed["file"], seed["name"])
+                if entry:
+                    span = (entry["line_start"], entry.get("line_end") or entry["line_start"])
+                    calls = facts.callees_of(seed["file"], line_range=span)
+            seed_lines = ctx.read_lines(seed["file"])
+            per_seed: dict[str, dict] = {}
+            for call in calls:
+                edges_total += 1
+                raw_target = call.get("to") or ""
+                target = _sanitize_callee(raw_target)
+                if not target:
+                    continue
+                resolved = self._resolve_symbol_file(facts, seed["file"], raw_target)
+                if resolved:
+                    add_seed(raw_target.rsplit(".", 1)[-1], resolved, "callee")
+                dedup = per_seed.get(target)
+                line = call.get("line")
+                if dedup is not None:
+                    if isinstance(line, int) and len(dedup["lines"]) < _MAX_EDGE_LINES:
+                        dedup["lines"].append(line)
+                    continue
+                if len(per_seed) >= _MAX_EDGES_PER_SEED:
+                    continue
+                edge = {
+                    "caller": seed["name"],
+                    "caller_file": seed["file"],
+                    "to": target,
+                    "lines": [line] if isinstance(line, int) else [],
+                }
+                if isinstance(call.get("call_sites"), int):
+                    edge["call_sites"] = call["call_sites"]
+                # The call site's own source text: two edges sharing a line is
+                # only a hint of nesting; the line's text shows it (case_239's
+                # JSON.stringify inside the Error constructor's message).
+                if (
+                    seed_lines is not None
+                    and isinstance(line, int)
+                    and 1 <= line <= len(seed_lines)
+                ):
+                    edge["line_text"] = seed_lines[line - 1].strip()[:_MAX_CONTEXT_LINE_CHARS]
+                per_seed[target] = edge
+            edges.extend(per_seed.values())
+            if len(edges) >= _MAX_CALLEE_EDGES_TOTAL:
+                edges = edges[:_MAX_CALLEE_EDGES_TOTAL]
+                break
+
+        if not edges:
+            return []
+        payload: dict[str, Any] = {
+            "seeds": seeds,
+            "edges": edges,
+            "scan_scope": {
+                "seed_count": len(seeds),
+                "seeds_unresolved": unresolved[:_MAX_CALLEE_SEEDS],
+                "edges_total": edges_total,
+                "edges_shown": len(edges),
+            },
+        }
+        return [Evidence(kind=self.kind, payload=payload)]
+
+    @staticmethod
+    def _resolve_symbol_file(facts, rel: str, target: str) -> str | None:
+        """Repo file defining ``target``, or None (builtins/external)."""
+
+        bare = target.rsplit(".", 1)[-1]
+        if bare in facts.exported_names(rel):
+            return rel
+        file_facts = facts.get_file(rel)
+        for imp in file_facts.imports if file_facts else []:
+            if bare in imp.get("names", []) or target in imp.get("names", []):
+                resolved = imp.get("resolved_path") or facts.resolve_import_source(
+                    rel, imp.get("source", "")
+                )
+                if resolved and facts.get_file(resolved):
+                    return resolved
+        return None
+
+
+def _sanitize_callee(name: str) -> str:
+    """Collapse whitespace/CRLF in AST callee text (compound expressions) and
+    truncate — a multi-line callee must not balloon the rendered payload."""
+
+    return " ".join(name.split())[:_MAX_CALLEE_NAME_CHARS]
+
+
+_MAX_CITATIONS = 3
+_CITATION_SNIPPET_PAD = 5
+_MAX_CITED_EXPORTS = 20
+_MAX_CITATION_GREP_FILES = 3
+_MAX_CITATION_GREP_HITS = 3
+
+_PATH_LINE_RE = re.compile(r"(?P<path>[\w./\\-]*/[\w.\\-]+\.\w{1,8}):(?P<line>\d+)\b")
+_BARE_LINE_RE = re.compile(r"\(?\bL(?:ine)?\.?\s?(?P<line>\d+)\)?", re.IGNORECASE)
+# Negative lookahead/lookbehind for dots: `JSON` inside `JSON.stringify` is an
+# API namespace in a call expression, not a cited flag name.
+_ALL_CAPS_RE = re.compile(r"(?<![.\w])[A-Z][A-Z0-9_]{3,}(?![.\w])")
+
+
+class CitedArtifactBuilder(EvidenceBuilder):
+    """Deterministic fetch of doc-cited referents (172-shaped gaps, work#80).
+
+    When a doc/comment claim cites a path:line, module path, or symbol name
+    whose implementing artifact sits outside the assembled region, fetch the
+    referent — line contents, existence, or export surface — before triage.
+    FN-safe by construction: a fetched referent that contradicts the doc
+    CONFIRMS drift; an absent referent is recorded as neutral mechanics only
+    (what an absent referent *means* is the rubric's business, and
+    evidence-of-absence is domain-restricted by decisions/0029).
+
+    Payload:
+        citations: [{raw, form, resolved, ...}] (<=3, precedence order)
+        scan_scope: {citations_found, citations_resolved, grep_files, truncated}
+    """
+
+    kind = "cited_artifact"
+
+    def build(self, finding: Finding, ctx: BuildContext) -> list[Evidence]:
+        try:
+            return self._build(finding, ctx)
+        except Exception:
+            return []
+
+    def _build(self, finding: Finding, ctx: BuildContext) -> list[Evidence]:
+        rel = finding.path.replace("\\", "/")
+        meta = _scanner_meta(finding)
+        text = _claim_text(finding)
+        extra = " ".join(
+            str(t) for t in (*meta.get("search_terms", ()), meta.get("shadow_ref") or "")
+        )
+        region_lo = (finding.line_start or 0) - _REGION_PAD
+        region_hi = (finding.line_end or finding.line_start or 0) + _REGION_PAD
+
+        citations: list[dict] = []
+        found = 0
+        grep_files = 0
+        truncated = False
+
+        def full() -> bool:
+            return len(citations) >= _MAX_CITATIONS
+
+        # Form 1: explicit path:line.
+        for m in _PATH_LINE_RE.finditer(text):
+            found += 1
+            if full():
+                continue
+            path = m.group("path").strip(".,;:'\"`").replace("\\", "/")
+            line = int(m.group("line"))
+            if path == rel and region_lo <= line <= region_hi:
+                continue  # already carried by surrounding_code
+            entry = self._fetch_path(ctx, path, line, m.group(0), "path_line")
+            citations.append(entry)
+
+        # Form 2: paths named without a line, plus bare "(L40)" anchors bound
+        # to candidate files (claim-named paths, then shadow_ref, then the
+        # doc's own facts imports — the channel doc_analysis resolves).
+        named = [p for p in _named_paths(finding, ctx) if p != rel]
+        bare_lines = [int(m.group("line")) for m in _BARE_LINE_RE.finditer(text)]
+        candidates = list(named)
+        facts = ctx.facts()
+        if not candidates:
+            shadow_ref = str(meta.get("shadow_ref") or "")
+            if shadow_ref:
+                candidates.append(shadow_ref.replace("\\", "/"))
+        if not candidates:
+            doc_facts = facts.get_file(rel)
+            for imp in doc_facts.imports if doc_facts else []:
+                src = imp.get("source", "")
+                if src and ctx.read_lines(src.replace("\\", "/")) is not None:
+                    candidates.append(src.replace("\\", "/"))
+        for path in candidates:
+            found += 1
+            if full():
+                continue
+            if any(c.get("raw", "").startswith(path) for c in citations):
+                continue
+            line = bare_lines[0] if bare_lines else None
+            citations.append(
+                self._fetch_path(ctx, path, line, path, "path" if line is None else "path_line")
+            )
+
+        # Form 3: bare symbol / flag names (backticked + ALL_CAPS), resolved
+        # via the exports inversion, else a bounded word-boundary grep over
+        # the form-2 candidates first, then the scan corpus.
+        names = _backticked_names(text + " " + extra)
+        names += [
+            t for t in _ALL_CAPS_RE.findall(text + " " + extra)
+            if t.lower() not in _SYMBOL_FILLER and t not in names
+        ]
+        for name in names:
+            if full():
+                break
+            if any(c.get("raw") == name for c in citations):
+                continue
+            defining = [f for f in facts.defining_files_of(name) if f != rel]
+            if defining:
+                found += 1
+                path = defining[0]
+                entry = self._fetch_path(ctx, path, None, name, "symbol")
+                entry["defined_in"] = defining[:_MAX_CITED_EXPORTS]
+                citations.append(entry)
+                continue
+            hits, scanned, hit_truncated = self._grep(ctx, name, candidates, rel)
+            grep_files += scanned
+            truncated = truncated or hit_truncated
+            if hits:
+                found += 1
+                citations.append(
+                    {"raw": name, "form": "symbol", "resolved": True, "matches": hits}
+                )
+
+        if not citations:
+            return []
+        payload: dict[str, Any] = {
+            "citations": citations,
+            "scan_scope": {
+                "citations_found": found,
+                "citations_resolved": sum(1 for c in citations if c.get("resolved")),
+                "grep_files": grep_files,
+                "truncated": truncated,
+            },
+        }
+        return [Evidence(kind=self.kind, payload=payload)]
+
+    @staticmethod
+    def _fetch_path(
+        ctx: BuildContext, path: str, line: int | None, raw: str, form: str
+    ) -> dict:
+        lines = ctx.read_lines(path)
+        if lines is None:
+            return {
+                "raw": raw,
+                "form": form,
+                "resolved": False,
+                "checked": {"paths_tried": [path]},
+            }
+        entry: dict[str, Any] = {"raw": raw, "form": form, "resolved": True, "file": path}
+        if line is not None:
+            entry["snippet"] = _numbered(
+                lines, line - _CITATION_SNIPPET_PAD, line + _CITATION_SNIPPET_PAD
+            )
+        else:
+            exports = sorted(ctx.facts().exported_names(path))[:_MAX_CITED_EXPORTS]
+            if exports:
+                entry["exports"] = exports
+            else:
+                entry["snippet"] = _numbered(lines, 1, _CITATION_SNIPPET_PAD * 2)
+        return entry
+
+    @staticmethod
+    def _grep(
+        ctx: BuildContext, name: str, priority: list[str], exclude: str
+    ) -> tuple[list[dict], int, bool]:
+        regex = re.compile(rf"\b{re.escape(name)}\b")
+        hits: list[dict] = []
+        scanned = 0
+        ordered = [p for p in priority if p != exclude]
+        ordered += [p for p in ctx.scan_files() if p not in ordered and p != exclude]
+        for path in ordered:
+            if scanned >= _MAX_CITATION_GREP_FILES:
+                break
+            if len(hits) >= _MAX_CITATION_GREP_HITS:
+                break
+            lines = ctx.read_lines(path)
+            if lines is None:
+                continue
+            scanned += 1
+            for i, text_line in enumerate(lines, start=1):
+                if regex.search(text_line):
+                    hits.append(
+                        {
+                            "file": path,
+                            "line": i,
+                            "context": _numbered(lines, i - _CONTEXT_LINES, i + _CONTEXT_LINES),
+                        }
+                    )
+                    if len(hits) >= _MAX_CITATION_GREP_HITS:
+                        break
+        return hits, scanned, ctx.scan_truncated()
+
+
 BUILDERS.update(
     {
         builder.kind: builder
@@ -898,6 +1297,8 @@ BUILDERS.update(
             DeclaredIntentBuilder(),
             ShadowDocBuilder(),
             TypeSignatureBuilder(),
+            CalleeEdgesBuilder(),
+            CitedArtifactBuilder(),
         )
     }
 )
