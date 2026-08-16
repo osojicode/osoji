@@ -30,7 +30,7 @@ import subprocess
 import sys
 import warnings
 from collections.abc import Callable, Collection
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, TextIO
@@ -45,7 +45,8 @@ from osoji.findings import Finding  # noqa: E402
 from osoji.junk_triage import BATCH_SIZE as JUNK_BATCH_SIZE  # noqa: E402
 from osoji.junk_triage import build_junk_claims, decide_junk_claims  # noqa: E402
 from osoji.llm.factory import create_provider  # noqa: E402
-from osoji.triage import TRIAGE_SYSTEM_PROMPT, Claim, render_triage_prompt  # noqa: E402
+from osoji.triage import TRIAGE_SYSTEM_PROMPT, Claim, Triage, render_triage_prompt  # noqa: E402
+from osoji.triage_exec import ExplorationExecutor  # noqa: E402
 
 CORPUS_ROOT = REPO_ROOT / "tests" / "fixtures" / "prompt_regression"
 
@@ -658,6 +659,31 @@ def read_verdict_ndjson(path: Path) -> tuple[list[dict], dict]:
     return records, trailer
 
 
+def write_exploration_traces(run: "EvalRun", path: Path | str) -> None:
+    """Write an exploration run's trace sidecar (``osoji-exploration-traces/1``).
+
+    One JSON document: run provenance (``run_id``/``model``/``mode`` from the
+    run's ``run_meta``) plus the per-case trace entries. Entry keys mirror the
+    ``exploration-sdk-*`` mining format (``slug``/``mode``/
+    ``adjudicated_verdict``/``finding``/``trace``) so a split-into-files
+    adapter can feed ``scripts/mine_traces.py`` later. Same file discipline as
+    :func:`write_verdict_ndjson`: strict UTF-8, no BOM, bare ``\\n``.
+    """
+
+    doc = {
+        "schema": EXPLORATION_TRACES_SCHEMA,
+        "run_id": run.run_meta.get("run_id"),
+        "model": run.run_meta.get("model"),
+        "mode": run.run_meta.get("mode"),
+        "entries": run.traces,
+    }
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n"
+    )
+
+
 # ---------------------------------------------------------------------------
 # corpus-splits/1
 # ---------------------------------------------------------------------------
@@ -752,12 +778,21 @@ def check_gepa_gate(cases: list[CorpusCase], splits: dict, *, required: int = 90
 # ---------------------------------------------------------------------------
 
 
+#: Schema tag for the exploration-trace sidecar written next to a run's NDJSON.
+EXPLORATION_TRACES_SCHEMA = "osoji-exploration-traces/1"
+
+
 @dataclass
 class EvalRun:
-    """A completed replay: decided verdict records plus their run_meta trailer."""
+    """A completed replay: decided verdict records plus their run_meta trailer.
+
+    ``traces`` is populated only by ``mode="exploration"`` runs: one entry per
+    decided case per (variant, repeat), in decide order (osojicode/work#92).
+    """
 
     records: list[dict]
     run_meta: dict
+    traces: list[dict] = field(default_factory=list)
 
 
 def default_run_id() -> str:
@@ -783,7 +818,9 @@ def _git_commit() -> str:
         return "unknown"
 
 
-def _stage_and_build_claims(cases: list[CorpusCase], workdir: Path) -> list[Claim]:
+def _stage_and_build_claims(
+    cases: list[CorpusCase], workdir: Path
+) -> tuple[list[Claim], list[Config]]:
     """Stage each case per its source's semantics and build its claim.
 
     ``source == "corpus"`` cases are copied into ``workdir`` via
@@ -793,9 +830,16 @@ def _stage_and_build_claims(cases: list[CorpusCase], workdir: Path) -> list[Clai
     for all of them), matching that corpus's documented semantics. Claims are
     built once per case, independent of variant or repeat: only the decide
     pass depends on the prompt.
+
+    Returns ``(claims, staging_configs)`` aligned 1:1 with ``cases``. Claim
+    mode ignores the staging configs; exploration mode roots each case's
+    :class:`ExplorationExecutor` at its own staged snapshot (a bootstrap
+    case's staging config IS the shared live-repo config — exactly the root
+    its exploration should see).
     """
 
     claims: list[Claim] = []
+    staging_configs: list[Config] = []
     bootstrap_config: Config | None = None
     for case in cases:
         if case.source == "corpus":
@@ -807,7 +851,73 @@ def _stage_and_build_claims(cases: list[CorpusCase], workdir: Path) -> list[Clai
         else:
             raise ValueError(f"unknown case source {case.source!r} for case {case.key!r}")
         claims.append(build_case_claim(case, config))
-    return claims
+        staging_configs.append(config)
+    return claims, staging_configs
+
+
+async def _decide_exploration_cases(
+    cases: list[CorpusCase],
+    claims: list[Claim],
+    staging_configs: list[Config],
+    runtime_config: Config,
+    provider: Any,
+    system_prompt: str,
+    *,
+    variant_name: str,
+    repeat_index: int,
+) -> tuple[list[Finding], int, int, list[dict]]:
+    """Decide each case via a per-case exploration loop (osojicode/work#92).
+
+    Each case gets its own :class:`Triage` whose :class:`ExplorationExecutor`
+    is rooted at that case's staged snapshot — the model retrieves evidence
+    itself (read_file/grep/list_dir) instead of receiving a pre-assembled
+    bundle; the rubric is identical to claim mode. Sequential by design: the
+    experiment scale is small and per-case token accounting falls out of the
+    singleton ``decide_batch`` call.
+
+    Returns ``(findings, input_tokens, output_tokens, trace_entries)`` with
+    ``findings`` aligned 1:1 with ``cases``. A case whose decide raises keeps
+    its undecided finding (``verdict=None``) and contributes no trace entry,
+    mirroring ``decide_junk_claims``' chunk-failure behavior.
+    """
+
+    findings: list[Finding] = []
+    entries: list[dict] = []
+    total_in = total_out = 0
+    for case, claim, stage_cfg in zip(cases, claims, staging_configs):
+        triage = Triage(
+            runtime_config, executor=ExplorationExecutor(stage_cfg), provider=provider
+        )
+        try:
+            batch = await triage.decide_batch(
+                [claim], mode="exploration", system_prompt=system_prompt
+            )
+        except Exception as exc:  # noqa: BLE001 — mirror decide_junk_claims: keep undecided
+            findings.append(claim.finding)
+            print(f"  [error] exploration decide failed ({case.key}): {exc}", flush=True)
+            continue
+        decided = batch.findings[0]
+        findings.append(decided)
+        total_in += batch.input_tokens
+        total_out += batch.output_tokens
+        trace = dict(batch.exploration_traces[0]) if batch.exploration_traces else {
+            "finding_id": decided.id, "calls": []
+        }
+        trace["input_tokens"] = batch.input_tokens
+        trace["output_tokens"] = batch.output_tokens
+        entries.append(
+            {
+                "slug": case.key,
+                "mode": "exploration-eval",
+                "variant": variant_name,
+                "repeat": repeat_index,
+                "adjudicated_verdict": case.expected_verdict,
+                "gray": case.gray,
+                "finding": decided.to_dict(),
+                "trace": trace,
+            }
+        )
+    return findings, total_in, total_out, entries
 
 
 def _build_verdict_record(
@@ -854,6 +964,7 @@ async def evaluate_corpus(
     repeats: int = 1,
     repeat_offset: int = 0,
     run_id: str | None = None,
+    mode: str = "claim",
     provider: Any | None = None,
     config_factory: Callable[[], Config] | None = None,
     batch_size: int | None = None,
@@ -871,6 +982,14 @@ async def evaluate_corpus(
     a per-case loop. Claims are built once, before any variant runs (evidence
     does not depend on the prompt); see :func:`_stage_and_build_claims` for
     how each case is staged per its ``source``.
+
+    ``mode="exploration"`` (osojicode/work#92) replaces only that decide pass
+    with :func:`_decide_exploration_cases` — a per-case agentic loop whose
+    executor is rooted at the case's own staged snapshot. Verdict records keep
+    the exact ``osoji-verdict/1`` shape; per-case token accounting and tool
+    traces land on ``EvalRun.traces`` instead. Requires a provider supporting
+    ``tool_choice: auto`` with multi-turn ``tool_result`` round-trips (the
+    anthropic API provider; NOT claude-code — see decisions/0015).
 
     Cases of both sources may be mixed in one call. The ``config`` argument
     ``decide_junk_claims`` receives only governs the model it requests:
@@ -916,6 +1035,8 @@ async def evaluate_corpus(
         raise ValueError("evaluate_corpus: cases is empty")
     if not variants:
         raise ValueError("evaluate_corpus: variants is empty")
+    if mode not in ("claim", "exploration"):
+        raise ValueError(f"evaluate_corpus: unknown mode {mode!r}")
 
     resolved_run_id = run_id or default_run_id()
     workdir = Path(workdir)
@@ -933,7 +1054,7 @@ async def evaluate_corpus(
     # ValueError for a rebuild-policy case with no source/ — nothing has been
     # opened yet and there is nothing to leak. The provider's try/finally below
     # starts immediately at construction, covering its entire owned lifetime.
-    claims = _stage_and_build_claims(cases, workdir)
+    claims, staging_configs = _stage_and_build_claims(cases, workdir)
 
     owns_provider = provider is None
     active_provider = (
@@ -943,21 +1064,35 @@ async def evaluate_corpus(
     )
 
     records: list[dict] = []
+    traces: list[dict] = []
     total_input_tokens = 0
     total_output_tokens = 0
     try:
         for variant in variants:
             for k in range(repeats):
-                findings, in_tok, out_tok = await decide_junk_claims(
-                    claims,
-                    runtime_config,
-                    active_provider,
-                    batch_size=effective_batch_size,
-                    system_prompt=variant.system_prompt,
-                )
+                repeat_index = repeat_offset + k
+                if mode == "exploration":
+                    findings, in_tok, out_tok, entries = await _decide_exploration_cases(
+                        cases,
+                        claims,
+                        staging_configs,
+                        runtime_config,
+                        active_provider,
+                        variant.system_prompt,
+                        variant_name=variant.name,
+                        repeat_index=repeat_index,
+                    )
+                    traces.extend(entries)
+                else:
+                    findings, in_tok, out_tok = await decide_junk_claims(
+                        claims,
+                        runtime_config,
+                        active_provider,
+                        batch_size=effective_batch_size,
+                        system_prompt=variant.system_prompt,
+                    )
                 total_input_tokens += in_tok
                 total_output_tokens += out_tok
-                repeat_index = repeat_offset + k
                 for case, claim, finding in zip(cases, claims, findings):
                     records.append(
                         _build_verdict_record(
@@ -1000,12 +1135,13 @@ async def evaluate_corpus(
         },
         "repeats": repeats,
         "repeat_offset": repeat_offset,
+        "mode": mode,
         "batch_size": effective_batch_size,
         "tokens": {"input": total_input_tokens, "output": total_output_tokens},
         "metrics": compute_metrics(records, cases),
     }
 
-    return EvalRun(records=records, run_meta=run_meta)
+    return EvalRun(records=records, run_meta=run_meta, traces=traces)
 
 
 def select_cases(
