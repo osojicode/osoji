@@ -109,6 +109,7 @@ def _finding_dict(**overrides) -> dict:
         "suggested_fix": None,
         "severity": None,
         "contract_class": None,
+        "description_class": None,
         "evidence_fingerprint": None,
     }
     base.update(overrides)
@@ -156,6 +157,7 @@ def _expected_json(
         "gray": gray,
         "gray_reason": None,
         "expected_contract_class": None,
+        "expected_description_class": None,
         "adjudicated_by": "jf",
         "adjudicated_at": "2026-07-21T00:00:00Z",
         "accepted": accepted,
@@ -645,6 +647,7 @@ def _rec(**overrides) -> dict:
         "confidence": 0.9,
         "severity": "warning",
         "contract_class": None,
+        "description_class": None,
         "triage_reasoning": "because",
         "suggested_fix": "remove it",
         "insufficient_evidence": False,

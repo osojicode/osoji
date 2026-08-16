@@ -73,6 +73,34 @@ def test_every_case_json_parses_with_valid_schema_and_is_accepted():
         )
 
 
+def test_expected_description_class_structurally_valid():
+    # decisions/0029 ruling 2, made structural: when an expected.json carries
+    # a non-null expected_description_class it must be 'ambiguous', sit on a
+    # description-gap finding, and pair with a confirmed expected verdict
+    # (grade-not-gate: the ambiguity class is a species of confirm, never a
+    # dismissal flavor). Older cases may omit the key entirely.
+    for case_json_path in _case_json_paths():
+        expected_path = case_json_path.parent / "expected.json"
+        expected_data = json.loads(expected_path.read_text(encoding="utf-8"))
+        desc_class = expected_data.get("expected_description_class")
+        if desc_class is None:
+            continue
+        assert desc_class == "ambiguous", (
+            f"{expected_path}: unknown expected_description_class {desc_class!r}"
+        )
+        finding_data = json.loads(
+            (case_json_path.parent / "finding.json").read_text(encoding="utf-8")
+        )
+        assert finding_data.get("gap_type") == "description", (
+            f"{expected_path}: expected_description_class on a "
+            f"{finding_data.get('gap_type')!r}-gap case"
+        )
+        assert expected_data.get("verdict") == "confirmed", (
+            f"{expected_path}: an ambiguous description is confirmed at info, "
+            f"not {expected_data.get('verdict')!r}"
+        )
+
+
 # ---------------------------------------------------------------------------
 # finding.json round-trip
 # ---------------------------------------------------------------------------

@@ -949,6 +949,7 @@ def _build_verdict_record(
         "confidence": finding.confidence,
         "severity": finding.severity,
         "contract_class": finding.contract_class,
+        "description_class": finding.description_class,
         "triage_reasoning": finding.triage_reasoning,
         "suggested_fix": finding.suggested_fix,
         "insufficient_evidence": claim.insufficient_evidence,

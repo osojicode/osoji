@@ -172,6 +172,18 @@ def test_harvest_records_decided_finding():
     assert session.cache_hits == 0
 
 
+def test_harvest_carries_description_class():
+    # decisions/0029: the ambiguous marker must survive the manifest cache —
+    # a harvested entry that dropped it would replay pre-0029-shaped verdicts
+    # on same-version incremental runs.
+    session = VerdictSession()
+    finding = _finding(description_class="ambiguous")
+
+    session.harvest([finding])
+
+    assert session.harvested[finding.id]["description_class"] == "ambiguous"
+
+
 def test_harvest_skips_verdict_none():
     session = VerdictSession()
 

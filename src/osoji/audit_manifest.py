@@ -183,6 +183,7 @@ class VerdictSession:
                 "suggested_fix": finding.suggested_fix,
                 "severity": finding.severity,
                 "contract_class": finding.contract_class,
+                "description_class": finding.description_class,
                 # LLM-assigned split for parked claims (decisions/0025);
                 # _apply_cached re-applies it under the same only-if-parked guard.
                 "gap_type": finding.gap_type,

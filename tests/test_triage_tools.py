@@ -58,6 +58,27 @@ def test_claim_tool_contract_class_enum_is_authority_source_taxonomy():
         assert old not in enum
 
 
+def test_claim_tool_description_class_enum_and_optionality():
+    # decisions/0029 ruling 2: an optional marker, not a partition — single
+    # 'ambiguous' member, deliberately no 'other' outlet (absence is the
+    # outlet), and never in the required list.
+    [tool] = get_triage_claim_tool_definitions()
+    props = _verdict_item_props(tool)
+    assert tuple(props["description_class"]["enum"]) == ("ambiguous",)
+    item = tool.input_schema["properties"]["verdicts"]["items"]
+    assert "description_class" not in item["required"]
+
+
+def test_exploration_tool_description_class_mirrors_claim_tool():
+    [verdict] = [
+        t for t in get_triage_exploration_tool_definitions()
+        if t.name == "submit_triage_verdict"
+    ]
+    props = verdict.input_schema["properties"]
+    assert tuple(props["description_class"]["enum"]) == ("ambiguous",)
+    assert "description_class" not in verdict.input_schema.get("required", [])
+
+
 def test_exploration_tools_present():
     tools = {t.name for t in get_triage_exploration_tool_definitions()}
     assert tools == {"read_file", "grep", "list_dir", "submit_triage_verdict"}

@@ -54,6 +54,8 @@ class DocFinding:
     # id, threaded through to the product boundary alongside the above.
     suggested_fix: str | None = None
     finding_id: str | None = None
+    # DESCRIPTION-gap class marker (decisions/0029): 'ambiguous' or None.
+    description_class: str | None = None
 
 
 @dataclass
@@ -657,6 +659,7 @@ async def _triage_doc_findings(
         df.triage_reasoning = fnd.triage_reasoning
         df.suggested_fix = fnd.suggested_fix
         df.finding_id = fnd.id
+        df.description_class = fnd.description_class
         if fnd.verdict == "uncertain":
             df.severity = "warning"                  # kept, but downgraded (signal conservation)
         elif fnd.severity:

@@ -23,10 +23,15 @@ from osoji.triage import (
 # gap_type split; ed045852… re-founded the contract taxonomy on authority
 # source (project_named/project_implicit/ecosystem/coincidental), renaming the
 # `contract_literal_classes` section to `contract_classes` (ratified 2026-07-22);
-# current hash encodes decisions/0027 (exhibited-by-the-checkout predicates,
-# masking ladder) and adds the `description_debris` section (work#81 +
-# osoji#31; A/B evidence: tests/fixtures/bootstrap/ab-descfam-report.md).
-FROZEN_SHA = "807be64664d6913ac81b9dbae21be4aa61e3d4be6af18b73df2ce8bc11d39bb1"
+# 807be646… encoded decisions/0027 (exhibited-by-the-checkout predicates,
+# masking ladder) and added the `description_debris` section (work#81 +
+# osoji#31; A/B evidence: tests/fixtures/bootstrap/ab-descfam-report.md);
+# current hash encodes decisions/0029 (verification-domain routing + the
+# ambiguous-description class): adds the `verification_domains` section, the
+# ambiguity bullet in `description_debris`, and checkout-domain qualifiers on
+# the two honest-zero clauses (work#94; A/B evidence:
+# tests/fixtures/bootstrap/ab-work94-report.md).
+FROZEN_SHA = "d8d7a74b05d0625772ec427cbfd58e2fa860f6f82a42b669efc761522e31b475"
 
 
 def test_assembled_prompt_is_byte_identical() -> None:
@@ -39,9 +44,17 @@ def test_full_render_matches_constant() -> None:
 
 
 def test_sections_are_nonempty() -> None:
-    assert len(TRIAGE_PROMPT_SECTIONS) == 17
+    assert len(TRIAGE_PROMPT_SECTIONS) == 18
     for name, text in TRIAGE_PROMPT_SECTIONS.items():
         assert text, f"empty section: {name}"
+
+
+def test_verification_domains_section_present() -> None:
+    # decisions/0029 ruling 1: domain routing sits between the predicates and
+    # the grading sections — "before weighing evidence" is positional.
+    keys = list(TRIAGE_PROMPT_SECTIONS)
+    assert "verification_domains" in TRIAGE_PROMPT_SECTIONS
+    assert keys.index("predicates") < keys.index("verification_domains") < keys.index("significance")
 
 
 def test_contract_section_renamed_to_authority_taxonomy() -> None:

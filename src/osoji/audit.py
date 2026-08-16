@@ -114,6 +114,7 @@ class AuditIssue:
     origin: dict | None = None  # {"source": "llm"|"static"|"hybrid", "plugin": str}
     exclude_key: str | None = None  # matches --exclude identifier for this phase
     contract_class: str | None = None  # obligations only: string-contract taxonomy class (V1-5c)
+    description_class: str | None = None  # description gaps only: 'ambiguous' marker (decisions/0029)
     # Triage outputs, threaded from the decided Finding when one exists.
     # Additive: the detector's heuristic `remediation` above is unchanged; these
     # ride alongside it. None whenever no decided Finding backs this issue
@@ -588,6 +589,7 @@ async def run_audit_async(
                 confidence=finding.confidence,
                 triage_reasoning=finding.triage_reasoning,
                 suggested_fix=finding.suggested_fix,
+                description_class=finding.description_class,
             ))
 
     # Serialize Phase 2 results
@@ -614,6 +616,7 @@ async def run_audit_async(
                     "triage_reasoning": f.triage_reasoning,
                     "suggested_fix": f.suggested_fix,
                     "finding_id": f.finding_id,
+                    "description_class": f.description_class,
                 }
                 for f in item.findings
             ],
@@ -653,6 +656,7 @@ async def run_audit_async(
             confidence=decided.confidence if decided is not None else None,
             triage_reasoning=decided.triage_reasoning if decided is not None else None,
             suggested_fix=decided.suggested_fix if decided is not None else None,
+            description_class=decided.description_class if decided is not None else None,
         ))
 
     # Collect issues from Phase 3.5 (obligations)
@@ -1172,6 +1176,7 @@ def load_audit_result(config: Config) -> AuditResult:
             origin=i.get("origin"),
             exclude_key=i.get("exclude_key"),
             contract_class=i.get("contract_class"),
+            description_class=i.get("description_class"),
             finding_id=i.get("finding_id"),
             verdict=i.get("verdict"),
             confidence=i.get("confidence"),
@@ -1541,6 +1546,7 @@ def format_audit_json(result: AuditResult) -> str:
                 **({"origin": issue.origin} if issue.origin else {}),
                 **({"exclude_key": issue.exclude_key} if issue.exclude_key else {}),
                 **({"contract_class": issue.contract_class} if issue.contract_class else {}),
+                **({"description_class": issue.description_class} if issue.description_class else {}),
                 **({"finding_id": issue.finding_id} if issue.finding_id else {}),
                 **({"verdict": issue.verdict} if issue.verdict else {}),
                 **({"confidence": issue.confidence} if issue.confidence is not None else {}),
