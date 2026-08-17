@@ -1,11 +1,12 @@
 {
   "schema": "corpus-expected/1",
   "verdict": "dismissed",
-  "reasoning": "The comment at compile-jdi-bridge.js:46 is correct within its declared scope: javac -version prints to stdout since JDK 9 (JDK-8173308), and the script targets JDK 21+ (:23, :97), so '(JDK 9+)' is precise. The finding's counter-assertion ('some JDK 9+ builds print to stderr') is unsupported and its mechanics are wrong \u2014 execFileSync returns stdout only, so there is no works-anyway-via-stderr path; the code depends on stdout exactly as declared. Fails Reality. [Panel note: verdict matches the live dismissal but the live reasoning's shadow-doc route and its real-but-minor-therefore-dismiss tail are both rubric-invalid; this reasoning replaces them.]",
+  "reasoning": "Dismissed on verification-domain grounds (decisions/0029 ruling 1). The finding's drift claim hinges on a toolchain fact — which stream `javac -version` writes to on the JDKs this script targets — that is not adjudicable from this checkout: repo evidence can neither verify nor refute it, and evidence-of-absence is inadmissible for world-facts, so this dismissal is robust to that fact either way. What the checkout does exhibit cuts against the finding on its own terms: the string execFileSync returns at :47 is stdout only (stderr, though piped, never reaches the version regex at :51), so the code depends on stdout exactly as the comment declares — there is no works-anyway-via-stderr path for the counter-assertion to stand on. Fails Reality as packaged. [Re-grounded 2026-08-16 per work#96; supersedes the 2026-07-23 panel reasoning, which rested the dismissal on the contested, never-verified JDK stream fact (panel: stdout since JDK 9 per JDK-8173308; the work#92 exploration model: stderr). Verdict unchanged.]",
   "gray": false,
   "gray_reason": null,
   "expected_contract_class": null,
-  "adjudicated_by": "sweep-proposed+panel-2of2",
-  "adjudicated_at": "2026-07-23",
+  "expected_description_class": null,
+  "adjudicated_by": "sweep-proposed+panel-2of2+jf-0029",
+  "adjudicated_at": "2026-08-16",
   "accepted": true
 }

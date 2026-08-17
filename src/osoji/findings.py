@@ -105,6 +105,13 @@ class Finding:
     # classified ``other`` is the CE-gap rate on the taxonomy's adequacy.
     contract_class: str | None = None
 
+    # DESCRIPTION-gap only (decisions/0029 ruling 2, work#94): 'ambiguous' when
+    # Triage confirms an ambiguous description (two defensible readings, one
+    # contradicting the code, surviving code-in-hand reading) at severity
+    # 'info'. An optional marker, not a partition: absence is the ordinary
+    # description path, so there is deliberately no 'other' outlet.
+    description_class: str | None = None
+
     # Incremental-audit hook (V1-9): the Claim Builder fills this in V1-4. It is
     # excluded from ``id`` — id and evidence_fingerprint are orthogonal cache
     # dimensions. Stays None in V1-2.
@@ -158,5 +165,6 @@ class Finding:
             suggested_fix=data.get("suggested_fix"),
             severity=data.get("severity"),
             contract_class=data.get("contract_class"),
+            description_class=data.get("description_class"),
             evidence_fingerprint=data.get("evidence_fingerprint"),
         )

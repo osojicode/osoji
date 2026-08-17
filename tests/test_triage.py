@@ -767,3 +767,47 @@ def test_cached_gap_type_reapplied_with_same_guard():
     assert parked.gap_type == "description"
     mechanical = _apply_cached(make_finding(gap_type="contract"), cached)
     assert mechanical.gap_type == "contract"
+
+
+def test_description_class_threaded_by_apply_verdict():
+    # decisions/0029 ruling 2: the ambiguous marker rides the verdict dict
+    # onto the Finding, and defaults to None when the model omits it.
+    f = _apply_verdict(make_finding(gap_type="description"), {
+        "batch_index": 0,
+        "verdict": "confirmed",
+        "confidence": 0.9,
+        "reasoning": "Two defensible readings; the ambiguity is the finding.",
+        "severity": "info",
+        "description_class": "ambiguous",
+    })
+    assert f.description_class == "ambiguous"
+
+    omitted = _apply_verdict(make_finding(gap_type="description"), {
+        "batch_index": 0,
+        "verdict": "confirmed",
+        "confidence": 0.9,
+        "reasoning": "Plain drift.",
+        "severity": "warning",
+    })
+    assert omitted.description_class is None
+
+
+def test_description_class_replayed_by_apply_cached():
+    from osoji.triage import _apply_cached
+
+    cached = {
+        "verdict": "confirmed",
+        "confidence": 0.9,
+        "triage_reasoning": "ambiguous description",
+        "suggested_fix": "clarify the comment",
+        "severity": "info",
+        "contract_class": None,
+        "description_class": "ambiguous",
+        "gap_type": "description",
+    }
+    replayed = _apply_cached(make_finding(gap_type="description"), cached)
+    assert replayed.description_class == "ambiguous"
+    # Pre-0029 cache entries lack the key: replay as None, never KeyError.
+    del cached["description_class"]
+    legacy = _apply_cached(make_finding(gap_type="description"), cached)
+    assert legacy.description_class is None

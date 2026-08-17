@@ -105,6 +105,16 @@ class TestFindingSerialization:
         f = _make_finding(evidence_fingerprint="fp-xyz")
         assert Finding.from_dict(f.to_dict()).evidence_fingerprint == "fp-xyz"
 
+    def test_description_class_defaults_none_and_round_trips(self):
+        # decisions/0029: additive optional marker; pre-0029 dicts lack the
+        # key and must reconstruct as None.
+        assert _make_finding().description_class is None
+        f = _make_finding(description_class="ambiguous")
+        assert Finding.from_dict(f.to_dict()).description_class == "ambiguous"
+        legacy = f.to_dict()
+        del legacy["description_class"]
+        assert Finding.from_dict(legacy).description_class is None
+
     def test_json_dumps_default_str(self):
         f = _make_finding(evidence=[Evidence(kind="ast_fact", payload={"k": "v"})])
         # Should not raise.

@@ -77,8 +77,8 @@ A case directory contains:
 
 - **`finding.json`** — exactly `Finding.to_dict()` (`src/osoji/findings.py`):
   every triage-output field (`verdict`, `confidence`, `triage_reasoning`,
-  `suggested_fix`, `severity`, `contract_class`) is `null` — a corpus case
-  stores the *proposed* finding, never a stale verdict. `path` is
+  `suggested_fix`, `severity`, `contract_class`, `description_class`) is
+  `null` — a corpus case stores the *proposed* finding, never a stale verdict. `path` is
   snapshot-relative POSIX (relative to `source/`). Under `evidence_policy:
   "rebuild"`, `evidence` is `[]` (rebuilt at replay time); under `"frozen"`,
   `evidence` carries the serialized `Evidence` list from the original sweep.
@@ -93,11 +93,19 @@ A case directory contains:
     "gray": false,
     "gray_reason": null | "<why this case is gray>",
     "expected_contract_class": null | "<contract_class for contract-gap cases>",
+    "expected_description_class": null | "ambiguous",
     "adjudicated_by": "<who decided this>",
     "adjudicated_at": "<UTC ISO-8601 timestamp>",
     "accepted": true | false
   }
   ```
+
+  `expected_description_class` (decisions/0029 ruling 2) records the
+  adjudicated `description_class` for description-gap cases — `"ambiguous"`
+  when the expected verdict is a confirmed ambiguous description at severity
+  info. Like `expected_contract_class`, it is recorded, not scored: scoring
+  compares `verdict` only. Older expected.json files may omit the key
+  entirely (equivalent to `null`).
 
   `gray` marks a case whose correct verdict is genuinely debatable — gray
   cases stay in the corpus (they're real data) but are excluded from the
@@ -177,7 +185,7 @@ line isn't a valid trailer.
 | `path`, `symbol`, `line_start`, `line_end` | Copied from the finding |
 | `expected_verdict`, `gray` | Copied from `expected.json` |
 | `verdict` | `"confirmed"` \| `"dismissed"` \| `"uncertain"` \| `null` (`null` = undecided: chunk failure or an insufficient-evidence pass-through) |
-| `confidence`, `severity`, `contract_class`, `triage_reasoning`, `suggested_fix` | Triage output fields |
+| `confidence`, `severity`, `contract_class`, `description_class`, `triage_reasoning`, `suggested_fix` | Triage output fields |
 | `insufficient_evidence` | Whether the Claim Builder flagged the claim as insufficiently evidenced |
 | `evidence_policy` | `"rebuild"` \| `"frozen"`, copied from the case |
 | `correct` | `bool` \| `null` — `null` when `verdict` is `null` |

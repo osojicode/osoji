@@ -105,6 +105,37 @@ reasoning concludes the claim fails, the matching verdict is 'dismissed',
 never 'confirmed'.
 
 """,
+    # Encodes wiki decisions/0029 ruling 1 (work#94). Claims routed (c)
+    # runtime-verifiable are the natural intake queue for a future
+    # dynamic-analysis tier — the routing step exists so they park as
+    # dismiss/uncertain today instead of shipping as confident confirms.
+    "verification_domains": """\
+Before weighing evidence on a description claim, classify what the claim's
+truth depends on: (a) the contents of this checkout; (b) the outside world —
+the behavior of an OS, toolchain, runtime platform, or ecosystem the code
+merely runs against; (c) the program's own behavior at runtime. Only (a) is
+adjudicable from repo evidence. A drift claim that hinges on (b) or (c) is not
+exhibited by the checkout: it cannot be confidently confirmed from what you
+have — dismiss it, or use 'uncertain', never a confident confirm. For such
+claims, repo evidence-of-absence is inadmissible: a zero-hit sweep over this
+repository can neither verify nor refute a fact about the world outside it.
+This restriction is domain-scoped, not general — for claims whose truth lives
+in the checkout, an honest zero over a real scan scope remains the canonical
+evidence it has always been. Routing is binding: once a claim's truth seat is
+(b) or (c), do not rescue the finding by restating the same doubt as a
+checkout-internal inconsistency — and code that defensively handles more cases
+than a declaration describes exhibits breadth, not a contradiction of the
+declaration. The mirror error is adjudicating an outside-world claim
+internally: a declaration that attributes behavior to the platform is not
+contradicted by the code not implementing that behavior itself. Nor can any
+checkout artifact move a world-fact into the checkout: a summary, shadow doc,
+or comment that asserts how the outside world behaves is itself only a claim —
+citing one does not make a (b) claim adjudicable, however confidently it is
+worded. And a claim is (c) only when reading the assembled code cannot decide
+it: if tracing the cited code's own mechanics settles the question, the claim
+is (a) and must be adjudicated, not deferred.
+
+""",
     "significance": """\
 Significance GRADES a confirmed finding; it never gates one. Set severity by how much
 closing the gap improves the codebase: 'error' when the gap corrupts behavior or
@@ -134,9 +165,9 @@ makes the symbol consumable beyond the scanned scope. When reachability evidence
 positive but marginal and the flagged symbol is a small delegating member of a uniform
 interface surface, the mechanism that reaches its siblings plausibly reaches it too —
 the gap's Reality is not established; dismiss on Reality, not on the smallness of the
-win. (Zero-hit sweeps carry no such doubt: an honest zero over a real scan scope is
-the canonical case FOR confirming — and a confirmed minor gap grades 'info', it does
-not get dismissed.)
+win. (Zero-hit sweeps carry no such doubt: an honest zero over a real scan scope of
+this checkout is the canonical case FOR confirming — and a confirmed minor gap grades
+'info', it does not get dismissed.)
 
 """,
     "parameter": """\
@@ -177,7 +208,8 @@ edge — discovered by a framework or tool (such as test, fixture, migration, or
 discovery), loaded dynamically, named in configuration or CI, or invoked as a script or
 entry point. A missing import edge does not by itself confirm an orphan; confirm only
 when no such conventional or dynamic pathway plausibly reaches the file. An honest zero
-over a real sweep of the file's name and exported symbols is the case FOR confirming.
+over a real sweep of this checkout for the file's name and exported symbols is the case
+FOR confirming.
 
 """,
     "dead_cicd": """\
@@ -281,7 +313,10 @@ artifact — a comment, docstring, identifier, or other human-authored
 annotation — contradicts what the code does, weigh it against these
 principles:
 - Adjudicate exactly the claim the finding packages, against the exact text of
-  the cited declaration. Never refute a claim the declaration does not make,
+  the cited declaration, within the declaration's own declared scope: a
+  declaration that explicitly bounds itself — to a version range, a platform,
+  a stated assumption — is not contradicted by behavior outside that bound.
+  Never refute a claim the declaration does not make,
   and never substitute an omission complaint for the packaged claim — that a
   declaration could usefully say more is a coverage question, dismissed here
   no matter how valuable the addition would be.
@@ -290,6 +325,16 @@ principles:
   drifted. When the imprecision is nonetheless a real, fixable mismatch,
   confirm and grade 'info'; when the declaration is merely loose but not
   wrong, dismiss.
+- A declaration that admits two defensible readings, one of which contradicts
+  the code, is neither drift nor accuracy: it is an ambiguous description.
+  Confirm at severity 'info' and set `description_class` to 'ambiguous'; the
+  suggested_fix is the minimal elaboration that collapses the ambiguity. The
+  bound: a declaration need only survive being read with its local code in
+  hand — when the surrounding code disambiguates, the contradicting reading
+  is not defensible; dismiss. That a competent reader (including the detector
+  that proposed this claim) actually took the contradicting reading is itself
+  admissible evidence the ambiguity is real. State the ambiguity affirmatively
+  in your reasoning: the verdict confirms the ambiguity, not the misreading.
 - The documented side of the comparison must be a declaration. Derived
   artifacts — summaries produced by observing the code — never constitute the
   documented claim; at most they relay a declaration, and their paraphrase is
@@ -860,6 +905,7 @@ def _apply_verdict(finding: Finding, v: dict) -> Finding:
         suggested_fix=v.get("suggested_fix"),
         severity=v.get("severity"),
         contract_class=v.get("contract_class"),
+        description_class=v.get("description_class"),
         gap_type=_split_gap_type(finding, v.get("gap_type")),
     )
 
@@ -875,6 +921,7 @@ def _apply_cached(finding: Finding, cached: dict) -> Finding:
         suggested_fix=cached.get("suggested_fix"),
         severity=cached.get("severity"),
         contract_class=cached.get("contract_class"),
+        description_class=cached.get("description_class"),
         gap_type=_split_gap_type(finding, cached.get("gap_type")),
     )
 

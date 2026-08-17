@@ -579,7 +579,8 @@ def emit_case(
         finding_out["path"] = finding_path
         for key in (
             "verdict", "confidence", "triage_reasoning", "suggested_fix",
-            "severity", "contract_class", "evidence_fingerprint",
+            "severity", "contract_class", "description_class",
+            "evidence_fingerprint",
         ):
             finding_out[key] = None
         finding_out["evidence"] = []
@@ -610,6 +611,7 @@ def emit_case(
             "gray": bool(gray),
             "gray_reason": None,
             "expected_contract_class": None,
+            "expected_description_class": None,
             "adjudicated_by": "sweep-proposed",
             "adjudicated_at": now_iso,
             "accepted": False,

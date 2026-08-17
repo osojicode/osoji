@@ -1046,6 +1046,15 @@ _TRIAGE_VERDICT_FIELDS = {
                        "'uncategorized' when neither can be stated. Omit for claims whose "
                        "gap type is already known; such values are ignored.",
     },
+    "description_class": {
+        "type": "string",
+        "enum": ["ambiguous"],
+        "description": "DESCRIPTION-gap claims only: emit 'ambiguous' only when the cited "
+                       "declaration admits two defensible readings, one contradicting the "
+                       "code, and the contradicting reading survives being read with the "
+                       "local code in hand. Pairs with verdict 'confirmed' at severity "
+                       "'info'. Omit otherwise.",
+    },
 }
 
 

@@ -178,7 +178,8 @@ def test_emit_case_creates_full_stub_layout(tmp_path):
     assert finding_json["id"] == confirmed.id
     for key in (
         "verdict", "confidence", "triage_reasoning", "suggested_fix",
-        "severity", "contract_class", "evidence_fingerprint",
+        "severity", "contract_class", "description_class",
+        "evidence_fingerprint",
     ):
         assert finding_json[key] is None, key
     assert finding_json["evidence"] == []
@@ -190,6 +191,7 @@ def test_emit_case_creates_full_stub_layout(tmp_path):
     assert expected_json["gray"] is False
     assert expected_json["gray_reason"] is None
     assert expected_json["expected_contract_class"] is None
+    assert expected_json["expected_description_class"] is None
     assert expected_json["adjudicated_by"] == "sweep-proposed"
     assert expected_json["accepted"] is False
 
