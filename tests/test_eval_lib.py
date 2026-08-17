@@ -30,6 +30,7 @@ from eval_lib import (  # noqa: E402
     build_case_claim,
     cases_from_bootstrap_manifest,
     check_gepa_gate,
+    check_thresholds,
     compute_metrics,
     evaluate_corpus,
     load_corpus,
@@ -860,6 +861,102 @@ def test_compute_metrics_empty_inputs_do_not_crash():
     assert metrics["me_overlap"] == 0.0
     assert metrics["escalation_rate"] == 0.0
     assert metrics["n_cases"] == 0
+
+
+def test_compute_metrics_resample_disagreement_across_repeats():
+    # Two variants x three repeats over two cases. In variant "a", case c1
+    # flips (confirmed/confirmed/dismissed) while c2 is stable; variant "b"
+    # is stable on both. 1 flipping group out of 4 multi-record groups.
+    records = [
+        _rec(variant="a", case="c1", repeat=0, verdict="confirmed"),
+        _rec(variant="a", case="c1", repeat=1, verdict="confirmed"),
+        _rec(variant="a", case="c1", repeat=2, verdict="dismissed"),
+        _rec(variant="a", case="c2", repeat=0, verdict="dismissed"),
+        _rec(variant="a", case="c2", repeat=1, verdict="dismissed"),
+        _rec(variant="a", case="c2", repeat=2, verdict="dismissed"),
+        _rec(variant="b", case="c1", repeat=0, verdict="confirmed"),
+        _rec(variant="b", case="c1", repeat=1, verdict="confirmed"),
+        _rec(variant="b", case="c1", repeat=2, verdict="confirmed"),
+        _rec(variant="b", case="c2", repeat=0, verdict="uncertain"),
+        _rec(variant="b", case="c2", repeat=1, verdict="uncertain"),
+        _rec(variant="b", case="c2", repeat=2, verdict="uncertain"),
+    ]
+
+    metrics = compute_metrics(records, [])
+
+    assert metrics["resample_flip_rate"] == pytest.approx(1 / 4)
+    # Agree rates per group: c1/a 2/3, c2/a 1.0, c1/b 1.0, c2/b 1.0.
+    assert metrics["resample_agree_rate"] == pytest.approx((2 / 3 + 1.0 + 1.0 + 1.0) / 4)
+    assert metrics["resample_flagged_cases"] == [
+        {"variant": "a", "case": "c1", "verdicts": {"confirmed": 2, "dismissed": 1}},
+    ]
+
+
+def test_compute_metrics_resample_keys_absent_at_single_repeat():
+    # A repeats=1 run: every (variant, case) group has one record, so the
+    # resample keys must be ABSENT (not 0.0) — a pinned baseline bound stays
+    # inert until a run actually resamples.
+    records = [
+        _rec(variant="a", case="c1", repeat=0),
+        _rec(variant="a", case="c2", repeat=0),
+        _rec(variant="b", case="c1", repeat=0),
+    ]
+
+    metrics = compute_metrics(records, [])
+
+    assert "resample_flip_rate" not in metrics
+    assert "resample_agree_rate" not in metrics
+    assert "resample_flagged_cases" not in metrics
+
+
+def test_compute_metrics_resample_none_verdict_is_its_own_category():
+    # An undecided repeat disagreeing with a decided one IS instability.
+    records = [
+        _rec(variant="a", case="c1", repeat=0, verdict="confirmed"),
+        _rec(variant="a", case="c1", repeat=1, verdict=None),
+    ]
+
+    metrics = compute_metrics(records, [])
+
+    assert metrics["resample_flip_rate"] == 1.0
+    assert metrics["resample_flagged_cases"] == [
+        {"variant": "a", "case": "c1", "verdicts": {"confirmed": 1, "None": 1}},
+    ]
+
+
+def test_compute_metrics_resample_mixed_repeat_counts():
+    # Single-record groups are excluded from the denominator; only groups
+    # with >=2 records count.
+    records = [
+        _rec(variant="a", case="c1", repeat=0, verdict="confirmed"),
+        _rec(variant="a", case="c1", repeat=1, verdict="dismissed"),
+        _rec(variant="a", case="c2", repeat=0, verdict="confirmed"),
+    ]
+
+    metrics = compute_metrics(records, [])
+
+    assert metrics["resample_flip_rate"] == 1.0
+    assert metrics["resample_agree_rate"] == pytest.approx(0.5)
+
+
+def test_check_thresholds_resample_flip_rate_gateable_and_self_arming():
+    baseline = {"resample_flip_rate": {"max": 0.13}}
+
+    # Present and above the bound -> violation.
+    violations = check_thresholds({"resample_flip_rate": 0.25}, baseline)
+    assert violations and "resample_flip_rate" in violations[0]
+
+    # Present and within the bound -> clean.
+    assert check_thresholds({"resample_flip_rate": 0.10}, baseline) == []
+
+    # Absent (repeats=1 run) -> silently skipped: the bound is self-arming.
+    assert check_thresholds({"tp_rate": 0.9}, baseline) == []
+
+    # The non-scalar detail list is never compared against bounds.
+    assert check_thresholds(
+        {"resample_flagged_cases": [{"case": "c1"}]},
+        {"resample_flagged_cases": {"max": 0.0}},
+    ) == []
 
 
 # ---------------------------------------------------------------------------

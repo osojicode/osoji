@@ -29,6 +29,7 @@ import shutil
 import subprocess
 import sys
 import warnings
+from collections import Counter
 from collections.abc import Callable, Collection
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -439,6 +440,11 @@ def compute_metrics(records: list[dict], cases: list[CorpusCase]) -> dict:
     and ``accuracy_nongray`` exclude gray cases; the remaining metrics do not
     (``ce_gap_gap_type`` and ``me_overlap`` are computed statically from
     ``cases``, independent of any particular run).
+
+    When any ``(variant, case)`` group holds >=2 records (a repeats>=2 run),
+    three resample-disagreement keys are additionally emitted
+    (``resample_flip_rate``, ``resample_agree_rate``,
+    ``resample_flagged_cases``); at repeats=1 they are absent, not 0.0.
     """
 
     nongray = [r for r in records if not r.get("gray")]
@@ -518,7 +524,37 @@ def compute_metrics(records: list[dict], cases: list[CorpusCase]) -> dict:
     for c in cases:
         n_cases_by_category[c.category] = n_cases_by_category.get(c.category, 0) + 1
 
+    # Resample disagreement (osojicode/work#97): per-case verdict agreement
+    # across repeats, grouped by (variant, case). Emitted ONLY when at least
+    # one group has >=2 records — at repeats=1 the keys are absent entirely,
+    # so a future evaluate-baseline.json bound stays inert (check_thresholds
+    # skips absent metrics) and self-arms the moment a run uses repeats>=2.
+    # Emitting 0.0 instead would falsely read as "perfectly stable".
+    # NB: "any disagreement" (flip) is monotonically nondecreasing in the
+    # repeat count, so a flip-rate threshold is only meaningful at a pinned
+    # repeats value. None verdicts count as their own category — an undecided
+    # repeat disagreeing with a decided one IS instability.
+    verdict_groups: dict[tuple[str, str], list] = {}
+    for r in records:
+        verdict_groups.setdefault((r.get("variant"), r.get("case")), []).append(r.get("verdict"))
+    multi = {k: v for k, v in verdict_groups.items() if len(v) >= 2}
+    resample: dict[str, Any] = {}
+    if multi:
+        flips = {k: v for k, v in multi.items() if len(set(v)) > 1}
+        resample = {
+            "resample_flip_rate": len(flips) / len(multi),
+            "resample_agree_rate": sum(
+                Counter(v).most_common(1)[0][1] / len(v) for v in multi.values()
+            )
+            / len(multi),
+            "resample_flagged_cases": [
+                {"variant": variant, "case": case, "verdicts": dict(Counter(map(str, v)))}
+                for (variant, case), v in sorted(flips.items())
+            ],
+        }
+
     return {
+        **resample,
         "tp_rate": tp_rate,
         "tp_rate_by_detector": tp_rate_by_detector,
         "fp_rate": fp_rate,
