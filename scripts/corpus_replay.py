@@ -302,6 +302,21 @@ def main(argv: list[str] | None = None) -> int:
             # "runs/eval-xyz.ndjson" -> "runs/eval-xyz-traces.json"
             traces_out = Path(str(Path(args.out).with_suffix("")) + "-traces.json")
         write_exploration_traces(run, traces_out)
+
+    # Resample-disagreement summary (work#97). stderr so it never contaminates
+    # an NDJSON stream on ``--out -``; present only on repeats>=2 runs.
+    metrics = run.run_meta.get("metrics", {})
+    if "resample_flip_rate" in metrics:
+        print(
+            f"resample disagreement: flip_rate={metrics['resample_flip_rate']:.3f} "
+            f"agree_rate={metrics['resample_agree_rate']:.3f}",
+            file=sys.stderr,
+        )
+        for flagged in metrics.get("resample_flagged_cases", []):
+            print(
+                f"  unstable: {flagged['case']} [{flagged['variant']}] {flagged['verdicts']}",
+                file=sys.stderr,
+            )
     return 0
 
 
