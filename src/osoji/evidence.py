@@ -43,6 +43,8 @@ EvidenceKind = Literal[
     "type_signature",
     "surrounding_code",
     "declared_intent",
+    "callee_edges",
+    "cited_artifact",
 ]
 
 EVIDENCE_KINDS: tuple[EvidenceKind, ...] = (
@@ -54,6 +56,8 @@ EVIDENCE_KINDS: tuple[EvidenceKind, ...] = (
     "type_signature",
     "surrounding_code",
     "declared_intent",
+    "callee_edges",
+    "cited_artifact",
 )
 
 

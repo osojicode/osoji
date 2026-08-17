@@ -1791,3 +1791,35 @@ def test_write_exploration_traces_sidecar(tmp_path):
     assert doc["model"] == "test-model"
     assert doc["mode"] == "exploration"
     assert doc["entries"] == [entry]
+
+
+# --- cb-5 staged-case integration (work#95) ---------------------------------
+
+
+def test_case_239_staged_bundle_carries_deciding_callee_edge(tmp_path):
+    """Deterministic, no-LLM acceptance floor for the callee_edges kind: the
+    staged case_239 claim bundle must surface the nested error-path edge the
+    model historically stopped one frame short of (validateAdapterCommand ->
+    JSON.stringify at type-guards.ts:68, via callee-seed promotion)."""
+
+    cases = [c for c in load_corpus() if "case_239_" in c.key]
+    if not cases:
+        pytest.skip("case_239 fixture not present in this corpus")
+    case = cases[0]
+    config = stage_case(case, tmp_path)
+    claim = build_case_claim(case, config)
+
+    kinds = [ev.kind for ev in claim.finding.evidence]
+    assert "callee_edges" in kinds
+    [callee_ev] = [ev for ev in claim.finding.evidence if ev.kind == "callee_edges"]
+    deciding = [
+        e for e in callee_ev.payload["edges"]
+        if e["caller"] == "validateAdapterCommand" and e["to"] == "JSON.stringify"
+        and 68 in e["lines"]
+    ]
+    assert deciding, (
+        "case_239's deciding edge (validateAdapterCommand -> JSON.stringify @68) "
+        "missing from the staged bundle"
+    )
+    # And the salience addition must not have degraded sufficiency.
+    assert claim.insufficient_evidence is False

@@ -146,7 +146,8 @@ class TestEvidence:
 
     def test_kind_set_is_pinned(self):
         # V1-2 shipped six kinds; V1-4 added surrounding_code + declared_intent
-        # (mined from the bootstrap exploration traces, Checkpoint-1 ratified).
+        # (mined from the bootstrap exploration traces, Checkpoint-1 ratified);
+        # cb-5 added callee_edges + cited_artifact (work#95 + work#80).
         # Growing this set is a claim-builder schema version bump — update
         # claim_builder.CLAIM_BUILDER_SCHEMA_VERSION alongside this pin.
         assert set(EVIDENCE_KINDS) == {
@@ -158,6 +159,8 @@ class TestEvidence:
             "type_signature",
             "surrounding_code",
             "declared_intent",
+            "callee_edges",
+            "cited_artifact",
         }
 
     def test_empty_payload_round_trips(self):
