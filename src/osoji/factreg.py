@@ -86,6 +86,7 @@ class PathRegistry:
         self._osojiignore: list[str] = list(osojiignore or ())
         self._exclude_globs: list[str] = list(exclude_globs or ())
         self._corpus_cache: dict[Path, bool] = {}
+        self._dir_names: dict[Path, frozenset[str]] = {}
         # Buckets for bounded near-match candidates (see near_candidates).
         self._by_parent: dict[str, list[str]] = {}
         self._by_basename: dict[str, list[str]] = {}
@@ -187,11 +188,39 @@ class PathRegistry:
         try:
             if is_under_corpus_snapshot(candidate, self._root, self._corpus_cache):
                 return "path lies under a corpus-case snapshot"
-            if candidate.exists():
+            if candidate.exists() and self._present_case_exact(name):
                 return "path is present in the working tree but outside the indexed universe"
         except (OSError, ValueError):
             return None
         return None
+
+    def _present_case_exact(self, name: str) -> bool:
+        """True only when every segment of ``name`` matches the on-disk casing.
+
+        ``Path.exists()`` is case-insensitive on Windows and on a default macOS
+        volume while the entry set is case-sensitive, so a case-error claim
+        (`docs/Guide.md` for `docs/guide.md`) would read ``undecidable`` on a
+        dev box and ``contradicted`` on Linux CI -- from the same checkout.
+        Zero LLM calls means every verdict is reproducible from the checkout
+        alone, and that has to include reproducible across hosts, so presence
+        is confirmed segment by segment against the real directory listings.
+        A case error in a doc path is also precisely the drift that builds on
+        one filesystem and breaks on another, so it is a finding worth keeping.
+        """
+        assert self._root is not None
+        current = self._root
+        for segment in name.split("/"):
+            names = self._dir_names.get(current)
+            if names is None:
+                try:
+                    names = frozenset(entry.name for entry in current.iterdir())
+                except OSError:
+                    return False
+                self._dir_names[current] = names
+            if segment not in names:
+                return False
+            current = current / segment
+        return True
 
     def exists(self, rel_path: str) -> RegistryAnswer:
         name = _norm_rel(rel_path)
