@@ -326,7 +326,14 @@ class RateLimiter:
 
         reservation_key = reservation_key or "default"
         estimated_input_tokens = max(0, int(estimated_input_tokens))
-        max_output_tokens = max(0, int(max_output_tokens))
+        # Never reserve more than the bucket can ever hold: the allowance is
+        # capped at output_tokens_per_minute (see _refill_tokens), so a larger
+        # reservation would wait for a refill that never arrives
+        # (osojicode/work#104).
+        max_output_tokens = min(
+            max(0, int(max_output_tokens)),
+            int(self._config.output_tokens_per_minute),
+        )
         explicit_output = (
             None if reserved_output_tokens is None else max(0, int(reserved_output_tokens))
         )

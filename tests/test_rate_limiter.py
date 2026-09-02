@@ -553,3 +553,65 @@ class TestAutoTuneFromHeaders:
         asyncio.run(run())
         assert limiter._config.requests_per_minute == 100
         assert limiter._auto_tuned is False
+
+
+class _BoundedClock(FakeClock):
+    """FakeClock that fails the test instead of letting a limiter spin forever."""
+
+    async def sleep(self, seconds: float) -> None:
+        if len(self.sleeps) >= 5:
+            raise AssertionError("limiter waited forever for an oversize reservation")
+        await super().sleep(seconds)
+
+
+class TestOutputReservationCap:
+    """osojicode/work#104: an output reservation can never exceed what the
+    bucket can ever hold — otherwise acquire() waits for a refill that never
+    reaches the requested figure."""
+
+    def test_reservation_never_exceeds_bucket_capacity(self):
+        clock = _BoundedClock()
+        limiter = RateLimiter(
+            RateLimiterConfig(
+                requests_per_minute=600000,
+                input_tokens_per_minute=100_000,
+                output_tokens_per_minute=1000,
+                name="test",
+            ),
+            now_fn=clock.now,
+            sleep_fn=clock.sleep,
+        )
+
+        async def run() -> None:
+            ticket = await limiter.acquire(**_ticket_kwargs(max_output=5000))
+            assert ticket.reserved_output_tokens == 1000
+
+        asyncio.run(run())
+        assert clock.sleeps == []
+
+    def test_wrapper_reserves_at_most_the_provider_output_cap(self):
+        clock = FakeClock()
+        limiter = RateLimiter(
+            RateLimiterConfig(
+                requests_per_minute=600000,
+                input_tokens_per_minute=100_000,
+                output_tokens_per_minute=100_000,
+                name="test",
+            ),
+            now_fn=clock.now,
+            sleep_fn=clock.sleep,
+        )
+        provider = SequenceProvider([_completion(input_tokens=10, output_tokens=5)])
+        provider.max_output_tokens = 300
+        wrapped = RateLimitedProvider(provider, limiter)
+
+        async def run() -> None:
+            result = await wrapped.complete(
+                messages=[Message(role=MessageRole.USER, content="hello")],
+                system=None,
+                options=CompletionOptions(model="test-model", max_tokens=5000),
+            )
+            assert result.rate_limit is not None
+            assert result.rate_limit.reserved_output_tokens == 300
+
+        asyncio.run(run())

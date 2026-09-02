@@ -736,74 +736,16 @@ async def run_audit_async(
     scorecard.degraded_phases = _degraded_phases(config)
     _serialize_json(config.scorecard_path, asdict(scorecard))
 
-    # ── Phase 5.5: doc prompts (optional, after scorecard) ──
-    doc_prompts_result = None
-    phase55_tokens = (0, 0)
-    if doc_prompts and "doc-prompts" not in _exclude:
-        _emit(config, "Osoji: Building concept inventory and writing prompts...")
-        phase_start = time_module.monotonic()
-        from .doc_prompts import build_doc_prompts_async
-
-        def _doc_prompts_progress(stage: str, in_tok: int, out_tok: int) -> None:
-            tok_str = _format_tokens_short(in_tok, out_tok)
-            cum_in, cum_out = rate_limiter.get_cumulative_tokens()
-            cum_str = _format_tokens_short(cum_in, cum_out)
-            _emit(config, f"  [doc prompts: {stage}] {tok_str} (cumulative: {cum_str})")
-
-        doc_prompts_result, phase55_tokens = await build_doc_prompts_async(
-            config, scorecard, rate_limiter=rate_limiter,
-            on_stage_complete=_doc_prompts_progress,
-        )
-        # Populate concept-centric scorecard fields
-        scorecard.concept_total = doc_prompts_result.total_concepts
-        scorecard.concept_fully_documented = doc_prompts_result.fully_documented
-        scorecard.concept_partially_documented = doc_prompts_result.partially_documented
-        scorecard.concept_undocumented = doc_prompts_result.undocumented
-        scorecard.concept_coverage_by_type = doc_prompts_result.coverage_by_type
-        # Re-serialize scorecard with concept coverage
-        _serialize_json(config.scorecard_path, asdict(scorecard))
-        elapsed = time_module.monotonic() - phase_start
-        tok_str = _format_tokens_short(phase55_tokens[0], phase55_tokens[1])
-        _emit(config, f"  [phase 5.5 doc prompts: {elapsed:.1f}s] {tok_str} "
-                     f"{doc_prompts_result.total_concepts} concepts, "
-                     f"{doc_prompts_result.total_prompts} prompts")
-
-    # ── Token summary ──
-    # Collect per-phase token counts
-    phase_tokens: dict[str, tuple[int, int]] = {}
-    if shadow_tokens[0] + shadow_tokens[1] > 0:
-        phase_tokens["Shadow docs"] = shadow_tokens
-    if phase2_tokens[0] + phase2_tokens[1] > 0:
-        phase_tokens["Doc analysis"] = phase2_tokens
-    if phase3_tokens[0] + phase3_tokens[1] > 0:
-        phase_tokens["Debris"] = phase3_tokens
-    if phase3_5_tokens[0] + phase3_5_tokens[1] > 0:
-        phase_tokens["Obligations"] = phase3_5_tokens
-    for name, toks in phase4_tokens.items():
-        display_name = _JUNK_NAME_TO_CLI_FLAG.get(name, name)
-        if toks[0] + toks[1] > 0:
-            phase_tokens[display_name] = toks
-    if phase55_tokens[0] + phase55_tokens[1] > 0:
-        phase_tokens["Doc prompts"] = phase55_tokens
-
-    in_tok, out_tok = rate_limiter.get_cumulative_tokens()
-    total_tok = in_tok + out_tok
-    if total_tok > 0:
-        _emit(config, f"API tokens: {in_tok:,}^ {out_tok:,}v ({total_tok:,} total)")
-    if len(phase_tokens) > 1:
-        _emit(config, "Token consumption by phase:")
-        max_name_len = max(len(n) for n in phase_tokens)
-        for name, (pt_in, pt_out) in phase_tokens.items():
-            pt_total = pt_in + pt_out
-            _emit(config, f"  {name:<{max_name_len}}  {pt_in:>10,}^ {pt_out:>8,}v  ({pt_total:,})")
-        _emit(config, f"  {'-' * (max_name_len + 35)}")
-        _emit(config, f"  {'Total':<{max_name_len}}  {in_tok:>10,}^ {out_tok:>8,}v  ({total_tok:,})")
-
+    # ── Persist the completed analysis BEFORE the optional doc-prompts phase ──
+    # (osojicode/work#104): a Phase 5.5 failure used to propagate out of this
+    # function before audit-result.json, the verdict manifest and the decided-
+    # findings ledger were written, discarding the whole run's triage. All
+    # three are written here first and the result is refreshed afterwards.
     result = AuditResult(
         issues=issues,
         scorecard=scorecard,
         config_snapshot=config.config_snapshot,
-        doc_prompts=doc_prompts_result,
+        doc_prompts=None,
     )
     serialize_audit_result(config, result)
 
@@ -840,14 +782,6 @@ async def run_audit_async(
         _record_degradation(config, "manifest-write", exc)
         _emit(config, f"[warn] manifest-write failed; findings kept unverified: {exc}")
 
-    # manifest-write can add a degradation after the scorecard and audit
-    # result were first serialized above; refresh and re-serialize both so
-    # this run's persisted output agrees with the in-memory result returned
-    # below (mirrors the Phase 5.5 doc-prompts re-serialize).
-    scorecard.degraded_phases = _degraded_phases(config)
-    _serialize_json(config.scorecard_path, asdict(scorecard))
-    serialize_audit_result(config, result)
-
     # osojicode/work#35: the decided-findings ledger -- every triage verdict
     # decided this run, in one machine-readable file `osoji corpus emit`
     # reads to snapshot a sweep-proposed corpus case. Lives in analysis_root
@@ -860,6 +794,84 @@ async def run_audit_async(
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "findings": config.decided_ledger,
     })
+
+    # ── Phase 5.5: doc prompts (optional, after everything is on disk) ──
+    # Best-effort like the Triage seams: a failure here is recorded as a
+    # degraded phase, never raised — the audit result above already exists.
+    doc_prompts_result = None
+    phase55_tokens = (0, 0)
+    if doc_prompts and "doc-prompts" not in _exclude:
+        _emit(config, "Osoji: Building concept inventory and writing prompts...")
+        phase_start = time_module.monotonic()
+        from .doc_prompts import build_doc_prompts_async
+
+        def _doc_prompts_progress(stage: str, in_tok: int, out_tok: int) -> None:
+            tok_str = _format_tokens_short(in_tok, out_tok)
+            cum_in, cum_out = rate_limiter.get_cumulative_tokens()
+            cum_str = _format_tokens_short(cum_in, cum_out)
+            _emit(config, f"  [doc prompts: {stage}] {tok_str} (cumulative: {cum_str})")
+
+        try:
+            doc_prompts_result, phase55_tokens = await build_doc_prompts_async(
+                config, scorecard, rate_limiter=rate_limiter,
+                on_stage_complete=_doc_prompts_progress,
+            )
+        except Exception as exc:
+            _record_degradation(config, "doc-prompts", exc)
+            _emit(config, f"[warn] doc-prompts failed; audit result kept "
+                          f"without concept coverage: {exc}")
+        else:
+            result.doc_prompts = doc_prompts_result
+            # Populate concept-centric scorecard fields
+            scorecard.concept_total = doc_prompts_result.total_concepts
+            scorecard.concept_fully_documented = doc_prompts_result.fully_documented
+            scorecard.concept_partially_documented = doc_prompts_result.partially_documented
+            scorecard.concept_undocumented = doc_prompts_result.undocumented
+            scorecard.concept_coverage_by_type = doc_prompts_result.coverage_by_type
+            elapsed = time_module.monotonic() - phase_start
+            tok_str = _format_tokens_short(phase55_tokens[0], phase55_tokens[1])
+            _emit(config, f"  [phase 5.5 doc prompts: {elapsed:.1f}s] {tok_str} "
+                         f"{doc_prompts_result.total_concepts} concepts, "
+                         f"{doc_prompts_result.total_prompts} prompts")
+
+    # manifest-write and doc-prompts can add a degradation (and doc-prompts
+    # adds concept coverage) after the scorecard and audit result were first
+    # serialized above; refresh and re-serialize both so this run's persisted
+    # output agrees with the in-memory result returned below.
+    scorecard.degraded_phases = _degraded_phases(config)
+    _serialize_json(config.scorecard_path, asdict(scorecard))
+    serialize_audit_result(config, result)
+
+    # ── Token summary ──
+    # Collect per-phase token counts
+    phase_tokens: dict[str, tuple[int, int]] = {}
+    if shadow_tokens[0] + shadow_tokens[1] > 0:
+        phase_tokens["Shadow docs"] = shadow_tokens
+    if phase2_tokens[0] + phase2_tokens[1] > 0:
+        phase_tokens["Doc analysis"] = phase2_tokens
+    if phase3_tokens[0] + phase3_tokens[1] > 0:
+        phase_tokens["Debris"] = phase3_tokens
+    if phase3_5_tokens[0] + phase3_5_tokens[1] > 0:
+        phase_tokens["Obligations"] = phase3_5_tokens
+    for name, toks in phase4_tokens.items():
+        display_name = _JUNK_NAME_TO_CLI_FLAG.get(name, name)
+        if toks[0] + toks[1] > 0:
+            phase_tokens[display_name] = toks
+    if phase55_tokens[0] + phase55_tokens[1] > 0:
+        phase_tokens["Doc prompts"] = phase55_tokens
+
+    in_tok, out_tok = rate_limiter.get_cumulative_tokens()
+    total_tok = in_tok + out_tok
+    if total_tok > 0:
+        _emit(config, f"API tokens: {in_tok:,}^ {out_tok:,}v ({total_tok:,} total)")
+    if len(phase_tokens) > 1:
+        _emit(config, "Token consumption by phase:")
+        max_name_len = max(len(n) for n in phase_tokens)
+        for name, (pt_in, pt_out) in phase_tokens.items():
+            pt_total = pt_in + pt_out
+            _emit(config, f"  {name:<{max_name_len}}  {pt_in:>10,}^ {pt_out:>8,}v  ({pt_total:,})")
+        _emit(config, f"  {'-' * (max_name_len + 35)}")
+        _emit(config, f"  {'Total':<{max_name_len}}  {in_tok:>10,}^ {out_tok:>8,}v  ({total_tok:,})")
 
     # #160: everything above serialized this run's completed analysis (audit
     # result, scorecard with degraded_phases, decided-findings ledger). Only
