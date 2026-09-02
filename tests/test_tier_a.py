@@ -101,3 +101,15 @@ def test_undecidable_path_claim_carries_no_remediation(temp_dir):
 
     assert packet.verdict == "undecidable"
     assert packet_remediation(packet) == ""
+
+
+def test_unanchored_path_claim_is_undecidable_not_contradicted(temp_dir):
+    """The anchor rule at the verifier: `tools/list` is an RPC method, not a path."""
+    paths, scripts = _setup(temp_dir)
+
+    packets = verify_doc_claims(
+        [_claim("path_exists", "tools/list"), _claim("path_exists", "src/nope.ts")], paths, scripts
+    )
+
+    assert [p.verdict for p in packets] == ["undecidable", "contradicted"]
+    assert packets[0].note == "root segment not in the tree; not a repo-relative claim"

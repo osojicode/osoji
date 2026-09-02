@@ -87,6 +87,9 @@ class PathRegistry:
         self._exclude_globs: list[str] = list(exclude_globs or ())
         self._corpus_cache: dict[Path, bool] = {}
         self._dir_names: dict[Path, frozenset[str]] = {}
+        # Every name that appears as a first path segment -- the repository's
+        # top-level entries, files and directories alike. See `anchored`.
+        self._top_level: set[str] = {entry.split("/", 1)[0] for entry in entries}
         # Buckets for bounded near-match candidates (see near_candidates).
         self._by_parent: dict[str, list[str]] = {}
         self._by_basename: dict[str, list[str]] = {}
@@ -222,6 +225,21 @@ class PathRegistry:
             current = current / segment
         return True
 
+    def anchored(self, name: str) -> bool:
+        """True when ``name``'s first segment is a top-level entry of the tree.
+
+        A repo-relative path claim is decidable only if its root is in the
+        repository: `src/nope.ts` in a tree that has `src/` is a claim about
+        this checkout and can be contradicted, while `tools/list` in a tree
+        with no `tools` never addressed the checkout at all. The unanchored
+        shape is what foreign namespaces have in common -- RPC method names,
+        `org/repo` slugs, `vendor/model` ids, container image refs, paths
+        quoted from another repository -- and the principle (a claim whose
+        root is absent is not a claim about this tree) covers all of them
+        without enumerating any.
+        """
+        return name.split("/", 1)[0] in self._top_level
+
     def exists(self, rel_path: str) -> RegistryAnswer:
         name = _norm_rel(rel_path)
         searched = ["git-tracked tree (walker-filtered)"]
@@ -243,6 +261,15 @@ class PathRegistry:
                 searched=searched,
                 complete=False,
                 note=f"{reason}; absence cannot be established",
+            )
+        if not self.anchored(name):
+            return RegistryAnswer(
+                name=name,
+                found=False,
+                namespace=self.namespace,
+                searched=searched,
+                complete=False,
+                note="root segment not in the tree; not a repo-relative claim",
             )
         return RegistryAnswer(
             name=name,
