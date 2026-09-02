@@ -5,7 +5,7 @@ import json
 from osoji.claims_docs import DocClaim
 from osoji.config import Config
 from osoji.factreg import PathRegistry, ScriptRegistry
-from osoji.tier_a import EvidencePacket, packet_message, verify_doc_claims
+from osoji.tier_a import EvidencePacket, packet_message, packet_remediation, verify_doc_claims
 
 
 def _setup(temp_dir):
@@ -113,3 +113,33 @@ def test_unanchored_path_claim_is_undecidable_not_contradicted(temp_dir):
 
     assert [p.verdict for p in packets] == ["undecidable", "contradicted"]
     assert packets[0].note == "root segment not in the tree; not a repo-relative claim"
+
+
+def test_creation_modality_path_claim_is_undecidable(temp_dir):
+    """"Create `src/handlers/new_tool.ts` with:" asserts nothing about the tree."""
+    paths, scripts = _setup(temp_dir)
+    claim = DocClaim(kind="path_exists", name="src/handlers/new_tool.ts", doc_path="README.md",
+                     line=7, text="src/handlers/new_tool.ts", ecosystem=None, in_fence=False,
+                     modality="creation")
+
+    (packet,) = verify_doc_claims([claim], paths, scripts)
+
+    assert packet.verdict == "undecidable"
+    assert packet.note == "creation instruction, existence not asserted"
+    assert packet_remediation(packet) == ""
+
+
+def test_creation_modality_is_undecidable_even_when_the_path_exists(temp_dir):
+    """The guard is about what the line asserts, not about what the tree holds.
+
+    A "create it" line makes no existence claim either way, so the verdict is
+    the same whether or not the artifact happens to be there. Nothing is lost
+    downstream: only `contradicted` packets become findings.
+    """
+    paths, scripts = _setup(temp_dir)
+    claim = DocClaim(kind="path_exists", name="src/server.ts", doc_path="README.md", line=7,
+                     text="src/server.ts", ecosystem=None, in_fence=False, modality="creation")
+
+    (packet,) = verify_doc_claims([claim], paths, scripts)
+
+    assert packet.verdict == "undecidable"

@@ -46,6 +46,18 @@ _NPM_SCRIPT_ALIASES = {"test", "start", "stop", "restart"}
 
 _PLACEHOLDER_SEGMENTS = {"path", "to", "your", "my", "some", "example", "foo", "bar"}
 
+# Principle: instructions to create do not assert existence. A line that tells
+# the reader to make the artifact ("Create `src/x.ts` with:", "save it as
+# `config/local.json`") is correct precisely *while* the artifact is absent,
+# so checking it against the checkout inverts the doc's meaning. The verb is
+# what separates the two readings, and it is looked for as a whole word so
+# that past-tense and derived forms ("created", "generator") -- which describe
+# a state rather than instruct -- are left alone.
+_CREATION_RE = re.compile(
+    r"\b(?:create|add|new|save|write|generate|mkdir|touch|put|place|scaffold)\b",
+    re.IGNORECASE,
+)
+
 
 @dataclass(frozen=True)
 class DocClaim:
@@ -56,6 +68,11 @@ class DocClaim:
     text: str                # the literal token as written
     ecosystem: str | None    # "npm" | "make" | None
     in_fence: bool
+    # "exact": the doc points at an artifact it says is there.
+    # "creation": the same line instructs the reader to create it, so the
+    # line asserts nothing about the current checkout (see _CREATION_RE).
+    # Appended with a default so the positional order above is unchanged.
+    modality: str = "exact"
 
 
 def is_placeholder(token: str) -> bool:
@@ -120,14 +137,17 @@ def extract_doc_claims(doc_path: str, content: str) -> list[DocClaim]:
     in_fence = False
     fence_lang = ""
 
+    modality = "exact"
+
     def add(kind: str, name: str, line: int, text: str, eco: str | None) -> None:
         key = (kind, name, line, eco)
         if key in seen:
             return
         seen.add(key)
-        claims.append(DocClaim(kind, name, doc_path, line, text, eco, in_fence))
+        claims.append(DocClaim(kind, name, doc_path, line, text, eco, in_fence, modality))
 
     for i, raw in enumerate(content.splitlines(), start=1):
+        modality = "creation" if _CREATION_RE.search(raw) else "exact"
         fence_m = _FENCE_RE.match(raw)
         if fence_m:
             in_fence = not in_fence

@@ -47,6 +47,17 @@ def verify_doc_claims(
 ) -> list[EvidencePacket]:
     packets: list[EvidencePacket] = []
     for claim in claims:
+        if claim.kind == "path_exists" and claim.modality == "creation":
+            # An instruction to create the artifact does not assert that it
+            # exists, so the checkout cannot contradict it (claims_docs
+            # _CREATION_RE). No namespace was searched: this is a statement
+            # about the claim, not about the tree.
+            packets.append(EvidencePacket(
+                claim=claim, verdict="undecidable", namespace=PathRegistry.namespace,
+                index_revision=index_revision,
+                note="creation instruction, existence not asserted",
+            ))
+            continue
         if claim.kind == "script_exists":
             answer = scripts.exists(claim.name, claim.ecosystem)
         elif claim.kind == "path_exists":
