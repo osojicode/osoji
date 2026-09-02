@@ -30,6 +30,7 @@ from osoji.audit_manifest import (
 from osoji.claim_builder import build_debris_claims
 from osoji.cli import main
 from osoji.config import Config
+from osoji.doc_cache import load_doc_cache, write_doc_cache
 from osoji.llm.types import CompletionResult, ToolCall
 
 # --- environment helpers (mold of test_audit_obligations_cutover) -------------
@@ -310,3 +311,178 @@ def test_cli_audit_help_shows_incremental_flags():
     assert result.exit_code == 0
     assert "--incremental" in result.output
     assert "--since" in result.output
+
+
+# --- osojicode/work#106: doc-analysis result cache ------------------------------
+
+
+class _NoStats:
+    """Stand-in for LoggingProvider.stats, which _run_phase2_async reads."""
+
+    total_input_tokens = 0
+    total_output_tokens = 0
+
+
+class _DocProvider:
+    """Routes on the forced tool: analyze_document proposes one finding (or
+    raises when the cache must serve it); submit_triage_verdicts confirms."""
+
+    def __init__(self, *, fail_analyze: bool = False):
+        self.analyze_calls = 0
+        self._fail_analyze = fail_analyze
+        self.stats = _NoStats()
+
+    async def complete(self, messages, system, options):
+        name = (options.tool_choice or {}).get("name")
+        if name == "analyze_document":
+            self.analyze_calls += 1
+            if self._fail_analyze:
+                raise RuntimeError("analyze_document must be served from the cache")
+            return CompletionResult(
+                content=None,
+                tool_calls=[ToolCall(id="a1", name="analyze_document", input={
+                    "classification": "reference",
+                    "confidence": 0.9,
+                    "classification_reason": "doc",
+                    "findings": [{
+                        "confirmed": True,
+                        "category": "stale_content",
+                        "severity": "error",
+                        "description": "says X, code does Y",
+                        "evidence_shadow_path": "src/x.py",
+                        "evidence_quote": "q",
+                        "remediation": "fix",
+                        "search_terms": ["X"],
+                    }],
+                })],
+                input_tokens=10, output_tokens=5, model="test", stop_reason="tool_use",
+            )
+        if name == "submit_triage_verdicts":
+            validator = options.tool_input_validators[0]
+            n = len(validator("submit_triage_verdicts", {"verdicts": []}))
+            return CompletionResult(
+                content=None,
+                tool_calls=[ToolCall(id="t1", name="submit_triage_verdicts", input={
+                    "verdicts": [
+                        {"batch_index": i, "verdict": "confirmed", "confidence": 0.9,
+                         "reasoning": "genuine drift"}
+                        for i in range(n)
+                    ],
+                })],
+                input_tokens=10, output_tokens=5, model="test", stop_reason="tool_use",
+            )
+        raise AssertionError(f"unexpected forced tool {name!r}")
+
+    async def close(self):
+        pass
+
+
+def _doc_env(temp_dir: Path) -> None:
+    _write(temp_dir, "README.md", "# Project\n\nSee `src/x.py` for the entry point.\n")
+    _write(temp_dir, "src/x.py", "def f():\n    pass\n")
+    _write(temp_dir, ".osoji/shadow/src/x.py.shadow.md", "# x\n\nshadow of x\n")
+
+
+_DOC_EXCLUDE = {"shadow", "debris"}
+
+
+def _run_doc_audit(temp_dir, provider, **kwargs):
+    config = Config(root_path=temp_dir, respect_gitignore=False, quiet=True)
+    if kwargs.pop("force", False):
+        config.force = True
+    with patch("osoji.audit.create_runtime", return_value=(provider, MagicMock())):
+        result = asyncio.run(run_audit_async(
+            config, fix_shadow=False, exclude=_DOC_EXCLUDE, **kwargs,
+        ))
+    return config, result
+
+
+def _doc_issues(result):
+    return sorted(
+        (str(i.path), i.category, i.message)
+        for i in result.issues
+        if i.exclude_key == "doc-analysis"
+    )
+
+
+def test_day_zero_doc_run_writes_doc_cache(temp_dir):
+    _doc_env(temp_dir)
+
+    config, result = _run_doc_audit(temp_dir, _DocProvider())
+
+    cache = load_doc_cache(config.doc_analysis_cache_path)
+    assert cache is not None
+    assert cache["osoji_version"] == current_version()
+    assert set(cache["entries"]) == {"README.md"}
+    assert result.scorecard.doc_cache_hit_rate is None   # nothing was looked up
+
+
+def test_incremental_doc_rerun_serves_cache_and_matches_day_zero(temp_dir):
+    _doc_env(temp_dir)
+    _, result1 = _run_doc_audit(temp_dir, _DocProvider())
+
+    provider = _DocProvider(fail_analyze=True)
+    _, result2 = _run_doc_audit(temp_dir, provider, incremental=True)
+
+    assert provider.analyze_calls == 0
+    assert result2.scorecard.doc_cache_hit_rate == 1.0
+    assert len(_doc_issues(result1)) == 1
+    assert _doc_issues(result2) == _doc_issues(result1)
+
+
+def test_plain_doc_rerun_does_not_read_cache(temp_dir):
+    _doc_env(temp_dir)
+    _run_doc_audit(temp_dir, _DocProvider())
+
+    provider = _DocProvider()
+    _, result = _run_doc_audit(temp_dir, provider)
+
+    assert provider.analyze_calls == 1
+    assert result.scorecard.doc_cache_hit_rate is None
+
+
+def test_force_wins_over_incremental_for_doc_cache(temp_dir):
+    _doc_env(temp_dir)
+    _run_doc_audit(temp_dir, _DocProvider())
+
+    provider = _DocProvider()
+    _, result = _run_doc_audit(temp_dir, provider, incremental=True, force=True)
+
+    assert provider.analyze_calls == 1
+    assert result.scorecard.doc_cache_hit_rate is None
+
+
+def test_stale_osoji_version_forces_doc_reanalysis(temp_dir):
+    _doc_env(temp_dir)
+    config, _ = _run_doc_audit(temp_dir, _DocProvider())
+    stale = load_doc_cache(config.doc_analysis_cache_path)
+    write_doc_cache(
+        config.doc_analysis_cache_path, stale["entries"],
+        commit=stale["audited_commit"], version="stale",
+    )
+
+    provider = _DocProvider()
+    _, result = _run_doc_audit(temp_dir, provider, incremental=True)
+
+    assert provider.analyze_calls == 1
+    assert result.scorecard.doc_cache_hit_rate is None
+
+
+def test_doc_cache_write_failure_is_recorded_not_fatal(temp_dir):
+    _doc_env(temp_dir)
+
+    with patch("osoji.audit.write_doc_cache", side_effect=OSError("disk full")):
+        config, result = _run_doc_audit(temp_dir, _DocProvider())
+
+    assert {"phase": "doc-cache-write", "error": "disk full"} in config.audit_degradations
+    assert "doc-cache-write" in result.scorecard.degraded_phases
+    assert len(_doc_issues(result)) == 1
+
+
+def test_cli_audit_help_mentions_doc_cache():
+    runner = CliRunner()
+
+    result = runner.invoke(main, ["audit", "--help"])
+
+    assert result.exit_code == 0
+    assert "doc-analysis-cache.json" in result.output

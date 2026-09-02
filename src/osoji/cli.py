@@ -346,7 +346,8 @@ def stats(ctx: click.Context, path: Path, provider: str | None, model: str | Non
          "dead-code, dead-params, dead-plumbing, dead-deps, dead-cicd, orphaned-files")
 @click.option("--force", "-f", is_flag=True, help="Regenerate all shadow docs and findings from scratch")
 @click.option("--incremental", is_flag=True,
-    help="Reuse cached Triage verdicts from .osoji/audit-manifest.json for findings whose evidence is unchanged")
+    help="Reuse cached Triage verdicts (.osoji/audit-manifest.json) and doc-analysis "
+         "results (.osoji/doc-analysis-cache.json) for inputs unchanged since the last audit")
 @click.option("--since", "since_ref", metavar="REF", default=None,
     help="Report files changed since REF (git); implies --incremental")
 @click.pass_context
@@ -370,7 +371,9 @@ def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_co
     \b
     Incremental audit:
     - --incremental reuses cached Triage verdicts for findings whose evidence
-      is unchanged since the last audit (--force always re-triages)
+      is unchanged since the last audit, and cached doc-analysis results for
+      docs whose content, matched shadow docs and rules are unchanged
+      (--force always re-triages and re-analyzes)
     - --since REF also reports which files changed since a git ref
 
     Exit codes: 0 = passed, 1 = errors found
