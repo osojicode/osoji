@@ -130,3 +130,17 @@ def test_script_registry_any_ecosystem_lookup(temp_dir):
     assert reg.exists("build").found is True
     assert reg.exists("test").found is True
     assert reg.exists("nope").found is False
+
+
+def test_script_registry_ignores_manifests_under_default_ignored_dirs(temp_dir):
+    config = _repo(temp_dir, {
+        "node_modules/some-dep/package.json": json.dumps(
+            {"name": "some-dep", "scripts": {"postinstall": "node build.js"}}
+        ),
+        "package.json": json.dumps({"name": "root", "scripts": {"build": "tsc"}}),
+    })
+    reg = ScriptRegistry.from_config(config)
+
+    assert reg.exists("postinstall", "npm").found is False
+    assert reg.exists("build", "npm").found is True
+    assert reg.manifests == ["package.json"]

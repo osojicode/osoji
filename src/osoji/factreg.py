@@ -173,13 +173,29 @@ class ScriptRegistry:
     def from_config(cls, config: Config) -> "ScriptRegistry":
         entries: dict[str, dict[str, list[Location]]] = {}
         manifests: dict[str, list[str]] = {}
+        osojiignore = config.load_osojiignore()
         paths, _ = list_repo_files(config)
         for path in sorted(paths):
             p = path if path.is_absolute() else config.root_path / path
             eco = _ECOSYSTEM_BY_MANIFEST.get(p.name)
             if eco is None or not p.is_file():
                 continue
-            rel = _norm_rel(str(p.relative_to(config.root_path)))
+            try:
+                relative = p.relative_to(config.root_path)
+            except ValueError:
+                continue
+            # list_repo_files only filters by .gitignore (or does a raw walk);
+            # default ignore patterns (node_modules, vendor, .osoji, ...) and
+            # .osojiignore are applied here, matching PathRegistry.from_config
+            # and every other consumer of list_repo_files in the codebase
+            # (discover_files, deadcode.py, etc) -- otherwise a dependency's
+            # own manifest (e.g. a vendored package.json) would be treated as
+            # a first-party project manifest.
+            if _matches_ignore(relative, config.ignore_patterns):
+                continue
+            if osojiignore and _matches_ignore(relative, osojiignore):
+                continue
+            rel = _norm_rel(str(relative))
             try:
                 content = p.read_text(encoding="utf-8")
             except (OSError, UnicodeDecodeError):
