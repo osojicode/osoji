@@ -1,0 +1,13 @@
+# run 1 cost notes (presweep 14610d61)
+- shadow regen: started ~12:00Z 2026-09-02, all 782 files + 199 dirs regenerated (impl-hash invalidation)
+- last progress line: [##############################] 100% 4.8M^ 2.3Mv [199/199] [OK] mcp-debugger-p
+- FAIL count: 2
+- audit: started 12:17:18Z, pid 4763
+- shadow regen final: 4.8M in / 2.3M out tokens, 980 OK, 2 FAIL
+- FAIL 1: src/proxy/cdp-function-breakpoint-bridge.ts skipped as "binary": one raw NUL byte inside a template string at L84 (`${name}\x00${condition}` key separator, present since #296 2026-08-10, still on origin/main). mcp-debugger fix: use the `\0` escape. osoji improvement: a text file with a lone NUL is not binary — the walker's binary heuristic silently drops a whole source file (no shadow, no findings, no warning in the audit output).
+- run 1 (crashed at doc-prompts, work#104): 12:17-12:51Z; sticker ~$125 (opus 94 calls / 6.0M in = $102; sonnet $21; haiku $2)
+- run 1b (--exclude doc-prompts): 12:52-13:24Z; sticker ~$216 (opus 173 calls / 11.0M in = $188; sonnet $23; haiku $5); result: 329 issues, 43E/108W/178I, 278 confirmed / 13 uncertain / 38 debris no-verdict; 103 line-anchored, 226 file-level
+- osoji self-audit (teams smoke): sticker ~$82 (opus $54, sonnet $28); pushed run 86f68ae1
+- session sticker total ≈ $472 before caching; dashboard reading pending from JF
+- mechanical scoring: 156 checkout corrections in #643 → 24 phrase-anchored / 90 file-level candidates / 42 no osoji finding on the file; 91 osoji findings on diff files, 238 on untouched files
+- bug table: 0 of 8 pre-registered code defects surfaced (grep on path+message; candidates were unrelated findings)
