@@ -6,9 +6,12 @@ what was found, and the nearest declared names when nothing was. No LLM.
 
 from __future__ import annotations
 
+import subprocess
 from dataclasses import asdict, dataclass, field
+from pathlib import Path
 
 from .claims_docs import DocClaim
+from .config import Config
 from .factreg import Location, PathRegistry, RegistryAnswer, ScriptRegistry
 
 
@@ -77,3 +80,35 @@ def packet_remediation(p: EvidencePacket) -> str:
     if p.near:
         return f"Replace `{p.claim.text}` with the declared name (nearest: {p.near[0]}), or declare it."
     return f"Declare `{p.claim.text}` or remove the reference from the doc."
+
+
+def _index_revision(root: Path) -> str:
+    """Return the short git sha the registries were built from ("" if unknown)."""
+
+    try:
+        out = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=root,
+                             capture_output=True, text=True, timeout=10)
+        return out.stdout.strip() if out.returncode == 0 else ""
+    except (OSError, subprocess.SubprocessError):
+        return ""
+
+
+def run_tier_a(config: Config) -> list[EvidencePacket]:
+    """Discover docs, extract literal claims, verify against the registries."""
+
+    from .claims_docs import extract_doc_claims
+    from .doc_analysis import find_doc_candidates
+
+    paths = PathRegistry.from_config(config)
+    scripts = ScriptRegistry.from_config(config)
+    rev = _index_revision(config.root_path)
+    packets: list[EvidencePacket] = []
+    for doc in find_doc_candidates(config):
+        try:
+            content = doc.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        rel = str(doc.relative_to(config.root_path)).replace("\\", "/")
+        claims = extract_doc_claims(rel, content)
+        packets.extend(verify_doc_claims(claims, paths, scripts, index_revision=rev))
+    return packets
